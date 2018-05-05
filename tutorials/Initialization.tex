@@ -1,0 +1,100 @@
+\documentclass{article}
+\input{header.tex}
+
+\title{Spine Tutorial 1 \\ Initialisierung}
+
+\begin{document}
+
+\section{Voraussetzungen}
+
+\begin{enumerate}
+\item Ikarus Scriptpaket
+\item LeGo Scriptpaket
+\item Spine Scriptpaket Version 0.9.7+
+\end{enumerate}
+
+\section{Einleitung}
+
+Spine erlaubt es neue Scriptfeatures zu nutzen, solange die Modifikation über Spine gestartet wurde. Sollte die Modifikation ohne Spine gestartet werden, so werden sämtliche Aufrufe von Spine-Funktionen ignoriert.
+
+\section{Spine in Scripts einbinden}
+
+Spine in bestehende Scripte zu integrieren ist äußerst einfach. Wenn du das Scriptpaket geladen hast, entpacke das Archiv den Scripts-Ordner (\_work/data/Scripts/Content) in deiner Modding-Installation von Gothic. Anschließend musst du nur noch die Gothic.src öffnen und die folgende Zeile eintragen:\\
+
+\begin{lstlisting}
+Spine\Spine.src
+\end{lstlisting}
+
+Wichtig ist, dass diese Zeile unter Ikarus, LeGo und der AI/AI\_Intern/AI\_Constants.d steht.\\
+Wenn du jetzt die Scripte erneut compilierst, wird Spine bereits mitcompiliert.
+
+\section{Module}
+
+Spine bietet verschiedene Module wie auch LeGo, die sich einzeln aktivieren lassen. Das sorgt dafür, dass zum Einen nicht unnötig viele Resourcen belegt werden. Zum Anderen vermeidet es, das zukünftige Features, die die Modifikation sowieso nicht ohne ein weiteres Update der Scripts nutzen kann, gar nicht erst initialisiert werden. Die verschiedenen Module sollen nun kurz dargestellt werden.
+
+\subsection{Username}
+
+Das Username-Modul ist sehr klein und bietet lediglich die Möglichkeit, des Username des aktuell eingeloggten Spine-Users zu ermitteln. Es kann nützlich sein für Modifikationen, die den Spieler personalisieren möchten. Das kann z.B. für Multiplayer oder Highscores der Fall sein.
+
+\subsection{Erfolge}
+
+Das Erfolge-Modul ermöglicht es auf sehr einfache Weise Erfolge zu implementieren. Man muss lediglich ein paar Werte konfigurieren und an der richtigen Stelle Spine\_UnlockAchievement aufrufen. Mehr Informationen dazu gibt es in \textit{''Tutorial 2 - Erfolge''}.
+
+\subsection{Scores}
+
+Mit dem Scores-Modul lassen sich Highscores und Rankings umsetzen. Es bietet verschiedene Methoden um einen Score zu setzen, sowie Informationen über die Scores abzufragen. Dazu gehören sowohl der eigene Score als auch Scores und Usernamen bestimmter Plätze im Highscore. Auch der eigene Platz lässt sich abfragen. Mehr dazu gibt es in \textit{''Tutorial 3 - Scores''}.
+
+\subsection{Multiplayer}
+
+Mit dem Multiplayer-Modul lassen verschiedene Arten von Multiplayer-Modifikationen realisieren. Zugrunde liegt eine mächtige Netzwerkbibliothek für die Kommunikation zwischen verschiedenen Spielern. Ebenfalls verfügbar ist ein Matchmaking-System. Wurde ein Match gefunden, so können beliebige\footnote{Beliebig insofern entsprechende Nachrichtentypen von Spine zur Verfügung gestellt werden. Das Multiplayer-Modul ist derzeit noch experimentell} Daten übertragen werden.
+
+\subsection{Savegame-übergreifende Daten}
+
+Mit dem Overall-Save-Modul lassen sich Daten Savegame-übergreifend für eine Modifikation speichern und auslesen. Das kann nützlich sein, wenn man beispielsweise Erfolge erstellen möchte nach dem Schema ''Spiel mit allen Gilden einmal abgeschlossen'' oder ''x Gegner besiegt''. Mehr Informationen dazu gibt es in \textit{''Tutorial 4 - Savegame-übergreifende Daten''}.
+
+\section{Initialisierung}
+
+Um Spine nun zu initialisieren reicht eine weitere Zeile Code.
+
+\begin{lstlisting}
+Spine_Init(SPINE_MODULE_GETCURRENTUSERNAME);
+\end{lstlisting}
+
+Die Zeile muss in die Funktion \textit{INIT\_GLOBAL} in der Startup.d. Wichtig ist, dass das NACH der Initialisierung von LeGo geschieht. Eine komplette \textit{INIT\_GLOBAL}-Funktion kann daher wie folgt aussehen:
+
+\begin{lstlisting}
+func void INIT_GLOBAL()
+{
+	// wird fuer jede Welt aufgerufen (vor INIT_<LevelName>)
+	Game_InitGerman();
+
+	LeGo_Init(LeGo_All);
+	Spine_Init(SPINE_MODULE_GETCURRENTUSERNAME);
+};
+\end{lstlisting}
+
+Will man mehrere Spine-Module aktivieren, kann man diese einfach verodern. So kann mit mit der Zeile
+
+\begin{lstlisting}
+Spine_Init(SPINE_MODULE_GETCURRENTUSERNAME | SPINE_MODULE_ACHIEVEMENTS);
+\end{lstlisting}
+
+sowohl das Username- als auch das Erfolge-Modul aktivieren.\\
+
+Hat man die Initialisierung abgeschlossen, kann man nun mit der Zeile
+
+\begin{lstlisting}
+Print(ConcatStrings("Username: ", Spine_GetCurrentUsername()));
+\end{lstlisting}
+
+in einer sekündlichen Schleife den Namen des eingeloggten Spielers ausgeben.
+
+\section{Spine-Funktionen testen}
+
+Führt man das Beispiel nun aus, wird man sehen, dass auf dem Bildschirm immer nur \textit{Username: } erscheint. Das liegt daran, wie bereits in der Einleitung erwähnt, dass die Spine-Funktionen nur dann eine Auswirkung haben, wenn die Modifikation über Spine gestartet wurde. Solange die Modifikation allerdings nicht Teil der Spine-Datenbank ist - und das ist eine noch in Entwicklung befindliche Modifikation normalerweise nicht - ist sie das natürlich noch nicht. Dafür gibt es den \textit{Entwicklermodus}. Der Entwicklermodus simuliert eine bereits in der Datenbank enthaltene Modifikation. Aktivieren lässt er sich in den Einstellungen von Spine im Entwickler-Tab.\\
+
+Ist der Entwicklermodus aktiv, werden alle über Spine installierte Modifikationen ausgeblendet und nur manuell installierte oder eben eigene lokale Modifikationen angezeigt. Startet man nun die Modifikation, so können alle Spine-Funktionen getestet werden. Wichtig zu beachten ist allerdings, dass Spine aktuell noch keine Möglichkeit zur Verfügung stellt, die Scripte zu compilieren. Das heißt man muss diese noch mit dem alten Modstarter compilieren und zum Testen dann über Spine starten.\\
+
+Startet man nun seine Modifikation über Spine, so funktioniert auch die Ausgabe des Usernames.
+
+\end{document}

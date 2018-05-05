@@ -1,0 +1,63 @@
+\documentclass{article}
+\input{header.tex}
+
+\title{Spine Tutorial 6 \\ Gamepad}
+
+\begin{document}
+
+\section{Voraussetzungen}
+
+\begin{enumerate}
+\item Ikarus Scriptpaket
+\item LeGo Scriptpaket
+\item Spine Scriptpaket Version 1.7.0+
+\item Tutorial 1 - Initialisierung
+\end{enumerate}
+
+\section{Einleitung}
+
+Dieses Tutorial befasst sich mit der Benutzung des Gamepads auf Scriptseite. Benötigt wird das Modul \textit{SPINE\_MODULE\_GAMEPAD}. Es können alle Gamepadtasten abgefragt werden sowie einige zusätzliche Eigenschaften. Außerdem lässt sich das Gamepad vibrieren.
+
+\section{Die Funktionen}
+
+Die verschiedenen Funktionen des Gamepad-Modul sollen hier kurz vorgestellt werden.
+
+\subsection{Spine\_VibrateGamepad}
+
+Mit Spine\_VibrateGamepad kann man das Gamepad ganz einfach vibrieren lassen. Das Gamepad enthält zwei Motoren, die über die zwei Parameter individuell angesprochen werden können. Beide Werte müssen zwischen SPINE\_VIBRATION\_MINIMUM und SPINE\_VIBRATION\_MAXIMUM liegen. Wichtig ist, dass man die Vibration selber wieder beenden muss, indem man die zwei Motoren wieder auf SPINE\_VIBRATION\_MINIMUM setzt.
+
+\subsection{Spine\_IsGamepadEnabled}
+
+Mit Spine\_IsGamepadEnabled lässt sich abfragen, ob ein Gamepad angeschlossen ist. Das bedeutet allerdings noch nicht, dass es auch aktiv zum Spielen benutzt wird.
+
+\subsection{Spine\_IsGamepadActive}
+
+Mit Spine\_IsGamepadActive lässt sich abfragen, ob das Gamepad auch aktiv benutzt wird.
+
+\subsection{Spine\_GetGamepadButtonState}
+
+Mit Spine\_GetGamepadButtonState lässt sich der Status eines Buttons abfragen. Dazu muss man den entsprechenden Button angeben und bekommt einen Integer-Wert zurück, der entweder \textit{KEY\_PRESSED} oder \textit{KEY\_UP} entspricht. Das bedeutet, dass man mit
+
+\begin{lstlisting}
+Spine_GetGamepadButtonState(SPINE_GAMEPAD_BUTTON_A);
+\end{lstlisting}
+
+den aktuellen Status für den A-Button bekommt.
+
+\subsection{Spine\_GetGamepadTriggerState}
+
+Mit Spine\_GetGamepadTriggerState lässt sich abfragen, wie stark der linke/rechte Trigger gedrückt ist. Der Wert ist zwischen 0 und 255. Je höher, desto stärker wird der Trigger gedrückt.
+
+\subsection{Spine\_GetGamepadStickState}
+
+Mit Spine\_GetGamepadStickState lässt sich abfragen, wie weit ein Stick in einer Achse gedrückt ist. Es gibt den linken und rechten Stick und für jeden die X- und die Y-Achse.
+
+\subsection{Spine\_ChangeRawMode}
+
+Mit Spine\_ChangeRawMode lässt sich der Raw-Modus aktivieren. Ist der Raw-Modus aktiviert, findet kein automatisches Mapping der Gamepad-Button-Drücke durch Spine mehr statt und die Mod muss sich selber darum kümmern, auf die Buttons zu reagieren. Das erlaubt eine viel leichtere individuelle Nutzung von Gamepads.
+
+\subsection{Spine\_DoDamageVibration}
+
+Mit Spine\_DoDamageVibration kann man das Gamepad automatisch abhängig vom erhaltenen Schaden vibrieren lassen. Man muss nur die Funktion mit dem erhaltenen Schaden aufrufen. Die Werte in der Funktion müssen eventuell noch etwas angepasst werden. Wichtig: Die Vibration hört bei dieser Funktion auch automatisch wieder auf.
+
+\end{document}

@@ -1,0 +1,21 @@
+import os ;
+local androidNDKRoot = [ os.environ ANDROID_NDK ] ;
+echo "Android NDK path: $(androidNDKRoot)" ;
+using gcc : android :
+     $(androidNDKRoot)/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-g++ :
+     <compileflags>--sysroot=$(androidNDKRoot)/platforms/android-9/arch-arm
+     <compileflags>-mthumb
+     <compileflags>-Os
+     <compileflags>-fno-strict-aliasing
+     <compileflags>-O2
+     <compileflags>-DNDEBUG
+     <compileflags>-g
+     <compileflags>-lstdc++
+     <compileflags>-I$(androidNDKRoot)/sources/cxx-stl/gnu-libstdc++/4.9/include
+     <compileflags>-I$(androidNDKRoot)/sources/cxx-stl/gnu-libstdc++/4.9/libs/armeabi/include
+     <compileflags>-D__GLIBC__
+     <compileflags>-D_GLIBCXX__PTHREADS
+     <compileflags>-D__arm__
+     <compileflags>-D_REENTRANT
+     <archiver>$(androidNDKRoot)/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar
+     <ranlib>$(androidNDKRoot)/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ranlib ;

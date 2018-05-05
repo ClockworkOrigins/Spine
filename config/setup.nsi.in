@@ -1,0 +1,488 @@
+;===============================================================================
+;
+;                         Setup-Script
+;
+;                    System:  NSIS 2.0  http://nsis.sf.net/
+;                    Editor:  HMNE 2.0  http://hmne.sf.net/
+;
+;===============================================================================
+
+
+; Definitionen
+
+; TODO: Version der Modifikation
+!define VER_MAJOR @VERSION_MAJOR@ ; Major Version
+!define VER_MINOR @VERSION_MINOR@ ; Minor Version
+!define VER_PATCH @VERSION_PATCH@ ; Patch-Version (1=a, ...)
+!define VER_FLAGS 0 ; Sprachversion
+!define VER_FILE  "${VER_MAJOR}.${VER_MINOR}"
+!define VER_TEXT  "${VER_MAJOR}.${VER_MINOR}.${VER_PATCH}"
+
+; TODO: Eigenschaften der Modifikation
+!define GAME_FILE "Spine"                  ; Game-Titel
+!define GAME_NAME "Spine"                  ; Game-Titel
+!define GAME_COPY "Copyright 2017, Clockwork Origins"  ; Game-Copyright
+!define GAME_COMP "Clockwork Origins"                    ; Game-Herausgeber
+!define GAME_LINK "http://clockwork-origins.de/"     ; Herausgeber-Link
+!define GAME_HELP "http://clockwork-origins.de/contact" ; Support-Link
+!define MUI_ICON "@CMAKE_SOURCE_DIR@\config\Spine.ico"
+!define MUI_UNICON "@CMAKE_SOURCE_DIR@\config\Spine.ico"
+
+;===============================================================================
+;
+;   MUI
+;
+
+!include "MUI.nsh"
+!include "x64.nsh"
+!include 'FileFunc.nsh'
+!insertmacro Locate
+
+!include 'MoveFileFolder.nsh'
+
+Name "${GAME_NAME} ${VER_TEXT}"
+OutFile "${GAME_NAME} ${VER_TEXT}.exe"
+InstallDir "$PROGRAMFILES\Clockwork Origins\"
+!define GAME_RKEY "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${GAME_FILE}"
+InstallDirRegKey HKLM "${GAME_RKEY}" "InstallLocation"
+AllowRootDirInstall true
+
+; Konfiguration (Installer)
+
+!define MUI_WELCOMEPAGE_TITLE_3LINES
+!define MUI_COMPONENTSPAGE_NODESC
+!define MUI_FINISHPAGE_NOREBOOTSUPPORT
+!define MUI_FINISHPAGE_TITLE_3LINES
+
+Function createGMMShortcut
+	CreateShortCut "$DESKTOP\${GAME_FILE}.lnk" "$INSTDIR\${GAME_NAME}\bin\${GAME_FILE}.exe"
+FunctionEnd
+
+!macro MYMACRO un
+  Function ${un}LockedListShow
+    !insertmacro MUI_HEADER_TEXT $(TextRunningProcesses) $(TextKillRunningProcesses)
+    LockedList::AddModule "\${GAME_FILE}.exe"
+    LockedList::Dialog
+    Pop $R0
+  FunctionEnd
+!macroend
+
+!insertmacro MYMACRO ""
+!insertmacro MYMACRO "un."
+
+!define MUI_FINISHPAGE_SHOWREADME
+!define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
+!define MUI_FINISHPAGE_SHOWREADME_TEXT $(CreateShortcut)
+!define MUI_FINISHPAGE_SHOWREADME_FUNCTION createGMMShortcut
+
+Function startGMM
+	ExecShell "" "$INSTDIR\${GAME_NAME}\bin\${GAME_FILE}.exe"
+FunctionEnd
+
+!define MUI_FINISHPAGE_RUN
+!define MUI_FINISHPAGE_RUN_NOTCHECKED
+!define MUI_FINISHPAGE_RUN_TEXT $(StartSpine)
+!define MUI_FINISHPAGE_RUN_FUNCTION startGMM
+
+!define MUI_LANGDLL_ALLLANGUAGES
+
+; Setup-Seiten (Installer)
+
+!insertmacro MUI_PAGE_WELCOME
+Page custom PageReinstall PageLeaveReinstall
+!insertmacro MUI_PAGE_DIRECTORY
+Page Custom LockedListShow
+!insertmacro MUI_PAGE_INSTFILES
+!insertmacro MUI_PAGE_FINISH
+
+; Konfiguration (Uninstaller)
+
+!define MUI_WELCOMEPAGE_TITLE_3LINES
+!define MUI_FINISHPAGE_NOREBOOTSUPPORT
+!define MUI_FINISHPAGE_TITLE_3LINES
+
+; Setup-Seiten (Uninstaller)
+
+!insertmacro MUI_UNPAGE_WELCOME
+!insertmacro MUI_UNPAGE_CONFIRM
+UninstPage Custom un.LockedListShow
+!insertmacro MUI_UNPAGE_COMPONENTS
+!insertmacro MUI_UNPAGE_INSTFILES
+!insertmacro MUI_UNPAGE_FINISH
+
+
+; Setup-Sprache
+
+!insertmacro MUI_LANGUAGE "German"
+!insertmacro MUI_LANGUAGE "English"
+!insertmacro MUI_LANGUAGE "Polish"
+
+!include 'German.nsh'
+!include 'English.nsh'
+!include 'Polish.nsh'
+
+
+; Reservierte Dateien
+
+ReserveFile "setup.ini"
+!insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
+!insertmacro MUI_RESERVEFILE_LANGDLL
+
+
+;===============================================================================
+;
+;   Installer
+;
+
+
+; Setup.exe Versionsinformationen (Sprache = MUI_LANGUAGE)
+VIProductVersion "${VER_MAJOR}.${VER_MINOR}.${VER_PATCH}.${VER_FLAGS}"
+VIAddVersionKey "CompanyName"      "${GAME_COMP}"
+VIAddVersionKey "FileVersion"      "${VER_TEXT}"
+VIAddVersionKey "LegalCopyright"   "${GAME_COPY}"
+VIAddVersionKey "FileDescription"  "${GAME_FILE}"
+VIAddVersionKey "OriginalFilename" "${GAME_FILE}-${VER_TEXT}.exe"
+
+
+LangString NameInstFull ${LANG_GERMAN} "Vollständig"
+LangString NameInstFull ${LANG_ENGLISH} "Complete"
+InstType $(NameInstFull)
+
+!include ".\CWGames.nsh"
+
+
+;-------------------------------------------------------------------------------
+;
+;   Init (nicht angezeigt)
+;
+
+
+; Installer
+
+RequestExecutionLevel admin
+
+Section -pre
+  Push $R0
+
+  SetDetailsPrint none
+  StrCpy $R0 "${GAME_RKEY}"
+
+  ; Setup-Parameter in die Registrierung schreiben
+  ClearErrors
+  WriteRegExpandStr HKLM $R0 "InstallLocation" $INSTDIR
+  IfErrors "" write
+  MessageBox MB_OK|MB_ICONSTOP "Beim Schreiben der Werte für die spätere Deinstallation trat ein Fehler auf.$\r$\nStellen Sie sicher, dass Ihr Benutzerkonto über die notwendigen Rechte verfügt.$\r$\n$\r$\n(HKLM\$R0)"
+  Pop $R0
+  Abort
+  write:
+  WriteRegDWORD     HKLM $R0 "VersionMajor"    ${VER_MAJOR}
+  WriteRegDWORD     HKLM $R0 "VersionMinor"    ${VER_MINOR}
+  WriteRegDWORD     HKLM $R0 "VersionPatch"    ${VER_PATCH}
+  WriteRegDWORD     HKLM $R0 "VersionFlags"    ${VER_FLAGS}
+  WriteRegStr       HKLM $R0 "DisplayIcon"     "$INSTDIR\${GAME_NAME}\${MUI_ICON},0"
+  WriteRegStr       HKLM $R0 "DisplayName"     "${GAME_FILE}"
+  WriteRegStr       HKLM $R0 "DisplayVersion"  "${VER_TEXT}"
+  WriteRegDWORD     HKLM $R0 "NoModify"        1
+  WriteRegDWORD     HKLM $R0 "NoRepair"        1
+  WriteRegExpandStr HKLM $R0 "UninstallString" "$INSTDIR\${GAME_NAME}\${GAME_FILE}-uninst.exe"
+  WriteRegStr       HKLM $R0 "Publisher"       "${GAME_COMP}"
+  WriteRegStr       HKLM $R0 "URLInfoAbout"    "${GAME_LINK}"
+  WriteRegStr       HKLM $R0 "HelpLink"        "${GAME_HELP}"
+
+  Pop $R0
+SectionEnd
+
+
+;-------------------------------------------------------------------------------
+;
+;   Modifikation
+;
+
+
+; Installer
+
+Section !$(NameSecModFiles) SecModFiles
+
+  SectionIn RO ; nicht abwählbar
+
+  SetDetailsPrint textonly
+  DetailPrint $(TextSecModFiles)
+  SetDetailsPrint listonly
+
+  SetOverwrite on
+
+  ; Installiere Game-Ini
+  SetOutPath "$INSTDIR\${GAME_NAME}\bin"
+  File      "@CMAKE_BINARY_DIR@\bin\${GAME_FILE}.exe"
+  File      "@CMAKE_BINARY_DIR@\bin\cleanup.exe"
+  File      "@CMAKE_BINARY_DIR@\bin\*.qm"
+  File      "@CMAKE_BINARY_DIR@\bin\SpineAPI.dll"
+  File      "@CMAKE_SOURCE_DIR@\config\changelog.xml"
+  File      "@CMAKE_SOURCE_DIR@\config\*.conf"
+  File      "@CLOCKWORK_ROOT@\bin\clockwork_login.dll"
+  File      "@SPINE_DEP_DIR@\openSSL\bin\*.dll"
+  File      "@SQLITE3_ROOT@\bin\sqlite3.dll"
+  File      "@TRANSLATOR_ROOT@\bin\*.dll"
+  File      "@CMAKE_BINARY_DIR@\installer\Qt\*.dll"
+  SetOutPath "$INSTDIR\${GAME_NAME}\bin\plugins\imageformats"
+  File      "@CMAKE_BINARY_DIR@\installer\Qt\plugins\imageformats\*.dll"
+  SetOutPath "$INSTDIR\${GAME_NAME}\bin\plugins\platforms"
+  File      "@CMAKE_BINARY_DIR@\installer\Qt\plugins\platforms\*.dll"
+  SetOutPath "$INSTDIR\${GAME_NAME}\copyright"
+  File	    "@CMAKE_SOURCE_DIR@\copyright\*"
+  SetOutPath "$INSTDIR\${GAME_NAME}\media"
+  File	    "@CMAKE_SOURCE_DIR@\media\*"
+  SetOutPath "$INSTDIR\${GAME_NAME}"
+  File      "@CMAKE_BINARY_DIR@\installer\Windows\Gothic2-Setup.bat"
+  File      "@CMAKE_BINARY_DIR@\installer\Windows\Gothic2-Addon-Setup.bat"
+  File      "@CMAKE_BINARY_DIR@\installer\Windows\makeSymlink.bat"
+  File      "@CMAKE_BINARY_DIR@\installer\Windows\removeSymlink.bat"
+  File      "@CMAKE_SOURCE_DIR@\css\styles.css"
+  File      "@VCREDIST@"
+  File		"directx_Jun2010_redist.exe"
+
+  ;not installed, so run the installer
+  ExecWait '"$INSTDIR\${GAME_NAME}\@VCREDIST@" /q /norestart';
+  
+  ExecWait '"$INSTDIR\${GAME_NAME}\directx_Jun2010_redist.exe" /Q /T:"$TEMP\directx"';
+  ExecWait '"$TEMP\directx\DXSETUP.exe" /silent';
+
+  !insertmacro CWGames_DeleteFile "$TEMP\directx\*"
+  !insertmacro CWGames_DeleteFile "$INSTDIR\${GAME_NAME}\directx_Jun2010_redist.exe"
+  !insertmacro CWGames_DeleteFile "$INSTDIR\${GAME_NAME}\@VCREDIST@"
+
+  AccessControl::GrantOnFile "$INSTDIR\${GAME_NAME}" "(BU)" "GenericRead + GenericWrite"
+  AccessControl::GrantOnFile "$INSTDIR\${GAME_NAME}\bin" "(BU)" "GenericRead + GenericWrite"
+
+  ; Einträge im Startmenü
+  SetShellVarContext all
+  SetOutPath "$INSTDIR\${GAME_NAME}\bin"
+  !insertmacro CWGames_CreateDirectory "$SMPROGRAMS\Clockwork Origins"
+  CreateShortCut "$SMPROGRAMS\Clockwork Origins\${GAME_FILE}.lnk" \
+    "$INSTDIR\${GAME_NAME}\bin\${GAME_FILE}.exe"
+  CreateShortCut "$SMPROGRAMS\Clockwork Origins\${GAME_FILE} entfernen.lnk" \
+   	"$INSTDIR\${GAME_NAME}\${GAME_FILE}-uninst.exe"
+
+SectionEnd
+
+
+; Uninstaller
+
+Section !un.$(NameSecModFiles) unSecModFiles
+
+  SectionIn RO  ; nicht abwählbar
+  
+  ExecWait '"$INSTDIR\bin\cleanup.exe"';
+
+  ; Mod-Volume und Mod-Volume-Map entfernen
+  !insertmacro CWGames_DeleteFile "$INSTDIR\${GAME_FILE}\bin\*"
+  !insertmacro CWGames_DeleteFile "$INSTDIR\${GAME_FILE}\bin\plugins\imageformats\*"
+  !insertmacro CWGames_DeleteFile "$INSTDIR\${GAME_FILE}\bin\plugins\platforms\*"
+  !insertmacro CWGames_DeleteFile "$INSTDIR\${GAME_FILE}\copyright\*"
+  !insertmacro CWGames_DeleteFile "$INSTDIR\${GAME_FILE}\media\*"
+  !insertmacro CWGames_DeleteFile "$INSTDIR\${GAME_FILE}\*"
+  !insertmacro CWGames_RemoveDirectory "$INSTDIR\${GAME_FILE}\bin\plugins\imageformats"
+  !insertmacro CWGames_RemoveDirectory "$INSTDIR\${GAME_FILE}\bin\plugins\platforms"
+  !insertmacro CWGames_RemoveDirectory "$INSTDIR\${GAME_FILE}\bin\plugins"
+  !insertmacro CWGames_RemoveDirectory "$INSTDIR\${GAME_FILE}\bin"
+  !insertmacro CWGames_RemoveDirectory "$INSTDIR\${GAME_FILE}\copyright"
+  !insertmacro CWGames_RemoveDirectory "$INSTDIR\${GAME_FILE}\media"
+  !insertmacro CWGames_RemoveDirectory "$INSTDIR\${GAME_FILE}"
+  
+  !insertmacro CWGames_DeleteFile "$INSTDIR\bin\*"
+  !insertmacro CWGames_DeleteFile "$INSTDIR\bin\plugins\imageformats\*"
+  !insertmacro CWGames_DeleteFile "$INSTDIR\bin\plugins\platforms\*"
+  !insertmacro CWGames_DeleteFile "$INSTDIR\copyright\*"
+  !insertmacro CWGames_DeleteFile "$INSTDIR\media\*"
+  !insertmacro CWGames_DeleteFile "$INSTDIR\*"
+  !insertmacro CWGames_RemoveDirectory "$INSTDIR\bin\plugins\imageformats"
+  !insertmacro CWGames_RemoveDirectory "$INSTDIR\bin\plugins\platforms"
+  !insertmacro CWGames_RemoveDirectory "$INSTDIR\bin\plugins"
+  !insertmacro CWGames_RemoveDirectory "$INSTDIR\bin"
+  !insertmacro CWGames_RemoveDirectory "$INSTDIR\copyright"
+  !insertmacro CWGames_RemoveDirectory "$INSTDIR\media"
+  !insertmacro CWGames_RemoveDirectory "$INSTDIR"
+  
+  ; Einträge im Startmenü entfernen
+  SetShellVarContext all
+  !insertmacro CWGames_DeleteFile "$SMPROGRAMS\Clockwork Origins\${GAME_FILE}.lnk"
+  !insertmacro CWGames_DeleteFile "$SMPROGRAMS\Clockwork Origins\${GAME_FILE} entfernen.lnk"
+  ; Werden nur entfernt, falls die Verzeichnisse leer sind...
+  !insertmacro CWGames_RemoveDirectory "$SMPROGRAMS\Clockwork Origins"
+  ; Delete desktop shortcut
+  !insertmacro CWGames_DeleteFile "$DESKTOP\${GAME_FILE}.lnk"
+
+SectionEnd
+
+
+
+;-------------------------------------------------------------------------------
+;
+;   Cleanup (nicht angezeigt)
+;
+
+
+; Installer
+
+Section -post
+
+  SetDetailsPrint none
+
+  ; Uninstaller schreiben
+  Delete           "$INSTDIR\${GAME_NAME}\${GAME_FILE}-uninst.exe"
+  WriteUninstaller "$INSTDIR\${GAME_NAME}\${GAME_FILE}-uninst.exe"
+
+SectionEnd
+
+
+; Uninstaller
+
+Section -un.post
+
+  SetDetailsPrint none
+
+  ; Registrierungsdaten entfernen
+  DeleteRegKey HKLM "${GAME_RKEY}"
+
+  ; Uninstaller entfernen
+  Delete "$INSTDIR\${GAME_FILE}-uninst.exe"
+
+SectionEnd
+
+
+;===============================================================================
+;
+;   Callback-Funktionen
+;
+
+
+; Installer (Init)
+
+Function .onInit
+  !insertmacro MUI_LANGDLL_DISPLAY
+  
+  Push $R0
+
+  SetCurInstType 0
+
+  !insertmacro MUI_INSTALLOPTIONS_EXTRACT "setup.ini"
+
+
+  ; Kein 'unsichtbares' Setup
+  SetSilent normal
+  
+  ; $INSTDIR bereits gültig?
+  IfFileExists "$INSTDIR\${GAME_NAME}\bin\${GAME_FILE}.exe" done
+
+  ; Sonst Add-ON Installation suchen (Registrierung)
+  Call CWGames_GetInstallLocation
+  Pop $R0
+  StrCmp $R0 "" done
+  ; Übernehmen
+  StrCpy $INSTDIR $R0
+
+  done:
+  Pop $R0
+FunctionEnd
+
+
+; Uninstaller (Init)
+
+Function un.onInit
+  !insertmacro MUI_UNGETLANGUAGE
+  Push $R0
+
+  done:
+  Pop $R0
+FunctionEnd
+
+
+; Reinstall
+
+Function PageReinstall
+
+  ; Installationsverzeichnis lesen
+  ReadRegStr $R0 HKLM "${GAME_RKEY}" "InstallLocation"
+  StrCmp $R0 "" 0 +2
+  Abort
+
+  ; Version überprüfen
+  ReadRegDWORD $R0 HKLM "${GAME_RKEY}" "VersionFlags"
+  IntCmp $R0 ${VER_FLAGS} major wrong wrong
+  major:
+  ReadRegDWORD $R0 HKLM "${GAME_RKEY}" "VersionMajor"
+  IntCmp $R0 ${VER_MAJOR} minor older newer
+  minor:
+  ReadRegDWORD $R0 HKLM "${GAME_RKEY}" "VersionMinor"
+  IntCmp $R0 ${VER_MINOR} patch older newer
+  patch:
+  ReadRegDWORD $R0 HKLM "${GAME_RKEY}" "VersionPatch"
+  IntCmp $R0 ${VER_PATCH} equal older newer
+  wrong:
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "setup.ini" "Field 1" "Text" "$(TextReinstWrong)"
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "setup.ini" "Field 2" "Text" "$(TextReinstOpt1A)"
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "setup.ini" "Field 3" "Text" "$(TextReinstOpt1B)"
+  !insertmacro MUI_HEADER_TEXT "$(TextReinstTitle)" "$(TextReinstHead1)"
+  StrCpy $R0 "1"
+  Goto start
+  older:
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "setup.ini" "Field 1" "Text" "$(TextReinstOlder)"
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "setup.ini" "Field 2" "Text" "$(TextReinstOpt1A)"
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "setup.ini" "Field 3" "Text" "$(TextReinstOpt1B)"
+  !insertmacro MUI_HEADER_TEXT "$(TextReinstTitle)" "$(TextReinstHead1)"
+  StrCpy $R0 "1"
+  Goto start
+  newer:
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "setup.ini" "Field 1" "Text" "$(TextReinstNewer)"
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "setup.ini" "Field 2" "Text" "$(TextReinstOpt1A)"
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "setup.ini" "Field 3" "Text" "$(TextReinstOpt1B)"
+  !insertmacro MUI_HEADER_TEXT "$(TextReinstTitle)" "$(TextReinstHead1)"
+  StrCpy $R0 "1"
+  Goto start
+  equal:
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "setup.ini" "Field 1" "Text" "$(TextReinstEqual)"
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "setup.ini" "Field 2" "Text" "$(TextReinstOpt2A)"
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "setup.ini" "Field 3" "Text" "$(TextReinstOpt2B)"
+  !insertmacro MUI_HEADER_TEXT "$(TextReinstTitle)" "$(TextReinstHead2)"
+  StrCpy $R0 "2"
+  start:
+  !insertmacro MUI_INSTALLOPTIONS_DISPLAY "setup.ini"
+
+FunctionEnd
+
+Function PageLeaveReinstall
+
+  !insertmacro MUI_INSTALLOPTIONS_READ $R1 "setup.ini" "Field 2" "State"
+  StrCmp $R0 "1" 0 +2
+  StrCmp $R1 "1" inst done
+  StrCmp $R0 "2" 0 +3
+  StrCmp $R1 "1" done inst
+  inst:
+  HideWindow
+  ReadRegStr $R1 HKLM "${GAME_RKEY}" "UninstallString"
+  ClearErrors
+  ExecWait '$R1 _?=$INSTDIR'
+  IfErrors nope
+  IfFileExists $R1 "" nope
+  Delete $R1
+  nope:
+  StrCmp $R0 "2" 0 +2
+  Quit
+  BringToFront
+
+  done:
+FunctionEnd
+
+
+; Installer (Verzeichnisprüfung)
+
+Var VerifyMessageOnce
+
+Function .onVerifyInstDir
+
+  
+
+  done:
+FunctionEnd
+
+

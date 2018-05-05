@@ -1,0 +1,22 @@
+FERTIGKEITEN
+BERUFE
+Keine Berufe gelernt!
+Bergbau
+Kürschnerei
+Kräuterkunde
+Schmiedekunst
+Lederverarbeitung
+Alchemie
+JAGDTALENTE
+Zähne nehmen
+Klauen nehmen
+Trophäen nehmen
+gelernt
+MAGIETALENTE
+Spruchrollen
+Runen erschaffen
+DIEBESTALENTE
+Schleichen
+Taschendiebstahl
+SPEZIALTALENTE
+Kraut drehen

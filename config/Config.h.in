@@ -1,0 +1,34 @@
+#ifndef __SPINE_GMMCONFIG_H__
+#define __SPINE_GMMCONFIG_H__
+
+#include <cstdint>
+#include <string>
+
+const uint16_t SERVER_PORT = @SERVER_PORT@;
+const uint16_t MPSERVER_PORT = 19185;
+const uint16_t LOCAL_PORT = 19181;
+const uint16_t SPINE_ROOT_PORT = 19182;
+const uint16_t SPINE_LOCAL_PORT = 19183;
+const uint16_t SPINE_MP_PORT = 19186;
+const uint16_t GAMEPAD_PORT = 19187;
+const uint16_t UPLOADSERVER_PORT = @UPLOADSERVER_PORT@;
+
+const uint8_t VERSION_MAJOR = @VERSION_MAJOR@;
+const uint8_t VERSION_MINOR = @VERSION_MINOR@;
+const uint8_t VERSION_PATCH = @VERSION_PATCH@;
+const std::string VERSION_STRING = "@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@";
+
+const std::string SPINE_SCRIPT_VERSION = "1.13.1";
+const std::string IKARUS_VERSION = "1.2.0";
+const std::string LEGO_VERSION = "2.5.0";
+
+const std::string COMPATIBILITY_DATABASE = "databases/compatibilities.db";
+const std::string FIX_DATABASE = "databases/fixes.db";
+const std::string INSTALLED_DATABASE = "databases/installed.db";
+const std::string LASTPLAYED_DATABASE = "databases/lastPlayed.db";
+const std::string NEWS_DATABASE = "databases/news.db";
+const std::string OFFLINE_DATABASE = "databases/offline.db";
+const std::string PATCHCONFIG_DATABASE = "databases/patchConfig.db";
+const std::string UPDATES_DATABASE = "databases/updates.db";
+
+#endif /* __SPINE_GMMCONFIG_H__ */

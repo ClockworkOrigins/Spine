@@ -1,0 +1,1444 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Version majorVersion="0" minorVersion="5" patchVersion="1">
+	<Bug language="Deutsch">Auch bei nahezu identischen Pfaden für die zwei Gothic-Versionen wird jetzt die korrekte Gothic-Version gestartet bei nicht über Spine installierten Mods</Bug>
+	<Bug language="Deutsch">Rechtschreibfehler in der englischen Übersetzung behoben</Bug>
+	
+	<Bug language="English">Also with two almost equal paths to the two Gothic versions the correct Gothic version is chosen now starting a mod not being installed by Spine itself</Bug>
+	<Bug language="English">Fixed typo in English translation</Bug>
+	
+	<Bug language="Russian">При почти идентичных путях для обеих версий игры "Готика" программа теперь корректно запускает выбор платформы игры для модов которые были установлены без использования Spin'а;</Bug>
+	<Bug language="Russian">Исправление опечаток и прочих орфографических ошибок в английской локализации программы.</Bug>
+</Version>
+<Version majorVersion="0" minorVersion="6" patchVersion="0">
+	<Enhancement language="Deutsch">Spalten in Datenbank können jetzt sortiert werden</Enhancement>
+	<Enhancement language="Deutsch">Russische Übesetzung hinzugefügt</Enhancement>
+	<Enhancement language="Deutsch">Unterstützung für Patches und Tools eingebaut</Enhancement>
+	<Enhancement language="Deutsch">Polnische Übesetzung hinzugefügt</Enhancement>
+	<Enhancement language="Deutsch">Man kann jetzt ganze Zeilen in der Datenbank markieren</Enhancement>
+	<Enhancement language="Deutsch">Auto-Update gibt jetzt einen Hinweis, kann manuell getriggert werden und in den Einstellungen deaktiviert werden</Enhancement>
+	<Enhancement language="Deutsch">Downloadgröße wird jetzt pro Mod angezeigt</Enhancement>
+	<Enhancement language="Deutsch">Möglichkeit eingebaut, Mods nur für einzelne User freizuschalten (Betazugang)</Enhancement>
+	<Enhancement language="Deutsch">Windows XP-Unterstützung eingebaut</Enhancement>
+	<Enhancement language="Deutsch">Man kann die Datenbank jetzt nach Modnamen filtern</Enhancement>
+	<Enhancement language="Deutsch">Auto-Update erfordert jetzt Admin-Rechte</Enhancement>
+	<Enhancement language="Deutsch">Es gibt jetzt eine aussagekräftige Warnung, wenn eine Modifikation nicht ohne Admin-Rechte gestartet werden kann</Enhancement>
+	<Enhancement language="Deutsch">Es gibt jetzt eine Sicherheitsabfrage vor der (De-)Installation einer Modifikation</Enhancement>
+	<Enhancement language="Deutsch">Downloadfortschritt wird jetzt auch in Bytes angezeigt</Enhancement>
+	<Enhancement language="Deutsch">Erste Filter für Gothic-Version, Mod-Typ und Spielzeit eingebaut</Enhancement>
+	<Enhancement language="Deutsch">Größe der Darstellung in der Bibliothek verbessert</Enhancement>
+	<Bug language="Deutsch">Auto-Update löscht jetzt korrekt alte Dateien und zeigt den Changelog an</Bug>
+	<Bug language="Deutsch">Einstellungsdialog wird jetzt bei Sprachänderung aktualisiert</Bug>
+	<Bug language="Deutsch">Download abbrechen funktioniert jetzt</Bug>
+	
+	<Enhancement language="English">Columns in database now can be sorted</Enhancement>
+	<Enhancement language="English">Added Russian translation</Enhancement>
+	<Enhancement language="English">Added support for patches and tools</Enhancement>
+	<Enhancement language="English">Added Polish translation</Enhancement>
+	<Enhancement language="English">It is possible now to mark a complete row in the database</Enhancement>
+	<Enhancement language="English">Auto update now notifies user, can be triggered manually and be disabled in the settings</Enhancement>
+	<Enhancement language="English">Download size is now displayed for every mod</Enhancement>
+	<Enhancement language="English">Added possibility to unlock a mod just for single users (beta access)</Enhancement>
+	<Enhancement language="English">Added Windows XP support</Enhancement>
+	<Enhancement language="English">Database can be filtered now by mod name</Enhancement>
+	<Enhancement language="English">Auto update now requires admin rights</Enhancement>
+	<Enhancement language="English">User is informed by an informative error message in case starting a modification requires admin rights</Enhancement>
+	<Enhancement language="English">There is a security question now before (un)installing a modification</Enhancement>
+	<Enhancement language="English">Download progress also shown in bytes now</Enhancement>
+	<Enhancement language="English">Added first filter for Gothic version, mod type and play time</Enhancement>
+	<Enhancement language="English">Improved size of the presentation in the library</Enhancement>
+	<Bug language="English">Auto update now deletes old files correctly and shows changelog</Bug>
+	<Bug language="English">Settings dialog now is updated when language is changed</Bug>
+	<Bug language="English">Aborting download works now</Bug>
+	
+	<Enhancement language="Russian">Столбцы в базе данных теперь можно отсортировать по алфавиту;</Enhancement>
+	<Enhancement language="Russian">Добавлена локализация программы для русского языка(тестовая версия);</Enhancement>
+	<Enhancement language="Russian">Добавлена поддержка для патчей и программ;</Enhancement>
+	<Enhancement language="Russian">Добавлена локализация программы для польского языка;</Enhancement>
+	<Enhancement language="Russian">Теперь в базе данных можно выделять все строки;</Enhancement>
+	<Enhancement language="Russian">Реализовано настраиваемое авто-обновление программы, которое может быть инициализировано в ручную или вообще отключено;</Enhancement>
+	<Enhancement language="Russian">Реализовано отображение объема скачиваемых данных для загружаемых программ/модов;</Enhancement>
+	<Enhancement language="Russian">Добавлена опция разблокирования модов, только для отдельных пользователей (с бета-доступом);</Enhancement>
+	<Enhancement language="Russian">Адаптация программы для работы под Windows XP(тестовая версия);</Enhancement>
+	<Enhancement language="Russian">Файлы в базе данных теперь можно от фильтровать по их именам;</Enhancement>
+	<Enhancement language="Russian">Автоматическое обновление теперь требует прав администратора;</Enhancement>
+	<Enhancement language="Russian">Добавлен вывод информационного предупреждения когда мод не может быть запущен без прав администратора;</Enhancement>
+	<Enhancement language="Russian">Реализован вывод вопроса-подтверждения перед установкой/удалением мода;</Enhancement>
+	<Enhancement language="Russian">Индикатор хода загрузки файлов теперь отображает объем в байтах;</Enhancement>
+	<Enhancement language="Russian">Добавлено несколько вариантов фильтров для базы данных. Например, для Gothic, "Тип мода" и "Время";</Enhancement>
+	<Enhancement language="Russian">Увеличено информационное поля окна для вывода информации в библиотеке.</Enhancement>
+	<Bug language="Russian">Автоматическое обновление программы теперь правильно удаляет старые файлы и отображает список актуальных изменений;</Bug>
+	<Bug language="Russian">Окно диалога настроек программы теперь корректно обновляется при смене языка;</Bug>
+	<Bug language="Russian">Отмена загрузки файлов теперь работает корректно, оптимизация функции загрузки программ/модов.</Bug>
+</Version>
+<Version majorVersion="0" minorVersion="7" patchVersion="0">
+	<Enhancement language="Deutsch">Es werden jetzt nur noch die Dateien für die ausgewählte Sprachversion geladen</Enhancement>
+	<Enhancement language="Deutsch">Changelog kann jetzt manuell in Spine angezeigt werden</Enhancement>
+	<Enhancement language="Deutsch">Startgeschwindigkeit von Modifikationen durch die Reduzierung der Anzahl an Kopien verbessert</Enhancement>
+	<Enhancement language="Deutsch">Pfad wohin Mods geladen werden sollen kann jetzt in den Einstellungen festgelegt werden</Enhancement>
+	<Enhancement language="Deutsch">Eigene Spielzeit wird jetzt für Spine-Mods angezeigt</Enhancement>
+	<Enhancement language="Deutsch">Login/Registrierung ist jetzt auch noch im Programmablauf möglich, wenn man es zu Beginn übersprungen hat</Enhancement>
+	<Enhancement language="Deutsch">Entwicklermodus eingeführt, mit dem man die Spine-API einfach testen kann für neue Modifikationen</Enhancement>
+	<Enhancement language="Deutsch">Spine-API ist jetzt verfügbar und bietet die ersten zwei Methoden zum Initialisieren und Abfragen des aktuellen Usernamens</Enhancement>
+	<Bug language="Deutsch">Gothic 1 Modifikationen, die nicht über Spine installiert wurden, löschen temporäre Daten jetzt richtig</Bug>
+	<Bug language="Deutsch">Fehler in englischer Übersetzung behoben</Bug>
+	<Bug language="Deutsch">Gothic 1 und 2 inis sind jetzt als Mods in Spine extra zu installieren, damit sie problemlos mit Patches kombiniert werden können</Bug>
+	<Bug language="Deutsch">Bei sehr kleinen Downloads wird der Dialog jetzt richtig beendet</Bug>
+	<Bug language="Deutsch">Crash im Fall, dass die Datenbank mit den installierten Modifikationen kaputt geht, behoben</Bug>
+	<Bug language="Deutsch">Spielzeit von Patches und Tools wird jetzt auch gemessen</Bug>
+	
+	<Enhancement language="English">Only files for currently selected language are downloaded now</Enhancement>
+	<Enhancement language="English">Changelog can be shown manually now in Spine</Enhancement>
+	<Enhancement language="English">Improved startup speed of modifications by reducing amount of used copies</Enhancement>
+	<Enhancement language="English">Path for download folder of modifications now can be specified in the settings</Enhancement>
+	<Enhancement language="English">Own duration now is displayed for Spine mods</Enhancement>
+	<Enhancement language="English">Login/registration now is also possible after skipping it during startup</Enhancement>
+	<Enhancement language="English">Introduced developer mode to easily test Spine API with new modifications willing to implement it</Enhancement>
+	<Enhancement language="English">Spine API now is available and offers first two methods to initialize it and query current username</Enhancement>
+	<Bug language="English">Gothic 1 modifications that weren't installed by Spine now delete their temporary data correctly</Bug>
+	<Bug language="English">Fixed error in English translation</Bug>
+	<Bug language="English">Gothic 1 and 2 inis now are to be installed via Spine as mods to be able to combine them without any problems with patches</Bug>
+	<Bug language="English">Dialog during download is now also closed for very small downloads</Bug>
+	<Bug language="English">Fixed crash in case database with installed modifications gets corrupted</Bug>
+	<Bug language="English">Playtime of patches and tools now also gets measured</Bug>
+	
+	<Enhancement language="Russian">Теперь при выборе языка программы, загружаются файлы только для конкретно выбранной языковой версии;</Enhancement>
+	<Enhancement language="Russian">Список изменений теперь можно просмотреть непосредственно в программе Spine;</Enhancement>
+	<Enhancement language="Russian">Улучшена скорость запуска модификаций за счёт уменьшения количества используемых копий;</Enhancement>
+	<Enhancement language="Russian">Путь для каталога загрузки модификаций теперь может быть задан в настройках программы;</Enhancement>
+	<Enhancement language="Russian">Реализовано отображение продолжительности игры для модов в Spine;</Enhancement>
+	<Enhancement language="Russian">"Вход в систему/Регистрация" теперь возможны из самой программы, даже если вы её пропустили в самом начале;</Enhancement>
+	<Enhancement language="Russian">Введён "Режим разработчика", с помощью которого легко протестировать Spine API для новых модификаций с его поддержкой;</Enhancement>
+	<Enhancement language="Russian">Spine-API сейчас доступно и предлагает первые два метода для его инициализации и последующего запроса актуального имени пользователя.</Enhancement>
+	<Bug language="Russian">Модификации для "Готики 1", которые не были установлены с помощью Spine, теперь корректно удаляют свои временные данные;</Bug>
+	<Bug language="Russian">Исправлена ошибка в переводе на английский язык;</Bug>
+	<Bug language="Russian">Ини-файлы "Готики 1" и "Готики 2" теперь должны быть установлены с помощью Spine, как и моды, чтобы иметь возможность комбинировать и изменять их параметры без каких-либо проблем с патчами;</Bug>
+	<Bug language="Russian">Информационное окно диалога отображаемое во время загрузок очень маленьких модов/программ теперь корректно завершается;</Bug>
+	<Bug language="Russian">Исправлен критический сбой базы данных в случае если база данных с установленными модификациями была повреждена;</Bug>
+	<Bug language="Russian">Время продолжительность игры для патчей и программ теперь также измеряется.</Bug>
+</Version>
+<Version majorVersion="0" minorVersion="8" patchVersion="0">
+	<Enhancement language="Deutsch">Unterstützung für Übertragung komprimierter Dateien eingebaut</Enhancement>
+	<Enhancement language="Deutsch">Downloadfortschritt wird jetzt ab Windows 8 auch in der Taskbar angezeigt</Enhancement>
+	<Enhancement language="Deutsch">Filter in Bibliothek eingebaut</Enhancement>
+	<Enhancement language="Deutsch">Script-API um Funktionen zum Aktualisieren und Abfragen von Scores und Rankings erweitert</Enhancement>
+	<Enhancement language="Deutsch">Script-API um Funktionen zum Freischalten und Abfragen von Erfolgen erweitert</Enhancement>
+	<Enhancement language="Deutsch">Ein paar Informationen in den Auto-Update-Prozess eingebaut</Enhancement>
+	<Enhancement language="Deutsch">Auto-Update für Modifikationen eingebaut</Enhancement>
+	<Enhancement language="Deutsch">Script-API um Multiplayer-Funktionen erweitert</Enhancement>
+	<Bug language="Deutsch">Modnamen mit Spaces am Anfang werden jetzt richtig sortiert</Bug>
+	
+	<Enhancement language="English">Added support for transmission of compressed files</Enhancement>
+	<Enhancement language="English">Download progress now is also displayed in taskbar from Windows 8 on</Enhancement>
+	<Enhancement language="English">Added filters to library</Enhancement>
+	<Enhancement language="English">Added functions to Script API allowing to update and query scores and rankings</Enhancement>
+	<Enhancement language="English">Added functions to Script API allowing to unlock and query achievements</Enhancement>
+	<Enhancement language="English">Added some informations in auto update process</Enhancement>
+	<Enhancement language="English">Added auto update for modifications</Enhancement>
+	<Enhancement language="English">Added multiplayer functions to Script API</Enhancement>
+	<Bug language="English">Mod names with spaces in the beginning are now sorted correctly</Bug>
+
+	<Enhancement language="Russian">Добавлена поддержка для передачи сжатых файлов;</Enhancement>
+	<Enhancement language="Russian">Индикатор хода загрузки теперь также отображается в панели задач на Windows 8;</Enhancement>
+	<Enhancement language="Russian">Добавлены новые фильтры в библиотеку;</Enhancement>
+	<Enhancement language="Russian">Добавлены функции API для скриптов, позволяющие обновлять оценки и рейтинги;</Enhancement>
+	<Enhancement language="Russian">Добавлены функции API для скриптов, позволяющие разблокировать оценки достижений;</Enhancement>
+	<Enhancement language="Russian">Добавлено некоторая информация в процессе автоматического обновления;</Enhancement>
+	<Enhancement language="Russian">Добавлены автоматическое обновление для модификаций;</Enhancement>
+	<Enhancement language="Russian">Добавлены функции мультиплеера для скриптов API.</Enhancement>
+	<Bug language="Russian">Названия мод-файлов с пробелами в начале теперь сортируются правильно.</Bug>
+</Version>
+<Version majorVersion="0" minorVersion="8" patchVersion="1">
+	<Bug language="Deutsch">Gothic 2 kann nun über die CD installiert werden, wenn die normale Installation nicht klappt</Bug>
+	
+	<Bug language="English">Gothic 2 now can be installed via CD in case normal installation doesn't work</Bug>
+
+	<Bug language="Russian">Исправление для корректной установки некоторых CD-версий немецких изданий игр "Готика", которые нельзя было запустить стандартным способом.</Bug>
+</Version>
+<Version majorVersion="0" minorVersion="8" patchVersion="2">
+	<Bug language="Deutsch">Crash beim Wechseln der Sprache behoben</Bug>
+	<Bug language="Deutsch">Fehler während der Installation von Gothic 2 über CD behoben</Bug>
+	
+	<Bug language="English">Fixed crash when changing the language</Bug>
+	<Bug language="English">Fixed bug when installing Gothic 2 via CD</Bug>
+
+	<Bug language="Russian">Исправлен вылет программы при смене языка;</Bug>
+	<Bug language="Russian">Исправлена ошибка при установке игры "Gothic 2" с дисков CD.</Bug>
+	
+	
+</Version>
+<Version majorVersion="0" minorVersion="8" patchVersion="3">
+	<Bug language="Deutsch">Auto-Update für Mods funktioniert jetzt</Bug>
+	<Bug language="Deutsch">Crash bei Auto-Update von Spine behoben</Bug>
+	
+	<Bug language="English">Auto update for mods works now</Bug>
+	<Bug language="English">Fixed crash during auto update of Spine</Bug>
+
+	<Bug language="Russian">Автоматическое обновление модов теперь работает;</Bug>
+	<Bug language="Russian">Исправлен вылет при автоматическом обновлении Spine.</Bug>
+</Version>
+<Version majorVersion="0" minorVersion="8" patchVersion="4">
+	<Bug language="Deutsch">getPlayerUsername wird jetzt richtig exportiert</Bug>
+	<Bug language="Deutsch">m2etis.dll wird jetzt richtigerweise auch ins Gothic-Verzeichnis geschoben beim Start einer entsprechenden Modifikation</Bug>
+	
+	<Bug language="English">getPlayerUsername now get exported correctly</Bug>
+	<Bug language="English">m2etis.dll now gets moved to Gothic directory starting a modification</Bug>
+
+	<Bug language="Russian">getPlayerUsername теперь экспортируется правильно;</Bug>
+	<Bug language="Russian">m2etis.dll теперь правильно перемещается в соответствующий каталог "Готики" при запуске её модификации.</Bug>
+</Version>
+<Version majorVersion="0" minorVersion="9" patchVersion="0">
+	<Enhancement language="Deutsch">Mod- und Teamnamen erlauben nun ' im Namen</Enhancement>
+	<Enhancement language="Deutsch">Auto-Update noch etwas mehr verbessert</Enhancement>
+	<Enhancement language="Deutsch">Style von Spine verbessert</Enhancement>
+	<Enhancement language="Deutsch">Man kann jetzt direkt aus Spine Feedback/Bugmeldung/Wünsche senden</Enhancement>
+	<Enhancement language="Deutsch">Wenn Spine mit Admin-Rechten gestartet wurde, werden besonders große Modifikation sehr viel schneller gestartet</Enhancement>
+	<Enhancement language="Deutsch">Im Entwicklermodus werden alle über Spine installierten Modifikationen jetzt ausgeblendet</Enhancement>
+	<Enhancement language="Deutsch">Einstellungen lassen sich über Shortcut O schneller öffnen</Enhancement>
+	<Enhancement language="Deutsch">Versionsspalte aus Datenbank entfernt, dafür wir jetzt die entsprechende Version in der Bibliothek angezeigt</Enhancement>
+	<Enhancement language="Deutsch">Datenbanktabelle versteckt jetzt weniger wichtige Spalten wenn das Fenster verkleinert wird</Enhancement>
+	<Enhancement language="Deutsch">Wenn der Beschreibungstext einer Modifikation nicht komplett in html übersetzt werden kann, dann wird er jetzt komplett ausgeblendet</Enhancement>
+	<Enhancement language="Deutsch">Es ist jetzt möglich Gothic II Mods über Spine zu spielen, die Gothic auch erfordern</Enhancement>
+	<Enhancement language="Deutsch">Erste kleine Startseite eingeführt</Enhancement>
+	<Enhancement language="Deutsch">Filtereinstellungen für Datenbank und Bibliothek werden jetzt gespeichert</Enhancement>
+	<Enhancement language="Deutsch">Login-Dialog kann jetzt übersprungen werden</Enhancement>
+	<Enhancement language="Deutsch">Man kann jetzt einen Integritätscheck ausführen und gegebenenfalls korrupte Moddateien wieder herstellen</Enhancement>
+	<Bug language="Deutsch">Wenn Auflösung von einer Modifikation überschrieben wird, dann werden Achievements jetzt trotzdem richtig dargstellt</Bug>
+	<Bug language="Deutsch">Spaltenbreite der Downloadspalte verbessert</Bug>
+	<Bug language="Deutsch">Eigene Spielzeit wird jetzt wirklich angezeigt</Bug>
+	<Bug language="Deutsch">Patches und Tools funktionieren jetzt richtig</Bug>
+	<Bug language="Deutsch">Spielzeit der aktuell ausgewählten Mod wird jetzt nach dem Spielen direkt aktualisiert ohne sie nochmal auswählen zu müssen</Bug>
+	<Bug language="Deutsch">Änderung der Sprache aktualisiert die Datenbank jetzt direkt neu ohne Spine neu starten zu müssen</Bug>
+	<Bug language="Deutsch">Auch nach (De)Installation einer Modifikation wird die Sortierreihenfolge nach der letzten Spalte richtig angezeigt</Bug>
+	<Bug language="Deutsch">Gothic (1) patchen funktioniert jetzt</Bug>
+	
+	<Enhancement language="English">Mod and team names now support ' within the name</Enhancement>
+	<Enhancement language="English">Improved auto update a little more</Enhancement>
+	<Enhancement language="English">Improved style of Spine</Enhancement>
+	<Enhancement language="English">It is possible to send feedback/bug reports/wishes directly from within Spine</Enhancement>
+	<Enhancement language="English">If Spine is started with admin privileges especially big modifications are started much faster</Enhancement>
+	<Enhancement language="English">In developer mode all mods installed via Spine are hidden now</Enhancement>
+	<Enhancement language="English">Settings can be opened via shortcut O</Enhancement>
+	<Enhancement language="English">Removed version column from database, but therefore the version now is displayed in library</Enhancement>
+	<Enhancement language="English">Database table hides columns of minor priority now when scaling window to smaller size</Enhancement>
+	<Enhancement language="English">In case mod description text can't be converted completely to html it is hidden now</Enhancement>
+	<Enhancement language="English">It is possible now to play Gothic II modifications that require also Gothic</Enhancement>
+	<Enhancement language="English">Added first small start page</Enhancement>
+	<Enhancement language="English">Filter settings for database and library now are saved</Enhancement>
+	<Enhancement language="English">Login can be skipped now</Enhancement>
+	<Enhancement language="English">It is possible to perform an integrity check now and in case restore corrupt mod files</Enhancement>
+	<Bug language="English">In case resolution is overriden by a modification, achievements are displayed correctly</Bug>
+	<Bug language="English">Improved width of download column</Bug>
+	<Bug language="English">Own playtime now is really displayed</Bug>
+	<Bug language="English">Patches and tools now work correctly</Bug>
+	<Bug language="English">Playtime of the selected mod now is directly updated after playing without the need of reselecting it</Bug>
+	<Bug language="English">Changing the language now updates the database directly without the need of a restart of Spine</Bug>
+	<Bug language="English">Also after (un)installation of a modification sort order of last column is displayed correctly</Bug>
+	<Bug language="English">Patching Gothic (1) works now</Bug>
+
+	<Enhancement language="Russian">Выбор модов и команд теперь осуществляется по названию;</Enhancement>
+	<Enhancement language="Russian">Автоматическое обновление улучшено, переписано и обновлено;</Enhancement>
+	<Enhancement language="Russian">Немного улучшен стиль Spine;</Enhancement>
+	<Enhancement language="Russian">Теперь можно отправлять сообщения об ошибках непосредственно из Spine (через меню "Обратная связь");</Enhancement>
+	<Enhancement language="Russian">Теперь, если Spine запущен с правами администратора, то большие по объёму модификации запускаются гораздо быстрее;</Enhancement>
+	<Enhancement language="Russian">Теперь в режиме разработчика все установленные модификации в Spine теперь скрыты;</Enhancement>
+	<Enhancement language="Russian">Теперь меню настроек можно открыть с помощью горячей клавиши [O];</Enhancement>
+	<Enhancement language="Russian">Столбец "Версия" удалён из "базы данных", она теперь будет отображаться соответствующей версией в "Библиотеке";</Enhancement>
+	<Enhancement language="Russian">Таблица "базы данных" теперь скрывает менее важные столбцы, если окно было уменьшено от изначального его размера;</Enhancement>
+	<Enhancement language="Russian">Если текстовое описание модификации не может быть переведено в HTML, то оно теперь полностью скрывается;</Enhancement>
+	<Enhancement language="Russian">Теперь можно играть в моды для "Готики 2" из Spine, но это также требует установленную "Готику 1";</Enhancement>
+	<Enhancement language="Russian">Добавлена небольшая страница приветствия в окне программы;</Enhancement>
+	<Enhancement language="Russian">Настройки фильтра для "базы данных" и "библиотеки" теперь сохраняются;</Enhancement>
+	<Enhancement language="Russian">Диалог входа в программу теперь можно пропустить;</Enhancement>
+	<Enhancement language="Russian">Теперь вы можете выполнить проверку целостности файлов и обновить/восстановить поврежденные файлы модификаций снова.</Enhancement>
+	<Bug language="Russian">Если разрешение в игре изменяется модификацией, то полученные достижения теперь отображаются правильно;</Bug>
+	<Bug language="Russian">Ширина колонок и столбцов загрузки увеличена;</Bug>
+	<Bug language="Russian">Реально проведенное время в игре теперь отображается правильно;</Bug>
+	<Bug language="Russian">Патчи и инструменты теперь работают правильно;</Bug>
+	<Bug language="Russian">Продолжительность игры для выбранного мода теперь обновляется непосредственно после выхода из игры, без необходимости повторного его выбора;</Bug>
+	<Bug language="Russian">Смена языка обновляет базу данных теперь по новому, без предварительного перезапуска Spine;</Bug>
+	<Bug language="Russian">При и после выбора языка (De), при установке/удалении модификаций, порядок их сортировки отображается правильно для последнего столбца таблицы;</Bug>
+	<Bug language="Russian">Патчинг "Готики 1" теперь работает правильно.</Bug>
+</Version>
+<Version majorVersion="0" minorVersion="9" patchVersion="1">
+	<Bug language="Deutsch">Integritätscheck überprüft und repariert jetzt auch Teile von Gothic und Gothic II</Bug>
+	
+	<Bug language="English">Integrity check now also checks and repairs parts of Gothic and Gothic II</Bug>
+
+	<Bug language="Russian">Проверка целостности данных и восстановление в настоящее время работает также для "Готики 1" и "Готики 2".</Bug>
+</Version>
+<Version majorVersion="0" minorVersion="9" patchVersion="2">
+	<Bug language="Deutsch">Umlaute in deutschen Installertexten sollten jetzt richtig angezeigt werden</Bug>
+	<Bug language="Deutsch">Uninstaller sollte jetzt besser aufräumen</Bug>
+	<Bug language="Deutsch">Overrides für Gothic und Gothic II funktionieren jetzt</Bug>
+	<Bug language="Deutsch">Fehler wegen fehlender dll behoben, wenn eine Mod als Admin mit Systempack gespielt wird (evtl. auch bei anderen Mods)</Bug>
+	
+	<Bug language="English">Umlauts in German installer texts should be displayed correct now</Bug>
+	<Bug language="English">Uninstaller should clean up better</Bug>
+	<Bug language="English">Overrides for Gothic and Gothic II do work now</Bug>
+	<Bug language="English">Fixed error because of missing dll starting a mod as admin with system (maybe also other mods)</Bug>
+
+	<Bug language="Russian">Умляуты в текстах инсталлятора на немецком языке теперь должны отображаться корректно;</Bug>
+	<Bug language="Russian">Деинсталлятор теперь должен правильно работать;</Bug>
+	<Bug language="Russian">Если INI-файл мода содержит секцию OVERRIDES, то её параметры теперь применяются и к играм "Готика 1" и "Готика 2";</Bug>
+	<Bug language="Russian">Исправлена ошибка с отсутствующей библиотекой *.DLL, при игре в мод запускаемого с правами администратора и с SystemPack (возможно, и с другими модами).</Bug>
+</Version>
+<Version majorVersion="0" minorVersion="9" patchVersion="3">
+	<Bug language="Deutsch">Mod-Update war in einigen Fällen fehlerhaft</Bug>
+	
+	<Bug language="English">Mod updates was errorneous in some cases</Bug>
+
+	<Bug language="Russian">Исправление обновления модов, было некорректным в некоторых случаях.</Bug>
+</Version>
+<Version majorVersion="0" minorVersion="9" patchVersion="4">
+	<Bug language="Deutsch">Weiteren kleinen Fehler bei Mod-Update behoben</Bug>
+	
+	<Bug language="English">Fixed another minor bug during mod update</Bug>
+
+	<Bug language="Russian">Исправлены мелкие ошибки в механизме обновления модов.</Bug>
+</Version>
+<Version majorVersion="0" minorVersion="9" patchVersion="5">
+	<Bug language="Deutsch">Fehler bei Login werden nicht angezeigt</Bug>
+	<Bug language="Deutsch">"Nicht mehr anzeigen" von Login-Dialog funktioniert nicht richtig</Bug>
+	
+	<Bug language="English">Errors during login aren't displayed</Bug>
+	<Bug language="English">"Don't show again" of Login dialog doesn't work properly</Bug>
+
+	<Bug language="Russian">Исправление ошибки возникающей при входе в программу;</Bug>
+	<Bug language="Russian">Исправление ошибки в функции "Не показывать снова" диалогового окна для входа в систему, не работало должным образом.</Bug>
+</Version>
+<Version majorVersion="0" minorVersion="9" patchVersion="6">
+	<Bug language="Deutsch">E-Mail-Adressen-Validator verbessert</Bug>
+	
+	<Bug language="English">Improved e-mail validator</Bug>
+
+	<Bug language="Russian">Улучшение работы валидатора адресов электронной почты.</Bug>
+</Version>
+<Version majorVersion="0" minorVersion="9" patchVersion="7">
+	<Enhancement language="Deutsch">zSpy kann jetzt über die Entwickler-Optionen aktiviert werden</Enhancement>
+	<Enhancement language="Deutsch">Script-API optimiert, damit sie besser gewappnet ist für die Zukunft</Enhancement>
+	<Enhancement language="Deutsch">Anzeige für Erfolge optimiert</Enhancement>
+	
+	<Enhancement language="English">zSpy now can be activated through developer settings</Enhancement>
+	<Enhancement language="English">Improved script API to work also in the future</Enhancement>
+	<Enhancement language="English">Improved presentation of achievements</Enhancement>
+
+	<Enhancement language="Russian">zSpy могут быть активированы с помощью опцию в меню "Разработчик";</Enhancement>
+	<Enhancement language="Russian">Оптимизация скриптов API, для лучшей работы в будущем;</Enhancement>
+	<Enhancement language="Russian">Оптимизация отображения оценок "Достижений".</Enhancement>
+</Version>
+<Version majorVersion="1" minorVersion="0" patchVersion="0">
+	<Enhancement language="Deutsch">Wenn man manuell nach Spine-Aktualisierungen sucht bekommt man nun mitgeteilt, dass keine gefunden wurde, wenn dies der Fall ist</Enhancement>
+	<Enhancement language="Deutsch">Wenn der Integritätscheck Dateien repariert, gibt er am Ende eine Statusmeldung über Erfolg/Misserfolg aus</Enhancement>
+	<Enhancement language="Deutsch">Script-API optimiert, damit sie besser gewappnet ist für die Zukunft</Enhancement>
+	<Enhancement language="Deutsch">Anzeige für Erfolge optimiert</Enhancement>
+	<Enhancement language="Deutsch">Mit Strg + D lässt sich jetzt der Entwicklermodus schneller aktivieren/deaktivieren</Enhancement>
+	<Enhancement language="Deutsch">Information hinzugefügt, was mit den Gothic-Pfaden genau gemeint ist</Enhancement>
+	<Enhancement language="Deutsch">Optionale Pakete für Mods ermöglicht (z.B. Sprachausgabe kann jetzt separat geladen werden, sofern auch eigenständige .mod Datei)</Enhancement>
+	<Enhancement language="Deutsch">Gothic-Pfade können jetzt optional automatisch ermittelt werden</Enhancement>
+	<Enhancement language="Deutsch">Bei Deinstallation einer Modifikation wird nun die Möglichkeit geboten, Spielstände ebenfalls zu deinstallieren</Enhancement>
+	<Bug language="Deutsch">Dialoge haben jetzt selbes Farbschema wie der Rest der GUI</Bug>
+	<Bug language="Deutsch">Sprache des Changelogs wird jetzt aktualisiert, wenn die Sprache gewechselt wird</Bug>
+	<Bug language="Deutsch">Filter für Bibliothek werden jetzt separat gespeichert, damit sie nicht von der Datenbank überschrieben werden</Bug>
+	<Bug language="Deutsch">Rechtschreibfehler in deutscher Übersetzung korrigiert</Bug>
+	<Bug language="Deutsch">Installationsordner wird jetzt auch als Clockwork Origins vorgeschlagen</Bug>
+	<Bug language="Deutsch">Spine wird jetzt in der Programmliste von Windows gelistet</Bug>
+	<Bug language="Deutsch">Nicht installierbare Mods werden jetzt wieder ausgegraut angezeigt</Bug>
+	<Bug language="Deutsch">Fehlerhafte Dateien, die der Integritätscheck findet, werden jetzt angezeigt werden</Bug>
+	<Bug language="Deutsch">Dialogbuttons sind jetzt auch übersetzt</Bug>
+	<Bug language="Deutsch">Warnung ergänzt, wenn man einen Pfad zu Gothic (2) auswählt, der ungültig ist</Bug>
+	<Bug language="Deutsch">Dauer beim Speichern der Einstellungen erheblich reduziert</Bug>
+	
+	<Enhancement language="English">Checking manually for Spine updates informs user now in case no update is available</Enhancement>
+	<Enhancement language="English">In case integrity check repairs files it displays a status message about success/failure in the end</Enhancement>
+	<Enhancement language="English">Improved script API to work also in the future</Enhancement>
+	<Enhancement language="English">Improved presentation of achievements</Enhancement>
+	<Enhancement language="English">Using Ctrl + D will enable/disable developer mode faster</Enhancement>
+	<Enhancement language="English">Added information what is meant by Gothic paths</Enhancement>
+	<Enhancement language="English">Added support for optional packages for modifications (e.g. speech can be loaded separatly in case it is a second .mod file)</Enhancement>
+	<Enhancement language="English">Gothic paths now can be detected automatically (optional)</Enhancement>
+	<Enhancement language="English">During uninstallation of a modification it is possible now to also uninstall savegames</Enhancement>
+	<Bug language="English">Dialogs now have same color scheme as rest of the GUI</Bug>
+	<Bug language="English">Language of changelog now is updated when language is changed</Bug>
+	<Bug language="English">Filters for library are saved separatly now to not get overwritten by database</Bug>
+	<Bug language="English">Fixed typo in German translation</Bug>
+	<Bug language="English">Name of installation folder now is also suggested as Clockwork Origins</Bug>
+	<Bug language="English">Spine now is listed in the programms list of Windows</Bug>
+	<Bug language="English">Not installable mods now are greyed out again</Bug>
+	<Bug language="English">Corrupt files the integrity check finds are displayed now</Bug>
+	<Bug language="English">Dialog buttons now are translated</Bug>
+	<Bug language="English">Added a warning selecting a path to Gothic (2) which is invalid</Bug>
+	<Bug language="English">Decreased duration of saving of settings by a huge amount</Bug>
+
+	<Enhancement language="Russian">Теперь если активировать функцию поиска обновлений для Spine вручную, то по завершению программа выводит окно: "Обновлений не найдено", в случае если их нет;</Enhancement>
+	<Enhancement language="Russian">Теперь при активации функции проверки целостности файлов, то по её завершению программа вы водит окно об успехе процесса или его неудаче;</Enhancement>
+	<Enhancement language="Russian">Оптимизация скриптов API, для лучшей работы в будущем;</Enhancement>
+	<Enhancement language="Russian">Оптимизация отображения оценок "Достижений".</Enhancement>
+	<Enhancement language="Russian">Теперь по нажатию комбинации клавиш [Ctrl]+[D] можно быстро включить/отключить "Режим разработчика";</Enhancement>
+	<Enhancement language="Russian">Добавлена информация, которая объяснят что именно подразумевается под "Путями по-умолчанию" для "Готики";</Enhancement>
+	<Enhancement language="Russian">Возможность добавления дополнительных файлов для мода, например, файлы озвучки мода можно загрузить отдельно если они есть, и при условии что они упакованы в отдельный мод-файл;</Enhancement>
+	<Enhancement language="Russian">Теперь пути к каталогам игры по-умолчанию опрделяются автоматически (опционально, в меню);</Enhancement>
+	<Enhancement language="Russian">При удалении модификации теперь даётся возможность удаления её сохранений.</Enhancement>
+	<Bug language="Russian">Информационные диалоги теперь используют туже цветовую схему, как и остальная часть графического интерфейса пользователя;</Bug>
+	<Bug language="Russian">Язык журнал изменений теперь обновляется при смене языка в настройках программы;</Bug>
+	<Bug language="Russian">Настройки фильтров для "Библиотеки" теперь хранятся отдельно, чтобы они не были перезаписаны "Базой данных";</Bug>
+	<Bug language="Russian">Исправление орфографических ошибок в немецкой локализации;</Bug>
+	<Bug language="Russian">Теперь также предлагается название каталога установки по-умолчанию как Clockwork Origins;</Bug>
+	<Bug language="Russian">Теперь Spine отображается в списке программ Windows;</Bug>
+	<Bug language="Russian">Не установленные модификации теперь вновь отображаются серым цветом(не активные);</Bug>
+	<Bug language="Russian">Повреждённый файлы выявленные при проверке целостности данных, теперь будут отображены;</Bug>
+	<Bug language="Russian">Кнопки диалоговых окон теперь также переведены;</Bug>
+	<Bug language="Russian">Теперь при выборе пути к играм "Готика" выводится предупреждение, если он является недействительным;</Bug>
+	<Bug language="Russian">Значительно сокращено время сохранения настроек программы.</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="0" patchVersion="1">
+	<Bug language="Deutsch">Intergritätscheck bei vielen Dateien stürzt jetzt nicht mehr ab</Bug>
+	<Bug language="Deutsch">Text von Spielzeit- und Downloadgrößenspalten kann jetzt nicht mehr editiert werden</Bug>
+	<Bug language="Deutsch">Downloadgröße für optionale Pakete sollte jetzt richtig angezeigt werden</Bug>
+	<Bug language="Deutsch">Mod-Updates funktionieren jetzt wieder</Bug>
+	<Bug language="Deutsch">Scores anzeigen (in Mods) funktioniert jetzt richtig</Bug>
+	
+	<Bug language="English">Integrity check doesn't crash anymore checking many files</Bug>
+	<Bug language="English">Text of play time and download size columns can't be edited anymore</Bug>
+	<Bug language="English">Download size for optional packages should be displayed now correctly</Bug>
+	<Bug language="English">Mod updates work again</Bug>
+	<Bug language="English">Displaying scores (in mods) does work now correctly</Bug>
+
+	<Bug language="Russian">Проверка целостности данных больше не сбоит при анализе большого количества файлов;</Bug>
+	<Bug language="Russian">Текстовое поле столбцов "Игра" и "Размер загрузки" теперь нельзя отредактировать;</Bug>
+	<Bug language="Russian">Размер загружаемого файла для опциональных пакетов теперь должен отображаться правильно;</Bug>
+	<Bug language="Russian">Обновление модов снова работает;</Bug>
+	<Bug language="Russian">Отображение "Оценок" (в модах) теперь работает корректно.</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="0" patchVersion="2">
+	<Bug language="Deutsch">Polnische und russische Übersetzung aktualisiert</Bug>
+	<Bug language="Deutsch">Optionale Pakete können jetzt auch im Betazugang richtig genutzt werden</Bug>
+	<Bug language="Deutsch">Apostroph wird jetzt immer richtig angezeigt</Bug>
+	<Bug language="Deutsch">Installationsweise von DirectX für D3D11 angepasst, damit der überall funktioniert</Bug>
+	<Bug language="Deutsch">Sollten Moddateien nach dem Spielen liegen bleiben, so sollte Spine diese beim nächsten Update der Bibliothek (Tabwechsel in Spine) reparieren</Bug>
+	
+	<Bug language="English">Updated Polish and Russian translation</Bug>
+	<Bug language="English">Optional packages now can be used also in beta access</Bug>
+	<Bug language="English">Apostrophe now is always displayed correctly</Bug>
+	<Bug language="English">Changed installation of DirectX for D3D11 to work everywhere</Bug>
+	<Bug language="English">In case mod files stay in the Gothic folder after playing, Spine should repair this with the next update of the library (tab change in Spine)</Bug>
+
+	<Bug language="Russian">Обновление локализации перевода для польского и русского языков;</Bug>
+	<Bug language="Russian">Дополнительные пакеты теперь используются правильно (пока в бета-доступе);</Bug>
+	<Bug language="Russian">Символ апострофа теперь всегда отображается правильно;</Bug>
+	<Bug language="Russian">Изменена установка рендера DirectX11, чтобы он работал везде;</Bug>
+	<Bug language="Russian">Исправление ошибки дублирования модов, появляющегося в списке модов после игры.</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="0" patchVersion="3">
+	<Bug language="Deutsch">Spielt man eine Spine-Mod ohne Account, bleibt die Initialisierung jetzt nicht mehr hängen</Bug>
+	<Bug language="Deutsch">Es wird jetzt mehr als ein Score pro Identifier pro Mod geladen</Bug>
+	
+	<Bug language="English">Playing a Spine mod without an account doesn't hang up during initialisation anymore</Bug>
+	<Bug language="English">More than one score per identifier per mod is loaded now</Bug>
+
+	<Bug language="Russian">Игра с модом в Spine без учётной записи больше не зависает во время инициализации;</Bug>
+	<Bug language="Russian">Теперь загружается более одного идентификатора для "Оценки" мода.</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="0" patchVersion="4">
+	<Bug language="Deutsch">Es kann bei kleinen Moddateien scheinbar passieren, dass der Download als abgeschlossen zählt bevor er wirklich fertig ist</Bug>
+	<Bug language="Deutsch">Im Admin-Modus funktionieren Patches und Tools jetzt korrekt</Bug>
+	
+	<Bug language="English">It seems to be possible to happen that small downloads are marked as successful before all files are downloaded</Bug>
+	<Bug language="English">Patches and tools work correct now in admin mode</Bug>
+
+	<Bug language="Russian">Исправлена ошибка преждевременного оповещения об окончании загрузки файлов(в основном для мелких закачек), прежде чем все файлы были загружены;</Bug>
+	<Bug language="Russian">Патчи и инструменты теперь правильно работают при запуске в режиме администратора.</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="0" patchVersion="5">
+	<Bug language="Deutsch">Start von Modifikationen im Admin-Modus wieder etwas beschleunigt</Bug>
+	<Bug language="Deutsch">Window-Icon optimiert, damit es schärfer angezeigt wird</Bug>
+	
+	<Bug language="English">Increase startup speed of modifications in admin mode again</Bug>
+	<Bug language="English">Improved window icon to have a sharper look</Bug>
+
+	<Bug language="Russian">Увеличение скорости загрузки модификаций в режиме администратора;</Bug>
+	<Bug language="Russian">Улучшена иконка окна приложения, теперь она выглядит четче.</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="0" patchVersion="6">
+	<Enhancement language="Deutsch">Durchschnittliche Spielzeit wird jetzt bereits nach 25 registrierten Spielern angezeigt statt erst bei 101</Enhancement>
+	<Bug language="Deutsch">Installation und Deinstallation optionaler Pakete funktioniert jetzt</Bug>
+	
+	<Enhancement language="English">Average play time will be shown for 25 registered users now instead of 101</Enhancement>
+	<Bug language="English">Installation and uninstallation of optional packages works now</Bug>
+
+	<Enhancement language="Russian">Среднее время продолжительности игры теперь будет отображаться для 25 зарегистрированных пользователей, вместо 101.</Enhancement>
+	<Bug language="Russian">Установка и удаление дополнительных пакетов теперь вновь работает.</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="1" patchVersion="0">
+	<Enhancement language="Deutsch">Mods können jetzt auch über einen Doppelklick auf die entsprechende Zeile installiert werden</Enhancement>
+	<Enhancement language="Deutsch">Profilseite eingebaut</Enhancement>
+	<Enhancement language="Deutsch">Seite mit allen Erfolgen einer Modifikation eingebaut</Enhancement>
+	<Enhancement language="Deutsch">Seite mit allen Scores einer Modifikation eingebaut</Enhancement>
+	<Enhancement language="Deutsch">Möglichkeit eingebaut die Downloadrate zu reduzieren</Enhancement>
+	<Enhancement language="Deutsch">Logout-Button in Profil eingebaut</Enhancement>
+	<Bug language="Deutsch">Formatierung an einigen Stellen optimiert</Bug>
+	<Bug language="Deutsch">Apostroph in Patchnamen wird in der Bibliothek jetzt richtig angezeigt</Bug>
+	<Bug language="Deutsch">Downloadgröße optionaler Pakete wird jetzt korrekt angezeigt</Bug>
+	<Bug language="Deutsch">Version in Windows-Programmliste sollte jetzt aktualisiert werden</Bug>
+	<Bug language="Deutsch">Eingabefeld für Gothicpfade kann jetzt auch direkt editiert werden</Bug>
+	<Bug language="Deutsch">Fehlender/unzureichenden Hinweis ergänzt, wenn min. ein Gothic-Pfad Administratorrechte erfordert</Bug>
+	<Bug language="Deutsch">Ist der Pfad für die Mod-Installationen "schlecht" gewählt, kann Spine deutlich mehr als nur die Mods während der Deinstallation löschen</Bug>
+	<Bug language="Deutsch">Beendet man den Mod-Update-Dialog ohne Update erscheinen jetzt weder Einträge doppelt noch der Dialog überhaupt nochmal</Bug>
+	<Bug language="Deutsch">Spine kann nur noch einmal gleichzeitig laufen</Bug>
+	<Bug language="Deutsch">Pfadeinstellungen vom ersten Start werden jetzt direkt gespeichert</Bug>
+	<Bug language="Deutsch">Desktopverknüpfung wird bei Deinstallation jetzt entfernt</Bug>
+	<Bug language="Deutsch">Es sollte jetzt in allen Fällen der richtige Font für die (De-)Installationsbuttons genommen werden</Bug>
+	<Bug language="Deutsch">Potenziellen Crash während des Integritätschecks behoben</Bug>
+	<Bug language="Deutsch">Verbesserte Behandlung im Falle das zwei Modifikationen die selben Dateien überschreiben wollen (z.B. Odyssee und Systempack)</Bug>
+	<Bug language="Deutsch">Selbst wenn Gothic oder Spine beim Spielen abstürzen werden jetzt alle Moddateien korrekt aus dem Gothic-Verzeichnis entfernt</Bug>
+	
+	<Enhancement language="English">Mods can be installed using double click on the corresponding line</Enhancement>
+	<Enhancement language="English">Added profile page</Enhancement>
+	<Enhancement language="English">Added page with all achievements of a modification</Enhancement>
+	<Enhancement language="English">Added page with all scores of a modification</Enhancement>
+	<Enhancement language="English">Added possibility to reduce the download rate</Enhancement>
+	<Enhancement language="English">Added logout button in profile</Enhancement>
+	<Bug language="English">Optimized formatting at some places</Bug>
+	<Bug language="English">Apostroph in patch name in library is displayed correct now</Bug>
+	<Bug language="English">Download size of optional packages now is displayed correctly</Bug>
+	<Bug language="English">Version in Windows program overview should be updated now</Bug>
+	<Bug language="English">Line edit for gothic paths can be edited directly now</Bug>
+	<Bug language="English">Added missing/bad hint in case at least one Gothic path requires admin privileges</Bug>
+	<Bug language="English">In case the path for mod installations is chosen "badly" Spine can delete more than just mod during uninstallation</Bug>
+	<Bug language="English">Exiting mod update dialog without updating doesn't cause the entries or even the dialog to appear twice</Bug>
+	<Bug language="English">Spine can only run once at a time</Bug>
+	<Bug language="English">Path settings from first startup are saved now directly</Bug>
+	<Bug language="English">Desktop shortcut will be removed now during uninstallation</Bug>
+	<Bug language="English">Now in every case the correct font for the (un-)install buttons should be chosen</Bug>
+	<Bug language="English">Fixed potential crash during integrity check</Bug>
+	<Bug language="English">Improved handling in case two modifications try to override same files (e.g. Odyssee and Systempack)</Bug>
+	<Bug language="English">Also in case either Gothic or Spine crash during playing a modification all mod files are removed correctly from Gothic folder</Bug>
+
+	<Enhancement language="Russian">Моды теперь можно установить при помощи "двойного щелчка" по соответствующей строке;</Enhancement>
+	<Enhancement language="Russian">Добавлена страница профиля;</Enhancement>
+	<Enhancement language="Russian">Добавлена страница со всеми "Достижениями" модификации;</Enhancement>
+	<Enhancement language="Russian">Добавлена страница со всеми "Очками" модификации;</Enhancement>
+	<Enhancement language="Russian">Добавлена возможность уменьшить скорость загрузки файлов;</Enhancement>
+	<Enhancement language="Russian">Добавлена кнопка "Выход" в профиле.</Enhancement>
+	<Bug language="Russian">Оптимизированное форматирование в некоторых местах;</Bug>
+	<Bug language="Russian">Апостроф в названии патча в библиотеке теперь отображается корректно;</Bug>
+	<Bug language="Russian">Размер загружаемых дополнительных пакетов теперь отображается правильно;</Bug>
+	<Bug language="Russian">"Версия", в обзоре программ в Windows, теперь должна быть обновлена;</Bug>
+	<Bug language="Russian">Текстовые поля для путей к каталогам установки игр и модов в настройках меню, теперь можно редактировать напрямую;</Bug>
+	<Bug language="Russian">Добавлена пропавшая/надостающая подсказка, на случай, если хотя бы однин из каталогов установки игры "Готика", требует прав администратора;</Bug>
+	<Bug language="Russian">В случае, если был выбран "плохой" путь для установки мода, Spine может удалить больше, чем при обычном удалении мода деинсталлятором;</Bug>
+	<Bug language="Russian">Выход из диалога обновления модов "без обновления" не вызывает каких либо записей или появления диалогового окна дважды;</Bug>
+	<Bug language="Russian">Только одна запущенная копия Spine может работать в настоящее время;</Bug>
+	<Bug language="Russian">Настройки пути после первого запуска теперь сохраняются напрямую;</Bug>
+	<Bug language="Russian">Ярлык программы на рабочем столе, теперь удаляется при деинсталляции;</Bug>
+	<Bug language="Russian">Теперь в любом случае, правильный шрифт для кнопки "установка/удаление" должен быть выбран;</Bug>
+	<Bug language="Russian">Исправлен потенциальный сбой при проверке целостности денных;</Bug>
+	<Bug language="Russian">Улучшенная обработка в случае, когда две модификации пытаются переопределить одни и те же файлы (например, "Одиссея" и "Системпак");</Bug>
+	<Bug language="Russian">В случае сбоя "Готики" или Spine во время игры с модом, все его мод-файлы теперь правильно удаляются из каталога игры.</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="1" patchVersion="1">
+	<Bug language="Deutsch">Gothic (1)-Patching verbessert</Bug>
+	<Bug language="Deutsch">Potenzielle Fehlerquelle für die Synchronisation zwischen Mod und Spine beseitigt</Bug>
+	<Bug language="Deutsch">Datenbank-Filter funktionieren jetzt richtig mit optionalen Paketen</Bug>
+	
+	<Bug language="English">Improved patching of Gothic (1)</Bug>
+	<Bug language="English">Fixed potential problem in synchronisation between mod and Spine</Bug>
+	<Bug language="English">Database filters now working correct with optional packages</Bug>
+
+	<Bug language="Russian">Улучшен патчинг "Готики 1";</Bug>
+	<Bug language="Russian">Исправлена потенциальная проблема в синхронизации между модом и Spine;</Bug>
+	<Bug language="Russian">Фильтры "Базы данных модов" теперь работает корректно с дополнительными пакетами.</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="1" patchVersion="2">
+	<Bug language="Deutsch">Mod-Updates funktionieren jetzt wieder richtig</Bug>
+	
+	<Bug language="English">Mod updates work correct now</Bug>
+
+	<Bug language="Russian">Обновление модов теперь работает корректно.</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="1" patchVersion="3">
+	<Bug language="Deutsch">Fehler beim Starten von Jharkendar-Online Deathmatch behoben</Bug>
+	
+	<Bug language="English">Fixed bug starting Jharkendar Online Deathmatch</Bug>
+
+	<Bug language="Russian">Исправлена ошибка запуска онлайн игры "Jharkendar Online Deathmatch".</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="1" patchVersion="4">
+	<Enhancement language="Deutsch">Gothic Comfortable Action Keys wird jetzt unterstützt</Enhancement>
+	<Bug language="Deutsch">Gothic 1 Validierung sollte jetzt auch für andere Sprachen besser funktionieren</Bug>
+	<Bug language="Deutsch">Auto-Update sollte jetzt, wenn nicht als Admin gestartet, wieder besser funktionieren</Bug>
+	
+	<Enhancement language="English">Gothic Comfortable Action Keys is supported now</Enhancement>
+	<Bug language="English">Gothic 1 validation should for now also for other languages in a better way</Bug>
+	<Bug language="English">Auto update should work better now in cas Spine isn't started as admin</Bug>
+
+	<Enhancement language="Russian">"Готика 1" теперь поддерживает удобные клавиши управления.</Enhancement>
+	<Bug language="Russian">Проверка "Готики 1" теперь должна происходить лучше, в том числе и для других языковых версий игры;</Bug>
+	<Bug language="Russian">Улучшено автоматическое обновление, теперь оно должно работать лучше в случае если Spine был запущен без прав администратора.</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="1" patchVersion="5">
+	<Bug language="Deutsch">Fehler beim Starten von Hintergrundprozessen von Tools behoben</Bug>
+	
+	<Bug language="English">Fixed error starting background process of tools</Bug>
+
+	<Bug language="Russian">Исправлена ошибка фонового запуска процесса инструментария.</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="2" patchVersion="0">
+	<Enhancement language="Deutsch">Aktuelle Modifikation wird im Profil bei der Erfolg/Score-Seite angezeigt</Enhancement>
+	<Enhancement language="Deutsch">News-Funktionalität eingebaut</Enhancement>
+	<Enhancement language="Deutsch">Spaltenbreiten in Datenbank passen sich jetzt dem Inhalt an</Enhancement>
+	<Enhancement language="Deutsch">Versionsspalte in Datenbank wieder eingebaut</Enhancement>
+	<!-- Enhancement language="Deutsch">Spanische Übersetzung eingebaut</Enhancement -->
+	<Enhancement language="Deutsch">Man kann im Profil jetzt Patches und Tools ausblenden</Enhancement>
+	<Enhancement language="Deutsch">Neues Spine-Script-Feature zur Verfügung gestellt um Savegame-übergreifend Daten für eine Mod zu speichern</Enhancement>
+	<Bug language="Deutsch">Breite des Loginfensters optimiert</Bug>
+	<Bug language="Deutsch">Russischer Changelog kann jetzt angezeigt werden</Bug>
+	<Bug language="Deutsch">Wurde die Erfolg/Score-Seite vom Profil aufgerufen, muss man nun nicht mehr zwei Mal aufs Profil wechseln, um das ursprüngliche Profil wieder zu sehen</Bug>
+	<Bug language="Deutsch">Spine sollte leere Mod-Ordner im Gothic-Verzeichnis nach dem Spielen jetzt entfernen</Bug>
+	<Bug language="Deutsch">Zusätzliche Info in Fehlermeldung bei Mod-Installation eingebaut, wenn die Mod wegen zu wenig Speicher nicht installiert werden konnte</Bug>
+	<Bug language="Deutsch">Solange wenigstens ein Spieler einen Score in einer Modifikation hat, sehen nun alle eingeloggten Spieler direkt, dass die Mod Scores hat</Bug>
+	<Bug language="Deutsch">Optionale Pakete lassen sich jetzt auch per Doppelklick richtig installieren</Bug>
+	<Bug language="Deutsch">Es gibt jetzt auch eine Fehlermeldung, wenn die Deinstallation einer Mod nicht klappt</Bug>
+	<Bug language="Deutsch">Synchronisation für Datenbank sollte jetzt etwas schneller sein</Bug>
+	<Bug language="Deutsch">Es wird im Profil jetzt nur noch die echte Spielzeit angezeigt (ohne Patches und Tools)</Bug>
+	
+	<Enhancement language="English">Current modification is displayed in profile on achievement/score page</Enhancement>
+	<Enhancement language="English">Added news functionality</Enhancement>
+	<Enhancement language="English">Column width in database fits to content now</Enhancement>
+	<Enhancement language="English">Readded version column to database</Enhancement>
+	<!-- Enhancement language="English">Added Spanish translation</Enhancement -->
+	<Enhancement language="English">It is possible now to hide patches and tools in profile</Enhancement>
+	<Enhancement language="English">Added new Spine script feature to save data for all savegames of a modification</Enhancement>
+	<Bug language="English">Tuned width of login dialog</Bug>
+	<Bug language="English">Russian changelog can be displayed now</Bug>
+	<Bug language="English">In case achievement/score page was opened from profile page one hasn't to switch twice back to the profile to see the original version of it</Bug>
+	<Bug language="English">Spine should remove empty folders in Gothic directories after playing now</Bug>
+	<Bug language="English">Added additional info in error message during mod installation in case the mod couldn't be installed because of too less space</Bug>
+	<Bug language="English">As long as at least one player has a score in a modification all logged in users can directly see that this mod provides scores</Bug>
+	<Bug language="English">Optional packages can be installed correctly via double click now</Bug>
+	<Bug language="English">Now there is an error message in case uninstallation of a mod didn't work</Bug>
+	<Bug language="English">Synchronisation for database should run faster now</Bug>
+	<Bug language="English">Profile now only shows the real playtime (without patches and tools)</Bug>
+
+	<Enhancement language="Russian">Текущая модификация отображается в профиле на странице "Достижений/Оценок";</Enhancement>
+	<Enhancement language="Russian">Добавлен функционал для новостей;</Enhancement>
+	<Enhancement language="Russian">Ширина столбца в "Базе данных" теперь соответствует содержимому;</Enhancement>
+	<Enhancement language="Russian">Добавлены повторно столбцы в "Базе данных";</Enhancement>
+	<!-- Enhancement language="Russian">Добавлен испанский перевод;</Enhancement -->
+	<Enhancement language="Russian">Теперь можно "скрыть/отобразить" патчи и инструменты в профиле;</Enhancement>
+	<Enhancement language="Russian">Добавлена новая функция в скрипты для Spine, позволяющая сохранять данные ото всех сейвов используемых модификаций.</Enhancement>
+	<Bug language="Russian">Настроена ширина отображения диалогового окна для входа;</Bug>
+	<Bug language="Russian">"Журнала изменений" теперь поддерживает и отображается на русском, при выборе соответствующего языка;</Bug>
+	<Bug language="Russian">В случае, если страница "Достижений/Оценок" была открыта из "Профиля", то теперь не нужно переключаться дважды на профиль, чтобы увидеть оригинальную версию;</Bug>
+	<Bug language="Russian">Spine теперь должен удалять пустые папки в каталоге игры после её запуска;</Bug>
+	<Bug language="Russian">Добавлена дополнительная информация в сообщение об ошибке во время установки мода(ов), в случае, если мод не может быть установлен из-за недостаточного количества свободного пространства на диске;</Bug>
+	<Bug language="Russian">Пока хотя бы один игрок имеет "Оценки" для модификации, все зарегистрированные пользователи смогут непосредственно видеть эти предоставленные результаты;</Bug>
+	<Bug language="Russian">Дополнительные пакеты теперь устанавливаются правильно с помощью "двойного щелчка";</Bug>
+	<Bug language="Russian">Теперь выводится сообщение об ошибке, в случае, если деинсталляция мода прошла некорректно;</Bug>
+	<Bug language="Russian">Синхронизация для "Базы данных" сейчас должна работать быстрее;</Bug>
+	<Bug language="Russian">В "Профиле" теперь отображается только актуальная игра/мод (без патчей и инструментария).</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="2" patchVersion="1">
+	<Enhancement language="Deutsch">Unterstützung für individuelle Erfolg-Icons in Spine eingebaut</Enhancement>
+	
+	<Enhancement language="English">Added support for individual achievement icons in Spine</Enhancement>
+
+	<Enhancement language="Russian">Добавлена поддержка индивидуальных иконок Достижений в Spine</Enhancement>
+</Version>
+<Version majorVersion="1" minorVersion="2" patchVersion="2">
+	<Bug language="Deutsch">Freigeschaltete Erfolge werden jetzt auch angezeigt wenn sie als versteckt markiert sind (z.B. Atariar Edition)</Bug>
+	<Bug language="Deutsch">Individuelle Erfolgsbilder werden jetzt nur noch einmal geladen</Bug>
+	<Bug language="Deutsch">Erfolge und Scores sollten jetzt nie mehr doppelt auftauchen</Bug>
+	
+	<Bug language="English">Unlocked achievements now are also visible even though they are marked as hidden</Bug>
+	<Bug language="English">Individual achievement images are loaded just once now</Bug>
+	<Bug language="English">Achievements and scores shouldn't appear twice anymore</Bug>
+
+	<Bug language="Russian">Открытые достижения теперь также отображаются, даже если они отмечены как скрытые</Bug>
+	<Bug language="Russian">Индивидуальные изображения Достижений загружаются только один раз</Bug>
+	<Bug language="Russian">Достижения и Оценки не должны больше появляться дважды</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="2" patchVersion="3">
+	<Bug language="Deutsch">Es sollten jetzt deutlich mehr E-Mail-Adressen erlaubt sein</Bug>
+	
+	<Bug language="English">Many more e-mail adresses should be possible now</Bug>
+
+	<Bug language="Russian">Теперь возможно использование большинства других адресов электронной почты</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="3" patchVersion="0">
+	<Enhancement language="Deutsch">Möglichkeit der Zuordnung User => Team eingebaut, um später Änderungen an den Mods des Teams vornehmen zu können</Enhancement>
+	<Enhancement language="Deutsch">Möglichkeit für registrierte User eingebaut, eigene News zu verfassen und einzuschicken</Enhancement>
+	<Enhancement language="Deutsch">Möglichkeit eingebaut im Entwicklermodus auch Patches und Tools zu aktivieren</Enhancement>
+	<Enhancement language="Deutsch">Mod-Updates sollten jetzt optionale Pakete erkennen, die nachträglich aus der Grundinstallation rausgenommen wurden</Enhancement>
+	<Enhancement language="Deutsch">Spine-Editor eingebaut, um noch einfacher Spine-Features wie Erfolge in eigene Modifikationen einzubauen</Enhancement>
+	<Enhancement language="Deutsch">Feedback kann jetzt optional mit Username verschickt werden (für Fragen)</Enhancement>
+	<Enhancement language="Deutsch">Mod-Info-Seite eingeführt, wenn man auf einen Modnamen in der Datenbank klickt</Enhancement>
+	<Enhancement language="Deutsch">Man kann jetzt in der Sektion OVERRIDES_SP in der Mod.ini Werte vom Systempack überschreiben analog zur Gothic.ini</Enhancement>
+	<Bug language="Deutsch">News vom selben Tag sollten jetzt richtig sortiert sein</Bug>
+	<Bug language="Deutsch">Gothic wird jetzt nicht mehr gepatcht, wenn gar kein echter Pfad eingestellt wurde</Bug>
+	<Bug language="Deutsch">Leerzeichen in den Gothic-Pfaden sollten jetzt beim Start keine Probleme mehr machen</Bug>
+	<Bug language="Deutsch">Fehlende Datei für Gothic und Gothic 2 in manchen Fällen behoben</Bug>
+	<Bug language="Deutsch">Im Falle eines Netzwerkfehlers wird der Fehler jetzt erkannt und man kann versuchen den Download fortzusetzen</Bug>
+	<Bug language="Deutsch">Fehler bei der Initialisierung Savegame-übergreifender Saves in der Script-API behoben</Bug>
+	
+	<Enhancement language="English">Added possibility to assign users to teams to be able to edit mods of the team later</Enhancement>
+	<Enhancement language="English">Added possibility for registered users to write and submit own news</Enhancement>
+	<Enhancement language="English">Added possibility to also enable patches and tools in developer mode</Enhancement>
+	<Enhancement language="English">Mod updates now should detect optional packages that were extracted from the base installation later</Enhancement>
+	<Enhancement language="English">Added Spine Editor to make integration of Spine features such as achievements easier than before</Enhancement>
+	<Enhancement language="English">Feedback can be sent with username optionally (for questions)</Enhancement>
+	<Enhancement language="English">Added mod info page clicking on a modname in the database</Enhancement>
+	<Enhancement language="English">One can override values of systempack in Mod.ini using section OVERRIDES_SP analog to Gothic.ini</Enhancement>
+	<Bug language="English">News from the same day should be ordered correctly now</Bug>
+	<Bug language="English">Gothic isn't patched anymore in case path isn't valid</Bug>
+	<Bug language="English">Starting a mod from a Gothic folder with a space in the path shouldn't cause any problems anymore</Bug>
+	<Bug language="English">Fixed missing file for Gothic and Gothic II in some cases</Bug>
+	<Bug language="English">Network errors are detected now and it is possible to try to continue the download</Bug>
+	<Bug language="English">Fixed bug during initialisation of overall saves in script API</Bug>
+
+	<Enhancement language="Russian">Добавлена возможность назначать пользователей в группы, чтобы иметь возможность редактировать моды командой позже</Enhancement>
+	<Enhancement language="Russian">Добавлена возможность для зарегистрированных пользователей писать и отправлять собственные новости</Enhancement>
+	<Enhancement language="Russian">Добавлена возможность включения патчей и инструментов в режиме разработчика</Enhancement>
+	<Enhancement language="Russian">Обновление модов теперь должно определять дополнительные пакеты, которые были извлечены из базовой установки позже</Enhancement>
+	<Enhancement language="Russian">Добавлен редактор Spine для облегчения интеграции функций Spine, таких как Достижения, теперь их встроить легче чем раньше</Enhancement>
+	<Enhancement language="Russian">Сообщения "Обратной связи" могут быть отправлены с указанием имени пользователя, опционально (для вопросов)</Enhancement>
+	<Enhancement language="Russian">Добавлено отображение страницы с информацией о модификации при нажатии на название мода в базе данных</Enhancement>
+	<Bug language="Russian">Новости от того же дня должны быть правильно упорядочены сейчас</Bug>
+	<Bug language="Russian">Готика больше не патчится если путь игры недействителен</Bug>
+	<Bug language="Russian">Запуск мода из папки Gothic содержащей пробел в пути больше не вызывает проблем</Bug>
+	<Bug language="Russian">Исправлена пропажа файла для Gothic и Gothic II в некоторых случаях</Bug>
+	<Bug language="Russian">При обнаружении сетевых ошибок можно будет попробовать продолжить загрузку</Bug>
+	<Bug language="Russian">Исправлена ошибка во время инициализации общего сохранения в скриптах-API</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="3" patchVersion="1">
+	<Bug language="Deutsch">Spine-Features auf der Info-Seite sind nicht mehr editierbar im Anzeigemodus</Bug>
+	<Bug language="Deutsch">Absturz beim Installieren einer Mod über News/Info-Seite behoben</Bug>
+	
+	<Bug language="English">Spine features on info page aren't editable anymore in view mode</Bug>
+	<Bug language="English">Fixed crash installing a mod via news/info page</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="3" patchVersion="2">
+	<Bug language="Deutsch">Preview-Bilder sind jetzt im Edit-Modus immer sichtbar (Mod-Info-Seite)</Bug>
+	<Bug language="Deutsch">Großes Vorschaubild auf Mod-Seite wird jetzt zurückgesetzt, wenn man eine neue Seite ohne Screenshots öffnet</Bug>
+	<Bug language="Deutsch">Changelog sollte jetzt automatisch angezeigt werden nach dem Patchen von Spine</Bug>
+	<Bug language="Deutsch">Sprachänderung aktualisiert jetzt auch die Spine-Features im Edit-Modus der Mod-Info-Seite</Bug>
+	<Bug language="Deutsch">Fehlende Datei im Installer ergänzt</Bug>
+	<Bug language="Deutsch">Fehlende Datei für Gothic 2 in manchen Fällen behoben</Bug>
+	<Bug language="Deutsch">Russische Übersetzung aktualisiert</Bug>
+	<Bug language="Deutsch">Deinstallation von Mods etwas verbessert</Bug>
+	
+	<Bug language="English">Preview images are now always visible in edit mode (Mod Info Page)</Bug>
+	<Bug language="English">Big preview image on mod page is reset now opening a mod page without screenshots</Bug>
+	<Bug language="English">Changelog should be displayed automatically now after patching Spine</Bug>
+	<Bug language="English">Changing language updates also Spine feature in edit mode of the mod info page</Bug>
+	<Bug language="English">Added missing file to installer</Bug>
+	<Bug language="English">Fixed missing file for Gothic II in some cases</Bug>
+	<Bug language="English">Updated Russian translation</Bug>
+	<Bug language="English">Improved uninstallation of mods</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="3" patchVersion="3">
+	<Bug language="Deutsch">Backup-Dateien werden jetzt beim Start einer neuen Mod gelöscht, falls dies vorher schief gegangen ist</Bug>
+	<Bug language="Deutsch">Noch einen Gothic-II-Patch-Bug beseitigt (hoffentlich der letzte)</Bug>
+	
+	<Bug language="English">Backup files are deleted now starting a new mod in case it went wrong before</Bug>
+	<Bug language="English">Fixed another Gothic II patch bug (hopefully the last one)</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="3" patchVersion="4">
+	<Bug language="Deutsch">Downloads über News werden jetzt korrekt angezeigt</Bug>
+	<Bug language="Deutsch">Speicher-Leck im News-System behoben</Bug>
+	<Bug language="Deutsch">Sehr lange Startzeiten von Mods korrigiert</Bug>
+	<Bug language="Deutsch">Fehler beim Zurücksetzen von Overrides für die Systempack.ini behoben</Bug>
+	<Bug language="Deutsch">Fehler beim Aufräumen von Mods nach dem Abschießen von Spine behoben</Bug>
+	
+	<Bug language="English">Downloads through news now are displayed correctly</Bug>
+	<Bug language="English">Fixed memory leak in news system</Bug>
+	<Bug language="English">Fixed extremly long start times of mods</Bug>
+	<Bug language="English">Fixed bug resetting overrides of Systempack.ini</Bug>
+	<Bug language="English">Fixed bug removing mod files after killing Spine</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="4" patchVersion="0">
+	<Enhancement language="Deutsch">Mod-Installations- und Integritätsprüfungsdialog haben jetzt einen Cancel-Button</Enhancement>
+	<Enhancement language="Deutsch">Es kann jetzt in der Spine-GUI ausgewählt werden, ob Erfolge ingame angezeigt werden sollen oder nicht (nur ab Mods die Spine-API 1.4+ unterstützen)</Enhancement>
+	<Enhancement language="Deutsch">Es gibt auf der Erfolg-Seite jetzt eine kurze Erklärung zur Anzeige</Enhancement>
+	<Enhancement language="Deutsch">Ersten Teil zur Integration von Jharkendar-Online in Spine eingebaut</Enhancement>
+	<Enhancement language="Deutsch">Möglichkeit die Gothic.ini für Gothic und Gothic II in Spine zu ändern</Enhancement>
+	<Enhancement language="Deutsch">Wurde noch keine Mod angewählt zeigt die Info-Seite jetzt eine zufällige Mod, die Spine-Features enthält</Enhancement>
+	<Enhancement language="Deutsch">Screenshots können jetzt per Doppelklick auf die große Preview im Vollbild angeschaut werden</Enhancement>
+	<Enhancement language="Deutsch">Links in Datenbank sind jetzt besser markiert</Enhancement>
+	<Enhancement language="Deutsch">Erfolge mit Fortschritt (Töte x Gegner) werden jetzt unterstützt</Enhancement>
+	<Enhancement language="Deutsch">Möglichkeit eingebaut extra Gothic-Pfade für den Entwicklermodus zu setzen</Enhancement>
+	<Enhancement language="Deutsch">Kompatibilitätsliste eingeführt, um nicht kompatible Mod - Patch/Tool-Kombinationen auszublenden</Enhancement>
+	<Enhancement language="Deutsch">Downloads können jetzt pausiert werden, um sie später fortzusetzen, ohne sie direkt abzubrechen</Enhancement>
+	
+	<Enhancement language="English">Mod installation and integrity check dialog now have a cancel button</Enhancement>
+	<Enhancement language="English">One can decide directly in the Spine GUI whether achievements shall be visible ingame or not (only for mods supporting Spine API 1.4+)</Enhancement>
+	<Enhancement language="English">Achievement page contains a short explanation of the view now</Enhancement>
+	<Enhancement language="English">Added first part for integration of Jharkendar Online into Spine</Enhancement>
+	<Enhancement language="English">Added possibility to change Gothic.ini for Gothic and Gothic II from within Spine</Enhancement>
+	<Enhancement language="English">In case no mod was chosen so far the info page shows a random mod using Spine features (or an overall random mod in case no mod with Spine features exists in this language)</Enhancement>
+	<Enhancement language="English">Screenshots can be displayed in fullscreen now double clicking the big preview</Enhancement>
+	<Enhancement language="English">Links in database are marked better now</Enhancement>
+	<Enhancement language="English">Added support for achievements with progress (Kill x enemies)</Enhancement>
+	<Enhancement language="English">Added possibility to set seperate Gothic paths for developer mode</Enhancement>
+	<Enhancement language="English">Added a compatibility list to hide incompatible mod - patch/tool combinations</Enhancement>
+	<Enhancement language="English">Downloads can be paused now to continue them later on without cancelling them</Enhancement>
+</Version>
+<Version majorVersion="1" minorVersion="4" patchVersion="1">
+	<Bug language="Deutsch">Crash behoben, wenn versucht wird eine bereits existierende Datei (gleicher Hash) noch einmal zu laden</Bug>
+	<Bug language="Deutsch">Wenn ein Fortschritts-Erfolg freigeschaltet ist, dann wird der Fortschrittsbalken jetzt ausgeblendet</Bug>
+	<Bug language="Deutsch">Kompatibilität melden ist jetzt deaktiviert, wenn man nicht eingeloggt ist</Bug>
+	<Bug language="Deutsch">Text auf Info-Seite bei der zufälligen Seite war viel zu klein skaliert</Bug>
+	<Bug language="Deutsch">Dialog zum News schreiben wird jetzt richtig vergrößert, wenn der Text zu lang wird</Bug>
+	<Bug language="Deutsch">Es können jetzt auch Info-Seiten zu noch nicht offiziell veröffentlichten Mods angezeigt werden, ohne, dass man sie dann installieren kann</Bug>
+	
+	<Bug language="English">Fixed crash trying to download an already existing file (same hash)</Bug>
+	<Bug language="English">In case a progress achievement is unlocked the progress bar is hidden now</Bug>
+	<Bug language="English">Submit compatibility now is disabled when not logged in</Bug>
+	<Bug language="English">Text on random info page was scaled much too small</Bug>
+	<Bug language="English">Dialog for writing news is resized correctly in case the text gets too long</Bug>
+	<Bug language="English">It is possible now to show info pages for not yet released mods without being able to install the mod</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="4" patchVersion="2">
+	<Bug language="Deutsch">Installation optionaler Pakete mit geänderter Sortierung funktioniert jetzt richtig</Bug>
+	<Bug language="Deutsch">Doppelklick auf leere Spalte bei optionalem Paket macht Feld jetzt nicht mehr editierbar</Bug>
+	<Bug language="Deutsch">Bei besonders vielen Screenshots auf einer Info-Seite werden diese jetzt trotzdem in nur einer Zeile angezeigt</Bug>
+	
+	<Bug language="English">Trying to install an optional package with sorting changed works properly now</Bug>
+	<Bug language="English">Doubleclicking empty column of optional package doesn't make it editable anymore</Bug>
+	<Bug language="English">If there are really many screenshots on an info page they are still displayed in just one row now</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="4" patchVersion="3">
+	<Bug language="Deutsch">" und , in Erfolg-Namen und -Beschreibung sowie Score-Namen im Spine-Editor funktionieren jetzt richtig</Bug>
+	<Bug language="Deutsch">Es ist jetzt möglich Fortschritts-Erfolge mit bis zu 1.000.000 als Maximum anzulegen</Bug>
+	<Bug language="Deutsch">Info-Seite ist jetzt nicht mehr leer beim ersten Öffnen ohne Datenbank</Bug>
+	
+	<Bug language="English">" and , are now possible in achievement names and descriptions and in score names using Spine Editor</Bug>
+	<Bug language="English">It is possible now to create progress achievements using a maximum of up to 1000000</Bug>
+	<Bug language="English">Info page isn't empty anymore opening it the first time without using the database</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="4" patchVersion="4">
+	<Bug language="Deutsch">Performance beim Starten und Beenden einer Modifikation deutlich verbessert</Bug>
+	
+	<Bug language="English">Improved startup and shutdown speed of modifications by a huge amount</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="5" patchVersion="0">
+	<Enhancement language="Deutsch">Letzter Pfad beim Einfügen von Screenshots auf eine Info-Seite wird jetzt gespeichert und wiederverwendet</Enhancement>
+	<Enhancement language="Deutsch">In der Bibliothek kann man jetzt die aktuell ausgewählte Modifikation bewerten, sobald man min. die Durchschnittsspielzeit gespielt hat</Enhancement>
+	<Enhancement language="Deutsch">Auf der Mod-Info-Seite sieht man jetzt die Durchschnittswertung der Mod</Enhancement>
+	<Enhancement language="Deutsch">Diverse Performance-Verbesserungen</Enhancement>
+	<Enhancement language="Deutsch">Originalspiele werden jetzt entsprechend angezeigt</Enhancement>
+	<Enhancement language="Deutsch">Newsticker auf Startseite eingebaut</Enhancement>
+	<Enhancement language="Deutsch">PDFs die Bestandteil einer Modifikation sind, können jetzt aus der Bibliothek direkt geöffnet werden</Enhancement>
+	<Enhancement language="Deutsch">Indikator zur Anzeige, dass gerade im Hintergrund etwas passiert, an einigen Stellen eingebaut</Enhancement>
+	<Enhancement language="Deutsch">Logging zur Fehlerermittlung eingebaut</Enhancement>
+	<Enhancement language="Deutsch">Systempack.ini kann jetzt über Spine konfiguriert werden</Enhancement>
+	<Enhancement language="Deutsch">Unterstützung vom GMP-Mods deutlich verbessert, da Server und Nickname jetzt direkt gesetzt werden</Enhancement>
+	<Enhancement language="Deutsch">Möglichkeit eingebaut Spine-Scripte zu installieren und zu aktualisieren</Enhancement>
+	<Bug language="Deutsch">Skalierung des News-Dialogs verbessert</Bug>
+	<Bug language="Deutsch">Im Falle eines Hashfehlers wird jetzt eine entsprechende Fehlermeldung ausgegeben</Bug>
+	<Bug language="Deutsch">Behandlung von Downloadfehler verbessert</Bug>
+	<Bug language="Deutsch">Leeres Feedback kann jetzt nicht mehr gesendet werden</Bug>
+	<Bug language="Deutsch">Potenziellen Crash beim Integritätscheck behoben</Bug>
+	<Bug language="Deutsch">Beschreibungstext für Erfolge bei freigeschalteten oder welchen ohne Fortschritts etwas tiefer platziert</Bug>
+	<Bug language="Deutsch">Fehler bei Gothic in Verbindung mit alter Installation behoben</Bug>
+	<Bug language="Deutsch">Gothic II patchen sollte jetzt immer richtig funktionieren</Bug>
+	<Bug language="Deutsch">Integritätsprüfung erkennt jetzt auch fehlende Dateien</Bug>
+	<Bug language="Deutsch">Downloadfortschritt wird jetzt aktualisiert, wenn eine Datei nicht geladen werden muss</Bug>
+	<Bug language="Deutsch">Layouts in den Einstellungen korrigiert</Bug>
+	<Bug language="Deutsch">Spine-Editor speichert Scores jetzt richtig</Bug>
+	
+	<Enhancement language="English">Last path for adding screenshots to info pages now is stored and reused</Enhancement>
+	<Enhancement language="English">In the library you are able now to rate the currently selected modification after you played at least the average time</Enhancement>
+	<Enhancement language="English">The average rating now is visible on the mod info page</Enhancement>
+	<Enhancement language="English">Some performance improvements</Enhancement>
+	<Enhancement language="English">Original games are displayed in an appropriate way now</Enhancement>
+	<Enhancement language="English">Added news ticker on start page</Enhancement>
+	<Enhancement language="English">PDFs being part of a modification can be opened directly from within the library now</Enhancement>
+	<Enhancement language="English">Added indicator at some places to show something is done in background</Enhancement>
+	<Enhancement language="English">Added logging to find errors easier</Enhancement>
+	<Enhancement language="English">Systempack.ini can be configured now via Spine</Enhancement>
+	<Enhancement language="English">Improved support for mods using GMP as server and nickname are directly set now</Enhancement>
+	<Enhancement language="English">Added possibility to install and update Spine scripts</Enhancement>
+	<Bug language="English">Improved scaling of news dialog</Bug>
+	<Bug language="English">In case a hash error occurs a meaningful error message is displayed now</Bug>
+	<Bug language="English">Improved handling of download errors</Bug>
+	<Bug language="English">Empty feedback can't be submitted anymore</Bug>
+	<Bug language="English">Fixed potential crash during integrity check</Bug>
+	<Bug language="English">Placed description text for unlocked achievements or those without progress a little lower</Bug>
+	<Bug language="English">Fixed bug for Gothic in case and old installation is used</Bug>
+	<Bug language="English">Patching Gothic II should work always now</Bug>
+	<Bug language="English">Integrity check now also detects missing files</Bug>
+	<Bug language="English">Download progress now is also updated in case file hasn't to be loaded</Bug>
+	<Bug language="English">Fixed layouts in settings</Bug>
+	<Bug language="English">Spine editor now stores scores correctly</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="5" patchVersion="1">
+	<Bug language="Deutsch">Gesamtrating wird jetzt richtig angezeigt</Bug>
+	<Bug language="Deutsch">Hänger in Kommunikation mit dem Server hoffentlich behoben</Bug>
+	
+	<Bug language="English">Overall rating is displayed correctly now</Bug>
+	<Bug language="English">Hopefully fixed hanging communication with server</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="5" patchVersion="2">
+	<Bug language="Deutsch">Gothic-Patching weiter verbessert</Bug>
+	<Bug language="Deutsch">Log-Anzahl auf die 10 neuesten reduziert</Bug>
+	<Bug language="Deutsch">Bei Namensfilterung werden optionale Pakete jetzt trotzdem angezeigt</Bug>
+	<Bug language="Deutsch">Diverse Fehler beseitigt, nachdem Spine einmal beim Spielen abgestürzt ist oder abgeschossen wurde</Bug>
+	<Bug language="Deutsch">Modifikations-Updates können jetzt permanent ausgeblendet werden</Bug>
+	
+	<Bug language="English">Improved patching of Gothic even more</Bug>
+	<Bug language="English">Reduced log count to the latest 10</Bug>
+	<Bug language="English">Using name filter shows now optional packages</Bug>
+	<Bug language="English">Fixed several errors after Spine crashed during playing or was killed</Bug>
+	<Bug language="English">Modification updates can be hidden permanently now</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="5" patchVersion="3">
+	<Bug language="Deutsch">Überspringen von Mod-Updates funktioniert jetzt wirklich</Bug>
+	
+	<Bug language="English">Skipping mod updates really works now</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="5" patchVersion="4">
+	<Bug language="Deutsch">Ändert sich nur die Mod-Version, aber keine Datei, kommt jetzt kein Update-Dialog mehr (z.b. bei Updates nur für eine bestimmte Sprachversion)</Bug>
+	<Bug language="Deutsch">Eine weitere fehlende Gothic-Datei zum Patch-Vorgang hinzugefügt</Bug>
+	<Bug language="Deutsch">Fehlerbehandlung für die Synchronisation von Erfolge und Scores verbessert</Bug>
+	
+	<Bug language="English">If only the mod version changes, but no file, no update dialog is shown anymore (e.g. for updates being necessary just for one language)</Bug>
+	<Bug language="English">Added another missing Gothic file for patching</Bug>
+	<Bug language="English">Improved error handling for synchronisation of achievements and scores</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="5" patchVersion="5">
+	<Bug language="Deutsch">Erkennung, ob eine Mod aktualisiert werden muss, korrigiert</Bug>
+	<Bug language="Deutsch">Info-Seiten können jetzt auch mit polnischen Zeichen erstellt werden</Bug>
+	
+	<Bug language="English">Fixed detection whether a modification has to be updated</Bug>
+	<Bug language="English">Info pages now can be created using Polish characters</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="5" patchVersion="6">
+	<Enhancement language="Deutsch">Autorisierte Newsschreiber können jetzt direkt auf die Startseite posten</Enhancement>
+	
+	<Enhancement language="English">Authorised users now can post directly on the start page</Enhancement>
+</Version>
+<Version majorVersion="1" minorVersion="6" patchVersion="0">
+	<Enhancement language="Deutsch">Version (von/zu) bei Mod-Updates wird jetzt angezeigt</Enhancement>
+	<Enhancement language="Deutsch">Deinstallation von Spine bietet jetzt die Möglichkeit geladene Modifikationen zu behalten</Enhancement>
+	<Enhancement language="Deutsch">Installationsdatum und Datum, an dem die Mod zuletzt gespielt wurde, werden jetzt in der Bibliothek angezeigt</Enhancement>
+	<Enhancement language="Deutsch">Spielstand-übergreifende Daten werden jetzt auch auf dem Server gespeichert</Enhancement>
+	<Enhancement language="Deutsch">LeGo kann jetzt über Spine installiert und aktualisiert werden</Enhancement>
+	<Enhancement language="Deutsch">Spine kann jetzt übers Menü beendet werden</Enhancement>
+	<Enhancement language="Deutsch">Tooltip mit Erklärung für Ratings eingebaut</Enhancement>
+	<Enhancement language="Deutsch">Markierung zum Ausklappen optionaler Pakete in der Datenbank etwas verbessert</Enhancement>
+	<Enhancement language="Deutsch">Optionale Pakete werden jetzt auf der Infoseite angezeigt</Enhancement>
+	<Enhancement language="Deutsch">Modifikationen können jetzt direkt aus der Infoseite gestartet werden</Enhancement>
+	<Enhancement language="Deutsch">Tooltip mit Erklärung der Patches und Tools in der Bibliothek eingebaut</Enhancement>
+	<Enhancement language="Deutsch">Doppelklick auf ein Thumbnail auf der Infoseite öffnet dieses jetzt ebenfalls im Vollbildmodus</Enhancement>
+	<Enhancement language="Deutsch">Thumbnails sind jetzt zentriert auf der Infoseite</Enhancement>
+	<Enhancement language="Deutsch">Erfolge und Scores können jetzt von der Infoseite aus eingesehen werden</Enhancement>
+	<Enhancement language="Deutsch">FAQ im Hilfemenü eingebaut</Enhancement>
+	<Enhancement language="Deutsch">Möglichkeit eingebaut, eigene Style-Dateien zu laden</Enhancement>
+	<Enhancement language="Deutsch">Im- und Export-Funktionalität für Modifikationen eingebaut</Enhancement>
+	<Bug language="Deutsch">Umlaute in News-Schreiber-Dialog werden jetzt wieder richtig angezeigt</Bug>
+	<Bug language="Deutsch">Mod-Update-Dialog sollte jetzt nicht mehr 2x auftauchen</Bug>
+	<Bug language="Deutsch">Navigation über Pfeil-Tasten übe die Thumbnails hat jetzt eine Auswirkung</Bug>
+	<Bug language="Deutsch">Erfolge mit langen Namen werden jetzt, wenn möglich, in Gothic mit Zeilenumbruch dargestellt</Bug>
+	
+	<Enhancement language="English">Version (from/to) during mod updates now is displayed</Enhancement>
+	<Enhancement language="English">Uninstallation of Spine now allows to keep loaded modifications</Enhancement>
+	<Enhancement language="English">Installation date and date the mod was last played are shown now in library</Enhancement>
+	<Enhancement language="English">Overall save data now is stored on server</Enhancement>
+	<Enhancement language="English">LeGo now can be installed and updated via Spine</Enhancement>
+	<Enhancement language="English">Spine now can be quit using the menu</Enhancement>
+	<Enhancement language="English">Added tooltip with explanation of ratings</Enhancement>
+	<Enhancement language="English">Improved marker for optional packages in database a little</Enhancement>
+	<Enhancement language="English">Optional packages are listed now on info page</Enhancement>
+	<Enhancement language="English">Modifications can directly be started from within the info page</Enhancement>
+	<Enhancement language="English">Added tooltip with explanation of patches and tools in library</Enhancement>
+	<Enhancement language="English">Double clicking on thumbnail on info pages also opens it in fullscreen mode now</Enhancement>
+	<Enhancement language="English">Thumbnails now are centered on info page</Enhancement>
+	<Enhancement language="English">Achievements and scores now can be displayed going through the info page</Enhancement>
+	<Enhancement language="English">Added FAQ to help menu</Enhancement>
+	<Enhancement language="English">Added possibility to load own style files</Enhancement>
+	<Enhancement language="English">Added import and export functionality for modifications</Enhancement>
+	<Bug language="English">Umlauts in news writer dialog are displayed correctly again</Bug>
+	<Bug language="English">Mod update dialog shouldn't appear twice anymore</Bug>
+	<Bug language="English">Using cursors to navgiate through thumbnails works now</Bug>
+	<Bug language="English">If possible long achievement names now contain a line break in Gothic</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="7" patchVersion="0">
+	<Enhancement language="Deutsch">Modifikationen können jetzt einen eigenen Spine-Splashscreen anbieten</Enhancement>
+	<Enhancement language="Deutsch">Ikarus kann jetzt über Spine installiert und aktualisiert werden</Enhancement>
+	<Enhancement language="Deutsch">Multiplayer-Code deutlich verbessert</Enhancement>
+	<Enhancement language="Deutsch">Bereits eingetragene Kompatibilitäten können jetzt auch nochmal geändert werden</Enhancement>
+	<Enhancement language="Deutsch">Check eingebaut, der D3D11-Downloads deaktiviert, wenn DirectX 11 oder höher nicht verfügbar ist</Enhancement>
+	<Enhancement language="Deutsch">Ausgeblendete Mod-Updates können jetzt wieder angezeigt werden</Enhancement>
+	<Enhancement language="Deutsch">Es wird jetzt angezeigt, wie viele versteckte Erfolge in einer Mod enthalten sind</Enhancement>
+	<Enhancement language="Deutsch">Es ist jetzt möglich Savegames zu laden und zu speichern</Enhancement>
+	<Enhancement language="Deutsch">Gothic.ini und Systempack.ini können jetzt gesichert und wiederhergestellt werden</Enhancement>
+	<Enhancement language="Deutsch">Tooltips für Einstellungen im Gothic-Konfiguration eingebaut</Enhancement>
+	<Enhancement language="Deutsch">Gamepad-Support eingebaut (Beta)</Enhancement>
+	<Bug language="Deutsch">FAQs werden jetzt nicht mehr beschnitten, wenn sie zu lang und das Fenster zu klein sind</Bug>
+	<Bug language="Deutsch">Es wird jetzt kein ungültiger Gothic-Pfad mehr als Standardbelegung genommen, wenn kein Gothic/Gothic II installiert ist</Bug>
+	<Bug language="Deutsch">Pfad zum System-Verzeichnis bei der Pfadeinstellung wird jetzt automatisch in den richtigen umgewandelt</Bug>
+	<Bug language="Deutsch">Das Einsenden einer News aktualisiert jetzt auch die Startseite</Bug>
+	<Bug language="Deutsch">Absturz bei der Verwendung der Spielstand-übergreifenden Saves behoben</Bug>
+	<Bug language="Deutsch">Abbruch der Integritätsprüfung hat alle ungeprüften Dateien gelöscht</Bug>
+	<Bug language="Deutsch">Vorschaubild ist jetzt wieder zentriert auf der Infoseite</Bug>
+	<Bug language="Deutsch">Falsche Behandlung von in C:\Programme installierten Gothic-Versionen korrigiert</Bug>
+	<Bug language="Deutsch">Wurde der APPDATA-Ordner gelöscht, die Downloads sind aber noch vorhanden, wurden die Mods trotzdem in der Bibliothek angezeigt</Bug>
+	
+	<Enhancement language="English">Modifications now can provide an own Spine splashscreen</Enhancement>
+	<Enhancement language="English">Ikarus now can be installed and updated using Spine</Enhancement>
+	<Enhancement language="English">Multiplayer code is much better now</Enhancement>
+	<Enhancement language="English">Already submitted compatibilities now can be changed again</Enhancement>
+	<Enhancement language="English">Added a check disabling download of D3D11 if no DirectX 11 or higher is available</Enhancement>
+	<Enhancement language="English">Hidden mod updates now can be shown again</Enhancement>
+	<Enhancement language="English">Now it is visible how many hidden achievements exist for a modification</Enhancement>
+	<Enhancement language="English">It is possible now to load and edit savegames</Enhancement>
+	<Enhancement language="English">Gothic.ini and Systempack.ini now can be backupped and restored again</Enhancement>
+	<Enhancement language="English">Added tooltips for settings in Gothic Configurator</Enhancement>
+	<Enhancement language="English">Added gamepad support (beta)</Enhancement>
+	<Bug language="English">FAQs aren't cut anymore in case they are too long and the window is too small</Bug>
+	<Bug language="English">No invalid Gothic paths isn't used anymore as default in case Gothic/Gothic II isn't installed</Bug>
+	<Bug language="English">Path to system folder now is automatically converted into to correct Gothic path</Bug>
+	<Bug language="English">Submitting a news now updates the start page</Bug>
+	<Bug language="English">Fixed crash using overall savegames</Bug>
+	<Bug language="English">Cancelling integrity check deleted all unchecked files</Bug>
+	<Bug language="English">Preview image now is centered again on info page</Bug>
+	<Bug language="English">Fixed wrong handling of Gothic versions installed into C:\Program Files</Bug>
+	<Bug language="English">In case the APPDATA folder was deleted, but the downloads still are available, the modfiles were shown in library</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="7" patchVersion="1">
+	<Bug language="Deutsch">Wenn DirectX nicht gefunden wird, wird der Renderer jetzt nicht mehr ausgeblendet (nur bei unzureichender Version)</Bug>
+	
+	<Bug language="English">FAQs aren't cut anymore in case they are too long and the window is too small</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="7" patchVersion="2">
+	<Bug language="Deutsch">Fehler im Multiplayer-Code beseitigt, wegen dem das Matchmaking nie funktioniert hat</Bug>
+	<Bug language="Deutsch">Versucht, die Startzeit von Mods zu verkürzen indem für mehr Dateitypen im Admin-Modus Symlinks erstellt werden</Bug>
+	<Bug language="Deutsch">Ändern der Einstellung "Erweitertes Logging" wirkt sich jetzt direkt aus</Bug>
+	
+	<Bug language="English">Fixed bug in multiplayer code causing matchmaking to never work</Bug>
+	<Bug language="English">Tried to improve startup time of mods by symlinking more file types in admin mode</Bug>
+	<Bug language="English">Changing setting "Extended Logging" now takes affect directly</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="7" patchVersion="3">
+	<Bug language="Deutsch">Einen weiteren Fehler im Matchmaking behoben</Bug>
+	
+	<Bug language="English">Fixed another bug in matchmaking</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="7" patchVersion="4">
+	<Enhancement language="Deutsch">Möglichkeit eingebaut als Entwickler selber Mod-Dateien zu aktualisieren</Enhancement>
+	<Bug language="Deutsch">Spielernamen im Multiplayer werden jetzt richtig synchronisiert</Bug>
+	<Bug language="Deutsch">Es ist jetzt möglich, das Matchmaking zu beenden</Bug>
+	<Bug language="Deutsch">Fortschritt in der Taskleiste wird jetzt für große Mods richtig angezeigt</Bug>
+	
+	<Enhancement language="English">Added possibility to update mod files as developer</Enhancement>
+	<Bug language="English">Player names now are synchronized correctly in multiplayer</Bug>
+	<Bug language="English">It is possible now to stop the matchmaking</Bug>
+	<Bug language="English">Progress in task bar for big mods now is shown correctly</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="7" patchVersion="5">
+	<Bug language="Deutsch">Wenn Gothic in C:\Programme installiert ist, kann man es als Admin jetzt trotzdem spielen</Bug>
+	
+	<Bug language="English">In case Gothic is installed in C:\Program Files it can be started as admin</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="8" patchVersion="0">
+	<Enhancement language="Deutsch">Fenstergröße wird jetzt gespeichert und wieder hergestellt</Enhancement>
+	<Enhancement language="Deutsch">Man kann jetzt die Scripte mit Spine kompilieren</Enhancement>
+	<Enhancement language="Deutsch">Spacer kann jetzt aus Spine gestartet werden</Enhancement>
+	<Enhancement language="Deutsch">Wurde eine Kombination aus Modifikation und Patch gespielt, die noch nicht als kompatibel/nicht kompatibel gemeldet wurde, wird man jetzt darauf hingewiesen</Enhancement>
+	<Enhancement language="Deutsch">Möglichkeit für eigene Modifikationen im Testzustand über Spine User freizuschalten eingebaut</Enhancement>
+	<Enhancement language="Deutsch">Position des Spine-Erfolgs ingame kann jetzt im Spine-Editor angeschaut werden</Enhancement>
+	<Enhancement language="Deutsch">LeGo-Module können jetzt über Spine aktiviert und deaktiviert werden</Enhancement>
+	<Enhancement language="Deutsch">Erfolge und Scores können jetzt direkt aus Spine in der Datenbank aktualisiert werden</Enhancement>
+	<Enhancement language="Deutsch">Es gibt jetzt einen Offline-Modus, der keine Internetverbindung braucht und, sofern man bereits einmal eingeloggt war, trotzdem Erfolge und Scores unterstützt und diese beim nächsten Wechsel in den Online-Modus aktualsiert</Enhancement>
+	<Bug language="Deutsch">Patches und Tools funktionieren jetzt auch für nicht über Spine installierte Mods</Bug>
+	<Bug language="Deutsch">Textfeld im Feedback-Dialog wird nach erfolgreichem Einsenden jetzt geleert</Bug>
+	<Bug language="Deutsch">Leere Ordner werden nach dem Spielen einer Modifikation wieder entfernt</Bug>
+	<Bug language="Deutsch">Startgeschwindigkeit mit aktivem Renderer im Admin-Modus sollte jetzt deutlich schneller sein</Bug>
+	<Bug language="Deutsch">Gothic-Konfigurator funktioniert jetzt auch bei kleineren Auflösungen</Bug>
+	<Bug language="Deutsch">Changelog wird beim ersten Start von Spine jetzt nicht mehr angezeigt</Bug>
+	<Bug language="Deutsch">Default-Tastenbelegung für Gamepad angepasst, so dass A nicht mehr doppelt für Sprung und Enter belegt ist</Bug>
+	
+	<Enhancement language="English">Window size now is saved and restored</Enhancement>
+	<Enhancement language="English">It is possible now to compile scripts with Spine</Enhancement>
+	<Enhancement language="English">Spacer now can be started from within Spine</Enhancement>
+	<Enhancement language="English">In case a combination of modification and patch was played that wasn't submitted as compatible/incompatible yet an info to do so now appears</Enhancement>
+	<Enhancement language="English">Added possibility to unlock user for own modifications in test state via Spine</Enhancement>
+	<Enhancement language="English">Ingame position of Spine achievement can be previewed in Spine editor now</Enhancement>
+	<Enhancement language="English">LeGo modules now can be enabled and disabled via Spine</Enhancement>
+	<Enhancement language="English">Achievements and scores now can be updated in database from within Spine</Enhancement>
+	<Enhancement language="English">Added an offline mode not requiring an internet connection and in case the user already was logged in some time supports achievements and score synchronizing them with server changing back to online mode</Enhancement>
+	<Bug language="English">Patches and tool now work also with mods not installed via Spine</Bug>
+	<Bug language="English">Text field in feedback dialog now is cleared after submitting feedback successfully</Bug>
+	<Bug language="English">Empty folders now are deleted after playing a modification</Bug>
+	<Bug language="English">Starting speed with enabled D3D11 in admin mode should be much faster now</Bug>
+	<Bug language="English">Gothic configurator now also works with small resolutions</Bug>
+	<Bug language="English">Changelog isn't shown anymore on first start of Spine</Bug>
+	<Bug language="English">Changed default layout of Gamepad so A isn't used for both Jump and Enter anymore</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="8" patchVersion="1">
+	<Bug language="Deutsch">Patches und Tools können jetzt für nicht über Spine installierte Mods genutzt werden</Bug>
+	<Bug language="Deutsch">Fehlerhaftes Auto-Update erstellt jetzt kein ungültiges Spine mehr</Bug>
+	
+	<Bug language="English">Patches and tools now can be used also for mods not being installed via Spine</Bug>
+	<Bug language="English">Invalid auto update doesn't create invalid Spine anymore</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="8" patchVersion="2">
+	<Bug language="Deutsch">Mod-Upload funktioniert jetzt richtig</Bug>
+	
+	<Bug language="English">Mod upload now works correctly</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="8" patchVersion="3">
+	<Bug language="Deutsch">Renderer funktioniert auf sauberen Installationen im Admin-Modus jetzt wieder</Bug>
+	
+	<Bug language="English">Renderer works in Admin mode again on clean installations</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="8" patchVersion="4">
+	<Bug language="Deutsch">Polnische Übersetzung aktualisiert</Bug>
+	<Bug language="Deutsch">Ausgaben für das erweiterte Logging eingebaut, um Fehler beim parsen installierter Mods finden zu können</Bug>
+	<Bug language="Deutsch">Default-Pfad für Mod-Downloads korrigiert</Bug>
+	<Bug language="Deutsch">Pfad für Mod-Downloads ist jetzt limitierter, um Fehlern vorzubeugen</Bug>
+	
+	<Bug language="English">Updated Polish translation</Bug>
+	<Bug language="English">Added some output for extended logging to be able to find errors parsing installed mods</Bug>
+	<Bug language="English">Fixed default path for mod downloads</Bug>
+	<Bug language="English">Path for mod downloads now has some limitations to minimize error cases</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="8" patchVersion="5">
+	<Bug language="Deutsch">Downloads sind jetzt automatisch deaktiviert, wenn kein Ordner für die Downloads gesetzt ist</Bug>
+	<Bug language="Deutsch">Fehlt bei einem Patch eine Datei, kommt jetzt beim Start einer Mod damit eine entsprechende Fehlermeldung</Bug>
+	<Bug language="Deutsch">Deinstallation von Spine funktioniert jetzt richtig</Bug>
+	<Bug language="Deutsch">Upload von Moddateien funktioniert jetzt wieder</Bug>
+	
+	<Bug language="English">Downloads are disabled now in case now folder for downloads is set</Bug>
+	<Bug language="English">In case a file of a patch is missing starting the mod with it shows an appropriate error message now</Bug>
+	<Bug language="English">Uninstallation of Spine now works correctly</Bug>
+	<Bug language="English">Upload of mod files works again</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="9" patchVersion="0">
+	<Enhancement language="Deutsch">Neuen Modtyp eingeführt, um Mods basierend auf dem GMP zu erkennen</Enhancement>
+	<Enhancement language="Deutsch">Möglichkeit eingebaut den Changelog nicht mehr automatisch anzeigen zu lassen</Enhancement>
+	<Enhancement language="Deutsch">Mods in der Bibliothek können jetzt versteckt werden</Enhancement>
+	<Enhancement language="Deutsch">Hochgeladene Bytes sowie Upload-Geschwindigkeit werden jetzt angezeigt</Enhancement>
+	<Enhancement language="Deutsch">Zuletzt gespielte Mod wird in der Bibliothek jetzt wieder ausgewählt</Enhancement>
+	<Enhancement language="Deutsch">Zuletzt gespielte Mod kann direkt von der Startseite wieder gestartet werden</Enhancement>
+	<Bug language="Deutsch">Wurde bei einem Mod-Update nur die Version aktualisiert und keine Datei geändert, wird dies jetzt nicht mehr angezeigt</Bug>
+	<Bug language="Deutsch">Bilder für Erfolge werden beim Integritätscheck jetzt nicht mehr gelöscht</Bug>
+	<Bug language="Deutsch">Größe des Changelogdialogs wird jetzt gespeichert</Bug>
+	<Bug language="Deutsch">Gothic-Pfad-Suche lässt sich jetzt richtig abbrechen</Bug>
+	<Bug language="Deutsch">Gothic-Pfad-Suche ist jetzt etwas schneller</Bug>
+	<Bug language="Deutsch">Fehler mit Spine-Features im Offline-Modus behoben</Bug>
+	<Bug language="Deutsch">Fehler behoben, wenn Windows-Benutzername Sonderzeichen enthält</Bug>
+	<Bug language="Deutsch">Pfad für installierte Modifikationen ist jetzt standardmäßig korrekt gefüllt</Bug>
+	
+	<Enhancement language="English">Added new mod type to detect mods based on GMP</Enhancement>
+	<Enhancement language="English">Added possibility to disable automatic popup of changelog</Enhancement>
+	<Enhancement language="English">Mods within library now can be hidden</Enhancement>
+	<Enhancement language="English">Uploaded bytes and upload speed are displayed now</Enhancement>
+	<Enhancement language="English">Last played mod now is reselected in library</Enhancement>
+	<Enhancement language="English">Last played mod can be started directly from startpage now</Enhancement>
+	<Bug language="English">If a mod update just updated the version and no file it isn't shown anymore</Bug>
+	<Bug language="English">Achievement images aren't deleted anymore during integrity check</Bug>
+	<Bug language="English">Size of changelog dialog now is stored</Bug>
+	<Bug language="English">Gothic path search now can be canceled correctly</Bug>
+	<Bug language="English">Gothic path search now is faster</Bug>
+	<Bug language="English">Fixed bug with Spine features in offline mode</Bug>
+	<Bug language="English">Fixed bug when Windows username contains special characters</Bug>
+	<Bug language="English">Path for installed modifications now is filled per default</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="10" patchVersion="0">
+	<Enhancement language="Deutsch">Freundesystem eingebaut</Enhancement>
+	<Enhancement language="Deutsch">Matchmaking in Mods gezielt mit Freunden ist jetzt möglich</Enhancement>
+	<Enhancement language="Deutsch">Mod-Version wird jetzt auch auf der Infoseite angezeigt</Enhancement>
+	<Enhancement language="Deutsch">Erste Version des Spine-Levels eingebaut</Enhancement>
+	<Bug language="Deutsch">Spacer übernimmt jetzt auch die Overrides aus der Mod.ini</Bug>
+	<Bug language="Deutsch">Unterstützung für höhere Auflösungen verbessert</Bug>
+	<Bug language="Deutsch">Gamepad-Modul konnte nicht über den Spine-Editor aktiviert werden</Bug>
+	<Bug language="Deutsch">Anzeige im Dialog beim Patchen einer Mod verbessert</Bug>
+	<Bug language="Deutsch">Speichern im Spine-Editor funktioniert jetzt wieder richtig</Bug>
+	<Bug language="Deutsch">Wenn man nur einen Score hat ist das erstellte Script nicht mehr ungültig</Bug>
+	
+	<Enhancement language="English">Added friend system</Enhancement>
+	<Enhancement language="English">Matchmaking in mods searching directly for a friend is now possible</Enhancement>
+	<Enhancement language="English">Mod version now is displayed on the info page</Enhancement>
+	<Enhancement language="English">Added a first version of the Spine level</Enhancement>
+	<Bug language="English">Spacer now also uses the overrides from the mod.ini</Bug>
+	<Bug language="English">Added support for high resolutions</Bug>
+	<Bug language="English">Gamepad modle couldn't be activated via Spine Editor</Bug>
+	<Bug language="English">Improved message in download dialog while updating a mod</Bug>
+	<Bug language="English">Saving in Spine Editor works again</Bug>
+	<Bug language="English">Having just one score doesn't create a corrupt script anymore</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="10" patchVersion="1">
+	<Enhancement language="Deutsch">Im Entwicklermodus kann man Gothic jetzt im Fenstermodus starten</Enhancement>
+	<Enhancement language="Deutsch">zSpy-Level kann jetzt im Entwicklermodus eingestellt werden</Enhancement>
+	<Enhancement language="Deutsch">Aktuelle Erfahrung sowie Erfahrung für nächstes Level werden jetzt eingeblendet</Enhancement>
+	<Bug language="Deutsch">Fehler beim Patchen von Dateien im Managementdialog behoben</Bug>
+	<Bug language="Deutsch">Video zu Raven am Portal in Jharkendar wird jetzt auch gepatcht</Bug>
+	<Bug language="Deutsch">Integritätsprüfung beschwert sich nicht mehr über fehlende Dateien für nicht installierte Gothic-Versionen</Bug>
+	<Bug language="Deutsch">Namen in Freundesliste können jetzt nicht mehr bearbeitet werden</Bug>
+	<Bug language="Deutsch">Erfolge mit Fortschritt lassen sich jetzt auch im Entwicklermodus testen</Bug>
+	<Bug language="Deutsch">Symlinks, die nicht von Spine angelegt wurden, sollten jetzt nicht mehr gelöscht werden</Bug>
+	<Bug language="Deutsch">Overrides für Systempack.ini Einträge funktionieren jetzt richtig</Bug>
+	<Bug language="Deutsch">Lesen und Schreiben von ini Dateien sollte jetzt in allen Fällen funktionieren</Bug>
+	<Bug language="Deutsch">Absturz behoben, wenn man beim ersten Programmstart die Sprache wechselt</Bug>
+	
+	<Enhancement language="English">In developer mode it is possible now to start Gothic in windowed mode</Enhancement>
+	<Enhancement language="English">zSpy level now can be chosen in developer mode</Enhancement>
+	<Enhancement language="English">Current experience and experience for next level now are displayed</Enhancement>
+	<Bug language="English">Fixed error on patching files in management dialog</Bug>
+	<Bug language="English">Video of Raven at the portal in Jharkendar now is patched, too</Bug>
+	<Bug language="English">Integrity check doesn't complain anymore about missing files for Gothic versions that aren't installed at all</Bug>
+	<Bug language="English">Names in friend list can't be edited anymore</Bug>
+	<Bug language="English">Achievements with progress now can also be tested in developer mode</Bug>
+	<Bug language="English">Symlinks that weren't created by Spine shouldn't be deleted anymore</Bug>
+	<Bug language="English">Overrides for Systempack.ini entries work now correctly</Bug>
+	<Bug language="English">Reading and writing ini files should work now in all cases</Bug>
+	<Bug language="English">Fixed crash changing language on first startup</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="10" patchVersion="2">
+	<Enhancement language="Deutsch">Beta für das neue Übersetzungstool eingefügt</Enhancement>
+	<Bug language="Deutsch">Bei Mods, die nicht über Spine installiert wurden, wird jetzt nicht mehr gefragt, ob die Kompatibilität gemeldet werden soll</Bug>
+	<Bug language="Deutsch">Screenshots werden jetzt als png gespeichert, um weniger Speicher zu verbrauchen</Bug>
+	<Bug language="Deutsch">Screenshots im Fenstermodus nehmen jetzt nur noch das Gothic-Fenster auf</Bug>
+	<Bug language="Deutsch">Crash behoben, wenn Einstellungsdialog abgebrochen wurde</Bug>
+	<Bug language="Deutsch">Löschen von Dateien im Management klappt jetzt richtig</Bug>
+	<Bug language="Deutsch">Erste Dateien in einem leeren Projekt werden im Managementdialog jetzt richtig angezeigt</Bug>
+	<Bug language="Deutsch">Hat man eine Kompatibilität gemeldet, so wird diese jetzt nicht noch einmal nach dem Spielen der Kombination vorgeschlagen</Bug>
+	<Bug language="Deutsch">Namen von Freunden, Multiplayerspielern oder auch dem aktuellen User werden jetzt immer ohne AAAAAA am Ende angezeigt</Bug>
+	<Bug language="Deutsch">Freunde sind jetzt auch im Entwicklermodus zugreifbar</Bug>
+	
+	<Enhancement language="English">Added beta for new translation tool</Enhancement>
+	<Bug language="English">For mods not being installed via Spine user isn't asked anymore if he wants to submit compatibility</Bug>
+	<Bug language="English">Screenshots now are stored as pngs to reduce disk space usage</Bug>
+	<Bug language="English">Screenshots taken in windowed mode now just contain the Gothic window</Bug>
+	<Bug language="English">Fixed crash aborting settings dialog</Bug>
+	<Bug language="English">Deleting file in management works now</Bug>
+	<Bug language="English">First files add to an empty project now are displayed correctly in management dialog</Bug>
+	<Bug language="English">If a compatibility already was submitted it isn't supposed to submit after playing the combination again</Bug>
+	<Bug language="English">Names of friends, multiplayern or the current user now are always displayed without AAAAA at the end</Bug>
+	<Bug language="English">Friends now are also accessible in developer mode</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="10" patchVersion="3">
+	<Bug language="Deutsch">Der Gothic-Parser für den Übersetzer ignoriert jetzt alle Texte, die auf .3ds enden</Bug>
+	<Bug language="Deutsch">MEM_GetGothOpt und MEM_SetGothOpt werden jetzt vom Gothic-Parser ignoriert</Bug>
+	<Bug language="Deutsch">Bei Mods ohne Beschreibungstext wird der Text der vorher ausgewählten Mod jetzt entfernt</Bug>
+	<Bug language="Deutsch">Beim Übersetzen wird jetzt automatisch immer der nächste Text angefordert</Bug>
+	<Bug language="Deutsch">Mod-Beschreibungstext in Bibliothek vorrübergehend deaktiviert</Bug>
+	<Bug language="Deutsch">Ini-Overrides funktionieren jetzt wirklich</Bug>
+	<Bug language="Deutsch">Versionsnummer bei zuletzt gespielter Mod in Bibliothek wird jetzt immer richtig angezeigt</Bug>
+	<Bug language="Deutsch">Neustart von Spine bei Updates etc. sollte jetzt deutlich schneller gehen</Bug>
+	<Bug language="Deutsch">Permanente Einblendung von manchen Erfolgen sollte nicht mehr auftreten</Bug>
+	<Bug language="Deutsch">Falsches Icon nach erfolgreicher Installation von Gothic 2 von CD korrigiert</Bug>
+	
+	<Bug language="English">The Gothic parser for the translator now ignores all texts ending with .3ds</Bug>
+	<Bug language="English">MEM_GetGothOpt and MEM_SetGothOpt now are ignored by Gothic parser</Bug>
+	<Bug language="English">For mods without description text the text from the previously selected mod now is deleted</Bug>
+	<Bug language="English">While translating the next text is requested automatically now</Bug>
+	<Bug language="English">Disabled mod description view in library for now</Bug>
+	<Bug language="English">Ini overrides really work now</Bug>
+	<Bug language="English">Version number of last player mod in library now is always correct</Bug>
+	<Bug language="English">Restart of Spine e.g. during updates should be much faster now</Bug>
+	<Bug language="English">Permanent achievement view shouldn't happen anymore now</Bug>
+	<Bug language="English">Fixed wrong icon after successfull installation of Gothic 2 from CD</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="11" patchVersion="0">
+	<Enhancement language="Deutsch">Mods können jetzt auch über die Bibliothek deinstalliert werden</Enhancement>
+	<Enhancement language="Deutsch">Optionen "Texturen konvertieren", "Sound deaktivieren" und "Musik deaktivieren" im Entwicklermodus ergänzt</Enhancement>
+	<Enhancement language="Deutsch">Übersetzungen können jetzt über Spine angefordert werden</Enhancement>
+	<Enhancement language="Deutsch">Es kann jetzt eine Report-Datei generiert werden, die bei der Fehlersuche helfen wird</Enhancement>
+	<Enhancement language="Deutsch">Alle eigenen Übersetzungs-Anfragen können jetzt direkt mit Fortschritt angezeigt werden</Enhancement>
+	<Enhancement language="Deutsch">Usermanagement und Freundsuche lassen sich jetzt filtern, um schneller User zu finden</Enhancement>
+	<Enhancement language="Deutsch">Tooltips im Management-Dialog eingeführt</Enhancement>
+	<Enhancement language="Deutsch">Allgemeine Konfigurationsmöglichkeiten für eigenen Modifikation hinzugefügt</Enhancement>
+	<Enhancement language="Deutsch">Infoseite kann jetzt aus dem Management-Dialog zum Bearbeiten geöffnet werden</Enhancement>
+	<Enhancement language="Deutsch">Übersetzer können jetzt vom Besitzer der jeweiligen Übersetzungsanfrage selbst freigeschaltet werden</Enhancement>
+	<Bug language="Deutsch">Anzeige der Upload-Geschwindigkeit korrigiert</Bug>
+	<Bug language="Deutsch">Gothic-Parser für Übersetzer kann Menütexte jetzt richtig parsen</Bug>
+	<Bug language="Deutsch">Einige Tooltips im Gothic-Konfigurator korrigiert</Bug>
+	<Bug language="Deutsch">Alle Systempack-Einstellungen (Gothic-Konfigurator) werden jetzt korrekt übernommen</Bug>
+	<Bug language="Deutsch">zSpy blockiert jetzt nicht mehr die Spine-GUI nach Beenden einer Mod</Bug>
+	<Bug language="Deutsch">GUI wird bei Spielstart auch optisch besser deaktiviert</Bug>
+	<Bug language="Deutsch">Komprimierte Moddatei wird nach dem Upload jetzt gelöscht</Bug>
+	<Bug language="Deutsch">Crash im Offline-Modus behoben, sobald man die Einstellungen speichern will</Bug>
+	
+	<Enhancement language="English">Mods now can be uninstalled via the library</Enhancement>
+	<Enhancement language="English">Added options "Convert textures", "Deactivate sounds" and "Deactivate music" in developer mode</Enhancement>
+	<Enhancement language="English">Translations now can be requested via Spine</Enhancement>
+	<Enhancement language="English">It is possible now to generate a report file which will help to find errors</Enhancement>
+	<Enhancement language="English">All own translation requests can be displayed now inclusively their progress</Enhancement>
+	<Enhancement language="English">User management and friend search now can be filtered to find users faster</Enhancement>
+	<Enhancement language="English">Added tooltips to the management dialog</Enhancement>
+	<Enhancement language="English">Added general configurations for own modifications</Enhancement>
+	<Enhancement language="English">Info page now can be opened for edit from the management dialog</Enhancement>
+	<Enhancement language="English">Translators now can be unlocked by the owner of the correspondig translation request</Enhancement>
+	<Bug language="English">Fixed display of upload speed</Bug>
+	<Bug language="English">Gothic Parser for translator now can parse menu texts</Bug>
+	<Bug language="English">Fixed some tooltips in Gothic configurator</Bug>
+	<Bug language="English">All systempack settings (Gothic configurator) now are correctly applied</Bug>
+	<Bug language="English">zSpy doesn't block Spine GUI anymore after finishing a mod</Bug>
+	<Bug language="English">GUI now is disabled also optically while playing</Bug>
+	<Bug language="English">Compressed mod file will be deleted now after upload</Bug>
+	<Bug language="English">Fixed crash in offline mode when trying to save the settings</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="11" patchVersion="1">
+	<Bug language="Deutsch">Login funktioniert auf neuem Server jetzt wieder</Bug>
+	
+	<Bug language="English">Login works again on new server</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="12" patchVersion="0">
+	<Enhancement language="Deutsch">Sicherheitsabfrage beim Beenden von Spine eingebaut</Enhancement>
+	<Enhancement language="Deutsch">Statistikseite im Management-Dialog eingebaut</Enhancement>
+	<Enhancement language="Deutsch">Eingabefeld für Übersetzung wird jetzt automatisch fokussiert</Enhancement>
+	<Enhancement language="Deutsch">Übersetzungen können jetzt geladen und angewandt werden</Enhancement>
+	<Enhancement language="Deutsch">Update-Funktion einer Mod kann jetzt getestet werden, ohne die Versionsnummer zu aktualisieren</Enhancement>
+	<Enhancement language="Deutsch">Diverse Modstatistiken für deren Entwickler eingebaut</Enhancement>
+	<Enhancement language="Deutsch">Neuen FAQ-Eintrag angelegt</Enhancement>
+	<Bug language="Deutsch">Download-URLs nutzen jetzt https statt http</Bug>
+	<Bug language="Deutsch">Neustart von Spine sollte jetzt wieder besser funktionieren</Bug>
+	<Bug language="Deutsch">Man kann User jetzt nicht mehr 2x als Freund anfragen</Bug>
+	<Bug language="Deutsch">Enter im Übersetzer sollte jetzt immer akzeptieren</Bug>
+	<Bug language="Deutsch">Gothic-Parser für Übersetzungen deutlich verbessert</Bug>
+	<Bug language="Deutsch">Management-Dialog zeigt jetzt auch Dateien für andere Sprachversionen</Bug>
+	
+	<Enhancement language="English">Added security question when shutting down Spine</Enhancement>
+	<Enhancement language="English">Added statistics page to the management dialog</Enhancement>
+	<Enhancement language="English">Input field for translation now is focussed automatically</Enhancement>
+	<Enhancement language="English">Translations now can be downloaded and applied</Enhancement>
+	<Enhancement language="English">Update functionality now can be tested without raising the version number</Enhancement>
+	<Enhancement language="English">Added several mod statistics for the developers</Enhancement>
+	<Enhancement language="English">Added new FAQ entry</Enhancement>
+	<Bug language="English">Download URLs now use https instead of http</Bug>
+	<Bug language="English">Restart of Spine should work better again</Bug>
+	<Bug language="English">It isn't possible to request friendship twice</Bug>
+	<Bug language="English">Enter in Translator now should always accept</Bug>
+	<Bug language="English">Improved Gothic parser for translations</Bug>
+	<Bug language="English">Management dialog now also shows files for other languages</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="12" patchVersion="1">
+	<Enhancement language="Deutsch">Möglichkeit eingefügt, eigene Statistiken in einer Mod zu erheben</Enhancement>
+	<Enhancement language="Deutsch">Mit der neuen Version vom Renderer können jetzt beliebige Mods Normalmaps für den Renderer mitliefern</Enhancement>
+	<Bug language="Deutsch">Schließt man Spine über das X und klickt dann auf Abbrechen, so wird Spine jetzt nicht beendet</Bug>
+	<Bug language="Deutsch">Einige Fehler beim Anwenden einer Übersetzung behoben</Bug>
+	<Bug language="Deutsch">Falsche Zeilenumbrüche im Übersetzer behoben</Bug>
+	<Bug language="Deutsch">Layout des Savegame-Editors wird jetzt korrekt gespeichert</Bug>
+	<Bug language="Deutsch">Höhe einiger News optimiert</Bug>
+	
+	<Enhancement language="English">Added possibility to fetch own statistics in a mod</Enhancement>
+	<Enhancement language="English">With the new version of the renderer arbitrary mods now can provide normal maps</Enhancement>
+	<Bug language="English">Closing Spine via X and then clicking on Cancel stops Spine form quitting</Bug>
+	<Bug language="English">Fixed some errors when applying a translation</Bug>
+	<Bug language="English">Fixed some wrong line breaks in Translator</Bug>
+	<Bug language="English">Layout of Savegame Editor now is correctly stored</Bug>
+	<Bug language="English">Fixed height of some news</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="12" patchVersion="2">
+	<Bug language="Deutsch">Patches funktionieren jetzt wieder richtig</Bug>
+	
+	<Bug language="English">Patches work correctly again</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="12" patchVersion="3">
+	<Bug language="Deutsch">Anzeige eigener Modstatistiken im Management-Dialog verbessert</Bug>
+	<Bug language="Deutsch">Normalmaps funktionieren jetzt korrekt, wenn man Spine nicht als Admin gestartet hat</Bug>
+	<Bug language="Deutsch">Windows XP wird wieder unterstützt</Bug>
+	<Bug language="Deutsch">High Vegetation Mod wird jetzt nicht mehr als Patch angezeigt</Bug>
+	<Bug language="Deutsch">Beim Anwenden einer Übersetzung werden jetzt auch die src-Dateien mit kopiert</Bug>
+	
+	<Bug language="English">Improved display of own mod statistics in management dialog</Bug>
+	<Bug language="English">Normalmaps work now in case Spine wasn't started as admin</Bug>
+	<Bug language="English">Windows XP is supported again</Bug>
+	<Bug language="English">High Vegetation Mod isn't displayed anymore as a patch</Bug>
+	<Bug language="English">When applying a translation also the src files are copied now</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="12" patchVersion="4">
+	<Bug language="Deutsch">Editieren der Infoseite einer Modifikation vervielfältigt jetzt nicht mehr die Features</Bug>
+	<Bug language="Deutsch">Sprachwechsel in Spine aktualisiert jetzt auch den Newsticker richtig</Bug>
+	<Bug language="Deutsch">Spine kann jetzt theoretisch mit mehreren Fileservern für eine Mod umgehen</Bug>
+	<Bug language="Deutsch">Patches und Tools funktionieren jetzt wieder</Bug>
+	<Bug language="Deutsch">Systempack wird bei neuen Mod-Installationen jetzt per Default immer aktiviert</Bug>
+	
+	<Bug language="English">Editing of the info page of a modification doesn't duplicate the features anymore</Bug>
+	<Bug language="English">Changing the language in Spine now also updates the news ticker correctly</Bug>
+	<Bug language="English">Spine now can handle more than one fileserver for mod files</Bug>
+	<Bug language="English">Patches and Tools now work again</Bug>
+	<Bug language="English">Systempack now gets enabled by default for new mod installations</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="12" patchVersion="5">
+	<Enhancement language="Deutsch">Strafkolonie Online sollte technisch jetzt unterstützt werden</Enhancement>
+	<Bug language="Deutsch">Vielleicht funktioniert Windows XP jetzt wieder</Bug>
+	<Bug language="Deutsch">Spine ignoriert jetzt Savegame-Ordner, auch wenn diese leer sind</Bug>
+	<Bug language="Deutsch">Optionale Pakete sollten jetzt immer sichtbar sein, wenn die zugehörige Mod in der Datenbank sichtbar ist</Bug>
+	
+	<Enhancement language="English">Strafkolonie Online should technically be supported now</Enhancement>
+	<Bug language="English">Maybe Windows XP now works again</Bug>
+	<Bug language="English">Spine now ignores savegame folders even though they're empty</Bug>
+	<Bug language="English">Optional packages now should always we visible when the related mod is visible in the database</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="12" patchVersion="6">
+	<Bug language="Deutsch">Kleines Problem für Strafkolonie Online Erstspieler beseitigt</Bug>
+	<Bug language="Deutsch">Einige Fehler beim Parsen und Anwenden von Übersetzungen behoben</Bug>
+	<Bug language="Deutsch">stopSearchMatch Funktion der Spine-API blockiert jetzt nicht mehr den Gothic-Thread</Bug>
+	<Bug language="Deutsch">Spielzeit wird beim Filtern von Patches und Tools jetzt ignoriert</Bug>
+	<Bug language="Deutsch">Potenziellen Crash gefixt, wenn eine Suche nach einem Gegner abgebrochen wurde</Bug>
+	
+	<Bug language="English">Fixed small problem for players starting first time Strafkolonie Online</Bug>
+	<Bug language="English">Fixed some bugs when parsing and applying translation</Bug>
+	<Bug language="English">stopSearchMatch function of the Spine API doesn't block the Gothic thread anymore</Bug>
+	<Bug language="English">Playtime now is ignored when filtering patches and tools</Bug>
+	<Bug language="English">Fixed potential crash aborting search for an opponent</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="13" patchVersion="0">
+	<Enhancement language="Deutsch">FAQ-Eintrag für Datenausführungsverhinderung eingebaut</Enhancement>
+	<Enhancement language="Deutsch">FAQ-Eintrag für leere Bibliothek eingebaut</Enhancement>
+	<Enhancement language="Deutsch">FAQ-Eintrag für zu wenig Festplattenspeicher eingebaut</Enhancement>
+	<Enhancement language="Deutsch">Sicherheitsabfrage beim Beenden von Spine kann jetzt übesprungen werden</Enhancement>
+	<Enhancement language="Deutsch">Bei einem Crash von Gothic sollten jetzt nicht mehr alle getätigten Einstellungen zurückgesetzt werden</Enhancement>
+	<Enhancement language="Deutsch">Datenausführungsverhinderung sollte jetzt automatisch umgangen werden für Mods, die über Spine gestartet werden</Enhancement>
+	<Bug language="Deutsch">Es ist jetzt kein Standardpfad für Mod-Downloads mehr eingestellt</Bug>
+	<Bug language="Deutsch">Beim Patch laden wird jetzt die aktuelle Datei im Dialog korrekt aktualisiert</Bug>
+	<Bug language="Deutsch">Anzeige bei vielen eigenen Statistiken im Management-Dialog beschleunigt</Bug>
+	<Bug language="Deutsch">sightValue Parameter in der Gothic.ini wird jetzt richtig übernommen</Bug>
+	<Bug language="Deutsch">Falsche Anzahl an Texten nach dem Parsen für die Übersetzung korrigiert</Bug>
+	<Bug language="Deutsch">Start einer Mod, die Normalmaps enthält, sollte jetzt etwas schneller ablaufen</Bug>
+	
+	<Enhancement language="English">Added FAQ entry for DEP</Enhancement>
+	<Enhancement language="English">Added FAQ entry for empty library</Enhancement>
+	<Enhancement language="English">Added FAQ entry for to few disk space</Enhancement>
+	<Enhancement language="English">Security question when quitting Spine can be skipped now</Enhancement>
+	<Enhancement language="English">In case Gothic crashes settings shouldn't be reset anymore</Enhancement>
+	<Enhancement language="English">DEP should be automatically disabled for mods started via Spine</Enhancement>
+	<Bug language="English">Removed default path for mod downloads</Bug>
+	<Bug language="English">Loading a patch now correctly updates the current file in the dialog</Bug>
+	<Bug language="English">Improved speed displaying many custom statistics in management dialog</Bug>
+	<Bug language="English">sightValue parameter in Gothic.ini now is correctly set</Bug>
+	<Bug language="English">Fixed wrong amount of texts after parsing for translation</Bug>
+	<Bug language="English">Start of a mod containing normalmaps should be faster now</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="13" patchVersion="1">
+	<Enhancement language="Deutsch">Neuer Modname-Eintrag kann jetzt über den Spine-Editor gehandhabt werden</Enhancement>
+	<Enhancement language="Deutsch">Neuer GMP wird jetzt unterstützt</Enhancement>
+	<Bug language="Deutsch">PDFs mit Space im Namen lassen sich jetzt direkt aus Spine öffnen</Bug>
+	<Bug language="Deutsch">Platz für Patches und Tools wird jetzt besser ausgenutzt</Bug>
+	
+	<Enhancement language="English">New modname entry now can be handled by Spine Editor</Enhancement>
+	<Enhancement language="English">New GMP now is supported</Enhancement>
+	<Bug language="English">PDFs with space in their name now can be opened directly from within Spine</Bug>
+	<Bug language="English">Space for patches and tools will be used better now</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="13" patchVersion="2">
+	<Bug language="Deutsch">Screenshots funktionieren jetzt wieder</Bug>
+	
+	<Bug language="English">Screenshots now work again</Bug>
+</Version>
+<Version majorVersion="1" minorVersion="14" patchVersion="0">
+	<Enhancement language="Deutsch">Passwort lässt sich jetzt zurücksetzen</Enhancement>
+	<Enhancement language="Deutsch">E-Mail-Adressen müssen jetzt bestätigt werden, um einen Account vollständig freizuschalten</Enhancement>
+	<Bug language="Deutsch">Crash beim Wechsel zum Entwicklermodus, wenn man im Offline-Modus ist</Bug>
+	<Bug language="Deutsch">Neue Erfolge lassen sich jetzt korrekt über den Management-Dialog anlegen</Bug>
+	<Bug language="Deutsch">pngs lassen sich jetzt als Achievement-Bilder auswählen</Bug>
+	
+	<Enhancement language="English">Password now can be reset</Enhancement>
+	<Enhancement language="English">Mail addresses now must be validated to fully activate an account</Enhancement>
+	<Bug language="English">Fixed crash switching to developer mode while in offline mode</Bug>
+	<Bug language="English">New achievements now can be created correctly with the management dialog</Bug>
+	<Bug language="English">png's now can be chosen as achievement image</Bug>
+</Version>

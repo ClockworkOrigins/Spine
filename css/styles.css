@@ -1,0 +1,321 @@
+QCheckBox {
+	background-color: #FFFFFF;
+	color: #181C22;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QComboBox {
+	background-color: #FFFFFF;
+	color: #181C22;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QDialog {
+	background-color: #FFFFFF;
+	color: #181C22;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QGroupBox {
+	background-color: #FFFFFF;
+	color: #181C22;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QHeaderView {
+	background-color: #808080;
+	color: #FFFFFF;
+	font-weight: bold;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QHeaderView:section {
+	background-color: #808080;
+	color: #FFFFFF;
+	font-weight: bold;
+}
+
+QLabel {
+	background-color: #FFFFFF;
+	color: #181C22;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QLabel[StartPageWelcome=true] {
+	font-size: 44px;
+}
+
+QLabel[adminInfo=true] {
+	color: #FF0000;
+}
+
+QLineEdit {
+	background-color: #FFFFFF;
+	color: #181C22;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QListView {
+	background-color: #FFFFFF;
+	color: #181C22;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QListView::item:hover {
+	background-color: #808080;
+	color: #FFFFFF;
+}
+
+QListView::item:selected {
+	background-color: #800000;
+	color: #FFFFFF;
+}
+
+QMenuBar {
+	background-color: #FFFFFF;
+	color: #181C22;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QMenuBar::item:selected {
+	background: #808080;
+	color: #FFFFFF;
+}
+
+QMenu {
+	background-color: #FFFFFF;
+	color: #181C22;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QMenu::item:selected {
+	background: #808080;
+	color: #FFFFFF;
+}
+
+QMenu::item:disabled {
+	color: #CCCCCC;
+}
+
+QPushButton::disabled {
+	color: #CCCCCC;
+}
+
+QPushButton::hover {
+	background: #808080;
+	color: #FFFFFF;
+}
+
+QDoubleSpinBox {
+	background-color: #FFFFFF;
+	color: #181C22;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QScrollArea[default=true] {
+	background-color: #FFFFFF;
+}
+
+QSpinBox {
+	background-color: #FFFFFF;
+	color: #181C22;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QTabBar {
+	background-color: #FFFFFF;
+	color: #181C22;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QTabBar::tab:hover {
+	background: #808080;
+	color: #FFFFFF;
+}
+
+QTabBar::tab:disabled {
+	color: #CCCCCC;
+}
+
+QTableView {
+	background-color: #FFFFFF;
+	color: #181C22;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QTableView::item:selected {
+	background-color: #800000;
+	color: #FFFFFF;
+}
+
+QTableView::item:disabled {
+	background-color: #F0F0F0;
+	color: #CCCCCC;
+}
+
+QTreeView {
+	background-color: #FFFFFF;
+	color: #181C22;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QTreeView::branch:has-children:!has-siblings:closed,
+QTreeView::branch:closed:has-children:has-siblings {
+	border-image: none;
+	image: url(:/branch-closed.png);
+}
+
+QTreeView::branch:open:has-children:!has-siblings,
+QTreeView::branch:open:has-children:has-siblings  {
+	border-image: none;
+	image: url(:/branch-open.png);
+}
+
+QTreeView::item:selected {
+	background-color: #800000;
+	color: #FFFFFF;
+}
+
+QTreeView::item:disabled {
+	background-color: #F0F0F0;
+	color: #CCCCCC;
+}
+
+QLabel[profileHeader=true] {
+	font-size: 24px;
+}
+
+QLabel[FAQQuestion=true] {
+	font: bold 18px;
+}
+
+QWidget[FAQ=true] {
+	background-color: #FFFFFF;
+}
+
+QPushButton[logout=true] {
+	font-size: 10px;
+}
+
+QCheckBox[noLogin=true] {
+	font-size: 10px;
+}
+
+QPushButton[noLogin=true] {
+	font-size: 10px;
+}
+
+QWidget#ProfileModView {
+	border: 2px solid #4f4f51;
+	border-radius: 6px;
+	
+	background-color: #FFFFFF;
+	color: #181C22;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QPushButton {
+	background-color: #EEEEEE;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QTableView::item:enabled[score=true] {
+	background-color: #800000;
+	color: #FFFFFF;
+}
+
+QTableView::item:disabled[score=true] {
+	background-color: #FFFFFF;
+	color: #181C22;
+}
+
+QTextBrowser {
+	border: 2px solid #FFFFFF;
+	background-color: #FFFFFF;
+	font-size: 14px;
+}
+
+QDateEdit {
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QWidget#AchievementView {
+	border: 2px solid #4f4f51;
+	
+	background-color: #FFFFFF;
+	color: #181C22;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QWidget#NewsWidget {
+	border: 2px solid #4f4f51;
+	border-radius: 6px;
+	
+	background-color: #FFFFFF;
+	color: #181C22;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QWidget[default=true] {
+	background-color: #FFFFFF;
+}
+
+QWidget:disabled[library=true] {
+	background-color: #CCCCCC;
+}
+
+QLabel[newsTitle=true] {
+	font-size: 24px;
+}
+
+QLabel[newsTimestamp=true] {
+	font-size: 24px;
+}
+
+QTextEdit[newsText=true] {
+	font-size: 14px;
+}
+
+QWidget[achievementEditor=true] {
+	background-color: #FFFFFF;
+}
+
+QLabel[modnameTitle=true] {
+	font-size: 24px;
+}
+
+QLabel[requestName=true] {
+	font-size: 24px;
+}
+
+QLabel[hiddenAchievementCount=true] {
+	font-size: 24px;
+}
+
+QTableView[newsTicker=true] {
+	border: none;
+}
+
+QLabel[waitSpinner=true] {
+	background-color: #00FFFFFF;
+}

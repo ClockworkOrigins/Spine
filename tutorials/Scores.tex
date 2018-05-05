@@ -1,0 +1,102 @@
+\documentclass{article}
+\input{header.tex}
+
+\title{Spine Tutorial 3 \\ Scores}
+
+\begin{document}
+
+\section{Voraussetzungen}
+
+\begin{enumerate}
+\item Ikarus Scriptpaket
+\item LeGo Scriptpaket
+\item Spine Scriptpaket Version 0.9.7+
+\item Tutorial 1 - Initialisierung
+\end{enumerate}
+
+\section{Einleitung}
+
+Dieses Tutorial befasst sich mit der Befüllung und Verwaltung von Highscores inklusive Rankings. Benötigt wird das Modul \textit{SPINE\_MODULE\_SCORES}. Nützlich sind Scores für Modifikationen wie Elemental War, JiBo, Battle of the Kings, DoodleGoth, Sumpfkrautscavenger oder auch den GothicRacer.
+
+\section{Scores}
+
+Zuerst einmal sollte geklärt werden, was konkret unter Scores zu verstehen ist. Das lässt sich relativ einfach anhand einer Tabelle darstellen.
+
+\begin{tabular}{ccc}
+	Rang/Platz & Username & Score \\
+	1 & Diego & 1000 \\
+	2 & Gorn & 900 \\
+	2 & Lester & 900 \\
+	4 & Milten & 800
+\end{tabular}
+
+Jeder Spieler bekommt in einem Score entsprechend seines Scores einen Rang oder auch eine Platzierung. Die Sortierung wird komplett von Spine übernommen. Als Nutzer des Scores-Modul muss man lediglich den Score setzen und kann sämtliche Werte abfragen.\\
+
+Zusätzlich bietet Spine die Möglichkeit, mehrere solcher Ranking für eine Modifikation anzulegen. Diese werden über eine ID identifiziert. Eine ID kann z.B. für einen Spielmodus oder ein Level stehen. Sie ist eindeutig und sie beginnen bei 0.
+
+\section{Die Funktionen}
+
+Die verschiedenen Funktionen des Scores-Modul sollen hier kurz vorgestellt werden.
+
+\subsection{Spine\_UpdateScore}
+
+Mit Spine\_UpdateScore lässt sich der Score für den aktuellen Spine-Nutzer für eine gegebene ID erhöhen. Um einen Wert in die Tabelle aus dem Beispiel oben einzutragen, müsste man also folgenden Code ausführen:
+
+\begin{lstlisting}
+Spine_UpdateScore(0, 1001);
+\end{lstlisting}
+
+Damit würde man auf Platz 1 des Highscores kommen.
+
+\subsection{Spine\_GetUserScore}
+
+Mit Spine\_GetUserScore lässt sich der Score für den aktuellen Spine-Nutzer für eine gegebene ID auslesen. Das bedeutet, dass man mit
+
+\begin{lstlisting}
+Spine_GetUserScore(0);
+\end{lstlisting}
+
+den Wert 1001 bekommt, wenn man das Beispiel oben ausgeführt hat.
+
+\subsection{Spine\_GetUserRank}
+
+Mit Spine\_GetUserRank lässt sich die Platzierung für den aktuellen Spine-Nutzer für eine gegebene ID auslesen. Das bedeutet, dass man mit
+
+\begin{lstlisting}
+Spine_GetUserRank(0);
+\end{lstlisting}
+
+den Wert 1 bekommt, wenn man das Beispiel oben ausgeführt hat.
+
+\subsection{Spine\_GetScoreForRank}
+
+Mit Spine\_GetScoreForRank lässt sich der Score für den Spieler auf dem angegebenen Platz für eine gegebene ID auslesen. Das bedeutet, dass man mit
+
+\begin{lstlisting}
+Spine_GetScoreForRank(0, 1);
+\end{lstlisting}
+
+den Wert 1001 bekommt, wenn man das Beispiel oben ausgeführt hat. Für Platz 2 bekäme man 1000. Wichtiger Hinweis: Haben zwei Spieler den gleichen Score, werden sie alphabetisch sortiert und werden über den Platz in der Tabelle identifiziert und nicht über den Rang. D.h. Gorn und Lester haben zwar beide Rang 2 im Beispiel, jedoch würde man mit Spine\_GetScoreForRank(0, 2); den Score für Gorn, mit Spine\_GetScoreForRank(0, 3); den von Lester bekommen. Das ist beim Score allerdings noch egal, wichtig ist es jedoch für den zugehörigen Username.
+
+\subsection{Spine\_GetUsernameForRank}
+
+Mit Spine\_GetUsernameForRank lässt sich der Name für den Spieler auf dem angegebenen Platz für eine gegebene ID auslesen. Das bedeutet, dass man mit
+
+\begin{lstlisting}
+Spine_GetUsernameForRank(0, 1);
+\end{lstlisting}
+
+den Wert 1001 bekommt, wenn man das Beispiel oben ausgeführt hat. Für Platz 2 bekäme man Diego. Wichtiger Hinweis: Haben zwei Spieler den gleichen Score, werden sie alphabetisch sortiert und werden über den Platz in der Tabelle identifiziert und nicht über den Rang. D.h. Gorn und Lester haben zwar beide Rang 2 im Beispiel, jedoch würde man mit Spine\_GetUsernameForRank(0, 2); den Namen Gorn, mit Spine\_GetUsernameForRank(0, 3); Lester bekommen.
+
+\section{Hinweis}
+
+Die Benutzung ist wie in den Beispielen gezeigt sehr einfach. Es gilt jedoch zu beachten, dass Scores immer überschrieben werden. Will man also immer nur höhere Scores eintragen, so muss man sich selbst um den Code dafür kümmern. Das ist jedoch ebenfalls sehr einfach, wie im folgenden Beispiel zu sehen ist:
+
+\begin{lstlisting}
+var int newScore; newScore = 100;
+if (newScore > Spine_GetUserScore(0)) {
+	Spine_UpdateScore(0, newScore);
+};
+\end{lstlisting}
+
+\end{document}

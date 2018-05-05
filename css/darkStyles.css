@@ -1,0 +1,321 @@
+QCheckBox {
+	background-color: #202020;
+	color: #800000;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QComboBox {
+	background-color: #202020;
+	color: #800000;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QDialog {
+	background-color: #202020;
+	color: #800000;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QGroupBox {
+	background-color: #202020;
+	color: #800000;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QHeaderView {
+	background-color: #303030;
+	color: #202020;
+	font-weight: bold;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QHeaderView:section {
+	background-color: #303030;
+	color: #202020;
+	font-weight: bold;
+}
+
+QLabel {
+	background-color: #202020;
+	color: #800000;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QLabel[StartPageWelcome=true] {
+	font-size: 44px;
+}
+
+QLabel[adminInfo=true] {
+	color: #FF0000;
+}
+
+QLineEdit {
+	background-color: #202020;
+	color: #800000;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QListView {
+	background-color: #202020;
+	color: #800000;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QListView::item:hover {
+	background-color: #303030;
+	color: #202020;
+}
+
+QListView::item:selected {
+	background-color: #800000;
+	color: #202020;
+}
+
+QMenuBar {
+	background-color: #202020;
+	color: #800000;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QMenuBar::item:selected {
+	background: #303030;
+	color: #202020;
+}
+
+QMenu {
+	background-color: #202020;
+	color: #800000;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QMenu::item:selected {
+	background: #303030;
+	color: #202020;
+}
+
+QMenu::item:disabled {
+	color: #000000;
+}
+
+QPushButton::disabled {
+	color: #000000;
+}
+
+QPushButton::hover {
+	background: #303030;
+	color: #202020;
+}
+
+QDoubleSpinBox {
+	background-color: #202020;
+	color: #800000;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QScrollArea[default=true] {
+	background-color: #202020;
+}
+
+QSpinBox {
+	background-color: #202020;
+	color: #800000;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QTabBar {
+	background-color: #202020;
+	color: #800000;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QTabBar::tab:hover {
+	background: #303030;
+	color: #202020;
+}
+
+QTabBar::tab:disabled {
+	color: #000000;
+}
+
+QTableView {
+	background-color: #202020;
+	color: #800000;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QTableView::item:selected {
+	background-color: #800000;
+	color: #202020;
+}
+
+QTableView::item:disabled {
+	background-color: #101010;
+	color: #000000;
+}
+
+QTreeView {
+	background-color: #202020;
+	color: #800000;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QTreeView::branch:has-children:!has-siblings:closed,
+QTreeView::branch:closed:has-children:has-siblings {
+	border-image: none;
+	image: url(:/branch-closed.png);
+}
+
+QTreeView::branch:open:has-children:!has-siblings,
+QTreeView::branch:open:has-children:has-siblings  {
+	border-image: none;
+	image: url(:/branch-open.png);
+}
+
+QTreeView::item:selected {
+	background-color: #800000;
+	color: #202020;
+}
+
+QTreeView::item:disabled {
+	background-color: #101010;
+	color: #000000;
+}
+
+QLabel[profileHeader=true] {
+	font-size: 24px;
+}
+
+QLabel[FAQQuestion=true] {
+	font: bold 18px;
+}
+
+QWidget[FAQ=true] {
+	background-color: #202020;
+}
+
+QPushButton[logout=true] {
+	font-size: 10px;
+}
+
+QCheckBox[noLogin=true] {
+	font-size: 10px;
+}
+
+QPushButton[noLogin=true] {
+	font-size: 10px;
+}
+
+QWidget#ProfileModView {
+	border: 2px solid #4f4f51;
+	border-radius: 6px;
+	
+	background-color: #202020;
+	color: #800000;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QPushButton {
+	background-color: #404040;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QTableView::item:enabled[score=true] {
+	background-color: #800000;
+	color: #202020;
+}
+
+QTableView::item:disabled[score=true] {
+	background-color: #202020;
+	color: #800000;
+}
+
+QTextBrowser {
+	border: 2px solid #202020;
+	background-color: #202020;
+	font-size: 14px;
+}
+
+QDateEdit {
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QWidget#AchievementView {
+	border: 2px solid #4f4f51;
+	
+	background-color: #202020;
+	color: #800000;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QWidget#NewsWidget {
+	border: 2px solid #4f4f51;
+	border-radius: 6px;
+	
+	background-color: #202020;
+	color: #800000;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QWidget[default=true] {
+	background-color: #202020;
+}
+
+QWidget:disabled[library=true] {
+	background-color: #000000;
+}
+
+QLabel[newsTitle=true] {
+	font-size: 24px;
+}
+
+QLabel[newsTimestamp=true] {
+	font-size: 24px;
+}
+
+QTextEdit[newsText=true] {
+	font-size: 14px;
+}
+
+QWidget[achievementEditor=true] {
+	background-color: #202020;
+}
+
+QLabel[modnameTitle=true] {
+	font-size: 24px;
+}
+
+QLabel[requestName=true] {
+	font-size: 24px;
+}
+
+QLabel[hiddenAchievementCount=true] {
+	font-size: 24px;
+}
+
+QTableView[newsTicker=true] {
+	border: none;
+}
+
+QLabel[waitSpinner=true] {
+	background-color: #00FFFFFF;
+}

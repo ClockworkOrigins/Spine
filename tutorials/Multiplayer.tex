@@ -1,0 +1,295 @@
+\documentclass{article}
+\input{header.tex}
+
+\title{Spine Tutorial 5 \\ Multiplayer}
+
+\begin{document}
+
+\section{Voraussetzungen}
+
+\begin{enumerate}
+\item Ikarus Scriptpaket
+\item Spine Scriptpaket Version 1.8.0+
+\item Tutorial 1 - Initialisierung
+\end{enumerate}
+
+\section{Einleitung}
+
+Dieses Tutorial zeigt auf, wie mithilfe von Spine ein Multiplayer realisiert werden kann. Die aktuelle Funktionalität ist dabei allerdings nicht auf MMO-Server ausgelegt, sondern auf direkte Multiplayer-Partien zwischen x Spielern, die gleichzeitig ein Spiel suchen.
+
+\section{Die Funktionen}
+
+Die verschiedenen Funktionen dieses Moduls sollen hier kurz vorgestellt werden.
+
+\subsection{Spine\_SetHostname}
+
+Mit Spine\_SetHostname lässt sich der Hostname des genutzten Servers angeben. Standardmäßig steht der Wert intern auf dem Spine-Multiplayer-Server. Allerdings erlaubt dieser nur Mods zu Testzwecken und genehmigte Mods. Wer einen eigenen Server aufsetzen will, muss die entsprechende API dafür implementieren und mit dieser Funktion den Server setzen. Wer nur einen kleinen Multiplayer hat, kann auch anfragen, ob er direkt über Spine gehostet wird.
+
+\subsection{Spine\_SearchMatch}
+
+Mit Spine\_SearchMatch kann man nach einem Match suchen. Dazu gibt man an, wie viele Spieler das Match am Ende haben soll. Außerdem wird ein Identifier benötigt. Der Identifier kann genutzt werden, um unterschiedliche Level oder Spielmodi zu repräsentieren. Ein Match wird gefunden, wenn für den gleichen Identifier die angegebene Anzahl an Spielern gefunden wurde. Dabei gilt: Wer zuerst ein Match sucht, kriegt auch zuerst eines. Bei eigener Implementierung des Servers kann das Verhalten natürlich beliebig angepasst werden. Das bedeutet, dass man mit
+
+\begin{lstlisting}
+Spine_SearchMatch(2, 0);
+\end{lstlisting}
+
+ein Match mit zwei Spielern (aktueller Spieler + ein weiterer) für Identifier 0 suchen kann.
+
+\subsection{Spine\_SearchMatchWithFriend}
+
+Mit Spine\_SearchMatchWithFriend kann man nach einem Match gezielt mit einem Freund suchen. Dazu gibt man an, wie der Freund heißt. Außerdem wird ein Identifier benötigt. Der Identifier kann genutzt werden, um unterschiedliche Level oder Spielmodi zu repräsentieren. Ein Match wird gefunden, wenn für den gleichen Identifier ein Match mit dem angegebenen Freund gefunden wurde.  Das bedeutet, dass man mit
+
+\begin{lstlisting}
+Spine_SearchMatchWithFriend(0, "Bonne");
+\end{lstlisting}
+
+ein Match mit für Identifier 0 suchen mit dem Freund "Bonne" suchen kann. Erst, wenn dieser Spieler ebenfalls ein Spiel sucht (egal ob er auch nach einem Freund sucht oder nicht), wird ein Match gefunden. Das lässt sich gut mit dem Freunde-Modul in Tutorial 7 kombinieren.
+
+\subsection{Spine\_StopSearchMatch}
+
+Mit Spine\_StopSearchMatch kann man die Suche nach einem Match wieder beenden.
+
+\subsection{Spine\_IsInMatch}
+
+Mit Spine\_IsInMatch lässt sich überprüfen, ob bereits ein Match gefunden wurde. Da es keinen Callback-Mechanismus dafür gibt, muss man nach dem Aufruf von Spine\_SearchMatch selber überprüfen, wann Spine\_IsInMatch TRUE zurückliefert, um dann entsprechend das Spiel zu starten.
+
+\subsection{Spine\_GetPlayerCount}
+
+Mit Spine\_GetPlayerCount lässt sich abfragen, wie viele Spieler im aktuellen Match vorhanden sind.
+
+\subsection{Spine\_GetPlayerUsername}
+
+Mit Spine\_GetPlayerUsername lässt sich für jede Spielernummer (beginnend bei 0) der Name des Spielers herausfinden.
+
+\subsection{Spine\_CreateMessage}
+
+Mit Spine\_CreateMessage kann man eine Nachricht erstellen. Eine Nachricht ist ein Container für Daten, den man anschließend über das Internet versenden kann. Spine\_CreateMessage benötigt als Parameter den Nachrichtentyp, der erstellt werden soll. Derzeit verfügbare Nachrichtentypen sind:
+
+\begin{itemize}
+	\item SPINE\_MESSAGETYPE\_BASE: Basisnachricht, enthält nur einen Usertyp, kein Platz für Daten
+	\item SPINE\_MESSAGETYPE\_INT: Nachricht, die einen Integer übertragen kann
+	\item SPINE\_MESSAGETYPE\_STRING: Nachricht, die einen String übertragen kann
+	\item SPINE\_MESSAGETYPE\_INT4: Nachricht, die vier Integer übertragen kann
+\end{itemize}
+
+Jede Nachricht hat als beliebig zu setzendes Feld den
+
+\begin{lstlisting}
+var int userType;
+\end{lstlisting}
+
+Dieser Kann genutzt werden, um den selben Spine-Nachrichtentyp (z.B. SPINE\_MESSAGETYPE\_INT) für unterschiedliche modspezifische Zwecke zu nutzen, die Nachrichten aber trotzdem unterscheiden zu können. Dazu später mehr in einem Beispiel.\\
+
+Wichtig ist, dass man die Werte \textit{\_vtbl}, \textit{messageType} und \textit{username} nicht verändert. Diese sind intern wichtig und \textit{messageType} und \textit{username} können in der Mod abgefragt werden, um die Nachricht zu identifizieren.\\
+
+Je nach erstellter Nachricht, kann man dann weitere Daten setzen, z.B. Integerwerte oder auch Strings. Der aktuelle Umfang an Nachrichtenklassen entspricht den bisher benötigten für die existierenden Multiplayer-Modifikationen. Wenn neue Daten übermittelt werden sollen, kann jederzeit Kontakt zu Bonne aufgenommen werden, um weitere Klassen hinzuzufügen.\\
+
+Die Funktion gibt einen Pointer auf die Klasse zurück und muss daher noch mit \textit{MEM\_PtrToInst} in eine Klasse umgewandelt werden.
+
+\subsection{Spine\_SendMessage}
+
+Spine\_SendMessage sendet eine Nachricht direkt an alle anderen Spieler. Hier muss ein Nachrichten-Pointer übergeben werden. Wichtig ist, dass die Nachricht nach dem Aufruf dieser Funktion intern gelöscht wird und daher nicht mehr benutzt werden darf.
+
+\subsection{Spine\_ReceiveMessage}
+
+Alle Nachrichten, die der aktuelle Spieler von anderen Spielern erhält, werden in Spine der Reihe nach gespeichert und können mit Spine\_ReceiveMessage in der Mod abgeholt werden. Die Nachricht wird beim Aufruf der Funktion aus dem Buffer in Spine entfernt und muss daher direkt verarbeitet werden. Auch hier bekommt man wieder einen Pointer zurück.
+
+\subsection{Spine\_DeleteMessage}
+
+Mit Spine\_DeleteMessage muss jede Nachricht, die über Spine\_ReceiveMessage empfangen wurde, wieder gelöscht werden. Andernfalls würde sich unreferenzierter Speicher ansammeln und Gothic irgendwann abstürzen.
+
+\section{Beispiel}
+
+Um das ganze Konzept etwas klarer darzustellen, soll anhand der Schach-Mod kurz dargestellt werden, wie man die Funktionen richtig nutzt, um einen Multiplayer zu realisieren.\\
+
+Begonnen wird beim Klick der Dialogoption ''Gegner suchen'' mit einem Aufruf von
+
+\begin{lstlisting}
+	Spine_SearchMatch(2, SPINE_SCORE_1);
+\end{lstlisting}
+
+SPINE\_SCORE\_1 ist dabei eine Score-Konstante für den Highscore und hat den Wert 0. Nur wird nach einem Match gesucht. In einer sekündlichen Schleife wird überrpüft, ob bereits ein Spiel gefunden wurde.
+
+\begin{lstlisting}
+if (Online_Kampf == 1)
+&& (hero.aivar[AIV_Invincible] == FALSE)
+&& (Match_Running == FALSE)
+{
+	var int foundMatch; foundMatch = Spine_IsInMatch();
+
+	BinDran = FALSE;
+
+	if (!foundMatch) {
+		PrintScreen	("Warte auf Gegner!", -1, 90, FONT_SCREEN, 2);
+
+		PrintScreen	("Zum Abbrechen oder Spiel beenden 'M' druecken!", -1, 85, FONT_SCREEN, 2);
+	} else {
+		var string name; name = Spine_GetPlayerUsername(0);
+		if (Hlp_StrCmp(name, username)) {
+			oppname = Spine_GetPlayerUsername(1);
+			Online_Host = TRUE;
+		} else {
+			oppname = name;
+			Online_Host = FALSE;
+		};
+		PrintScreen	(ConcatStrings("Gegner: ", oppname), -1, 95, FONT_SCREEN, 2);
+
+		Match_Running = TRUE;
+
+		if (Online_Host == TRUE) {
+			PLAYER_COLOUR = Hlp_Random(2) + 1;
+
+			var int msgPtr; msgPtr = Spine_CreateMessage(SPINE_MESSAGETYPE_INT);
+			var Spine_IntMessage sendColorMsg; sendColorMsg = MEM_PtrToInst(msgPtr);
+			sendColorMsg.userType = MSGTYPE_COLOR;
+				
+			if (PLAYER_COLOUR == COLOUR_WHITE) {
+				BinDran = TRUE;
+
+				sendColorMsg.param = 2;
+			} else {
+				BinDran = FALSE;
+
+				Wld_SendUnTrigger	("CAM_WHITE");
+				Wld_SendTrigger	("CAM_BLACK");
+
+				sendColorMsg.param = 1;
+			};
+				
+			Spine_SendMessage(msgPtr);
+		} else {
+			BinDran = 2;
+		};
+	};
+};
+\end{lstlisting}
+
+\begin{lstlisting}
+var int foundMatch; foundMatch = Spine_IsInMatch();
+\end{lstlisting}
+
+holt den Status der Suche ab. Wenn \textit{foundMatch} nach diesem Aufruf \textit{FALSE} ist, wird nur eine Ausgabe gemacht, dass weiter nach einem Spiel gesucht wird und die Suche abgebrochen werden kann. Andernfalls jedoch, wird ermittelt, welcher der beiden Spieler Spieler 1 ist. Das ist wichtig, um zu ermitteln, welcher Spieler für Verwaltungsaufgaben genutzt wird. Beispielsweise wird bei der Schach-Mod die Farbe der Spieler einmalig beim Start ausgewürfelt. Das Auswürfeln übernimmt dabei der Host. Die Ermittlung des Hosts geschieht über
+
+\begin{lstlisting}
+var string name; name = Spine_GetPlayerUsername(0);
+if (Hlp_StrCmp(name, username)) {
+	oppname = Spine_GetPlayerUsername(1);
+	Online_Host = TRUE;
+} else {
+	oppname = name;
+	Online_Host = FALSE;
+};
+\end{lstlisting}
+
+\textit{username} ist dabei eine globale String-Variable, die den Namen des aktuellen Spielers enthält. Dieser wurde über \textit{Spine\_GetCurrentUsername} abgefragt. Wenn Spieler 0 (der erste in der Liste) gleich dem aktuellen Spielernamen ist, dann ist der Spieler Host und der Gegnername ist bei Index 1. Ansonsten wird der Gegner Host.\\
+
+Nach einer Ausgabe des Gegnernames kommt nun das Erstellen und Versenden der ersten Nachricht, wenn der aktuelle Spieler der Host ist.
+
+\begin{lstlisting}
+if (Online_Host == TRUE) {
+	PLAYER_COLOUR = Hlp_Random(2) + 1;
+
+	var int msgPtr; msgPtr = Spine_CreateMessage(SPINE_MESSAGETYPE_INT);
+	var Spine_IntMessage sendColorMsg; sendColorMsg = MEM_PtrToInst(msgPtr);
+	sendColorMsg.userType = MSGTYPE_COLOR;
+				
+	if (PLAYER_COLOUR == COLOUR_WHITE) {
+		BinDran = TRUE;
+
+		sendColorMsg.param = 2;
+	} else {
+		BinDran = FALSE;
+
+		Wld_SendUnTrigger	("CAM_WHITE");
+		Wld_SendTrigger	("CAM_BLACK");
+
+		sendColorMsg.param = 1;
+	};
+				
+	Spine_SendMessage(msgPtr);
+};
+\end{lstlisting}
+
+Zuerst wird in diesem Beispiel die Farbe des aktuellen Spielers ausgewürfelt. Dann wird mit
+
+\begin{lstlisting}
+var int msgPtr; msgPtr = Spine_CreateMessage(SPINE_MESSAGETYPE_INT);
+\end{lstlisting}
+
+eine Nachricht angelegt, die einen Integer enthält. Daraus wird mit
+
+\begin{lstlisting}
+var Spine_IntMessage sendColorMsg; sendColorMsg = MEM_PtrToInst(msgPtr);
+\end{lstlisting}
+
+eine Instanz der Nachrichtenklasse gemacht, damit wir daran nun auch Werte setzen können. Da es immer möglich ist, dass wir mehrere Nachrichten vom Typ SPINE\_MESSAGETYPE\_INT verschicken, gibt es noch die Zeile
+
+\begin{lstlisting}
+sendColorMsg.userType = MSGTYPE_COLOR;
+\end{lstlisting}
+
+Hier wird der userType auf einen für die Schach-Mod definierten Wert gesetzt. In der Schach-Mod gibt es folgende drei Usertypes:
+
+\begin{lstlisting}
+const int MSGTYPE_UPGRADE = 0;
+const int MSGTYPE_ZUG = 1;
+const int MSGTYPE_COLOR = 2;
+\end{lstlisting}
+
+Je nach eigener Farbe wird in der Nachricht dann der Parameter entsprechend gesetzt, entweder auf
+
+\begin{lstlisting}
+sendColorMsg.param = 1;
+\end{lstlisting}
+
+oder auf
+
+\begin{lstlisting}
+sendColorMsg.param = 2;
+\end{lstlisting}
+
+Nach dem Befüllen der Nachricht muss sie nur noch abgeschickt werden. Das geschieht über
+
+\begin{lstlisting}
+Spine_SendMessage(msgPtr);
+\end{lstlisting}
+
+Wie im Beispiel zu sehen, wird hier noch nichts für den Spieler gemacht, der nicht der Host ist. Dieser muss natürlich die vom Host gesendete Nachricht erhalten und auswerten. Daher wurde er mit \textit{BinDran = 2;} in einen internen Zustand gesetzt, der signalisiert, dass auf die Farbsynchronisation gewartet wird. Dies geschieht wieder in der sekündlichen Schleife und sieht folgendermaßen aus.
+
+\begin{lstlisting}
+if (Match_Running == TRUE) {
+	if (BinDran == 2) {
+		msg = Spine_ReceiveMessage();
+
+		if (msg == 0) {
+			PrintScreen	("Warte auf Farbe", -1, 90, FONT_SCREEN, 2);
+		} else {
+			var Spine_Message smsg; smsg = MEM_PtrToInst(msg);
+			if (smsg.userType == MSGTYPE_COLOR) {
+				var Spine_IntMessage colorMsg; colorMsg = MEM_PtrToInst(msg);
+				PLAYER_COLOUR = colorMsg.param;
+
+				if (PLAYER_COLOUR == COLOUR_WHITE) {
+					BinDran = TRUE;
+				} else {
+					PLAYER_COLOUR = COLOUR_BLACK;
+
+					BinDran = FALSE;
+
+					Wld_SendUnTrigger	("CAM_WHITE");
+					Wld_SendTrigger	("CAM_BLACK");
+				};
+			};
+			Spine_DeleteMessage(msg);
+		};
+	};
+};
+\end{lstlisting}
+
+\textit{msg = Spine\_ReceiveMessage();} holt die aktuell erste Nachricht ab und speichert sie in der lokalen Integer-Variable \textit{msg}. Wenn noch keine Nachricht angekommen ist, ist msg 0. Ansonsten wird aus dem Pointer eine Instanz der Basisklasse gemacht und in \textit{smsg} gespeichert. Nun kann ganz einfach der userType überprüft werden. Wenn dieser tatsächlich \textit{MSGTYPE\_COLOR} ist, wird die Nachricht in eine Integer-Instanz der Spine-Nachricht umgewandelt, damit auch ein Zugriff auf den übermittelten Parameter möglich ist. Dann kann ganz einfach mit \textit{PLAYER\_COLOUR = colorMsg.param;} die Farbe des Spielers gesetzt werden. Danach wird noch je nach Farbe entschieden, ob der Spieler nun am Zug ist oder nicht und die Kamera entsprechend umgesetzt.\\
+
+Wichtig ist noch die letzte Zeile in diesem Zweig, wo mit \textit{Spine\_DeleteMessage(msg);} die verarbeitete Nachricht gelöscht wird, um kein Speicherleck zu verursachen.\\
+
+Die weiteren Nachrichten funktionieren über das gleiche Prinzip.
+
+\end{document}

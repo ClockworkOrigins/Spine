@@ -1,0 +1,43 @@
+\documentclass{article}
+\input{header.tex}
+
+\title{Spine Tutorial 7 \\ Freunde}
+
+\begin{document}
+
+\section{Voraussetzungen}
+
+\begin{enumerate}
+\item Ikarus Scriptpaket
+\item LeGo Scriptpaket
+\item Spine Scriptpaket Version 1.10.0+
+\item Tutorial 1 - Initialisierung
+\end{enumerate}
+
+\section{Einleitung}
+
+Dieses Tutorial befasst sich mit dem Abfragen der Freunde eines Spielers. Benötigt wird das Modul \textit{SPINE\_MODULE\_FRIENDS}. Nützlich sind Freunde z.B. für gezieltes Matchmaking mit Freunden.
+
+\section{Freunde}
+
+Freunde kann man auf Spine einfach anfragen. Wenn der angefragte die Freundschaft annimmt, wird die Freundschaft auf der Freundeseite in Spine angezeigt und kann ebenfalls über die Scripts abgefragt werden.
+
+\section{Die Funktionen}
+
+Die verschiedenen Funktionen des Freunde-Modul sollen hier kurz vorgestellt werden.
+
+\subsection{Spine\_GetFriendCount}
+
+Mit Spine\_GetFriendCount lässt sich abfragen, wie viele Freunde der User hat. Das ist nötig, um zu wissen, auf wie viele Freunde man zugreifen kann.
+
+\subsection{Spine\_GetFriendName}
+
+Mit Spine\_GetFriendName lässt sich der Names eines Freundes abfragen. Die Freunde sind alphabetisch sortiert und es gibt Spine\_GetFriendCount viele. Angesprochen werden sie über ihren Index, beginnend bei 0, d.h. der höchste Index ist Spine\_GetFriendCount - 1. Das bedeutet, dass man mit
+
+\begin{lstlisting}
+Spine_GetFriendName(0);
+\end{lstlisting}
+
+den Namen des ersten Freundes abfragen kann.
+
+\end{document}

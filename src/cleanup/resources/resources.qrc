@@ -1,0 +1,6 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+	<file alias="styles.css">../../../css/styles.css</file>
+	<file alias="Lato.ttf">Lato-Semibold.ttf</file>
+</qresource>
+</RCC>

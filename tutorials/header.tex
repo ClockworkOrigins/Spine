@@ -1,0 +1,37 @@
+\usepackage{color}
+\usepackage{accsupp}
+\usepackage{hyperref}
+\usepackage[ngerman]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\definecolor{bisque}{rgb}{0.8,0.8,0.92}
+\definecolor{green}{rgb}{0.1,0.6,0.2}
+\definecolor{brown}{rgb}{0.8,0.4,0.3}
+
+\usepackage{listings}
+\lstdefinestyle{basic}
+{
+  basicstyle=\ttfamily, % tiny,scriptsize,footnotesize,small,normalsize,large,Large,LARGE,huge,Huge
+  stringstyle=\color{green}\ttfamily,
+  frame=lines, % single none
+  captionpos=b,
+  columns=fullflexible, % to prevent spaces between characters on copying
+  resetmargins=true,
+  showspaces=false, % display special space character
+  showstringspaces=false, % display special space character in strings
+  keepspaces=true, % to copy spaces (not for leading spaces)
+  backgroundcolor=\color{bisque}, % background color
+  numbers=left, % linenumbers
+  numberstyle=\noncopynumber, % line numbers are not copyable
+  keywordstyle=\color{blue}, % keyword color
+  breaklines=true,
+  tabsize=2,
+  commentstyle=\color{brown}
+}
+\newcommand{\noncopynumber}[1]{%
+    \BeginAccSupp{method=escape,ActualText={}}%
+    #1%
+    \EndAccSupp{}%
+}
+
+

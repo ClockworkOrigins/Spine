@@ -1,0 +1,63 @@
+\documentclass{article}
+\input{header.tex}
+
+\title{Spine Tutorial 4 \\ Savegame-übergreifende Daten}
+
+\begin{document}
+
+\section{Voraussetzungen}
+
+\begin{enumerate}
+\item Ikarus Scriptpaket
+\item LeGo Scriptpaket
+\item Spine Scriptpaket Version 1.2.0+
+\item Tutorial 1 - Initialisierung
+\end{enumerate}
+
+\section{Einleitung}
+
+Dieses Tutorial befasst sich mit der Befüllung und Verwaltung von Savegame-übergreifenden Daten. Benötigt wird das Modul \textit{SPINE\_MODULE\_OVERALLSAVE}. Das kann nützlich sein, wenn man beispielsweise Erfolge erstellen möchte nach dem Schema ''Spiel mit allen Gilden einmal abgeschlossen'' oder ''x Gegner besiegt''.
+
+\section{Die Funktionen}
+
+Die verschiedenen Funktionen dieses Moduls sollen hier kurz vorgestellt werden.
+
+\subsection{Spine\_OverallSaveSetString}
+
+Mit Spine\_OverallSaveSetString lässt sich ein beliebiger String-Wert speichern. Dazu wird ein Schlüsselwert zum Identifizieren benötigt. Ein Beispiel:
+
+\begin{lstlisting}
+Spine_OverallSaveSetString("LastTalkedNpc", "Xardas");
+\end{lstlisting}
+
+\subsection{Spine\_OverallSaveGetString}
+
+Mit Spine\_OverallSaveSetString lässt sich ein gespeicherter Wert aus dem Save wieder auslesen. Das bedeutet, dass man mit
+
+\begin{lstlisting}
+Spine_OverallSaveGetString("LastTalkedNpc");
+\end{lstlisting}
+
+den Wert "Xardas" bekommt, wenn man das Beispiel oben ausgeführt hat.
+
+\subsection{Spine\_OverallSaveSetInt}
+
+Mit Spine\_OverallSaveSetInt lässt sich ein Integer-Wert, also eine Zahl, speichern. Das funktioniert analog zu den Strings. Das bedeutet, dass man mit
+
+\begin{lstlisting}
+Spine_OverallSaveSetInt("MonstersKilled", 10);
+\end{lstlisting}
+
+die Anzahl an getöteten Monstern speichern kann.
+
+\subsection{Spine\_OverallSaveGetInt}
+
+Mit Spine\_OverallSaveGetInt lässt sich der Wert dann auch genauso einfach wieder auslesen. Das bedeutet, dass man mit
+
+\begin{lstlisting}
+Spine_OverallSaveGetInt("MonstersKilled");
+\end{lstlisting}
+
+den Wert 10 bekommt, wenn man das Beispiel oben ausgeführt hat.
+
+\end{document}

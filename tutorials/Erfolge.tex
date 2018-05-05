@@ -1,0 +1,120 @@
+\documentclass{article}
+\input{header.tex}
+
+\title{Spine Tutorial 2 \\ Erfolge}
+
+\begin{document}
+
+\section{Voraussetzungen}
+
+\begin{enumerate}
+\item Ikarus Scriptpaket
+\item LeGo Scriptpaket
+\item Spine Scriptpaket Version 0.9.7+
+\item Tutorial 1 - Initialisierung
+\end{enumerate}
+
+\section{Einleitung}
+
+Mit Hilfe von Spine lassen sich sehr einfach Erfolge umsetzen, wie man sie auch von anderen Plattformen wie Steam gewohnt ist. Dieses Tutorial zeigt, was man alles tun muss, um Erfolge einzubauen. Als Grundlage dient das erste Tutorial zum Thema Initialisierung. Benötigt wird das Modul "Erfolge", in den Scripts \textit{SPINE\_MODULE\_ACHIEVEMENTS}.
+
+\section{Erfolge konfigurieren}
+
+Um Erfolge nutzen zu können, brauchen sie folgende Eigenschaften:
+
+\begin{itemize}
+	\item ID
+	\item Name
+	\item Beschreibung
+	\item Grafik
+	\item versteckt
+\end{itemize}
+
+Die ID ist nötig, um den Erfolg zu identifizieren und eine Zuordnung zwischen den einzelnen Komponenten herzustellen. Sie ist eindeutig und ist sowohl in den Scripten als auch in Spine nötig. Der Name des Erfolgs ist genau einer ID zugeordnet und wird auf dem Erfolg sowie in Spine angezeigt. Die Beschreibung gibt eine Information zu dem entsprechenden Erfolg. Der Text kann leer sein oder auch erst eingeblendet werden, wenn der Erfolg freigeschaltet wurde. Angezeigt wird er nur in Spine, nicht aber in der Modifikation. Und zu guter Letzt besteht jeder Erfolg ebenfalls aus einer kleinen Grafik. Diese ist in zweifacher Ausführung nötig für den freigeschalteten und den gesperrten Zustand. Wer selbst keine entsprechenden Texturen erstellen kann, kann auch die Standardtextur nutzen, die Spine mitliefert. Es wird jedoch empfohlen, eine eigene zu erstellen, um eine Individualisierung zu haben. Die Textur wird auf eine Auflösung von 64x64 skaliert und sollte diese Auflösung daher nicht unterschreiten. Zuletzt gibt es noch das Versteckt-Flag. Dieses ist ebenfalls lediglich für Spine selbst relevant und gibt an, ob der Erfolg erst sichtbar sein soll, wenn man ihn freigeschaltet hat, oder von Anfang an.\\
+
+Die Konfiguration der Erfolge findet in der Spine\_UserConstants.d statt. Zuerst einmal wichtig sind die Konstanten:
+
+\begin{itemize}
+	\item MAX\_ACHIEVEMENTS
+	\item SPINE\_ACHIEVEMENT\_NAMES
+	\item SPINE\_ACHIEVEMENT\_TEXTURES
+\end{itemize}
+
+MAX\_ACHIEVEMENTS enthält die Anzahl aller in der entsprechenden Modifikation enthaltenen Erfolge. SPINE\_ACHIEVEMENT\_NAMES enthält die Namen der einzelnen Erfolge und SPINE\_ACHIEVEMENT\_TEXTURES die dazugehörige Textur. \textit{SPINE\_ACHIEVEMENT\_DEFAULT.TGA} ist die von Spine mitgelieferte Standardtextur und kann verwendet werden, wenn keine eigene Textur vorhanden ist. Ansonsten den Eintrag ersetzen.\\
+
+Nun sollte man sich noch für jeden Erfolg eine Konstante anlegen, den identifier. Das kann wie folgt aussehen.
+
+\begin{lstlisting}
+const int Mod_Erfolg_01 = 0;
+\end{lstlisting}
+
+Wichtig dabei ist, dass der erste Erfolg immer die ID 0 besitzt, alle weiteren aufsteigend. Die Reihenfolge ist aber lediglich für die Zuordnung wichtig und hat nichts mit der Reihenfolge der Freischaltung der Erfolge zu tun.\\
+
+Eine komplette Beispielkonfiguration der Erfolge könnte dann wie folgt aussehen.
+
+\begin{lstlisting}
+const int Mod_Erfolg_01 = 0;
+const int Mod_Erfolg_02 = 1;
+const int Mod_Erfolg_03 = 2;
+
+const int MAX_ACHIEVEMENTS = 3;
+const string SPINE_ACHIEVEMENT_NAMES[MAX_ACHIEVEMENTS] = {
+	"Kapitel 1", // wird freigeschaltet nach Abschluss von Kapitel 1
+	"Sammler", // wird freigeschaltet, wenn man 10 Pflanzen gesammelt hat
+	"Erwache" // wird freigeschaltet, wenn man den Schlaefer besiegt hat
+};
+
+const string SPINE_ACHIEVEMENT_TEXTURES[MAX_ACHIEVEMENTS] = {
+	"SPINE_ACHIEVEMENT_DEFAULT.TGA",
+	"SPINE_ACHIEVEMENT_DEFAULT.TGA",
+	"SPINE_ACHIEVEMENT_DEFAULT.TGA"
+};
+\end{lstlisting}
+
+Ab Spine 1.3 gibt es für die noch einfachere Erstellung der Erfolge in Spine selbst den Spine-Editor. Mit diesem lässt sich die komplette hier erwähnte Konfiguration angenehm über die GUI regeln.
+
+\section{Optionale Einstellungen}
+
+Neben den Pflichteinstellungen, gibt es ein paar weitere optionale Einstellungen, mit denen man die Erfolge etwas konfigurieren kann. Dazu existieren zur Zeit drei Einstellungen:
+
+\begin{itemize}
+	\item SPINE\_ACHIEVEMENTORIENTATION
+	\item SPINE\_ACHIEVEMENT\_DISPLAY\_TIME
+\end{itemize}
+
+SPINE\_ACHIEVEMENTORIENTATION gibt an, wo der Erfolg angezeigt werden soll. Dazu stehen die vier Positionen SPINE\_BOTTOMRIGHT, SPINE\_BOTTOMLEFT, SPINE\_TOPLEFT und SPINE\_TOPRIGHT zur Verfügung, die die vier Bildschirmecken repräsentieren. Mit SPINE\_ACHIEVEMENT\_DISPLAY\_TIME lässt sich die Anzeigedauer der Erfolge konfigurieren. Der Standardwert ist 3000, was für 3 Sekunden steht.
+
+\section{Erfolge freischalten}
+
+Hat man die Konfiguration nun abgeschlossen, so muss man nur noch, wenn die entsprechende Bedingung für den Erfolg abgeschlossen ist, die richtige Spine-Funktion aufrufen.
+
+\begin{lstlisting}
+Spine_UnlockAchievement(id);
+\end{lstlisting}
+
+Nimmt man die Erfolge aus dem vorigen Beispiel, so kann man beim Kapitelwechsel zu Kapitel 2 jetzt einfach
+
+\begin{lstlisting}
+Spine_UnlockAchievement(Mod_Erfolg_01);
+\end{lstlisting}
+
+aufrufen und den Rest erledigt Spine.
+
+\section{Erfolge mit Fortschritt}
+
+Seit Spine 1.4 gibt es außerdem Erfolge mit einem Fortschritt. Man kann das beispielsweise für Erfolge wie ''Töte 100 Gegner'' benutzen, aber auch für Erfolge der Art ''Spiele mit allen drei Hauptgilden durch''. Für Fortschritts-Erfolge wird zusätzlich die maximale Menge, die zum Erreichen des Erfolgs benötigt ist, erwartet. Diese ist allerdings in den Scripts uninteressant und wird daher nur auf dem Spine-Server gespeichert. Abfragen kann man den Maximal-Wert sowie den aktuell gespeicherten Fortschritt über
+
+\begin{lstlisting}
+Spine_GetAchievementProgress(id);
+Spine_GetAchievementMaxProgress(id);
+\end{lstlisting}
+
+Ändert sich der Fortschritt, so setzt man den neuen Wert ganz einfach über
+
+\begin{lstlisting}
+Spine_UpdateAchievementProgress(id, progress);
+\end{lstlisting}
+
+Sobald der aktuelle Fortschritt dem maximalen Fortschritt entspricht, wird der Erfolg automatisch freigeschaltet.
+
+\end{document}

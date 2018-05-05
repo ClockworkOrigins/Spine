@@ -1,0 +1,26 @@
+\documentclass{article}
+
+\input{../header.tex}
+
+\title{insert catchy title}
+
+\begin{document}
+
+\section{Requirements}
+
+Basic knowledge required to understand this tutorial, e.g. other tutorial this one is based on.
+
+\section{Introduction}
+
+Basic overview about the topic and the goal of this tutorial.
+
+\section{Tutorial}
+
+The complete tutorial\\
+
+Use Listings \begin{lstlisting}[language=C++, style=basic, caption={register objects}, label=code:registerGO]
+api::ObjectFacade * of = api::EngineController::getObjectFacade();
+of->registerGOTemplate("myTemp", TemplateObj::createGO);
+\end{lstlisting} or images \includegraphics[scale=1.0\textwidth]{blafoo.png} like in this example.
+
+\end{document}
