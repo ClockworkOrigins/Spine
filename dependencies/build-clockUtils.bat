@@ -21,11 +21,11 @@ cmake -DWITH_TESTING=OFF -DWITH_LIBRARY_ARGPARSER=OFF  -DWITH_LIBRARY_COMPRESSIO
 
 echo "Building clockUtils"
 
-MSBuild.exe clockUtils.sln /m:%NUMBER_OF_PROCESSORS% /p:Configuration=Release
+MSBuild.exe clockUtils.sln /m:%NUMBER_OF_PROCESSORS% /p:Configuration=Release /p:Platform=%VSSOLUTIONARCH%
 
 echo "Installing clockUtils"
 
-MSBuild.exe INSTALL.vcxproj /p:Configuration=Release
+MSBuild.exe INSTALL.vcxproj /p:Configuration=Release /p:Platform=%VSSOLUTIONARCH%
 
 echo "Cleaning up"
 

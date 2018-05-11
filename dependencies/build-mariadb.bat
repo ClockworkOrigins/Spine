@@ -21,11 +21,11 @@ cmake -DCMAKE_INSTALL_PREFIX=%PREFIX% -G "%VSCOMPILER%%VSARCH%" .
 
 echo "Building MariaDB"
 
-MSBuild.exe mariadb-client.sln /m:%NUMBER_OF_PROCESSORS% /p:Configuration=Release
+MSBuild.exe mariadb-client.sln /m:%NUMBER_OF_PROCESSORS% /p:Configuration=Release /p:Platform=%VSSOLUTIONARCH%
 
 echo "Installing MariaDB"
 
-MSBuild.exe INSTALL.vcxproj /p:Configuration=Release
+MSBuild.exe INSTALL.vcxproj /p:Configuration=Release /p:Platform=%VSSOLUTIONARCH%
 mkdir "%PREFIX%/include"
 mkdir "%PREFIX%/include/mariadb"
 mkdir "%PREFIX%/lib"

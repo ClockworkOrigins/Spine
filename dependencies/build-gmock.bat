@@ -21,7 +21,7 @@ cmake -DCMAKE_INSTALL_PREFIX=%PREFIX% -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_
 
 echo "Building GoogleMock with GoogleTest"
 
-MSBuild.exe gmock.sln /m:%NUMBER_OF_PROCESSORS% /p:Configuration=Release
+MSBuild.exe gmock.sln /m:%NUMBER_OF_PROCESSORS% /p:Configuration=Release /p:Platform=%VSSOLUTIONARCH%
 
 echo "Installing GoogleMock with GoogleTest"
 

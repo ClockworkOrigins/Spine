@@ -24,11 +24,11 @@ cmake -DWITH_SERVER=OFF -DWITH_CLIENT=OFF -DTRANSLATOR_DEP_DIR=%DEP_DIR%\%ARCH_D
 
 echo "Building translator"
 
-MSBuild.exe Translator.sln /m:%NUMBER_OF_PROCESSORS% /p:Configuration=Release
+MSBuild.exe Translator.sln /m:%NUMBER_OF_PROCESSORS% /p:Configuration=Release /p:Platform=%VSSOLUTIONARCH%
 
 echo "Installing translator"
 
-MSBuild.exe INSTALL.vcxproj /p:Configuration=Release
+MSBuild.exe INSTALL.vcxproj /p:Configuration=Release /p:Platform=%VSSOLUTIONARCH%
 
 echo "Cleaning up"
 

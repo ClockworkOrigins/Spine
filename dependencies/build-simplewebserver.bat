@@ -21,11 +21,11 @@ cmake -DBOOST_ROOT=%DEP_DIR%/%ARCH_DIR%/boost -DOPENSSL_ROOT_DIR=%DEP_DIR%/%ARCH
 
 echo "Building SimpleWebServer"
 
-MSBuild.exe Simple-Web-Server.sln /m:%NUMBER_OF_PROCESSORS% /p:Configuration=Release
+MSBuild.exe Simple-Web-Server.sln /m:%NUMBER_OF_PROCESSORS% /p:Configuration=Release /p:Platform=%VSSOLUTIONARCH%
 
 echo "Installing SimpleWebServer"
 
-MSBuild.exe INSTALL.vcxproj /p:Configuration=Release
+MSBuild.exe INSTALL.vcxproj /p:Configuration=Release /p:Platform=%VSSOLUTIONARCH%
 
 echo "Cleaning up"
 
