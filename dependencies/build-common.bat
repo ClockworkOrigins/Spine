@@ -55,6 +55,8 @@ IF NOT EXIST %3 (
 	if "%%2:~-6%" neq "tar.gz" (
 		SET ARCHIVE=%2
 		SET NEXTARCHIVE=%ARCHIVE:~0,-3%
+		echo %ARCHIVE%
+		echo %NEXTARCHIVE%
 		7z x %ARCHIVE% && 7z x %NEXTARCHIVE%
 	) else (
 		7z x %2
