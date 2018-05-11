@@ -9,6 +9,8 @@ matrix:
         - clang
       addons:
         apt:
+          ources:
+            - ubuntu-toolchain-r-test
           packages:
             - qt*5-dev
             - libqt5svg5*
