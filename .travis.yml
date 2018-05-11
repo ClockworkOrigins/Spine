@@ -12,6 +12,7 @@ matrix:
           update: true
           sources:
             - ubuntu-toolchain-r-test
+            - ppa:ubuntu-sdk-team/ppa
           packages:
             - qt*5-dev
             - libqt5svg5*
