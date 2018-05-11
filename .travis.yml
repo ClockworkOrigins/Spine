@@ -4,3 +4,6 @@ language: cpp
 compiler:
     - gcc
     - clang
+addons:
+	apt:
+		update: true
