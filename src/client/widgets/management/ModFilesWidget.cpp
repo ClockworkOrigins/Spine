@@ -200,6 +200,7 @@ namespace {
 						break;
 					}
 				}
+				_directory.remove(path);
 				_fileList->removeRow(idx.row(), idx.parent());
 			}
 		}
