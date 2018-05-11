@@ -53,7 +53,9 @@ IF EXIST %3 RD /S /Q "%2"
 winrar.exe x -ibck %2
 IF NOT EXIST %3 (
 	if "%%2:~-6%" neq "tar.gz" (
-		7z x %2 && 7z x %2:~0,-3%
+		ARCHIVE=%2
+		NEXTARCHIVE=%ARCHIVE:~0,-3%
+		7z x %ARCHIVE% && 7z x %NEXTARCHIVE%
 	) else (
 		7z x %2
 	)
