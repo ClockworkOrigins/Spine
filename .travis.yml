@@ -7,3 +7,5 @@ compiler:
 addons:
 	apt:
 		update: true
+script:
+	- mkdir build
