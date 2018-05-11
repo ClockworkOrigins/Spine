@@ -129,7 +129,7 @@ namespace {
 			QString mapping = QInputDialog::getText(this, QApplication::tr("PathInDirectoryStructure"), QApplication::tr("PathInDirectoryStructureDescription"));
 			QStringList realMappingSplit = mapping.split("/", QString::SplitBehavior::SkipEmptyParts);
 			QString realMapping;
-			for (QString rm : realMappingSplit) {
+			for (const QString & rm : realMappingSplit) {
 				if (!realMapping.isEmpty()) {
 					realMapping.append("/");
 				}
@@ -162,7 +162,7 @@ namespace {
 					if (f.open(QIODevice::ReadOnly)) {
 						QCryptographicHash hash(QCryptographicHash::Sha512);
 						hash.addData(&f);
-						QString hashSum = QString::fromLatin1(hash.result().toHex());
+						const QString hashSum = QString::fromLatin1(hash.result().toHex());
 						if (hashSum != s2q(it->hash)) { // hash changed
 							it->changed = true;
 							_fileMap.insert(file, path);
@@ -189,8 +189,8 @@ namespace {
 			QModelIndex idx = _fileTreeView->selectionModel()->selectedIndexes().front();
 			QVariant v = idx.data(PathRole);
 			if (v.isValid()) {
-				QString path = v.toString();
-				for (auto it = _mods[_modIndex].files.begin(); it != _mods[_modIndex].files.end(); it++) {
+				const QString path = v.toString();
+				for (auto it = _mods[_modIndex].files.begin(); it != _mods[_modIndex].files.end(); ++it) {
 					QString currentFileName = s2q(it->filename);
 					if (currentFileName.endsWith(".z")) {
 						currentFileName.chop(2);
@@ -259,7 +259,7 @@ namespace {
 									boost::iostreams::copy(in, compressedFile);
 								}
 								std::ifstream in(q2s(it.value()) + ".z", std::ifstream::ate | std::ifstream::binary);
-								auto size = in.tellg();
+								const auto size = in.tellg();
 								maxBytes += size;
 
 								mf.hash = q2s(hashSum);
@@ -279,7 +279,7 @@ namespace {
 			}
 			std::string serialized = umm.SerializePublic();
 			clockUtils::sockets::TcpSocket sock;
-			clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", UPLOADSERVER_PORT, 10000);
+			const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", UPLOADSERVER_PORT, 10000);
 			if (clockUtils::ClockError::SUCCESS == cErr) {
 				QTime startTime;
 				startTime.start();
@@ -292,13 +292,13 @@ namespace {
 					while (in.good()) {
 						char buffer[1024];
 						in.read(buffer, 1024);
-						auto fileSize = in.gcount();
+						const auto fileSize = in.gcount();
 						sock.write(buffer, fileSize);
 						writtenBytes += fileSize;
 						emit updateUploadText(QApplication::tr("UploadingFiles").arg(byteToString(writtenBytes), byteToString(maxBytes), bytePerTimeToString(writtenBytes, startTime.elapsed())));
 					}
 					in.close();
-					QFile().remove(file);
+					QFile::remove(file);
 				}
 				sock.receivePacket(serialized);
 				common::Message * msg = common::Message::DeserializePublic(serialized);
@@ -331,7 +331,7 @@ namespace {
 		QStandardItem * baseItem = new QStandardItem("/");
 		baseItem->setEditable(false);
 		_directory.insert("/", baseItem);
-		for (auto f : _mods[index].files) {
+		for (const auto f : _mods[index].files) {
 			addFile(baseItem, s2q(f.filename), s2q(f.language));
 		}
 		_fileList->appendRow(baseItem);
@@ -347,8 +347,8 @@ namespace {
 	void ModFilesWidget::changedLanguage(QStandardItem * itm) {
 		QVariant v = itm->data(PathRole);
 		if (v.isValid()) {
-			QString path = v.toString();
-			for (auto it = _mods[_modIndex].files.begin(); it != _mods[_modIndex].files.end(); it++) {
+			const QString path = v.toString();
+			for (auto it = _mods[_modIndex].files.begin(); it != _mods[_modIndex].files.end(); ++it) {
 				QString currentFileName = s2q(it->filename);
 				if (currentFileName.endsWith(".z")) {
 					currentFileName.chop(2);
@@ -374,9 +374,9 @@ namespace {
 		_mods[_modIndex].majorVersion = _majorVersionBox->value();
 		_mods[_modIndex].minorVersion = _minorVersionBox->value();
 		_mods[_modIndex].patchVersion = _patchVersionBox->value();
-		std::string serialized = umvm.SerializePublic();
+		const std::string serialized = umvm.SerializePublic();
 		clockUtils::sockets::TcpSocket sock;
-		clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
+		const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
 		if (clockUtils::ClockError::SUCCESS == cErr) {
 			sock.writePacket(serialized);
 		}
@@ -413,7 +413,7 @@ namespace {
 		QStringList dirStructure = currentFileName.split("/");
 		QString currentPath;
 		QStandardItem * parentItem = itm;
-		for (QString d : dirStructure) {
+		for (const QString & d : dirStructure) {
 			if (!currentPath.isEmpty()) {
 				currentPath += "/";
 			}
