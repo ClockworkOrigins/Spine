@@ -29,7 +29,7 @@ cd %BUILD_DIR%
 call bootstrap.bat
 
 echo "Building Boost"
-b2 toolset=%BOOSTCOMPILER% address-model=%BOOSTARCH% --with-date_time --with-filesystem --with-iostreams -sNO_COMPRESSION=0 -sNO_ZLIB=0 -sZLIB_SOURCE=%BUILD_DIR%\..\zlib-1.2.10 --with-serialization --with-system --with-thread link=static threading=multi --layout=system -j %NUMBER_OF_PROCESSORS% variant=release install --prefix=%PREFIX% stage
+b2 toolset=%BOOSTCOMPILER% address-model=%BOOSTARCH% --with-date_time --with-filesystem --with-iostreams -sNO_COMPRESSION=0 -sNO_ZLIB=0 -sZLIB_SOURCE=%BUILD_DIR%\..\zlib-1.2.10 --with-regex --with-serialization --with-system --with-thread link=static threading=multi --layout=system -j %NUMBER_OF_PROCESSORS% variant=release install --prefix=%PREFIX% stage
 
 echo "Installing Boost"
 

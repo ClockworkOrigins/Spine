@@ -22,7 +22,7 @@ downloadAndUnpack ${ARCHIVE}
 status "Configuring Boost"
 
 cd "${BUILD_DIR}"
-./bootstrap.sh  --prefix="${PREFIX}" --with-libraries=date_time,filesystem,iostreams,serialization,system,thread
+./bootstrap.sh  --prefix="${PREFIX}" --with-libraries=date_time,filesystem,iostreams,regex,serialization,system,thread
 
 status "Building & Installing Boost"
 
