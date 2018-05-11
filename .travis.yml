@@ -9,7 +9,8 @@ matrix:
         - clang
       addons:
         apt:
-          ources:
+          update: true
+          sources:
             - ubuntu-toolchain-r-test
           packages:
             - qt*5-dev
