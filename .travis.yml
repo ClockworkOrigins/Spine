@@ -13,6 +13,6 @@ matrix:
             - qt*5-dev
             - libqt5svg5*
             - unrar
-            - g++-7
+            - g++-6
             - clang++-5
 script: ./build-unix.sh
