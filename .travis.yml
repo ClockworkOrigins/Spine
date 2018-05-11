@@ -4,8 +4,12 @@ language: cpp
 compiler:
     - gcc
     - clang
-addons:
-	apt:
-		packages:
-			- qt*5-dev
+matrix:
+  include:
+    - os: linux
+      env: PLATFORM=linux
+      addons:
+        apt:
+          packages:
+            - qt*5-dev
 script: ./build-unix.sh
