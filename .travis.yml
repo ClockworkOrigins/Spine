@@ -4,7 +4,8 @@ language: cpp
 compiler:
     - gcc
     - clang
-before_script:
-	- sudo apt-get update -q
-	- sudo apt-get install qt*5-dev
+addons:
+	apt:
+		packages:
+			- qt*5-dev
 script: ./build-unix.sh
