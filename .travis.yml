@@ -4,8 +4,4 @@ language: cpp
 compiler:
     - gcc
     - clang
-addons:
-	apt:
-		update: true
-script:
-	- mkdir build
+script: ./build-unix.sh
