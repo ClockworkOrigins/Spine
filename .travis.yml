@@ -1,15 +1,15 @@
 os:
     - linux
 language: cpp
-compiler:
-    - gcc
-    - clang
 matrix:
   include:
     - os: linux
-      env: PLATFORM=linux
+      compiler:
+        - gcc
+        - clang
       addons:
         apt:
           packages:
             - qt*5-dev
+            - libqt5svg5*
 script: ./build-unix.sh
