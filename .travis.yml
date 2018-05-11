@@ -12,4 +12,5 @@ matrix:
           packages:
             - qt*5-dev
             - libqt5svg5*
+            - unrar
 script: ./build-unix.sh
