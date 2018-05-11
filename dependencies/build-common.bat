@@ -50,16 +50,14 @@ IF NOT EXIST %TMP_DIR% (mkdir %TMP_DIR%)
 IF NOT EXIST %TMP_DIR%\%2 (bitsadmin /transfer "myDownloadJob%2" /download /priority normal %DOWNLOAD_URL%%2 %TMP_DIR%\%2)
 CD %TMP_DIR%
 IF EXIST %3 RD /S /Q "%2"
-winrar.exe x -ibck %2
+SET COMPRESSEDARCHIVE=%2
+SET NEXTCOMPRESSEDARCHIVE=%COMPRESSEDARCHIVE:~0,-3%
+winrar.exe x -ibck %COMPRESSEDARCHIVE%
 IF NOT EXIST %3 (
-	if "%%2:~-6%" neq "tar.gz" (
-		SET ARCHIVE=%2
-		SET NEXTARCHIVE=%ARCHIVE:~0,-3%
-		echo %ARCHIVE%
-		echo %NEXTARCHIVE%
-		7z x %ARCHIVE% && 7z x %NEXTARCHIVE%
+	if "%%COMPRESSEDARCHIVE:~-6%" neq "tar.gz" (
+		7z x %COMPRESSEDARCHIVE% && 7z x %NEXTCOMPRESSEDARCHIVE%
 	) else (
-		7z x %2
+		7z x %COMPRESSEDARCHIVE%
 	)
 )
 IF NOT EXIST %3 EXIT /B
