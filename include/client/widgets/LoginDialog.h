@@ -60,6 +60,7 @@ namespace widgets {
 		void dontShowAgainChanged(int state);
 		void setLanguage(QString language);
 		void resetPassword();
+		void onPrivacyAcceptChanged(bool enabled);
 
 	private:
 		QSettings * _iniParser;
@@ -70,7 +71,8 @@ namespace widgets {
 		QLineEdit * _registerMailEdit;
 		QLineEdit * _registerPasswordEdit;
 		QLineEdit * _registerPasswordRepeatEdit;
-
+		
+		QCheckBox * _registerAcceptPrivacyPolicy;
 		QCheckBox * _registerStayBox;
 		QPushButton * _registerButton;
 

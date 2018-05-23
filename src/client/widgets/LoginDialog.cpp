@@ -171,9 +171,13 @@ namespace {
 			_registerMailEdit = new QLineEdit(w);
 			_registerPasswordEdit = new QLineEdit(w);
 			_registerPasswordRepeatEdit = new QLineEdit(w);
-
+			
+			_registerAcceptPrivacyPolicy = new QCheckBox(QApplication::tr("AcceptPrivacy"), w);
+			QLabel * privacyLink = new QLabel("<a href=\"https://clockwork-origins.com/privacy\">" + QApplication::tr("Privacy") + "</a>", this);
+			privacyLink->setOpenExternalLinks(true);
 			_registerStayBox = new QCheckBox(QApplication::tr("StayLoggedIn"), w);
 			_registerButton = new QPushButton(QApplication::tr("Register"), w);
+			_registerButton->setEnabled(false);
 
 			_registerPasswordEdit->setEchoMode(QLineEdit::EchoMode::Password);
 			_registerPasswordRepeatEdit->setEchoMode(QLineEdit::EchoMode::Password);
@@ -188,9 +192,11 @@ namespace {
 			gl->addWidget(_registerPasswordEdit, 2, 1);
 			gl->addWidget(l4, 3, 0);
 			gl->addWidget(_registerPasswordRepeatEdit, 3, 1);
-			gl->addWidget(_registerStayBox, 4, 1);
-			gl->addWidget(resetPasswordButton, 5, 0);
-			gl->addWidget(_registerButton, 5, 1);
+			gl->addWidget(_registerAcceptPrivacyPolicy, 4, 1);
+			gl->addWidget(privacyLink, 5, 1);
+			gl->addWidget(_registerStayBox, 6, 1);
+			gl->addWidget(resetPasswordButton, 7, 0);
+			gl->addWidget(_registerButton, 7, 1);
 
 			w->setLayout(gl);
 
@@ -200,6 +206,7 @@ namespace {
 			UPDATELANGUAGESETTEXTEXT(generalSettingsWidget, l3, "Password", " *");
 			UPDATELANGUAGESETTEXTEXT(generalSettingsWidget, l4, "PasswordRepeat", " *");
 			UPDATELANGUAGESETTABTEXT(generalSettingsWidget, tw, 0, "Register");
+			UPDATELANGUAGESETTEXT(generalSettingsWidget, _registerAcceptPrivacyPolicy, "AcceptPrivacy");
 			UPDATELANGUAGESETTEXT(generalSettingsWidget, _registerStayBox, "StayLoggedIn");
 			UPDATELANGUAGESETTEXT(generalSettingsWidget, _registerButton, "Register");
 
@@ -209,6 +216,7 @@ namespace {
 			connect(_registerPasswordEdit, SIGNAL(textChanged(const QString &)), this, SLOT(changedRegisterInput()));
 			connect(_registerPasswordRepeatEdit, SIGNAL(textChanged(const QString &)), this, SLOT(changedRegisterInput()));
 			connect(resetPasswordButton, &QPushButton::released, this, &LoginDialog::resetPassword);
+			connect(_registerAcceptPrivacyPolicy, &QCheckBox::toggled, this, &LoginDialog::onPrivacyAcceptChanged);
 		}
 		{
 			// login tab
@@ -591,6 +599,10 @@ namespace {
 			}
 		});
 		client.io_service->run();
+	}
+
+	void LoginDialog::onPrivacyAcceptChanged(bool enabled) {
+		_registerButton->setEnabled(enabled);
 	}
 
 	void LoginDialog::handleLogin(QString username, QString password) {

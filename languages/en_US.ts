@@ -2995,5 +2995,18 @@ Until the version number was updated the new files only affect players downloadi
         <source>ForgotPasswordNoUser</source>
         <translation>For the given data no account was found. Please check the data and try again. If you have problems, please use the feedback functionality to start direct contact. Provide as many informations as possible.</translation>
     </message>
+    <message>
+        <source>Privacy</source>
+        <translation>Privacy Policy</translation>
+    </message>
+    <message>
+        <source>AcceptPrivacy</source>
+        <translation>Accept Privacy Policy</translation>
+    </message>
+    <message>
+        <source>AcceptPrivacyTooltip</source>
+        <translation>By accepting the privacy policy you give us the permission to collect and process all data mentioned in the privacy policy.
+You can revoke your permission at every point in time. All necessary informations about that you can find on the homepage.</translation>
+    </message>
 </context>
 </TS>

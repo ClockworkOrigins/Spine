@@ -2987,5 +2987,18 @@ Do czasu zaktualizowania numeru wersji nowe pliki obejmują jedynie graczy, któ
         <source>ForgotPasswordNoUser</source>
         <translation>Für die angegebenen Daten wurde kein Account gefunden. Bitte prüfe die Daten und versuche es noch einmal. Solltest du Probleme haben, nutze die Feedback-Funktion, um direkt Kontakt aufzunehmen. Stelle dazu möglichst viele Informationen zu deinem Account bereit.</translation>
     </message>
+    <message>
+        <source>Privacy</source>
+        <translation>Oświadczenie o ochronie danych</translation>
+    </message>
+    <message>
+        <source>AcceptPrivacy</source>
+        <translation>Wyrażam zgodę na politykę prywatności</translation>
+    </message>
+    <message>
+        <source>AcceptPrivacyTooltip</source>
+        <translation>Wyrażając zgodę na Politykę Prywatności, wyrażasz zgodę na zbieranie i przetwarzanie informacji zawartych w Polityce Prywatności.
+Zgodę można odwołać w każdej chwili. Wszystkie niezbędne informacje można znaleźć na stronie głównej.</translation>
+    </message>
 </context>
 </TS>

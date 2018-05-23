@@ -2987,5 +2987,18 @@ Bis die Versionsnummer aktualisiert wurde betreffen die neuen Dateien nur Spiele
         <source>ForgotPasswordNoUser</source>
         <translation>Für die angegebenen Daten wurde kein Account gefunden. Bitte prüfe die Daten und versuche es noch einmal. Solltest du Probleme haben, nutze die Feedback-Funktion, um direkt Kontakt aufzunehmen. Stelle dazu möglichst viele Informationen zu deinem Account bereit.</translation>
     </message>
+    <message>
+        <source>Privacy</source>
+        <translation>Datenschutzerklärung</translation>
+    </message>
+    <message>
+        <source>AcceptPrivacy</source>
+        <translation>Datenschutzerklärung zustimmen</translation>
+    </message>
+    <message>
+        <source>AcceptPrivacyTooltip</source>
+        <translation>Durch Zustimmung zur Datenschutzerklärung erlaubst du das Sammeln und Verarbeiten der in der Datenschutzerklärung angegebenen Daten.
+Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Informationen findest du auf der Homepage.</translation>
+    </message>
 </context>
 </TS>
