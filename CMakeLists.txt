@@ -26,8 +26,8 @@ SET(DXREDIST_PATH "" CACHE STRING "path to the DirectX redistributable")
 project(Spine CXX)
 
 SET(VERSION_MAJOR 1)
-SET(VERSION_MINOR 13)
-SET(VERSION_PATCH 3)
+SET(VERSION_MINOR 14)
+SET(VERSION_PATCH 0)
 
 INCLUDE(cmake/variables.cmake)
 

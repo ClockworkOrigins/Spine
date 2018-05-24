@@ -18,8 +18,6 @@
 
 #include "gamepad/XBoxController.h"
 
-#include <iostream>
-
 #include "SpineConfig.h"
 
 #include "common/MessageStructs.h"

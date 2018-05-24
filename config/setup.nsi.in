@@ -21,7 +21,7 @@
 ; TODO: Eigenschaften der Modifikation
 !define GAME_FILE "Spine"                  ; Game-Titel
 !define GAME_NAME "Spine"                  ; Game-Titel
-!define GAME_COPY "Copyright 2017, Clockwork Origins"  ; Game-Copyright
+!define GAME_COPY "Copyright 2017 - 2018, Clockwork Origins"  ; Game-Copyright
 !define GAME_COMP "Clockwork Origins"                    ; Game-Herausgeber
 !define GAME_LINK "http://clockwork-origins.de/"     ; Herausgeber-Link
 !define GAME_HELP "http://clockwork-origins.de/contact" ; Support-Link
@@ -219,7 +219,6 @@ Section !$(NameSecModFiles) SecModFiles
   File      "@CMAKE_BINARY_DIR@\bin\SpineAPI.dll"
   File      "@CMAKE_SOURCE_DIR@\config\changelog.xml"
   File      "@CMAKE_SOURCE_DIR@\config\*.conf"
-  File      "@CLOCKWORK_ROOT@\bin\clockwork_login.dll"
   File      "@SPINE_DEP_DIR@\openSSL\bin\*.dll"
   File      "@SQLITE3_ROOT@\bin\sqlite3.dll"
   File      "@TRANSLATOR_ROOT@\bin\*.dll"
