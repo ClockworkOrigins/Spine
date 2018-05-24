@@ -45,8 +45,8 @@ namespace widgets {
 		UPDATELANGUAGESETTEXTEXT(generalSettingsWidget, cwMail, "Contact", ": <a href=\"mailto:contact@clockwork-origins.de\">contact@clockwork-origins.de</a>");
 		cwMail->setOpenExternalLinks(true);
 		layout->addWidget(cwMail);
-		QLabel * cwLink = new QLabel(QApplication::tr("Homepage") + ": <a href=\"https://clockwork-origins.de/\">https://clockwork-origins.de/</a>", this);
-		UPDATELANGUAGESETTEXTEXT(generalSettingsWidget, cwLink, "Homepage", ": <a href=\"https://clockwork-origins.de/\">https://clockwork-origins.de/</a>");
+		QLabel * cwLink = new QLabel(QApplication::tr("Homepage") + ": <a href=\"https://clockwork-origins.com/\">https://clockwork-origins.com/</a>", this);
+		UPDATELANGUAGESETTEXTEXT(generalSettingsWidget, cwLink, "Homepage", ": <a href=\"https://clockwork-origins.com/\">https://clockwork-origins.com/</a>");
 		cwLink->setOpenExternalLinks(true);
 		layout->addWidget(cwLink);
 		layout->addWidget(new QLabel(QString(""), this));
