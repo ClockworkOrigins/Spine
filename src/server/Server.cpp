@@ -729,6 +729,14 @@ namespace spine {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			return;
 		}
+		if (!database.query("PREPARE deleteSessionInfosStmt FROM \"DELETE FROM userSessionInfos WHERE UserID = ? LIMIT 1\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			return;
+		}
+		if (!database.query("PREPARE deleteSettingsStmt FROM \"DELETE FROM userSettings WHERE UserID = ? LIMIT 1\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			return;
+		}
 		if (!database.query("SET @paramModID=" + std::to_string(msg->modID) + ";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			return;
@@ -767,6 +775,14 @@ namespace spine {
 			return;
 		}
 		if (!database.query("EXECUTE insertLastPlaytimeStmt USING @paramModID, @paramUserID, @paramTimestamp, @paramTimestamp;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			return;
+		}
+		if (!database.query("EXECUTE deleteSessionInfosStmt USING @paramUserID;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			return;
+		}
+		if (!database.query("EXECUTE deleteSettingsStmt USING @paramUserID;")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
