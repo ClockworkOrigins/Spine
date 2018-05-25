@@ -612,7 +612,8 @@ namespace {
 				{
 					common::UpdateLoginTimeMessage ultm;
 					ultm.username = username.toStdString();
-					std::string serialized = ultm.SerializePublic();
+					ultm.password = password.toStdString();
+					const std::string serialized = ultm.SerializePublic();
 					sock.writePacket(serialized);
 				}
 				{
@@ -622,7 +623,7 @@ namespace {
 					suim.hash = security::Hash::calculateSystemHash().toStdString();
 					suim.mac = security::Hash::getMAC().toStdString();
 					suim.language = _language.toStdString();
-					std::string serialized = suim.SerializePublic();
+					const std::string serialized = suim.SerializePublic();
 					sock.writePacket(serialized);
 				}
 			}
