@@ -56,5 +56,5 @@
 	<File Hash="1ec64c17a1fbfdc145942a92f94fc9f02761647741fcb5b8a17cef48fe83fddbbdc17ff96dd55f83976d0c11613afbf9f2b3a05d02141b61808dc9828261d604">bin/plugins/imageformats/qjpeg.dll.z</File>
 	<File Hash="8cf39beb7cde85160e7474b89e7f0a0ab35fb7f4c2c9279de5f66f8410271d49ba3642aa3cdbe2c7071bf4a1be091146787aa29fd7445419ab0533c571654c25">bin/plugins/imageformats/qsvg.dll.z</File>
 	<File Hash="c0d266af87e977ea85a5a9589ee93500bee1f5277db2b09402b5c8ab95085d46e99242498fd011152200edde14ac6f14f1bb0b04ea33136ef97c8a1345e417c0">bin/plugins/platforms/qwindows.dll.z</File>
-	<File Hash="271dd23e89e55943e2f8b3830eb6c77f4bf3f8b26e6deb35b4b62a0b388a1b315aa2ca05507f019014ee7c0cd26a8cbe0ffd224d358ee1b228932c3ae4376175">vcredist_x86.exe.z</File>
+	<File Hash="e8cb67fc8e0312da3cc98364b96dfa1a63150ab9de60069c4af60c1cf77d440b7dffe630b4784ba07ea9bf146bdbf6ad5282a900ffd6ab7d86433456a752b2fd">vcredist_x86.exe.z</File>
 </Version>
