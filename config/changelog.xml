@@ -1442,3 +1442,8 @@
 	<Bug language="English">New achievements now can be created correctly with the management dialog</Bug>
 	<Bug language="English">png's now can be chosen as achievement image</Bug>
 </Version>
+<Version majorVersion="1" minorVersion="14" patchVersion="1">
+	<Bug language="Deutsch">Erfolge, Scores und Co. funktionieren jetzt wieder richtig</Bug>
+	
+	<Bug language="English">Achievements, scores and Co. now work again expected</Bug>
+</Version>

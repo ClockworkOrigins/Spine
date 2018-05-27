@@ -1665,6 +1665,7 @@ namespace widgets {
 								if (_onlineMode) {
 									usm->modID = _modID;
 									usm->username = _username.toStdString();
+									usm->password = _password.toStdString();
 									clockUtils::sockets::TcpSocket sock;
 									if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
 										serialized = usm->SerializePublic();
@@ -1692,6 +1693,7 @@ namespace widgets {
 								if (_onlineMode) {
 									ram->modID = _modID;
 									ram->username = _username.toStdString();
+									ram->password = _password.toStdString();
 									clockUtils::sockets::TcpSocket sock;
 									if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
 										serialized = ram->SerializePublic();
@@ -1752,6 +1754,7 @@ namespace widgets {
 
 									uam->modID = _modID;
 									uam->username = _username.toStdString();
+									uam->password = _password.toStdString();
 									uam->duration = duration;
 									clockUtils::sockets::TcpSocket sock;
 									if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
@@ -1777,6 +1780,7 @@ namespace widgets {
 								if (_onlineMode) {
 									uapm->modID = _modID;
 									uapm->username = _username.toStdString();
+									uapm->password = _password.toStdString();
 									clockUtils::sockets::TcpSocket sock;
 									if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
 										serialized = uapm->SerializePublic();
@@ -1805,6 +1809,7 @@ namespace widgets {
 								if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
 									smm->modID = _modID;
 									smm->username = _username.toStdString();
+									smm->password = _password.toStdString();
 									serialized = smm->SerializePublic();
 									if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
 										if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
@@ -1853,6 +1858,7 @@ namespace widgets {
 								if (_onlineMode) {
 									rom->modID = _modID;
 									rom->username = _username.toStdString();
+									rom->password = _password.toStdString();
 									clockUtils::sockets::TcpSocket sock;
 									if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
 										serialized = rom->SerializePublic();
@@ -1895,6 +1901,7 @@ namespace widgets {
 								if (_onlineMode) {
 									uom->modID = _modID;
 									uom->username = _username.toStdString();
+									uom->password = _password.toStdString();
 									clockUtils::sockets::TcpSocket sock;
 									if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
 										serialized = uom->SerializePublic();
@@ -1920,6 +1927,7 @@ namespace widgets {
 						if (_onlineMode) {
 							if (rafm && !_username.isEmpty()) {
 								rafm->username = _username.toStdString();
+								rafm->password = _password.toStdString();
 								clockUtils::sockets::TcpSocket sock;
 								if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
 									serialized = rafm->SerializePublic();
