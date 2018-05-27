@@ -18,8 +18,6 @@
 	<File Hash="6419a78ce72e61160399b795f303e5c9e8d6f206eaa1becd44c438208e4ff93583b077f4b4c2e26f08f685b9cd9319105e788ae04b3290c05aac61fea34c9711">styles.css.z</File>
 </Version>
 <Version majorVersion="1" minorVersion="14" patchVersion="0">
-	<File Hash="bc977fc9fc275182fe6069a1c7c82c4a74b1a8ae3864f227624e10f1f0be36446a74fab936791944ea366af5497f6287d1ff682705eb73ea5a5972f6f04a36c1">bin/changelog.xml.z</File>
-	<File Hash="6c385d01bc1f7037f42549bbb22b544c234d97186d450f005506154789a29a6137f5ebd36d8731eca5d57e190a30103e10a001811e8ac372b5de22a6d29d5a48">bin/Spine.exe.z</File>
 	<File Hash="29647308d998e114001bcf29b149d9b80bc0def821815485711f2977f3a102967621e1e0f77a78f473d6161c5aab14d628136333a00925f26b75cda638ab5a97">bin/SpineAPI.dll.z</File>
 	<File Hash="54fd77b9f1ac68b9ad2849e76395b8cf03086c644065a55912df73932b861094ebdf35ea9156785a835f43678400b207c33b5028ad205a4e8cae1ee1b1602480">bin/cleanup.exe.z</File>
 	<File Hash="7b57c710043d8c60ee071386c404322cd8259b8d712d6430ff0dcbdb4cd31edbb301397002c0bfeadbb385abc7682e9fe6dd6cf94d2ed4f2f62ad5bb530e007e">bin/TranslatorAPI.dll.z</File>
@@ -57,4 +55,8 @@
 	<File Hash="8cf39beb7cde85160e7474b89e7f0a0ab35fb7f4c2c9279de5f66f8410271d49ba3642aa3cdbe2c7071bf4a1be091146787aa29fd7445419ab0533c571654c25">bin/plugins/imageformats/qsvg.dll.z</File>
 	<File Hash="c0d266af87e977ea85a5a9589ee93500bee1f5277db2b09402b5c8ab95085d46e99242498fd011152200edde14ac6f14f1bb0b04ea33136ef97c8a1345e417c0">bin/plugins/platforms/qwindows.dll.z</File>
 	<File Hash="e8cb67fc8e0312da3cc98364b96dfa1a63150ab9de60069c4af60c1cf77d440b7dffe630b4784ba07ea9bf146bdbf6ad5282a900ffd6ab7d86433456a752b2fd">vcredist_x86.exe.z</File>
+</Version>
+<Version majorVersion="1" minorVersion="14" patchVersion="1">
+	<File Hash="5d2a057585856d1b7d53f18fa9eb0aafbcc4028894d758f74279bb1458bd6640b3557df0ec5087743d7cf2f12f7ea5b14e3b9757211bd14b530fd74743a7f9ba">bin/changelog.xml.z</File>
+	<File Hash="a475bec4b8091ea487b8f07c4e101d4fed68db8e88f610999206bb3be6ab68100c287c53e2095f1e11a736a6b545967441836c1537fdf94feff2f93fadcafba4">bin/Spine.exe.z</File>
 </Version>
