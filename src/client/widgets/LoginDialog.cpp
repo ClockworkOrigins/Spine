@@ -381,7 +381,7 @@ namespace {
 					return;
 				}
 				QString code = QString::fromStdString(response->status_code).split(" ")[0];
-				clockwork::login::Response rp = statusCodeToResponse(SimpleWeb::StatusCode(code.toInt()));
+				const clockwork::login::Response rp = statusCodeToResponse(SimpleWeb::StatusCode(code.toInt()));
 
 				switch (rp) {
 				case clockwork::login::Response::SUCCESS: {
@@ -466,7 +466,7 @@ namespace {
 
 			// Synchronous request examples
 			client.request("POST", "/json", content.toStdString(), [this, username, passwd, stayLoggedIn](std::shared_ptr<HttpsClient::Response> response, const SimpleWeb::error_code & ec) {
-				clockwork::login::Response rp = statusCodeToResponse(SimpleWeb::StatusCode(std::stoi(response->status_code)));
+				const clockwork::login::Response rp = statusCodeToResponse(SimpleWeb::StatusCode(std::stoi(response->status_code)));
 
 				switch (rp) {
 				case clockwork::login::Response::SUCCESS: {
@@ -577,7 +577,7 @@ namespace {
 
 		// Synchronous request examples
 		client.request("POST", "/json", content.toStdString(), [this](std::shared_ptr<HttpsClient::Response> response, const SimpleWeb::error_code & ec) {
-			clockwork::login::Response rp = statusCodeToResponse(SimpleWeb::StatusCode(std::stoi(response->status_code)));
+			const clockwork::login::Response rp = statusCodeToResponse(SimpleWeb::StatusCode(std::stoi(response->status_code)));
 
 			switch (rp) {
 			case clockwork::login::Response::SUCCESS: {
