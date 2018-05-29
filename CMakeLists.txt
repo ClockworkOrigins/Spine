@@ -27,7 +27,7 @@ project(Spine CXX)
 
 SET(VERSION_MAJOR 1)
 SET(VERSION_MINOR 14)
-SET(VERSION_PATCH 1)
+SET(VERSION_PATCH 2)
 
 INCLUDE(cmake/variables.cmake)
 
