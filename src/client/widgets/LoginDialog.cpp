@@ -51,6 +51,7 @@
 #include <QNetworkReply>
 
 #include "simple-web-server/client_https.hpp"
+#include <regex>
 
 using HttpsClient = SimpleWeb::Client<SimpleWeb::HTTPS>;
 
@@ -451,18 +452,20 @@ namespace {
 			return;
 		}
 
-		QString passwd = _registerPasswordEdit->text();
+		const QString passwd = _registerPasswordEdit->text();
 		_registerPasswordEdit->setText("");
 		_registerPasswordRepeatEdit->setText("");
 
-		QString username = _registerUsernameEdit->text();
-		bool stayLoggedIn = _registerStayBox->isChecked();
+		const QString username = _registerUsernameEdit->text();
+		const bool stayLoggedIn = _registerStayBox->isChecked();
+
+		const QString mail = _registerMailEdit->text();
 
 		if (_onlineMode) {
 			HttpsClient client("clockwork-origins.com:19101", false);
 
 			QString content = R"({"type": 0,"username": "%1","password": "%2", "mail": "%3"})";
-			content = content.arg(username, passwd);
+			content = content.arg(username, passwd, mail);
 
 			// Synchronous request examples
 			client.request("POST", "/json", content.toStdString(), [this, username, passwd, stayLoggedIn](std::shared_ptr<HttpsClient::Response> response, const SimpleWeb::error_code & ec) {
@@ -482,6 +485,10 @@ namespace {
 				}
 				case clockwork::login::Response::MAIL_EXISTS: {
 					emit showErrorMessage(QApplication::tr("MailExists"));
+					return;
+				}
+				case clockwork::login::Response::INVALID_MAIL: {
+					emit showErrorMessage(QApplication::tr("InvalidMail"));
 					return;
 				}
 				default: {
@@ -543,7 +550,7 @@ namespace {
 	}
 
 	void LoginDialog::changedRegisterInput() {
-		_registerButton->setEnabled(_registerUsernameEdit->text().size() > 0 && _registerPasswordEdit->text().size() > 0 && _registerPasswordRepeatEdit->text().size() > 0 && _registerMailEdit->text().size() > 0);
+		_registerButton->setEnabled(_registerUsernameEdit->text().size() > 0 && _registerPasswordEdit->text().size() > 0 && _registerPasswordRepeatEdit->text().size() > 0 && _registerMailEdit->text().size() > 0 && _registerAcceptPrivacyPolicy->isChecked());
 	}
 
 	void LoginDialog::showErrorMessageBox(QString message) {
@@ -602,7 +609,7 @@ namespace {
 	}
 
 	void LoginDialog::onPrivacyAcceptChanged(bool enabled) {
-		_registerButton->setEnabled(enabled);
+		changedRegisterInput();
 	}
 
 	void LoginDialog::handleLogin(QString username, QString password) {

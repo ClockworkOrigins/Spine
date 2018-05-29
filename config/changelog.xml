@@ -1447,3 +1447,8 @@
 	
 	<Bug language="English">Achievements, scores and Co. now work again expected</Bug>
 </Version>
+<Version majorVersion="1" minorVersion="14" patchVersion="2">
+	<Bug language="Deutsch">Clockwork Account registrieren funktioniert jetzt wieder</Bug>
+	
+	<Bug language="English">Registering a Clockwork Account works again</Bug>
+</Version>
