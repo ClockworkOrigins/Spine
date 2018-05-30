@@ -61,7 +61,7 @@ namespace {
 		delete _socket;
 	}
 
-	bool Smtp::sendMail(const std::string & from, const std::string & to, const std::string & subject, const std::string & body) const {
+	bool Smtp::sendMail(const std::string & from, const std::string & to, const std::string & subject, const std::string & body, const std::string & replyTo) const {
 		if (!_connected) {
 			return false;
 		}
@@ -133,7 +133,7 @@ namespace {
 				for (const std::string & s : splitBody) {
 					newBody += s + "\r\n";
 				}
-				std::string writeMsg = "To: " + to + "\r\nFrom: " + from + "\r\nSubject: " + subject + "\r\n\r\n" + newBody + "\r\n.\r\n";
+				std::string writeMsg = "To: " + to + "\r\nFrom: " + from + "\r\nSubject: " + subject + "\r\nReply-To:" + replyTo + "\r\n\r\n" + newBody + "\r\n.\r\n";
 				error = _socket->write(writeMsg.c_str(), writeMsg.length());
 				state = State::Quit;
 			} else {

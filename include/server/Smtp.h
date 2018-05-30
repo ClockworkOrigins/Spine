@@ -41,7 +41,7 @@ namespace spine {
 		 * \brief sends mail, don't call from multiple threads, this is NOT threadsafe
 		 * \return returns true on success, otherwise false
 		 */
-		bool sendMail(const std::string & from, const std::string & to, const std::string & subject, const std::string & body) const;
+		bool sendMail(const std::string & from, const std::string & to, const std::string & subject, const std::string & body, const std::string & replyTo) const;
 
 	private:
 		clockUtils::sockets::TcpSocket * _socket;

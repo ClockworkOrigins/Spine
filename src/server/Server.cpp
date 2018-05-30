@@ -1208,7 +1208,39 @@ namespace spine {
 		file.open(ss.str(), std::fstream::out);
 		file << msg->text << std::endl << std::endl << int(msg->majorVersion) << "." << int(msg->minorVersion) << "." << int(msg->patchVersion) << std::endl << std::endl << msg->username;
 		file.close();
-		sendMail("New Feedback arrived", ss.str() + "\n" + msg->text + "\n" + std::to_string(int(msg->majorVersion)) + "." + std::to_string(int(msg->minorVersion)) + "." + std::to_string(int(msg->patchVersion)) + "\n\n" + msg->username);
+
+		std::string replyMail = "noreply@clockwork-origins.de";
+
+		if (!msg->username.empty()) {
+			const int userID = getUserID(msg->username);
+
+			MariaDBWrapper accountDatabase;
+			do {
+				if (!accountDatabase.connect("localhost", DATABASEUSER, DATABASEPASSWORD, ACCOUNTSDATABASE, 0)) {
+					std::cout << "Couldn't connect to database" << std::endl;
+					break;
+				}
+
+				if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT Mail FROM accounts WHERE ID = ? LIMIT 1\";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					break;
+				}
+				if (!accountDatabase.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					break;
+				}
+				if (!accountDatabase.query("EXECUTE selectStmt USING @paramUserID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				}
+				std::vector<std::vector<std::string>> results = accountDatabase.getResults<std::vector<std::string>>();
+				if (results.empty()) {
+					break;
+				}
+				replyMail = results[0][0];
+			} while (false);
+		}
+
+		sendMail("[Spine] New Feedback arrived", ss.str() + "\n" + msg->text + "\n" + std::to_string(int(msg->majorVersion)) + "." + std::to_string(int(msg->minorVersion)) + "." + std::to_string(int(msg->patchVersion)) + "\n\n" + msg->username, replyMail);
 	}
 
 	void Server::handleRequestOriginalFiles(clockUtils::sockets::TcpSocket * sock, common::RequestOriginalFilesMessage * msg) const {
@@ -1222,7 +1254,7 @@ namespace spine {
 			return;
 		}
 		common::SendOriginalFilesMessage sofm;
-		for (const auto p : msg->files) {
+		for (const auto & p : msg->files) {
 			if (!database.query("SET @paramModID=" + std::to_string(p.first) + ";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				break;
@@ -2078,7 +2110,7 @@ namespace spine {
 				out.close();
 			}
 
-			sendMail("New News arrived", ss.str() + "\n" + msg->news.title + "\n" + msg->news.body);
+			sendMail("New News arrived", ss.str() + "\n" + msg->news.title + "\n" + msg->news.body, "noreply@clockwork-origins.de");
 		} else {
 			if (msg->images.size() != msg->news.imageFiles.size()) {
 				std::cout << "Images-Count unequal: " << msg->images.size() << " vs. " << msg->news.imageFiles.size() << std::endl;
@@ -2458,7 +2490,7 @@ namespace spine {
 			}
 		} while (false);
 
-		sendMail("New Script Features arrived", std::to_string(msg->modID) + "\n" + msg->username + "\n" + std::to_string(msg->achievements.size()) + " Achievements\n" + std::to_string(msg->scores.size()) + " Scores");
+		sendMail("[Spine] New Script Features arrived", std::to_string(msg->modID) + "\n" + msg->username + "\n" + std::to_string(msg->achievements.size()) + " Achievements\n" + std::to_string(msg->scores.size()) + " Scores", "noreply@clockwork-origins.de");
 	}
 
 	void Server::handleRequestInfoPage(clockUtils::sockets::TcpSocket * sock, common::RequestInfoPageMessage * msg) const {
@@ -2723,13 +2755,14 @@ namespace spine {
 			}
 			auto lastResults = database.getResults<std::vector<std::string>>();
 			std::vector<std::pair<std::string, std::string>> images;
+			images.reserve(lastResults.size());
 			for (auto v : lastResults) {
 				images.emplace_back(v[0], v[1]);
 			}
 			// compare images with received ones to delete old screens
-			for (const auto p : images) {
+			for (const auto & p : images) {
 				bool found = false;
-				for (const auto p2 : msg->screenshots) {
+				for (const auto & p2 : msg->screenshots) {
 					if (p.first == p2.first && p.second == p2.second) {
 						// identical image, so skip
 						found = true;
@@ -2752,9 +2785,9 @@ namespace spine {
 					boost::filesystem::remove("/var/www/vhosts/clockwork-origins.de/httpdocs/Gothic/downloads/mods/" + std::to_string(msg->modID) + "/screens/" + p.first);
 				}
 			}
-			for (const auto p : msg->screenshots) {
+			for (const auto & p : msg->screenshots) {
 				bool found = false;
-				for (const auto p2 : images) {
+				for (const auto & p2 : images) {
 					if (p.first == p2.first && p.second == p2.second) {
 						// identical image, so skip
 						found = true;
@@ -2883,7 +2916,7 @@ namespace spine {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				return;
 			}
-			for (const std::pair<std::string, std::string> p : msg->settings) {
+			for (const std::pair<std::string, std::string> & p : msg->settings) {
 				if (!database.query("SET @paramEntry='" + p.first + "';")) {
 					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 					continue;
@@ -4953,10 +4986,10 @@ namespace spine {
 		return users;
 	}
 
-	void Server::sendMail(const std::string & subject, const std::string & body) {
-		std::thread([subject, body]() {
+	void Server::sendMail(const std::string & subject, const std::string & body, const std::string & replyTo) {
+		std::thread([subject, body, replyTo]() {
 			Smtp s("127.0.0.1");
-			bool b = s.sendMail("contact@clockwork-origins.de", "bonne@clockwork-origins.de", subject, body);
+			bool b = s.sendMail("contact@clockwork-origins.de", "bonne@clockwork-origins.de", subject, body, replyTo);
 			static_cast<void>(b);
 		}).detach();
 	}

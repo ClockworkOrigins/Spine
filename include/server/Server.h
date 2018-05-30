@@ -182,7 +182,7 @@ namespace common {
 		int getUserID(const std::string & username, const std::string & password) const;
 		std::string getUsername(int id) const;
 		static std::vector<std::string> getUserList();
-		static void sendMail(const std::string & subject, const std::string & body);
+		static void sendMail(const std::string & subject, const std::string & body, const std::string & replyTo);
 
 		// MP stuff, communication with external server
 		uint32_t getLevel(int userID, uint32_t & currentXP, uint32_t & nextXP) const;
