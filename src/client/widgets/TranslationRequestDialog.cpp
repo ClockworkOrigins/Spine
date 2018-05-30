@@ -73,7 +73,7 @@ namespace widgets {
 			hl->setAlignment(Qt::AlignLeft);
 
 			QStringList languages;
-			languages << "Deutsch" << "English" << "Polish";
+			languages << "Deutsch" << "English" << "Polish" << "Russian";
 
 			QLabel * projectNameLabel = new QLabel(QApplication::tr("ProjectName"), this);
 			_projectNameEdit = new QLineEdit(this);
@@ -190,9 +190,8 @@ namespace widgets {
 	}
 
 	void TranslationRequestDialog::parseScripts() {
-		if (_model) {
-			delete _model;
-		}
+		delete _model;
+
 		translation::GothicParser gp(this);
 
 		_model = translator::api::TranslatorAPI::createModel(q2s(_projectNameEdit->text()), q2s(_sourceLanguageBox->currentText()), q2s(_destinationLanguageBox->currentText()));
