@@ -1454,6 +1454,8 @@
 </Version>
 <Version majorVersion="1" minorVersion="14" patchVersion="3">
 	<Bug language="Deutsch">Passwort zurücksetzen funktioniert jetzt</Bug>
+	<Bug language="Deutsch">Erfolge, Scores und Co. funktionieren jetzt wirklich wieder richtig</Bug>
 	
 	<Bug language="English">Reset password works now</Bug>
+	<Bug language="English">Achievements, scores and Co. now really work again expected</Bug>
 </Version>

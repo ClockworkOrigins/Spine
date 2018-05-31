@@ -1605,7 +1605,7 @@ namespace widgets {
 						sum.username = _username.toStdString();
 						sum.password = _password.toStdString();
 						sum.modID = _modID;
-						serialized = sum.SerializePublic();
+						serialized = sum.SerializeBlank();
 						socket->writePacket(serialized);
 					} else if (msg->type == common::MessageType::REQUESTSCORES) {
 						common::RequestScoresMessage * rsm = dynamic_cast<common::RequestScoresMessage *>(msg);
@@ -1615,7 +1615,7 @@ namespace widgets {
 								if (_onlineMode) {
 									clockUtils::sockets::TcpSocket sock;
 									if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-										serialized = rsm->SerializeBlank();
+										serialized = rsm->SerializePublic();
 										if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
 											if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
 												common::Message * newMsg = common::Message::DeserializePublic(serialized);
@@ -1864,6 +1864,7 @@ namespace widgets {
 										serialized = rom->SerializePublic();
 										if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
 											if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
+												serialized = common::Message::DeserializePublic(serialized)->SerializeBlank();
 												socket->writePacket(serialized);
 											} else {
 												socket->writePacket("empty");
