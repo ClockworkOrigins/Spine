@@ -1452,3 +1452,8 @@
 	
 	<Bug language="English">Registering a Clockwork Account works again</Bug>
 </Version>
+<Version majorVersion="1" minorVersion="14" patchVersion="3">
+	<Bug language="Deutsch">Passwort zurücksetzen funktioniert jetzt</Bug>
+	
+	<Bug language="English">Reset password works now</Bug>
+</Version>
