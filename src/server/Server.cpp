@@ -4741,13 +4741,13 @@ namespace spine {
 					}
 				}
 				boost::filesystem::create_directories("/var/www/vhosts/clockwork-origins.de/httpdocs/Gothic/downloads/mods/" + std::to_string(msg->modID) + "/achievements");
-				if (achievement.lockedImageData.empty()) {
+				if (!achievement.lockedImageData.empty()) {
 					std::ofstream out;
 					out.open("/var/www/vhosts/clockwork-origins.de/httpdocs/Gothic/downloads/mods/" + std::to_string(msg->modID) + "/achievements/" + achievement.lockedImageName, std::ios::out | std::ios::binary);
 					out.write(reinterpret_cast<char *>(&achievement.lockedImageData[0]), achievement.lockedImageData.size());
 					out.close();
 				}
-				if (achievement.unlockedImageData.empty()) {
+				if (!achievement.unlockedImageData.empty()) {
 					std::ofstream out;
 					out.open("/var/www/vhosts/clockwork-origins.de/httpdocs/Gothic/downloads/mods/" + std::to_string(msg->modID) + "/achievements/" + achievement.unlockedImageName, std::ios::out | std::ios::binary);
 					out.write(reinterpret_cast<char *>(&achievement.unlockedImageData[0]), achievement.unlockedImageData.size());
