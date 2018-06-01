@@ -18,16 +18,18 @@
 
 #include "security/Hash.h"
 
+#include <array>
 #include <memory>
 
 #include <QCryptographicHash>
 #include <QDebug>
 #include <QDir>
+#include <QRegularExpression>
 #include <QProcessEnvironment>
 
 #ifdef Q_OS_WIN
 	#include <Windows.h>
-	#include <IPHlpApi.h>
+	#include <iphlpapi.h>
 	#include <cstdio>
 
 	#pragma comment(lib, "IPHLPAPI.lib")
@@ -116,11 +118,36 @@ namespace security {
 		return ((cpuInfo[2] >> 31) & 1) == 1;
 	}
 
+	std::string exec(const char* cmd) {
+	    std::array<char, 128> buffer {};
+	    std::string result;
+	    std::shared_ptr<FILE> pipe(_popen(cmd, "r"), _pclose);
+	    if (!pipe) throw std::runtime_error("_popen() failed!");
+	    while (!feof(pipe.get())) {
+	        if (fgets(buffer.data(), 128, pipe.get()) != nullptr)
+	            result += buffer.data();
+	    }
+	    return result;
+	}
+
 	QString Hash::calculateSystemHash() {
+		const std::string uuid = exec("wmic csproduct get UUID");
+		const std::string serialnumber = exec("wmic DISKDRIVE get SerialNumber");
 		QString clearString = getProductID() + getHarddriveNumber() /*+ getProcessorID()*/;
+		clearString = QString::fromStdString(uuid) + QString::fromStdString(serialnumber);
 		if (IsInsideVMWare() || isInsideVpc() || isGuestOSVM()) {
 			clearString = "Virtual Machine";
 		}
+		
+		clearString.remove("UUID", Qt::CaseInsensitive);
+		clearString.remove("SerialNumber", Qt::CaseInsensitive);
+		clearString = clearString.trimmed();
+		clearString.replace(QRegularExpression("[\\s]+"), "-");
+
+		while (clearString.contains("--")) {
+			clearString.replace(QRegularExpression("--"), "-");
+		}
+
 		QCryptographicHash hash(QCryptographicHash::Sha512);
 		hash.addData(clearString.toLatin1());
 		QString hashSum = QString::fromLatin1(hash.result().toHex());
@@ -169,7 +196,7 @@ namespace security {
 		DWORD maxComponentLen = 0;
 		DWORD fileSystemFlags = 0;
 		QString windowsRoot = QProcessEnvironment::systemEnvironment().value("windir");
-		windowsRoot.split(":").front();
+		windowsRoot = windowsRoot.split(":").front();
 		QString serialNumberString = "";
 		if (GetVolumeInformation(
 			(windowsRoot + ":\\").toStdString().c_str(),
@@ -186,10 +213,9 @@ namespace security {
 			printf("Max Component Length: %lu\n", maxComponentLen);
 			serialNumberString = QString::number(serialNumber, 16);
 		}
-		/*QCryptographicHash hash(QCryptographicHash::Sha512);
-		hash.addData(serialNumberString.toLatin1());
-		QString hashSum = QString::fromLatin1(hash.result().toHex());
-		return hashSum;*/
+
+		serialNumberString = QString::fromStdString(exec("wmic path win32_physicalmedia get SerialNumber"));
+
 		return serialNumberString;
 	}
 
