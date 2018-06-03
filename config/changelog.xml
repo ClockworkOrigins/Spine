@@ -1456,8 +1456,10 @@
 	<Bug language="Deutsch">Passwort zurücksetzen funktioniert jetzt</Bug>
 	<Bug language="Deutsch">Erfolge, Scores und Co. funktionieren jetzt wirklich wieder richtig</Bug>
 	<Bug language="Deutsch">Upload eigener Bilder für Erfolge sollte jetzt klappen</Bug>
+	<Bug language="Deutsch">Hashing verbessert, so dass die bisherigen Login-Probleme bei JKO nicht mehr auftreten sollten</Bug>
 	
 	<Bug language="English">Reset password works now</Bug>
 	<Bug language="English">Achievements, scores and Co. now really work again expected</Bug>
 	<Bug language="English">Upload of own images for achievements should work now</Bug>
+	<Bug language="English">Improved hashing so the currently existing login problems in JKO shouldn't appear anymore</Bug>
 </Version>
