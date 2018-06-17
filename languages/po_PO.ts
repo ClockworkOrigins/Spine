@@ -2945,7 +2945,7 @@ Do czasu zaktualizowania numeru wersji nowe pliki obejmują jedynie graczy, któ
     </message>
     <message>
         <source>FAQAnswer5</source>
-        <translation>Prawie zawsze jest to wina funkcji zapobiegania wykonywania danych od Windowsa (DEP). Tyczy się to wszystkich modyfikacji korzystających z pakietu skryptowego Ikarusa (czyli prawie wszystkich z ostatnich lat), ponieważ pakiet ten zastępuje adresy pamięci w Gothicu, aby oferować modderom nowe możliwości. W celu pozbycia się crashy wystarczy jedynie dodać Gothica do wyjątków. Aby to zrobić, należy wykonać następujące kroki: Windows + Pause Break -> Zaawansowane ustawienia systemu -> w zakładce „Zaawansowane” kliknąć przy Wydajności „Ustawienia…” -> Zakładka „Zapobieganie wykonywaniu danych” i wprowadzamy wszystkie pliki .exe bezpośrednio z folderu Gothic 2 (w sumie 4). Po wykonaniu tych kroków problem powinien ustąpić.</translation>
+        <translation>Prawie zawsze jest to wina funkcji zapobiegania wykonywania danych od Windowsa (DEP). Tyczy się to wszystkich modyfikacji korzystających z pakietu skryptowego Ikarusa (czyli prawie wszystkich z ostatnich lat), ponieważ pakiet ten zastępuje adresy pamięci w Gothicu, aby oferować modderom nowe możliwości. W celu pozbycia się crashy wystarczy jedynie dodać Gothica do wyjątków. Aby to zrobić, należy wykonać następujące kroki: Windows + Pause Break -> Zaawansowane ustawienia systemu -> w zakładce „Zaawansowane” kliknąć przy Wydajności „Ustawienia…” -> Zakładka „Zapobieganie wykonywaniu danych” i wprowadzamy wszystkie pliki .exe bezpośrednio z folderu Gothic 2 (w sumie 3). Po wykonaniu tych kroków problem powinien ustąpić.</translation>
     </message>
     <message>
         <source>FAQQuestion6</source>

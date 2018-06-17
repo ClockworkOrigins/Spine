@@ -2950,7 +2950,7 @@ Until the version number was updated the new files only affect players downloadi
     </message>
     <message>
         <source>FAQAnswer5</source>
-        <translation>This happens almost every time because of the Data Execution Prevention (DEP) of Windows. All modifications using the Ikarus script package (almost all mods released in the last years) are affected by this problem as the script package overrides memory of Gothic to enable to new possibilities for the modders. To fix the crashes you just need to disable the DEP for Gothic. Therefore just follow these steps: Press Windows + Pause, "Advanced System Settings", press the upper button "Settings" below "Performance", choose the tab "DEP" and add all EXE files from the Gothic 2 folder (4). After that the problem should be solved.</translation>
+        <translation>This happens almost every time because of the Data Execution Prevention (DEP) of Windows. All modifications using the Ikarus script package (almost all mods released in the last years) are affected by this problem as the script package overrides memory of Gothic to enable to new possibilities for the modders. To fix the crashes you just need to disable the DEP for Gothic. Therefore just follow these steps: Press Windows + Pause, "Advanced System Settings", press the upper button "Settings" below "Performance", choose the tab "DEP" and add all EXE files from the Gothic 2 folder (3). After that the problem should be solved.</translation>
     </message>
     <message>
         <source>FAQQuestion6</source>

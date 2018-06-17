@@ -2945,7 +2945,7 @@ Bis die Versionsnummer aktualisiert wurde betreffen die neuen Dateien nur Spiele
     </message>
     <message>
         <source>FAQAnswer5</source>
-        <translation>Das liegt fast immer an der Datenausführungsverhinderung von Windows. Alle Modifikationen, die das Ikarus-Scriptpaket nutzen (nahezu alle der letzten Jahre), sind davon betroffen, da mit dem Scriptpaket Speicheradressen in Gothic überschrieben werden, um neue Möglichkeiten für die Modder zu bieten. Um die Abstürze zu beheben muss lediglich die Datenausführungsverhinderung für Gothic deaktiviert werden. Dazu müssen folgende Schritte ausgeführt werden: Windows + Pause drücken, "Erweiterte Systemeinstellungen", den oberen Knopf "Einstellungen" unter "Leistung" drücken, Reiter "Datenausführungsverhinderung", alle EXE-Dateien direkt aus dem Gothic-2-Ordner eintragen (4 Stück). Danach sollte das Problem gelöst sein.</translation>
+        <translation>Das liegt fast immer an der Datenausführungsverhinderung von Windows. Alle Modifikationen, die das Ikarus-Scriptpaket nutzen (nahezu alle der letzten Jahre), sind davon betroffen, da mit dem Scriptpaket Speicheradressen in Gothic überschrieben werden, um neue Möglichkeiten für die Modder zu bieten. Um die Abstürze zu beheben muss lediglich die Datenausführungsverhinderung für Gothic deaktiviert werden. Dazu müssen folgende Schritte ausgeführt werden: Windows + Pause drücken, "Erweiterte Systemeinstellungen", "Einstellungen" unter "Leistung" drücken, "Datenausführungsverhinderung", alle EXE-Dateien direkt aus dem Gothic-2-Ordner eintragen (3 Stück). Danach sollte das Problem gelöst sein.</translation>
     </message>
     <message>
         <source>FAQQuestion6</source>
