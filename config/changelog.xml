@@ -1466,7 +1466,9 @@
 <Version majorVersion="1" minorVersion="14" patchVersion="4">
 	<Enhancement language="Deutsch">Unterstützung für G2O basierte Multiplayer-Modifikationen eingebaut</Enhancement>
 	<Bug language="Deutsch">Langsamen Start gefixt (einmalig langsam, danach nur noch nach Wechsel von Offline => Online)</Bug>
+	<Bug language="Deutsch">Im Management-Dialog können jetzt nur noch valide Versionen eingegeben werden</Bug>
 	
 	<Enhancement language="English">Added support for G2O based multiplayer mods</Enhancement>
 	<Bug language="English">Fixed slow start (it's slow once, afterwards only when switching from offline => online)</Bug>
+	<Bug language="English">Management dialog now only takes valid version numbers</Bug>
 </Version>

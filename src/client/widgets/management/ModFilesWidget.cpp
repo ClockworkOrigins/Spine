@@ -62,11 +62,14 @@ namespace {
 		{
 			QHBoxLayout * hl2 = new QHBoxLayout();
 			_majorVersionBox = new QSpinBox(this);
-			_majorVersionBox->setMaximum(255);
+			_majorVersionBox->setMinimum(0);
+			_majorVersionBox->setMaximum(127);
 			_minorVersionBox = new QSpinBox(this);
-			_minorVersionBox->setMaximum(255);
+			_minorVersionBox->setMinimum(0);
+			_minorVersionBox->setMaximum(127);
 			_patchVersionBox = new QSpinBox(this);
-			_patchVersionBox->setMaximum(255);
+			_patchVersionBox->setMinimum(0);
+			_patchVersionBox->setMaximum(127);
 			_majorVersionBox->setToolTip(QApplication::tr("VersionNumberTooltip"));
 			_minorVersionBox->setToolTip(QApplication::tr("VersionNumberTooltip"));
 			_patchVersionBox->setToolTip(QApplication::tr("VersionNumberTooltip"));
