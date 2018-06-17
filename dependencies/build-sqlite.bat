@@ -2,8 +2,8 @@
 
 call build-common.bat %1 %2
 
-Set ARCHIVE=sqlite-amalgamation-3150100.zip
-Set BUILD_DIR=%TMP_DIR%/sqlite-amalgamation-3150100
+Set ARCHIVE=sqlite-amalgamation-3240000.zip
+Set BUILD_DIR=%TMP_DIR%/sqlite-amalgamation-3240000
 Set PREFIX=%DEP_DIR%/%ARCH_DIR%/sqlite
 
 IF EXIST %PREFIX% EXIT /B

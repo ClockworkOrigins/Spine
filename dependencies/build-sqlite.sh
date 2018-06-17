@@ -4,8 +4,8 @@ cd "$(readlink "$(dirname "${0}")")"
 
 . ./build-common.sh ${1}
 
-ARCHIVE="sqlite-amalgamation-3150100.zip"
-BUILD_DIR="${BUILD_ROOT}/sqlite-amalgamation-3150100"
+ARCHIVE="sqlite-amalgamation-3240000.zip"
+BUILD_DIR="${BUILD_ROOT}/sqlite-amalgamation-3240000"
 PREFIX="${DEP_OUT_DIR}/sqlite/"
 
 if [ -d "${PREFIX}" ]; then

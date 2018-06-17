@@ -2919,96 +2919,109 @@ namespace widgets {
 	}
 
 	void ModInfoView::synchronizeOfflineData() {
+		// this code is incredible slow due to around 2.500 SQL inserts
 		std::thread([this]() {
 			try {
 				if (_onlineMode) {
 					// update server from local data in case Sync flag is set
 					Database::DBError err;
-					int sync = Database::queryNth<int, int>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Enabled FROM sync LIMIT 1;", err);
+					const int sync = Database::queryNth<int, int>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Enabled FROM sync LIMIT 1;", err);
 					if (sync) {
-						clockUtils::sockets::TcpSocket sock;
-						if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-							Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "UPDATE sync SET Enabled = 0;", err);
-							common::UpdateOfflineDataMessage uodm;
-							std::vector<std::vector<std::string>> achievements = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Identifier FROM modAchievements WHERE Username = '" + _username.toStdString() + "';", err);
-							for (auto vec : achievements) {
-								common::UpdateOfflineDataMessage::AchievementData ad {};
-								ad.modID = std::stoi(vec[0]);
-								ad.identifier = std::stoi(vec[1]);
-								std::vector<int> progress = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Current FROM modAchievementProgress WHERE Username = '" + _username.toStdString() + "' AND ModID = " + vec[0] + " AND Identifier = " + vec[1] + " LIMIT 1;", err);
-								if (!progress.empty()) {
-									ad.current = progress[0];
+						{
+							clockUtils::sockets::TcpSocket sock;
+							if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
+								Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM sync;", err);
+								Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO sync (Enabled) VALUES (0);", err);
+								common::UpdateOfflineDataMessage uodm;
+								std::vector<std::vector<std::string>> achievements = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Identifier FROM modAchievements WHERE Username = '" + _username.toStdString() + "';", err);
+								for (auto vec : achievements) {
+									common::UpdateOfflineDataMessage::AchievementData ad {};
+									ad.modID = std::stoi(vec[0]);
+									ad.identifier = std::stoi(vec[1]);
+									std::vector<int> progress = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Current FROM modAchievementProgress WHERE Username = '" + _username.toStdString() + "' AND ModID = " + vec[0] + " AND Identifier = " + vec[1] + " LIMIT 1;", err);
+									if (!progress.empty()) {
+										ad.current = progress[0];
+									}
+									uodm.achievements.push_back(ad);
 								}
-								uodm.achievements.push_back(ad);
+								std::vector<std::vector<std::string>> scores = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Identifier, Score FROM modScores WHERE Username = '" + _username.toStdString() + "';", err);
+								for (auto vec : scores) {
+									common::UpdateOfflineDataMessage::ScoreData sd {};
+									sd.modID = std::stoi(vec[0]);
+									sd.identifier = std::stoi(vec[1]);
+									sd.score = std::stoi(vec[2]);
+									uodm.scores.push_back(sd);
+								}
+								std::vector<std::vector<std::string>> overallSaveData = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Entry, Value FROM overallSaveData WHERE Username = '" + _username.toStdString() + "';", err);
+								for (auto vec : overallSaveData) {
+									common::UpdateOfflineDataMessage::OverallSaveData od;
+									od.modID = std::stoi(vec[0]);
+									od.entry = vec[1];
+									od.value = vec[2];
+									uodm.overallSaves.push_back(od);
+								}
+								std::vector<std::vector<int>> playTimes = Database::queryAll<std::vector<int>, int, int>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Duration FROM playTimes WHERE Username = '" + _username.toStdString() + "';", err);
+								for (auto vec : playTimes) {
+									uodm.playTimes.emplace_back(vec[0], vec[1]);
+								}
+								Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM playTimes WHERE Username = '" + _username.toStdString() + "';", err);
+								const std::string serialized = uodm.SerializePublic();
+								sock.writePacket(serialized);
 							}
-							std::vector<std::vector<std::string>> scores = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Identifier, Score FROM modScores WHERE Username = '" + _username.toStdString() + "';", err);
-							for (auto vec : scores) {
-								common::UpdateOfflineDataMessage::ScoreData sd {};
-								sd.modID = std::stoi(vec[0]);
-								sd.identifier = std::stoi(vec[1]);
-								sd.score = std::stoi(vec[2]);
-								uodm.scores.push_back(sd);
-							}
-							std::vector<std::vector<std::string>> overallSaveData = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Entry, Value FROM overallSaveData WHERE Username = '" + _username.toStdString() + "';", err);
-							for (auto vec : overallSaveData) {
-								common::UpdateOfflineDataMessage::OverallSaveData od;
-								od.modID = std::stoi(vec[0]);
-								od.entry = vec[1];
-								od.value = vec[2];
-								uodm.overallSaves.push_back(od);
-							}
-							std::vector<std::vector<int>> playTimes = Database::queryAll<std::vector<int>, int, int>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Duration FROM playTimes WHERE Username = '" + _username.toStdString() + "';", err);
-							for (auto vec : playTimes) {
-								uodm.playTimes.emplace_back(vec[0], vec[1]);
-							}
-							Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM playTimes WHERE Username = '" + _username.toStdString() + "';", err);
-							std::string serialized = uodm.SerializePublic();
-							sock.writePacket(serialized);
 						}
-					}
-					// Load data from server
-					clockUtils::sockets::TcpSocket sock;
-					if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-						common::RequestOfflineDataMessage rodm;
-						rodm.username = _username.toStdString();
-						rodm.password = _password.toStdString();
-						std::string serialized = rodm.SerializePublic();
-						sock.writePacket(serialized);
-						if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-							common::Message * msg = common::Message::DeserializePublic(serialized);
-							if (msg) {
-								common::SendOfflineDataMessage * sodm = dynamic_cast<common::SendOfflineDataMessage *>(msg);
-								if (sodm) {
-									Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM playTimes WHERE Username = '" + _username.toStdString() + "';", err);
-									Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM modAchievementList;", err);
-									Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM modAchievementProgress;", err);
-									Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM modAchievementProgressMax;", err);
-									Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM modAchievements;", err);
-									Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM modScores;", err);
-									Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM overallSaveData;", err);
+						{
+							// Load data from server
+							clockUtils::sockets::TcpSocket sock;
+							if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
+								common::RequestOfflineDataMessage rodm;
+								rodm.username = _username.toStdString();
+								rodm.password = _password.toStdString();
+								std::string serialized = rodm.SerializePublic();
+								sock.writePacket(serialized);
+								if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
+									common::Message * msg = common::Message::DeserializePublic(serialized);
+									if (msg) {
+										common::SendOfflineDataMessage * sodm = dynamic_cast<common::SendOfflineDataMessage *>(msg);
+										if (sodm) {
+											Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM playTimes WHERE Username = '" + _username.toStdString() + "';", err);
+											Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM modAchievementList;", err);
+											Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM modAchievementProgress;", err);
+											Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM modAchievementProgressMax;", err);
+											Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM modAchievements;", err);
+											Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM modScores;", err);
+											Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM overallSaveData;", err);
 
-									for (auto ad : sodm->achievements) {
-										Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO modAchievementList (ModID, Identifier) VALUES (" + std::to_string(ad.modID) + ", " + std::to_string(ad.identifier) + ");", err);
+											Database::open(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, err);
+											Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "PRAGMA synchronous = OFF;", err);
+											Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "PRAGMA journal_mode = MEMORY;", err);
+											Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "PRAGMA cache_size=10000;", err);
+											Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "BEGIN TRANSACTION;", err);
+											for (auto ad : sodm->achievements) {
+												Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO modAchievementList (ModID, Identifier) VALUES (" + std::to_string(ad.modID) + ", " + std::to_string(ad.identifier) + ");", err);
 
-										if (ad.current > 0) {
-											Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO modAchievementProgress (ModID, Identifier, Username, Current) VALUES (" + std::to_string(ad.modID) + ", " + std::to_string(ad.identifier) + ", '" + ad.username + "', " + std::to_string(ad.current) + ");", err);
-										}
-										if (ad.max > 0) {
-											Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO modAchievementProgressMax (ModID, Identifier, Max) VALUES (" + std::to_string(ad.modID) + ", " + std::to_string(ad.identifier) + ", " + std::to_string(ad.max) + ");", err);
-										}
-										if (ad.unlocked) {
-											Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO modAchievements (ModID, Identifier, Username) VALUES (" + std::to_string(ad.modID) + ", " + std::to_string(ad.identifier) + ", '" + ad.username + "');", err);
+												if (ad.current > 0) {
+													Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO modAchievementProgress (ModID, Identifier, Username, Current) VALUES (" + std::to_string(ad.modID) + ", " + std::to_string(ad.identifier) + ", '" + ad.username + "', " + std::to_string(ad.current) + ");", err);
+												}
+												if (ad.max > 0) {
+													Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO modAchievementProgressMax (ModID, Identifier, Max) VALUES (" + std::to_string(ad.modID) + ", " + std::to_string(ad.identifier) + ", " + std::to_string(ad.max) + ");", err);
+												}
+												if (ad.unlocked) {
+													Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO modAchievements (ModID, Identifier, Username) VALUES (" + std::to_string(ad.modID) + ", " + std::to_string(ad.identifier) + ", '" + ad.username + "');", err);
+												}
+											}
+											for (auto sd : sodm->scores) {
+												Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO modScores (ModID, Identifier, Username, Score) VALUES (" + std::to_string(sd.modID) + ", " + std::to_string(sd.identifier) + ", '" + sd.username + "', " + std::to_string(sd.score) + ");", err);
+											}
+											for (auto od : sodm->overallSaves) {
+												Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO overallSaveData (ModID, Username, Entry, Value) VALUES (" + std::to_string(od.modID) + ", '" + od.username + "', '" + od.entry + "', '" + od.value + "');", err);
+											}
+											Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "END TRANSACTION;", err);
+											Database::close(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, err);
 										}
 									}
-									for (auto sd : sodm->scores) {
-										Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO modScores (ModID, Identifier, Username, Score) VALUES (" + std::to_string(sd.modID) + ", " + std::to_string(sd.identifier) + ", '" + sd.username + "', " + std::to_string(sd.score) + ");", err);
-									}
-									for (auto od : sodm->overallSaves) {
-										Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO overallSaveData (ModID, Username, Entry, Value) VALUES (" + std::to_string(od.modID) + ", '" + od.username + "', '" + od.entry + "', '" + od.value + "');", err);
-									}
+									delete msg;
 								}
 							}
-							delete msg;
 						}
 					}
 				}

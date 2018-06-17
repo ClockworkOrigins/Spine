@@ -948,7 +948,8 @@ namespace widgets {
 
 	void MainWindow::switchToOnline() {
 		Database::DBError err;
-		Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "UPDATE sync SET Enabled = 1;", err);
+		Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM sync;", err);
+		Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO sync (Enabled) VALUES (1);", err);
 		_onlineMode = true;
 		changedOnlineMode();
 	}

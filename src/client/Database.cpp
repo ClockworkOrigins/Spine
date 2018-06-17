@@ -22,6 +22,8 @@ std::mutex Database::_lock;
 std::map<std::string, sqlite3 *> Database::_databases = std::map<std::string, sqlite3 *>();
 
 void Database::execute(const std::string & dbpath, const std::string & query, DBError & error) {
+	error.error = false;
+	error.errMsg = "";
 	sqlite3 * db;
 	bool selfOpened = false;
 	std::lock_guard<std::mutex> lg(_lock); // lock the database vector and sqlite
