@@ -1464,7 +1464,9 @@
 	<Bug language="English">Improved hashing so the currently existing login problems in JKO shouldn't appear anymore</Bug>
 </Version>
 <Version majorVersion="1" minorVersion="14" patchVersion="4">
+	<Enhancement language="Deutsch">Unterstützung für G2O basierte Multiplayer-Modifikationen eingebaut</Enhancement>
 	<Bug language="Deutsch">Langsamen Start gefixt (einmalig langsam, danach nur noch nach Wechsel von Offline => Online)</Bug>
 	
+	<Enhancement language="English">Added support for G2O based multiplayer mods</Enhancement>
 	<Bug language="English">Fixed slow start (it's slow once, afterwards only when switching from offline => online)</Bug>
 </Version>

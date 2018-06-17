@@ -2718,6 +2718,16 @@ namespace widgets {
 				}
 				*newGMP = true;
 #endif
+			} else if (configParser.contains("G2O/IP")) {
+#ifdef Q_OS_WIN
+				const QString ip = configParser.value("G2O/IP", "127.0.0.1").toString();
+				const int port = configParser.value("G2O/Port", 12345).toInt();
+				const QString favoriteString = QString("<servers><server><ip>123.456.789.0</ip><port>12345</port></server></servers>").arg(ip).arg(port);
+				QFile outFile(*usedBaseDir + "/../favorite.xml");
+				outFile.open(QIODevice::WriteOnly);
+				QTextStream ts(&outFile);
+				ts << favoriteString;
+#endif
 			} else {
 				QString ini = configParser.value("CONFIG/WriteIni", "").toString();
 				const QString clearIni = configParser.value("CONFIG/ClearIni", "").toString();
