@@ -46,7 +46,6 @@
 	<File Hash="afe23657a84fb72b22b8a525617a305b1321c6ea695a47da690e927065d311a537881afac7a3d78917338eddf4b1094c98c882431ba9006a75ad841e2493b58d">bin/Qt5Svg.dll.z</File>
 	<File Hash="cb1ae581e4b79d0a97408765d7d3cbe0f62fbeb4d70a97cb6a8bd66b394fb8809e50d7f40c7367b671ab902f0920f21789d30562e803cc4a68bcc455d0dbdcfb">bin/Qt5Widgets.dll.z</File>
 	<File Hash="417bf0e85990c78862b219a19ea9092f956c9dfeb1d87b8366a05c93a11b1ea33fef57e32e800d54ba2959ce460c1989be7c28dd4e59d9e0055308f08a264acd">bin/Qt5WinExtras.dll.z</File>
-	<File Hash="7f861bc6ad18624ae9e54921b505ef27ab21f8801e33dd1c7a1ee7e02a6ceb6e1495cf93cce7261ac75b42f085644934aabef30d7d67814ab82293afdda18924">bin/sqlite3.dll.z</File>
 	<File Hash="34b6a7fdac09fe28c0a2c84c2408486a3093314c1ed3abc201530ec31c6a4f3aab379d6d98c8a79b7eda69105bc4ca0e0b4026588f8b58c66ae26443a938b795">bin/ssleay32.dll.z</File>
 	<File Hash="d8565623a6a018c1f0e2ff2405180de5ac94b8cf8dd45d00aca9a623aea469ec152985ae2dfb31b45c5274602a4be38f36ce65785ff03af4f1d2d03150ca511e">bin/sureware.dll.z</File>
 	<File Hash="f487ff7096561e301f8c8d7296c61d87e6a00f739b06a5a6c6d86b34c331cc8ade84c1bab6d78ee44481472e05df2679c4d430f02391c4611f7cd19ec288ca1d">bin/ubsec.dll.z</File>
@@ -56,7 +55,8 @@
 	<File Hash="c0d266af87e977ea85a5a9589ee93500bee1f5277db2b09402b5c8ab95085d46e99242498fd011152200edde14ac6f14f1bb0b04ea33136ef97c8a1345e417c0">bin/plugins/platforms/qwindows.dll.z</File>
 	<File Hash="e8cb67fc8e0312da3cc98364b96dfa1a63150ab9de60069c4af60c1cf77d440b7dffe630b4784ba07ea9bf146bdbf6ad5282a900ffd6ab7d86433456a752b2fd">vcredist_x86.exe.z</File>
 </Version>
-<Version majorVersion="1" minorVersion="14" patchVersion="3">
+<Version majorVersion="1" minorVersion="14" patchVersion="4">
 	<File Hash="5f06e07f333e070e72c64436911a32854a064e65ebc5c6dd7a507738a08dd157785cb776253395b0a29a0830a52f62bee28163be3dd43af96d0550d19db3b93c">bin/changelog.xml.z</File>
 	<File Hash="cb18f25ab7c225e10d223a31b79fde296a7ef64b29dbc489fcff0335c2b1fbdbb0b4c392515907b67ebc63964fb1e699f0253841859c1c4ad2f0c953f7046c29">bin/Spine.exe.z</File>
+	<File Hash="7f861bc6ad18624ae9e54921b505ef27ab21f8801e33dd1c7a1ee7e02a6ceb6e1495cf93cce7261ac75b42f085644934aabef30d7d67814ab82293afdda18924">bin/sqlite3.dll.z</File>
 </Version>

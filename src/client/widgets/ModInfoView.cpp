@@ -2727,6 +2727,13 @@ namespace widgets {
 				outFile.open(QIODevice::WriteOnly);
 				QTextStream ts(&outFile);
 				ts << favoriteString;
+
+				{
+					QSettings registrySettings(R"(HKEY_CURRENT_USER\Software\G2O)", QSettings::NativeFormat);
+					if (!registrySettings.contains("nickname")) {
+						registrySettings.setValue("nickname", _username);
+					}
+				}
 #endif
 			} else {
 				QString ini = configParser.value("CONFIG/WriteIni", "").toString();

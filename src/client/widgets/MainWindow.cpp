@@ -148,9 +148,7 @@ namespace widgets {
 		if (_onlineMode) {
 			{
 				clockUtils::sockets::TcpSocket sock;
-				if (clockUtils::ClockError::SUCCESS != sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 5000)) {
-					_onlineMode = false;
-				}
+				_onlineMode = clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 5000);
 			}
 			std::thread([]() {
 				clockUtils::sockets::TcpSocket sock;
@@ -158,7 +156,7 @@ namespace widgets {
 					common::UpdateStartTimeMessage ustm;
 					ustm.dayOfTheWeek = QDate::currentDate().dayOfWeek();
 					ustm.hour = QTime::currentTime().hour();
-					std::string serialized = ustm.SerializePublic();
+					const std::string serialized = ustm.SerializePublic();
 					sock.writePacket(serialized);
 				}
 			}).detach();
