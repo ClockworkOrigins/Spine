@@ -2,7 +2,7 @@
 
 call build-common.bat %1 %2
 
-Set ARCHIVE=Simple-Web-Server-3.0.0-rc2.tar.gz
+Set ARCHIVE=Simple-Web-Server-3.0.0-rc2.zip
 Set BUILD_DIR=%TMP_DIR%/Simple-Web-Server-3.0.0-rc2
 Set PREFIX=%DEP_DIR%/%ARCH_DIR%/SimpleWebServer
 

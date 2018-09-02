@@ -740,11 +740,11 @@ namespace widgets {
 			installedPackages.insert(im.packageID);
 		}
 		for (const common::UpdatePackageListMessage::Package & package : packages) {
-			const QString packageName = s2q(package.name);
-			QStandardItem * nameItem = new TextItem(packageName);
 			if (_parentMods.find(package.modID) == _parentMods.end()) { // hidden parent or bug, don't crash in this case
 				continue;
 			}
+			const QString packageName = s2q(package.name);
+			QStandardItem * nameItem = new TextItem(packageName);
 			nameItem->setData(s2q(_mods[_parentMods[package.modID].row()].name), DatabaseRole::FilterRole);
 			nameItem->setData(package.packageID, DatabaseRole::PackageIDRole);
 			nameItem->setEditable(false);

@@ -148,18 +148,23 @@ namespace widgets {
 		if (_onlineMode) {
 			{
 				clockUtils::sockets::TcpSocket sock;
-				_onlineMode = clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 5000);
+				const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 5000);
+				const bool cuTest = cErr == clockUtils::ClockError::SUCCESS;
+
+				_onlineMode = cuTest;
 			}
-			std::thread([]() {
-				clockUtils::sockets::TcpSocket sock;
-				if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 5000)) {
-					common::UpdateStartTimeMessage ustm;
-					ustm.dayOfTheWeek = QDate::currentDate().dayOfWeek();
-					ustm.hour = QTime::currentTime().hour();
-					const std::string serialized = ustm.SerializePublic();
-					sock.writePacket(serialized);
-				}
-			}).detach();
+			if (_onlineMode) {
+				std::thread([]() {
+					clockUtils::sockets::TcpSocket sock;
+					if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 5000)) {
+						common::UpdateStartTimeMessage ustm;
+						ustm.dayOfTheWeek = QDate::currentDate().dayOfWeek();
+						ustm.hour = QTime::currentTime().hour();
+						const std::string serialized = ustm.SerializePublic();
+						sock.writePacket(serialized);
+					}
+				}).detach();
+			}
 		}
 		// remove High Vegetation Mod from patches
 		{

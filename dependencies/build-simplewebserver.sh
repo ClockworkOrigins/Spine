@@ -4,7 +4,7 @@ cd "$(readlink "$(dirname "${0}")")"
 
 . ./build-common.sh ${1}
 
-ARCHIVE="Simple-Web-Server-3.0.0-rc2.tar.gz"
+ARCHIVE="Simple-Web-Server-3.0.0-rc2.zip"
 BUILD_DIR="${BUILD_ROOT}/Simple-Web-Server-3.0.0-rc2"
 PREFIX="${DEP_OUT_DIR}/SimpleWebServer/"
 

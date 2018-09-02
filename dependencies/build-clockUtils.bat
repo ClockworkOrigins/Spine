@@ -2,8 +2,8 @@
 
 call build-common.bat %1 %2
 
-Set ARCHIVE=clockutils-1.2.0-src.zip
-Set BUILD_DIR=%TMP_DIR%/clockutils-1.2.0-src
+Set ARCHIVE=clockutils-1.2.1-src.zip
+Set BUILD_DIR=%TMP_DIR%/clockutils-1.2.1-src
 Set PREFIX=%DEP_DIR%/%ARCH_DIR%/clockUtils
 
 IF EXIST %PREFIX% EXIT /B
