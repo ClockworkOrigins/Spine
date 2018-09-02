@@ -1474,3 +1474,8 @@
 	<Bug language="English">Management dialog now only takes valid version numbers</Bug>
 	<Bug language="English">Fixed shortly appearing Windows commandline</Bug>
 </Version>
+<Version majorVersion="1" minorVersion="14" patchVersion="5">
+	<Bug language="Deutsch">Probleme mit Wechsel in den Online-Modus für einige Nutzer behoben</Bug>
+	
+	<Bug language="English">Fixed problem when changing to online mode for some users</Bug>
+</Version>
