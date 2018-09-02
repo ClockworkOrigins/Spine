@@ -44,11 +44,12 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QMessageBox>
+#include <QNetworkReply>
 #include <QPushButton>
+#include <QRegularExpressionValidator>
 #include <QSettings>
 #include <QTabWidget>
 #include <QVBoxLayout>
-#include <QNetworkReply>
 
 #include "simple-web-server/client_https.hpp"
 #include <regex>
@@ -157,6 +158,10 @@ namespace {
 		QVBoxLayout * l = new QVBoxLayout();
 
 		QTabWidget * tw = new QTabWidget(this);
+		
+		const QRegularExpression nameRegex("[a-zA-Z0-9 _.-]+");
+		const QRegularExpression passwordRegex(R"([a-zA-Z0-9 _.,@;:\+#!?\(\)\[\]$%&{}-]+)");
+		const QRegularExpression mailRegex("[a-zA-Z0-9 _.@-]+");
 
 		{
 			// register tab
@@ -172,6 +177,16 @@ namespace {
 			_registerMailEdit = new QLineEdit(w);
 			_registerPasswordEdit = new QLineEdit(w);
 			_registerPasswordRepeatEdit = new QLineEdit(w);
+
+			QValidator * nameValidator = new QRegularExpressionValidator(nameRegex, this);
+			_registerUsernameEdit->setValidator(nameValidator);
+
+			QValidator * passwordValidator = new QRegularExpressionValidator(passwordRegex, this);
+			_registerPasswordEdit->setValidator(passwordValidator);
+			_registerPasswordRepeatEdit->setValidator(passwordValidator);
+
+			QValidator * mailValidator = new QRegularExpressionValidator(mailRegex, this);
+			_registerMailEdit->setValidator(mailValidator);
 			
 			_registerAcceptPrivacyPolicy = new QCheckBox(QApplication::tr("AcceptPrivacy"), w);
 			QLabel * privacyLink = new QLabel("<a href=\"https://clockwork-origins.com/privacy\">" + QApplication::tr("Privacy") + "</a>", this);
@@ -229,6 +244,12 @@ namespace {
 
 			_loginUsernameEdit = new QLineEdit(w);
 			_loginPasswordEdit = new QLineEdit(w);
+
+			QValidator * nameValidator = new QRegularExpressionValidator(nameRegex, this);
+			_loginUsernameEdit->setValidator(nameValidator);
+
+			QValidator * passwordValidator = new QRegularExpressionValidator(passwordRegex, this);
+			_loginPasswordEdit->setValidator(passwordValidator);
 
 			QPushButton * resetPasswordButton = new QPushButton(QApplication::tr("ForgotPassword"), this);
 
