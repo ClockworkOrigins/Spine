@@ -622,7 +622,9 @@ namespace widgets {
 		connect(_installGothic2FromCDDialog, SIGNAL(updateGothic2Directory(QString)), _settingsDialog->getLocationSettingsWidget(), SLOT(setGothic2Directory(QString)));
 #endif
 
-		QTimer::singleShot(0, _loginDialog, SLOT(exec()));
+		if (_onlineMode) {
+			QTimer::singleShot(0, _loginDialog, &LoginDialog::exec);
+		}
 
 		connect(_loginDialog, &LoginDialog::loggedIn, _modInfoView, &ModInfoView::loggedIn);
 		if (_onlineMode) {

@@ -160,7 +160,7 @@ namespace {
 		QTabWidget * tw = new QTabWidget(this);
 		
 		const QRegularExpression nameRegex("[a-zA-Z0-9 _.-]+");
-		const QRegularExpression passwordRegex(R"([a-zA-Z0-9 _.,@;:\+#!?\(\)\[\]$%&{}-]+)");
+		const QRegularExpression passwordRegex(R"([a-zA-Z0-9 _.,@;:\+#!?\(\)\[\]$&{}-]+)");
 		const QRegularExpression mailRegex("[a-zA-Z0-9 _.@-]+");
 
 		{

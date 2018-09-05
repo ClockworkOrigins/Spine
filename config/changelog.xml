@@ -1481,6 +1481,8 @@
 </Version>
 <Version majorVersion="1" minorVersion="14" patchVersion="6">
 	<Bug language="Deutsch">Benutzerfreischaltung im Management-Dialog funktioniert wieder</Bug>
+	<Bug language="Deutsch">Login-Dialog erscheint bei Start im Offline-Modus jetzt nicht mehr</Bug>
 	
 	<Bug language="English">Unlocking users in Management dialog works again</Bug>
+	<Bug language="English">Login dialog doesn't show up anymore when starting from offline mode</Bug>
 </Version>
