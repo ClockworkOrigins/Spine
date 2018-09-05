@@ -3911,7 +3911,7 @@ namespace spine {
 
 	void Server::handleUpdateEarlyAccessState(clockUtils::sockets::TcpSocket *, common::UpdateEarlyAccessStateMessage * msg) const {
 		do {
-			const int userID = getUserID(msg->username, msg->password);
+			const int userID = getUserID(msg->username);
 			if (userID == -1) {
 				break;
 			}

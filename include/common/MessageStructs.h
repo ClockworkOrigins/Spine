@@ -1548,10 +1548,9 @@ namespace common {
 	struct UpdateEarlyAccessStateMessage : public Message {
 		int32_t modID;
 		std::string username;
-		std::string password;
 		bool enabled;
 
-		UpdateEarlyAccessStateMessage() : Message(), modID(), username(), password(), enabled() {
+		UpdateEarlyAccessStateMessage() : Message(), modID(), username(), enabled() {
 			type = MessageType::UPDATEEARLYACCESSSTATE;
 		}
 		template<class Archive>
@@ -1559,7 +1558,6 @@ namespace common {
 			ar & boost::serialization::base_object<Message>(*this);
 			ar & modID;
 			ar & username;
-			ar & password;
 			ar & enabled;
 		}
 	};
