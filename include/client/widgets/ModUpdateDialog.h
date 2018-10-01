@@ -41,6 +41,7 @@ namespace widgets {
 
 	signals:
 		void receivedMods(std::vector<common::ModUpdate>);
+		void updatedMod(int);
 
 	public slots:
 		int exec() override;

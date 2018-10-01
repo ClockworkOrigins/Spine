@@ -656,6 +656,8 @@ namespace widgets {
 			_modUpdateDialog->setUsername(_loginDialog->getUsername(), _loginDialog->getPassword());
 
 			connect(_settingsDialog->getGeneralSettingsWidget(), SIGNAL(resetModUpdates()), _modUpdateDialog, SLOT(checkForUpdate()));
+
+			connect(_modUpdateDialog, &ModUpdateDialog::updatedMod, _modInfoView, &ModInfoView::updatedMod);
 		}
 
 		ImpressionUpdater::update();

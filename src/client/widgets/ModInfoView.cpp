@@ -889,6 +889,12 @@ namespace widgets {
 #endif
 	}
 
+	void ModInfoView::updatedMod(int modID) {
+		if (_modID != modID) return;
+
+		setModID(QString::number(modID));
+	}
+
 	void ModInfoView::errorOccurred(QProcess::ProcessError error) {
 		QProcess * process = dynamic_cast<QProcess *>(sender());
 		LOGERROR("Error Code: " << error);

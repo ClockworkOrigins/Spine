@@ -1483,8 +1483,10 @@
 	<Bug language="Deutsch">Benutzerfreischaltung im Management-Dialog funktioniert wieder</Bug>
 	<Bug language="Deutsch">Login-Dialog erscheint bei Start im Offline-Modus jetzt nicht mehr</Bug>
 	<Bug language="Deutsch">GMP-Serverliste wird nach Start einer GMP-Mod wieder hergestellt</Bug>
+	<Bug language="Deutsch">Aktualisierung einer Mod während die Bibliothek offen und die Mod dort ausgewählt ist, aktualisiert nun dort die Versionsnummer</Bug>
 	
 	<Bug language="English">Unlocking users in Management dialog works again</Bug>
 	<Bug language="English">Login dialog doesn't show up anymore when starting from offline mode</Bug>
 	<Bug language="English">GMP server list now gets restored after starting a GMP mod</Bug>
+	<Bug language="English">Updating a modification while the library is opened and the modification is selected now updates the version number</Bug>
 </Version>

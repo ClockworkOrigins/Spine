@@ -170,14 +170,14 @@ namespace widgets {
 			std::vector<ModFile> m = Database::queryAll<ModFile, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, File, Hash FROM modfiles WHERE ModID = " + std::to_string(_updates[i].modID) + ";", err);
 			std::vector<int> p = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT DISTINCT PackageID FROM packages WHERE ModID = " + std::to_string(_updates[i].modID) + ";", err);
 			std::vector<ModFile> updateFiles;
-			for (const auto pr : _updates[i].files) {
-				updateFiles.push_back(ModFile(_updates[i].modID, pr.first, pr.second, -1, s2q(_updates[i].fileserver)));
+			for (const auto & pr : _updates[i].files) {
+				updateFiles.emplace_back(_updates[i].modID, pr.first, pr.second, -1, s2q(_updates[i].fileserver));
 			}
 			for (int packageID : p) {
 				for (size_t j = 0; j < _updates[i].packageFiles.size(); j++) {
 					if (_updates[i].packageFiles[j].first == packageID) {
-						for (const auto pr : _updates[i].packageFiles[j].second) {
-							updateFiles.push_back(ModFile(_updates[i].modID, pr.first, pr.second, _updates[i].packageFiles[j].first, s2q(_updates[i].fileserver)));
+						for (const auto & pr : _updates[i].packageFiles[j].second) {
+							updateFiles.emplace_back(_updates[i].modID, pr.first, pr.second, _updates[i].packageFiles[j].first, s2q(_updates[i].fileserver));
 						}
 						_updates[i].files.insert(_updates[i].files.end(), _updates[i].packageFiles[j].second.begin(), _updates[i].packageFiles[j].second.end());
 						break;
@@ -197,7 +197,7 @@ namespace widgets {
 				// in case the package wasn't installed, check if at least a file of it already exists
 				if (!found) {
 					bool add = false;
-					for (const auto pr : _updates[i].packageFiles[j].second) {
+					for (const auto & pr : _updates[i].packageFiles[j].second) {
 						for (const auto & mf : m) {
 							if (mf.file == pr.first) {
 								newPackages.insert(_updates[i].packageFiles[j].first);
@@ -210,8 +210,8 @@ namespace widgets {
 						}
 					}
 					if (add) {
-						for (const auto pr : _updates[i].packageFiles[j].second) {
-							updateFiles.push_back(ModFile(_updates[i].modID, pr.first, pr.second, _updates[i].packageFiles[j].first, s2q(_updates[i].fileserver)));
+						for (const auto & pr : _updates[i].packageFiles[j].second) {
+							updateFiles.emplace_back(_updates[i].modID, pr.first, pr.second, _updates[i].packageFiles[j].first, s2q(_updates[i].fileserver));
 						}
 					}
 				}
@@ -347,6 +347,8 @@ namespace widgets {
 					usm.modID = _updates[i].modID;
 					const std::string serialized = usm.SerializePublic();
 					sock.writePacket(serialized);
+
+					emit updatedMod(_updates[i].modID);
 				}
 			}
 		}

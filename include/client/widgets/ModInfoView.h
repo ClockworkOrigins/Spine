@@ -98,6 +98,7 @@ namespace widgets {
 		void setShowAchievements(bool showAchievements);
 		void setHideIncompatible(bool enabled);
 		void startMod();
+		void updatedMod(int modID);
 
 	private slots:
 		void errorOccurred(QProcess::ProcessError error);
