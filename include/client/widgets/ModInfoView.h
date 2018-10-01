@@ -195,6 +195,8 @@ namespace widgets {
 
 		int _patchCounter;
 
+		int _gmpCounterBackup;
+
 		QStringList getGothicFiles() const;
 		void removeGothicFiles();
 		void removeModFiles();

@@ -55,7 +55,6 @@
 #include "widgets/RatingWidget.h"
 #include "widgets/SubmitCompatibilityDialog.h"
 
-#include "clockUtils/iniParser/iniParser.h"
 #include "clockUtils/log/Log.h"
 #include "clockUtils/sockets/TcpSocket.h"
 
@@ -82,13 +81,13 @@
 #include <QVBoxLayout>
 
 #ifdef Q_OS_WIN
-	#include <ShellAPI.h>
+	#include <shellapi.h>
 #endif
 
 namespace spine {
 namespace widgets {
 
-	ModInfoView::ModInfoView(bool onlineMode, QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, LocationSettingsWidget * locationSettingsWidget, GamepadSettingsWidget * gamepadSettingsWidget, QSettings * iniParser, QWidget * par) : QWidget(par), _mainWindow(mainWindow), _nameLabel(nullptr), _versionLabel(nullptr), _teamLabel(nullptr), _contactLabel(nullptr), _homepageLabel(nullptr), _patchGroup(nullptr), _patchLayout(nullptr), _pdfGroup(nullptr), _pdfLayout(nullptr), _achievementLabel(nullptr), _scoresLabel(nullptr), _iniFile(), _isInstalled(false), _modID(-1), _gothicDirectory(), _gothic2Directory(), _username(), _timer(new QTime()), _patchList(), _pdfList(), _checkboxPatchIDMapping(), _developerModeActive(false), _listenSocket(nullptr), _socket(nullptr), _gothicIniBackup(), _systempackIniBackup(), _zSpyActivated(false), _language(), _copiedFiles(), _lastBaseDir(), _showAchievements(true), _hideIncompatible(true), _ratingWidget(), _screenshotManager(new ScreenshotManager(locationSettingsWidget, this)), _gamepad(nullptr), _gamepadSettingsWigdet(gamepadSettingsWidget), _iniParser(iniParser), _onlineMode(onlineMode), _networkAccessManager(new QNetworkAccessManager(this)), _patchCounter(0) {
+	ModInfoView::ModInfoView(bool onlineMode, QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, LocationSettingsWidget * locationSettingsWidget, GamepadSettingsWidget * gamepadSettingsWidget, QSettings * iniParser, QWidget * par) : QWidget(par), _mainWindow(mainWindow), _nameLabel(nullptr), _versionLabel(nullptr), _teamLabel(nullptr), _contactLabel(nullptr), _homepageLabel(nullptr), _patchGroup(nullptr), _patchLayout(nullptr), _pdfGroup(nullptr), _pdfLayout(nullptr), _achievementLabel(nullptr), _scoresLabel(nullptr), _iniFile(), _isInstalled(false), _modID(-1), _gothicDirectory(), _gothic2Directory(), _username(), _timer(new QTime()), _patchList(), _pdfList(), _checkboxPatchIDMapping(), _developerModeActive(false), _listenSocket(nullptr), _socket(nullptr), _gothicIniBackup(), _systempackIniBackup(), _zSpyActivated(false), _language(), _copiedFiles(), _lastBaseDir(), _showAchievements(true), _hideIncompatible(true), _ratingWidget(), _screenshotManager(new ScreenshotManager(locationSettingsWidget, this)), _gamepad(nullptr), _gamepadSettingsWigdet(gamepadSettingsWidget), _iniParser(iniParser), _onlineMode(onlineMode), _networkAccessManager(new QNetworkAccessManager(this)), _patchCounter(0), _gmpCounterBackup(-1) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -936,6 +935,11 @@ namespace widgets {
 					systempackIniParser.setValue(section + "/" + key, value);
 				}
 			}
+		}
+		if (_gmpCounterBackup != -1) {
+			QSettings registrySettings(R"(HKEY_CURRENT_USER\Software\Public domain\GMP Launcher\Server)", QSettings::NativeFormat);
+			registrySettings.setValue("size", _gmpCounterBackup);
+			_gmpCounterBackup = -1;
 		}
 		_gothicIniBackup.clear();
 		_systempackIniBackup.clear();
@@ -2047,6 +2051,8 @@ namespace widgets {
 	}
 
 	bool ModInfoView::prepareModStart(QString * usedBaseDir, QString * usedExecutable, QStringList * backgroundExecutables, bool * newGMP) {
+		_gmpCounterBackup = -1;
+
 		LOGINFO("Starting Ini: " << _iniFile.toStdString());
 		emitSplashMessage(QApplication::tr("RemovingOldFiles"));
 		for (const QString & f : _copiedFiles) {
@@ -2703,6 +2709,7 @@ namespace widgets {
 #ifdef Q_OS_WIN
 				{
 					QSettings registrySettings(R"(HKEY_CURRENT_USER\Software\Public domain\GMP Launcher\Server)", QSettings::NativeFormat);
+					_gmpCounterBackup = registrySettings.value("size", -1).toInt();
 					registrySettings.setValue("size", 1);
 				}
 				{
