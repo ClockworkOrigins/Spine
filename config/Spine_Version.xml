@@ -50,8 +50,8 @@
 	<File Hash="c0d266af87e977ea85a5a9589ee93500bee1f5277db2b09402b5c8ab95085d46e99242498fd011152200edde14ac6f14f1bb0b04ea33136ef97c8a1345e417c0">bin/plugins/platforms/qwindows.dll.z</File>
 	<File Hash="e8cb67fc8e0312da3cc98364b96dfa1a63150ab9de60069c4af60c1cf77d440b7dffe630b4784ba07ea9bf146bdbf6ad5282a900ffd6ab7d86433456a752b2fd">vcredist_x86.exe.z</File>
 </Version>
-<Version majorVersion="1" minorVersion="14" patchVersion="5">
-	<File Hash="da838e63a994e10989af1b1e05f5ec930d2819dabf3e1b029e99e7f2b32d5568d5b886a86e2342d10fcb19758c6697aa3e368ad1cca823a7db4012847b38cd5f">bin/changelog.xml.z</File>
-	<File Hash="9454feccb235c480127b3fffb8e4db7a1f8079bd34bf67f958ac8da4331391df2c836152d0b5be69a57cb995530d12d4d5c1677674c40145cef7517e9d5edacb">bin/Spine.exe.z</File>
-	<File Hash="83da57d53c008fc48d5cf64bafff15cf63fa67ce53cd5974387427025aee146dbd12082b712ee1911ebcfcd62918f85272628fda9eb0256ecb45cf73a3111791">bin/SpineAPI.dll.z</File>
+<Version majorVersion="1" minorVersion="14" patchVersion="6">
+	<File Hash="934472bcaa1a4e24c8ebc206454db3452f9b56d8e69c18232e65c650733b3753fb77740b48388116e0043f00b7177fba1b0a8a3ae68289061bf6a4171043e896">bin/changelog.xml.z</File>
+	<File Hash="a343e28ae4395f9ec94941be7367cc69e88b256a7a2e025afb5d89814173fe703dda1fa46d4f9525dc4f16a52da4518161b8232005359798d03157995db662bd">bin/Spine.exe.z</File>
+	<File Hash="191773c8829c277c5158952501154e33f0b4ba3340c7f42745af07ed619c639648ddafa211076f923f7c1a59c48830057438595ea29e497a895719b8bf4af496">bin/SpineAPI.dll.z</File>
 </Version>

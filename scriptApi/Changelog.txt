@@ -1,3 +1,7 @@
+Version 1.14.6
+
+- achievements of other mods now can be queried
+
 Version 1.13.1
 
 - achievements now can also be unlocked when playing without Spine

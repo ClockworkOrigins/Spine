@@ -363,7 +363,7 @@ namespace widgets {
 					ssfm.scores.push_back(s);
 				}
 			}
-			std::string serialized = ssfm.SerializePublic();
+			const std::string serialized = ssfm.SerializePublic();
 			clockUtils::sockets::TcpSocket sock;
 			clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
 			if (_username.isEmpty()) {
@@ -393,9 +393,9 @@ namespace widgets {
 	void SpineEditor::installSpineScripts() {
 		static QList<QPair<QString, QString>> spineFiles = {
 			{ "Spine.src.z", "0dbf6e8c3bf73e164e0db0c89eac582fb3473e18a1c91e5bfc2d94bf4ff0c95674f205d4dbf81d9f90592f909577beba0f19ea35008969753e8c4e7bcbcaaf33" },
-			{ "Spine_Achievements.d.z", "05ed71e7dadc8a5f4cb87e5a07c63ea628e07bb784d55ae2a574fc3addfd889b82d6770f456469c2ef3866b06dc91802caffe5dcace47341b48262a0e43b1c6e" },
-			{ "Spine_API.d.z", "97a312baa780b682e452fd0d234fc2ac3c72656fae424aa01cb4ae88259a175cd12687ad4679d2e9f46d2d6700e0d51876659e504fa486c561ed8d71b0717006" },
-			{ "Spine_Constants.d.z", "9ce274a31d3200f3e4fa7319eb1e26c167d9ffcfff5fec979fc1a98739c449cd3f793d7d38e313742b7fd9a91f9c761d9027486b96ef23aff835deca33dfe672" },
+			{ "Spine_Achievements.d.z", "095b433781371bf08a76125b9a35706b1d684d0c8bfc2a97f6610f62b1f6373b488f29b675deac75acc772172714c12affa280b37fced285a688bfdbdecad130" },
+			{ "Spine_API.d.z", "a3ea16983544768f953a2cfc4f41919ef394754a33335862661ea0b9561f992da4329f34f84af5132f9dd581c34d4e8eac65e9fef8651447582b51ad393c7c7b" },
+			{ "Spine_Constants.d.z", "956a08644680b690b3a6e27b9a2d7e3ecf7c3ceb8e618562f2bc7ee5729400056310c841ee5c158ec4dc401334b061ffe4ec27e4d7df767bd8b480dcba4c72a8" },
 			{ "Spine_Friends.d.z", "bc16f258031a5fb8b1f55b30f4e660295587a4c34da49fe9bffd5dedcc4717edc7d417bda8ba154d80cefb47dae43912e29d3876a68736f345f119fdcf4f996b" },
 			{ "Spine_Gamepad.d.z", "490afa62bcdaa382de6d6e348708a48683ab78ec09f668871afd96f0fb5cb8eb7ef29d73c83b25c347a80c54bb421f3e3c13d319091924f8e5657a0f9c190d78" },
 			{ "Spine_Message.d.z", "e6ede77bd7443a7e475e895ff251e2976a2a5308c16635fadfe0854bd58b4e538baf605f9e4cd4213eeccbf8d89118c1e7074eebf88a83598e859811bef18108" },
@@ -451,9 +451,9 @@ namespace widgets {
 	void SpineEditor::updateSpineScripts() {
 		static QList<QPair<QString, QString>> spineFiles = {
 			{ "Spine.src.z", "0dbf6e8c3bf73e164e0db0c89eac582fb3473e18a1c91e5bfc2d94bf4ff0c95674f205d4dbf81d9f90592f909577beba0f19ea35008969753e8c4e7bcbcaaf33" },
-			{ "Spine_Achievements.d.z", "05ed71e7dadc8a5f4cb87e5a07c63ea628e07bb784d55ae2a574fc3addfd889b82d6770f456469c2ef3866b06dc91802caffe5dcace47341b48262a0e43b1c6e" },
-			{ "Spine_API.d.z", "97a312baa780b682e452fd0d234fc2ac3c72656fae424aa01cb4ae88259a175cd12687ad4679d2e9f46d2d6700e0d51876659e504fa486c561ed8d71b0717006" },
-			{ "Spine_Constants.d.z", "9ce274a31d3200f3e4fa7319eb1e26c167d9ffcfff5fec979fc1a98739c449cd3f793d7d38e313742b7fd9a91f9c761d9027486b96ef23aff835deca33dfe672" },
+			{ "Spine_Achievements.d.z", "095b433781371bf08a76125b9a35706b1d684d0c8bfc2a97f6610f62b1f6373b488f29b675deac75acc772172714c12affa280b37fced285a688bfdbdecad130" },
+			{ "Spine_API.d.z", "a3ea16983544768f953a2cfc4f41919ef394754a33335862661ea0b9561f992da4329f34f84af5132f9dd581c34d4e8eac65e9fef8651447582b51ad393c7c7b" },
+			{ "Spine_Constants.d.z", "956a08644680b690b3a6e27b9a2d7e3ecf7c3ceb8e618562f2bc7ee5729400056310c841ee5c158ec4dc401334b061ffe4ec27e4d7df767bd8b480dcba4c72a8" },
 			{ "Spine_Friends.d.z", "bc16f258031a5fb8b1f55b30f4e660295587a4c34da49fe9bffd5dedcc4717edc7d417bda8ba154d80cefb47dae43912e29d3876a68736f345f119fdcf4f996b" },
 			{ "Spine_Gamepad.d.z", "490afa62bcdaa382de6d6e348708a48683ab78ec09f668871afd96f0fb5cb8eb7ef29d73c83b25c347a80c54bb421f3e3c13d319091924f8e5657a0f9c190d78" },
 			{ "Spine_Message.d.z", "e6ede77bd7443a7e475e895ff251e2976a2a5308c16635fadfe0854bd58b4e538baf605f9e4cd4213eeccbf8d89118c1e7074eebf88a83598e859811bef18108" },
