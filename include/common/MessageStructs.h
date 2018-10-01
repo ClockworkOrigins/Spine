@@ -2028,6 +2028,38 @@ namespace common {
 		}
 	};
 
+	struct IsAchievementUnlockedMessage : public Message {
+		std::string username;
+		std::string password;
+		int32_t modID;
+		int32_t achievementID;
+
+		IsAchievementUnlockedMessage() : Message(), username(), password(), modID(), achievementID() {
+			type = MessageType::ISACHIEVEMENTUNLOCKED;
+		}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & boost::serialization::base_object<Message>(*this);
+			ar & username;
+			ar & password;
+			ar & modID;
+			ar & achievementID;
+		}
+	};
+
+	struct SendAchievementUnlockedMessage : public Message {
+		bool unlocked;
+
+		SendAchievementUnlockedMessage() : Message(), unlocked() {
+			type = MessageType::SENDISACHIEVEMENTUNLOCKED;
+		}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & boost::serialization::base_object<Message>(*this);
+			ar & unlocked;
+		}
+	};
+
 } /* namespace common */
 } /* namespace spine */
 

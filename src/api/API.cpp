@@ -421,6 +421,37 @@ namespace {
 		}
 	}
 
+	int32_t isAchievementOfOtherModUnlocked(int32_t modID, int32_t achievementID) {
+		if (initialized && (activatedModules & common::SpineModules::Achievements)) {
+			common::IsAchievementUnlockedMessage iaum;
+			iaum.modID = modID;
+			iaum.achievementID = achievementID;
+			std::string serialized = iaum.SerializeBlank();
+			if (sock->writePacket(serialized) != clockUtils::ClockError::SUCCESS) {
+				reconnect();
+				sock->writePacket(serialized);
+			}
+			if (sock->receivePacket(serialized) != clockUtils::ClockError::SUCCESS) {
+				return 0;
+			}
+			try {
+				common::Message * msg = common::Message::DeserializeBlank(serialized);
+				if (!msg) {
+					return 0;
+				}
+				common::SendAchievementUnlockedMessage * saum = dynamic_cast<common::SendAchievementUnlockedMessage *>(msg);
+				if (!saum) {
+					return 0;
+				}
+				return saum->unlocked;
+			} catch (...) {
+				return 0;
+			}
+		} else {
+			return 0;
+		}
+	}
+
 	void setOverallSaveValue(const char * key, const char * value) {
 		if (initialized && (activatedModules & common::SpineModules::OverallSave)) {
 			bool save = false;

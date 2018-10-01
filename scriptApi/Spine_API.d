@@ -187,9 +187,19 @@ func int Spine_InitWithDll(var int modules) {
 			FreeLibrary(Spine_Dll);
 			return FALSE;
 		};
+		
+		MEM_Info("Spine: Loading isAchievementOfOtherModUnlocked function");
+		Spine_IsAchievementOfOtherModUnlockedFunc = GetProcAddress(Spine_Dll, "isAchievementOfOtherModUnlocked");
+		
+		if (!Spine_IsAchievementOfOtherModUnlockedFunc) {
+			MEM_Info("Spine: isAchievementOfOtherModUnlocked function not found");
+			FreeLibrary(Spine_Dll);
+			return FALSE;
+		};
 	} else {
 		Spine_UnlockAchievementFunc = 0;
 		Spine_IsAchievementUnlockedFunc = 0;
+		Spine_IsAchievementOfOtherModUnlockedFunc = 0;
 	};
 	
 	if (modules & SPINE_MODULE_MULTIPLAYER) {

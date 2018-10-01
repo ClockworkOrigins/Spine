@@ -37,6 +37,7 @@ namespace common {
 	struct DeclineFriendRequestMessage;
 	struct DownloadSucceededMessage;
 	struct FeedbackMessage;
+	struct IsAchievementUnlockedMessage;
 	struct LinkClickedMessage;
 	struct ModVersionCheckMessage;
 	struct PackageDownloadSucceededMessage;
@@ -174,6 +175,7 @@ namespace common {
 		void handleUpdateSucceeded(clockUtils::sockets::TcpSocket * sock, common::UpdateSucceededMessage * msg) const;
 		void handleUpdateChapterStats(clockUtils::sockets::TcpSocket * sock, common::UpdateChapterStatsMessage * msg) const;
 		void handleUpdateImpression(clockUtils::sockets::TcpSocket * sock, common::UpdateImpressionMessage * msg) const;
+		void handleIsAchievementUnlocked(clockUtils::sockets::TcpSocket * sock, common::IsAchievementUnlockedMessage * msg) const;
 
 		/**
 		 * \brief returns the id in the table for the username

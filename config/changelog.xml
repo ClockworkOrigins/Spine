@@ -1480,11 +1480,13 @@
 	<Bug language="English">Fixed problem when changing to online mode for some users</Bug>
 </Version>
 <Version majorVersion="1" minorVersion="14" patchVersion="6">
+	<Enhancement language="Deutsch">Spine-API erlaubt es nun Erfolge aus anderen Mods innerhalb einer Mod abzufragen</Enhancement>
 	<Bug language="Deutsch">Benutzerfreischaltung im Management-Dialog funktioniert wieder</Bug>
 	<Bug language="Deutsch">Login-Dialog erscheint bei Start im Offline-Modus jetzt nicht mehr</Bug>
 	<Bug language="Deutsch">GMP-Serverliste wird nach Start einer GMP-Mod wieder hergestellt</Bug>
 	<Bug language="Deutsch">Aktualisierung einer Mod während die Bibliothek offen und die Mod dort ausgewählt ist, aktualisiert nun dort die Versionsnummer</Bug>
 	
+	<Enhancement language="English">Spine API now allows to query achievements from another mod from within a mod</Enhancement>
 	<Bug language="English">Unlocking users in Management dialog works again</Bug>
 	<Bug language="English">Login dialog doesn't show up anymore when starting from offline mode</Bug>
 	<Bug language="English">GMP server list now gets restored after starting a GMP mod</Bug>

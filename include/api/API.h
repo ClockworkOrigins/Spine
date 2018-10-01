@@ -111,6 +111,11 @@ namespace api {
 	SPINEAPI_EXPORTS int32_t getAchievementMaxProgress(int32_t id);
 
 	/**
+	 * \brief checks whether achievement with given id of another modification is already unlocked
+	 */
+	SPINEAPI_EXPORTS int32_t isAchievementOfOtherModUnlocked(int32_t modID, int32_t achievementID);
+
+	/**
 	 * \brief sets string to savegame
 	 */
 	SPINEAPI_EXPORTS void setOverallSaveValue(const char * key, const char * value);

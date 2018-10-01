@@ -281,6 +281,9 @@ namespace spine {
 				} else if (m->type == common::MessageType::UPDATEIMPRESSION) {
 					common::UpdateImpressionMessage * msg = dynamic_cast<common::UpdateImpressionMessage *>(m);
 					handleUpdateImpression(sock, msg);
+				} else if (m->type == common::MessageType::ISACHIEVEMENTUNLOCKED) {
+					common::IsAchievementUnlockedMessage * msg = dynamic_cast<common::IsAchievementUnlockedMessage *>(m);
+					handleIsAchievementUnlocked(sock, msg);
 				} else {
 					std::cerr << "unexpected control message arrived: " << int(m->type) << std::endl;
 					delete m;
@@ -4879,6 +4882,46 @@ namespace spine {
 				break;
 			}
 		} while (false);
+	}
+
+	void Server::handleIsAchievementUnlocked(clockUtils::sockets::TcpSocket * sock, common::IsAchievementUnlockedMessage * msg) const {
+		common::SendAchievementUnlockedMessage siaum;
+		siaum.unlocked = false;
+		do {
+			const int userID = getUserID(msg->username, msg->password);
+			if (userID == -1) {
+				break;
+			}
+			MariaDBWrapper database;
+			if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, SPINEDATABASE, 0)) {
+				std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			if (!database.query("PREPARE selectStmt FROM \"SELECT UserID FROM modAchievements WHERE UserID = ? AND ModID = ? AND AchievementID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramModID=" + std::to_string(msg->modID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramAchievementID=" + std::to_string(msg->achievementID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("EXECUTE selectStmt USING @paramUserID, @paramModID, @paramAchievementID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			auto lastResults = database.getResults<std::vector<std::string>>();
+			siaum.unlocked = !lastResults.empty();
+		} while (false);
+		const std::string serialized = siaum.SerializePrivate();
+		sock->writePacket(serialized);
 	}
 
 	int Server::getUserID(const std::string & username, const std::string & password) const {

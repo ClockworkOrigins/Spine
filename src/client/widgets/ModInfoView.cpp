@@ -1979,6 +1979,47 @@ namespace widgets {
 								}
 							}
 						}
+					} else if (msg->type == common::MessageType::ISACHIEVEMENTUNLOCKED) {
+						common::IsAchievementUnlockedMessage * iaum = dynamic_cast<common::IsAchievementUnlockedMessage *>(msg);
+						if (_isInstalled) {
+							if (iaum) {
+								iaum->username = q2s(_username);
+								iaum->password = q2s(_password);
+								if (_onlineMode) {
+									clockUtils::sockets::TcpSocket sock;
+									if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
+										serialized = iaum->SerializePublic();
+										if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
+											if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
+												common::Message * newMsg = common::Message::DeserializePublic(serialized);
+												serialized = newMsg->SerializeBlank();
+												delete newMsg;
+												socket->writePacket(serialized);
+											} else {
+												socket->writePacket("empty");
+											}
+										} else {
+											socket->writePacket("empty");
+										}
+									} else {
+										socket->writePacket("empty");
+									}
+								} else {
+									Database::DBError dbErr;
+									std::vector<std::vector<std::string>> lastResults = Database::queryAll<std::vector<std::string>, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier FROM modAchievements WHERE ModID = " + std::to_string(iaum->modID) + " AND Identifier = " + std::to_string(iaum->achievementID) + "", dbErr);
+									common::SendAchievementUnlockedMessage saum;
+									saum.unlocked = !lastResults.empty();
+									serialized = saum.SerializeBlank();
+									socket->writePacket(serialized);
+								}
+							} else {
+								socket->writePacket("empty");
+							}
+						} else {
+							common::SendScoresMessage ssm;
+							serialized = ssm.SerializeBlank();
+							socket->writePacket(serialized);
+						}
 					}
 				}
 				delete msg;

@@ -10,6 +10,7 @@ var int Spine_UpdateAchievementProgressFunc;
 var int Spine_GetAchievementProgressFunc;
 var int Spine_GetAchievementMaxProgressFunc;
 var int Spine_GetShowAchievementsFunc;
+var int Spine_IsAchievementOfOtherModUnlockedFunc;
 
 var int SPINE_ACHIEVEMENTS_LOCAL_UNLOCKED[MAX_ACHIEVEMENTS];
 var int SPINE_ACHIEVEMENTS_LOCAL_PROGRESS[MAX_ACHIEVEMENTS];
@@ -255,6 +256,18 @@ func int Spine_GetAchievementMaxProgress(var int identifier) {
 		};
 	};
 	return FALSE;
+};
+
+// return TRUE or FALSE whether the achievement for the given id of another modification is already unlocked or not
+// this function shouldn't be called frequently in the game loop as it is slow
+func int Spine_IsAchievementOfOtherModUnlocked(var int modID, var int identifier) {
+	if (Spine_Initialized && Spine_IsAchievementOfOtherModUnlockedFunc) {
+		CALL_IntParam(identifier);
+		CALL_IntParam(modID);
+		CALL__cdecl(Spine_IsAchievementOfOtherModUnlockedFunc);
+		return CALL_RetValAsInt();
+	};
+	return TRUE;
 };
 
 // private, don't call from outside
