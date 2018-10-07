@@ -16,6 +16,8 @@
  */
 // Copyright 2018 Clockwork Origins
 
+#include <iostream>
+
 #include <QCryptographicHash>
 #include <QDirIterator>
 #include <QFileInfo>
@@ -33,6 +35,8 @@ int main(const int argc, char ** argv) {
 	modkitPath.replace("\\", "/");
 	resultPath.replace("\\", "/");
 
+	int counter = 0;
+
 	QDirIterator it(modPath, QDir::Filter::Files, QDirIterator::IteratorFlag::Subdirectories);
 	while (it.hasNext()) {
 		const QString file = it.next();
@@ -45,7 +49,7 @@ int main(const int argc, char ** argv) {
 		}
 
 		if (!QFileInfo::exists(modkitPath + "/" + strippedPath)) {
-			const QString resultDir = resultPath + "/" + absolutePath;
+			const QString resultDir = QFileInfo(resultPath + "/" + strippedPath).absolutePath();
 			QDir(resultPath).mkpath(resultDir);
 			QFile::copy(file, resultPath + "/" + strippedPath);
 		} else {
@@ -56,6 +60,7 @@ int main(const int argc, char ** argv) {
 			if (hash.addData(&modFile)) {
 				 modFileHash = QString::fromLatin1(hash.result().toHex());
 			} else {
+				std::cout << "Hash Generation not possible for mod file" << std::endl;
 				return 1;
 			}
 			modFile.close();
@@ -67,6 +72,7 @@ int main(const int argc, char ** argv) {
 			if (modkitHash.addData(&modkitFile)) {
 				 modkitFileHash = QString::fromLatin1(modkitHash.result().toHex());
 			} else {
+				std::cout << "Hash Generation not possible for modkit file" << std::endl;
 				return 1;
 			}
 			if (modFileHash != modkitFileHash) {
@@ -75,7 +81,10 @@ int main(const int argc, char ** argv) {
 				QFile::copy(file, resultPath + "/" + strippedPath);
 			}
 		}
+		counter++;
 	}
+
+	std::cout << "Processed files: " << counter << std::endl;
 
 	return 0;
 }
