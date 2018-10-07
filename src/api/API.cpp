@@ -421,10 +421,10 @@ namespace {
 		}
 	}
 
-	int32_t isAchievementOfOtherModUnlocked(int32_t modID, int32_t achievementID) {
+	int32_t isAchievementOfOtherModUnlocked(int32_t id, int32_t achievementID) {
 		if (initialized && (activatedModules & common::SpineModules::Achievements)) {
 			common::IsAchievementUnlockedMessage iaum;
-			iaum.modID = modID;
+			iaum.modID = id;
 			iaum.achievementID = achievementID;
 			std::string serialized = iaum.SerializeBlank();
 			if (sock->writePacket(serialized) != clockUtils::ClockError::SUCCESS) {

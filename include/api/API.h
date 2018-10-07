@@ -83,7 +83,7 @@ namespace api {
 	/**
 	 * \brief gets score for given id and username
 	 */
-	SPINEAPI_EXPORTS int32_t getScoreForUsername(int32_t id, const char * username);
+	SPINEAPI_EXPORTS int32_t getScoreForUsername(int32_t id, const char * user);
 
 	/**
 	 * \brief unlocks achievement with given id
@@ -113,7 +113,7 @@ namespace api {
 	/**
 	 * \brief checks whether achievement with given id of another modification is already unlocked
 	 */
-	SPINEAPI_EXPORTS int32_t isAchievementOfOtherModUnlocked(int32_t modID, int32_t achievementID);
+	SPINEAPI_EXPORTS int32_t isAchievementOfOtherModUnlocked(int32_t id, int32_t achievementID);
 
 	/**
 	 * \brief sets string to savegame
