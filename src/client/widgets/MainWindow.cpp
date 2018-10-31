@@ -1005,6 +1005,7 @@ namespace widgets {
 
 		const bool uninstalled = Uninstaller::uninstall(modId, idx.data(Qt::DisplayRole).toString(), directory);
 		if (uninstalled) {
+			_modListModel->clear();
 			parseMods();
 		}
 	}
