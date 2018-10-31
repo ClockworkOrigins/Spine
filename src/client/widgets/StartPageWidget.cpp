@@ -204,7 +204,7 @@ namespace widgets {
 		for (common::SendAllNewsMessage::News n : news) {
 			std::vector<std::pair<std::string, std::string>> mods = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT DISTINCT ModID, Name FROM newsModReferences WHERE NewsID = " + std::to_string(n.id) + " AND Language = '" + _language.toStdString() + "';", err);
 			for (auto p : mods) {
-				n.referencedMods.push_back(std::make_pair(std::stoi(p.first), p.second));
+				n.referencedMods.emplace_back(std::stoi(p.first), p.second);
 			}
 			NewsWidget * newsWidget = new NewsWidget(n, _onlineMode, _newsContainer);
 			_newsLayout->addWidget(newsWidget);
@@ -264,12 +264,16 @@ namespace widgets {
 
 		if (!vec.empty()) {
 			const QString ini = s2q(vec[0][1]);
-			_startModButton->setProperty("modID", std::stoi(vec[0][0]));
-			_startModButton->setProperty("ini", ini);
+			if (QFile::exists(ini)) {
+				_startModButton->setProperty("modID", std::stoi(vec[0][0]));
+				_startModButton->setProperty("ini", ini);
 
-			QSettings iniParser(ini, QSettings::IniFormat);
-			const QString title = iniParser.value("INFO/Title", "").toString();
-			_startModButton->setText(QApplication::tr("StartModName").arg(title));
+				QSettings iniParser(ini, QSettings::IniFormat);
+				const QString title = iniParser.value("INFO/Title", "").toString();
+				_startModButton->setText(QApplication::tr("StartModName").arg(title));
+			} else {
+				vec.clear();
+			}
 		}
 
 		_startModButton->setHidden(vec.empty());

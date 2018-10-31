@@ -213,6 +213,7 @@ namespace {
 			gl->addWidget(_registerStayBox, 6, 1);
 			gl->addWidget(resetPasswordButton, 7, 0);
 			gl->addWidget(_registerButton, 7, 1);
+			_registerButton->setShortcut(QKeySequence(Qt::Key_Enter));
 
 			w->setLayout(gl);
 
