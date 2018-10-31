@@ -341,6 +341,8 @@ namespace {
 		changedLoginInput();
 		changedRegisterInput();
 
+		tw->setCurrentIndex(1);
+
 		setLayout(l);
 
 		setWindowTitle(QApplication::tr("Login"));
