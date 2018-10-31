@@ -1492,3 +1492,8 @@
 	<Bug language="English">GMP server list now gets restored after starting a GMP mod</Bug>
 	<Bug language="English">Updating a modification while the library is opened and the modification is selected now updates the version number</Bug>
 </Version>
+<Version majorVersion="1" minorVersion="14" patchVersion="7">
+	<Bug language="Deutsch">Teammitglieder bekommen jetzt immer auch die Update-Benachrichtigungen ihrer eigenen Mods, auch wenn sie nicht nochmal explizit für die Mod freigeschaltet wurden</Bug>
+	
+	<Bug language="English">team members now always get update notifications for their own mods even when not explicitly unlocked for this mod</Bug>
+</Version>

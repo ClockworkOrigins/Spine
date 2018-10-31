@@ -1057,7 +1057,7 @@ namespace spine {
 			std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
-		if (!database.query("PREPARE selectModStmt FROM \"SELECT MajorVersion, MinorVersion, PatchVersion, Enabled FROM mods WHERE ModID = ? LIMIT 1\";")) {
+		if (!database.query("PREPARE selectModStmt FROM \"SELECT MajorVersion, MinorVersion, PatchVersion, Enabled, TeamID FROM mods WHERE ModID = ? LIMIT 1\";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			return;
 		}
@@ -1066,6 +1066,10 @@ namespace spine {
 			return;
 		}
 		if (!database.query("PREPARE selectEarlyStmt FROM \"SELECT * FROM earlyUnlocks WHERE ModID = ? AND UserID = ? LIMIT 1\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			return;
+		}
+		if (!database.query("PREPARE selectTeamStmt FROM \"SELECT UserID FROM teammembers WHERE TeamID = ? AND UserID = ? LIMIT 1\";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			return;
 		}
@@ -1101,6 +1105,7 @@ namespace spine {
 				const int8_t minorVersion = int8_t(std::stoi(lastResults[0][1]));
 				const int8_t patchVersion = int8_t(std::stoi(lastResults[0][2]));
 				bool enabled = std::stoi(lastResults[0][3]) == 1;
+				const int teamID = std::stoi(lastResults[0][4]);
 
 				if (!enabled) {
 					const int userID = getUserID(msg->username, msg->password);
@@ -1114,6 +1119,19 @@ namespace spine {
 					}
 					auto lastEarlyResults = database.getResults<std::vector<std::string>>();
 					enabled = !lastEarlyResults.empty();
+
+					if (!enabled) {
+						if (!database.query("SET @paramTeamID=" + std::to_string(teamID) + ";")) {
+							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+							break;
+						}
+						if (!database.query("EXECUTE selectTeamStmt USING @paramTeamID, @paramUserID;")) {
+							std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+							break;
+						}
+						lastEarlyResults = database.getResults<std::vector<std::string>>();
+						enabled = !lastEarlyResults.empty();
+					}
 				}
 
 				if ((mv.majorVersion != majorVersion || mv.minorVersion != minorVersion || mv.patchVersion != patchVersion) && enabled) {
