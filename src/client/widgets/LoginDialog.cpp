@@ -255,6 +255,7 @@ namespace {
 
 			_loginStayBox = new QCheckBox(QApplication::tr("StayLoggedIn"), w);
 			_loginButton = new QPushButton(QApplication::tr("Login"), w);
+			_loginButton->setShortcut(QKeySequence(Qt::Key_Enter));
 
 			_loginPasswordEdit->setEchoMode(QLineEdit::EchoMode::Password);
 

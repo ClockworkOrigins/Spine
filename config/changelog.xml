@@ -1494,8 +1494,10 @@
 </Version>
 <Version majorVersion="1" minorVersion="14" patchVersion="7">
 	<Enhancement language="Deutsch">Login-Tab im Login-Dialog ist jetzt standardmäßig zuerst ausgewählt</Enhancement>
+	<Enhancement language="Deutsch">Login sollte jetzt mit Enter ausgelöst werden können</Enhancement>
 	<Bug language="Deutsch">Teammitglieder bekommen jetzt immer auch die Update-Benachrichtigungen ihrer eigenen Mods, auch wenn sie nicht nochmal explizit für die Mod freigeschaltet wurden</Bug>
 	
 	<Enhancement language="English">Login tab of login dialog now is selected first per default</Enhancement>
+	<Enhancement language="English">Login should be triggerable now via Enter key</Enhancement>
 	<Bug language="English">team members now always get update notifications for their own mods even when not explicitly unlocked for this mod</Bug>
 </Version>
