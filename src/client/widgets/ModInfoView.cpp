@@ -619,6 +619,10 @@ namespace widgets {
 			QFile(_gothicDirectory + "/System/GothicGame.ini").remove();
 		}
 
+		if (!QDir(_gothicDirectory + "/saves").exists()) {
+			QDir(_gothicDirectory).mkdir("saves");
+		}
+
 		emit updatedG1Path();
 	}
 
