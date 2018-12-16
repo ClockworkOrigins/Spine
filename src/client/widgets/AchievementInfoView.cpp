@@ -98,7 +98,34 @@ namespace widgets {
 		p.drawText(20, 30, _name);
 		f.setPointSize(12);
 		p.setFont(f);
-		p.drawText(20, 45 + ((_unlocked || _maxProgress == 0) ? 10 : 0), _description);
+
+		QFontMetrics fm(f);
+
+		QStringList lines = { _description };
+
+		int idx = 0;
+		while (idx < lines.count()) {
+			QString line = lines[idx];
+			QString nextLine;
+			while (fm.width(line) > 500) {
+				QStringList split = line.split(' ');
+				if (split.count() <= 1) break;
+
+				line.remove(line.length() - split.last().length() - 1, line.length());
+				nextLine.prepend(' ');
+				nextLine.prepend(split.last());
+			}
+			lines[idx] = line;
+			nextLine = nextLine.trimmed();
+			if (!nextLine.isEmpty()) {
+				lines.append(nextLine);
+			}
+			idx++;
+		}
+
+		for (int i = 0; i < lines.count(); i++) {
+			p.drawText(20, 45 + ((_unlocked || _maxProgress == 0) && lines.count() == 1 ? 5 : 0) + i * 15, lines[i]);
+		}
 
 		p.drawText(800 - 2 * 70 - 65, 40, QString::number(_progress, 'f', 1) + "%");
 	}

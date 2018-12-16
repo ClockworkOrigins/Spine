@@ -1499,6 +1499,7 @@
 	<Bug language="Deutsch">Wenn eine Mod deinstalliert wurde, dann wird auf der Startseite jetzt nicht mehr der Button zum Fortsetzen der Mod angezeigt</Bug>
 	<Bug language="Deutsch">Wenn eine Mod von der Bibliothek aus deinstalliert wurde, dann werden die Mods jetzt nicht mehr doppelt angezeigt</Bug>
 	<Bug language="Deutsch">Crash behoben, wenn in Gothic 1 ein Spiel gespeichert wird, aber noch kein saves-Ordner existiert</Bug>
+	<Bug language="Deutsch">Lange Erfolgsbeschreibungen werden jetzt umgebrochen</Bug>
 	
 	<Enhancement language="English">Login tab of login dialog now is selected first per default</Enhancement>
 	<Enhancement language="English">Login should be triggerable now via Enter key</Enhancement>
@@ -1506,4 +1507,5 @@
 	<Bug language="English">in case a mod was uninstalled the start page doesn't show the button to continue the mod anymore</Bug>
 	<Bug language="English">in case a mod was uninstalled from the library other mods won't be shown twice anymore</Bug>
 	<Bug language="English">fixed crash when saving in Gothic 1 and no saves folder exists</Bug>
+	<Bug language="English">long achievement descriptions now get a line break</Bug>
 </Version>
