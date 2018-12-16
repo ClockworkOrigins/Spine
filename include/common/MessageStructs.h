@@ -637,6 +637,7 @@ namespace common {
 			bool hidden = false;
 			int currentProgress = 0;
 			int maxProgress = 0;
+			bool canSeeHidden = false;
 
 			template<class Archive>
 			void serialize(Archive & ar, const unsigned int /* file_version */) {
@@ -651,6 +652,7 @@ namespace common {
 				ar & hidden;
 				ar & currentProgress;
 				ar & maxProgress;
+				ar & canSeeHidden;
 			}
 		};
 		std::vector<AchievementStats> achievements;

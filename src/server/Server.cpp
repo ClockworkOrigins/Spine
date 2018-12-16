@@ -1852,6 +1852,9 @@ namespace spine {
 		if (!playerResult.empty()) {
 			playerCount = std::stoi(playerResult[0][0]);
 		}
+
+		bool isTeamMember = isTeamMemberOfMod(msg->modID, userID);
+
 		common::SendAllAchievementStatsMessage saasm;
 		for (auto vec : lastResults) {
 			// get mod name in current language
@@ -1930,6 +1933,9 @@ namespace spine {
 			} else {
 				as.currentProgress = std::stoi(results[0][0]);
 			}
+
+			as.canSeeHidden = isTeamMember;
+
 			saasm.achievements.push_back(as);
 		}
 
@@ -5053,6 +5059,53 @@ namespace spine {
 			bool b = s.sendMail("contact@clockwork-origins.de", "bonne@clockwork-origins.de", subject, body, replyTo);
 			static_cast<void>(b);
 		}).detach();
+	}
+
+	bool Server::isTeamMemberOfMod(int modID, int userID) const {
+		do {
+			MariaDBWrapper database;
+			if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, SPINEDATABASE, 0)) {
+				std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			if (!database.query("PREPARE selectTeamIDStmt FROM \"SELECT TeamID FROM mods WHERE ModID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("PREPARE selectMemberStmt FROM \"SELECT UserID FROM teammembers WHERE TeamID = ? AND UserID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("EXECUTE selectTeamIDStmt USING @paramModID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			auto lastResults = database.getResults<std::vector<std::string>>();
+			if (lastResults.empty()) break;
+
+			if (!database.query("SET @paramTeamID=" + lastResults[0][0] + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+
+			if (!database.query("EXECUTE selectMemberStmt USING @paramTeamID, @paramUserID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			lastResults = database.getResults<std::vector<std::string>>();
+
+			return !lastResults.empty();
+		} while (false);
+
+		return false;
 	}
 
 	uint32_t Server::getLevel(const int userID, uint32_t & currentXP, uint32_t & nextXP) const {

@@ -353,7 +353,7 @@ namespace widgets {
 		}
 		_mods.clear();
 
-		for (const common::ModStats ms : mods) {
+		for (const common::ModStats & ms : mods) {
 			ProfileModView * pmv = new ProfileModView(ms, _gothicDirectory, _gothic2Directory, _mainWidget);
 			if (pmv->isPatchOrTool()) {
 				pmv->setVisible(_hidePatchesAndToolsBox->checkState() == Qt::Unchecked);
@@ -433,7 +433,7 @@ namespace widgets {
 		int32_t counter = 0;
 		for (const auto & as : achievementStats) {
 			AchievementView * av = new AchievementView(modID, as, _achievementsWidget);
-			av->setVisible(!as.hidden || as.unlocked || _username == "Bonne");
+			av->setVisible(!as.hidden || as.unlocked || as.canSeeHidden);
 			counter += (!as.hidden || as.unlocked) ? 0 : 1;
 			_achievementsLayout->addWidget(av);
 			_achievements.push_back(av);

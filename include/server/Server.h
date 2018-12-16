@@ -185,6 +185,7 @@ namespace common {
 		std::string getUsername(int id) const;
 		static std::vector<std::string> getUserList();
 		static void sendMail(const std::string & subject, const std::string & body, const std::string & replyTo);
+		bool isTeamMemberOfMod(int modID, int userID) const;
 
 		// MP stuff, communication with external server
 		uint32_t getLevel(int userID, uint32_t & currentXP, uint32_t & nextXP) const;
