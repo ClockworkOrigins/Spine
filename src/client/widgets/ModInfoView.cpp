@@ -620,7 +620,8 @@ namespace widgets {
 		}
 
 		if (!QDir(_gothicDirectory + "/saves").exists()) {
-			QDir(_gothicDirectory).mkdir("saves");
+			bool b = QDir(_gothicDirectory).mkdir("saves");
+			Q_UNUSED(b);
 		}
 
 		emit updatedG1Path();

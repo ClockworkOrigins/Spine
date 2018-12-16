@@ -27,3 +27,22 @@ const string SPINE_ACHIEVEMENT_PROGRESS[MAX_ACHIEVEMENTS] = {
 	"0",
 	"3"
 };
+
+// these values are just necessary for the Spine client and won't be used in the scripts
+const string SPINE_ACHIEVEMENT_DESCRIPTIONS[MAX_ACHIEVEMENTS] = {
+	"Eine Beschreibung des ersten Erfolgs.",
+	"Eine Beschreibung des zweiten Erfolgs.",
+	"Eine Beschreibung des dritten Erfolgs."
+};
+
+const string SPINE_ACHIEVEMENT_HIDDEN[MAX_ACHIEVEMENTS] = {
+	"TRUE",
+	"FALSE",
+	"TRUE"
+};
+
+const string SPINE_ACHIEVEMENT_LOCKED[MAX_ACHIEVEMENTS] = {
+	"SPINE_ACHIEVEMENT_DEFAULT.TGA",
+	"SPINE_ACHIEVEMENT_DEFAULT.TGA",
+	"SPINE_ACHIEVEMENT_DEFAULT.TGA"
+};

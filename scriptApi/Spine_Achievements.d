@@ -258,6 +258,13 @@ func int Spine_GetAchievementMaxProgress(var int identifier) {
 	return FALSE;
 };
 
+// increased achievement progress by one
+// in case maximum achievement progress is reached, the achievement is displayed as unlocked automatically
+func void Spine_IncrementAchievementProgress(var int identifier) {
+	var int currentProgress; currentProgress = Spine_GetAchievementProgress(identifier);
+	Spine_UpdateAchievementProgress(identifier, currentProgress + 1);
+};
+
 // return TRUE or FALSE whether the achievement for the given id of another modification is already unlocked or not
 // this function shouldn't be called frequently in the game loop as it is slow
 func int Spine_IsAchievementOfOtherModUnlocked(var int modID, var int identifier) {
