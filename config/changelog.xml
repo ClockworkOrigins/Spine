@@ -1503,6 +1503,7 @@
 	<Bug language="Deutsch">Teammitglieder können jetzt auch verstecke Erfolge ihrer Mods im Profil einsehen</Bug>
 	<Bug language="Deutsch">Hohen Speicherverbrauch evtl. behoben</Bug>
 	<Bug language="Deutsch">Inkompatible Patches hinterlassen jetzt keine Lücken mehr in der Patchliste</Bug>
+	<Bug language="Deutsch">Fehler behoben, durch den manchmal der Gothic-Pfad invalidiert wurde</Bug>
 	
 	<Enhancement language="English">Login tab of login dialog now is selected first per default</Enhancement>
 	<Enhancement language="English">Login should be triggerable now via Enter key</Enhancement>
@@ -1514,4 +1515,5 @@
 	<Bug language="English">team members now can see also the hidden achievements of their mods in the profile</Bug>
 	<Bug language="English">maybe fixed high memory consumption</Bug>
 	<Bug language="English">incompatible patches now don't leave wholes in the patch list anymore</Bug>
+	<Bug language="English">fixed bug that sometimes invalidated the Gothic path</Bug>
 </Version>

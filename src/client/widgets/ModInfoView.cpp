@@ -990,10 +990,20 @@ namespace {
 			}
 		}
 		removeModFiles();
+
+		// more of a hack in order to fix corruption/deletion of Gothic2.exe due to some mod/patch
+		Database::DBError err;
+		const ModVersion modGv = Database::queryNth<ModVersion, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion, MajorVersion, MinorVersion, PatchVersion FROM mods WHERE ModID = " + std::to_string(_modID) + " LIMIT 1;", err, 0);
+
+		if (modGv.gothicVersion == common::GothicVersion::GOTHIC) {
+			setGothicDirectory(_gothicDirectory);
+		} else if (modGv.gothicVersion == common::GothicVersion::GOTHIC2 || modGv.gothicVersion == common::GothicVersion::GOTHICINGOTHIC2) {
+			setGothic2Directory(_gothic2Directory);
+		}
+
 		_mainWindow->setEnabled(true);
 		_mainWindow->setWindowState(_oldWindowState);
 
-		Database::DBError err;
 		Database::execute(Config::BASEDIR.toStdString() + "/" + LASTPLAYED_DATABASE, "DELETE FROM lastPlayed;", err);
 		Database::execute(Config::BASEDIR.toStdString() + "/" + LASTPLAYED_DATABASE, "INSERT INTO lastPlayed (ModID, Ini) VALUES (" + std::to_string(_modID) + ", '" + _iniFile.toStdString() + "');", err);
 	}
