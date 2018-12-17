@@ -86,6 +86,30 @@
 
 namespace spine {
 namespace widgets {
+namespace {
+	
+	struct ModVersion {
+		common::GothicVersion gothicVersion;
+		int majorVersion;
+		int minorVersion;
+		int patchVersion;
+		ModVersion() : gothicVersion(), majorVersion(), minorVersion(), patchVersion() {
+		}
+		ModVersion(int i1, int i2, int i3, int i4) : gothicVersion(common::GothicVersion(i1)), majorVersion(i2), minorVersion(i3), patchVersion(i4) {
+		}
+	};
+
+	struct Patch {
+		int32_t modID;
+		std::string name;
+
+		Patch() : modID(-1), name() {
+		}
+		Patch(std::string m, std::string n) : modID(std::stoi(m)), name(n) {
+		}
+	};
+
+}
 
 	ModInfoView::ModInfoView(bool onlineMode, QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, LocationSettingsWidget * locationSettingsWidget, GamepadSettingsWidget * gamepadSettingsWidget, QSettings * iniParser, QWidget * par) : QWidget(par), _mainWindow(mainWindow), _nameLabel(nullptr), _versionLabel(nullptr), _teamLabel(nullptr), _contactLabel(nullptr), _homepageLabel(nullptr), _patchGroup(nullptr), _patchLayout(nullptr), _pdfGroup(nullptr), _pdfLayout(nullptr), _achievementLabel(nullptr), _scoresLabel(nullptr), _iniFile(), _isInstalled(false), _modID(-1), _gothicDirectory(), _gothic2Directory(), _username(), _timer(new QTime()), _patchList(), _pdfList(), _checkboxPatchIDMapping(), _developerModeActive(false), _listenSocket(nullptr), _socket(nullptr), _gothicIniBackup(), _systempackIniBackup(), _zSpyActivated(false), _language(), _copiedFiles(), _lastBaseDir(), _showAchievements(true), _hideIncompatible(true), _ratingWidget(), _screenshotManager(new ScreenshotManager(locationSettingsWidget, this)), _gamepad(nullptr), _gamepadSettingsWigdet(gamepadSettingsWidget), _iniParser(iniParser), _onlineMode(onlineMode), _networkAccessManager(new QNetworkAccessManager(this)), _patchCounter(0), _gmpCounterBackup(-1) {
 		QVBoxLayout * l = new QVBoxLayout();
@@ -463,16 +487,6 @@ namespace widgets {
 				_ratingWidget->setModName(_nameLabel->text());
 			}
 			Database::DBError err;
-			struct ModVersion {
-				common::GothicVersion gothicVersion;
-				int majorVersion;
-				int minorVersion;
-				int patchVersion;
-				ModVersion() : gothicVersion(), majorVersion(), minorVersion(), patchVersion() {
-				}
-				ModVersion(int i1, int i2, int i3, int i4) : gothicVersion(common::GothicVersion(i1)), majorVersion(i2), minorVersion(i3), patchVersion(i4) {
-				}
-			};
 			const ModVersion modGv = Database::queryNth<ModVersion, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion, MajorVersion, MinorVersion, PatchVersion FROM mods WHERE ModID = " + std::to_string(_modID) + " LIMIT 1;", err, 0);
 			std::vector<int> date = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT InstallDate FROM installDates WHERE ModID = " + std::to_string(_modID) + " LIMIT 1;", err);
 			if (date.empty()) {
@@ -482,38 +496,7 @@ namespace widgets {
 			}
 			_installDate->setText(QApplication::tr("Installed").arg(QDate(1970, 1, 1).addDays(date[0] / 24).toString("dd.MM.yyyy")));
 			_installDate->show();
-			struct Patch {
-				int32_t modID;
-				std::string name;
-
-				Patch() : modID(-1), name() {
-				}
-				Patch(std::string m, std::string n) : modID(std::stoi(m)), name(n) {
-				}
-			};
-			std::vector<Patch> patches = Database::queryAll<Patch, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, Name FROM patches WHERE ModID != 228 ORDER BY Name ASC;", err);
-			for (Patch p : patches) {
-				const common::GothicVersion gv = common::GothicVersion(std::stoi(Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + std::to_string(p.modID) + " LIMIT 1;", err, 0)));
-				if (gv == modGv.gothicVersion) {
-					QCheckBox * cb = new QCheckBox(s2q(p.name), this);
-					cb->setProperty("library", true);
-					_patchLayout->addWidget(cb, _patchCounter / 2, _patchCounter % 2);
-					++_patchCounter;
-					_patchList.append(cb);
-					const int count = Database::queryCount(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT Enabled FROM patchConfigs WHERE ModID = " + std::to_string(_modID) + " AND PatchID = " + std::to_string(p.modID) + " LIMIT 1;", err);
-					cb->setChecked(count);
-					_checkboxPatchIDMapping.insert(std::make_pair(cb, p.modID));
-					connect(cb, SIGNAL(stateChanged(int)), this, SLOT(changedPatchState()));
-					cb->setProperty("patchID", p.modID);
-				}
-			}
-			if (_patchCounter % 2 == 1) {
-				++_patchCounter;
-			}
-			if (!_patchList.empty()) {
-				_patchGroup->show();
-				_patchGroup->setToolTip(QApplication::tr("PatchesAndToolsTooltip").arg(_nameLabel->text()));
-			}
+			
 			{
 				QDirIterator it(Config::MODDIR + "/mods/" + QString::number(_modID) + "/", QStringList() << "*.pdf", QDir::Filter::Files);
 				while (it.hasNext()) {
@@ -563,15 +546,6 @@ namespace widgets {
 		} else {
 			Database::DBError err;
 			const common::GothicVersion gothicVersion = getGothicVersion(getUsedBaseDir());
-			struct Patch {
-				int32_t modID;
-				std::string name;
-
-				Patch() : modID(-1), name() {
-				}
-				Patch(std::string m, std::string n) : modID(std::stoi(m)), name(n) {
-				}
-			};
 			std::vector<Patch> patches = Database::queryAll<Patch, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, Name FROM patches;", err);
 			for (const Patch & p : patches) {
 				const common::GothicVersion gv = common::GothicVersion(std::stoi(Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + std::to_string(p.modID) + " LIMIT 1;", err, 0)));
@@ -1271,28 +1245,45 @@ namespace widgets {
 			return;
 		}
 		for (QCheckBox * cb : _patchList) {
-			cb->setVisible(true);
+			_patchLayout->removeWidget(cb);
+			delete cb;
 		}
+		_patchList.clear();
 		if (!_hideIncompatible) {
 			return;
 		}
-		for (QCheckBox * cb : _patchList) {
-			for (size_t i = 0; i < incompatiblePatches.size(); i++) {
-				if (incompatiblePatches[i] == cb->property("patchID").toInt()) {
-					cb->setChecked(false); // just in case
-					cb->setVisible(false);
-					incompatiblePatches.erase(incompatiblePatches.begin() + i);
-					break;
-				}
+		Database::DBError err;
+		const ModVersion modGv = Database::queryNth<ModVersion, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion, MajorVersion, MinorVersion, PatchVersion FROM mods WHERE ModID = " + std::to_string(_modID) + " LIMIT 1;", err, 0);
+
+		const auto contains = [](const std::vector<int32_t> & list, int32_t id) {
+			const auto it = std::find_if(list.begin(), list.end(), [id](const int32_t & a) {
+				return a == id;
+			});
+			return it != list.end();
+		};
+
+		std::vector<Patch> patches = Database::queryAll<Patch, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, Name FROM patches WHERE ModID != 228 ORDER BY Name ASC;", err);
+		for (Patch p : patches) {
+			const common::GothicVersion gv = common::GothicVersion(std::stoi(Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + std::to_string(p.modID) + " LIMIT 1;", err, 0)));
+			if (gv == modGv.gothicVersion && !contains(incompatiblePatches, p.modID) && !contains(forbiddenPatches, p.modID)) {
+				QCheckBox * cb = new QCheckBox(s2q(p.name), this);
+				cb->setProperty("library", true);
+				_patchLayout->addWidget(cb, _patchCounter / 2, _patchCounter % 2);
+				++_patchCounter;
+				_patchList.append(cb);
+				const int count = Database::queryCount(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT Enabled FROM patchConfigs WHERE ModID = " + std::to_string(_modID) + " AND PatchID = " + std::to_string(p.modID) + " LIMIT 1;", err);
+				cb->setChecked(count);
+				_checkboxPatchIDMapping.insert(std::make_pair(cb, p.modID));
+				connect(cb, SIGNAL(stateChanged(int)), this, SLOT(changedPatchState()));
+				cb->setProperty("patchID", p.modID);
 			}
-			for (size_t i = 0; i < forbiddenPatches.size(); i++) {
-				if (forbiddenPatches[i] == cb->property("patchID").toInt()) {
-					cb->setChecked(false); // just in case
-					cb->setVisible(false);
-					forbiddenPatches.erase(forbiddenPatches.begin() + i);
-					break;
-				}
-			}
+		}
+		if (_patchCounter % 2 == 1) {
+			++_patchCounter;
+		}
+		if (!_patchList.empty()) {
+			_patchGroup->show();
+			_patchGroup->setToolTip(QApplication::tr("PatchesAndToolsTooltip").arg(_nameLabel->text()));
 		}
 	}
 
@@ -2063,6 +2054,7 @@ namespace widgets {
 							}
 							delete m;
 						} catch (...) {
+							emit receivedCompatibilityList(modID, {}, {});
 							return;
 						}
 					} else {
@@ -2083,12 +2075,15 @@ namespace widgets {
 							}
 							delete m;
 						} catch (...) {
+							emit receivedCompatibilityList(modID, {}, {});
 							return;
 						}
 					} else {
 						qDebug() << "Error occurred: " << int(cErr);
 					}
 				}
+			} else {
+				emit receivedCompatibilityList(modID, {}, {});
 			}
 		}).detach();
 	}
