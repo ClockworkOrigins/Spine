@@ -73,7 +73,7 @@ int main(const int argc, char ** argv) {
 	const QRegularExpression outputRegex("AI_Output[\\s]*\\([^,]+,[^,]+,[^\"]*\"[^\"]+\"[\\s]*\\); //([^\\\n]+)");
 	const QRegularExpression svmStartRegex(R"(instance[\s]+SVM_(\d+)[\s]*\(C_SVM\))", QRegularExpression::CaseInsensitiveOption);
 	const QRegularExpression svmRegex("[\\s]*[^\\s]+[\\s]*=[\\s]*\"([^\"]+)\"[\\s]*;[\\s]*//([^\\\n]+)", QRegularExpression::CaseInsensitiveOption);
-	const QRegularExpression svmSmalltakRegex("SVM_\\d+_Smalltalk", QRegularExpression::CaseInsensitiveOption);
+	const QRegularExpression svmSmalltakRegex("_Smalltalk", QRegularExpression::CaseInsensitiveOption);
 	QDirIterator it(inputFolder, QStringList() << "*.d", QDir::Filter::Files, QDirIterator::IteratorFlag::Subdirectories);
 	while (it.hasNext()) {
 		it.next();

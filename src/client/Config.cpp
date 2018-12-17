@@ -46,7 +46,7 @@ namespace spine {
 			TamperCheckWrapper() {
 				t = std::thread([this]() {
 #ifdef SPINE_RELEASE
-					while (running) {
+					while (running || false) {
 						if (IsDebuggerPresent()) {
 							// do some weird stuff here
 							char * buf = new char[1024 * 1024 * 1024];

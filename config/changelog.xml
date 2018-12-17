@@ -1501,6 +1501,7 @@
 	<Bug language="Deutsch">Crash behoben, wenn in Gothic 1 ein Spiel gespeichert wird, aber noch kein saves-Ordner existiert</Bug>
 	<Bug language="Deutsch">Lange Erfolgsbeschreibungen werden jetzt umgebrochen</Bug>
 	<Bug language="Deutsch">Teammitglieder können jetzt auch verstecke Erfolge ihrer Mods im Profil einsehen</Bug>
+	<Bug language="Deutsch">Hohen Speicherverbrauch evtl. behoben</Bug>
 	
 	<Enhancement language="English">Login tab of login dialog now is selected first per default</Enhancement>
 	<Enhancement language="English">Login should be triggerable now via Enter key</Enhancement>
@@ -1510,4 +1511,5 @@
 	<Bug language="English">fixed crash when saving in Gothic 1 and no saves folder exists</Bug>
 	<Bug language="English">long achievement descriptions now get a line break</Bug>
 	<Bug language="English">team members now can see also the hidden achievements of their mods in the profile</Bug>
+	<Bug language="English">maybe fixed high memory consumption</Bug>
 </Version>

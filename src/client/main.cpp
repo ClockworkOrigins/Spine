@@ -113,20 +113,6 @@ int main(int argc, char ** argv) {
 		}
 	}
 
-	bool running = true;
-	QFuture<void> debuggerDefense = QtConcurrent::run([&running]() {
-#ifdef SPINE_RELEASE
-		while (running) {
-			if (IsDebuggerPresent()) {
-				// do some weird stuff here
-				char * buf = new char[1024 * 1024 * 1024];
-				std::cout << buf;
-			}
-			std::this_thread::sleep_for(std::chrono::seconds(5));
-		}
-#endif
-	});
-
 	QDate date(2000, 1, 1);
 	qDebug() << date.daysTo(QDate(2017, 9, 24));
 	qInstallMessageHandler(myMessageOutput);
@@ -136,8 +122,6 @@ int main(int argc, char ** argv) {
 	QApplication app(argc, argv);
 	const int configSucceeded = spine::Config::Init();
 	if (configSucceeded != 0) {
-		running = false;
-		debuggerDefense.waitForFinished();
 		return -1;
 	}
 
@@ -162,7 +146,5 @@ int main(int argc, char ** argv) {
 		wnd.show();
 		ret = QApplication::exec();
 	}
-	running = false;
-	debuggerDefense.waitForFinished();
 	return ret;
 }
