@@ -49,7 +49,7 @@ func void Spine_ShowAchievementView(var int identifier) {
 		startPosY = screen.psizey - SPINE_ACHIEVEMENT_HEIGHT;
 	};
 	Spine_AchievementView = View_CreatePxl(startPosX, startPosY, startPosX + SPINE_ACHIEVEMENT_WIDTH, startPosY + SPINE_ACHIEVEMENT_HEIGHT);
-	View_SetTexture(Spine_AchievementView, "ACHIEVEMENT_BACKGROUND.TGA");
+	View_SetTexture(Spine_AchievementView, SPINE_ACHIEVEMENT_BACKGROUND);
 	View_Open(Spine_AchievementView);
 	
 	var int imageStartPosX;

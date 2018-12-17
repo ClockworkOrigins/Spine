@@ -444,6 +444,12 @@ namespace models {
 							line = line.split(";").front(); // "MODNAME"
 							_modName = line;
 							_modName.remove("\""); // MODNAME
+						} else if (line.contains("SPINE_ACHIEVEMENT_BACKGROUND", Qt::CaseSensitivity::CaseInsensitive)) {
+							line = line.replace(QRegExp("[ \t]"), "");
+							line = line.split("=").back(); // "TEXTURE";//blafoo
+							line = line.split(";").front(); // "TEXTURE"
+							_achievmentBackground = line;
+							_achievmentBackground.remove("\""); // MODNAME
 						}
 					}
 				}
@@ -488,6 +494,8 @@ namespace models {
 					ts << "const int SPINE_EARTHQUAKE_VIBRATION = " << (_earthquakeVibration ? "TRUE" : "FALSE") << ";\n";
 					ts << "\n";
 					ts << "const int SPINE_MODNAME = \"" << _modName << "\";\n";
+					ts << "\n";
+					ts << "const int SPINE_ACHIEVEMENT_BACKGROUND = \"" << (_achievmentBackground.isEmpty() ? "ACHIEVEMENT_BACKGROUND.TGA" : _achievmentBackground) << "\";\n";
 					ts << "\n";
 
 					while (_achievements.size() < 3) {

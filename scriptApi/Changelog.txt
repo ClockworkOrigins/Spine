@@ -1,6 +1,7 @@
 Version 1.14.7
 
 - added convenient function to increment achievement progress by one
+- added new user constant to override used background texture for achievements: SPINE_ACHIEVEMENT_BACKGROUND
 
 Version 1.14.6
 

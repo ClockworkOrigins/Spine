@@ -140,6 +140,7 @@ namespace models {
 		bool _earthquakeVibration;
 		int32_t _legoModules;
 		QString _modName;
+		QString _achievmentBackground;
 
 		QString getSpineInitString() const;
 		QString getLeGoInitString() const;

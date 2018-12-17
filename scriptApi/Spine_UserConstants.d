@@ -7,6 +7,11 @@ const int SPINE_EARTHQUAKE_VIBRATION = TRUE; // earthquake triggers vibration of
 
 const string SPINE_MODNAME = "MODNAME"; // modname is necessary for achievements to work without using Spine
 
+// texture used as background for achievements
+// ACHIEVEMENT_BACKGROUND.TGA is delivered with Spine and might override custom texture when name is not changed
+// in order to use your own background texture, change the value of this variable
+const string SPINE_ACHIEVEMENT_BACKGROUND = "ACHIEVEMENT_BACKGROUND.TGA";
+
 // define the strings for the achievements
 // don't use an identifier for unlockAchievement greater than the maximum index of the array
 const int MAX_ACHIEVEMENTS = 3;
