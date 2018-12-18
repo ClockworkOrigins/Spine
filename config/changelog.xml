@@ -1495,6 +1495,7 @@
 <Version majorVersion="1" minorVersion="14" patchVersion="7">
 	<Enhancement language="Deutsch">Login-Tab im Login-Dialog ist jetzt standardmäßig zuerst ausgewählt</Enhancement>
 	<Enhancement language="Deutsch">Login sollte jetzt mit Enter ausgelöst werden können</Enhancement>
+	<Enhancement language="Deutsch">Möglichkeit eingeführt Patches sowohl für Gothic 1 als auch 2 gleichzeitig kompatibel zu machen</Enhancement>
 	<Bug language="Deutsch">Teammitglieder bekommen jetzt immer auch die Update-Benachrichtigungen ihrer eigenen Mods, auch wenn sie nicht nochmal explizit für die Mod freigeschaltet wurden</Bug>
 	<Bug language="Deutsch">Wenn eine Mod deinstalliert wurde, dann wird auf der Startseite jetzt nicht mehr der Button zum Fortsetzen der Mod angezeigt</Bug>
 	<Bug language="Deutsch">Wenn eine Mod von der Bibliothek aus deinstalliert wurde, dann werden die Mods jetzt nicht mehr doppelt angezeigt</Bug>
@@ -1507,6 +1508,7 @@
 	
 	<Enhancement language="English">Login tab of login dialog now is selected first per default</Enhancement>
 	<Enhancement language="English">Login should be triggerable now via Enter key</Enhancement>
+	<Enhancement language="English">Added possibility to make patches compatible both with Gothic 1 and 2</Enhancement>
 	<Bug language="English">team members now always get update notifications for their own mods even when not explicitly unlocked for this mod</Bug>
 	<Bug language="English">in case a mod was uninstalled the start page doesn't show the button to continue the mod anymore</Bug>
 	<Bug language="English">in case a mod was uninstalled from the library other mods won't be shown twice anymore</Bug>

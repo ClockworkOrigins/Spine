@@ -482,8 +482,12 @@ W przypadku znalezienia aktualizacji Spine automatycznie rozpocznie pobieranie, 
         <translation>Twoja wiadomość nie mogła zostać przekazana. Upewnij się, że jesteś podłączony do internetu.</translation>
     </message>
     <message>
-        <source>GothicAndGothic2</source>
+        <source>GothicInGothic2</source>
         <translation>Gothic II (wymagany Gothic, aby zagrać)</translation>
+    </message>
+    <message>
+        <source>GothicAndGothic2</source>
+        <translation>Gothic I && II</translation>
     </message>
     <message>
         <source>CheckIntegrity</source>

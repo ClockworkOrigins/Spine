@@ -58,7 +58,7 @@ namespace widgets {
 				_gothicVersionBox->setEditable(false);
 
 				QStringList items;
-				items << QApplication::tr("Gothic") << QApplication::tr("Gothic2");
+				items << QApplication::tr("Gothic") << QApplication::tr("Gothic2") << QApplication::tr("GothicInGothic2") << QApplication::tr("GothicAndGothic2");
 
 				_gothicVersionBox->addItems(items);
 
@@ -150,9 +150,9 @@ namespace widgets {
 		ugmcm.duration = _devDurationBox->value();
 		QDate date(2000, 1, 1);
 		ugmcm.releaseDate = uint32_t(date.daysTo(_releaseDateEdit->date()));
-		std::string serialized = ugmcm.SerializePublic();
+		const std::string serialized = ugmcm.SerializePublic();
 		clockUtils::sockets::TcpSocket sock;
-		clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
+		const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
 		if (clockUtils::ClockError::SUCCESS == cErr) {
 			sock.writePacket(serialized);
 		}

@@ -482,8 +482,12 @@ Wenn ein Update gefunden wird, wird Spine automatisch den Download starten und s
         <translation>Deine Nachricht konnte nicht versendet werden. Stelle sicher, dass du mit dem Internet verbunden bist.</translation>
     </message>
     <message>
-        <source>GothicAndGothic2</source>
+        <source>GothicInGothic2</source>
         <translation>Gothic II (benötigt Gothic zum Spielen)</translation>
+    </message>
+    <message>
+        <source>GothicAndGothic2</source>
+        <translation>Gothic I && II</translation>
     </message>
     <message>
         <source>CheckIntegrity</source>

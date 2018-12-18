@@ -482,8 +482,12 @@ If an update is found, Spine will automatically download the update and restart 
         <translation>Your message couldn't be sent. Please ensure you're connected with the internet.</translation>
     </message>
     <message>
-        <source>GothicAndGothic2</source>
+        <source>GothicInGothic2</source>
         <translation>Gothic II (requires Gothic for playing)</translation>
+    </message>
+    <message>
+        <source>GothicAndGothic2</source>
+        <translation>Gothic I && II</translation>
     </message>
     <message>
         <source>CheckIntegrity</source>

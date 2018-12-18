@@ -61,7 +61,7 @@ namespace spine {
 	bool LibraryFilterModel::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const {
 		bool result = true;
 		QStandardItemModel * model = dynamic_cast<QStandardItemModel *>(sourceModel());
-		result = result && ((common::GothicVersion(model->data(model->index(source_row, 0), GothicRole).toInt()) == common::GothicVersion::GOTHIC && _gothicActive) || (common::GothicVersion(model->data(model->index(source_row, 0), GothicRole).toInt()) == common::GothicVersion::GOTHIC2 && _gothic2Active) || (common::GothicVersion(model->data(model->index(source_row, 0), GothicRole).toInt()) == common::GothicVersion::GOTHICINGOTHIC2 && _gothicAndGothic2Active));
+		result = result && ((common::GothicVersion(model->data(model->index(source_row, 0), GothicRole).toInt()) == common::GothicVersion::GOTHIC && _gothicActive) || (common::GothicVersion(model->data(model->index(source_row, 0), GothicRole).toInt()) == common::GothicVersion::GOTHIC2 && _gothic2Active) || (common::GothicVersion(model->data(model->index(source_row, 0), GothicRole).toInt()) == common::GothicVersion::GOTHICINGOTHIC2 && _gothicAndGothic2Active) || (common::GothicVersion(model->data(model->index(source_row, 0), GothicRole).toInt()) == common::GothicVersion::Gothic1And2 && (_gothicActive || _gothic2Active || _gothicAndGothic2Active)));
 		result = result && (_showHidden || !model->data(model->index(source_row, 0), HiddenRole).toBool());
 		result = result && QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
 		return result;

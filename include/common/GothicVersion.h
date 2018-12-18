@@ -25,7 +25,8 @@ namespace common {
 	enum class GothicVersion {
 		GOTHIC,
 		GOTHIC2,
-		GOTHICINGOTHIC2
+		GOTHICINGOTHIC2,
+		Gothic1And2
 	};
 
 } /* namespace common */

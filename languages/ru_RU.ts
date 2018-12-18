@@ -480,8 +480,12 @@
         <translation>Ваше сообщение не может быть отправлено. Пожалуйста, убедитесь, что вы подключены к Интернет.</translation>
     </message>
     <message>
-        <source>GothicAndGothic2</source>
+        <source>GothicInGothic2</source>
         <translation>Gothic 2 (необходима "Готика" для игры)</translation>
+    </message>
+    <message>
+        <source>GothicAndGothic2</source>
+        <translation>Gothic I && II</translation>
     </message>
     <message>
         <source>CheckIntegrity</source>

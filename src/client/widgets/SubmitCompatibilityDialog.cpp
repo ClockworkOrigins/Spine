@@ -215,6 +215,9 @@ namespace widgets {
 				_g2Mods.append(mod);
 			} else if (mod.gothic == common::GothicVersion::GOTHIC2 && (mod.type == common::ModType::PATCH || mod.type == common::ModType::TOOL)) {
 				_g2Patches.append(mod);
+			} else if (mod.gothic == common::GothicVersion::Gothic1And2 && (mod.type == common::ModType::PATCH || mod.type == common::ModType::TOOL)) {
+				_g1Patches.append(mod);
+				_g2Patches.append(mod);
 			}
 		}
 		const std::function<bool(const common::Mod & a, const common::Mod & b)> compareFunc = [](const common::Mod & a, const common::Mod & b) {
@@ -316,7 +319,7 @@ namespace widgets {
 			scm.modID = modID;
 			scm.patchID = patchID;
 			scm.compatible = compatible;
-			std::string serialized = scm.SerializePublic();
+			const std::string serialized = scm.SerializePublic();
 			clockUtils::sockets::TcpSocket sock;
 			clockUtils::ClockError err = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
 			if (clockUtils::ClockError::SUCCESS == err) {

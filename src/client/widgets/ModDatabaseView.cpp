@@ -518,6 +518,10 @@ namespace widgets {
 				break;
 			}
 			case common::GothicVersion::GOTHICINGOTHIC2: {
+				gameName = QApplication::tr("GothicInGothic2");
+				break;
+			}
+			case common::GothicVersion::Gothic1And2: {
 				gameName = QApplication::tr("GothicAndGothic2");
 				break;
 			}
@@ -558,7 +562,7 @@ namespace widgets {
 			for (int i = 0; i < _sourceModel->columnCount(); i++) {
 				_sourceModel->setData(_sourceModel->index(row, i), Qt::AlignCenter, Qt::TextAlignmentRole);
 			}
-			if ((mod.gothic == common::GothicVersion::GOTHIC && !_gothicValid) || (mod.gothic == common::GothicVersion::GOTHIC2 && !_gothic2Valid) || (mod.gothic == common::GothicVersion::GOTHICINGOTHIC2 && (!_gothicValid || !_gothic2Valid)) || Config::MODDIR.isEmpty() || !QDir(Config::MODDIR).exists()) {
+			if ((mod.gothic == common::GothicVersion::GOTHIC && !_gothicValid) || (mod.gothic == common::GothicVersion::GOTHIC2 && !_gothic2Valid) || (mod.gothic == common::GothicVersion::GOTHICINGOTHIC2 && (!_gothicValid || !_gothic2Valid)) || (mod.gothic == common::GothicVersion::Gothic1And2 && !_gothicValid && !_gothic2Valid) || Config::MODDIR.isEmpty() || !QDir(Config::MODDIR).exists()) {
 				nameItem->setEnabled(false);
 				teamItem->setEnabled(false);
 				typeItem->setEnabled(false);
@@ -956,7 +960,7 @@ namespace widgets {
 		} else {
 			mod = _mods[index.row()];
 		}
-		if ((mod.gothic == common::GothicVersion::GOTHIC && !_gothicValid) || (mod.gothic == common::GothicVersion::GOTHIC2 && !_gothic2Valid)) {
+		if ((mod.gothic == common::GothicVersion::GOTHIC && !_gothicValid) || (mod.gothic == common::GothicVersion::GOTHIC2 && !_gothic2Valid) || (mod.gothic == common::GothicVersion::Gothic1And2 && !_gothic2Valid && !_gothicValid)) {
 			finishedInstallation(mod.id, -1, false);
 			return;
 		}
@@ -1016,7 +1020,7 @@ namespace widgets {
 		if (!index.isValid()) return;
 
 		common::Mod mod = _mods[(index.model() == _sortModel) ? _sortModel->mapToSource(index.parent()).row() : index.parent().row()];
-		if ((mod.gothic == common::GothicVersion::GOTHIC && !_gothicValid) || (mod.gothic == common::GothicVersion::GOTHIC2 && !_gothic2Valid)) {
+		if ((mod.gothic == common::GothicVersion::GOTHIC && !_gothicValid) || (mod.gothic == common::GothicVersion::GOTHIC2 && !_gothic2Valid) || (mod.gothic == common::GothicVersion::Gothic1And2 && !_gothicValid && !_gothic2Valid)) {
 			finishedInstallation(mod.id, -1, false);
 			return;
 		}

@@ -534,7 +534,7 @@ namespace {
 #else
 				_startButton->setEnabled(true);
 #endif
-				const QString gothicName = (modGv.gothicVersion == common::GothicVersion::GOTHIC) ? QApplication::tr("Gothic") : QApplication::tr("Gothic2");
+				const QString gothicName = modGv.gothicVersion == common::GothicVersion::GOTHIC ? QApplication::tr("Gothic") : QApplication::tr("Gothic2");
 				_adminInfoLabel->setText(QApplication::tr("GothicAdminInfo").arg(gothicName));
 				_adminInfoLabel->show();
 			} else {
@@ -549,7 +549,7 @@ namespace {
 			std::vector<Patch> patches = Database::queryAll<Patch, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, Name FROM patches;", err);
 			for (const Patch & p : patches) {
 				const common::GothicVersion gv = common::GothicVersion(std::stoi(Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + std::to_string(p.modID) + " LIMIT 1;", err, 0)));
-				if (gv == gothicVersion) {
+				if (gv == gothicVersion || ((gothicVersion == common::GothicVersion::GOTHIC || gothicVersion == common::GothicVersion::GOTHIC2 || gothicVersion == common::GothicVersion::GOTHICINGOTHIC2) && gv == common::GothicVersion::Gothic1And2)) {
 					QCheckBox * cb = new QCheckBox(s2q(p.name), this);
 					cb->setProperty("library", true);
 					_patchLayout->addWidget(cb);
@@ -1275,7 +1275,7 @@ namespace {
 		std::vector<Patch> patches = Database::queryAll<Patch, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, Name FROM patches WHERE ModID != 228 ORDER BY Name ASC;", err);
 		for (Patch p : patches) {
 			const common::GothicVersion gv = common::GothicVersion(std::stoi(Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + std::to_string(p.modID) + " LIMIT 1;", err, 0)));
-			if (gv == modGv.gothicVersion && !contains(incompatiblePatches, p.modID) && !contains(forbiddenPatches, p.modID)) {
+			if ((gv == modGv.gothicVersion || ((modGv.gothicVersion == common::GothicVersion::GOTHIC || modGv.gothicVersion == common::GothicVersion::GOTHIC2 || modGv.gothicVersion == common::GothicVersion::GOTHICINGOTHIC2) && gv == common::GothicVersion::Gothic1And2)) && !contains(incompatiblePatches, p.modID) && !contains(forbiddenPatches, p.modID)) {
 				QCheckBox * cb = new QCheckBox(s2q(p.name), this);
 				cb->setProperty("library", true);
 				_patchLayout->addWidget(cb, _patchCounter / 2, _patchCounter % 2);
@@ -1599,7 +1599,7 @@ namespace {
 	}
 
 	common::GothicVersion ModInfoView::getGothicVersion(QString path) const {
-		return QFile(path + "/System/Gothic2.exe").exists() ? common::GothicVersion::GOTHIC2 : ((QFile(path + "/System/Gothic.exe").exists()) ? common::GothicVersion::GOTHIC : common::GothicVersion(1));
+		return QFile(path + "/System/Gothic2.exe").exists() ? common::GothicVersion::GOTHIC2 : (QFile(path + "/System/Gothic.exe").exists()) ? common::GothicVersion::GOTHIC : common::GothicVersion(1);
 	}
 
 	void ModInfoView::acceptedConnection(clockUtils::sockets::TcpSocket * sock, clockUtils::ClockError err) {
