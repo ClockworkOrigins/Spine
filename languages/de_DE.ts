@@ -487,7 +487,7 @@ Wenn ein Update gefunden wird, wird Spine automatisch den Download starten und s
     </message>
     <message>
         <source>GothicAndGothic2</source>
-        <translation>Gothic I && II</translation>
+        <translation>Gothic I &amp; II</translation>
     </message>
     <message>
         <source>CheckIntegrity</source>

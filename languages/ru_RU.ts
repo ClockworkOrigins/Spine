@@ -485,7 +485,7 @@
     </message>
     <message>
         <source>GothicAndGothic2</source>
-        <translation>Gothic I && II</translation>
+        <translation>Gothic I &amp; II</translation>
     </message>
     <message>
         <source>CheckIntegrity</source>
