@@ -393,9 +393,9 @@ namespace widgets {
 	void SpineEditor::installSpineScripts() {
 		static QList<QPair<QString, QString>> spineFiles = {
 			{ "Spine.src.z", "0dbf6e8c3bf73e164e0db0c89eac582fb3473e18a1c91e5bfc2d94bf4ff0c95674f205d4dbf81d9f90592f909577beba0f19ea35008969753e8c4e7bcbcaaf33" },
-			{ "Spine_Achievements.d.z", "095b433781371bf08a76125b9a35706b1d684d0c8bfc2a97f6610f62b1f6373b488f29b675deac75acc772172714c12affa280b37fced285a688bfdbdecad130" },
+			{ "Spine_Achievements.d.z", "ab3831670bf528eaf1a7899caa57ba1764d9f76bad1ee5271b46f3bfac6cf446914fb2a3aa5d8cec4a90a17837e6c603daf1dbccd97daefbe03d8fd7e4236009" },
 			{ "Spine_API.d.z", "a3ea16983544768f953a2cfc4f41919ef394754a33335862661ea0b9561f992da4329f34f84af5132f9dd581c34d4e8eac65e9fef8651447582b51ad393c7c7b" },
-			{ "Spine_Constants.d.z", "956a08644680b690b3a6e27b9a2d7e3ecf7c3ceb8e618562f2bc7ee5729400056310c841ee5c158ec4dc401334b061ffe4ec27e4d7df767bd8b480dcba4c72a8" },
+			{ "Spine_Constants.d.z", "3cb24d759ef83af8851e1a3fd9a398092c1c7ef372ec330824ee75127f35d30c5d9304654fc508c62aaea8248cdcb551bf61f1e43f395d7c515f535b0bb68845" },
 			{ "Spine_Friends.d.z", "bc16f258031a5fb8b1f55b30f4e660295587a4c34da49fe9bffd5dedcc4717edc7d417bda8ba154d80cefb47dae43912e29d3876a68736f345f119fdcf4f996b" },
 			{ "Spine_Gamepad.d.z", "490afa62bcdaa382de6d6e348708a48683ab78ec09f668871afd96f0fb5cb8eb7ef29d73c83b25c347a80c54bb421f3e3c13d319091924f8e5657a0f9c190d78" },
 			{ "Spine_Message.d.z", "e6ede77bd7443a7e475e895ff251e2976a2a5308c16635fadfe0854bd58b4e538baf605f9e4cd4213eeccbf8d89118c1e7074eebf88a83598e859811bef18108" },
@@ -405,7 +405,7 @@ namespace widgets {
 			{ "Spine_Statistics.d.z", "c23bd0f3305820c7ac5def8e23667f86464b2bb576f36f4074c82d1c0588b564fd25065cc6c9398089f759624f8fcc95c25a20c455b7cc9bd540740a9079279d" },
 			{ "Spine_Statistics_UserDefined.d.z", "ad34af22f3b2c695a6f4ab34079fab262f89399c4cdf17d6a2c167d9ab06d33d0ad28f9fac3d1ea55a4016a5beff06d2172702d6abef537abb570779dd605701" },
 			{ "Spine_TestMode.d.z", "fbaab320f5d8d2f0f0bc3ad89a45cf619fda4f8e3986961036e2c64833ed04261f143947ab1fa1ccef1fdf907cabd099b0c4ce12bb6f763cb480aaff2386738c" },
-			{ "Spine_UserConstants.d.z", "bf54eb2061e6b4d163df8f0cb7c42af85c3a3c06331ce722ff4e53d6da817872810a3f0162e1b1637d8b7e875f202f00647435e5303ad5254d4496b82d79705a" },
+			{ "Spine_UserConstants.d.z", "bdc1c4ef20ab6388ae66550b6a27ffb4f52dd28522243c4efccfe4e3cb3241d76d07e83201dade73d1d6c7f73bb176a2de573b00bc8a1f1948bc71218c3932cc" },
 			{ "Spine_Utils.d.z", "84df11c2081401c7accbf3a27555095db4fc391808099d42c627f1241d7ac089c3d4f3bb200f2bb880df0f2ad75bfffef8960c6aad80b6e946fa7ac1e0248f4d" }
 		};
 		MultiFileDownloader * mfd = new MultiFileDownloader(this);
@@ -451,9 +451,9 @@ namespace widgets {
 	void SpineEditor::updateSpineScripts() {
 		static QList<QPair<QString, QString>> spineFiles = {
 			{ "Spine.src.z", "0dbf6e8c3bf73e164e0db0c89eac582fb3473e18a1c91e5bfc2d94bf4ff0c95674f205d4dbf81d9f90592f909577beba0f19ea35008969753e8c4e7bcbcaaf33" },
-			{ "Spine_Achievements.d.z", "095b433781371bf08a76125b9a35706b1d684d0c8bfc2a97f6610f62b1f6373b488f29b675deac75acc772172714c12affa280b37fced285a688bfdbdecad130" },
+			{ "Spine_Achievements.d.z", "ab3831670bf528eaf1a7899caa57ba1764d9f76bad1ee5271b46f3bfac6cf446914fb2a3aa5d8cec4a90a17837e6c603daf1dbccd97daefbe03d8fd7e4236009" },
 			{ "Spine_API.d.z", "a3ea16983544768f953a2cfc4f41919ef394754a33335862661ea0b9561f992da4329f34f84af5132f9dd581c34d4e8eac65e9fef8651447582b51ad393c7c7b" },
-			{ "Spine_Constants.d.z", "956a08644680b690b3a6e27b9a2d7e3ecf7c3ceb8e618562f2bc7ee5729400056310c841ee5c158ec4dc401334b061ffe4ec27e4d7df767bd8b480dcba4c72a8" },
+			{ "Spine_Constants.d.z", "3cb24d759ef83af8851e1a3fd9a398092c1c7ef372ec330824ee75127f35d30c5d9304654fc508c62aaea8248cdcb551bf61f1e43f395d7c515f535b0bb68845" },
 			{ "Spine_Friends.d.z", "bc16f258031a5fb8b1f55b30f4e660295587a4c34da49fe9bffd5dedcc4717edc7d417bda8ba154d80cefb47dae43912e29d3876a68736f345f119fdcf4f996b" },
 			{ "Spine_Gamepad.d.z", "490afa62bcdaa382de6d6e348708a48683ab78ec09f668871afd96f0fb5cb8eb7ef29d73c83b25c347a80c54bb421f3e3c13d319091924f8e5657a0f9c190d78" },
 			{ "Spine_Message.d.z", "e6ede77bd7443a7e475e895ff251e2976a2a5308c16635fadfe0854bd58b4e538baf605f9e4cd4213eeccbf8d89118c1e7074eebf88a83598e859811bef18108" },
