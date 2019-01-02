@@ -1519,3 +1519,8 @@
 	<Bug language="English">incompatible patches now don't leave wholes in the patch list anymore</Bug>
 	<Bug language="English">fixed bug that sometimes invalidated the Gothic path</Bug>
 </Version>
+<Version majorVersion="1" minorVersion="14" patchVersion="8">
+	<Bug language="Deutsch">Einblenden inkompatibler Patches und Tools funktioniert jetzt wieder</Bug>
+	
+	<Bug language="English">Displaying incompatible patches and tools now works again</Bug>
+</Version>

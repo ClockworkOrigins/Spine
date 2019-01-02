@@ -1259,9 +1259,7 @@ namespace {
 			delete cb;
 		}
 		_patchList.clear();
-		if (!_hideIncompatible) {
-			return;
-		}
+
 		Database::DBError err;
 		const ModVersion modGv = Database::queryNth<ModVersion, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion, MajorVersion, MinorVersion, PatchVersion FROM mods WHERE ModID = " + std::to_string(_modID) + " LIMIT 1;", err, 0);
 
@@ -1275,7 +1273,7 @@ namespace {
 		std::vector<Patch> patches = Database::queryAll<Patch, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, Name FROM patches WHERE ModID != 228 ORDER BY Name ASC;", err);
 		for (Patch p : patches) {
 			const common::GothicVersion gv = common::GothicVersion(std::stoi(Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + std::to_string(p.modID) + " LIMIT 1;", err, 0)));
-			if ((gv == modGv.gothicVersion || ((modGv.gothicVersion == common::GothicVersion::GOTHIC || modGv.gothicVersion == common::GothicVersion::GOTHIC2 || modGv.gothicVersion == common::GothicVersion::GOTHICINGOTHIC2) && gv == common::GothicVersion::Gothic1And2)) && !contains(incompatiblePatches, p.modID) && !contains(forbiddenPatches, p.modID)) {
+			if ((gv == modGv.gothicVersion || ((modGv.gothicVersion == common::GothicVersion::GOTHIC || modGv.gothicVersion == common::GothicVersion::GOTHIC2 || modGv.gothicVersion == common::GothicVersion::GOTHICINGOTHIC2) && gv == common::GothicVersion::Gothic1And2)) && (!contains(incompatiblePatches, p.modID) || !_hideIncompatible) && !contains(forbiddenPatches, p.modID)) {
 				QCheckBox * cb = new QCheckBox(s2q(p.name), this);
 				cb->setProperty("library", true);
 				_patchLayout->addWidget(cb, _patchCounter / 2, _patchCounter % 2);
