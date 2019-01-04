@@ -776,7 +776,7 @@ namespace {
 					common::UpdatePlayingTimeMessage uptm;
 					uptm.dayOfTheWeek = QDate::currentDate().dayOfWeek();
 					uptm.hour = QTime::currentTime().hour();
-					std::string serialized = uptm.SerializePublic();
+					const std::string serialized = uptm.SerializePublic();
 					sock.writePacket(serialized);
 				}
 			}).detach();
@@ -2116,6 +2116,7 @@ namespace {
 			Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "DELETE FROM usedFiles WHERE File = '" + f.toStdString() + "';", err);
 		}
 		_copiedFiles.clear();
+
 		Database::DBError err;
 		const std::vector<std::string> patches = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT PatchID FROM patchConfigs WHERE ModID = " + std::to_string(_modID) + ";", err);
 		bool clockworkRenderer = false;
@@ -2189,6 +2190,7 @@ namespace {
 					_copiedFiles.insert(file);
 				}
 			}
+
 			emitSplashMessage(QApplication::tr("RemovingBackups"));
 			_lastBaseDir = *usedBaseDir;
 			// everything that's left here can be removed I guess

@@ -213,7 +213,7 @@ namespace widgets {
 			const QString style = _iniParser->value("style", "Default").toString();
 			if (style != _styleComboBox->currentText()) {
 				_iniParser->setValue("style", _styleComboBox->currentText());
-				QFile f((_styleComboBox->currentText() == "Default") ? ":styles.css" : (_styleComboBox->currentText() == "...") ? "Default" : Config::STYLESDIR + "/" + _styleComboBox->currentText() + ".css");
+				QFile f(_styleComboBox->currentText() == "Default" ? ":styles.css" : _styleComboBox->currentText() == "..." ? "Default" : Config::STYLESDIR + "/" + _styleComboBox->currentText() + ".css");
 				if (f.open(QIODevice::ReadOnly)) {
 					const QString s(f.readAll());
 					qApp->setStyleSheet(s);
@@ -286,7 +286,7 @@ namespace widgets {
 				QDirIterator it(Config::STYLESDIR, QStringList() << "*.css", QDir::Files, QDirIterator::Subdirectories);
 				while (it.hasNext()) {
 					it.next();
-					_styleComboBox->addItem(QFileInfo(it.fileName()).baseName());
+					_styleComboBox->addItem(QFileInfo(it.fileName()).completeBaseName());
 				}
 
 				_styleComboBox->addItem("...");
