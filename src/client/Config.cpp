@@ -44,8 +44,8 @@ namespace spine {
 	int Config::Init() {
 		struct TamperCheckWrapper {
 			TamperCheckWrapper() {
-				t = std::thread([this]() {
 #ifdef SPINE_RELEASE
+				t = std::thread([this]() {
 					while (running || false) {
 						if (IsDebuggerPresent()) {
 							// do some weird stuff here
@@ -54,13 +54,15 @@ namespace spine {
 						}
 						std::this_thread::sleep_for(std::chrono::seconds(5));
 					}
-#endif
 				});
+#endif
 			}
 
 			~TamperCheckWrapper() {
 				running = false;
+#ifdef SPINE_RELEASE
 				t.join();
+#endif
 			}
 			bool running = true;
 			std::thread t;
