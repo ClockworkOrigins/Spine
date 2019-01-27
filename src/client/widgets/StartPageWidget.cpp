@@ -47,6 +47,10 @@
 #include <QTableView>
 #include <QVBoxLayout>
 
+#ifdef Q_OS_WIN
+	#include "WindowsExtensions.h"
+#endif
+
 namespace spine {
 namespace widgets {
 
@@ -113,15 +117,15 @@ namespace widgets {
 		connect(_writeNewsButton, SIGNAL(released()), this, SLOT(executeNewsWriter()));		
 	}
 
-	StartPageWidget::~StartPageWidget() {
-	}
-
 	void StartPageWidget::requestNewsUpdate() {
 		if (!_onlineMode) {
 			updateNews();
 			return;
 		}
 		std::thread([this]() {
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage requestNewsUpdate #1: " << getPRAMValue());
+#endif
 			Database::DBError err;
 			std::vector<int> res = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT IFNULL(MAX(NewsID), 0) FROM news WHERE Language = '" + _language.toStdString() + "';", err);
 			if (res.empty()) {
@@ -140,12 +144,12 @@ namespace widgets {
 						common::Message * m = common::Message::DeserializePublic(serialized);
 						if (m) {
 							common::SendAllNewsMessage * sanm = dynamic_cast<common::SendAllNewsMessage *>(m);
-							for (common::SendAllNewsMessage::News news : sanm->news) {
+							for (const common::SendAllNewsMessage::News & news : sanm->news) {
 								Database::execute(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "INSERT INTO news (NewsID, Title, Body, Timestamp, Language) VALUES (" + std::to_string(news.id) + ", '" + news.title + "', '" + news.body + "', " + std::to_string(news.timestamp) + ", '" + _language.toStdString() + "');", err);
-								for (std::pair<int32_t, std::string> mod : news.referencedMods) {
+								for (const std::pair<int32_t, std::string> & mod : news.referencedMods) {
 									Database::execute(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "INSERT INTO newsModReferences (NewsID, ModID, Name, Language) VALUES (" + std::to_string(news.id) + ", " + std::to_string(mod.first) + ", '" + mod.second + "', '" + _language.toStdString() + "');", err);
 								}
-								for (std::pair<std::string, std::string> p : news.imageFiles) {
+								for (const std::pair<std::string, std::string> & p : news.imageFiles) {
 									Database::execute(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "INSERT INTO newsImageReferences (NewsID, File, Hash) VALUES (" + std::to_string(news.id) + ", '" + p.first + "', '" + p.second + "');", err);
 								}
 							}
@@ -156,6 +160,9 @@ namespace widgets {
 				}
 			}
 			emit receivedNews();
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage requestNewsUpdate #2: " << getPRAMValue());
+#endif
 		}).detach();
 	}
 
@@ -171,6 +178,9 @@ namespace widgets {
 	}
 
 	void StartPageWidget::updateNews() {
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage updateNews #1: " << getPRAMValue());
+#endif
 		for (NewsWidget * nw : _news) {
 			nw->deleteLater();
 		}
@@ -178,13 +188,16 @@ namespace widgets {
 		_newsTickerModel->clear();
 		Database::DBError err;
 		std::vector<common::SendAllNewsMessage::News> news = Database::queryAll<common::SendAllNewsMessage::News, std::string, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT NewsID, Title, Body, Timestamp FROM news WHERE Language = '" + _language.toStdString() + "' ORDER BY Timestamp DESC, NewsID DESC;", err);
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage updateNews #2: " << getPRAMValue());
+#endif
 		if (_onlineMode) {
 			std::vector<std::pair<std::string, std::string>> images = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT DISTINCT File, Hash FROM newsImageReferences;", err);
 			MultiFileDownloader * mfd = new MultiFileDownloader(this);
 			connect(mfd, SIGNAL(downloadFailed(DownloadError)), mfd, SLOT(deleteLater()));
 			connect(mfd, SIGNAL(downloadSucceeded()), mfd, SLOT(deleteLater()));
 			bool download = false;
-			for (const auto p : images) {
+			for (const auto & p : images) {
 				QString filename = QString::fromStdString(p.first);
 				filename.chop(2); // every image is compressed, so it has a .z at the end
 				if (!QFile(Config::NEWSIMAGEDIR + "/" + filename).exists()) {
@@ -199,9 +212,18 @@ namespace widgets {
 				progressDlg.setCancelButton(nullptr);
 				progressDlg.setWindowFlags(progressDlg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
 				progressDlg.exec();
-			}
+			}			
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage updateNews #3: " << getPRAMValue());
+#endif
 		}
-		for (common::SendAllNewsMessage::News n : news) {
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage updateNews #4: " << getPRAMValue());
+#endif
+		for (common::SendAllNewsMessage::News n : news) {			
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage updateNews #4.1: " << getPRAMValue());
+#endif
 			std::vector<std::pair<std::string, std::string>> mods = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT DISTINCT ModID, Name FROM newsModReferences WHERE NewsID = " + std::to_string(n.id) + " AND Language = '" + _language.toStdString() + "';", err);
 			for (auto p : mods) {
 				n.referencedMods.emplace_back(std::stoi(p.first), p.second);
@@ -224,11 +246,17 @@ namespace widgets {
 			itmTitle->setFont(f);
 			itmTimestamp->setFont(f);
 			_newsTickerModel->appendRow(QList<QStandardItem *>() << itmTitle << itmTimestamp);
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage updateNews #4.2: " << getPRAMValue());
+#endif
 		}
 		if (!_news.empty()) {
 			_newsTicker->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Stretch);
 			_newsTicker->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeMode::ResizeToContents);
 		}
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage updateNews #5: " << getPRAMValue());
+#endif
 	}
 
 	void StartPageWidget::selectedNews(const QModelIndex & index) {

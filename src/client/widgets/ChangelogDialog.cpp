@@ -32,7 +32,12 @@
 #include <QTextBrowser>
 #include <QVBoxLayout>
 
-#include <tinyxml2.h>
+#include "tinyxml2.h"
+
+#ifdef Q_OS_WIN
+	#include "clockUtils/log/Log.h"
+	#include "WindowsExtensions.h"
+#endif
 
 namespace spine {
 namespace widgets {
@@ -85,6 +90,9 @@ namespace widgets {
 	}
 
 	int ChangelogDialog::exec() {
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage ChangelogDialog::exec #1: " << getPRAMValue());
+#endif
 		tinyxml2::XMLDocument doc;
 
 		const tinyxml2::XMLError e = doc.LoadFile((qApp->applicationDirPath().toStdString() + "/changelog.xml").c_str());
@@ -104,9 +112,9 @@ namespace widgets {
 			if (node->Attribute("majorVersion") == nullptr || node->Attribute("minorVersion") == nullptr || node->Attribute("patchVersion") == nullptr) {
 				continue;
 			}
-			const uint8_t majorVersion = uint8_t(std::atoi(node->Attribute("majorVersion")));
-			const uint8_t minorVersion = uint8_t(std::atoi(node->Attribute("minorVersion")));
-			const uint8_t patchVersion = uint8_t(std::atoi(node->Attribute("patchVersion")));
+			const uint8_t majorVersion = uint8_t(std::stoi(node->Attribute("majorVersion")));
+			const uint8_t minorVersion = uint8_t(std::stoi(node->Attribute("minorVersion")));
+			const uint8_t patchVersion = uint8_t(std::stoi(node->Attribute("patchVersion")));
 			uint32_t version = (majorVersion << 16) + (minorVersion << 8) + patchVersion;
 			versions.insert(std::make_pair(version, std::make_pair(QStringList(), QStringList())));
 			for (tinyxml2::XMLElement * enhancement = node->FirstChildElement("Enhancement"); enhancement != nullptr; enhancement = enhancement->NextSiblingElement("Enhancement")) {
@@ -149,6 +157,9 @@ namespace widgets {
 			}
 		}
 		_changelogBrowser->setHtml(html);
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage ChangelogDialog::exec #2: " << getPRAMValue());
+#endif
 
 		return QDialog::exec();
 	}

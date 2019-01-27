@@ -24,6 +24,7 @@
 
 #include "common/MessageStructs.h"
 
+#include "clockUtils/log/Log.h"
 #include "clockUtils/sockets/TcpSocket.h"
 
 #include <QApplication>
@@ -31,6 +32,10 @@
 #include <QHBoxLayout>
 #include <QMouseEvent>
 #include <QSvgWidget>
+
+#ifdef Q_OS_WIN
+	#include "WindowsExtensions.h"
+#endif
 
 namespace spine {
 namespace widgets {
@@ -45,9 +50,6 @@ namespace widgets {
 		setLayout(l);
 
 		connect(this, SIGNAL(receivedRating(int32_t, int32_t, int32_t, bool)), this, SLOT(updateRating(int32_t, int32_t, int32_t, bool)));
-	}
-
-	RatingWidget::~RatingWidget() {
 	}
 
 	void RatingWidget::setEditable(bool editable) {
@@ -127,7 +129,7 @@ namespace widgets {
 			srm.password = _password.toStdString();
 			srm.modID = _modID;
 			srm.rating = value;
-			std::string serialized = srm.SerializePublic();
+			const std::string serialized = srm.SerializePublic();
 			clockUtils::sockets::TcpSocket sock;
 			if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
 				sock.writePacket(serialized);
@@ -137,6 +139,9 @@ namespace widgets {
 
 	void RatingWidget::requestRating() {
 		std::thread([this]() {
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage RatingWidget::requestRating #1: " << getPRAMValue());
+#endif
 			clockUtils::sockets::TcpSocket sock;
 			clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
 			if (clockUtils::ClockError::SUCCESS == cErr) {
@@ -163,6 +168,9 @@ namespace widgets {
 					}
 				}
 			}
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage RatingWidget::requestRating #2: " << getPRAMValue());
+#endif
 		}).detach();
 	}
 

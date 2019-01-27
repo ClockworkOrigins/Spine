@@ -1058,9 +1058,12 @@ namespace {
 	}
 
 	void ModInfoView::patchCheckG1() {
-		if (!QFile(_gothicDirectory + "/System/Gothic.exe").exists()) {
-			return;
-		}
+		if (!QFile(_gothicDirectory + "/System/Gothic.exe").exists()) return;
+
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage patchCheckG1 #1: " << getPRAMValue());
+#endif
+
 		QMap<QString, QString> fileList;
 		fileList.insert("system/Autopan.flt", "3b72d25d0ddeb6085657ec74b51cf5c03dc61c9f26ed75faa6ed4033ab051082e3b232b310f67bbc1e9eaf063451fe098da456e8a89699e49abbca99ac1005cb");
 		fileList.insert("system/Capture.flt", "5e5bf1c6639c13b188108b0ae6ca54c7ae8703d6902c6b2c0875c3769e123a9b90247562e71591bbce0ada652c3f37cf6b36ffdfe00730e8ec458349ef8023f9");
@@ -1164,12 +1167,19 @@ namespace {
 		if (ids.empty()) {
 			emit installMod(57);
 		}
+
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage patchCheckG1 #2: " << getPRAMValue());
+#endif
 	}
 
 	void ModInfoView::patchCheckG2() {
-		if (!QFile(_gothic2Directory + "/System/Gothic2.exe").exists()) {
-			return;
-		}
+		if (!QFile(_gothic2Directory + "/System/Gothic2.exe").exists()) return;
+	
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage patchCheckG2 #1: " << getPRAMValue());
+#endif
+
 		QMap<QString, QString> fileList;
 		fileList.insert("System/ar.exe", "495fdfc1797428a184bea293f96f46e7eb148ea56de4b7e4f628be1f4a9a8165c08b03c7e5245df6076fba8508ad7b521b6630ff0e33ad7fcbec7e4d2e4f10e3");
 		fileList.insert("System/BinkW32.dll", "e6d1c3f5e33ff8fc56b4798a6155ae76411ba9a234bea599338b7af424051943b1a2e666baa6935975df3d0354ba435962d1281b88b1ea17a77b1fbeb2cecca2");
@@ -1248,12 +1258,15 @@ namespace {
 		if (ids.empty()) {
 			emit installMod(40);
 		}
+	
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage patchCheckG2 #2: " << getPRAMValue());
+#endif
 	}
 
 	void ModInfoView::updateCompatibilityList(int modID, std::vector<int32_t> incompatiblePatches, std::vector<int32_t> forbiddenPatches) {
-		if (_modID != modID) {
-			return;
-		}
+		if (_modID != modID) return;
+
 		for (QCheckBox * cb : _patchList) {
 			_patchLayout->removeWidget(cb);
 			delete cb;

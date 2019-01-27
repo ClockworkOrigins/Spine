@@ -34,7 +34,6 @@ namespace widgets {
 
 	public:
 		RatingWidget(QWidget * par);
-		~RatingWidget();
 
 		void setEditable(bool editable);
 

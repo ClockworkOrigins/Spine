@@ -27,7 +27,10 @@
 
 #ifdef Q_OS_WIN
 	#include <Windows.h>
+	#include <Psapi.h>
 	#include <TlHelp32.h>
+
+	#pragma comment(lib, "Psapi.lib")
 #endif
 
 namespace spine {
@@ -150,6 +153,14 @@ namespace spine {
 		}
 
 		return hSnapshot;
+	}
+
+	uint32_t getPRAMValue() { // Note: this value is in KB!
+		PROCESS_MEMORY_COUNTERS memCounter;
+		GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof(memCounter));
+		const uint32_t result = memCounter.WorkingSetSize / 1024 / 1024;
+
+		return result;
 	}
 
 } /* namespace spine */

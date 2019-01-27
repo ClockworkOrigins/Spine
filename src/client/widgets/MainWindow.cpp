@@ -51,6 +51,7 @@
 #include "widgets/IniConfigurator.h"
 
 #ifdef Q_OS_WIN
+	#include "WindowsExtensions.h"
 	#include "widgets/InstallGothic2FromCDDialog.h"
 #endif
 
@@ -100,7 +101,7 @@
 
 #ifdef Q_OS_WIN
 	#include <QtWinExtras/qwinfunctions.h>
-	#include <ShellAPI.h>
+	#include <shellapi.h>
 #endif
 
 namespace spine {
@@ -121,6 +122,9 @@ namespace widgets {
 	};
 
 	MainWindow::MainWindow(bool showChangelog, QSettings * iniParser, QMainWindow * par) : QMainWindow(par), _modListView(nullptr), _modInfoView(nullptr), _profileView(nullptr), _friendsView(nullptr), _descriptionView(nullptr), _gothicDirectory(), _gothic2Directory(), _iniParser(iniParser), _settingsDialog(nullptr), _autoUpdateDialog(), _changelogDialog(nullptr), _modListModel(nullptr), _loginDialog(nullptr), _modUpdateDialog(nullptr), _installGothic2FromCDDialog(nullptr), _feedbackDialog(nullptr), _developerModeActive(false), _devModeAction(nullptr), _modDatabaseView(nullptr), _parsedInis(), _tabWidget(nullptr), _spineEditorAction(nullptr), _spineEditor(nullptr), _modInfoPage(nullptr), _username(), _onlineMode(true) {
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage MainWindow c'tor #1: " << getPRAMValue());
+#endif
 		setWindowIcon(QIcon(":/Spine.ico"));
 		_settingsDialog = new SettingsDialog(_iniParser, this); // create at first
 
@@ -131,6 +135,10 @@ namespace widgets {
 		_feedbackDialog = new FeedbackDialog(_settingsDialog->getGeneralSettingsWidget());
 
 		restoreSettings();
+
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage MainWindow c'tor #2: " << getPRAMValue());
+#endif
 
 		qRegisterMetaType<int32_t>("int32_t");
 
@@ -145,6 +153,11 @@ namespace widgets {
 			}
 			showChangelog = true;
 		}
+
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage MainWindow c'tor #3: " << getPRAMValue());
+#endif
+
 		if (_onlineMode) {
 			{
 				clockUtils::sockets::TcpSocket sock;
@@ -166,6 +179,11 @@ namespace widgets {
 				}).detach();
 			}
 		}
+
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage MainWindow c'tor #4: " << getPRAMValue());
+#endif
+
 		// remove High Vegetation Mod from patches
 		{
 			Database::DBError err;
@@ -181,6 +199,10 @@ namespace widgets {
 
 			_iniParser->setValue("MISC/Version", QString::fromStdString(VERSION_STRING));
 		}
+
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage MainWindow c'tor #5: " << getPRAMValue());
+#endif
 
 		_tabWidget = new QTabWidget(this);
 		_tabWidget->setProperty("library", true);
@@ -220,6 +242,10 @@ namespace widgets {
 		}
 		connect(startPage, SIGNAL(triggerModStart(int, QString)), this, SLOT(triggerModStart(int, QString)));
 
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage MainWindow c'tor #6: " << getPRAMValue());
+#endif
+
 		_spineEditor = new SpineEditor(_settingsDialog->getGeneralSettingsWidget(), _iniParser, this);
 
 		QWidget * w = new QWidget(_tabWidget);
@@ -248,6 +274,10 @@ namespace widgets {
 			_modListView->setFont(f);
 		}
 		_modListView->setIconSize(QSize(200, 200));
+
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage MainWindow c'tor #7: " << getPRAMValue());
+#endif
 
 		{
 			QWidget * filterWidget = new QWidget(this);
@@ -318,6 +348,10 @@ namespace widgets {
 			l->addWidget(filterWidget);
 		}
 
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage MainWindow c'tor #8: " << getPRAMValue());
+#endif
+
 		connect(_modListView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(selectedMod(const QModelIndex &)));
 		connect(_modListView, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(selectedMod(const QModelIndex &)));
 
@@ -339,6 +373,10 @@ namespace widgets {
 
 		_modListView->setFixedWidth(400);
 
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage MainWindow c'tor #9: " << getPRAMValue());
+#endif
+
 		topLayout->addWidget(_modListView);
 
 		QVBoxLayout * vbl = new QVBoxLayout();
@@ -358,6 +396,10 @@ namespace widgets {
 
 		w->setLayout(l);
 
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage MainWindow c'tor #10: " << getPRAMValue());
+#endif
+
 		_tabWidget->addTab(w, QApplication::tr("Library"));
 		UPDATELANGUAGESETTABTEXT(_settingsDialog->getGeneralSettingsWidget(), _tabWidget, (_onlineMode) ? int(MainTabsOnline::LibraryOnline) : int(MainTabsOffline::LibraryOffline), "Library");
 
@@ -375,6 +417,10 @@ namespace widgets {
 
 			connect(_modInfoView, SIGNAL(installMod(int)), _modDatabaseView, SLOT(updateModList(int)));
 		}
+
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage MainWindow c'tor #11: " << getPRAMValue());
+#endif
 
 		_tabWidget->setCurrentWidget(startPage);
 
@@ -424,10 +470,22 @@ namespace widgets {
 			}
 		}
 
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage MainWindow c'tor #12: " << getPRAMValue());
+#endif
+
 		Database::DBError err;
 		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "CREATE TABLE IF NOT EXISTS hiddenMods (ModID INT PRIMARY KEY);", err);
 
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage MainWindow c'tor #13: " << getPRAMValue());
+#endif
+
 		parseMods();
+
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage MainWindow c'tor #14: " << getPRAMValue());
+#endif
 
 		_loginDialog = new LoginDialog(_onlineMode, _iniParser, _settingsDialog->getGeneralSettingsWidget(), this);
 
@@ -449,6 +507,10 @@ namespace widgets {
 		connect(importAction, SIGNAL(triggered()), this, SLOT(execImport()));
 
 		fileMenu->addSeparator();
+
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage MainWindow c'tor #15: " << getPRAMValue());
+#endif
 
 		if (!_onlineMode) {
 			QAction * onlineAction = fileMenu->addAction(QApplication::tr("SwitchToOnline"));
@@ -528,7 +590,15 @@ namespace widgets {
 			connect(devPathAction, SIGNAL(triggered()), this, SLOT(setDevPath()));
 		}
 
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage MainWindow c'tor #16: " << getPRAMValue());
+#endif
+
 		_autoUpdateDialog = new AutoUpdateDialog(this, _settingsDialog->getGeneralSettingsWidget());
+
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage MainWindow c'tor #17: " << getPRAMValue());
+#endif
 
 		QAction * faqAction = helpMenu->addAction(QApplication::tr("FAQ"));
 		faqAction->setToolTip(QApplication::tr("FAQTooltip"));
@@ -564,9 +634,21 @@ namespace widgets {
 		QAction * aboutAction = helpMenu->addAction(QApplication::tr("About"));
 		UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), aboutAction, "About");
 
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage MainWindow c'tor #18: " << getPRAMValue());
+#endif
+
 		AboutDialog * aboutDialog = new AboutDialog(_settingsDialog->getGeneralSettingsWidget(), this);
 
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage MainWindow c'tor #19: " << getPRAMValue());
+#endif
+
 		_changelogDialog = new ChangelogDialog(_iniParser, this);
+
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage MainWindow c'tor #20: " << getPRAMValue());
+#endif
 
 #ifdef Q_OS_WIN
 		connect(installG2FromCDAction, SIGNAL(triggered()), _installGothic2FromCDDialog, SLOT(exec()));
@@ -598,8 +680,12 @@ namespace widgets {
 			});
 		}
 
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage MainWindow c'tor #21: " << getPRAMValue());
+#endif
+
 		if (showChangelog && !version.isEmpty()) {
-			QTimer::singleShot(0, _changelogDialog, SLOT(execStartup()));
+			QTimer::singleShot(0, _changelogDialog, &ChangelogDialog::execStartup);
 		}
 
 		if (_onlineMode) {
@@ -620,6 +706,10 @@ namespace widgets {
 			installG2FromCDAction->setVisible(!b);
 		});
 		connect(_installGothic2FromCDDialog, SIGNAL(updateGothic2Directory(QString)), _settingsDialog->getLocationSettingsWidget(), SLOT(setGothic2Directory(QString)));
+#endif
+
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage MainWindow c'tor #22: " << getPRAMValue());
 #endif
 
 		if (_onlineMode) {
@@ -645,7 +735,7 @@ namespace widgets {
 		if (_onlineMode) {
 			const bool checkForUpdate = _iniParser->value("MISC/checkForUpdate", true).toBool();
 			if (checkForUpdate) {
-				QTimer::singleShot(0, _autoUpdateDialog, SLOT(checkForUpdate()));
+				QTimer::singleShot(0, _autoUpdateDialog, &AutoUpdateDialog::checkForUpdate);
 			}
 		}
 
@@ -660,7 +750,9 @@ namespace widgets {
 			connect(_modUpdateDialog, &ModUpdateDialog::updatedMod, _modInfoView, &ModInfoView::updatedMod);
 		}
 
-		ImpressionUpdater::update();
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage MainWindow c'tor #23: " << getPRAMValue());
+#endif
 	}
 
 	MainWindow::~MainWindow() {
@@ -1091,6 +1183,10 @@ namespace widgets {
 		if (GeneralSettingsWidget::extendedLogging) {
 			LOGINFO("Parsing Mods");
 		}
+
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage parseMods #1: " << getPRAMValue());
+#endif
 		_parsedInis.clear();
 		if (!_developerModeActive) {
 			if (GeneralSettingsWidget::extendedLogging) {
@@ -1098,18 +1194,30 @@ namespace widgets {
 			}
 			parseInstalledMods();
 		}
+
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage parseMods #2: " << getPRAMValue());
+#endif
 		if (!_gothicDirectory.isEmpty()) {
 			if (GeneralSettingsWidget::extendedLogging) {
 				LOGINFO("Parsing Mods in Gothic 1 Folder");
 			}
 			parseMods(_gothicDirectory);
 		}
+
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage parseMods #3: " << getPRAMValue());
+#endif
 		if (!_gothic2Directory.isEmpty()) {
 			if (GeneralSettingsWidget::extendedLogging) {
 				LOGINFO("Parsing Mods in Gothic 2 Folder");
 			}
 			parseMods(_gothic2Directory);
 		}
+
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage parseMods #4: " << getPRAMValue());
+#endif
 		_sortModel->sort(0);
 
 		Database::DBError err;
@@ -1128,6 +1236,10 @@ namespace widgets {
 				}
 			}
 		}
+
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage parseMods #5: " << getPRAMValue());
+#endif
 	}
 
 	void MainWindow::parseMods(QString baseDir) {

@@ -37,6 +37,7 @@
 #include <QtConcurrent/QtConcurrentRun>
 
 #ifdef Q_OS_WIN
+	#include "WindowsExtensions.h"
 	#include <Windows.h>
 #endif
 
@@ -139,11 +140,23 @@ int main(int argc, char ** argv) {
 
 	LOGINFO("Start logging");
 
+#ifdef Q_OS_WIN
+	LOGINFO("Memory Usage main #1: " << spine::getPRAMValue());
+#endif
+
 	int ret;
 	QSettings iniParser(spine::Config::BASEDIR + "/Spine.ini", QSettings::IniFormat);
 	{
 		spine::widgets::MainWindow wnd(false, &iniParser);
+
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage main #2: " << spine::getPRAMValue());
+#endif
 		wnd.show();
+
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage main #3: " << spine::getPRAMValue());
+#endif
 		ret = QApplication::exec();
 	}
 	return ret;

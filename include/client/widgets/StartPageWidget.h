@@ -41,7 +41,6 @@ namespace widgets {
 
 	public:
 		StartPageWidget(bool onlineMode, QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QWidget * par);
-		~StartPageWidget();
 
 		void requestNewsUpdate();
 

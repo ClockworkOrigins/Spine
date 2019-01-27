@@ -31,6 +31,7 @@ namespace spine {
 	void removeSymlink(QString symLink);
 	int GetProcId(const char * ProcName);
 	HANDLE GetProcHandle(const char * ProcName);
+	uint32_t getPRAMValue();
 
 } /* namespace spine */
 

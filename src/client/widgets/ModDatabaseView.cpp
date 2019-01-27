@@ -61,6 +61,10 @@
 #include <QTreeView>
 #include <QVBoxLayout>
 
+#ifdef Q_OS_WIN
+	#include "WindowsExtensions.h"
+#endif
+
 namespace spine {
 namespace widgets {
 
@@ -361,9 +365,18 @@ namespace widgets {
 	}
 
 	void ModDatabaseView::updateModList(int modID, int packageID) {
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage updateModList #1: " << getPRAMValue());
+#endif
 		_waitSpinner = new WaitSpinner(QApplication::tr("LoadingDatabase"), this);
 		_sourceModel->setHorizontalHeaderLabels(QStringList() << QApplication::tr("Name") << QApplication::tr("Author") << QApplication::tr("Type") << QApplication::tr("Game") << QApplication::tr("DevTime") << QApplication::tr("AvgTime") << QApplication::tr("ReleaseDate") << QApplication::tr("Version") << QApplication::tr("DownloadSize") << QString());
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage updateModList #2: " << getPRAMValue());
+#endif
 		std::thread([this, modID, packageID]() {
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage updateModList #3: " << getPRAMValue());
+#endif
 			common::RequestAllModsMessage ramm;
 			ramm.language = _language.toStdString();
 			ramm.username = _username.toStdString();
@@ -413,6 +426,9 @@ namespace widgets {
 			} else if (modID > 0) {
 				emit triggerInstallMod(modID);
 			}
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage updateModList #4: " << getPRAMValue());
+#endif
 		}).detach();
 	}
 
@@ -425,6 +441,9 @@ namespace widgets {
 	}
 
 	void ModDatabaseView::setUsername(QString username, QString password) {
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage ModDatabaseView::setUsername #1: " << getPRAMValue());
+#endif
 		_username = username;
 		_password = password;
 		// check if a GMP mod is installed and GMP is not installed
@@ -442,6 +461,9 @@ namespace widgets {
 		} else if (isVisible()) {
 			updateModList(-1);
 		}
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage ModDatabaseView::setUsername #2: " << getPRAMValue());
+#endif
 	}
 
 	void ModDatabaseView::setGothicDirectory(QString dir) {
@@ -453,6 +475,9 @@ namespace widgets {
 	}
 
 	void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage updateModList #10: " << getPRAMValue());
+#endif
 		_sourceModel->removeRows(0, _sourceModel->rowCount());
 		_parentMods.clear();
 		int row = 0;
@@ -578,6 +603,9 @@ namespace widgets {
 			row++;
 		}
 		_mods = mods;
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage updateModList #11: " << getPRAMValue());
+#endif
 	}
 
 	void ModDatabaseView::selectedIndex(const QModelIndex & index) {

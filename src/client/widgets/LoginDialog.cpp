@@ -18,6 +18,7 @@
 
 #include "widgets/LoginDialog.h"
 
+#include <regex>
 #include <sstream>
 #include <thread>
 
@@ -52,7 +53,10 @@
 #include <QVBoxLayout>
 
 #include "simple-web-server/client_https.hpp"
-#include <regex>
+
+#ifdef Q_OS_WIN
+	#include "WindowsExtensions.h"
+#endif
 
 using HttpsClient = SimpleWeb::Client<SimpleWeb::HTTPS>;
 
@@ -388,6 +392,10 @@ namespace {
 	}
 
 	void LoginDialog::loginUser() {
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage loginUser #1: " << getPRAMValue());
+#endif
+
 		const QString passwd = _loginPasswordEdit->text();
 		_loginPasswordEdit->setText("");
 		const QString username = _loginUsernameEdit->text();
@@ -400,7 +408,10 @@ namespace {
 			content = content.arg(username, passwd);
 
 			// Synchronous request examples
-			client.request("POST", "/json", content.toStdString(), [this, username, passwd, stayLoggedIn](std::shared_ptr<HttpsClient::Response> response, const SimpleWeb::error_code & ec) {
+			client.request("POST", "/json", content.toStdString(), [this, username, passwd, stayLoggedIn](std::shared_ptr<HttpsClient::Response> response, const SimpleWeb::error_code &) {
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage loginUser #2: " << getPRAMValue());
+#endif
 				Q_ASSERT(response);
 				if (!response) {
 					emit showErrorMessage(QApplication::tr("ConnectionFailed"));
@@ -426,10 +437,19 @@ namespace {
 					return;
 				}
 				}
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage loginUser #3: " << getPRAMValue());
+#endif
 
 				handleLogin(username, passwd);
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage loginUser #4: " << getPRAMValue());
+#endif
 
 				if (stayLoggedIn) {
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage loginUser #5: " << getPRAMValue());
+#endif
 					QFile f(Config::BASEDIR + "/databases/Login.bin");
 					if (f.open(QIODevice::WriteOnly)) {
 						QDir homeDir = QDir::home();
@@ -461,11 +481,20 @@ namespace {
 							f.write(compressed.c_str(), compressed.length());
 						}
 					}
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage loginUser #6: " << getPRAMValue());
+#endif
 				}
 
 				emit loggedIn(username, passwd);
 			});
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage loginUser #7: " << getPRAMValue());
+#endif
 			client.io_service->run();
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage loginUser #8: " << getPRAMValue());
+#endif
 		}
 	}
 
@@ -639,6 +668,9 @@ namespace {
 
 	void LoginDialog::handleLogin(QString username, QString password) {
 		std::thread([this, username, password]() {
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage handleLogin #1: " << getPRAMValue());
+#endif
 			clockUtils::sockets::TcpSocket sock;
 			if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 5000)) {
 				{
@@ -659,6 +691,9 @@ namespace {
 					sock.writePacket(serialized);
 				}
 			}
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage handleLogin #2: " << getPRAMValue());
+#endif
 		}).detach();
 	}
 
