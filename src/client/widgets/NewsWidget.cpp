@@ -43,11 +43,21 @@
 #include <QTextBrowser>
 #include <QVBoxLayout>
 
+#ifdef Q_OS_WIN
+	#include "WindowsExtensions.h"
+
+	#include "clockUtils/log/Log.h"
+#endif
+
 namespace spine {
 namespace widgets {
 
 	NewsWidget::NewsWidget(common::SendAllNewsMessage::News news, bool onlineMode, QWidget * par) : QWidget(par), _titleLabel(nullptr), _textBrowser(nullptr), _timestampLabel(nullptr), _newsID(news.id), _installButtons() {
 		setObjectName("NewsWidget");
+
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage NewsWidget #1: " << getPRAMValue());
+#endif
 
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
@@ -62,6 +72,10 @@ namespace widgets {
 		hbl->addWidget(_timestampLabel, 0, Qt::AlignRight);
 		l->addLayout(hbl);
 
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage NewsWidget #2: " << getPRAMValue());
+#endif
+
 		_textBrowser = new QTextBrowser(this);
 		_textBrowser->setProperty("newsText", true);
 		QString newsText = s2q(news.body);
@@ -75,19 +89,40 @@ namespace widgets {
 		l->addWidget(_textBrowser);
 		l->setStretchFactor(_textBrowser, 1);
 
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage NewsWidget #3: " << getPRAMValue());
+#endif
+
+		static QIcon downloadIcon(":/svg/download.svg");
+
 		int installButtonSize = 0;
-		for (const std::pair<int32_t, std::string> mod : news.referencedMods) {
+		for (const std::pair<int32_t, std::string> & mod : news.referencedMods) {
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage NewsWidget #3.1: " << getPRAMValue());
+#endif
 			Database::DBError err;
 			const bool installed = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM mods WHERE ModID = " + std::to_string(mod.first) + " LIMIT 1;", err) > 0;
 			if (!installed && onlineMode) {
-				QPushButton * installButton = new QPushButton(QIcon(":/svg/download.svg"), s2q(mod.second), this);
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage NewsWidget #3.2: " << getPRAMValue());
+#endif
+				//QPushButton * installButton = new QPushButton(QIcon(":/svg/download.svg"), s2q(mod.second), this);
+				QPushButton * installButton = new QPushButton(downloadIcon, s2q(mod.second), this);
 				l->addWidget(installButton, 0, Qt::AlignLeft);
 				installButtonSize += installButton->height();
 				installButton->setProperty("modid", int(mod.first));
 				connect(installButton, SIGNAL(clicked()), this, SLOT(installMod()));
 				_installButtons.append(installButton);
+
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage NewsWidget #3.3: " << getPRAMValue());
+#endif
 			}
 		}
+
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage NewsWidget #4: " << getPRAMValue());
+#endif
 
 		setLayout(l);
 
@@ -99,21 +134,25 @@ namespace widgets {
 
 		static const QMap<int, double> additionalPercentage = { { 200, 0.3 }, { 350, 0.4 }, { 2000, 0.45 } };
 
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage NewsWidget #5: " << getPRAMValue());
+#endif
+
 		const int height = _textBrowser->document()->size().height();
 		const double percent = additionalPercentage.upperBound(height).value();
 		_textBrowser->setMinimumHeight(height + int(percent * height));
 		_textBrowser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 		setMinimumSize(800, std::max(_titleLabel->size().height(), _timestampLabel->size().height()) + height + installButtonSize + int(percent * height) + 50);
 		setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
-	}
-
-	NewsWidget::~NewsWidget() {
+		
+#ifdef Q_OS_WIN
+		LOGINFO("Memory Usage NewsWidget #6: " << getPRAMValue());
+#endif
 	}
 
 	void NewsWidget::finishedInstallation(int modID, int, bool success) {
-		if (!success) {
-			return;
-		}
+		if (!success) return;
+
 		for (QPushButton * pb : _installButtons) {
 			const int buttonModID = pb->property("modid").toInt();
 			if (modID == buttonModID) {
@@ -126,7 +165,6 @@ namespace widgets {
 	}
 
 	void NewsWidget::urlClicked(const QUrl & url) {
-		std::cout << url.toString().toStdString() << std::endl;
 		if (url.toString().startsWith("http://") || url.toString().startsWith("https://") || url.toString().startsWith("www.")) {
 			QDesktopServices::openUrl(url);
 
@@ -135,9 +173,9 @@ namespace widgets {
 				lcm.newsID = _newsID;
 				lcm.url = url.toString().toStdString();
 
-				std::string serialized = lcm.SerializePublic();
+				const std::string serialized = lcm.SerializePublic();
 				clockUtils::sockets::TcpSocket sock;
-				clockUtils::ClockError err = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
+				const clockUtils::ClockError err = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
 				if (clockUtils::ClockError::SUCCESS == err) {
 					sock.writePacket(serialized);
 				}

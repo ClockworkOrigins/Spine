@@ -1524,9 +1524,11 @@
 	<Bug language="Deutsch">Neue Styles können jetzt auch Punkte im Namen enthalten</Bug>
 	<Bug language="Deutsch">Etwas Toleranz eingebaut beim Wiederherstellen des Gothic-Pfades nach fehlerhafter Beendigung</Bug>
 	<Bug language="Deutsch">Fehler behoben, wodurch Gothic nach fast jeder Modifikation gepatcht werden musste</Bug>
+	<Bug language="Deutsch">Hohen Speicherverbrauch behoben</Bug>
 	
 	<Bug language="English">Displaying incompatible patches and tools now works again</Bug>
 	<Bug language="English">New styles now can also contain dots in the name</Bug>
 	<Bug language="English">Added some tolerance when restoring the Gothic paths after errorneous exit</Bug>
 	<Bug language="English">Fixed a bug that caused patching of Gothic after playing most mods</Bug>
+	<Bug language="English">Fixed high memory consumption</Bug>
 </Version>

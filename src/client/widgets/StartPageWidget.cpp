@@ -212,7 +212,7 @@ namespace widgets {
 				progressDlg.setCancelButton(nullptr);
 				progressDlg.setWindowFlags(progressDlg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
 				progressDlg.exec();
-			}			
+			}
 #ifdef Q_OS_WIN
 		LOGINFO("Memory Usage updateNews #3: " << getPRAMValue());
 #endif

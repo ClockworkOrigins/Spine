@@ -37,7 +37,6 @@ namespace widgets {
 
 	public:
 		NewsWidget(common::SendAllNewsMessage::News news, bool onlineMode, QWidget * par);
-		~NewsWidget();
 
 	signals:
 		void tryInstallMod(int);
