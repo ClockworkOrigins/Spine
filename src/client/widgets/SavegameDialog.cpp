@@ -48,10 +48,10 @@ namespace widgets {
 			QPushButton * g2Button = new QPushButton(QApplication::tr("Gothic2Save"), this);
 			hl->addWidget(g1Button);
 			hl->addWidget(g2Button);
-			g1Button->setVisible(locationSettingsWidget->isGothicValid());
+			g1Button->setVisible(locationSettingsWidget->isGothicValid(true));
 
-			connect(g1Button, SIGNAL(released()), this, SLOT(openG1Save()));
-			connect(g2Button, SIGNAL(released()), this, SLOT(openG2Save()));
+			connect(g1Button, &QPushButton::released, this, &SavegameDialog::openG1Save);
+			connect(g2Button, &QPushButton::released, this, &SavegameDialog::openG2Save);
 
 			l->addLayout(hl);
 		}
@@ -135,7 +135,7 @@ namespace widgets {
 	void SavegameDialog::updateView() {
 		_variables = _savegameManager->getVariables();
 		_model->clear();
-		for (Variable v : _variables) {
+		for (const Variable & v : _variables) {
 			QStandardItem * itmName = new QStandardItem(QString::fromStdString(v.name));
 			itmName->setEditable(false);
 			QStandardItem * itmValue = new QStandardItem();

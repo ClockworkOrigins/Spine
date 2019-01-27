@@ -71,15 +71,12 @@ namespace widgets {
 		setLayout(vl);
 	}
 
-	AchievementsWidget::~AchievementsWidget() {
-	}
-
 	void AchievementsWidget::updateModList(std::vector<common::SendModManagementMessage::ModManagement> modList) {
 		_mods = modList;
 	}
 
 	void AchievementsWidget::selectedMod(int index) {
-		Q_ASSERT(index < _mods.size());
+		Q_ASSERT(index < int(_mods.size()));
 		_modIndex = index;
 		
 		for (AchievementWidget * aw : _achievementEdits) {
@@ -98,13 +95,12 @@ namespace widgets {
 	}
 
 	void AchievementsWidget::updateAchievements() {
-		if (_modIndex == -1) {
-			return;
-		}
+		if (_modIndex == -1) return;
+
 		common::UpdateAchievementsMessage uam;
 		uam.modID = _mods[_modIndex].modID;
 
-		for (auto & achievementEdit : _achievementEdits) {
+		for (auto achievementEdit : _achievementEdits) {
 			common::UpdateAchievementsMessage::Achievement achievement;
 
 			achievement = achievementEdit->getAchievement();

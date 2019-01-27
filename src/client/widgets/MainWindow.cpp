@@ -408,14 +408,14 @@ namespace widgets {
 		}
 		firstStartup = false;
 		_iniParser->setValue("MISC/firstStartup", firstStartup);
-		if (_settingsDialog->getLocationSettingsWidget()->isGothicValid()) {
+		if (_settingsDialog->getLocationSettingsWidget()->isGothicValid(true)) {
 			_modInfoView->setGothicDirectory(_gothicDirectory);
 			if (_onlineMode) {
 				_modDatabaseView->setGothicDirectory(_gothicDirectory);
 				_profileView->setGothicDirectory(_gothicDirectory);
 			}
 		}
-		if (_settingsDialog->getLocationSettingsWidget()->isGothic2Valid()) {
+		if (_settingsDialog->getLocationSettingsWidget()->isGothic2Valid(true)) {
 			_modInfoView->setGothic2Directory(_gothic2Directory);
 			if (_onlineMode) {
 				_modDatabaseView->setGothic2Directory(_gothic2Directory);
@@ -603,11 +603,11 @@ namespace widgets {
 		}
 
 		if (_onlineMode) {
-			_modDatabaseView->gothicValidationChanged(_settingsDialog->getLocationSettingsWidget()->isGothicValid());
-			_modDatabaseView->gothic2ValidationChanged(_settingsDialog->getLocationSettingsWidget()->isGothic2Valid());
+			_modDatabaseView->gothicValidationChanged(_settingsDialog->getLocationSettingsWidget()->isGothicValid(true));
+			_modDatabaseView->gothic2ValidationChanged(_settingsDialog->getLocationSettingsWidget()->isGothic2Valid(true));
 		}
 #ifdef Q_OS_WIN
-		installG2FromCDAction->setVisible(!_settingsDialog->getLocationSettingsWidget()->isGothic2Valid());
+		installG2FromCDAction->setVisible(!_settingsDialog->getLocationSettingsWidget()->isGothic2Valid(true));
 #endif
 
 		connect(_tabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)));
@@ -688,7 +688,7 @@ namespace widgets {
 			LocationSettingsWidget * locationSettingsWidget = _settingsDialog->getLocationSettingsWidget();
 			_gothicDirectory = locationSettingsWidget->getGothicDirectory();
 			_gothic2Directory = locationSettingsWidget->getGothic2Directory();
-			if (locationSettingsWidget->isGothicValid()) {
+			if (locationSettingsWidget->isGothicValid(false)) {
 				if (_modInfoView) {
 					_modInfoView->setGothicDirectory(_gothicDirectory);
 				}
@@ -699,7 +699,7 @@ namespace widgets {
 					_profileView->setGothicDirectory(_gothicDirectory);
 				}
 			}
-			if (locationSettingsWidget->isGothic2Valid()) {
+			if (locationSettingsWidget->isGothic2Valid(false)) {
 				if (_modInfoView) {
 					_modInfoView->setGothic2Directory(_gothic2Directory);
 				}
@@ -754,10 +754,10 @@ namespace widgets {
 
 	void MainWindow::checkIntegrity() {
 		IntegrityCheckDialog dlg(this);
-		if (_settingsDialog->getLocationSettingsWidget()->isGothicValid()) {
+		if (_settingsDialog->getLocationSettingsWidget()->isGothicValid(true)) {
 			dlg.setGothicDirectory(_gothicDirectory);
 		}
-		if (_settingsDialog->getLocationSettingsWidget()->isGothic2Valid()) {
+		if (_settingsDialog->getLocationSettingsWidget()->isGothic2Valid(true)) {
 			dlg.setGothic2Directory(_gothic2Directory);
 		}
 		if (dlg.exec() == QDialog::Accepted) {

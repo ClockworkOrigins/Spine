@@ -35,7 +35,6 @@ namespace widgets {
 
 	public:
 		AchievementsWidget(QWidget * par);
-		~AchievementsWidget();
 
 		void updateModList(std::vector<common::SendModManagementMessage::ModManagement> modList);
 		void selectedMod(int index);

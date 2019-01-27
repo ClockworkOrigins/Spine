@@ -1522,7 +1522,9 @@
 <Version majorVersion="1" minorVersion="14" patchVersion="8">
 	<Bug language="Deutsch">Einblenden inkompatibler Patches und Tools funktioniert jetzt wieder</Bug>
 	<Bug language="Deutsch">Neue Styles können jetzt auch Punkte im Namen enthalten</Bug>
+	<Bug language="Deutsch">Etwas Toleranz eingebaut beim Wiederherstellen des Gothic-Pfades nach fehlerhafter Beendigung</Bug>
 	
 	<Bug language="English">Displaying incompatible patches and tools now works again</Bug>
 	<Bug language="English">New styles now can also contain dots in the name</Bug>
+	<Bug language="English">Added some tolerance when restoring the Gothic paths after errorneous exit</Bug>
 </Version>

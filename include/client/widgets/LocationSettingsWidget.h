@@ -36,7 +36,6 @@ namespace widgets {
 
 	public:
 		LocationSettingsWidget(QSettings * iniParser, GeneralSettingsWidget * generalSettingsWidget, bool temporary, QWidget * par);
-		~LocationSettingsWidget();
 
 		void saveSettings();
 		void rejectSettings();
@@ -45,8 +44,8 @@ namespace widgets {
 		QString getGothic2Directory() const;
 		QString getScreenshotDirectory() const;
 
-		bool isGothicValid() const;
-		bool isGothic2Valid() const;
+		bool isGothicValid(bool restored) const;
+		bool isGothic2Valid(bool restored) const;
 
 	signals:
 		void pathChanged();
@@ -79,7 +78,7 @@ namespace widgets {
 		std::atomic<int> _futureCounter;
 		bool _cancelSearch;
 
-		bool isGothicValid(QString path, QString executable) const;
+		bool isGothicValid(QString path, QString executable, bool restored) const;
 		void searchGothicAsync(bool searchG1, bool searchG2);
 		void checkPartition(QString partition, QString filter, bool * gothicFound, bool * gothic2Found, bool recursve = false);
 	};

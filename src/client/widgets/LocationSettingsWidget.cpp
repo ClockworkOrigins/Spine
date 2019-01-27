@@ -76,7 +76,7 @@ namespace widgets {
 			hl->addWidget(gothicPathLabel, 0, 0);
 			hl->addWidget(_gothicPathLineEdit, 0, 1);
 			hl->addWidget(gothicPathPushButton, 0, 2);
-			connect(gothicPathPushButton, SIGNAL(released()), this, SLOT(openGothicFileDialog()));
+			connect(gothicPathPushButton, &QPushButton::released, this, &LocationSettingsWidget::openGothicFileDialog);
 
 			hl->setAlignment(Qt::AlignLeft);
 
@@ -93,7 +93,7 @@ namespace widgets {
 			hl->addWidget(gothicPathLabel, 1, 0);
 			hl->addWidget(_gothic2PathLineEdit, 1, 1);
 			hl->addWidget(gothicPathPushButton, 1, 2);
-			connect(gothicPathPushButton, SIGNAL(released()), this, SLOT(openGothic2FileDialog()));
+			connect(gothicPathPushButton, &QPushButton::released, this, &LocationSettingsWidget::openGothic2FileDialog);
 
 			hl->setAlignment(Qt::AlignLeft);
 
@@ -109,7 +109,7 @@ namespace widgets {
 			if (!temporary) {
 				UPDATELANGUAGESETTOOLTIP(generalSettingsWidget, w, "SearchGothicText");
 			}
-			connect(w, SIGNAL(released()), this, SLOT(searchGothic()));
+			connect(w, &QPushButton::released, this, &LocationSettingsWidget::searchGothic);
 
 			l->addWidget(w);
 			l->addSpacing(10);
@@ -130,7 +130,7 @@ namespace widgets {
 			hl->addWidget(downloadPathLabel);
 			hl->addWidget(_downloadPathLineEdit);
 			hl->addWidget(downloadPathPushButton);
-			connect(downloadPathPushButton, SIGNAL(released()), this, SLOT(openDownloadFileDialog()));
+			connect(downloadPathPushButton, &QPushButton::released, this, &LocationSettingsWidget::openDownloadFileDialog);
 
 			hl->setAlignment(Qt::AlignLeft);
 
@@ -160,7 +160,7 @@ namespace widgets {
 			hl->addWidget(screenshotPathLabel);
 			hl->addWidget(_screenshotPathLineEdit);
 			hl->addWidget(screenshotPathPushButton);
-			connect(screenshotPathPushButton, SIGNAL(released()), this, SLOT(openScreenshotDirectoryFileDialog()));
+			connect(screenshotPathPushButton, &QPushButton::released, this, &LocationSettingsWidget::openScreenshotDirectoryFileDialog);
 
 			hl->setAlignment(Qt::AlignLeft);
 
@@ -171,11 +171,8 @@ namespace widgets {
 
 		setLayout(l);
 
-		connect(this, SIGNAL(foundGothic(QString)), this, SLOT(setGothicDirectory(QString)));
-		connect(this, SIGNAL(foundGothic2(QString)), this, SLOT(setGothic2Directory(QString)));
-	}
-
-	LocationSettingsWidget::~LocationSettingsWidget() {
+		connect(this, &LocationSettingsWidget::foundGothic, this, &LocationSettingsWidget::setGothicDirectory);
+		connect(this, &LocationSettingsWidget::foundGothic2, this, &LocationSettingsWidget::setGothic2Directory);
 	}
 
 	void LocationSettingsWidget::saveSettings() {
@@ -184,7 +181,7 @@ namespace widgets {
 		{
 			const QString path = _iniParser->value("PATH/Gothic", "").toString();
 			if (path != _gothicPathLineEdit->text()) {
-				if (dynamic_cast<const DirValidator *>(_gothicPathLineEdit->validator())->isValid(_gothicPathLineEdit->text()) && isGothicValid()) {
+				if (dynamic_cast<const DirValidator *>(_gothicPathLineEdit->validator())->isValid(_gothicPathLineEdit->text()) && isGothicValid(false)) {
 					changedG1Path = true;
 					_iniParser->setValue("PATH/Gothic", _gothicPathLineEdit->text());
 				} else {
@@ -201,7 +198,7 @@ namespace widgets {
 		{
 			const QString path = _iniParser->value("PATH/Gothic2", "").toString();
 			if (path != _gothic2PathLineEdit->text()) {
-				if (dynamic_cast<const DirValidator *>(_gothic2PathLineEdit->validator())->isValid(_gothic2PathLineEdit->text()) && isGothic2Valid()) {
+				if (dynamic_cast<const DirValidator *>(_gothic2PathLineEdit->validator())->isValid(_gothic2PathLineEdit->text()) && isGothic2Valid(false)) {
 					changedG2Path = true;
 					_iniParser->setValue("PATH/Gothic2", _gothic2PathLineEdit->text());
 				} else {
@@ -218,10 +215,10 @@ namespace widgets {
 		if (changedG1Path || changedG2Path) {
 			emit pathChanged();
 			if (changedG1Path) {
-				emit validGothic(isGothicValid());
+				emit validGothic(isGothicValid(false));
 			}
 			if (changedG2Path) {
-				emit validGothic2(isGothic2Valid());
+				emit validGothic2(isGothic2Valid(false));
 			}
 		}
 		_iniParser->setValue("PATH/Downloads", _downloadPathLineEdit->text());
@@ -305,7 +302,7 @@ namespace widgets {
 		_iniParser->setValue("PATH/Gothic", _gothicPathLineEdit->text());
 		_iniParser->setValue("PATH/Gothic2", _gothic2PathLineEdit->text());
 		emit pathChanged();
-		emit validGothic(isGothicValid());
+		emit validGothic(isGothicValid(false));
 	}
 
 	void LocationSettingsWidget::setGothic2Directory(QString path) {
@@ -313,15 +310,15 @@ namespace widgets {
 		_iniParser->setValue("PATH/Gothic", _gothicPathLineEdit->text());
 		_iniParser->setValue("PATH/Gothic2", _gothic2PathLineEdit->text());
 		emit pathChanged();
-		emit validGothic2(isGothic2Valid());
+		emit validGothic2(isGothic2Valid(false));
 	}
 
-	bool LocationSettingsWidget::isGothicValid() const {
-		return isGothicValid(_gothicPathLineEdit->text(), "Gothic.exe");
+	bool LocationSettingsWidget::isGothicValid(bool restored) const {
+		return isGothicValid(_gothicPathLineEdit->text(), "Gothic.exe", restored);
 	}
 
-	bool LocationSettingsWidget::isGothic2Valid() const {
-		return isGothicValid(_gothic2PathLineEdit->text(), "Gothic2.exe");
+	bool LocationSettingsWidget::isGothic2Valid(bool restored) const {
+		return isGothicValid(_gothic2PathLineEdit->text(), "Gothic2.exe", restored);
 	}
 
 	void LocationSettingsWidget::openGothicFileDialog() {
@@ -329,8 +326,8 @@ namespace widgets {
 		if (!path.isEmpty()) {
 			if (_gothicPathLineEdit->text() != path) {
 				_gothicPathLineEdit->setText(path);
-				if (!isGothicValid()) {
-					if (isGothicValid(_gothicPathLineEdit->text() + "/../", "Gothic.exe")) {
+				if (!isGothicValid(false)) {
+					if (isGothicValid(_gothicPathLineEdit->text() + "/../", "Gothic.exe", false)) {
 						QDir g1Dir(_gothicPathLineEdit->text());
 						g1Dir.cdUp();
 						_gothicPathLineEdit->setText(g1Dir.absolutePath());
@@ -350,8 +347,8 @@ namespace widgets {
 		if (!path.isEmpty()) {
 			if (_gothic2PathLineEdit->text() != path) {
 				_gothic2PathLineEdit->setText(path);
-				if (!isGothic2Valid()) {
-					if (isGothicValid(_gothic2PathLineEdit->text() + "/../", "Gothic2.exe")) {
+				if (!isGothic2Valid(false)) {
+					if (isGothicValid(_gothic2PathLineEdit->text() + "/../", "Gothic2.exe", false)) {
 						QDir g2Dir(_gothic2PathLineEdit->text());
 						g2Dir.cdUp();
 						_gothic2PathLineEdit->setText(g2Dir.absolutePath());
@@ -387,8 +384,8 @@ namespace widgets {
 	}
 
 	void LocationSettingsWidget::searchGothic() {
-		const bool searchG1 = !isGothicValid();
-		const bool searchG2 = !isGothic2Valid();
+		const bool searchG1 = !isGothicValid(false);
+		const bool searchG2 = !isGothic2Valid(false);
 		if (searchG1 || searchG2) {
 			QProgressDialog dlg(QApplication::tr("SearchGothicWaiting"), "", 0, 1);
 			dlg.setWindowTitle(QApplication::tr("SearchGothic"));
@@ -423,10 +420,10 @@ namespace widgets {
 		}
 	}
 
-	bool LocationSettingsWidget::isGothicValid(QString path, QString executable) const {
+	bool LocationSettingsWidget::isGothicValid(QString path, QString executable, bool restored) const {
 		bool b = !path.isEmpty();
 		b = b && QDir().exists(path);
-		b = b && QFileInfo::exists(path + "/System/" + executable);
+		b = b && (restored || QFileInfo::exists(path + "/System/" + executable));
 		return b;
 	}
 
