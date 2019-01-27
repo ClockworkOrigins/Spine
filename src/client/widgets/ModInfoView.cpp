@@ -1531,6 +1531,10 @@ namespace {
 				_copiedFiles.erase(file);
 			}
 
+			if (GeneralSettingsWidget::extendedLogging) {
+				LOGINFO("Not removed files: " << _copiedFiles.size());
+			}
+
 			removeEmptyDirs(_lastBaseDir);
 
 			QDirIterator itBackup(_lastBaseDir, QStringList() << "*.spbak", QDir::Files, QDirIterator::Subdirectories);
@@ -1545,7 +1549,10 @@ namespace {
 			for (QString backupFile : backupFiles) {
 				QFile f(backupFile);
 				backupFile.chop(6);
-				f.rename(backupFile);
+				bool b = f.rename(backupFile);
+				if (!b) {
+					LOGINFO("Couldn't rename file: " << q2s(backupFile));
+				}
 			}
 		}
 
@@ -2294,7 +2301,9 @@ namespace {
 								LOGERROR("Couldn't copy file: " << filename.toStdString() << " " << f.errorString().toStdString());
 								break;
 							}
-							_copiedFiles.insert(changedFile);
+							if (copy) {
+								_copiedFiles.insert(changedFile);
+							}
 							continue;
 						}
 #ifdef Q_OS_WIN
@@ -2348,7 +2357,9 @@ namespace {
 						LOGERROR("Couldn't copy file: " << filename.toStdString() << " " << f.errorString().toStdString());
 						break;
 					}
-					_copiedFiles.insert(filename);
+					if (copy) {
+						_copiedFiles.insert(filename);
+					}
 				}
 				if (!success) {
 					removeModFiles();
