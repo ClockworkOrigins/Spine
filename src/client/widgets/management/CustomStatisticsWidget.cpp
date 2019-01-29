@@ -61,13 +61,13 @@ namespace widgets {
 
 			l->addLayout(hl);
 
-			connect(_identifierBox, &QComboBox::currentTextChanged, [this, sortModel](QString text) {
+			connect(_identifierBox, &QComboBox::currentTextChanged, [sortModel](QString text) {
 				sortModel->identifierChanged(text.toInt());
 			});
-			connect(_guildBox, &QComboBox::currentTextChanged, [this, sortModel](QString text) {
+			connect(_guildBox, &QComboBox::currentTextChanged, [sortModel](QString text) {
 				sortModel->guildChanged(text.toInt());
 			});
-			connect(_nameBox, &QComboBox::currentTextChanged, [this, sortModel](QString text) {
+			connect(_nameBox, &QComboBox::currentTextChanged, [sortModel](QString text) {
 				sortModel->nameChanged(text);
 			});
 		}
