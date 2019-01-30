@@ -691,7 +691,7 @@ namespace widgets {
 				std::thread([mod]() {
 					common::DownloadSucceededMessage dsm;
 					dsm.modID = mod.id;
-					std::string serialized = dsm.SerializePublic();
+					const std::string serialized = dsm.SerializePublic();
 					clockUtils::sockets::TcpSocket sock;
 					if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
 						sock.writePacket(serialized);
@@ -1003,7 +1003,7 @@ namespace widgets {
 			msg.setWindowFlags(msg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
 			msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
 			msg.button(QMessageBox::StandardButton::Cancel)->setText(QApplication::tr("Cancel"));
-			if (mod.id == 40 || mod.id == 57 || QMessageBox::StandardButton::Ok == msg.exec()) {
+			if (mod.id == 40 || mod.id == 57 || mod.id == 37 || mod.id == 116 || mod.id == 36 || QMessageBox::StandardButton::Ok == msg.exec()) {
 				// step 1: request all necessary files from server
 				std::thread([this, mod]() {
 					common::RequestModFilesMessage rmfm;

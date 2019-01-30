@@ -86,9 +86,6 @@ namespace widgets {
 		setLayout(l);
 	}
 
-	CustomStatisticsWidget::~CustomStatisticsWidget() {
-	}
-
 	void CustomStatisticsWidget::updateModList(std::vector<common::SendModManagementMessage::ModManagement> modList) {
 		_mods = modList;
 	}

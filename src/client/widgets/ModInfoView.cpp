@@ -1163,9 +1163,12 @@ namespace {
 		}
 
 		Database::DBError err;
-		const std::vector<std::string> ids = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID FROM mods WHERE ModID = 57 LIMIT 1;", err);
-		if (ids.empty()) {
+		const std::vector<std::string> ids = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID FROM mods WHERE ModID = 57 OR ModID = 37;", err);
+		if (std::find_if(ids.begin(), ids.end(), [](const std::string & s) { return s == "57"; }) == ids.end()) {
 			emit installMod(57);
+		}
+		if (std::find_if(ids.begin(), ids.end(), [](const std::string & s) { return s == "37"; }) == ids.end()) {
+			emit installMod(37);
 		}
 
 #ifdef Q_OS_WIN
@@ -1254,9 +1257,16 @@ namespace {
 		}
 
 		Database::DBError err;
-		const std::vector<std::string> ids = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID FROM mods WHERE ModID = 40 LIMIT 1;", err);
-		if (ids.empty()) {
+		const std::vector<std::string> ids = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID FROM mods WHERE ModID = 40 OR ModID = 36 OR ModID = 116;", err);
+		
+		if (std::find_if(ids.begin(), ids.end(), [](const std::string & s) { return s == "40"; }) == ids.end()) {
 			emit installMod(40);
+		}	
+		if (std::find_if(ids.begin(), ids.end(), [](const std::string & s) { return s == "36"; }) == ids.end()) {
+			emit installMod(36);
+		}	
+		if (std::find_if(ids.begin(), ids.end(), [](const std::string & s) { return s == "116"; }) == ids.end()) {
+			emit installMod(116);
 		}
 	
 #ifdef Q_OS_WIN

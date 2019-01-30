@@ -1532,3 +1532,8 @@
 	<Bug language="English">Fixed a bug that caused patching of Gothic after playing most mods</Bug>
 	<Bug language="English">Fixed high memory consumption</Bug>
 </Version>
+<Version majorVersion="1" minorVersion="14" patchVersion="9">
+	<Bug language="Deutsch">Gothic 1 und 2 werden jetzt standardmäßig immer direkt installiert</Bug>
+	
+	<Bug language="English">Gothic 1 and 2 now are always installed by default</Bug>
+</Version>

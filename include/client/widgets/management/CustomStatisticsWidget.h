@@ -35,7 +35,6 @@ namespace widgets {
 
 	public:
 		CustomStatisticsWidget(QWidget * par);
-		~CustomStatisticsWidget();
 
 		void updateModList(std::vector<common::SendModManagementMessage::ModManagement> modList);
 		void selectedMod(int index);
