@@ -140,11 +140,15 @@ namespace spine {
 		}
 
 		QString style = iniParser.value("MISC/style", "Default").toString();
-		if (style != "Default") {
+		if (style != "Default" && style != "Dark Theme By Elgcahlxukuth" && style != "Dark Theme By Milky-Way") {
 			style = STYLESDIR + "/" + style + ".css";
-			if (!QFileInfo(style).exists()) {
+			if (!QFileInfo::exists(style)) {
 				style = ":styles.css";
 			}
+		} else if (style == "Dark Theme By Elgcahlxukuth") {
+			style = ":dark_theme_for_spine_app.css";
+		} else if (style == "Dark Theme By Milky-Way") {
+			style = ":monokai.css";
 		} else {
 			style = ":styles.css";
 		}

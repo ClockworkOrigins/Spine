@@ -6,6 +6,8 @@
 	<file alias="Achievement_Locked.png">../../../config/Achievement_Locked.png</file>
 	<file alias="Achievement_Unlocked.png">../../../config/Achievement_Unlocked.png</file>
 	<file alias="styles.css">../../../css/styles.css</file>
+	<file alias="dark_theme_for_spine_app.css">../../../css/dark_theme_for_spine_app.css</file>
+	<file alias="monokai.css">../../../css/monokai.css</file>
 	<file alias="Lato.ttf">Lato-Semibold.ttf</file>
 	<file alias="SpineSplash.png">SpineSplash.png</file>
 	

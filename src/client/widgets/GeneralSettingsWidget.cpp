@@ -60,7 +60,6 @@ namespace widgets {
 			_languageComboBox->addItem("English");
 			_languageComboBox->addItem("Polish");
 			_languageComboBox->addItem("Russian");
-			_languageComboBox->addItem("Spanish");
 			_languageComboBox->setCurrentText(language);
 			hl->addWidget(languageLabel);
 			hl->addWidget(_languageComboBox);
@@ -82,6 +81,8 @@ namespace widgets {
 			_styleComboBox = new QComboBox(this);
 			_styleComboBox->setEditable(false);
 			_styleComboBox->addItem("Default");
+			//_styleComboBox->addItem("Dark Theme By Elgcahlxukuth");
+			_styleComboBox->addItem("Dark Theme By Milky-Way"); // not yet
 
 			QDirIterator it(Config::STYLESDIR, QStringList() << "*.css", QDir::Files, QDirIterator::Subdirectories);
 			while (it.hasNext()) {
@@ -213,7 +214,19 @@ namespace widgets {
 			const QString style = _iniParser->value("style", "Default").toString();
 			if (style != _styleComboBox->currentText()) {
 				_iniParser->setValue("style", _styleComboBox->currentText());
-				QFile f(_styleComboBox->currentText() == "Default" ? ":styles.css" : _styleComboBox->currentText() == "..." ? "Default" : Config::STYLESDIR + "/" + _styleComboBox->currentText() + ".css");
+				QString cssFile = ":styles.css";
+				if (_styleComboBox->currentText() == "Default") {
+					cssFile = ":styles.css";
+				} else if (_styleComboBox->currentText() == "Dark Theme By Elgcahlxukuth") {
+					cssFile = ":dark_theme_for_spine_app.css";
+				} else if (_styleComboBox->currentText() == "Dark Theme By Milky-Way") {
+					cssFile = ":monokai.css";
+				} else if (_styleComboBox->currentText() == "...") {
+					cssFile = ":styles.css";
+				} else {
+					cssFile = Config::STYLESDIR + "/" + _styleComboBox->currentText() + ".css";
+				}
+				QFile f(cssFile);
 				if (f.open(QIODevice::ReadOnly)) {
 					const QString s(f.readAll());
 					qApp->setStyleSheet(s);

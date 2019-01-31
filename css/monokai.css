@@ -1,0 +1,400 @@
+/* when in doubt, try color: #F92672; */
+/* what I don't like yet:
+ - hyperlinks have a hard to read blue (might not be possible to change)
+ - QTreeView branch icon to expand is not very visible 
+ - Apply button in options has different hover from discard changes */
+
+/* default class for most areas */
+QWidget {
+	background-color: #272822;
+	/*color: #F8F8F2;*/
+}
+
+/* part of tab bar with no text on it (next to Startpage, Infos,...) */
+QMainWindow {
+	border: none;
+	background-color: #171814;
+}
+
+/* relevant parts of scrollbar */
+QScrollBar {
+	background-color: #373833;
+}
+QScrollBar::add-page, QScrollBar::sub-page {
+	background: none;
+}
+QScrollBar::add-line {
+	border: none;
+	background: none;
+}
+
+QScrollBar::sub-line {
+	border: none;
+	background: none;
+}
+
+QScrollBar::handle {
+	background-color: #545551;
+	border-radius: 5px;
+}
+
+QScrollBar::handle:horizontal {
+	min-width: 25px;
+}
+
+QScrollBar::handle:vertical {
+	min-height: 25px;
+}
+
+QCheckBox {
+	background-color: #272822;
+	color: #F8F8F2;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QComboBox {
+	background-color: #272822;
+	color: #F8F8F2;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QDialog {
+	background-color: #272822;
+	color: #F8F8F2;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QGroupBox {
+	background-color: #272822;
+	color: #F8F8F2;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QHeaderView {
+	background-color: #272822;
+	color: #F92672;
+	font-weight: bold;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QHeaderView:section {
+	background-color: #272822;
+	color: #F92672;
+	font-weight: bold;
+}
+
+QLabel {
+	background-color: #272822;
+	color: #F92672;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QLabel[StartPageWelcome=true] {
+	font-size: 44px;
+}
+
+QLabel[adminInfo=true] {
+	color: #F92672;
+}
+
+QLineEdit {
+	background-color: #272822;
+	color: #F8F8F2;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QListView {
+	border: none;
+	background-color: #1F201B;
+	color: #F8F8F2;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QListView::item:hover {
+	background-color: #3E3D32;
+	color: #F8F8F2;
+}
+
+QListView::item:selected {
+	background-color: #272822;
+	color: #F8F8F2;
+}
+
+/* top menu (Data, Extras,...)*/
+QMenuBar {
+	background-color: #171814;
+	color: #F8F8F2;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QMenuBar::item:selected {
+	background: #3E3D32;
+	color: #F8F8F2;
+	font-weight: bold;
+}
+
+QMenu {
+	background-color: #272822;
+	color: #F8F8F2;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QMenu::item:selected {
+	background: #3E3D32;
+	color: #F8F8F2;
+}
+
+QMenu::item:disabled {
+	background-color: 171814;
+	color: #1F201B;
+}
+
+QPushButton {
+	background: #1F201B;
+	color: #F8F8F2;
+}
+
+QPushButton::disabled {
+	background-color: 171814;
+	color: #1F201B;
+}
+
+QPushButton::hover {
+	background: #3E3D32;
+	color: #F8F8F2;
+}
+
+QDoubleSpinBox,
+QSpinBox {
+	background-color: #272822;
+	color: #F8F8F2;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QScrollArea[default=true] {
+	border: none;
+	background-color: #272822;
+}
+
+QScrollArea {
+	border: none;
+}
+
+/* tab bar: startpage, infos,... */
+QTabBar {
+	color: #F8F8F2; /* text color */
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QTabBar::tab {
+	background-color: #1F201B;
+	color: #75715E;
+}
+
+QTabBar::tab:selected {
+	background-color: #272822;
+	color: #F8F8F2;
+	font-weight: bold;
+}
+
+QTabBar::tab:hover {
+	background-color: #3E3D32;
+	color: #F8F8F2;
+}
+/* ? */
+QTabBar::tab:disabled {
+	color: #1F201B;
+}
+
+/* list of news titles on Startpage */
+QTableView {
+	border: none;
+	background-color: #272822;
+	color: #E6DB6A;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QTableView::item:selected {
+	background-color: #272822;
+	color: #F8F8F2;
+}
+
+QTableView::item:disabled {
+	background-color: #272822;
+	color: #F8F8F2;
+}
+
+QTreeView {
+	border: 2px solid #171814;
+	background-color: #272822;
+	alternate-background-color: #1F201B;
+	color: #F8F8F2;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+ /*no good way to style the expand icons? need to ship differently colored images... 
+QTreeView::branch:has-children:!has-siblings:closed,
+QTreeView::branch:closed:has-children:has-siblings {
+	border-image: none;
+	image: url(:/branch-closed.png);
+}
+
+QTreeView::branch:open:has-children:!has-siblings,
+QTreeView::branch:open:has-children:has-siblings  {
+	border-image: none;
+	image: url(:/branch-open.png);
+}*/
+
+QTreeView::item:selected {
+	background-color: #3E3D32;
+}
+
+QTreeView::item:hover {
+	background-color: #3E3D32;
+}
+
+QTreeView::item:disabled {
+	background-color: #373833;
+	color: #171814;
+}
+
+QLabel[profileHeader=true] {
+	font-size: 24px;
+}
+
+QLabel[FAQQuestion=true] {
+	font: bold 18px;
+}
+
+QWidget[FAQ=true] {
+	background-color: #272822;
+}
+
+QPushButton[logout=true] {
+	font-size: 10px;
+}
+
+QCheckBox[noLogin=true] {
+	font-size: 10px;
+}
+
+QPushButton[noLogin=true] {
+	font-size: 10px;
+}
+
+QWidget#ProfileModView {
+	border: 2px solid #171814;
+	border-radius: 6px;
+	
+	background-color: #272822;
+	color: #F8F8F2;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+/*QPushButton {
+	background-color: #272822;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}*/
+
+QTableView::item:enabled[score=true] {
+	background-color: #272822;
+	color: #F8F8F2;
+}
+
+QTableView::item:disabled[score=true] {
+	background-color: #272822;
+	color: #F8F8F2;
+}
+
+QTextBrowser {
+/*	border: 2px solid #272822;
+	background-color: #272822;*/
+	border: none;
+	color: #F8F8F2;
+	font-size: 14px;
+}
+
+QDateEdit {
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QWidget#AchievementView {
+	/*border: 2px solid #4f4f51;*/
+	
+	background-color: #272822;
+	color: #F8F8F2;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QWidget#NewsWidget {
+	border: 2px solid #171814;
+	border-radius: 6px;
+	
+	background-color: #272822;
+	color: #F8F8F2;
+	font-family: "Lato Semibold";
+	font-size: 14px;
+}
+
+QWidget[default=true] {
+	background-color: #272822;
+}
+
+QWidget:disabled[library=true] {
+	background-color: #272822;
+}
+
+QLabel[newsTitle=true] {
+	font-size: 24px;
+}
+
+QLabel[newsTimestamp=true] {
+	font-size: 24px;
+}
+
+QTextEdit[newsText=true] {
+	font-size: 14px;
+}
+
+QWidget[achievementEditor=true] {
+	background-color: #272822;
+}
+
+QLabel[modnameTitle=true] {
+	font-size: 24px;
+}
+
+QLabel[requestName=true] {
+	font-size: 24px;
+}
+
+QLabel[hiddenAchievementCount=true] {
+	font-size: 24px;
+}
+
+QTableView[newsTicker=true] {
+	border: none;
+}
+
+QLabel[waitSpinner=true] {
+	background-color: #272822;
+}
+
