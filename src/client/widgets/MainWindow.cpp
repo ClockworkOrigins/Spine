@@ -125,6 +125,7 @@ namespace widgets {
 #ifdef Q_OS_WIN
 		LOGINFO("Memory Usage MainWindow c'tor #1: " << getPRAMValue());
 #endif
+
 		setWindowIcon(QIcon(":/Spine.ico"));
 		_settingsDialog = new SettingsDialog(_iniParser, this); // create at first
 
@@ -845,7 +846,7 @@ namespace widgets {
 	}
 
 	void MainWindow::checkIntegrity() {
-		IntegrityCheckDialog dlg(this);
+		IntegrityCheckDialog dlg(this, this);
 		if (_settingsDialog->getLocationSettingsWidget()->isGothicValid(true)) {
 			dlg.setGothicDirectory(_gothicDirectory);
 		}
@@ -1160,11 +1161,11 @@ namespace widgets {
 			if (steamSettings.value("SteamPath").isValid()) {
 				const QString steamDir = steamSettings.value("SteamPath").toString();
 				const QString gothicDir = steamDir + "/SteamApps/common/Gothic";
-				if (QFile(gothicDir + "/System/Gothic.exe").exists()) {
+				if (QFileInfo::exists(gothicDir + "/System/Gothic.exe")) {
 					lsw->setGothicDirectory(gothicDir);
 				}
 				const QString gothic2Dir = steamDir + "/SteamApps/common/Gothic II";
-				if (QFile(gothic2Dir + "/System/Gothic2.exe").exists()) {
+				if (QFileInfo::exists(gothic2Dir + "/System/Gothic2.exe")) {
 					lsw->setGothic2Directory(gothic2Dir);
 				}
 			}
@@ -1307,25 +1308,19 @@ namespace widgets {
 
 			QSettings iniParser(s, QSettings::IniFormat);
 			QString title = iniParser.value("INFO/Title", "").toString();
-			if (title.isEmpty()) {
-				continue;
-			}
+
+			if (title.isEmpty()) continue;
+
 			const QString icon = iniParser.value("INFO/Icon", "").toString();
 			QPixmap pixmap(baseDir + "/System/" + icon);
 			if (pixmap.isNull()) {
-				QString exeFileName;
-				if (QFile(baseDir + "/System/Gothic.exe").exists()) {
-					exeFileName = baseDir + "/System/Gothic.exe";
-				} else if (QFile(baseDir + "/System/Gothic2.exe").exists()) {
-					exeFileName = baseDir + "/System/Gothic2.exe";
+				if (QFileInfo::exists(baseDir + "/System/Gothic.exe")) {
+					static QPixmap p1 = QPixmap::fromImage(QImage(":Gothic.ico"));
+					pixmap = p1;
+				} else if (QFileInfo::exists(baseDir + "/System/Gothic2.exe")) {					
+					static QPixmap p2 = QPixmap::fromImage(QImage(":Gothic2.ico"));
+					pixmap = p2;
 				}
-#ifdef Q_OS_WIN
-				if (!exeFileName.isEmpty()) {
-					const HINSTANCE hInstance = GetModuleHandle(nullptr);
-					const HICON icon = ExtractIcon(hInstance, exeFileName.toStdString().c_str(), 0);
-					pixmap = QtWin::fromHICON(icon);
-				}
-#endif
 			}
 			pixmap = pixmap.scaled(QSize(32, 32), Qt::AspectRatioMode::KeepAspectRatio, Qt::SmoothTransformation);
 			while (title.startsWith(' ') || title.startsWith('\t')) {
@@ -1336,9 +1331,9 @@ namespace widgets {
 			item->setData(false, LibraryFilterModel::InstalledRole);
 			item->setData(false, LibraryFilterModel::HiddenRole);
 			item->setEditable(false);
-			if (QFile(baseDir + "/System/Gothic.exe").exists()) {
+			if (QFileInfo::exists(baseDir + "/System/Gothic.exe")) {
 				item->setData(int(common::GothicVersion::GOTHIC), LibraryFilterModel::GothicRole);
-			} else if (QFile(baseDir + "/System/Gothic2.exe").exists()) {
+			} else if (QFileInfo::exists(baseDir + "/System/Gothic2.exe")) {
 				item->setData(int(common::GothicVersion::GOTHIC2), LibraryFilterModel::GothicRole);
 			}
 			_modListModel->appendRow(item);
@@ -1389,19 +1384,13 @@ namespace widgets {
 			}
 			if (pixmap.isNull()) {
 				if (found) {
-					QString exeFileName;
-					if (mid == common::GothicVersion::GOTHIC && QFile(_gothicDirectory + "/System/Gothic.exe").exists()) {
-						exeFileName = _gothicDirectory + "/System/Gothic.exe";
-					} else if (mid == common::GothicVersion::GOTHIC2 && QFile(_gothic2Directory + "/System/Gothic2.exe").exists()) {
-						exeFileName = _gothic2Directory + "/System/Gothic2.exe";
+					if (mid == common::GothicVersion::GOTHIC && QFileInfo::exists(_gothicDirectory + "/System/Gothic.exe")) {
+						static QPixmap p1 = QPixmap::fromImage(QImage(":Gothic.ico"));
+						pixmap = p1;
+					} else if (mid == common::GothicVersion::GOTHIC2 && QFileInfo::exists(_gothic2Directory + "/System/Gothic2.exe")) {
+						static QPixmap p2 = QPixmap::fromImage(QImage(":Gothic2.ico"));
+						pixmap = p2;
 					}
-#ifdef Q_OS_WIN
-					if (!exeFileName.isEmpty()) {
-						const HINSTANCE hInstance = GetModuleHandle(nullptr);
-						const HICON ic = ExtractIcon(hInstance, exeFileName.toStdString().c_str(), 0);
-						pixmap = QtWin::fromHICON(ic);
-					}
-#endif
 				}
 			}
 			pixmap = pixmap.scaled(QSize(32, 32), Qt::AspectRatioMode::KeepAspectRatio, Qt::SmoothTransformation);

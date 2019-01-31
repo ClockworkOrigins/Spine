@@ -48,8 +48,7 @@ namespace widgets {
 			}
 		};
 
-		IntegrityCheckDialog(QMainWindow * mainWindow);
-		~IntegrityCheckDialog();
+		IntegrityCheckDialog(QMainWindow * mainWindow, QWidget * par);
 
 		QList<ModFile> getCorruptFiles() const {
 			return _corruptFiles;

@@ -30,6 +30,7 @@
 #include <QDirIterator>
 #include <QFileInfo>
 #include <QMainWindow>
+#include <QtConcurrentRun>
 
 #ifdef Q_OS_WIN
 	#include <QWinTaskbarButton>
@@ -39,11 +40,11 @@
 namespace spine {
 namespace widgets {
 
-	IntegrityCheckDialog::IntegrityCheckDialog(QMainWindow * mainWindow) : QProgressDialog(QApplication::tr("CheckIntegrityChecking").arg("-"), QApplication::tr("Cancel"), 0, 100), _taskbarProgress(nullptr), _running(false), _corruptFiles(), _corruptGothicFiles(), _corruptGothic2Files(), _gothicDirectory(), _gothic2Directory() {
-		connect(this, SIGNAL(updateText(QString)), this, SLOT(setText(QString)));
-		connect(this, SIGNAL(updateValue(int)), this, SLOT(setValue(int)));
-		connect(this, SIGNAL(updateCount(int)), this, SLOT(setMaximum(int)));
-		connect(this, SIGNAL(canceled()), this, SLOT(cancel()));
+	IntegrityCheckDialog::IntegrityCheckDialog(QMainWindow * mainWindow,  QWidget * par) : QProgressDialog(QApplication::tr("CheckIntegrityChecking").arg("-"), QApplication::tr("Cancel"), 0, 100, par), _taskbarProgress(nullptr), _running(false), _corruptFiles(), _corruptGothicFiles(), _corruptGothic2Files(), _gothicDirectory(), _gothic2Directory() {
+		connect(this, &IntegrityCheckDialog::updateText, this, &IntegrityCheckDialog::setText);
+		connect(this, &IntegrityCheckDialog::updateValue, this, &IntegrityCheckDialog::setValue);
+		connect(this, &IntegrityCheckDialog::updateCount, this, &IntegrityCheckDialog::setMaximum);
+		connect(this, &IntegrityCheckDialog::canceled, this, &IntegrityCheckDialog::cancel);
 
 #ifdef Q_OS_WIN
 		QWinTaskbarButton * button = new QWinTaskbarButton(this);
@@ -59,17 +60,16 @@ namespace widgets {
 		setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 	}
 
-	IntegrityCheckDialog::~IntegrityCheckDialog() {
-	}
-
 	int IntegrityCheckDialog::exec() {
 		_running = true;
 #ifdef Q_OS_WIN
 		_taskbarProgress->show();
 #endif
-		std::thread t(std::bind(&IntegrityCheckDialog::process, this));
+		QFuture<void> f = QtConcurrent::run([this]() {
+			process();
+		});
 		QProgressDialog::exec();
-		t.join();
+		f.waitForFinished();
 #ifdef Q_OS_WIN
 		_taskbarProgress->hide();
 #endif
@@ -85,7 +85,7 @@ namespace widgets {
 	}
 
 	void IntegrityCheckDialog::setText(QString text) {
-		QProgressDialog::setLabelText(QApplication::tr("CheckIntegrityChecking").arg(text));
+		setLabelText(QApplication::tr("CheckIntegrityChecking").arg(text));
 	}
 
 	void IntegrityCheckDialog::setValue(int value) {

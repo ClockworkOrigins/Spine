@@ -9,6 +9,9 @@
 	<file alias="Lato.ttf">Lato-Semibold.ttf</file>
 	<file alias="SpineSplash.png">SpineSplash.png</file>
 	
+	<file alias="Gothic.ico">Gothic.ico</file>
+	<file alias="Gothic2.ico">Gothic2.ico</file>
+	
 	<file alias="branch-closed.png">stylesheet-branch-closed.png</file>
 	<file alias="branch-open.png">stylesheet-branch-open.png</file>
 	
