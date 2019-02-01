@@ -3012,5 +3012,9 @@ Until the version number was updated the new files only affect players downloadi
         <translation>By accepting the privacy policy you give us the permission to collect and process all data mentioned in the privacy policy.
 You can revoke your permission at every point in time. All necessary informations about that you can find on the homepage.</translation>
     </message>
+    <message>
+        <source>Discord</source>
+        <translation>Discord</translation>
+    </message>
 </context>
 </TS>

@@ -3004,5 +3004,9 @@ Bis die Versionsnummer aktualisiert wurde betreffen die neuen Dateien nur Spiele
         <translation>Durch Zustimmung zur Datenschutzerklärung erlaubst du das Sammeln und Verarbeiten der in der Datenschutzerklärung angegebenen Daten.
 Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Informationen findest du auf der Homepage.</translation>
     </message>
+    <message>
+        <source>Discord</source>
+        <translation>Discord</translation>
+    </message>
 </context>
 </TS>

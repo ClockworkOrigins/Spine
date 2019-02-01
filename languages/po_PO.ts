@@ -3004,5 +3004,9 @@ Do czasu zaktualizowania numeru wersji nowe pliki obejmują jedynie graczy, któ
         <translation>Wyrażając zgodę na Politykę Prywatności, wyrażasz zgodę na zbieranie i przetwarzanie informacji zawartych w Polityce Prywatności.
 Zgodę można odwołać w każdej chwili. Wszystkie niezbędne informacje można znaleźć na stronie głównej.</translation>
     </message>
+    <message>
+        <source>Discord</source>
+        <translation>Discord</translation>
+    </message>
 </context>
 </TS>

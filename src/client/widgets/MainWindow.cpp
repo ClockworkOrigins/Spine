@@ -82,6 +82,7 @@
 #include <QCheckBox>
 #include <QCloseEvent>
 #include <QCryptographicHash>
+#include <QDesktopServices>
 #include <QDialogButtonBox>
 #include <QDirIterator>
 #include <QGroupBox>
@@ -626,7 +627,9 @@ namespace widgets {
 		}
 
 		helpMenu->addSeparator();
-
+		
+		QAction * discordAction = helpMenu->addAction(QApplication::tr("Discord"));
+		UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), discordAction, "Discord");
 		if (_onlineMode) {
 			QAction * feedbackAction = helpMenu->addAction(QApplication::tr("Feedback"));
 			UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), feedbackAction, "Feedback");
@@ -662,6 +665,9 @@ namespace widgets {
 		connect(faqAction, SIGNAL(triggered()), this, SLOT(execFAQ()));
 		connect(generateReportAction, &QAction::triggered, this, &MainWindow::generateReports);
 		connect(showChangelogAction, SIGNAL(triggered()), _changelogDialog, SLOT(exec()));
+		connect(discordAction, &QAction::triggered, []() {
+			QDesktopServices::openUrl(QUrl("https://discord.gg/x4x5Mc8"));
+		});
 		connect(aboutAction, SIGNAL(triggered()), aboutDialog, SLOT(exec()));
 
 		connect(_settingsDialog->getLocationSettingsWidget(), SIGNAL(pathChanged()), this, SLOT(pathChanged()));
