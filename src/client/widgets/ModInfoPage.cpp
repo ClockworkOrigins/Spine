@@ -275,9 +275,6 @@ namespace widgets {
 		connect(this, SIGNAL(gotRandomMod(int32_t)), this, SLOT(loadPage(int32_t)));
 	}
 
-	ModInfoPage::~ModInfoPage() {
-	}
-
 	void ModInfoPage::setLanguage(QString language) {
 		_language = language;
 	}
@@ -499,7 +496,7 @@ namespace widgets {
 		QDirIterator it(Config::MODDIR + "/mods/" + QString::number(_modID) + "/System", QStringList() << "*.ini", QDir::Files, QDirIterator::Subdirectories);
 		_startButton->setVisible(installed && it.hasNext());
 
-		for (const auto p : sipm->optionalPackages) {
+		for (const auto & p : sipm->optionalPackages) {
 			const bool packageInstalled = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT PackageID FROM packages WHERE ModID = " + std::to_string(_modID) + " AND PackageID = " + std::to_string(p.first) + " LIMIT 1;", err) > 0;
 			QPushButton * pb = new QPushButton(QIcon(":/svg/download.svg"), s2q(p.second), this);
 			pb->setVisible(!packageInstalled && installed && sipm->installAllowed);
@@ -518,7 +515,7 @@ namespace widgets {
 
 	void ModInfoPage::installMod() {
 		const int32_t modID = sender()->property("modid").toInt();
-		emit tryInstallMod(modID);
+		emit tryInstallMod(modID, -1);
 	}
 
 	void ModInfoPage::installPackage() {
@@ -576,7 +573,7 @@ namespace widgets {
 		QPixmap thumb(path);
 		itm->setIcon(thumb.scaled(QSize(300, 100), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 		_thumbnailModel->appendRow(itm);
-		_screens.push_back(std::make_pair(path.toStdString(), ""));
+		_screens.emplace_back(path.toStdString(), "");
 		_addImageButton->setEnabled(_screens.size() < 10 || _username == "Bonne");
 	}
 
@@ -662,12 +659,12 @@ namespace widgets {
 							QByteArray byteArr = f.readAll();
 							std::vector<uint8_t> buffer(byteArr.length());
 							memcpy(&buffer[0], byteArr.data(), byteArr.length());
-							sipm.imageFiles.push_back(std::make_pair((QFileInfo(QString::fromStdString(p.first)).fileName()).toStdString(), buffer));
+							sipm.imageFiles.emplace_back(QFileInfo(QString::fromStdString(p.first)).fileName().toStdString(), buffer);
 						}
 						f.close();
 						f.remove();
 					}
-					sipm.screenshots.push_back(std::make_pair((QFileInfo(QString::fromStdString(p.first)).fileName()).toStdString(), p.second));
+					sipm.screenshots.emplace_back(QFileInfo(QString::fromStdString(p.first)).fileName().toStdString(), p.second);
 				} else {
 					sipm.screenshots.push_back(p);
 				}

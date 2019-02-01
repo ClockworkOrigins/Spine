@@ -38,7 +38,6 @@ namespace widgets {
 		static bool skipExitCheckbox;
 
 		GeneralSettingsWidget(QSettings * iniParser, QWidget * par);
-		~GeneralSettingsWidget();
 
 		void saveSettings();
 		void rejectSettings();

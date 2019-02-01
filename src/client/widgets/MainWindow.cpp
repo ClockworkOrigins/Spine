@@ -211,7 +211,7 @@ namespace widgets {
 
 		StartPageWidget * startPage = new StartPageWidget(_onlineMode, this, _settingsDialog->getGeneralSettingsWidget(), _tabWidget);
 		startPage->setLanguage(_settingsDialog->getGeneralSettingsWidget()->getLanguage());
-		connect(_settingsDialog->getGeneralSettingsWidget(), SIGNAL(languageChanged(QString)), startPage, SLOT(setLanguage(QString)));
+		connect(_settingsDialog->getGeneralSettingsWidget(), &GeneralSettingsWidget::languageChanged, startPage, &StartPageWidget::setLanguage);
 
 		_tabWidget->addTab(startPage, QApplication::tr("Startpage"));
 		UPDATELANGUAGESETTABTEXT(_settingsDialog->getGeneralSettingsWidget(), _tabWidget, _onlineMode ? int(MainTabsOnline::StartOnline) : int(MainTabsOffline::StartOffline), "Startpage");
@@ -221,7 +221,7 @@ namespace widgets {
 			_tabWidget->addTab(_modInfoPage, QApplication::tr("InfoPage"));
 			UPDATELANGUAGESETTABTEXT(_settingsDialog->getGeneralSettingsWidget(), _tabWidget, MainTabsOnline::Info, "InfoPage");
 			_modInfoPage->setLanguage(_settingsDialog->getGeneralSettingsWidget()->getLanguage());
-			connect(_settingsDialog->getGeneralSettingsWidget(), SIGNAL(languageChanged(QString)), _modInfoPage, SLOT(setLanguage(QString)));
+			connect(_settingsDialog->getGeneralSettingsWidget(), &GeneralSettingsWidget::languageChanged, _modInfoPage, &ModInfoPage::setLanguage);
 		}
 
 		if (_onlineMode) {
@@ -231,18 +231,18 @@ namespace widgets {
 		}
 
 		if (_onlineMode) {
-			connect(startPage, SIGNAL(tryInstallMod(int)), _modDatabaseView, SLOT(updateModList(int)));
-			connect(_modInfoPage, SIGNAL(tryInstallMod(int)), _modDatabaseView, SLOT(updateModList(int)));
-			connect(_modInfoPage, SIGNAL(tryInstallPackage(int, int)), _modDatabaseView, SLOT(updateModList(int, int)));
-			connect(_modDatabaseView, SIGNAL(loadPage(int32_t)), _modInfoPage, SLOT(loadPage(int32_t)));
-			connect(_modDatabaseView, SIGNAL(loadPage(int32_t)), this, SLOT(changeToInfoTab()));
+			connect(startPage, &StartPageWidget::tryInstallMod, _modDatabaseView, static_cast<void(ModDatabaseView::*)(int, int)>(&ModDatabaseView::updateModList));
+			connect(_modInfoPage, &ModInfoPage::tryInstallMod, _modDatabaseView, static_cast<void(ModDatabaseView::*)(int, int)>(&ModDatabaseView::updateModList));
+			connect(_modInfoPage, &ModInfoPage::tryInstallPackage, _modDatabaseView, static_cast<void(ModDatabaseView::*)(int, int)>(&ModDatabaseView::updateModList));
+			connect(_modDatabaseView, &ModDatabaseView::loadPage, _modInfoPage, &ModInfoPage::loadPage);
+			connect(_modDatabaseView, &ModDatabaseView::loadPage, this, &MainWindow::changeToInfoTab);
 
-			connect(_modDatabaseView, SIGNAL(finishedInstallation(int, int, bool)), startPage, SIGNAL(finishedInstallation(int, int, bool)));
-			connect(_modDatabaseView, SIGNAL(finishedInstallation(int, int, bool)), _modInfoPage, SLOT(finishedInstallation(int, int, bool)));
+			connect(_modDatabaseView, &ModDatabaseView::finishedInstallation, startPage, &StartPageWidget::finishedInstallation);
+			connect(_modDatabaseView, &ModDatabaseView::finishedInstallation, _modInfoPage, &ModInfoPage::finishedInstallation);
 
-			connect(_modInfoPage, SIGNAL(triggerModStart(int, QString)), this, SLOT(triggerModStart(int, QString)));
+			connect(_modInfoPage, &ModInfoPage::triggerModStart, this, &MainWindow::triggerModStart);
 		}
-		connect(startPage, SIGNAL(triggerModStart(int, QString)), this, SLOT(triggerModStart(int, QString)));
+		connect(startPage, &StartPageWidget::triggerModStart, this, &MainWindow::triggerModStart);
 
 #ifdef Q_OS_WIN
 		LOGINFO("Memory Usage MainWindow c'tor #6: " << getPRAMValue());
@@ -290,7 +290,7 @@ namespace widgets {
 			le->setPlaceholderText(QApplication::tr("SearchPlaceholder"));
 			UPDATELANGUAGESETPLACEHOLDERTEXT(_settingsDialog->getGeneralSettingsWidget(), le, "SearchPlaceholder");
 
-			connect(le, SIGNAL(textChanged(const QString &)), _sortModel, SLOT(setFilterRegExp(const QString &)));
+			connect(le, &QLineEdit::textChanged, _sortModel, static_cast<void(QSortFilterProxyModel::*)(const QString &)>(&QSortFilterProxyModel::setFilterRegExp));
 
 			hl->addWidget(le);
 			{

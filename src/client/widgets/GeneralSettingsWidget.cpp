@@ -182,9 +182,6 @@ namespace widgets {
 		setLayout(l);
 	}
 
-	GeneralSettingsWidget::~GeneralSettingsWidget() {
-	}
-
 	void GeneralSettingsWidget::saveSettings() {
 		_iniParser->beginGroup("MISC");
 		const QString language = _iniParser->value("language", "English").toString();

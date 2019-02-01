@@ -53,11 +53,10 @@ namespace widgets {
 
 	public:
 		ModInfoPage(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QSettings * iniParser, QWidget * par);
-		~ModInfoPage();
 
 	signals:
 		void receivedPage(common::SendInfoPageMessage *);
-		void tryInstallMod(int);
+		void tryInstallMod(int, int);
 		void tryInstallPackage(int, int);
 		void gotRandomMod(int32_t);
 		void triggerModStart(int, QString);

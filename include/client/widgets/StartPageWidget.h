@@ -46,7 +46,7 @@ namespace widgets {
 
 	signals:
 		void receivedNews();
-		void tryInstallMod(int);
+		void tryInstallMod(int, int);
 		void finishedInstallation(int, int, bool);
 		void triggerModStart(int, QString);
 
