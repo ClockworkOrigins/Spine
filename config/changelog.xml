@@ -1535,9 +1535,11 @@
 <Version majorVersion="1" minorVersion="14" patchVersion="9">
 	<Enhancement language="Deutsch">Dunkles Theme eingefügt (erstellt von Milky-Way)</Enhancement>
 	<Enhancement language="Deutsch">Link zu Discord im Hilfemenü eingerichtet</Enhancement>
+	<Enhancement language="Deutsch">Hat man das DirectX Redist bereits einmal über Spine installiert, wird von einem erneuten Download jetzt abgesehen</Enhancement>
 	<Bug language="Deutsch">Gothic 1 und 2 werden jetzt standardmäßig immer direkt installiert</Bug>
 	
 	<Enhancement language="English">Added dark theme (created by Milky-Way)</Enhancement>
 	<Enhancement language="English">Added Link zu Discord in Help menu</Enhancement>
+	<Enhancement language="English">If DirectX Redist already has been installed once via Spine it isn't downloaded again anymore</Enhancement>
 	<Bug language="English">Gothic 1 and 2 now are always installed by default</Bug>
 </Version>

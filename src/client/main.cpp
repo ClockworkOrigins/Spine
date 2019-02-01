@@ -145,9 +145,8 @@ int main(int argc, char ** argv) {
 #endif
 
 	int ret;
-	QSettings iniParser(spine::Config::BASEDIR + "/Spine.ini", QSettings::IniFormat);
 	{
-		spine::widgets::MainWindow wnd(false, &iniParser);
+		spine::widgets::MainWindow wnd(false, spine::Config::IniParser);
 
 #ifdef Q_OS_WIN
 		LOGINFO("Memory Usage main #2: " << spine::getPRAMValue());
@@ -159,5 +158,6 @@ int main(int argc, char ** argv) {
 #endif
 		ret = QApplication::exec();
 	}
+	delete spine::Config::IniParser;
 	return ret;
 }

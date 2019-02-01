@@ -127,6 +127,11 @@ namespace widgets {
 		LOGINFO("Memory Usage MainWindow c'tor #1: " << getPRAMValue());
 #endif
 
+		if (!_iniParser->contains("INSTALLATION/DirectX")) {
+			// so far Spine automatically install DirectX during installation, but to enforce reinstall on download of e.g. renderer, this can manually set to false in the ini
+			_iniParser->setValue("INSTALLATION/DirectX", true);
+		}
+
 		setWindowIcon(QIcon(":/Spine.ico"));
 		_settingsDialog = new SettingsDialog(_iniParser, this); // create at first
 

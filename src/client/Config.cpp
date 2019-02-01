@@ -40,6 +40,7 @@ namespace spine {
 	QString Config::MODDIR;
 	QString Config::NEWSIMAGEDIR;
 	QString Config::STYLESDIR;
+	QSettings * Config::IniParser = nullptr;
 
 	int Config::Init() {
 		struct TamperCheckWrapper {
@@ -117,12 +118,12 @@ namespace spine {
 				oldIni.rename(BASEDIR + "/Spine.ini");
 			}
 		}
-		QSettings iniParser(BASEDIR + "/Spine.ini", QSettings::IniFormat);
+		IniParser = new QSettings(BASEDIR + "/Spine.ini", QSettings::IniFormat);
 		{
-			const QString path = iniParser.value("PATH/Downloads", "").toString();
+			const QString path = IniParser->value("PATH/Downloads", "").toString();
 			MODDIR = path;
 		}
-		QString language = iniParser.value("MISC/language", "").toString();
+		QString language = IniParser->value("MISC/language", "").toString();
 		if (language.isEmpty()) {
 			QLocale locale = QLocale::system();
 			if (locale.language() == QLocale::Language::German) {
@@ -136,10 +137,10 @@ namespace spine {
 			} else {
 				language = "English";
 			}
-			iniParser.setValue("MISC/language", language);
+			IniParser->setValue("MISC/language", language);
 		}
 
-		QString style = iniParser.value("MISC/style", "Default").toString();
+		QString style = IniParser->value("MISC/style", "Default").toString();
 		if (style != "Default" && style != "Dark Theme By Elgcahlxukuth" && style != "Dark Theme By Milky-Way") {
 			style = STYLESDIR + "/" + style + ".css";
 			if (!QFileInfo::exists(style)) {

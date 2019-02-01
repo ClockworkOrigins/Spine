@@ -20,6 +20,7 @@
 
 #include <fstream>
 
+#include "Config.h"
 #include "WindowsExtensions.h"
 
 #include "widgets/GeneralSettingsWidget.h"
@@ -38,10 +39,11 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QProcess>
+#include <QSettings>
 
 #ifdef Q_OS_WIN
 	#include <Windows.h>
-	#include <ShellAPI.h>
+	#include <shellapi.h>
 #endif
 
 namespace spine {
@@ -100,6 +102,10 @@ namespace spine {
 				}
 				f.close();
 			}
+		} else if (_fileName == "directx_Jun2010_redist.exe" && Config::IniParser->value("INSTALLATION/DirectX", true).toBool()) {
+			emit downloadProgress(_filesize);
+			emit downloadSucceeded();
+			return;
 		}
 		_outputFile = new QFile(_targetDirectory + "/" + _fileName);
 		if (!_outputFile->open(QIODevice::WriteOnly)) {
@@ -267,6 +273,7 @@ namespace spine {
 							emit downloadSucceeded();
 						}
 						QDir(_targetDirectory + "/directX/").removeRecursively();
+						Config::IniParser->setValue("INSTALLATION/DirectX", true);
 #endif
 					} else {
 						if (widgets::GeneralSettingsWidget::extendedLogging) {

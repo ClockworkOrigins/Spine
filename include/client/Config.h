@@ -21,6 +21,8 @@
 
 #include <QString>
 
+class QSettings;
+
 namespace spine {
 
 	class Config {
@@ -34,6 +36,7 @@ namespace spine {
 		static QString MODDIR;
 		static QString NEWSIMAGEDIR;
 		static QString STYLESDIR;
+		static QSettings * IniParser;
 	};
 
 } /* namespace spine */
