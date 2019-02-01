@@ -3008,5 +3008,9 @@ Zgodę można odwołać w każdej chwili. Wszystkie niezbędne informacje można
         <source>Discord</source>
         <translation>Discord</translation>
     </message>
+    <message>
+        <source>xOfyFilesHaveBeenUpdated</source>
+        <translation>%1 von %2 Dateien wurden aktualisiert.</translation>
+    </message>
 </context>
 </TS>

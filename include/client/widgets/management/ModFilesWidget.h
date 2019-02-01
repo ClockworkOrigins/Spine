@@ -45,14 +45,13 @@ namespace widgets {
 
 	public:
 		ModFilesWidget(QString username, QString language, QWidget * par);
-		~ModFilesWidget();
 
 		void updateModList(std::vector<common::SendModManagementMessage::ModManagement> modList);
 		void selectedMod(int index);
 
 	signals:
 		void receivedMods(std::vector<common::SendModManagementMessage::ModManagement>);
-		void finishedUpload(bool);
+		void finishedUpload(bool, int);
 		void updateUploadText(QString);
 		void checkForUpdate(int32_t);
 
@@ -62,7 +61,7 @@ namespace widgets {
 		void uploadCurrentMod();
 		void changedLanguage(QStandardItem * itm);
 		void updateVersion();
-		void finishUpload(bool success);
+		void finishUpload(bool success, int updatedCount);
 		void testUpdate();
 
 	private:

@@ -3008,5 +3008,9 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>Discord</source>
         <translation>Discord</translation>
     </message>
+    <message>
+        <source>xOfyFilesHaveBeenUpdated</source>
+        <translation>%1 von %2 Dateien wurden aktualisiert.</translation>
+    </message>
 </context>
 </TS>

@@ -3013,5 +3013,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>Discord</source>
         <translation>Discord</translation>
     </message>
+    <message>
+        <source>xOfyFilesHaveBeenUpdated</source>
+        <translation>%1 of %2 files have been updated.</translation>
+    </message>
 </context>
 </TS>

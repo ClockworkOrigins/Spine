@@ -79,7 +79,7 @@ namespace {
 			QPushButton * submitButton = new QPushButton(QApplication::tr("Submit"), this);
 			submitButton->setToolTip(QApplication::tr("UpdateVersionNumberTooltip"));
 			hl2->addWidget(submitButton);
-			connect(submitButton, SIGNAL(released()), this, SLOT(updateVersion()));
+			connect(submitButton, &QPushButton::released, this, &ModFilesWidget::updateVersion);
 
 			l->addLayout(hl2);
 		}
@@ -89,7 +89,7 @@ namespace {
 		_fileTreeView->header()->hide();
 		_fileTreeView->setModel(_fileList);
 		_fileTreeView->setToolTip(QApplication::tr("FileStructureTooltip"));
-		connect(_fileList, SIGNAL(itemChanged(QStandardItem *)), this, SLOT(changedLanguage(QStandardItem *)));
+		connect(_fileList, &QStandardItemModel::itemChanged, this, &ModFilesWidget::changedLanguage);
 		l->addWidget(_fileTreeView);
 
 		{
@@ -97,7 +97,7 @@ namespace {
 			QPushButton * pbAdd = new QPushButton("+", this);
 			pbAdd->setToolTip(QApplication::tr("AddFileTooltip"));
 			hl2->addWidget(pbAdd);
-			connect(pbAdd, SIGNAL(released()), this, SLOT(addFile()));
+			connect(pbAdd, &QPushButton::released, this, static_cast<void(ModFilesWidget::*)()>(&ModFilesWidget::addFile));
 
 			QPushButton * pbDelete = new QPushButton("-", this);
 			pbDelete->setToolTip(QApplication::tr("RemoveFileTooltip"));
@@ -110,102 +110,99 @@ namespace {
 		QPushButton * uploadButton = new QPushButton(QApplication::tr("Upload"), this);
 		uploadButton->setToolTip(QApplication::tr("UploadFileTooltip"));
 		l->addWidget(uploadButton);
-		connect(uploadButton, SIGNAL(released()), this, SLOT(uploadCurrentMod()));
+		connect(uploadButton, &QPushButton::released, this, &ModFilesWidget::uploadCurrentMod);
 
 		QPushButton * testUpdateButton = new QPushButton(QApplication::tr("TestUpdate"), this);
 		testUpdateButton->setToolTip(QApplication::tr("TestUpdateTooltip"));
 		l->addWidget(testUpdateButton);
-		connect(testUpdateButton, SIGNAL(released()), this, SLOT(testUpdate()));
+		connect(testUpdateButton, &QPushButton::released, this, &ModFilesWidget::testUpdate);
 
-		connect(this, SIGNAL(finishedUpload(bool)), this, SLOT(finishUpload(bool)));
+		connect(this, &ModFilesWidget::finishedUpload, this, &ModFilesWidget::finishUpload);
 
 		setLayout(l);
-	}
-
-	ModFilesWidget::~ModFilesWidget() {
 	}
 
 	void ModFilesWidget::addFile() {
 		// adds a file... if already existing => just update internally
 		QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectFile"));
-		if (!path.isEmpty()) {
-			QString mapping = QInputDialog::getText(this, QApplication::tr("PathInDirectoryStructure"), QApplication::tr("PathInDirectoryStructureDescription"));
-			QStringList realMappingSplit = mapping.split("/", QString::SplitBehavior::SkipEmptyParts);
-			QString realMapping;
-			for (const QString & rm : realMappingSplit) {
-				if (!realMapping.isEmpty()) {
-					realMapping.append("/");
-				}
-				realMapping += rm;
-			}
-			QString file = realMapping + "/" + QFileInfo(path).fileName();
-			while (file.startsWith("/")) {
-				file.remove(0, 1);
-			}
+		if (path.isEmpty()) return;
 
-			addFile(_directory.value("/"), file, "All");
-			_fileTreeView->expandAll();
-			_fileTreeView->resizeColumnToContents(0);
-			_fileTreeView->resizeColumnToContents(1);
-			bool found = false;
-			for (auto it = _mods[_modIndex].files.begin(); it != _mods[_modIndex].files.end(); ++it) {
-				QString currentFileName = s2q(it->filename);
-				while (currentFileName[0] == '/') {
-					currentFileName = currentFileName.mid(1);
-				}
-				if (currentFileName.endsWith(".z")) {
-					currentFileName.chop(2);
-				}
-				if (file == currentFileName) {
-					if (it->deleted) {
-						it->deleted = false;
-					}
-					// check hash of new file
-					QFile f(path);
-					if (f.open(QIODevice::ReadOnly)) {
-						QCryptographicHash hash(QCryptographicHash::Sha512);
-						hash.addData(&f);
-						const QString hashSum = QString::fromLatin1(hash.result().toHex());
-						if (hashSum != s2q(it->hash)) { // hash changed
-							it->changed = true;
-							_fileMap.insert(file, path);
-						}
-					}
-					found = true;
-					break;
-				}
+		QString mapping = QInputDialog::getText(this, QApplication::tr("PathInDirectoryStructure"), QApplication::tr("PathInDirectoryStructureDescription"));
+		QStringList realMappingSplit = mapping.split("/", QString::SplitBehavior::SkipEmptyParts);
+		QString realMapping;
+		for (const QString & rm : realMappingSplit) {
+			if (!realMapping.isEmpty()) {
+				realMapping.append("/");
 			}
-			if (!found) {
-				common::ModFile mf;
-				mf.filename = q2s(file);
-				mf.language = "All";
-				mf.changed = true;
-				_mods[_modIndex].files.push_back(mf);
-				_fileMap.insert(file, path);
+			realMapping += rm;
+		}
+		QString file = realMapping + "/" + QFileInfo(path).fileName();
+		while (file.startsWith("/")) {
+			file.remove(0, 1);
+		}
+
+		addFile(_directory.value("/"), file, "All");
+		_fileTreeView->expandAll();
+		_fileTreeView->resizeColumnToContents(0);
+		_fileTreeView->resizeColumnToContents(1);
+		bool found = false;
+		for (auto it = _mods[_modIndex].files.begin(); it != _mods[_modIndex].files.end(); ++it) {
+			QString currentFileName = s2q(it->filename);
+			while (currentFileName[0] == '/') {
+				currentFileName = currentFileName.mid(1);
 			}
+			if (currentFileName.endsWith(".z")) {
+				currentFileName.chop(2);
+			}
+			if (file == currentFileName) {
+				if (it->deleted) {
+					it->deleted = false;
+				}
+				// check hash of new file
+				QFile f(path);
+				if (f.open(QIODevice::ReadOnly)) {
+					QCryptographicHash hash(QCryptographicHash::Sha512);
+					hash.addData(&f);
+					const QString hashSum = QString::fromLatin1(hash.result().toHex());
+					if (hashSum != s2q(it->hash)) { // hash changed
+						it->changed = true;
+						_fileMap.insert(file, path);
+					}
+				}
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			common::ModFile mf;
+			mf.filename = q2s(file);
+			mf.language = "All";
+			mf.changed = true;
+			_mods[_modIndex].files.push_back(mf);
+			_fileMap.insert(file, path);
 		}
 	}
 
 	void ModFilesWidget::deleteFile() {
 		// removes selected modfile
-		if (!_fileTreeView->selectionModel()->selectedIndexes().isEmpty()) {
-			QModelIndex idx = _fileTreeView->selectionModel()->selectedIndexes().front();
-			QVariant v = idx.data(PathRole);
-			if (v.isValid()) {
-				const QString path = v.toString();
-				for (auto it = _mods[_modIndex].files.begin(); it != _mods[_modIndex].files.end(); ++it) {
-					QString currentFileName = s2q(it->filename);
-					if (currentFileName.endsWith(".z")) {
-						currentFileName.chop(2);
-					}
-					if (path == currentFileName) {
-						it->deleted = true;
-						break;
-					}
+		if (_fileTreeView->selectionModel()->selectedIndexes().isEmpty()) return;
+
+		QModelIndex idx = _fileTreeView->selectionModel()->selectedIndexes().front();
+		QVariant v = idx.data(PathRole);
+		if (v.isValid()) {
+			const QString path = v.toString();
+			for (auto it = _mods[_modIndex].files.begin(); it != _mods[_modIndex].files.end(); ++it) {
+				QString currentFileName = s2q(it->filename);
+				if (currentFileName.endsWith(".z")) {
+					currentFileName.chop(2);
 				}
-				_directory.remove(path);
-				_fileList->removeRow(idx.row(), idx.parent());
+				if (path == currentFileName) {
+					it->deleted = true;
+					break;
+				}
 			}
+			_directory.remove(path);
+			_fileList->removeRow(idx.row(), idx.parent());
 		}
 	}
 
@@ -309,16 +306,16 @@ namespace {
 				if (msg) {
 					common::AckMessage * am = dynamic_cast<common::AckMessage *>(msg);
 					if (msg) {
-						emit finishedUpload(am->success);
+						emit finishedUpload(am->success, uploadFiles.size());
 					} else {
-						emit finishedUpload(false);
+						emit finishedUpload(false, uploadFiles.size());
 					}
 				} else {
-					emit finishedUpload(false);
+					emit finishedUpload(false, uploadFiles.size());
 				}
 				delete msg;
 			} else {
-				emit finishedUpload(false);
+				emit finishedUpload(false, uploadFiles.size());
 			}
 		}).detach();
 	}
@@ -335,7 +332,7 @@ namespace {
 		QStandardItem * baseItem = new QStandardItem("/");
 		baseItem->setEditable(false);
 		_directory.insert("/", baseItem);
-		for (const auto f : _mods[index].files) {
+		for (const auto & f : _mods[index].files) {
 			addFile(baseItem, s2q(f.filename), s2q(f.language));
 		}
 		_fileList->appendRow(baseItem);
@@ -350,26 +347,25 @@ namespace {
 
 	void ModFilesWidget::changedLanguage(QStandardItem * itm) {
 		QVariant v = itm->data(PathRole);
-		if (v.isValid()) {
-			const QString path = v.toString();
-			for (auto it = _mods[_modIndex].files.begin(); it != _mods[_modIndex].files.end(); ++it) {
-				QString currentFileName = s2q(it->filename);
-				if (currentFileName.endsWith(".z")) {
-					currentFileName.chop(2);
-				}
-				if (path == currentFileName) {
-					it->changed = true;
-					it->language = q2s(itm->data(Qt::DisplayRole).toString());
-					break;
-				}
+		if (!v.isValid()) return;
+
+		const QString path = v.toString();
+		for (auto it = _mods[_modIndex].files.begin(); it != _mods[_modIndex].files.end(); ++it) {
+			QString currentFileName = s2q(it->filename);
+			if (currentFileName.endsWith(".z")) {
+				currentFileName.chop(2);
+			}
+			if (path == currentFileName) {
+				it->changed = true;
+				it->language = q2s(itm->data(Qt::DisplayRole).toString());
+				break;
 			}
 		}
 	}
 
 	void ModFilesWidget::updateVersion() {
-		if (_modIndex == -1) {
-			return;
-		}
+		if (_modIndex == -1) return;
+
 		common::UpdateModVersionMessage umvm;
 		umvm.modID = _mods[_modIndex].modID;
 		umvm.majorVersion = _majorVersionBox->value();
@@ -386,11 +382,12 @@ namespace {
 		}
 	}
 
-	void ModFilesWidget::finishUpload(bool success) {
+	void ModFilesWidget::finishUpload(bool success, int updatedCount) {
 		delete _waitSpinner;
 		_waitSpinner = nullptr;
+
 		if (success) {
-			QMessageBox msg(QMessageBox::Icon::Information, QApplication::tr("UploadSuccessful"), QApplication::tr("UploadSuccessfulText"), QMessageBox::StandardButton::Ok);
+			QMessageBox msg(QMessageBox::Icon::Information, QApplication::tr("UploadSuccessful"), QApplication::tr("UploadSuccessfulText") + "\n" + QApplication::tr("xOfyFilesHaveBeenUpdated").arg(updatedCount).arg(_mods[_modIndex].files.size()), QMessageBox::StandardButton::Ok);
 			msg.setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 			msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
 			msg.exec();
@@ -403,9 +400,8 @@ namespace {
 	}
 
 	void ModFilesWidget::testUpdate() {
-		if (_modIndex == -1) {
-			return;
-		}
+		if (_modIndex == -1) return;
+
 		emit checkForUpdate(_mods[_modIndex].modID);
 	}
 
