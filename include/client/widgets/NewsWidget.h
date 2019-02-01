@@ -39,7 +39,7 @@ namespace widgets {
 		NewsWidget(common::SendAllNewsMessage::News news, bool onlineMode, QWidget * par);
 
 	signals:
-		void tryInstallMod(int);
+		void tryInstallMod(int, int);
 
 	public slots:
 		void finishedInstallation(int modID, int packageID, bool success);

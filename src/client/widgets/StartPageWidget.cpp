@@ -97,7 +97,7 @@ namespace widgets {
 			hl->setStretchFactor(_startModButton, 25);
 			l->addLayout(hl);
 
-			connect(_newsTicker, SIGNAL(clicked(const QModelIndex &)), this, SLOT(selectedNews(const QModelIndex &)));
+			connect(_newsTicker, &QTableView::clicked, this, &StartPageWidget::selectedNews);
 		}
 
 		_writeNewsButton = new QPushButton(QIcon(":/svg/edit.svg"), "", this);
@@ -113,8 +113,8 @@ namespace widgets {
 		Database::execute(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "CREATE TABLE IF NOT EXISTS newsModReferences (NewsID INT NOT NULL, ModID INT NOT NULL, Name TEXT NOT NULL, Language TEXT NOT NULL);", err);
 		Database::execute(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "CREATE TABLE IF NOT EXISTS newsImageReferences (NewsID INT NOT NULL, File TEXT NOT NULL, Hash TEXT NOT NULL);", err);
 
-		connect(this, SIGNAL(receivedNews()), this, SLOT(updateNews()));
-		connect(_writeNewsButton, SIGNAL(released()), this, SLOT(executeNewsWriter()));		
+		connect(this, &StartPageWidget::receivedNews, this, &StartPageWidget::updateNews);
+		connect(_writeNewsButton, &QPushButton::released, this, &StartPageWidget::executeNewsWriter);
 	}
 
 	void StartPageWidget::requestNewsUpdate() {
@@ -231,7 +231,7 @@ namespace widgets {
 			NewsWidget * newsWidget = new NewsWidget(n, _onlineMode, _newsContainer);
 			_newsLayout->addWidget(newsWidget);
 			_news.push_back(newsWidget);
-			connect(newsWidget, SIGNAL(tryInstallMod(int)), this, SIGNAL(tryInstallMod(int)));
+			connect(newsWidget, &NewsWidget::tryInstallMod, this, &StartPageWidget::tryInstallMod);
 			QStandardItem * itmTitle = new QStandardItem(s2q(n.title));
 			QStandardItem * itmTimestamp = new QStandardItem(QDate(2000, 1, 1).addDays(n.timestamp).toString("dd.MM.yyyy"));
 			itmTimestamp->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
@@ -266,7 +266,7 @@ namespace widgets {
 	void StartPageWidget::executeNewsWriter() {
 		NewsWriterDialog dlg(_generalSettingsWidget, this);
 		dlg.setUsername(_username, _password);
-		connect(&dlg, SIGNAL(refresh()), this, SLOT(refresh()));
+		connect(&dlg, &NewsWriterDialog::refresh, this, &StartPageWidget::refresh);
 		dlg.exec();
 	}
 
@@ -292,7 +292,7 @@ namespace widgets {
 
 		if (!vec.empty()) {
 			const QString ini = s2q(vec[0][1]);
-			if (QFile::exists(ini)) {
+			if (QFileInfo::exists(ini)) {
 				_startModButton->setProperty("modID", std::stoi(vec[0][0]));
 				_startModButton->setProperty("ini", ini);
 

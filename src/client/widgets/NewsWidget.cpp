@@ -111,7 +111,7 @@ namespace widgets {
 				l->addWidget(installButton, 0, Qt::AlignLeft);
 				installButtonSize += installButton->height();
 				installButton->setProperty("modid", int(mod.first));
-				connect(installButton, SIGNAL(clicked()), this, SLOT(installMod()));
+				connect(installButton, &QPushButton::released, this, &NewsWidget::installMod);
 				_installButtons.append(installButton);
 
 #ifdef Q_OS_WIN
@@ -126,7 +126,7 @@ namespace widgets {
 
 		setLayout(l);
 
-		connect(_textBrowser, SIGNAL(anchorClicked(const QUrl &)), this, SLOT(urlClicked(const QUrl &)));
+		connect(_textBrowser, &QTextBrowser::anchorClicked, this, &NewsWidget::urlClicked);
 
 		_textBrowser->document()->adjustSize();
 
@@ -185,7 +185,7 @@ namespace widgets {
 
 	void NewsWidget::installMod() {
 		const int32_t modID = sender()->property("modid").toInt();
-		emit tryInstallMod(modID);
+		emit tryInstallMod(modID, -1);
 	}
 
 	void NewsWidget::paintEvent(QPaintEvent *) {
