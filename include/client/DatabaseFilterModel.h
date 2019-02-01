@@ -26,6 +26,7 @@ class QSettings;
 namespace spine {
 
 	enum DatabaseColumn {
+		ModID,
 		Name,
 		Author,
 		Type,

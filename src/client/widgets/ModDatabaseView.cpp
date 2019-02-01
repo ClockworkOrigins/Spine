@@ -170,7 +170,7 @@ namespace widgets {
 		_treeView->header()->setStretchLastSection(true);
 		_treeView->header()->setDefaultAlignment(Qt::AlignHCenter);
 		_treeView->header()->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
-		_sourceModel->setHorizontalHeaderLabels(QStringList() << QApplication::tr("Name") << QApplication::tr("Author") << QApplication::tr("Type") << QApplication::tr("Game") << QApplication::tr("DevTime") << QApplication::tr("AvgTime") << QApplication::tr("ReleaseDate") << QApplication::tr("Version") << QApplication::tr("DownloadSize") << QString());
+		_sourceModel->setHorizontalHeaderLabels(QStringList() << QApplication::tr("ID") << QApplication::tr("Name") << QApplication::tr("Author") << QApplication::tr("Type") << QApplication::tr("Game") << QApplication::tr("DevTime") << QApplication::tr("AvgTime") << QApplication::tr("ReleaseDate") << QApplication::tr("Version") << QApplication::tr("DownloadSize") << QString());
 		_treeView->setAlternatingRowColors(true);
 		_treeView->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
 		_treeView->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
@@ -356,9 +356,6 @@ namespace widgets {
 		_sortModel->setRendererAllowed(_allowRenderer);
 	}
 
-	ModDatabaseView::~ModDatabaseView() {
-	}
-
 	void ModDatabaseView::changeLanguage(QString language) {
 		_language = language;
 		updateModList(-1);
@@ -369,7 +366,7 @@ namespace widgets {
 		LOGINFO("Memory Usage updateModList #1: " << getPRAMValue());
 #endif
 		_waitSpinner = new WaitSpinner(QApplication::tr("LoadingDatabase"), this);
-		_sourceModel->setHorizontalHeaderLabels(QStringList() << QApplication::tr("Name") << QApplication::tr("Author") << QApplication::tr("Type") << QApplication::tr("Game") << QApplication::tr("DevTime") << QApplication::tr("AvgTime") << QApplication::tr("ReleaseDate") << QApplication::tr("Version") << QApplication::tr("DownloadSize") << QString());
+		_sourceModel->setHorizontalHeaderLabels(QStringList() << QApplication::tr("ID") << QApplication::tr("Name") << QApplication::tr("Author") << QApplication::tr("Type") << QApplication::tr("Game") << QApplication::tr("DevTime") << QApplication::tr("AvgTime") << QApplication::tr("ReleaseDate") << QApplication::tr("Version") << QApplication::tr("DownloadSize") << QString());
 #ifdef Q_OS_WIN
 		LOGINFO("Memory Usage updateModList #2: " << getPRAMValue());
 #endif
@@ -583,11 +580,16 @@ namespace widgets {
 			f.setFamily("FontAwesome");
 			buttonItem->setFont(f);
 			buttonItem->setEditable(false);
-			_sourceModel->appendRow(QList<QStandardItem *>() << nameItem << teamItem << typeItem << gameItem << devTimeItem << avgTimeItem << releaseDateItem << versionItem << sizeItem << buttonItem);
+
+			QStandardItem * idItem = new QStandardItem(QString::number(mod.id));
+			idItem->setEditable(false);
+
+			_sourceModel->appendRow(QList<QStandardItem *>() << idItem << nameItem << teamItem << typeItem << gameItem << devTimeItem << avgTimeItem << releaseDateItem << versionItem << sizeItem << buttonItem);
 			for (int i = 0; i < _sourceModel->columnCount(); i++) {
 				_sourceModel->setData(_sourceModel->index(row, i), Qt::AlignCenter, Qt::TextAlignmentRole);
 			}
 			if ((mod.gothic == common::GothicVersion::GOTHIC && !_gothicValid) || (mod.gothic == common::GothicVersion::GOTHIC2 && !_gothic2Valid) || (mod.gothic == common::GothicVersion::GOTHICINGOTHIC2 && (!_gothicValid || !_gothic2Valid)) || (mod.gothic == common::GothicVersion::Gothic1And2 && !_gothicValid && !_gothic2Valid) || Config::MODDIR.isEmpty() || !QDir(Config::MODDIR).exists()) {
+				idItem->setEnabled(false);
 				nameItem->setEnabled(false);
 				teamItem->setEnabled(false);
 				typeItem->setEnabled(false);
@@ -643,7 +645,7 @@ namespace widgets {
 		MultiFileDownloader * mfd = new MultiFileDownloader(this);
 		connect(mfd, SIGNAL(downloadFailed(DownloadError)), mfd, SLOT(deleteLater()));
 		connect(mfd, SIGNAL(downloadSucceeded()), mfd, SLOT(deleteLater()));
-		for (const auto p : fileList) {
+		for (const auto & p : fileList) {
 			QFileInfo fi(QString::fromStdString(p.first));
 			FileDownloader * fd = new FileDownloader(QUrl(fileserver + QString::number(mod.id) + "/" + QString::fromStdString(p.first)), dir.absolutePath() + "/" + fi.path(), fi.fileName(), QString::fromStdString(p.second), mfd);
 			mfd->addFileDownloader(fd);
@@ -768,7 +770,7 @@ namespace widgets {
 		Database::DBError err;
 		std::vector<InstalledPackage> ips = Database::queryAll<InstalledPackage, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM packages;", err);
 		QSet<int32_t> installedPackages;
-		for (InstalledPackage im : ips) {
+		for (const InstalledPackage & im : ips) {
 			installedPackages.insert(im.packageID);
 		}
 		for (const common::UpdatePackageListMessage::Package & package : packages) {
@@ -808,7 +810,12 @@ namespace widgets {
 					nameItem->setTextAlignment(Qt::AlignCenter);
 					sizeItem->setTextAlignment(Qt::AlignCenter);
 					buttonItem->setTextAlignment(Qt::AlignCenter);
-
+					
+					{
+						QStandardItem * itm = new QStandardItem();
+						itm->setEditable(false);
+						par->setChild(i, DatabaseColumn::ModID, itm);
+					}
 					{
 						QStandardItem * itm = new QStandardItem();
 						itm->setEditable(false);
@@ -893,7 +900,7 @@ namespace widgets {
 				std::thread([package]() {
 					common::PackageDownloadSucceededMessage pdsm;
 					pdsm.packageID = package.packageID;
-					std::string serialized = pdsm.SerializePublic();
+					const std::string serialized = pdsm.SerializePublic();
 					clockUtils::sockets::TcpSocket sock;
 					if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
 						sock.writePacket(serialized);
@@ -939,25 +946,30 @@ namespace widgets {
 
 	void ModDatabaseView::resizeEvent(QResizeEvent *) {
 		int columnCount = _sourceModel->columnCount();
-		if (_treeView->width() < 1000) {
+		const int width = _treeView->width();
+		if (width < 1000) {
+			_treeView->hideColumn(DatabaseColumn::ModID);
 			_treeView->hideColumn(DatabaseColumn::Author);
 			_treeView->hideColumn(DatabaseColumn::AvgDuration);
 			_treeView->hideColumn(DatabaseColumn::Game);
 			_treeView->hideColumn(DatabaseColumn::Version);
 			columnCount -= 3;
-		} else if (_treeView->width() < 1300) {
+		} else if (width < 1300) {
+			_treeView->hideColumn(DatabaseColumn::ModID);
 			_treeView->hideColumn(DatabaseColumn::Author);
 			_treeView->hideColumn(DatabaseColumn::AvgDuration);
 			_treeView->showColumn(DatabaseColumn::Game);
 			_treeView->hideColumn(DatabaseColumn::Version);
 			columnCount -= 2;
-		} else if (_treeView->width() < 1600) {
+		} else if (width < 1600) {
+			_treeView->hideColumn(DatabaseColumn::ModID);
 			_treeView->showColumn(DatabaseColumn::Author);
 			_treeView->hideColumn(DatabaseColumn::AvgDuration);
 			_treeView->showColumn(DatabaseColumn::Game);
 			_treeView->hideColumn(DatabaseColumn::Version);
 			columnCount -= 1;
-		} else if (_treeView->width() > 1600) {
+		} else if (width > 1600) {
+			_treeView->showColumn(DatabaseColumn::ModID);
 			_treeView->showColumn(DatabaseColumn::Version);
 			_treeView->showColumn(DatabaseColumn::Author);
 			_treeView->showColumn(DatabaseColumn::AvgDuration);
@@ -1055,12 +1067,12 @@ namespace widgets {
 		Database::DBError err;
 		std::vector<InstalledMod> ims = Database::queryAll<InstalledMod, int, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM mods;", err);
 		QSet<int32_t> installedMods;
-		for (InstalledMod im : ims) {
+		for (const InstalledMod & im : ims) {
 			installedMods.insert(im.id);
 		}
 		std::vector<InstalledPackage> ips = Database::queryAll<InstalledPackage, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM packages;", err);
 		QSet<int32_t> installedPackages;
-		for (InstalledPackage ip : ips) {
+		for (const InstalledPackage & ip : ips) {
 			installedPackages.insert(ip.packageID);
 		}
 		if (installedMods.find(mod.id) == installedMods.end()) {

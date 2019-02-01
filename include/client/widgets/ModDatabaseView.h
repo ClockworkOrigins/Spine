@@ -44,7 +44,6 @@ namespace widgets {
 
 	public:
 		ModDatabaseView(QMainWindow * mainWindow, QSettings * iniParser, GeneralSettingsWidget * generalSettingsWidget, QWidget * par);
-		~ModDatabaseView();
 
 	signals:
 		void receivedModList(std::vector<common::Mod>);
