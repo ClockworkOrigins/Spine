@@ -1539,6 +1539,7 @@
 	<Enhancement language="Deutsch">Nach dem Upload neuer Moddateien bekommt man jetzt eine Anzeige, wie viele Dateien aktualisiert wurden</Enhancement>
 	<Enhancement language="Deutsch">Mod-IDs werden jetzt in der Datenbank angezeigt</Enhancement>
 	<Bug language="Deutsch">Gothic 1 und 2 werden jetzt standardmäßig immer direkt installiert</Bug>
+	<Bug language="Deutsch">Fehler behoben, wodurch gesperrte Patches aktiviert waren, aber nicht mehr deaktiviert werden konnten</Bug>
 	
 	<Enhancement language="English">Added dark theme (created by Milky-Way)</Enhancement>
 	<Enhancement language="English">Added Link zu Discord in Help menu</Enhancement>
@@ -1546,4 +1547,5 @@
 	<Enhancement language="English">After upload of new mod files one now gets displayed how many filed have been updated</Enhancement>
 	<Enhancement language="English">Mod IDs now are shown in the database</Enhancement>
 	<Bug language="English">Gothic 1 and 2 now are always installed by default</Bug>
+	<Bug language="English">Fixed bug that causes patches not to be disableable even when locked</Bug>
 </Version>
