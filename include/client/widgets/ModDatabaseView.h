@@ -20,6 +20,7 @@
 #define __SPINE_WIDGETS_MODDATABASEVIEW_H__
 
 #include <QMap>
+#include <QModelIndex>
 #include <QWidget>
 
 #include "common/MessageStructs.h"

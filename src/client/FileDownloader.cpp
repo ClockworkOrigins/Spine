@@ -21,6 +21,7 @@
 #include <fstream>
 
 #include "Config.h"
+#include "Conversion.h"
 #include "WindowsExtensions.h"
 
 #include "widgets/GeneralSettingsWidget.h"
@@ -182,7 +183,7 @@ namespace spine {
 						shExecInfo.hwnd = nullptr;
 						shExecInfo.lpVerb = "runas";
 						char file[1024];
-						QString qf = (_targetDirectory + "/" + _fileName);
+						QString qf = _targetDirectory + "/" + _fileName;
 						qf = qf.replace("\0", "");
 						strcpy(file, qf.toUtf8().constData());
 						shExecInfo.lpFile = file;
@@ -217,7 +218,7 @@ namespace spine {
 							shExecInfo.hwnd = nullptr;
 							shExecInfo.lpVerb = "runas";
 							char file[1024];
-							QString qf = (_targetDirectory + "/" + _fileName);
+							QString qf = _targetDirectory + "/" + _fileName;
 							qf = qf.replace("\0", "");
 							strcpy(file, qf.toUtf8().constData());
 							shExecInfo.lpFile = file;
@@ -292,7 +293,7 @@ namespace spine {
 		} else {
 			_outputFile->close();
 			_outputFile->remove();
-			LOGERROR("Unknown Error");
+			LOGERROR("Unknown Error: " << reply->error() << ", " << q2s(reply->errorString()));
 			emit downloadFailed(DownloadError::UnknownError);
 		}
 		reply->deleteLater();
