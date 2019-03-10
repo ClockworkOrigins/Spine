@@ -81,7 +81,7 @@ namespace widgets {
 			_styleComboBox = new QComboBox(this);
 			_styleComboBox->setEditable(false);
 			_styleComboBox->addItem("Default");
-			//_styleComboBox->addItem("Dark Theme By Elgcahlxukuth");
+			_styleComboBox->addItem("Dark Theme By Elgcahlxukuth");
 			_styleComboBox->addItem("Dark Theme By Milky-Way"); // not yet
 
 			QDirIterator it(Config::STYLESDIR, QStringList() << "*.css", QDir::Files, QDirIterator::Subdirectories);

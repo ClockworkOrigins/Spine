@@ -1,3 +1,8 @@
+QWidget {
+	background-color: #232529;
+	/*color: #F8F8F2;*/
+}
+
 QCheckBox {
 	background-color: #111111;
 	color: #eeeeee;
@@ -135,20 +140,31 @@ QSpinBox {
 	font-size: 14px;
 }
 
+/* tab bar: startpage, infos,... */
 QTabBar {
-	background-color: #111111 !important;
-	color: #eeeeee !important;
+	color: #111111; /* text color */
 	font-family: "Lato Semibold";
 	font-size: 14px;
 }
 
-QTabBar::tab:hover {
-	background: #808080;
-	color: #FFFFFF;
+QTabBar::tab {
+	background-color: #111111;
+	color: #eeeeee;
 }
 
+QTabBar::tab:selected {
+	background-color: #404040;
+	color: #F8F8F2;
+	font-weight: bold;
+}
+
+QTabBar::tab:hover {
+	background-color: #808080;
+	color: #FFFFFF;
+}
+/* ? */
 QTabBar::tab:disabled {
-	color: #bbbbbb;
+	color: #1F201B;
 }
 
 QTableView {

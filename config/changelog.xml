@@ -1533,7 +1533,7 @@
 	<Bug language="English">Fixed high memory consumption</Bug>
 </Version>
 <Version majorVersion="1" minorVersion="14" patchVersion="9">
-	<Enhancement language="Deutsch">Dunkles Theme eingefügt (erstellt von Milky-Way)</Enhancement>
+	<Enhancement language="Deutsch">Dunkles Themes eingefügt (erstellt von Milky-Way und Elgcahlxukuth)</Enhancement>
 	<Enhancement language="Deutsch">Link zu Discord im Hilfemenü eingerichtet</Enhancement>
 	<Enhancement language="Deutsch">Hat man das DirectX Redist bereits einmal über Spine installiert, wird von einem erneuten Download jetzt abgesehen</Enhancement>
 	<Enhancement language="Deutsch">Nach dem Upload neuer Moddateien bekommt man jetzt eine Anzeige, wie viele Dateien aktualisiert wurden</Enhancement>
@@ -1541,7 +1541,7 @@
 	<Bug language="Deutsch">Gothic 1 und 2 werden jetzt standardmäßig immer direkt installiert</Bug>
 	<Bug language="Deutsch">Fehler behoben, wodurch gesperrte Patches aktiviert waren, aber nicht mehr deaktiviert werden konnten</Bug>
 	
-	<Enhancement language="English">Added dark theme (created by Milky-Way)</Enhancement>
+	<Enhancement language="English">Added dark themes (created by Milky-Way and Elgcahlxukuth)</Enhancement>
 	<Enhancement language="English">Added Link zu Discord in Help menu</Enhancement>
 	<Enhancement language="English">If DirectX Redist already has been installed once via Spine it isn't downloaded again anymore</Enhancement>
 	<Enhancement language="English">After upload of new mod files one now gets displayed how many filed have been updated</Enhancement>
