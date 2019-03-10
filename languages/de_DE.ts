@@ -3012,5 +3012,9 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>xOfyFilesHaveBeenUpdated</source>
         <translation>%1 von %2 Dateien wurden aktualisiert.</translation>
     </message>
+    <message>
+        <source>GothicAdminInfoRequiresAdmin</source>
+        <translation>%1 benötigt zum Spielen Admin-Rechte. Bitte starte Spine als Administrator, um %1 spielen zu können.</translation>
+    </message>
 </context>
 </TS>

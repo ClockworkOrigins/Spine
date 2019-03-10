@@ -3017,5 +3017,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>xOfyFilesHaveBeenUpdated</source>
         <translation>%1 of %2 files have been updated.</translation>
     </message>
+    <message>
+        <source>GothicAdminInfoRequiresAdmin</source>
+        <translation>%1 requires admin privileges to be played. Please start Spine as administrator to be able to play %1.</translation>
+    </message>
 </context>
 </TS>

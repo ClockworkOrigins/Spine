@@ -375,6 +375,7 @@ namespace {
 		QString homepage = iniParser.value("Webpage", "").toString();
 		QString contact = iniParser.value("Contact", "").toString();
 		QString description = iniParser.value("Description", "").toString();
+		const bool requiresAdmin = iniParser.value("RequiresAdmin", false).toBool();
 		iniParser.endGroup();
 		if (!title.isEmpty()) {
 			_nameLabel->setText(title);
@@ -433,13 +434,13 @@ namespace {
 		programFiles = programFiles.replace("\\", "/");
 		QString programFilesx86 = QProcessEnvironment::systemEnvironment().value("ProgramFiles(x86)", "Foobar123");
 		programFilesx86 = programFilesx86.replace("\\", "/");
-		if (_iniFile.contains(programFiles) || _iniFile.contains(programFilesx86)) {
+		if (_iniFile.contains(programFiles) || _iniFile.contains(programFilesx86) || requiresAdmin) {
 #ifdef Q_OS_WIN
 			_startButton->setEnabled(IsRunAsAdmin());
 #else
 			_startButton->setEnabled(true);
 #endif
-			_adminInfoLabel->setText(QApplication::tr("GothicAdminInfo").arg(title));
+			_adminInfoLabel->setText(requiresAdmin ? QApplication::tr("GothicAdminInfoRequiresAdmin").arg(title) : QApplication::tr("GothicAdminInfo").arg(title));
 			_adminInfoLabel->show();
 		} else {
 			_startButton->setEnabled(true);
@@ -458,6 +459,11 @@ namespace {
 
 	void ModInfoView::setModID(QString modID) {
 		_modID = modID.toInt();
+
+		QSettings iniParser(_iniFile, QSettings::IniFormat);
+		iniParser.beginGroup("INFO");
+		const bool requiresAdmin = iniParser.value("RequiresAdmin", false).toBool();
+		iniParser.endGroup();
 
 		for (QCheckBox * cb : _patchList) {
 			_patchLayout->removeWidget(cb);
@@ -528,7 +534,7 @@ namespace {
 			programFiles = programFiles.replace("\\", "/");
 			QString programFilesx86 = QProcessEnvironment::systemEnvironment().value("ProgramFiles(x86)", "Foobar123");
 			programFilesx86 = programFilesx86.replace("\\", "/");
-			if (usedBaseDir.contains(programFiles) || usedBaseDir.contains(programFilesx86)) {
+			if (usedBaseDir.contains(programFiles) || usedBaseDir.contains(programFilesx86) || requiresAdmin) {
 #ifdef Q_OS_WIN
 				_startButton->setEnabled(IsRunAsAdmin());
 #else
