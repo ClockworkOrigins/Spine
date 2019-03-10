@@ -24,6 +24,7 @@
 #include "Conversion.h"
 #include "SpineConfig.h"
 
+#include "widgets/MainWindow.h"
 #include "widgets/WaitSpinner.h"
 
 #include "boost/iostreams/copy.hpp"
@@ -46,6 +47,11 @@
 #include <QTime>
 #include <QTreeView>
 #include <QVBoxLayout>
+
+#ifdef Q_OS_WIN
+	#include <QWinTaskbarButton>
+	#include <QWinTaskbarProgress>
+#endif
 
 namespace spine {
 namespace widgets {
@@ -120,6 +126,20 @@ namespace {
 		connect(this, &ModFilesWidget::finishedUpload, this, &ModFilesWidget::finishUpload);
 
 		setLayout(l);
+
+#ifdef Q_OS_WIN
+		QWinTaskbarButton * button = new QWinTaskbarButton(this);
+		button->setWindow(MainWindow::getInstance()->windowHandle());
+
+		_taskbarProgress = button->progress();
+		_taskbarProgress->setMinimum(0);
+		_taskbarProgress->setMaximum(1);
+		_taskbarProgress->setValue(0);
+		_taskbarProgress->hide();
+		
+		connect(this, &ModFilesWidget::updateProgress, _taskbarProgress, &QWinTaskbarProgress::setValue);
+		connect(this, &ModFilesWidget::updateProgressMax, _taskbarProgress, &QWinTaskbarProgress::setMaximum);
+#endif
 	}
 
 	void ModFilesWidget::addFile() {
@@ -211,6 +231,10 @@ namespace {
 		// own port on server
 		_waitSpinner = new WaitSpinner(QApplication::tr("PreparingUpload"), this);
 		connect(this, &ModFilesWidget::updateUploadText, _waitSpinner, &WaitSpinner::setText);
+#ifdef Q_OS_WIN
+		_taskbarProgress->setValue(0);
+		_taskbarProgress->show();
+#endif
 		std::thread([this]() {
 			common::UploadModfilesMessage umm;
 			umm.modID = _mods[_modIndex].modID;
@@ -278,6 +302,7 @@ namespace {
 					umm.files.push_back(mf);
 				}
 			}
+			emit updateProgressMax(maxBytes / 1024);
 			std::string serialized = umm.SerializePublic();
 			clockUtils::sockets::TcpSocket sock;
 			const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", UPLOADSERVER_PORT, 10000);
@@ -297,6 +322,7 @@ namespace {
 						sock.write(buffer, fileSize);
 						writtenBytes += fileSize;
 						emit updateUploadText(QApplication::tr("UploadingFiles").arg(byteToString(writtenBytes), byteToString(maxBytes), bytePerTimeToString(writtenBytes, startTime.elapsed())));
+						emit updateProgress(writtenBytes / 1024);
 					}
 					in.close();
 					QFile::remove(file);
@@ -385,6 +411,10 @@ namespace {
 	void ModFilesWidget::finishUpload(bool success, int updatedCount) {
 		delete _waitSpinner;
 		_waitSpinner = nullptr;
+
+#ifdef Q_OS_WIN
+		_taskbarProgress->hide();
+#endif
 
 		if (success) {
 			QMessageBox msg(QMessageBox::Icon::Information, QApplication::tr("UploadSuccessful"), QApplication::tr("UploadSuccessfulText") + "\n" + QApplication::tr("xOfyFilesHaveBeenUpdated").arg(updatedCount).arg(_mods[_modIndex].files.size()), QMessageBox::StandardButton::Ok);

@@ -57,6 +57,8 @@ namespace widgets {
 		MainWindow(bool showChangelog, QSettings * iniParser, QMainWindow * par = nullptr);
 		~MainWindow();
 
+		static MainWindow * getInstance() { return instance; }
+
 	private slots:
 		void selectedMod(const QModelIndex & index);
 		void pathChanged();
@@ -116,6 +118,8 @@ namespace widgets {
 		QString _username;
 		QString _password;
 		bool _onlineMode;
+
+		static MainWindow * instance;
 
 		void findGothic();
 		void parseMods();

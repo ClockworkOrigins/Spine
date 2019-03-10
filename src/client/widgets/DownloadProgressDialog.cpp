@@ -57,9 +57,6 @@ namespace widgets {
 		}
 	}
 
-	DownloadProgressDialog::~DownloadProgressDialog() {
-	}
-
 	bool DownloadProgressDialog::hasDownloadSucceeded() const {
 		return _downloadSuccessful;
 	}

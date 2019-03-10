@@ -28,6 +28,7 @@ class QSpinBox;
 class QStandardItem;
 class QStandardItemModel;
 class QTreeView;
+class QWinTaskbarProgress;
 
 namespace clockUtils {
 namespace iniParser {
@@ -54,6 +55,8 @@ namespace widgets {
 		void finishedUpload(bool, int);
 		void updateUploadText(QString);
 		void checkForUpdate(int32_t);
+		void updateProgress(int);
+		void updateProgressMax(int);
 
 	private slots:
 		void addFile();
@@ -77,6 +80,7 @@ namespace widgets {
 		QSpinBox * _minorVersionBox;
 		QSpinBox * _patchVersionBox;
 		WaitSpinner * _waitSpinner;
+		QWinTaskbarProgress * _taskbarProgress;
 
 		void addFile(QStandardItem * itm, QString file, QString language);
 	};

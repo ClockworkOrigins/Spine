@@ -36,7 +36,6 @@ namespace widgets {
 
 	public:
 		DownloadProgressDialog(MultiFileDownloader * downloader, QString labelText, qint64 min, qint64 max, qint64 maxSize, QMainWindow * mainWindow);
-		~DownloadProgressDialog();
 
 		bool hasDownloadSucceeded() const;
 		DownloadError getLastError() const;
