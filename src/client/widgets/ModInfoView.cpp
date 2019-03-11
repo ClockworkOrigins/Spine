@@ -2586,7 +2586,7 @@ namespace {
 						break;
 					}
 					// backup old file, if already backed up, don't patch
-					if (_copiedFiles.find(filename) == _copiedFiles.end() && ((QFile::exists(*usedBaseDir + "/" + filename) && !QFile::exists(*usedBaseDir + "/" + filename + ".spbak")) || !QFile::exists(*usedBaseDir + "/" + filename))) {
+					if (_copiedFiles.find(filename) == _copiedFiles.end() && ((QFileInfo::exists(*usedBaseDir + "/" + filename) && !QFileInfo::exists(*usedBaseDir + "/" + filename + ".spbak")) || !QFileInfo::exists(*usedBaseDir + "/" + filename))) {
 						if (GeneralSettingsWidget::extendedLogging) {
 							LOGINFO("Copying file " << file.first);
 						}
@@ -2601,6 +2601,9 @@ namespace {
 									copy = false;
 								}
 							}
+						}
+						if (filename.compare("directx_Jun2010_redist.exe", Qt::CaseInsensitive) || filename.contains(QRegularExpression("vc*.exe", QRegularExpression::ExtendedPatternSyntaxOption))) {
+							copy = false;
 						}
 						if (copy) {
 							QFile::rename(*usedBaseDir + "/" + filename, *usedBaseDir + "/" + filename + ".spbak");
