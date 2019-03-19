@@ -1314,7 +1314,7 @@ namespace {
 				connect(cb, SIGNAL(stateChanged(int)), this, SLOT(changedPatchState()));
 				cb->setProperty("patchID", p.modID);
 			} else if (contains(forbiddenPatches, p.modID)) {
-				Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "DELETE FROM patchConfigs WHERE ModID = " + std::to_string(_modID) + " AND PatchID = " + std::to_string(p.modID) + " LIMIT 1;", err);
+				Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "DELETE FROM patchConfigs WHERE ModID = " + std::to_string(_modID) + " AND PatchID = " + std::to_string(p.modID) + ";", err);
 			}
 		}
 		if (_patchCounter % 2 == 1) {
