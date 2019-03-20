@@ -1558,3 +1558,8 @@
 	
 	<Bug language="English">Fixed bug that causes playing with renderer not being possible</Bug>
 </Version>
+<Version majorVersion="1" minorVersion="14" patchVersion="11">
+	<Bug language="Deutsch">Fehler behoben, wodurch gesperrte Patches aktiviert waren, aber nicht mehr deaktiviert werden konnten</Bug>
+	
+	<Bug language="English">Fixed bug that causes patches not to be disableable even when locked</Bug>
+</Version>
