@@ -3021,5 +3021,21 @@ You can revoke your permission at every point in time. All necessary information
         <source>GothicAdminInfoRequiresAdmin</source>
         <translation>%1 requires admin privileges to be played. Please start Spine as administrator to be able to play %1.</translation>
     </message>
+    <message>
+        <source>FAQQuestion8</source>
+        <translation>Gothic 1 crashes when starting/loading a game with an Access Violation.</translation>
+    </message>
+    <message>
+        <source>FAQAnswer8</source>
+        <translation>That's caused by the data execution prevention (DEP) on Windows. To fix the crashes you just need to disable the DEP for Gothic. Therefore just follow these steps: Press Windows + Pause, "Advanced System Settings", press the upper button "Settings" below "Performance", choose the tab "DEP" and add all EXE files from the Gothic 2 folder (3, Gothic.exe, GothicMod.exe and KillHelp.exe).</translation>
+    </message>
+    <message>
+        <source>FAQQuestion9</source>
+        <translation>I have a GSync monitor and Gothic crashes.</translation>
+    </message>
+    <message>
+        <source>FAQAnswer9</source>
+        <translation>The renderer has its problems with GSync and isn't really compatible with it. The solution for this problem is to disable GSync for Gothic.</translation>
+    </message>
 </context>
 </TS>

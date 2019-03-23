@@ -1564,7 +1564,9 @@
 	<Bug language="English">Fixed bug that causes patches not to be disableable even when locked</Bug>
 </Version>
 <Version majorVersion="1" minorVersion="14" patchVersion="12">
+	<Enhancement language="Deutsch">Zwei weitere FAQ-Einträge eingefügt</Enhancement>
 	<Bug language="Deutsch">Fehler behoben, wodurch Gothic ohne Renderer nicht gestartet werden konnte</Bug>
 	
+	<Enhancement language="English">Added two more FAQ entries</Enhancement>
 	<Bug language="English">Fixed bug that causes Gothic without renderer not to start</Bug>
 </Version>

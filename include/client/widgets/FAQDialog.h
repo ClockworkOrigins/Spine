@@ -27,7 +27,6 @@ namespace widgets {
 	class FAQDialog : public QDialog {
 	public:
 		FAQDialog(QWidget * par);
-		~FAQDialog();
 
 	private:
 		void initEntries(QWidget * par, QLayout * l);

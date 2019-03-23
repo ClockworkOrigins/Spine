@@ -50,9 +50,6 @@ namespace widgets {
 		setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 	}
 
-	FAQDialog::~FAQDialog() {
-	}
-
 	void FAQDialog::initEntries(QWidget * par, QLayout * l) {
 		l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion1"), QApplication::tr("FAQAnswer1"), par));
 		l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion2"), QApplication::tr("FAQAnswer2"), par));
@@ -61,6 +58,8 @@ namespace widgets {
 		l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion5"), QApplication::tr("FAQAnswer5"), par));
 		l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion6"), QApplication::tr("FAQAnswer6"), par));
 		l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion7"), QApplication::tr("FAQAnswer7"), par));
+		l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion8"), QApplication::tr("FAQAnswer8"), par));
+		l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion9"), QApplication::tr("FAQAnswer9"), par));
 	}
 
 } /* namespace widgets */

@@ -3016,5 +3016,21 @@ Zgodę można odwołać w każdej chwili. Wszystkie niezbędne informacje można
         <source>GothicAdminInfoRequiresAdmin</source>
         <translation>%1 benötigt zum Spielen Admin-Rechte. Bitte starte Spine als Administrator, um %1 spielen zu können.</translation>
     </message>
+    <message>
+        <source>FAQQuestion8</source>
+        <translation>Gothic 1 stürzt beim Starten/Laden mit einer Access Violation ab.</translation>
+    </message>
+    <message>
+        <source>FAQAnswer8</source>
+        <translation>Das liegt an der Datenausführungsverhinderung von Windows. Um die Abstürze zu beheben muss lediglich die Datenausführungsverhinderung für Gothic deaktiviert werden. Dazu müssen folgende Schritte ausgeführt werden: Windows + Pause drücken, "Erweiterte Systemeinstellungen", "Einstellungen" unter "Leistung" drücken, "Datenausführungsverhinderung", alle EXE-Dateien direkt aus dem Gothic-System-Ordner eintragen (3 Stück, Gothic.exe, GothicMod.exe und KillHelp.exe).</translation>
+    </message>
+    <message>
+        <source>FAQQuestion9</source>
+        <translation>Ich habe einen GSync-Monitor und Gothic stürzt ab.</translation>
+    </message>
+    <message>
+        <source>FAQAnswer9</source>
+        <translation>Der Renderer hat seine Probleme mit GSync und ist nicht richtig kompatibel. Die Lösung ist daher, GSync für Gothic zu deaktivieren.</translation>
+    </message>
 </context>
 </TS>
