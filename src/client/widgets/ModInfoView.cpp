@@ -1177,6 +1177,10 @@ namespace {
 			emit installMod(37);
 		}
 
+		if (QFileInfo::exists(_gothicDirectory + "/System/ddraw.dll")) {
+			QFile::remove(_gothicDirectory + "/System/ddraw.dll");
+		}
+
 #ifdef Q_OS_WIN
 		LOGINFO("Memory Usage patchCheckG1 #2: " << getPRAMValue());
 #endif
@@ -1273,6 +1277,10 @@ namespace {
 		}	
 		if (std::find_if(ids.begin(), ids.end(), [](const std::string & s) { return s == "116"; }) == ids.end()) {
 			emit installMod(116);
+		}
+
+		if (QFileInfo::exists(_gothicDirectory + "/System/ddraw.dll")) {
+			QFile::remove(_gothicDirectory + "/System/ddraw.dll");
 		}
 	
 #ifdef Q_OS_WIN

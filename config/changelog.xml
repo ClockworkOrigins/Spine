@@ -1563,3 +1563,8 @@
 	
 	<Bug language="English">Fixed bug that causes patches not to be disableable even when locked</Bug>
 </Version>
+<Version majorVersion="1" minorVersion="14" patchVersion="12">
+	<Bug language="Deutsch">Fehler behoben, wodurch Gothic ohne Renderer nicht gestartet werden konnte</Bug>
+	
+	<Bug language="English">Fixed bug that causes Gothic without renderer not to start</Bug>
+</Version>
