@@ -441,7 +441,7 @@ namespace {
 			_startButton->setEnabled(true);
 #endif
 			_adminInfoLabel->setText(requiresAdmin ? QApplication::tr("GothicAdminInfoRequiresAdmin").arg(title) : QApplication::tr("GothicAdminInfo").arg(title));
-			_adminInfoLabel->show();
+			_adminInfoLabel->setVisible(!IsRunAsAdmin());
 		} else {
 			_startButton->setEnabled(true);
 			_adminInfoLabel->hide();
@@ -541,8 +541,8 @@ namespace {
 				_startButton->setEnabled(true);
 #endif
 				const QString gothicName = modGv.gothicVersion == common::GothicVersion::GOTHIC ? QApplication::tr("Gothic") : QApplication::tr("Gothic2");
-				_adminInfoLabel->setText(QApplication::tr("GothicAdminInfo").arg(gothicName));
-				_adminInfoLabel->show();
+				_adminInfoLabel->setText(requiresAdmin ? QApplication::tr("GothicAdminInfoRequiresAdmin").arg(gothicName) : QApplication::tr("GothicAdminInfo").arg(gothicName));
+				_adminInfoLabel->setVisible(!IsRunAsAdmin());
 			} else {
 				_startButton->setEnabled(true);
 				_adminInfoLabel->hide();
