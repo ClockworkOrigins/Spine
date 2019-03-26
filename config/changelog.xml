@@ -1567,8 +1567,10 @@
 	<Enhancement language="Deutsch">Zwei weitere FAQ-Einträge eingefügt</Enhancement>
 	<Bug language="Deutsch">Fehler behoben, wodurch Gothic ohne Renderer nicht gestartet werden konnte</Bug>
 	<Bug language="Deutsch">Hinweis auf Admin-Modus wird jetzt nicht mehr angezeigt, wenn bereits als Admin gestartet wurde</Bug>
+	<Bug language="Deutsch">Sortieren nach Mod-ID funktioniert jetzt</Bug>
 	
 	<Enhancement language="English">Added two more FAQ entries</Enhancement>
 	<Bug language="English">Fixed bug that causes Gothic without renderer not to start</Bug>
 	<Bug language="English">Removed hint for admin mode when Spine already was started as admin</Bug>
+	<Bug language="English">Sorting by mod id works now</Bug>
 </Version>

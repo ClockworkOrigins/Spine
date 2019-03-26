@@ -153,6 +153,13 @@ namespace widgets {
 		}
 	};
 
+	class IntItem : public QStandardItem {
+	public:
+		IntItem(int i) : QStandardItem(QString::number(i)) {
+			QStandardItem::setData(i, Qt::UserRole);
+		}
+	};
+
 	ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, QSettings * iniParser, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _mainWindow(mainWindow), _iniParser(iniParser), _treeView(nullptr), _sourceModel(nullptr), _sortModel(nullptr), _language(), _mods(), _gothicValid(false), _gothic2Valid(false), _username(), _parentMods(), _gothicDirectory(), _gothic2Directory(), _packageIDIconMapping(), _allowRenderer(false) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
@@ -581,7 +588,7 @@ namespace widgets {
 			buttonItem->setFont(f);
 			buttonItem->setEditable(false);
 
-			QStandardItem * idItem = new QStandardItem(QString::number(mod.id));
+			QStandardItem * idItem = new IntItem(mod.id);
 			idItem->setEditable(false);
 
 			_sourceModel->appendRow(QList<QStandardItem *>() << idItem << nameItem << teamItem << typeItem << gameItem << devTimeItem << avgTimeItem << releaseDateItem << versionItem << sizeItem << buttonItem);
