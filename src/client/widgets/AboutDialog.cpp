@@ -73,8 +73,5 @@ namespace widgets {
 		setLayout(gridLayout);
 	}
 
-	AboutDialog::~AboutDialog() {
-	}
-
 } /* namespace widgets */
 } /* namespace spine */

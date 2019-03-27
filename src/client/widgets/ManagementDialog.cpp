@@ -104,7 +104,7 @@ namespace widgets {
 			return a.name < b.name;
 		});
 		_mods = modList;
-		for (auto m : modList) {
+		for (const auto & m : modList) {
 			QStandardItem * itm = new QStandardItem(s2q(m.name));
 			itm->setEditable(false);
 			_modList->appendRow(itm);

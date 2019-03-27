@@ -21,15 +21,22 @@
 
 #include <QDialog>
 
+class QSettings;
+
 namespace spine {
 namespace widgets {
 
 	class FAQDialog : public QDialog {
 	public:
-		FAQDialog(QWidget * par);
+		FAQDialog(QSettings * iniParser, QWidget * par);
+		~FAQDialog();
 
 	private:
+		QSettings * _iniParser;
+
 		void initEntries(QWidget * par, QLayout * l);
+		void restoreSettings();
+		void saveSettings();
 	};
 
 } /* namespace widgets */

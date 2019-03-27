@@ -22,12 +22,13 @@
 
 #include <QApplication>
 #include <QScrollArea>
+#include <QSettings>
 #include <QVBoxLayout>
 
 namespace spine {
 namespace widgets {
 
-	FAQDialog::FAQDialog(QWidget * par) : QDialog(par) {
+	FAQDialog::FAQDialog(QSettings * iniParser, QWidget * par) : QDialog(par), _iniParser(iniParser) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -48,6 +49,12 @@ namespace widgets {
 
 		setWindowTitle(QApplication::tr("FAQ"));
 		setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
+		restoreSettings();
+	}
+
+	FAQDialog::~FAQDialog() {
+		saveSettings();
 	}
 
 	void FAQDialog::initEntries(QWidget * par, QLayout * l) {
@@ -60,6 +67,17 @@ namespace widgets {
 		l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion7"), QApplication::tr("FAQAnswer7"), par));
 		l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion8"), QApplication::tr("FAQAnswer8"), par));
 		l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion9"), QApplication::tr("FAQAnswer9"), par));
+	}
+
+	void FAQDialog::restoreSettings() {
+		const QByteArray arr = _iniParser->value("WINDOWGEOMETRY/FAQDialogGeometry", QByteArray()).toByteArray();
+		if (!restoreGeometry(arr)) {
+			_iniParser->remove("WINDOWGEOMETRY/FAQDialogGeometry");
+		}
+	}
+
+	void FAQDialog::saveSettings() {
+		_iniParser->setValue("WINDOWGEOMETRY/FAQDialogGeometry", saveGeometry());
 	}
 
 } /* namespace widgets */

@@ -31,7 +31,6 @@ namespace widgets {
 
 	public:
 		AboutDialog(GeneralSettingsWidget * generalSettingsWidget, QWidget * parent);
-		~AboutDialog();
 	};
 
 } /* namespace widgets */

@@ -1033,7 +1033,7 @@ namespace widgets {
 	}
 
 	void MainWindow::execFAQ() {
-		FAQDialog dlg(this);
+		FAQDialog dlg(_iniParser, this);
 		dlg.exec();
 	}
 
