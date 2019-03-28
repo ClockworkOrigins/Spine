@@ -437,11 +437,12 @@ namespace {
 		if (_iniFile.contains(programFiles) || _iniFile.contains(programFilesx86) || requiresAdmin) {
 #ifdef Q_OS_WIN
 			_startButton->setEnabled(IsRunAsAdmin());
+			_adminInfoLabel->setVisible(!IsRunAsAdmin());
 #else
 			_startButton->setEnabled(true);
+			_adminInfoLabel->setVisible(false);
 #endif
 			_adminInfoLabel->setText(requiresAdmin ? QApplication::tr("GothicAdminInfoRequiresAdmin").arg(title) : QApplication::tr("GothicAdminInfo").arg(title));
-			_adminInfoLabel->setVisible(!IsRunAsAdmin());
 		} else {
 			_startButton->setEnabled(true);
 			_adminInfoLabel->hide();
@@ -537,12 +538,13 @@ namespace {
 			if (usedBaseDir.contains(programFiles) || usedBaseDir.contains(programFilesx86) || requiresAdmin) {
 #ifdef Q_OS_WIN
 				_startButton->setEnabled(IsRunAsAdmin());
+				_adminInfoLabel->setVisible(!IsRunAsAdmin());
 #else
 				_startButton->setEnabled(true);
+				_adminInfoLabel->setVisible(false);
 #endif
 				const QString gothicName = modGv.gothicVersion == common::GothicVersion::GOTHIC ? QApplication::tr("Gothic") : QApplication::tr("Gothic2");
 				_adminInfoLabel->setText(requiresAdmin ? QApplication::tr("GothicAdminInfoRequiresAdmin").arg(gothicName) : QApplication::tr("GothicAdminInfo").arg(gothicName));
-				_adminInfoLabel->setVisible(!IsRunAsAdmin());
 			} else {
 				_startButton->setEnabled(true);
 				_adminInfoLabel->hide();
