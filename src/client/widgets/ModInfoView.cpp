@@ -2612,7 +2612,7 @@ namespace {
 								}
 							}
 						}
-						if (filename.compare("directx_Jun2010_redist.exe", Qt::CaseInsensitive) || filename.contains(QRegularExpression("vc*.exe", QRegularExpression::ExtendedPatternSyntaxOption))) {
+						if (filename.contains("directx_Jun2010_redist.exe", Qt::CaseInsensitive) || filename.contains(QRegularExpression("vc*.exe", QRegularExpression::ExtendedPatternSyntaxOption))) {
 							copy = false;
 						}
 						if (copy) {
