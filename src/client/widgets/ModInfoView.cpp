@@ -2171,7 +2171,7 @@ namespace {
 		bool systempack = false;
 		for (const std::string & patchID : patches) {
 			const std::string patchName = Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Name FROM patches WHERE ModID = " + patchID + " LIMIT 1;", err);
-			if (patchName == "D3D11 Renderer Clockwork Edition") {
+			if (patchName == "D3D11 Renderer Clockwork Edition" || patchName == "D3D11 Renderer Convenient Edition") {
 				clockworkRenderer = true;
 			} else if (patchName.find("Systempack") != std::string::npos) {
 				systempack = true;

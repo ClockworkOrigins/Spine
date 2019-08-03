@@ -18,7 +18,7 @@ const uint8_t VERSION_MINOR = @VERSION_MINOR@;
 const uint8_t VERSION_PATCH = @VERSION_PATCH@;
 const std::string VERSION_STRING = "@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@";
 
-const std::string SPINE_SCRIPT_VERSION = "1.14.7";
+const std::string SPINE_SCRIPT_VERSION = "1.14.13";
 const std::string IKARUS_VERSION = "1.2.0";
 const std::string LEGO_VERSION = "2.5.0";
 

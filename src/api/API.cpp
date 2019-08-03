@@ -52,6 +52,8 @@ namespace {
 	std::mutex overallSaveMutex;
 	bool testMode = true;
 
+	std::map<std::pair<int, int>, bool> otherModsAchievements;
+
 	void saveOverallSave() {
 		std::thread([]() {
 			std::lock_guard<std::mutex> lg(overallSaveMutex);
@@ -423,6 +425,14 @@ namespace {
 
 	int32_t isAchievementOfOtherModUnlocked(int32_t id, int32_t achievementID) {
 		if (initialized && (activatedModules & common::SpineModules::Achievements)) {
+			const auto p = std::make_pair(id, achievementID);
+
+			const auto it = otherModsAchievements.find(p);
+
+			if (it != otherModsAchievements.end()) {
+				return it->second;
+			}
+
 			common::IsAchievementUnlockedMessage iaum;
 			iaum.modID = id;
 			iaum.achievementID = achievementID;
@@ -443,6 +453,9 @@ namespace {
 				if (!saum) {
 					return 0;
 				}
+
+				otherModsAchievements.insert(std::make_pair(p, saum->unlocked));
+
 				return saum->unlocked;
 			} catch (...) {
 				return 0;

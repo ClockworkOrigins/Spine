@@ -212,7 +212,7 @@ Możesz ją zmienić w opcjach w każdej chwili.</translation>
     </message>
     <message>
         <source>ContinueWithoutLogin</source>
-        <translation>Kontynuuj bez loginu</translation>
+        <translation>Kontynuuj bez logowania</translation>
     </message>
     <message>
         <source>ErrorOccurred</source>
@@ -2606,7 +2606,7 @@ Das zwingt den Treiber die Szene nach jedem Objekt zu flushen, was zu ernsthafen
     </message>
     <message>
         <source>Friends</source>
-        <translation>Przyjaciele</translation>
+        <translation>Znajomi</translation>
     </message>
     <message>
         <source>LoadingFriends</source>
@@ -2618,7 +2618,7 @@ Das zwingt den Treiber die Szene nach jedem Objekt zu flushen, was zu ernsthafen
     </message>
     <message>
         <source>FriendsModule</source>
-        <translation>Przyjaciele</translation>
+        <translation>Znajomi</translation>
     </message>
     <message>
         <source>Level</source>

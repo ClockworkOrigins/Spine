@@ -80,6 +80,16 @@ namespace translation {
 		});
 		watcher->setFuture(future);
 		loop.exec();
+		std::cout << model->getDialogTextCount() << " Dialog Texts" << std::endl;
+
+		int count = 0;
+		for (auto d : model->getDialogs()) {
+			for (auto d2 : d) {
+				count += s2q(d2).split(' ').count();
+			}
+		}
+		std::cout << "Words: " << count << std::endl;
+
 		model->postProcess();
 		std::cout << model->getNames().size() << " Names" << std::endl;
 		std::cout << model->getTexts().size() << " Texts" << std::endl;

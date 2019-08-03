@@ -393,9 +393,9 @@ namespace widgets {
 	void SpineEditor::installSpineScripts() {
 		static QList<QPair<QString, QString>> spineFiles = {
 			{ "Spine.src.z", "0dbf6e8c3bf73e164e0db0c89eac582fb3473e18a1c91e5bfc2d94bf4ff0c95674f205d4dbf81d9f90592f909577beba0f19ea35008969753e8c4e7bcbcaaf33" },
-			{ "Spine_Achievements.d.z", "ab3831670bf528eaf1a7899caa57ba1764d9f76bad1ee5271b46f3bfac6cf446914fb2a3aa5d8cec4a90a17837e6c603daf1dbccd97daefbe03d8fd7e4236009" },
+			{ "Spine_Achievements.d.z", "bffa318b99639d2ada465a322b37cd50a57c52673ac66758993e946dc4b1d86da193778767e1eb27e91ee9066fb3b45dd2cd7ed5945d0445cff24979b81df689" },
 			{ "Spine_API.d.z", "a3ea16983544768f953a2cfc4f41919ef394754a33335862661ea0b9561f992da4329f34f84af5132f9dd581c34d4e8eac65e9fef8651447582b51ad393c7c7b" },
-			{ "Spine_Constants.d.z", "3cb24d759ef83af8851e1a3fd9a398092c1c7ef372ec330824ee75127f35d30c5d9304654fc508c62aaea8248cdcb551bf61f1e43f395d7c515f535b0bb68845" },
+			{ "Spine_Constants.d.z", "d2434fa4f817f31f8bf2b03e9805b9dda4e30b5bcfad9f71c9ee792ad7e1df4275aee0b43eec281216d20da9b8f5ddf3609e73fee241da976a5936fd33ce8fa4" },
 			{ "Spine_Friends.d.z", "bc16f258031a5fb8b1f55b30f4e660295587a4c34da49fe9bffd5dedcc4717edc7d417bda8ba154d80cefb47dae43912e29d3876a68736f345f119fdcf4f996b" },
 			{ "Spine_Gamepad.d.z", "490afa62bcdaa382de6d6e348708a48683ab78ec09f668871afd96f0fb5cb8eb7ef29d73c83b25c347a80c54bb421f3e3c13d319091924f8e5657a0f9c190d78" },
 			{ "Spine_Message.d.z", "e6ede77bd7443a7e475e895ff251e2976a2a5308c16635fadfe0854bd58b4e538baf605f9e4cd4213eeccbf8d89118c1e7074eebf88a83598e859811bef18108" },
@@ -451,9 +451,9 @@ namespace widgets {
 	void SpineEditor::updateSpineScripts() {
 		static QList<QPair<QString, QString>> spineFiles = {
 			{ "Spine.src.z", "0dbf6e8c3bf73e164e0db0c89eac582fb3473e18a1c91e5bfc2d94bf4ff0c95674f205d4dbf81d9f90592f909577beba0f19ea35008969753e8c4e7bcbcaaf33" },
-			{ "Spine_Achievements.d.z", "ab3831670bf528eaf1a7899caa57ba1764d9f76bad1ee5271b46f3bfac6cf446914fb2a3aa5d8cec4a90a17837e6c603daf1dbccd97daefbe03d8fd7e4236009" },
+			{ "Spine_Achievements.d.z", "bffa318b99639d2ada465a322b37cd50a57c52673ac66758993e946dc4b1d86da193778767e1eb27e91ee9066fb3b45dd2cd7ed5945d0445cff24979b81df689" },
 			{ "Spine_API.d.z", "a3ea16983544768f953a2cfc4f41919ef394754a33335862661ea0b9561f992da4329f34f84af5132f9dd581c34d4e8eac65e9fef8651447582b51ad393c7c7b" },
-			{ "Spine_Constants.d.z", "3cb24d759ef83af8851e1a3fd9a398092c1c7ef372ec330824ee75127f35d30c5d9304654fc508c62aaea8248cdcb551bf61f1e43f395d7c515f535b0bb68845" },
+			{ "Spine_Constants.d.z", "d2434fa4f817f31f8bf2b03e9805b9dda4e30b5bcfad9f71c9ee792ad7e1df4275aee0b43eec281216d20da9b8f5ddf3609e73fee241da976a5936fd33ce8fa4" },
 			{ "Spine_Friends.d.z", "bc16f258031a5fb8b1f55b30f4e660295587a4c34da49fe9bffd5dedcc4717edc7d417bda8ba154d80cefb47dae43912e29d3876a68736f345f119fdcf4f996b" },
 			{ "Spine_Gamepad.d.z", "490afa62bcdaa382de6d6e348708a48683ab78ec09f668871afd96f0fb5cb8eb7ef29d73c83b25c347a80c54bb421f3e3c13d319091924f8e5657a0f9c190d78" },
 			{ "Spine_Message.d.z", "e6ede77bd7443a7e475e895ff251e2976a2a5308c16635fadfe0854bd58b4e538baf605f9e4cd4213eeccbf8d89118c1e7074eebf88a83598e859811bef18108" },

@@ -103,7 +103,7 @@ namespace spine {
 				}
 				f.close();
 			}
-		} else if (_fileName == "directx_Jun2010_redist.exe" && Config::IniParser->value("INSTALLATION/DirectX", true).toBool()) {
+		} else if (_fileName.contains("directx_Jun2010_redist.exe", Qt::CaseInsensitive) && Config::IniParser->value("INSTALLATION/DirectX", true).toBool()) {
 			emit downloadProgress(_filesize);
 			emit downloadSucceeded();
 			return;

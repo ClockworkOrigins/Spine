@@ -188,6 +188,8 @@ func void Spine_UpdateAchievementProgress(var int identifier, var int progress) 
 				maxProgress = STR_ToInt(maxProgressString);
 				if (maxProgress <= progress) {
 					ret = TRUE;
+					
+					Spine_UnlockAchievement(identifier);
 				};
 			};
 			

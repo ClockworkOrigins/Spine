@@ -1,3 +1,7 @@
+Version 1.14.13
+
+- fixed Spine_UpdateAchievementProgress not working properly when unlocking achievement with it when being test mode
+
 Version 1.14.7
 
 - added convenient function to increment achievement progress by one

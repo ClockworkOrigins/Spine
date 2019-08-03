@@ -1578,3 +1578,14 @@
 	<Bug language="English">Size of FAQ dialog now is stored</Bug>
 	<Bug language="English">Fixed bug that caused the Systempack not being applied properly anymore</Bug>
 </Version>
+<Version majorVersion="1" minorVersion="14" patchVersion="13">
+	<Enhancement language="Deutsch">Grundlegenden Support für die Convenient Edition des Renderers eingebaut</Enhancement>
+	<Bug language="Deutsch">Einige Fehler in der polnischen Übersetzung korrigiert</Bug>
+	<Bug language="Deutsch">Performance-Problem in der API behoben, wenn Erfolge anderer Mods abgefragt wurden</Bug>
+	<Bug language="Deutsch">Download von Renderer-Versionen optimiert</Bug>
+	
+	<Enhancement language="English">Added basic support for the Convenient Edition of the renderer</Enhancement>
+	<Bug language="English">Fixed some bugs in the Polish translation</Bug>
+	<Bug language="English">Fixed a performance bug in the API when querying achievements from other mods</Bug>
+	<Bug language="English">Optimized download of renderer versions</Bug>
+</Version>
