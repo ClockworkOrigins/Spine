@@ -1777,7 +1777,7 @@ namespace {
 									}
 								} else {
 									Database::DBError dbErr;
-									std::vector<std::string> lastResults = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier FROM modAchievements WHERE ModID = " + std::to_string(_modID) + " AND Username = '" = _username.toStdString() + "';", dbErr);
+									std::vector<std::string> lastResults = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier FROM modAchievements WHERE ModID = " + std::to_string(_modID) + ";", dbErr);
 
 									common::SendAchievementsMessage sam;
 									for (const std::string & s : lastResults) {
@@ -1786,7 +1786,7 @@ namespace {
 									}
 									auto lastResultsVec = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier, Max FROM modAchievementProgressMax WHERE ModID = " + std::to_string(_modID) + ";", dbErr);
 									for (auto vec : lastResultsVec) {
-										lastResults = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Current FROM modAchievementProgress WHERE ModID = " + std::to_string(_modID) + " AND Identifier = " + vec[0] + " AND Username = '" + _username.toStdString() +  "' LIMIT 1;", dbErr);
+										lastResults = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Current FROM modAchievementProgress WHERE ModID = " + std::to_string(_modID) + " AND Identifier = " + vec[0] + " LIMIT 1;", dbErr);
 										if (lastResults.empty()) {
 											sam.achievementProgress.emplace_back(std::stoi(vec[0]), std::make_pair(0, std::stoi(vec[1])));
 										} else {
@@ -3070,7 +3070,7 @@ namespace {
 								Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM sync;", err);
 								Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO sync (Enabled) VALUES (0);", err);
 								common::UpdateOfflineDataMessage uodm;
-								std::vector<std::vector<std::string>> achievements = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Identifier FROM modAchievements WHERE Username = '" + _username.toStdString() + "';", err);
+								std::vector<std::vector<std::string>> achievements = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Identifier FROM modAchievements;", err);
 								for (auto vec : achievements) {
 									common::UpdateOfflineDataMessage::AchievementData ad {};
 									ad.modID = std::stoi(vec[0]);
@@ -3081,7 +3081,7 @@ namespace {
 									}
 									uodm.achievements.push_back(ad);
 								}
-								std::vector<std::vector<std::string>> scores = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Identifier, Score FROM modScores WHERE Username = '" + _username.toStdString() + "';", err);
+								std::vector<std::vector<std::string>> scores = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Identifier, Score FROM modScores;", err);
 								for (auto vec : scores) {
 									common::UpdateOfflineDataMessage::ScoreData sd {};
 									sd.modID = std::stoi(vec[0]);
@@ -3089,7 +3089,7 @@ namespace {
 									sd.score = std::stoi(vec[2]);
 									uodm.scores.push_back(sd);
 								}
-								std::vector<std::vector<std::string>> overallSaveData = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Entry, Value FROM overallSaveData WHERE Username = '" + _username.toStdString() + "';", err);
+								std::vector<std::vector<std::string>> overallSaveData = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Entry, Value FROM overallSaveData;", err);
 								for (auto vec : overallSaveData) {
 									common::UpdateOfflineDataMessage::OverallSaveData od;
 									od.modID = std::stoi(vec[0]);
@@ -3097,11 +3097,11 @@ namespace {
 									od.value = vec[2];
 									uodm.overallSaves.push_back(od);
 								}
-								std::vector<std::vector<int>> playTimes = Database::queryAll<std::vector<int>, int, int>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Duration FROM playTimes WHERE Username = '" + _username.toStdString() + "';", err);
+								std::vector<std::vector<int>> playTimes = Database::queryAll<std::vector<int>, int, int>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Duration FROM playTimes;", err);
 								for (auto vec : playTimes) {
 									uodm.playTimes.emplace_back(vec[0], vec[1]);
 								}
-								Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM playTimes WHERE Username = '" + _username.toStdString() + "';", err);
+								Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM playTimes;", err);
 								const std::string serialized = uodm.SerializePublic();
 								sock.writePacket(serialized);
 							}
