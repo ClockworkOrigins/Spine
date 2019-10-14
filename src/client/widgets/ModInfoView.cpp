@@ -237,6 +237,7 @@ namespace {
 		QHBoxLayout * hl = new QHBoxLayout();
 		{
 			_patchGroup = new QGroupBox(QApplication::tr("PatchesAndTools"), this);
+			UPDATELANGUAGESETTITLE(generalSettingsWidget, _patchGroup, "PatchesAndTools");
 			_patchGroup->setProperty("library", true);
 			_patchLayout = new QGridLayout();
 			_patchLayout->setColumnStretch(2, 1);
@@ -244,6 +245,7 @@ namespace {
 			_patchGroup->hide();
 
 			_pdfGroup = new QGroupBox(QApplication::tr("PDFs"), this);
+			UPDATELANGUAGESETTITLE(generalSettingsWidget, _patchGroup, "PDFs");
 			_pdfGroup->setProperty("library", true);
 			_pdfLayout = new QVBoxLayout();
 			_pdfGroup->setLayout(_pdfLayout);
