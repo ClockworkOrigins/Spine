@@ -106,9 +106,11 @@ namespace widgets {
 			language = "English";
 		}
 
-		std::map<uint32_t, std::pair<QStringList, QStringList>, std::greater<uint32_t>> versions;  // NOLINT
+		std::map<uint32_t, std::pair<QStringList, QStringList>, std::greater<>> versions;
 
-		for (tinyxml2::XMLElement * node = doc.FirstChildElement("Version"); node != nullptr; node = node->NextSiblingElement("Version")) {
+		tinyxml2::XMLElement * versionsNode = doc.FirstChildElement("Versions");
+
+		for (tinyxml2::XMLElement * node = versionsNode->FirstChildElement("Version"); node != nullptr; node = node->NextSiblingElement("Version")) {
 			if (node->Attribute("majorVersion") == nullptr || node->Attribute("minorVersion") == nullptr || node->Attribute("patchVersion") == nullptr) {
 				continue;
 			}
