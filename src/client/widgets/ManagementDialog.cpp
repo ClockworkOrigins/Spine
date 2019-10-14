@@ -56,7 +56,7 @@ namespace widgets {
 			connect(modList, SIGNAL(clicked(QModelIndex)), this, SLOT(selectedMod(QModelIndex)));
 			hl->addWidget(modList);
 
-			QTabWidget * tw = new QTabWidget(this);
+			_tabWidget = new QTabWidget(this);
 			_generalConfigurationWidget = new GeneralConfigurationWidget(this);
 			_modFilesWidget = new ModFilesWidget(username, language, this);
 			_userManagementWidget = new UserManagementWidget(username, language, this);
@@ -64,14 +64,14 @@ namespace widgets {
 			_achievementsWidget = new AchievementsWidget(this);
 			_scoresWidget = new ScoresWidget(this);
 			_customStatisticsWidget = new CustomStatisticsWidget(this);
-			tw->addTab(_generalConfigurationWidget, QApplication::tr("General"));
-			tw->addTab(_modFilesWidget, QApplication::tr("ModFiles"));
-			tw->addTab(_userManagementWidget, QApplication::tr("UserManagement"));
-			tw->addTab(_statisticsWidget, QApplication::tr("Statistics"));
-			tw->addTab(_achievementsWidget, QApplication::tr("Achievements"));
-			tw->addTab(_scoresWidget, QApplication::tr("Scores"));
-			tw->addTab(_customStatisticsWidget, QApplication::tr("CustomStatistics"));
-			hl->addWidget(tw);
+			_tabWidget->addTab(_generalConfigurationWidget, QApplication::tr("General"));
+			_tabWidget->addTab(_modFilesWidget, QApplication::tr("ModFiles"));
+			_tabWidget->addTab(_userManagementWidget, QApplication::tr("UserManagement"));
+			_tabWidget->addTab(_statisticsWidget, QApplication::tr("Statistics"));
+			_tabWidget->addTab(_achievementsWidget, QApplication::tr("Achievements"));
+			_tabWidget->addTab(_scoresWidget, QApplication::tr("Scores"));
+			_tabWidget->addTab(_customStatisticsWidget, QApplication::tr("CustomStatistics"));
+			hl->addWidget(_tabWidget);
 
 			l->addLayout(hl);
 		}
@@ -89,6 +89,8 @@ namespace widgets {
 		connect(_generalConfigurationWidget, &GeneralConfigurationWidget::triggerInfoPage, this, &ManagementDialog::triggerInfoPage);
 		connect(_generalConfigurationWidget, &GeneralConfigurationWidget::triggerInfoPage, this, &ManagementDialog::reject);
 		connect(_modFilesWidget, &ModFilesWidget::checkForUpdate, this, &ManagementDialog::checkForUpdate);
+
+		_tabWidget->setEnabled(false);
 
 		loadModList();
 
@@ -116,6 +118,8 @@ namespace widgets {
 		_achievementsWidget->updateModList(modList);
 		_scoresWidget->updateModList(modList);
 		_customStatisticsWidget->updateModList(modList);
+
+		_tabWidget->setEnabled(!modList.empty());
 	}
 
 	void ManagementDialog::selectedMod(const QModelIndex & index) {

@@ -1589,3 +1589,10 @@
 	<Bug language="English">Fixed a performance bug in the API when querying achievements from other mods</Bug>
 	<Bug language="English">Optimized download of renderer versions</Bug>
 </Version>
+<Version majorVersion="1" minorVersion="14" patchVersion="14">
+	<Bug language="Deutsch">Tippfehler in Fehlermeldung bei Integritätscheck korrigiert</Bug>
+	<Bug language="Deutsch">Management-Dialog ist jetzt ohne eigene Mods nicht mehr benutzbar</Bug>
+	
+	<Bug language="English">Fixed typo in error message of integrity check</Bug>
+	<Bug language="English">Management dialog now is disabled for users without own mods</Bug>
+</Version>

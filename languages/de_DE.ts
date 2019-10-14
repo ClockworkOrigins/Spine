@@ -575,7 +575,7 @@ Wenn ein Update gefunden wird, wird Spine automatisch den Download starten und s
     </message>
     <message>
         <source>IntegrityRepairFailure</source>
-        <translation>Es konntent nicht alle Dateien erfolgreich wiederhergestellt werden. Möglicherweise solltest du Spine neu starten oder es gab Probleme mit der Internetverbindung. Führe den Integritätscheck daher später noch einmal aus.</translation>
+        <translation>Es konnten nicht alle Dateien erfolgreich wiederhergestellt werden. Möglicherweise solltest du Spine neu starten oder es gab Probleme mit der Internetverbindung. Führe den Integritätscheck daher später noch einmal aus.</translation>
     </message>
     <message>
         <source>ActivateZSpy</source>

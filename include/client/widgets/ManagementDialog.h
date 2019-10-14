@@ -25,6 +25,7 @@
 
 class QSettings;
 class QStandardItemModel;
+class QTabWidget;
 
 namespace spine {
 namespace widgets {
@@ -69,6 +70,7 @@ namespace widgets {
 		AchievementsWidget * _achievementsWidget;
 		ScoresWidget * _scoresWidget;
 		CustomStatisticsWidget * _customStatisticsWidget;
+		QTabWidget * _tabWidget;
 
 		void loadModList();
 		void restoreSettings();
