@@ -2084,6 +2084,7 @@ namespace {
 
 	void ModInfoView::updateModStats() {
 		if (!_onlineMode) {
+			emit receivedCompatibilityList(_modID, {}, {});
 			return;
 		}
 		int modID = _modID;

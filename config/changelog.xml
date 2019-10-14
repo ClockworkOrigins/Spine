@@ -1592,7 +1592,9 @@
 <Version majorVersion="1" minorVersion="14" patchVersion="14">
 	<Bug language="Deutsch">Tippfehler in Fehlermeldung bei Integritätscheck korrigiert</Bug>
 	<Bug language="Deutsch">Management-Dialog ist jetzt ohne eigene Mods nicht mehr benutzbar</Bug>
+	<Bug language="Deutsch">Patches und Tools funktionieren jetzt im Offline-Modus wieder</Bug>
 	
 	<Bug language="English">Fixed typo in error message of integrity check</Bug>
 	<Bug language="English">Management dialog now is disabled for users without own mods</Bug>
+	<Bug language="English">Patches and tools now work again in offline mode</Bug>
 </Version>
