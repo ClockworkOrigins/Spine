@@ -1595,10 +1595,12 @@
 		<Bug language="Deutsch">Management-Dialog ist jetzt ohne eigene Mods nicht mehr benutzbar</Bug>
 		<Bug language="Deutsch">Patches und Tools funktionieren jetzt im Offline-Modus wieder</Bug>
 		<Bug language="Deutsch">Erfolge funktionieren möglicherweise jetzt wieder im Offline-Modus</Bug>
+		<Bug language="Deutsch">Patches und Tools-Box wird jetzt übersetzt, wenn die Sprache zur Laufzeit gewechselt wird</Bug>
 		
 		<Bug language="English">Fixed typo in error message of integrity check</Bug>
 		<Bug language="English">Management dialog now is disabled for users without own mods</Bug>
 		<Bug language="English">Patches and tools now work again in offline mode</Bug>
 		<Bug language="English">Achievements probably work again in offline mode</Bug>
+		<Bug language="English">Patches and Tools box now gets translated when language is switched during runtime</Bug>
 	</Version>
 </Versions>
