@@ -210,7 +210,7 @@ namespace widgets {
 		void updateModStats();
 		bool isAllowedSymlinkSuffix(QString suffix) const;
 
-		bool prepareModStart(QString * usedBaseDir, QString * usedExecutable, QStringList * backgroundExecutables, bool * newGMP);
+		bool prepareModStart(QString * usedBaseDir, QString * usedExecutable, QStringList * backgroundExecutables, bool * newGMP, QSet<QString> * dependencies);
 		void checkToolCfg(QString path, QString * usedBaseDir, QStringList * backgroundExecutables, bool * newGMP);
 
 		void tryCleanCaches();
@@ -235,6 +235,8 @@ namespace widgets {
 		void removeEmptyDirs(QString baseDir);
 
 		void synchronizeOfflineData();
+
+		void collectDependencies(int modID, QSet<QString> * dependencies, QSet<QString> * forbidden);
 	};
 
 } /* namespace widgets */

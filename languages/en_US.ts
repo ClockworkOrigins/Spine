@@ -3040,5 +3040,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>FAQAnswer9</source>
         <translation>The renderer has its problems with GSync and isn't really compatible with it. The solution for this problem is to disable GSync for Gothic.</translation>
     </message>
+    <message>
+        <source>DependenciesMissing</source>
+        <translation>To play the following patches/tools are required, but not installed:</translation>
+    </message>
 </context>
 </TS>

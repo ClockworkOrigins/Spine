@@ -72,6 +72,7 @@
 #include <QNetworkAccessManager>
 #include <QPushButton>
 #include <QProcessEnvironment>
+#include <QQueue>
 #include <QRegularExpression>
 #include <QSettings>
 #include <QSlider>
@@ -371,12 +372,12 @@ namespace {
 		_iniFile = file;
 		QSettings iniParser(file, QSettings::IniFormat);
 		iniParser.beginGroup("INFO");
-		QString title = iniParser.value("Title", "").toString();
-		QString version = iniParser.value("Version", "").toString();
-		QString team = iniParser.value("Authors", "").toString();
+		const QString title = iniParser.value("Title", "").toString();
+		const QString version = iniParser.value("Version", "").toString();
+		const QString team = iniParser.value("Authors", "").toString();
 		QString homepage = iniParser.value("Webpage", "").toString();
-		QString contact = iniParser.value("Contact", "").toString();
-		QString description = iniParser.value("Description", "").toString();
+		const QString contact = iniParser.value("Contact", "").toString();
+		const QString description = iniParser.value("Description", "").toString();
 		const bool requiresAdmin = iniParser.value("RequiresAdmin", false).toBool();
 		iniParser.endGroup();
 		if (!title.isEmpty()) {
@@ -418,7 +419,7 @@ namespace {
 			QString desc = description;
 			if (desc.startsWith("!<symlink>")) {
 				desc = desc.replace("!<symlink>", "");
-				QFileInfo fi(file);
+				const QFileInfo fi(file);
 				QFile f(fi.absolutePath() + "/" + desc);
 				if (f.open(QIODevice::ReadOnly | QIODevice::Text)) {
 					QTextStream ts(&f);
@@ -716,16 +717,24 @@ namespace {
 		QEventLoop loop;
 		connect(&watcher, SIGNAL(finished()), &loop, SLOT(quit()));
 		QStringList backgroundExecutables;
+		QSet<QString> dependencies;
 		QString usedBaseDir;
 		QString usedExecutable;
 		bool newGMP = false;
 
 		QTime t;
 		t.start();
-		QFuture<bool> future = QtConcurrent::run<bool>(this, &ModInfoView::prepareModStart, &usedBaseDir, &usedExecutable, &backgroundExecutables, &newGMP);
+		QFuture<bool> future = QtConcurrent::run<bool>(this, &ModInfoView::prepareModStart, &usedBaseDir, &usedExecutable, &backgroundExecutables, &newGMP, &dependencies);
 		watcher.setFuture(future);
 		loop.exec();
 		if (!future.result()) {
+			if (!dependencies.isEmpty()) {
+				QString errorMessage = QApplication::tr("DependenciesMissing");
+				for (const auto & p : dependencies) {
+					errorMessage += "\n- " + p;
+				}
+				showErrorMessage(errorMessage);
+			}
 			_mainWindow->setEnabled(true);
 			_mainWindow->setWindowState(_oldWindowState);
 			return;
@@ -2149,15 +2158,18 @@ namespace {
 
 	bool ModInfoView::isAllowedSymlinkSuffix(QString suffix) const {
 		suffix = suffix.toLower();
-		const bool canSymlink = (suffix == "mod" || suffix == "vdf" || suffix == "sty" || suffix == "sgt" || suffix == "dls" || suffix == "bik" || suffix == "dds" || suffix == "jpg" || suffix == "png" || suffix == "mi" || suffix == "hlsl" || suffix == "h" || suffix == "vi" || suffix == "exe" || suffix == "dll" || suffix == "bin" || suffix == "mtl" || suffix == "obj" || suffix == "txt" || suffix == "rtf" || suffix == "obj" || suffix == "ico" || suffix == "ini" || suffix == "bak" || suffix == "gsp" || suffix == "pdb" || suffix == "config" || suffix == "fx" || suffix == "3ds" || suffix == "mcache" || suffix == "fxh");
+		const bool canSymlink = suffix == "mod" || suffix == "vdf" || suffix == "sty" || suffix == "sgt" || suffix == "dls" || suffix == "bik" || suffix == "dds" || suffix == "jpg" || suffix == "png" || suffix == "mi" || suffix == "hlsl" || suffix == "h" || suffix == "vi" || suffix == "exe" || suffix == "dll" || suffix == "bin" || suffix == "mtl" || suffix == "obj" || suffix == "txt" || suffix == "rtf" || suffix == "obj" || suffix == "ico" || suffix == "ini" || suffix == "bak" || suffix == "gsp" || suffix == "pdb" || suffix == "config" || suffix == "fx" || suffix == "3ds" || suffix == "mcache" || suffix == "fxh";
 		if (!canSymlink) {
 			LOGINFO("Copying extension: " << suffix.toStdString());
 		}
 		return canSymlink;
 	}
 
-	bool ModInfoView::prepareModStart(QString * usedBaseDir, QString * usedExecutable, QStringList * backgroundExecutables, bool * newGMP) {
+	bool ModInfoView::prepareModStart(QString * usedBaseDir, QString * usedExecutable, QStringList * backgroundExecutables, bool * newGMP, QSet<QString> * dependencies) {
 		_gmpCounterBackup = -1;
+
+		QSet<QString> forbidden;
+		collectDependencies(_modID, dependencies, &forbidden);
 
 		LOGINFO("Starting Ini: " << _iniFile.toStdString());
 		emitSplashMessage(QApplication::tr("RemovingOldFiles"));
@@ -2169,7 +2181,7 @@ namespace {
 		_copiedFiles.clear();
 
 		Database::DBError err;
-		const std::vector<std::string> patches = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT PatchID FROM patchConfigs WHERE ModID = " + std::to_string(_modID) + ";", err);
+		std::vector<std::string> patches = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT PatchID FROM patchConfigs WHERE ModID = " + std::to_string(_modID) + ";", err);
 		bool clockworkRenderer = false;
 		bool systempack = false;
 		for (const std::string & patchID : patches) {
@@ -2180,6 +2192,34 @@ namespace {
 				systempack = true;
 			}
 		}
+	
+		// disable all forbidden patches
+		for (const QString & p : forbidden) {
+			auto it = std::find(patches.begin(), patches.end(), p.toStdString());
+			if (it != patches.end()) {
+				patches.erase(it);
+			}
+		}
+
+		// check if all dependencies are enabled/can be enabled
+		for (auto it = dependencies->begin(); it != dependencies->end();) {
+			auto it2 = std::find(patches.begin(), patches.end(), it->toStdString());
+			if (it2 != patches.end()) {
+				it = dependencies->erase(it);
+			} else {
+				auto results = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID FROM mods WHERE ModID = " + it->toStdString() + " LIMIT 1;", err);
+				if (!err.error && !results.empty()) {
+					// patch is not enabled, but installed => enable it
+					patches.push_back(it->toStdString());
+					it = dependencies->erase(it);
+				} else {
+					// otherwise unresolved dependency that will cause an error
+					++it;
+				}
+			}
+		}
+		if (!dependencies->isEmpty()) return false; // not all dependencies are met and can't automatically be enabled
+	
 		int normalsCounter = -1;
 		if (_isInstalled) {
 			emitSplashMessage(QApplication::tr("DetermingCorrectGothicPath"));
@@ -2260,7 +2300,7 @@ namespace {
 				for (const std::pair<std::string, std::string> & file : files) {
 					// SP-55 skipping .mod files, the necessary ones will be copied to Data later, so only one copy is necessary
 					QString filename = QString::fromStdString(file.first);
-					if (filename.contains("Data/modvdf/")) {
+					if (filename.contains("Data/modvdf/") || filename.compare("tool.cfg", Qt::CaseInsensitive) == 0) {
 						continue;
 					}
 					if (GeneralSettingsWidget::extendedLogging) {
@@ -2446,6 +2486,8 @@ namespace {
 				QSet<QString> skippedBases;
 				for (const std::pair<std::string, std::string> & file : patchFiles) {
 					QString filename = QString::fromStdString(file.first);
+
+					 if (filename.compare("tool.cfg", Qt::CaseInsensitive) == 0) continue;
 #ifdef Q_OS_WIN
 					if (IsRunAsAdmin()) {
 						if (!QDir().exists(*usedBaseDir + "/System/GD3D11/textures/replacements")) {
@@ -2816,7 +2858,7 @@ namespace {
 	void ModInfoView::checkToolCfg(QString path, QString * usedBaseDir, QStringList * backgroundExecutables, bool * newGMP) {
 		if (QFileInfo::exists(path + "/tool.cfg")) {
 			QSettings configParser(path + "/tool.cfg", QSettings::IniFormat);
-			QString executable = configParser.value("CONFIG/BackgroundProcess", "").toString();
+			const QString executable = configParser.value("CONFIG/BackgroundProcess", "").toString();
 			if (!executable.isEmpty()) {
 				backgroundExecutables->append(executable);
 			}
@@ -2858,7 +2900,7 @@ namespace {
 				}
 #endif
 			} else {
-				QString ini = configParser.value("CONFIG/WriteIni", "").toString();
+				const QString ini = configParser.value("CONFIG/WriteIni", "").toString();
 				const QString clearIni = configParser.value("CONFIG/ClearIni", "").toString();
 				if (!ini.isEmpty()) {
 					QSettings newIni(*usedBaseDir + "/" + ini, QSettings::IniFormat);
@@ -2878,7 +2920,7 @@ namespace {
 					}
 					configParser.endGroup();
 				}
-				QString file = configParser.value("CONFIG/WriteFile", "").toString();
+				const QString file = configParser.value("CONFIG/WriteFile", "").toString();
 				const QString clearFile = configParser.value("CONFIG/ClearFile", "").toString();
 				if (!file.isEmpty()) {
 					QFile f(*usedBaseDir + "/" + file);
@@ -3167,6 +3209,41 @@ namespace {
 			} catch (...) {
 			}
 		}).detach();
+	}
+
+	void ModInfoView::collectDependencies(int modID, QSet<QString> * dependencies, QSet<QString> * forbidden) {
+		QQueue<QString> toCheck;
+		toCheck.enqueue(QString::number(modID));
+
+		Database::DBError err;
+		std::vector<std::string> patches = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT PatchID FROM patchConfigs WHERE ModID = " + std::to_string(modID) + ";", err);
+
+		for (const auto & p : patches) {
+			toCheck.enqueue(s2q(p));
+		}
+
+		while (!toCheck.empty()) {
+			auto id = toCheck.dequeue();
+			auto path = Config::MODDIR + "/mods/" + id;
+			if (QFileInfo::exists(path + "/tool.cfg")) {
+				QSettings configParser(path + "/tool.cfg", QSettings::IniFormat);
+				
+				auto required = configParser.value("DEPENDENCIES/Required", QString()).toString();
+				auto split = required.split(',');
+				for (const auto & s : split) {
+					if (dependencies->contains(s)) continue;
+					
+					dependencies->insert(s);
+					toCheck.append(s);
+				}
+				
+				auto blocked = configParser.value("DEPENDENCIES/Blocked", QString()).toString();
+				split = blocked.split(',');
+				for (const auto & s : split) {
+					forbidden->insert(s);
+				}
+			}			
+		}
 	}
 
 } /* namespace widgets */

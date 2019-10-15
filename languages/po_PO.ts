@@ -3032,5 +3032,9 @@ Zgodę można odwołać w każdej chwili. Wszystkie niezbędne informacje można
         <source>FAQAnswer9</source>
         <translation>Der Renderer hat seine Probleme mit GSync und ist nicht richtig kompatibel. Die Lösung ist daher, GSync für Gothic zu deaktivieren.</translation>
     </message>
+    <message>
+        <source>DependenciesMissing</source>
+        <translation>Zum Spielen sind die folgenden nicht installierten Patches/Tools erforderlich:</translation>
+    </message>
 </context>
 </TS>
