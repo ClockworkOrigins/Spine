@@ -945,6 +945,17 @@ namespace {
 			registrySettings.setValue("size", _gmpCounterBackup);
 			_gmpCounterBackup = -1;
 		}
+		if (QFileInfo::exists(usedBaseDir + "/System/BugslayerUtilG.dll")) {
+			QFile::rename(usedBaseDir + "/System/BugslayerUtilG.dll", usedBaseDir + "/System/BugslayerUtil.dll");
+		}
+		if (QFileInfo::exists(usedBaseDir + "/System/pre.load")) {
+			QFile f(usedBaseDir + "/System/pre.load");
+			f.open(QIODevice::ReadWrite);
+			QTextStream ts(&f);
+			QString text = ts.readAll();
+			text = text.remove("\nNinja.dll");
+			ts << text;
+		}
 		_gothicIniBackup.clear();
 		_systempackIniBackup.clear();
 		int duration = _timer->elapsed();
@@ -2187,14 +2198,7 @@ namespace {
 		std::vector<std::string> patches = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT PatchID FROM patchConfigs WHERE ModID = " + std::to_string(_modID) + ";", err);
 		bool clockworkRenderer = false;
 		bool systempack = false;
-		for (const std::string & patchID : patches) {
-			const std::string patchName = Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Name FROM patches WHERE ModID = " + patchID + " LIMIT 1;", err);
-			if (patchName == "D3D11 Renderer Clockwork Edition" || patchName == "D3D11 Renderer Convenient Edition") {
-				clockworkRenderer = true;
-			} else if (patchName.find("Systempack") != std::string::npos) {
-				systempack = true;
-			}
-		}
+		bool ninja = false;
 	
 		// disable all forbidden patches
 		for (const QString & p : forbidden) {
@@ -2222,6 +2226,35 @@ namespace {
 			}
 		}
 		if (!dependencies->isEmpty()) return false; // not all dependencies are met and can't automatically be enabled
+
+		for (const std::string & patchID : patches) {
+			const std::string patchName = Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Name FROM patches WHERE ModID = " + patchID + " LIMIT 1;", err);
+			if (patchName == "D3D11 Renderer Clockwork Edition" || patchName == "D3D11 Renderer Convenient Edition") {
+				clockworkRenderer = true;
+			} else if (patchName.find("Systempack") != std::string::npos) {
+				systempack = true;
+			} else if (patchID == "314") {
+				ninja = true;
+			}
+		}
+
+		if (ninja) {
+			// Systempack compatibility
+			{
+				QFile f(*usedBaseDir + "/System/pre.load");
+				f.open(QIODevice::Append);
+				const char* ninjaDll = "\nNinja.dll";
+				f.write(ninjaDll, strlen(ninjaDll));
+			}
+			// Union
+			{
+				// TODO: Eintragen von Ninja.dll** in die PluginList in der Datei Union.ini im System-Verzeichnis. (Wichtig sind hier die beiden Sternchen. Diese werden erst seit Version 1.0e unterstützt).
+			}
+			// base case
+			{
+				QFile::rename(*usedBaseDir + "/System/BugslayerUtil.dll", *usedBaseDir + "/System/BugslayerUtilG.dll");				
+			}
+		}
 	
 		int normalsCounter = -1;
 		if (_isInstalled) {
@@ -2855,6 +2888,7 @@ namespace {
 				}
 			}
 		}
+	
 		return true;
 	}
 
@@ -3230,9 +3264,10 @@ namespace {
 			auto path = Config::MODDIR + "/mods/" + id;
 			if (QFileInfo::exists(path + "/tool.cfg")) {
 				QSettings configParser(path + "/tool.cfg", QSettings::IniFormat);
+
+				auto required = configParser.value("DEPENDENCIES/Required", "").toString();
 				
-				auto required = configParser.value("DEPENDENCIES/Required", QString()).toString();
-				auto split = required.split(',');
+				auto split = required.split(',', QString::SkipEmptyParts);
 				for (const auto & s : split) {
 					if (dependencies->contains(s)) continue;
 					
@@ -3240,8 +3275,9 @@ namespace {
 					toCheck.append(s);
 				}
 				
-				auto blocked = configParser.value("DEPENDENCIES/Blocked", QString()).toString();
-				split = blocked.split(',');
+				auto blocked = configParser.value("DEPENDENCIES/Blocked", "").toString();
+				
+				split = blocked.split(',', QString::SkipEmptyParts);
 				for (const auto & s : split) {
 					forbidden->insert(s);
 				}
