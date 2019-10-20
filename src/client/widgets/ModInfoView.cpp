@@ -1776,24 +1776,20 @@ namespace {
 					} else if (msg->type == common::MessageType::REQUESTACHIEVEMENTS) {
 						common::RequestAchievementsMessage * ram = dynamic_cast<common::RequestAchievementsMessage *>(msg);
 						if (_isInstalled) {
-							if (ram && !_username.isEmpty()) {
-								if (_onlineMode) {
-									ram->modID = _modID;
-									ram->username = _username.toStdString();
-									ram->password = _password.toStdString();
-									clockUtils::sockets::TcpSocket sock;
-									if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-										serialized = ram->SerializePublic();
-										if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
-											if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-												common::SendAchievementsMessage * sam = dynamic_cast<common::SendAchievementsMessage *>(common::Message::DeserializePublic(serialized));
-												sam->showAchievements = _showAchievements;
-												serialized = sam->SerializeBlank();
-												socket->writePacket(serialized);
-												delete sam;
-											} else {
-												socket->writePacket("empty");
-											}
+							if (ram && _onlineMode && !_username.isEmpty()) {
+								ram->modID = _modID;
+								ram->username = _username.toStdString();
+								ram->password = _password.toStdString();
+								clockUtils::sockets::TcpSocket sock;
+								if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
+									serialized = ram->SerializePublic();
+									if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
+										if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
+											common::SendAchievementsMessage * sam = dynamic_cast<common::SendAchievementsMessage *>(common::Message::DeserializePublic(serialized));
+											sam->showAchievements = _showAchievements;
+											serialized = sam->SerializeBlank();
+											socket->writePacket(serialized);
+											delete sam;
 										} else {
 											socket->writePacket("empty");
 										}
@@ -1801,28 +1797,28 @@ namespace {
 										socket->writePacket("empty");
 									}
 								} else {
-									Database::DBError dbErr;
-									std::vector<std::string> lastResults = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier FROM modAchievements WHERE ModID = " + std::to_string(_modID) + ";", dbErr);
-
-									common::SendAchievementsMessage sam;
-									for (const std::string & s : lastResults) {
-										int32_t identifier = int32_t(std::stoi(s));
-										sam.achievements.push_back(identifier);
-									}
-									auto lastResultsVec = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier, Max FROM modAchievementProgressMax WHERE ModID = " + std::to_string(_modID) + ";", dbErr);
-									for (auto vec : lastResultsVec) {
-										lastResults = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Current FROM modAchievementProgress WHERE ModID = " + std::to_string(_modID) + " AND Identifier = " + vec[0] + " LIMIT 1;", dbErr);
-										if (lastResults.empty()) {
-											sam.achievementProgress.emplace_back(std::stoi(vec[0]), std::make_pair(0, std::stoi(vec[1])));
-										} else {
-											sam.achievementProgress.emplace_back(std::stoi(vec[0]), std::make_pair(std::stoi(lastResults[0]), std::stoi(vec[1])));
-										}
-									}
-									serialized = sam.SerializeBlank();
-									socket->writePacket(serialized);
+									socket->writePacket("empty");
 								}
 							} else {
-								socket->writePacket("empty");
+								Database::DBError dbErr;
+								std::vector<std::string> lastResults = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier FROM modAchievements WHERE ModID = " + std::to_string(_modID) + ";", dbErr);
+
+								common::SendAchievementsMessage sam;
+								for (const std::string & s : lastResults) {
+									int32_t identifier = int32_t(std::stoi(s));
+									sam.achievements.push_back(identifier);
+								}
+								auto lastResultsVec = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier, Max FROM modAchievementProgressMax WHERE ModID = " + std::to_string(_modID) + ";", dbErr);
+								for (auto vec : lastResultsVec) {
+									lastResults = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Current FROM modAchievementProgress WHERE ModID = " + std::to_string(_modID) + " AND Identifier = " + vec[0] + " LIMIT 1;", dbErr);
+									if (lastResults.empty()) {
+										sam.achievementProgress.emplace_back(std::stoi(vec[0]), std::make_pair(0, std::stoi(vec[1])));
+									} else {
+										sam.achievementProgress.emplace_back(std::stoi(vec[0]), std::make_pair(std::stoi(lastResults[0]), std::stoi(vec[1])));
+									}
+								}
+								serialized = sam.SerializeBlank();
+								socket->writePacket(serialized);
 							}
 						} else {
 							common::SendAchievementsMessage sam;
@@ -1855,6 +1851,10 @@ namespace {
 										cacheAchievement(uam);
 									}
 								} else {
+									uam->modID = _modID;
+									
+									cacheAchievement(uam);
+									
 									Database::DBError dbErr;
 									Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO modAchievements (ModID, Identifier, Username) VALUES (" + std::to_string(_modID) + ", " + std::to_string(uam->identifier) + ", '" + _username.toStdString() + ");", dbErr);
 								}

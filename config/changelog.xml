@@ -1607,4 +1607,9 @@
 		<Bug language="English">Achievements probably work again in offline mode</Bug>
 		<Bug language="English">Patches and Tools box now gets translated when language is switched during runtime</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="14" patchVersion="15">
+		<Bug language="Deutsch">Weiteren Fehler im Offline-Modus bezüglich Erfolgen behoben</Bug>
+		
+		<Bug language="English">Fixed another bug in offline mode regarding achievements</Bug>
+	</Version>
 </Versions>
