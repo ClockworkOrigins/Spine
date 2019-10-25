@@ -1609,7 +1609,9 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="14" patchVersion="15">
 		<Bug language="Deutsch">Weiteren Fehler im Offline-Modus bezüglich Erfolgen behoben</Bug>
+		<Bug language="Deutsch">Info über fehlende Abhängigkeiten wird jetzt nicht mehr hinter dem Splashscreen angezeigt</Bug>
 		
 		<Bug language="English">Fixed another bug in offline mode regarding achievements</Bug>
+		<Bug language="English">Info regarding missing dependencies will not be shown behing splashscreen anymore</Bug>
 	</Version>
 </Versions>

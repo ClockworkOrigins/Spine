@@ -728,6 +728,7 @@ namespace {
 		watcher.setFuture(future);
 		loop.exec();
 		if (!future.result()) {
+			splash.hide();
 			if (!dependencies.isEmpty()) {
 				QString errorMessage = QApplication::tr("DependenciesMissing");
 				for (const auto & p : dependencies) {
