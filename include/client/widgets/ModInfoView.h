@@ -237,6 +237,8 @@ namespace widgets {
 		void synchronizeOfflineData();
 
 		void collectDependencies(int modID, QSet<QString> * dependencies, QSet<QString> * forbidden);
+
+		void prepareForNinja(QString * usedBaseDir);
 	};
 
 } /* namespace widgets */

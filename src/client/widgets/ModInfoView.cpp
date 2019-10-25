@@ -946,16 +946,21 @@ namespace {
 			registrySettings.setValue("size", _gmpCounterBackup);
 			_gmpCounterBackup = -1;
 		}
-		if (QFileInfo::exists(usedBaseDir + "/System/BugslayerUtilG.dll")) {
-			QFile::rename(usedBaseDir + "/System/BugslayerUtilG.dll", usedBaseDir + "/System/BugslayerUtil.dll");
-		}
 		if (QFileInfo::exists(usedBaseDir + "/System/pre.load")) {
-			QFile f(usedBaseDir + "/System/pre.load");
-			f.open(QIODevice::ReadWrite);
-			QTextStream ts(&f);
-			QString text = ts.readAll();
+			QString text;
+			{
+				QFile f(usedBaseDir + "/System/pre.load");
+				f.open(QIODevice::ReadOnly);
+				QTextStream ts(&f);
+				text = ts.readAll();
+			}
 			text = text.remove("\nNinja.dll");
-			ts << text;
+			{
+				QFile f(usedBaseDir + "/System/pre.load");
+				f.open(QIODevice::WriteOnly);
+				QTextStream ts(&f);
+				ts << text;
+			}
 		}
 		_gothicIniBackup.clear();
 		_systempackIniBackup.clear();
@@ -1021,6 +1026,10 @@ namespace {
 			}
 		}
 		removeModFiles();
+	
+		if (QFileInfo::exists(usedBaseDir + "/System/BugslayerUtilG.dll")) {
+			QFile::rename(usedBaseDir + "/System/BugslayerUtilG.dll", usedBaseDir + "/System/BugslayerUtil.dll");
+		}
 
 		// more of a hack in order to fix corruption/deletion of Gothic2.exe due to some mod/patch
 		Database::DBError err;
@@ -2238,24 +2247,6 @@ namespace {
 				ninja = true;
 			}
 		}
-
-		if (ninja) {
-			// Systempack compatibility
-			{
-				QFile f(*usedBaseDir + "/System/pre.load");
-				f.open(QIODevice::Append);
-				const char* ninjaDll = "\nNinja.dll";
-				f.write(ninjaDll, strlen(ninjaDll));
-			}
-			// Union
-			{
-				// TODO: Eintragen von Ninja.dll** in die PluginList in der Datei Union.ini im System-Verzeichnis. (Wichtig sind hier die beiden Sternchen. Diese werden erst seit Version 1.0e unterstützt).
-			}
-			// base case
-			{
-				QFile::rename(*usedBaseDir + "/System/BugslayerUtil.dll", *usedBaseDir + "/System/BugslayerUtilG.dll");				
-			}
-		}
 	
 		int normalsCounter = -1;
 		if (_isInstalled) {
@@ -2317,6 +2308,10 @@ namespace {
 					}
 					_copiedFiles.insert(file);
 				}
+			}
+
+			if (ninja) {
+				prepareForNinja(usedBaseDir);
 			}
 
 			emitSplashMessage(QApplication::tr("RemovingBackups"));
@@ -3283,6 +3278,28 @@ namespace {
 					forbidden->insert(s);
 				}
 			}			
+		}
+	}
+
+	void ModInfoView::prepareForNinja(QString * usedBaseDir) {
+		// Systempack compatibility
+		{
+			QFile f(*usedBaseDir + "/System/pre.load");
+			f.open(QIODevice::Append);
+			const char* ninjaDll = "\nNinja.dll";
+			f.write(ninjaDll, strlen(ninjaDll));
+		}
+		// Union
+		{
+			// TODO: Eintragen von Ninja.dll** in die PluginList in der Datei Union.ini im System-Verzeichnis. (Wichtig sind hier die beiden Sternchen. Diese werden erst seit Version 1.0e unterstützt).
+		}
+		// base case
+		{
+			const auto bugslayerDll = *usedBaseDir + "/System/BugslayerUtil.dll";
+			if (QFileInfo::exists(bugslayerDll)) {
+				const bool b = QFile::rename(bugslayerDll, *usedBaseDir + "/System/BugslayerUtilG.dll");
+				Q_ASSERT(b);
+			}
 		}
 	}
 
