@@ -1057,7 +1057,7 @@ namespace spine {
 			std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
-		if (!database.query("PREPARE selectModStmt FROM \"SELECT MajorVersion, MinorVersion, PatchVersion, Enabled, TeamID FROM mods WHERE ModID = ? LIMIT 1\";")) {
+		if (!database.query("PREPARE selectModStmt FROM \"SELECT MajorVersion, MinorVersion, PatchVersion, Enabled, TeamID, Gothic FROM mods WHERE ModID = ? LIMIT 1\";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			return;
 		}
@@ -1106,6 +1106,7 @@ namespace spine {
 				const int8_t patchVersion = int8_t(std::stoi(lastResults[0][2]));
 				bool enabled = std::stoi(lastResults[0][3]) == 1;
 				const int teamID = std::stoi(lastResults[0][4]);
+				const int gothicVersion = std::stoi(lastResults[0][5]);
 
 				if (!enabled) {
 					const int userID = getUserID(msg->username, msg->password);
@@ -1154,6 +1155,7 @@ namespace spine {
 					mu.majorVersion = majorVersion;
 					mu.minorVersion = minorVersion;
 					mu.patchVersion = patchVersion;
+					mu.gothicVersion = common::GothicVersion(gothicVersion);
 
 					if (!database.query("EXECUTE selectFilesStmt USING @paramModID, @paramLanguage;")) {
 						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;

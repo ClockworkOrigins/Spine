@@ -143,7 +143,7 @@ namespace widgets {
 					_updates.push_back(u);
 					const bool b = hasChanges(u);
 					cb->setVisible(b);
-					visibleCount += (b) ? 1 : 0;
+					visibleCount += b ? 1 : 0;
 				}
 			}
 			if (!_updates.empty()) {
@@ -217,10 +217,10 @@ namespace widgets {
 				}
 			}
 			// check all existing files for updates
-			for (ModFile mf : m) {
+			for (const ModFile & mf : m) {
 				// compare with all files in the update list
 				bool found = false;
-				for (ModFile filePair : updateFiles) {
+				for (const ModFile & filePair : updateFiles) {
 					// if file name is the same check if hash differs
 					if (filePair.file == mf.file || filePair.file == mf.file + ".z") {
 						found = true;
@@ -236,9 +236,9 @@ namespace widgets {
 				}
 			}
 			// check for new files
-			for (auto pr : updateFiles) {
+			for (const auto & pr : updateFiles) {
 				bool found = false;
-				for (ModFile mf : m) {
+				for (const ModFile & mf : m) {
 					if (pr.file == mf.file || pr.file == mf.file + ".z") {
 						found = true;
 						break;
@@ -249,13 +249,16 @@ namespace widgets {
 					newFiles.push_back(pr);
 				}
 			}
+
+			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE patches SET Name = '" + _updates[i].name + "' WHERE ModID = " + std::to_string(_updates[i].modID) + ";", err);
+			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE mods SET GothicVersion = " + std::to_string(int(_updates[i].gothicVersion)) + " WHERE ModID = " + std::to_string(_updates[i].modID) + ";", err);
 		}
 		bool success = true;
 		if (!installFiles.empty() || !newFiles.empty()) {
 			MultiFileDownloader * mfd = new MultiFileDownloader(this);
 			connect(mfd, SIGNAL(downloadFailed(DownloadError)), mfd, SLOT(deleteLater()));
 			connect(mfd, SIGNAL(downloadSucceeded()), mfd, SLOT(deleteLater()));
-			for (ModFile mf : installFiles) {
+			for (const ModFile & mf : installFiles) {
 				QDir dir(Config::MODDIR + "/mods/" + QString::number(mf.modID));
 				if (!dir.exists()) {
 					bool b = dir.mkpath(dir.absolutePath());
@@ -265,7 +268,7 @@ namespace widgets {
 				FileDownloader * fd = new FileDownloader(QUrl(mf.fileserver + QString::number(mf.modID) + "/" + QString::fromStdString(mf.file)), dir.absolutePath() + "/" + fi.path(), fi.fileName(), QString::fromStdString(mf.hash), mfd);
 				mfd->addFileDownloader(fd);
 			}
-			for (ModFile mf : newFiles) {
+			for (const ModFile & mf : newFiles) {
 				QDir dir(Config::MODDIR + "/mods/" + QString::number(mf.modID));
 				if (!dir.exists()) {
 					bool b = dir.mkpath(dir.absolutePath());

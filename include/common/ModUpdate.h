@@ -22,6 +22,8 @@
 #include <cstdint>
 #include <string>
 
+#include "GothicVersion.h"
+
 #include "boost/archive/text_oarchive.hpp"
 #include "boost/archive/text_iarchive.hpp"
 #include "boost/serialization/export.hpp"
@@ -38,8 +40,9 @@ namespace common {
 		std::vector<std::pair<std::string, std::string>> files;
 		std::vector<std::pair<int32_t, std::vector<std::pair<std::string, std::string>>>> packageFiles;
 		std::string fileserver;
+		GothicVersion gothicVersion;
 
-		ModUpdate() {
+		ModUpdate() : modID(0), majorVersion(0), minorVersion(0), patchVersion(0), gothicVersion(GothicVersion::GOTHIC) {
 		}
 
 		template<class Archive>
@@ -52,6 +55,7 @@ namespace common {
 			ar & files;
 			ar & packageFiles;
 			ar & fileserver;
+			ar & gothicVersion;
 		}
 	};
 
