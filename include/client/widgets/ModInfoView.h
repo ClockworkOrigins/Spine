@@ -198,6 +198,9 @@ namespace widgets {
 
 		int _gmpCounterBackup;
 
+		QStringList _systempackPreLoads;
+		QStringList _unionPlugins;
+
 		QStringList getGothicFiles() const;
 		void removeGothicFiles();
 		void removeModFiles();
@@ -239,6 +242,8 @@ namespace widgets {
 		void collectDependencies(int modID, QSet<QString> * dependencies, QSet<QString> * forbidden);
 
 		void prepareForNinja(QString * usedBaseDir);
+
+		void updatePlugins(int modID, QString * usedBaseDir);
 	};
 
 } /* namespace widgets */

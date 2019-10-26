@@ -954,14 +954,20 @@ namespace {
 				QTextStream ts(&f);
 				text = ts.readAll();
 			}
-			text = text.remove("\nNinja.dll");
+			for (const auto & s : _systempackPreLoads) {
+				text = text.remove("\n" + s);
+			}
 			{
 				QFile f(usedBaseDir + "/System/pre.load");
 				f.open(QIODevice::WriteOnly);
 				QTextStream ts(&f);
 				ts << text;
 			}
+			_systempackPreLoads.clear();
 		}
+	
+		// TODO: SP-811 reset Union.ini plugins
+	
 		_gothicIniBackup.clear();
 		_systempackIniBackup.clear();
 		int duration = _timer->elapsed();
@@ -2483,6 +2489,7 @@ namespace {
 					return false;
 				}
 				checkToolCfg(Config::MODDIR + "/mods/" + QString::number(_modID), usedBaseDir, backgroundExecutables, newGMP);
+				updatePlugins(_modID, usedBaseDir);
 			}
 		} else {
 			emitSplashMessage(QApplication::tr("DetermingCorrectGothicPath"));
@@ -2715,6 +2722,7 @@ namespace {
 					}
 				}
 				checkToolCfg(Config::MODDIR + "/mods/" + QString::number(patchID), usedBaseDir, backgroundExecutables, newGMP);
+				updatePlugins(patchID, usedBaseDir);
 			}
 		}
 		if (usedExecutable->isEmpty()) {
@@ -3282,17 +3290,6 @@ namespace {
 	}
 
 	void ModInfoView::prepareForNinja(QString * usedBaseDir) {
-		// Systempack compatibility
-		{
-			QFile f(*usedBaseDir + "/System/pre.load");
-			f.open(QIODevice::Append);
-			const char* ninjaDll = "\nNinja.dll";
-			f.write(ninjaDll, strlen(ninjaDll));
-		}
-		// Union
-		{
-			// TODO: Eintragen von Ninja.dll** in die PluginList in der Datei Union.ini im System-Verzeichnis. (Wichtig sind hier die beiden Sternchen. Diese werden erst seit Version 1.0e unterstützt).
-		}
 		// base case
 		{
 			const auto bugslayerDll = *usedBaseDir + "/System/BugslayerUtil.dll";
@@ -3300,6 +3297,36 @@ namespace {
 				const bool b = QFile::rename(bugslayerDll, *usedBaseDir + "/System/BugslayerUtilG.dll");
 				Q_ASSERT(b);
 			}
+		}
+	}
+
+	void ModInfoView::updatePlugins(int modID, QString * usedBaseDir) {
+		const auto path = QString("%1/mods/%2").arg(Config::MODDIR).arg(modID);
+	
+		if (!QFileInfo::exists(path + "/tool.cfg")) return;
+
+		const QSettings configParser(path + "/tool.cfg", QSettings::IniFormat);
+
+		{
+			const auto systempackEntries = configParser.value("LOADER/SPpreload", "").toString();
+					
+			auto split = systempackEntries.split(',', QString::SkipEmptyParts);
+
+			QFile f(*usedBaseDir + "/System/pre.load");
+			f.open(QIODevice::Append);
+			QTextStream ts(&f);
+			for (const auto & s : split) {
+				ts << s;
+			}
+			_systempackPreLoads << split;
+		}
+		{
+			const auto unionEntries = configParser.value("LOADER/UnionIni", "").toString();
+					
+			auto split = unionEntries.split(',', QString::SkipEmptyParts);
+
+			// TODO: SP-811 write entry to Union.ini
+			_unionPlugins << split;
 		}
 	}
 

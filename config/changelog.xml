@@ -1608,10 +1608,12 @@
 		<Bug language="English">Patches and Tools box now gets translated when language is switched during runtime</Bug>
 	</Version>
 	<Version majorVersion="1" minorVersion="14" patchVersion="15">
+		<Enhancement language="Deutsch">Es lassen sich jetzt Mod-Dlls automatisch in die Systempack pre.load Datei eintragen</Enhancement>
 		<Bug language="Deutsch">Weiteren Fehler im Offline-Modus bezüglich Erfolgen behoben</Bug>
 		<Bug language="Deutsch">Info über fehlende Abhängigkeiten wird jetzt nicht mehr hinter dem Splashscreen angezeigt</Bug>
 		<Bug language="Deutsch">Vorbereitung für Ninja funktioniert jetzt wie es soll</Bug>
 		
+		<Enhancement language="English">It's possible now to let mod dlls automatically be added to Systempack pre.load file</Enhancement>
 		<Bug language="English">Fixed another bug in offline mode regarding achievements</Bug>
 		<Bug language="English">Info regarding missing dependencies will not be shown behing splashscreen anymore</Bug>
 		<Bug language="English">Preparation for Ninja now works as expected</Bug>
