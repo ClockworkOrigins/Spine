@@ -3310,20 +3310,20 @@ namespace {
 		{
 			const auto systempackEntries = configParser.value("LOADER/SPpreload", "").toString();
 					
-			auto split = systempackEntries.split(',', QString::SkipEmptyParts);
+			const auto split = systempackEntries.split(',', QString::SkipEmptyParts);
 
 			QFile f(*usedBaseDir + "/System/pre.load");
 			f.open(QIODevice::Append);
 			QTextStream ts(&f);
 			for (const auto & s : split) {
-				ts << s;
+				ts << "\n" + s;
 			}
 			_systempackPreLoads << split;
 		}
 		{
 			const auto unionEntries = configParser.value("LOADER/UnionIni", "").toString();
 					
-			auto split = unionEntries.split(',', QString::SkipEmptyParts);
+			const auto split = unionEntries.split(',', QString::SkipEmptyParts);
 
 			// TODO: SP-811 write entry to Union.ini
 			_unionPlugins << split;
