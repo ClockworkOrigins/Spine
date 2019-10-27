@@ -51,11 +51,13 @@
 	<File Hash="e8cb67fc8e0312da3cc98364b96dfa1a63150ab9de60069c4af60c1cf77d440b7dffe630b4784ba07ea9bf146bdbf6ad5282a900ffd6ab7d86433456a752b2fd">vcredist_x86.exe.z</File>
 </Version>
 <Version majorVersion="1" minorVersion="14" patchVersion="14">
-	<File Hash="873255805fc1498bcd054e621fd2a1cd33ebaee0eceb1e1a960c4ac39717d1186be13c2960fde1f083536db6542f0bc659cf2d4078beb2904ab857876c7ec4d0">bin/changelog.xml.z</File>
-	<File Hash="7e02af5a637878b4849519f5a12f7682eb164fe3bb73edd323e77555968817968614f3a3bb878feb871e23850f3ce62bc42d2afbeed8ec0b09bfec4633453ff8">bin/Spine.exe.z</File>
-	<File Hash="be0b1abb7563f8a3cdc85fcfba7905152b687d664dd70df77077618a9bcbc885c43fe64d6e74efe86b1a0c582893bc592d97435bc9ccb4e1aa06bf6a13e5a9e8">bin/SpineAPI.dll.z</File>
 	<File Hash="092da915bd3f7b1b6ca021aa735e6edc5c861437f7add0794bb876cd14db2e74a6f459bf8af935fad549e4474b3aec0c322a9f0d29f106c22adde1a8825b211d">bin/de_DE.qm.z</File>
 	<File Hash="d4dced94aa57338f122b8951d068244cd5edc03ddac2d17ace5b72ba311caa5ffa19517f837fdd73098a06d34f909090fe30c9c7870807396e69b2d35fa8c410">bin/en_US.qm.z</File>
 	<File Hash="6e04f8f133024f86be1cbc74e013416cb1e66c77c54ebd076360c913133fcdb0ce292a061defd6ab2b5cdabf6b6d5e1db673d3707cc1b36acba466edfc22a80f">bin/po_PO.qm.z</File>
 	<File Hash="88997d74f86705b40522f7d669514e667121cd792400823f593ef0e562913dc3994cd29fd5d7a1f7816e8ef9218655fa4cd7e70309b53c48cb59c394f756e758">bin/ru_RU.qm.z</File>
+</Version>
+<Version majorVersion="1" minorVersion="14" patchVersion="15">
+	<File Hash="e73a54982038236a6fd05c548c1f8790902686d4913a0b28f4f3b55054ba8247b2ae08453363ed50bdb1e3aa1f0effcca52d4a1b080d7f6bebdb45bb8b2992de">bin/changelog.xml.z</File>
+	<File Hash="351eb4d48a54d08c0bc858b9dadfdf6a73988b2162ca7b44ca1c67b2a634b6065992ca8f61aec5274302c1df1da81be4cc943e92a7cfc1cabdc74da3d6849339">bin/Spine.exe.z</File>
+	<File Hash="2e487597ae454435099e9587d6d55533337517c7a5da6dac6cd2e2297870c745428a7d386cba3e2285c4c5a5b4cf35432e8ea222a62aaaf5ef00f606b3432728">bin/SpineAPI.dll.z</File>
 </Version>
