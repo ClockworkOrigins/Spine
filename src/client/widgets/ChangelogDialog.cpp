@@ -106,7 +106,7 @@ namespace widgets {
 			language = "English";
 		}
 
-		std::map<uint32_t, std::pair<QStringList, QStringList>, std::greater<>> versions;
+		std::map<uint32_t, std::pair<QStringList, QStringList>, std::greater<uint32_t>> versions;
 
 		tinyxml2::XMLElement * versionsNode = doc.FirstChildElement("Versions");
 
