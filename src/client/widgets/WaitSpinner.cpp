@@ -20,7 +20,6 @@
 
 #include "Config.h"
 #include "Database.h"
-#include "SpineConfig.h"
 #include "UpdateLanguage.h"
 
 #include <QLabel>
@@ -43,7 +42,7 @@ namespace widgets {
 		lbl->setProperty("waitSpinner", true);
 		connect(this, &WaitSpinner::setText, lbl, &QLabel::setText);
 
-		QFontMetrics fm(lbl->font());
+		const QFontMetrics fm(lbl->font());
 		_textWidth = fm.width(text) * 2 + 10;
 
 		l->addWidget(svgWidget);
