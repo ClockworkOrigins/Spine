@@ -26,7 +26,6 @@
 
 #include <QApplication>
 #include <QCryptographicHash>
-#include <QDebug>
 #include <QDirIterator>
 #include <QFileInfo>
 #include <QMainWindow>
@@ -214,7 +213,9 @@ namespace widgets {
 					_corruptFiles.append(file);
 				}
 			} else {
-				_corruptFiles.append(file);
+				if (!file.file.contains("directx_Jun2010_redist.exe", Qt::CaseInsensitive)) {
+					_corruptFiles.append(file);
+				}
 			}
 			allFiles.remove(Config::MODDIR + "/mods/" + QString::number(file.modID) + "/" + file.file);
 			count++;

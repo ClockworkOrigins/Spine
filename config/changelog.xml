@@ -1620,4 +1620,9 @@
 		<Bug language="English">Info regarding missing dependencies will not be shown behing splashscreen anymore</Bug>
 		<Bug language="English">Preparation for Ninja now works as expected</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="14" patchVersion="15">
+		<Bug language="Deutsch">Integritätscheck sollte jetzt DirectX ignorieren, auch wenn es fehlt</Bug>
+		
+		<Bug language="English">Integrity check should ignore DirectX now when it's missing</Bug>
+	</Version>
 </Versions>
