@@ -76,7 +76,8 @@ Mit Spine\_GetScoreForRank lässt sich der Score für den Spieler auf dem angege
 Spine_GetScoreForRank(0, 1);
 \end{lstlisting}
 
-den Wert 1001 bekommt, wenn man das Beispiel oben ausgeführt hat. Für Platz 2 bekäme man 1000. Wichtiger Hinweis: Haben zwei Spieler den gleichen Score, werden sie alphabetisch sortiert und werden über den Platz in der Tabelle identifiziert und nicht über den Rang. D.h. Gorn und Lester haben zwar beide Rang 2 im Beispiel, jedoch würde man mit Spine\_GetScoreForRank(0, 2); den Score für Gorn, mit Spine\_GetScoreForRank(0, 3); den von Lester bekommen. Das ist beim Score allerdings noch egal, wichtig ist es jedoch für den zugehörigen Username.
+den Wert 1001 bekommt, wenn man das Beispiel oben ausgeführt hat. Für Platz 2 bekäme man 1000.
+Wichtiger Hinweis: Haben zwei Spieler den gleichen Score, werden sie alphabetisch sortiert und werden über den Platz in der Tabelle identifiziert und nicht über den Rang. D.h. Gorn und Lester haben zwar beide Rang 3 im Beispiel, jedoch würde man mit Spine\_GetScoreForRank(0, 3); den Score für Gorn, mit Spine\_GetScoreForRank(0, 4); den von Lester bekommen. Das ist beim Score allerdings noch egal, wichtig ist es jedoch für den zugehörigen Username.
 
 \subsection{Spine\_GetUsernameForRank}
 
@@ -86,7 +87,8 @@ Mit Spine\_GetUsernameForRank lässt sich der Name für den Spieler auf dem ange
 Spine_GetUsernameForRank(0, 1);
 \end{lstlisting}
 
-den Wert 1001 bekommt, wenn man das Beispiel oben ausgeführt hat. Für Platz 2 bekäme man Diego. Wichtiger Hinweis: Haben zwei Spieler den gleichen Score, werden sie alphabetisch sortiert und werden über den Platz in der Tabelle identifiziert und nicht über den Rang. D.h. Gorn und Lester haben zwar beide Rang 2 im Beispiel, jedoch würde man mit Spine\_GetUsernameForRank(0, 2); den Namen Gorn, mit Spine\_GetUsernameForRank(0, 3); Lester bekommen.
+den Namen des aktuellen Spielers bekommt, wenn man das Beispiel oben ausgeführt hat. Für Platz 2 bekäme man Diego.
+Wichtiger Hinweis: Haben zwei Spieler den gleichen Score, werden sie alphabetisch sortiert und werden über den Platz in der Tabelle identifiziert und nicht über den Rang. D.h. Gorn und Lester haben zwar beide Rang 2 im Beispiel, jedoch würde man mit Spine\_GetUsernameForRank(0, 2); den Namen Gorn, mit Spine\_GetUsernameForRank(0, 3); Lester bekommen.
 
 \section{Hinweis}
 

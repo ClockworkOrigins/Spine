@@ -1620,9 +1620,11 @@
 		<Bug language="English">Info regarding missing dependencies will not be shown behing splashscreen anymore</Bug>
 		<Bug language="English">Preparation for Ninja now works as expected</Bug>
 	</Version>
-	<Version majorVersion="1" minorVersion="14" patchVersion="15">
+	<Version majorVersion="1" minorVersion="14" patchVersion="16">
+		<Enhancement language="Deutsch">Mods starten ist jetzt auch ohne Admin-Rechte sehr viel schneller, solange die heruntergeladenen Mods und Gothic auf der gleichen Partition liegen</Enhancement>
 		<Bug language="Deutsch">Integritätscheck sollte jetzt DirectX ignorieren, auch wenn es fehlt</Bug>
 		
+		<Enhancement language="English">Starting mods without admin privileges is much faster now as long as downloaded mods and Gothic are on the same partition</Enhancement>
 		<Bug language="English">Integrity check should ignore DirectX now when it's missing</Bug>
 	</Version>
 </Versions>

@@ -16,7 +16,7 @@
 
 \section{Einleitung}
 
-Mit Hilfe von Spine lassen sich sehr einfach Erfolge umsetzen, wie man sie auch von anderen Plattformen wie Steam gewohnt ist. Dieses Tutorial zeigt, was man alles tun muss, um Erfolge einzubauen. Als Grundlage dient das erste Tutorial zum Thema Initialisierung. Benötigt wird das Modul "Erfolge", in den Scripts \textit{SPINE\_MODULE\_ACHIEVEMENTS}.
+Mit Hilfe von Spine lassen sich sehr einfach Erfolge umsetzen, wie man sie auch von anderen Plattformen wie Steam gewohnt ist. Dieses Tutorial zeigt, was man alles tun muss, um Erfolge einzubauen. Als Grundlage dient das erste Tutorial zum Thema Initialisierung. Benötigt wird das Modul "Erfolge" in den Scripts \textit{SPINE\_MODULE\_ACHIEVEMENTS}.
 
 \section{Erfolge konfigurieren}
 
@@ -75,7 +75,7 @@ Ab Spine 1.3 gibt es für die noch einfachere Erstellung der Erfolge in Spine se
 
 \section{Optionale Einstellungen}
 
-Neben den Pflichteinstellungen, gibt es ein paar weitere optionale Einstellungen, mit denen man die Erfolge etwas konfigurieren kann. Dazu existieren zur Zeit drei Einstellungen:
+Neben den Pflichteinstellungen, gibt es ein paar weitere optionale Einstellungen, mit denen man die Erfolge etwas konfigurieren kann. Dazu existieren zur Zeit zwei Einstellungen:
 
 \begin{itemize}
 	\item SPINE\_ACHIEVEMENTORIENTATION
@@ -102,7 +102,7 @@ aufrufen und den Rest erledigt Spine.
 
 \section{Erfolge mit Fortschritt}
 
-Seit Spine 1.4 gibt es außerdem Erfolge mit einem Fortschritt. Man kann das beispielsweise für Erfolge wie ''Töte 100 Gegner'' benutzen, aber auch für Erfolge der Art ''Spiele mit allen drei Hauptgilden durch''. Für Fortschritts-Erfolge wird zusätzlich die maximale Menge, die zum Erreichen des Erfolgs benötigt ist, erwartet. Diese ist allerdings in den Scripts uninteressant und wird daher nur auf dem Spine-Server gespeichert. Abfragen kann man den Maximal-Wert sowie den aktuell gespeicherten Fortschritt über
+Seit Spine 1.4 gibt es außerdem Erfolge mit einem Fortschritt. Man kann das beispielsweise für Erfolge wie ''Töte 100 Gegner'' benutzen, aber auch für Erfolge der Art ''Spiele mit allen drei Hauptgilden durch''. Für Fortschritts-Erfolge wird zusätzlich die maximale Menge, die zum Erreichen des Erfolgs benötigt ist, erwartet. Abfragen kann man den Maximal-Wert sowie den aktuell gespeicherten Fortschritt über
 
 \begin{lstlisting}
 Spine_GetAchievementProgress(id);

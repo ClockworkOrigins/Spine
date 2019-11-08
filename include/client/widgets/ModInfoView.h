@@ -244,6 +244,8 @@ namespace widgets {
 		void prepareForNinja(QString * usedBaseDir);
 
 		void updatePlugins(int modID, QString * usedBaseDir);
+
+		bool linkOrCopyFile(QString sourcePath, QString destinationPath);
 	};
 
 } /* namespace widgets */

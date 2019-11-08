@@ -2297,16 +2297,7 @@ namespace {
 							QFile::rename(*usedBaseDir + "/" + targetFileName, *usedBaseDir + "/" + targetFileName + ".spbak");
 						}
 					}
-					const QString suffix = QFileInfo(file).suffix();
-#ifdef Q_OS_WIN
-					if (IsRunAsAdmin() && isAllowedSymlinkSuffix(suffix)) {
-						success = makeSymlink(_gothicDirectory + "/" + sourceFileName, *usedBaseDir + "/" + targetFileName);
-					} else {
-						success = f.copy(*usedBaseDir + "/" + targetFileName);
-					}
-#else
-					success = f.copy(*usedBaseDir + "/" + targetFileName);
-#endif
+					success = linkOrCopyFile(_gothicDirectory + "/" + sourceFileName, *usedBaseDir + "/" + targetFileName);
 					if (!success) {
 						LOGERROR("Couldn't copy file: " << sourceFileName.toStdString() << " " << f.errorString().toStdString());
 						removeGothicFiles();
@@ -2417,7 +2408,8 @@ namespace {
 								changedFile = changedFile.replace(match.captured(1), "Normalmap_" + QString::number(normalsCounter), Qt::CaseInsensitive);
 							}
 							if (copy) {
-								success = f.copy(*usedBaseDir + "/" + changedFile);
+								f.close();
+								success = linkOrCopyFile(Config::MODDIR + "/mods/" + QString::number(_modID) + "/" + filename, *usedBaseDir + "/" + changedFile);
 							}
 							if (!success) {
 								LOGERROR("Couldn't copy file: " << filename.toStdString() << " " << f.errorString().toStdString());
@@ -2463,17 +2455,9 @@ namespace {
 							}
 						}
 					}
-					const QString suffix = QFileInfo(filename).suffix();
 					if (copy) {
-#ifdef Q_OS_WIN
-						if (IsRunAsAdmin() && isAllowedSymlinkSuffix(suffix)) {
-							success = makeSymlink(Config::MODDIR + "/mods/" + QString::number(_modID) + "/" + filename, *usedBaseDir + "/" + filename);
-						} else {
-							success = f.copy(*usedBaseDir + "/" + filename);
-						}
-#else
-						success = f.copy(*usedBaseDir + "/" + filename);
-#endif
+						f.close();
+						success = linkOrCopyFile(Config::MODDIR + "/mods/" + QString::number(_modID) + "/" + filename, *usedBaseDir + "/" + filename);
 					}
 					if (!success) {
 						LOGERROR("Couldn't copy file: " << filename.toStdString() << " " << f.errorString().toStdString());
@@ -2662,7 +2646,8 @@ namespace {
 								}
 							}
 							if (copy) {
-								const bool b = f.copy(*usedBaseDir + "/" + changedFile);
+								f.close();
+								const bool b = linkOrCopyFile(Config::MODDIR + "/mods/" + QString::number(patchID) + "/" + filename, *usedBaseDir + "/" + changedFile);
 								_copiedFiles.insert(changedFile);
 								Q_ASSERT(b);
 							}
@@ -2700,17 +2685,9 @@ namespace {
 							copy = false;
 						}
 						if (copy) {
+							f.close();
 							QFile::rename(*usedBaseDir + "/" + filename, *usedBaseDir + "/" + filename + ".spbak");
-							const QString suffix = QFileInfo(filename).suffix();
-#ifdef Q_OS_WIN
-							if (IsRunAsAdmin() && isAllowedSymlinkSuffix(suffix)) {
-								success = makeSymlink(Config::MODDIR + "/mods/" + QString::number(patchID) + "/" + filename, *usedBaseDir + "/" + filename);
-							} else {
-								success = f.copy(*usedBaseDir + "/" + filename);
-							}
-#else
-							success = f.copy(*usedBaseDir + "/" + filename);
-#endif
+							success = linkOrCopyFile(Config::MODDIR + "/mods/" + QString::number(patchID) + "/" + filename, *usedBaseDir + "/" + filename);
 							if (!success) {
 								std::vector<std::string> name = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Name FROM patches WHERE ModID = " + patchIDString + " LIMIT 1;", err);
 								Q_ASSERT(!name.empty());
@@ -2759,18 +2736,7 @@ namespace {
 			}
 			QStringList l = modFiles.split(" ", QString::SplitBehavior::SkipEmptyParts);
 			for (const QString & s : l) {
-				const QString suffix = QFileInfo(s).suffix();
-#ifdef Q_OS_WIN
-				if (IsRunAsAdmin() && isAllowedSymlinkSuffix(suffix)) {
-					makeSymlink(sourceDir + "/Data/modvdf/" + s, *usedBaseDir + "/Data/" + s);
-				} else {
-					QFile copy(sourceDir + "/Data/modvdf/" + s);
-					copy.copy(*usedBaseDir + "/Data/" + s);
-				}
-#else
-				QFile copy(sourceDir + "/Data/modvdf/" + s);
-				copy.copy(*usedBaseDir + "/Data/" + s);
-#endif
+				linkOrCopyFile(sourceDir + "/Data/modvdf/" + s, *usedBaseDir + "/Data/" + s);
 				_copiedFiles.insert("Data/" + s);
 			}
 			// check overrides and backup original values!
@@ -2821,16 +2787,10 @@ namespace {
 			QFile(*usedBaseDir + "/System/m2etis.dll").remove();
 			QFile(*usedBaseDir + "/Data/Spine.vdf").remove();
 			{
-				QFile spineAPI(qApp->applicationDirPath() + "/SpineAPI.dll");
-				spineAPI.copy(*usedBaseDir + "/System/SpineAPI.dll");
+				linkOrCopyFile(qApp->applicationDirPath() + "/SpineAPI.dll", *usedBaseDir + "/System/SpineAPI.dll");
 			}
 			{
-				QFile spineAPI(qApp->applicationDirPath() + "/m2etis.dll");
-				spineAPI.copy(*usedBaseDir + "/System/m2etis.dll");
-			}
-			{
-				QFile spineAPI(qApp->applicationDirPath() + "/../media/Spine.vdf");
-				spineAPI.copy(*usedBaseDir + "/Data/Spine.vdf");
+				linkOrCopyFile(qApp->applicationDirPath() + "/../media/Spine.vdf", *usedBaseDir + "/Data/Spine.vdf");
 			}
 			_listenSocket = new clockUtils::sockets::TcpSocket();
 			_listenSocket->listen(LOCAL_PORT, 1, true, std::bind(&ModInfoView::acceptedConnection, this, std::placeholders::_1, std::placeholders::_2));
@@ -3328,6 +3288,27 @@ namespace {
 			// TODO: SP-811 write entry to Union.ini
 			_unionPlugins << split;
 		}
+	}
+
+	bool ModInfoView::linkOrCopyFile(QString sourcePath, QString destinationPath) {
+#ifdef Q_OS_WIN
+		const auto suffix = QFileInfo(sourcePath).suffix();
+		if (IsRunAsAdmin() && isAllowedSymlinkSuffix(suffix)) {
+			const bool linked = makeSymlink(sourcePath, destinationPath);
+			return linked;
+		}
+	
+		const bool linked = CreateHardLinkW(destinationPath.toStdWString().c_str(), sourcePath.toStdWString().c_str(), nullptr);
+		//const bool linked = QFile::link(sourcePath, destinationPath);
+		if (!linked) {
+			const bool copied = QFile::copy(sourcePath, destinationPath);
+			return copied;
+		}
+		return linked;
+#else
+		const bool copied = QFile::copy(sourcePath, destinationPath);
+		return copied;
+#endif
 	}
 
 } /* namespace widgets */
