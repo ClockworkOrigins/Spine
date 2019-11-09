@@ -320,7 +320,7 @@ namespace {
 			_lastBaseDir = QString::fromStdString(Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "SELECT * FROM lastUsedBaseDir LIMIT 1;", err, 0));
 		}
 		for (const std::string & s : files) {
-			_copiedFiles.insert(QString::fromStdString(s));
+			_copiedFiles.append(QString::fromStdString(s));
 		}
 		if (!_lastBaseDir.isEmpty()) {
 			for (const QString & file : _copiedFiles) {
@@ -970,6 +970,7 @@ namespace {
 	
 		_gothicIniBackup.clear();
 		_systempackIniBackup.clear();
+		_skippedFiles.clear();
 		int duration = _timer->elapsed();
 		duration = duration / 1000; // to seconds
 		duration = duration / 60; // to minutes
@@ -1610,7 +1611,7 @@ namespace {
 			Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "END TRANSACTION;", err);
 			Database::close(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, err);
 			for (const QString & file : removed) {
-				_copiedFiles.erase(file);
+				_copiedFiles.removeOne(file);
 			}
 
 			if (GeneralSettingsWidget::extendedLogging) {
@@ -2303,7 +2304,7 @@ namespace {
 						removeGothicFiles();
 						break;
 					}
-					_copiedFiles.insert(file);
+					_copiedFiles.append(file);
 				}
 			}
 
@@ -2353,7 +2354,7 @@ namespace {
 							QRegularExpressionMatch match = regex.match(filename);
 							const QString targetName = clockworkRenderer ? *usedBaseDir + "/" + checkPath + QString::number(normalsCounter) : "/System/GD3D11/textures/replacements/" + match.captured(1);
 							makeSymlinkFolder(Config::MODDIR + "/mods/" + QString::number(_modID) + "/System/GD3D11/textures/replacements/" + match.captured(1), targetName);
-							_copiedFiles.insert("/System/GD3D11/textures/replacements/" + match.captured(1));
+							_copiedFiles.append("/System/GD3D11/textures/replacements/" + match.captured(1));
 							continue;
 						}
 					} else {
@@ -2391,6 +2392,7 @@ namespace {
 										if (GeneralSettingsWidget::extendedLogging) {
 											LOGINFO("Skipping file");
 										}
+										_skippedFiles.append(filename);
 									}
 								}
 								checkFile.close();
@@ -2416,7 +2418,7 @@ namespace {
 								break;
 							}
 							if (copy) {
-								_copiedFiles.insert(changedFile);
+								_copiedFiles.append(changedFile);
 							}
 							continue;
 						}
@@ -2444,6 +2446,7 @@ namespace {
 								if (GeneralSettingsWidget::extendedLogging) {
 									LOGINFO("Skipping file");
 								}
+								_skippedFiles.append(filename);
 							}
 						}
 						checkFile.close();
@@ -2464,7 +2467,7 @@ namespace {
 						break;
 					}
 					if (copy) {
-						_copiedFiles.insert(filename);
+						_copiedFiles.append(filename);
 					}
 				}
 				if (!success) {
@@ -2490,7 +2493,7 @@ namespace {
 		if (systempack) {
 			if (QFile::exists(*usedBaseDir + "/System/vdfs32g.exe")) {
 				QFile::rename(*usedBaseDir + "/System/vdfs32g.exe", *usedBaseDir + "/System/vdfs32g.exe.spbak");
-				_copiedFiles.insert("System/vdfs32g.exe");
+				_copiedFiles.append("System/vdfs32g.exe");
 			}
 		}
 		emitSplashMessage(QApplication::tr("CopyingPatchfiles"));
@@ -2522,7 +2525,7 @@ namespace {
 						if (!skippedBases.contains(checkPath) && filename.contains(checkPath, Qt::CaseInsensitive) && (!QDir(*usedBaseDir + "/" + checkPath).exists() || QFileInfo(*usedBaseDir + "/" + checkPath).isSymLink())) {
 							makeSymlinkFolder(Config::MODDIR + "/mods/" + QString::number(patchID) + "/" + checkPath, *usedBaseDir + "/" + checkPath);
 							skippedBases.insert(checkPath);
-							_copiedFiles.insert(checkPath);
+							_copiedFiles.append(checkPath);
 							continue;
 						} else if (skippedBases.contains(checkPath) && filename.contains(checkPath, Qt::CaseInsensitive)) {
 							// just skip
@@ -2532,7 +2535,7 @@ namespace {
 						if (!skippedBases.contains(checkPath) && filename.contains(checkPath, Qt::CaseInsensitive) && (!QDir(*usedBaseDir + "/" + checkPath).exists() || QFileInfo(*usedBaseDir + "/" + checkPath).isSymLink())) {
 							makeSymlinkFolder(Config::MODDIR + "/mods/" + QString::number(patchID) + "/" + checkPath, *usedBaseDir + "/" + checkPath);
 							skippedBases.insert(checkPath);
-							_copiedFiles.insert(checkPath);
+							_copiedFiles.append(checkPath);
 							continue;
 						} else if (skippedBases.contains(checkPath) && filename.contains(checkPath, Qt::CaseInsensitive)) {
 							// just skip
@@ -2542,7 +2545,7 @@ namespace {
 						if (!skippedBases.contains(checkPath) && filename.contains(checkPath, Qt::CaseInsensitive) && (!QDir(*usedBaseDir + "/" + checkPath).exists() || QFileInfo(*usedBaseDir + "/" + checkPath).isSymLink())) {
 							makeSymlinkFolder(Config::MODDIR + "/mods/" + QString::number(patchID) + "/" + checkPath, *usedBaseDir + "/" + checkPath);
 							skippedBases.insert(checkPath);
-							_copiedFiles.insert(checkPath);
+							_copiedFiles.append(checkPath);
 							continue;
 						} else if (skippedBases.contains(checkPath) && filename.contains(checkPath, Qt::CaseInsensitive)) {
 							// just skip
@@ -2552,7 +2555,7 @@ namespace {
 						if (!skippedBases.contains(checkPath) && filename.contains(checkPath, Qt::CaseInsensitive) && (!QDir(*usedBaseDir + "/" + checkPath).exists() || QFileInfo(*usedBaseDir + "/" + checkPath).isSymLink())) {
 							makeSymlinkFolder(Config::MODDIR + "/mods/" + QString::number(patchID) + "/" + checkPath, *usedBaseDir + "/" + checkPath);
 							skippedBases.insert(checkPath);
-							_copiedFiles.insert(checkPath);
+							_copiedFiles.append(checkPath);
 							continue;
 						} else if (skippedBases.contains(checkPath) && filename.contains(checkPath, Qt::CaseInsensitive)) {
 							// just skip
@@ -2562,7 +2565,7 @@ namespace {
 						if (!skippedBases.contains(checkPath) && filename.contains(checkPath, Qt::CaseInsensitive) && (!QDir(*usedBaseDir + "/" + checkPath).exists() || QFileInfo(*usedBaseDir + "/" + checkPath).isSymLink())) {
 							makeSymlinkFolder(Config::MODDIR + "/mods/" + QString::number(patchID) + "/" + checkPath, *usedBaseDir + "/" + checkPath);
 							skippedBases.insert(checkPath);
-							_copiedFiles.insert(checkPath);
+							_copiedFiles.append(checkPath);
 							continue;
 						} else if (skippedBases.contains(checkPath) && filename.contains(checkPath, Qt::CaseInsensitive)) {
 							// just skip
@@ -2572,7 +2575,7 @@ namespace {
 						if (!skippedBases.contains(checkPath) && filename.contains(checkPath, Qt::CaseInsensitive) && (!QDir(*usedBaseDir + "/" + checkPath).exists() || QFileInfo(*usedBaseDir + "/" + checkPath).isSymLink())) {
 							makeSymlinkFolder(Config::MODDIR + "/mods/" + QString::number(patchID) + "/" + checkPath, *usedBaseDir + "/" + checkPath);
 							skippedBases.insert(checkPath);
-							_copiedFiles.insert(checkPath);
+							_copiedFiles.append(checkPath);
 							continue;
 						} else if (skippedBases.contains(checkPath) && filename.contains(checkPath, Qt::CaseInsensitive)) {
 							// just skip
@@ -2590,7 +2593,7 @@ namespace {
 							QRegularExpressionMatch match = regex.match(filename);
 							const QString targetName = clockworkRenderer ? *usedBaseDir + "/" + checkPath + QString::number(normalsCounter) : "/System/GD3D11/textures/replacements/" + match.captured(1);
 							makeSymlinkFolder(Config::MODDIR + "/mods/" + QString::number(patchID) + "/System/GD3D11/textures/replacements/" + match.captured(1), targetName);
-							_copiedFiles.insert("/System/GD3D11/textures/replacements/" + match.captured(1));
+							_copiedFiles.append("/System/GD3D11/textures/replacements/" + match.captured(1));
 							continue;
 						}
 					} else {
@@ -2648,7 +2651,7 @@ namespace {
 							if (copy) {
 								f.close();
 								const bool b = linkOrCopyFile(Config::MODDIR + "/mods/" + QString::number(patchID) + "/" + filename, *usedBaseDir + "/" + changedFile);
-								_copiedFiles.insert(changedFile);
+								_copiedFiles.append(changedFile);
 								Q_ASSERT(b);
 							}
 							continue;
@@ -2665,7 +2668,8 @@ namespace {
 						break;
 					}
 					// backup old file, if already backed up, don't patch
-					if (_copiedFiles.find(filename) == _copiedFiles.end() && ((QFileInfo::exists(*usedBaseDir + "/" + filename) && !QFileInfo::exists(*usedBaseDir + "/" + filename + ".spbak")) || !QFileInfo::exists(*usedBaseDir + "/" + filename))) {
+					qDebug() << _copiedFiles;
+					if (!_copiedFiles.contains(filename, Qt::CaseInsensitive) && !_skippedFiles.contains(filename, Qt::CaseInsensitive) && ((QFileInfo::exists(*usedBaseDir + "/" + filename) && !QFileInfo::exists(*usedBaseDir + "/" + filename + ".spbak")) || !QFileInfo::exists(*usedBaseDir + "/" + filename))) {
 						if (GeneralSettingsWidget::extendedLogging) {
 							LOGINFO("Copying file " << file.first);
 						}
@@ -2695,7 +2699,7 @@ namespace {
 								return false;
 							}
 						}
-						_copiedFiles.insert(filename);
+						_copiedFiles.append(filename);
 					}
 				}
 				checkToolCfg(Config::MODDIR + "/mods/" + QString::number(patchID), usedBaseDir, backgroundExecutables, newGMP);
@@ -2715,7 +2719,7 @@ namespace {
 			it.next();
 			QString fileName = it.filePath();
 			const QString partialName = fileName.replace(*usedBaseDir + "/", "");
-			if (!fileName.isEmpty() && _copiedFiles.find(partialName) == _copiedFiles.end()) {
+			if (!fileName.isEmpty() && !_copiedFiles.contains(partialName, Qt::CaseInsensitive) && !_skippedFiles.contains(partialName, Qt::CaseInsensitive)) {
 				QFile f(fileName);
 				f.remove();
 			}
@@ -2737,7 +2741,7 @@ namespace {
 			QStringList l = modFiles.split(" ", QString::SplitBehavior::SkipEmptyParts);
 			for (const QString & s : l) {
 				linkOrCopyFile(sourceDir + "/Data/modvdf/" + s, *usedBaseDir + "/Data/" + s);
-				_copiedFiles.insert("Data/" + s);
+				_copiedFiles.append("Data/" + s);
 			}
 			// check overrides and backup original values!
 			_gothicIniBackup.clear();
@@ -3299,7 +3303,6 @@ namespace {
 		}
 	
 		const bool linked = CreateHardLinkW(destinationPath.toStdWString().c_str(), sourcePath.toStdWString().c_str(), nullptr);
-		//const bool linked = QFile::link(sourcePath, destinationPath);
 		if (!linked) {
 			const bool copied = QFile::copy(sourcePath, destinationPath);
 			return copied;

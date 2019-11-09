@@ -162,7 +162,8 @@ namespace widgets {
 
 		QString _language;
 
-		std::set<QString> _copiedFiles;
+		QStringList _copiedFiles;
+		QStringList _skippedFiles;
 		QString _lastBaseDir;
 
 		bool _showAchievements;
