@@ -1622,10 +1622,12 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="14" patchVersion="16">
 		<Enhancement language="Deutsch">Mods starten ist jetzt auch ohne Admin-Rechte sehr viel schneller, solange die heruntergeladenen Mods und Gothic auf der gleichen Partition liegen</Enhancement>
+		<Enhancement language="Deutsch">Eigene Union-Plugins werden jetzt unterstützt</Enhancement>
 		<Bug language="Deutsch">Integritätscheck sollte jetzt DirectX ignorieren, auch wenn es fehlt</Bug>
 		<Bug language="Deutsch">Von einer Mod übersprungene Dateien werden jetzt auch nicht mehr durch Patches überschrieben</Bug>
 		
 		<Enhancement language="English">Starting mods without admin privileges is much faster now as long as downloaded mods and Gothic are on the same partition</Enhancement>
+		<Enhancement language="English">Own Union plugins now are supported</Enhancement>
 		<Bug language="English">Integrity check should ignore DirectX now when it's missing</Bug>
 		<Bug language="English">Files skipped for the mod aren't overwritten anymore by patches</Bug>
 	</Version>

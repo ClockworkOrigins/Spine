@@ -964,9 +964,29 @@ namespace {
 				ts << text;
 			}
 			_systempackPreLoads.clear();
+		}	
+		
+		if (!_unionPlugins.isEmpty() && QFileInfo::exists(usedBaseDir + "/System/Union.ini")) {
+			QString text;
+			{
+				QFile f(usedBaseDir + "/System/Union.ini");
+				f.open(QIODevice::ReadOnly);
+				QTextStream ts(&f);
+				text = ts.readAll();
+			}
+			text = "," + text.remove(_unionPlugins.join(","));
+			{
+				QFile f(usedBaseDir + "/System/Union.ini");
+				f.open(QIODevice::WriteOnly);
+				QTextStream ts(&f);
+				ts << text;
+			}
+			_unionPlugins.clear();
 		}
-	
-		// TODO: SP-811 reset Union.ini plugins
+
+		if (QFileInfo::exists(usedBaseDir + "/Data/_delete_me.vdf")) {
+			QFile::remove(usedBaseDir + "/Data/_delete_me.vdf");
+		}
 	
 		_gothicIniBackup.clear();
 		_systempackIniBackup.clear();
@@ -3289,8 +3309,29 @@ namespace {
 					
 			const auto split = unionEntries.split(',', QString::SkipEmptyParts);
 
-			// TODO: SP-811 write entry to Union.ini
 			_unionPlugins << split;
+
+			if (!_unionPlugins.isEmpty()) {
+				QString text;
+				{
+					QFile f(*usedBaseDir + "/System/Union.ini");
+					f.open(QIODevice::ReadOnly);
+					QTextStream ts(&f);
+					text = ts.readAll();
+				}
+				const QRegularExpression regExp("PluginList\\s=([^\n])+\n");
+				const QRegularExpressionMatch match = regExp.match(text);
+				QString replaceText = match.captured(1);
+				replaceText = replaceText.trimmed();
+				replaceText += (replaceText.isEmpty() ? "" : ",") + split.join(',') + "\n";
+				text = text.replace(regExp, "PluginList =" + replaceText);
+				{
+					QFile f(*usedBaseDir + "/System/Union.ini");
+					f.open(QIODevice::WriteOnly);
+					QTextStream ts(&f);
+					ts << text;
+				}
+			}
 		}
 	}
 
