@@ -400,7 +400,7 @@ namespace widgets {
 			_hiddenAchievementsView = nullptr;
 		}
 		QSet<QPair<QString, QString>> images;
-		for (auto as : achievementStats) {
+		for (const auto & as : achievementStats) {
 			if (!as.iconLocked.empty() && !as.iconLockedHash.empty()) {
 				QString filename = QString::fromStdString(as.iconLocked);
 				filename.chop(2); // remove .z

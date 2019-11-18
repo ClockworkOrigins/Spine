@@ -1631,4 +1631,9 @@
 		<Bug language="English">Integrity check should ignore DirectX now when it's missing</Bug>
 		<Bug language="English">Files skipped for the mod aren't overwritten anymore by patches</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="14" patchVersion="17">
+		<Bug language="Deutsch">Fehlende Erfolg-Icons werden für den Management-Dialog jetzt nachgeladen</Bug>
+		
+		<Bug language="English">Missing achievement icons now are loaded for Management dialog</Bug>
+	</Version>
 </Versions>

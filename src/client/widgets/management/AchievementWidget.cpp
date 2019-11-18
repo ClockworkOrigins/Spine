@@ -22,6 +22,7 @@
 
 #include "Config.h"
 #include "Conversion.h"
+#include "FileDownloader.h"
 
 #include "boost/iostreams/copy.hpp"
 #include "boost/iostreams/filtering_streambuf.hpp"
@@ -150,13 +151,35 @@ namespace widgets {
 		lockedImage.chop(2);
 		lockedImage.prepend(Config::MODDIR + "/mods/" + QString::number(modID) + "/achievements/");
 
-		changedLockedImage(lockedImage);
+		if (QFileInfo::exists(lockedImage) || _newAchievement.lockedImageName.empty()) {
+			changedLockedImage(lockedImage);
+		} else {
+			const QString fileName = s2q(_newAchievement.lockedImageName);
+			FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(modID) + "/achievements/" + fileName), Config::MODDIR + "/mods/" + QString::number(modID) + "/achievements/", fileName, s2q(_newAchievement.lockedImageHash), this);
+			connect(fd, &FileDownloader::downloadSucceeded, [=]() {
+				changedLockedImage(lockedImage);
+				fd->deleteLater();
+			});
+			connect(fd, &FileDownloader::downloadFailed, fd, &FileDownloader::deleteLater);
+			fd->startDownload();
+		}
 
 		QString unlockedImage = s2q(_newAchievement.unlockedImageName);
 		unlockedImage.chop(2);
 		unlockedImage.prepend(Config::MODDIR + "/mods/" + QString::number(modID) + "/achievements/");
 
-		changedUnlockedImage(unlockedImage);
+		if (QFileInfo::exists(unlockedImage) || _newAchievement.unlockedImageName.empty()) {
+			changedUnlockedImage(unlockedImage);
+		} else {
+			const QString fileName = s2q(_newAchievement.unlockedImageName);
+			FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(modID) + "/achievements/" + fileName), Config::MODDIR + "/mods/" + QString::number(modID) + "/achievements/", fileName, s2q(_newAchievement.unlockedImageHash), this);
+			connect(fd, &FileDownloader::downloadSucceeded, [=]() {
+				changedUnlockedImage(unlockedImage);
+				fd->deleteLater();
+			});
+			connect(fd, &FileDownloader::downloadFailed, fd, &FileDownloader::deleteLater);
+			fd->startDownload();
+		}
 	}
 
 	common::UpdateAchievementsMessage::Achievement AchievementWidget::getAchievement() {
@@ -385,7 +408,7 @@ namespace widgets {
 	}
 
 	void AchievementWidget::openUnlockedImage() {
-		QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectUnlockedAchievementImage"), _unlockedImagePath->text(), "Image (*.png *.jpg)");
+		const QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectUnlockedAchievementImage"), _unlockedImagePath->text(), "Image (*.png *.jpg)");
 		if (!path.isEmpty()) {
 			changedUnlockedImage(path);
 		}
@@ -447,6 +470,8 @@ namespace widgets {
 					compressedFile.remove();
 				}
 			}
+
+			_lockedImagePath->setText(path);
 		} else {
 			_newAchievement.lockedImageName = "";
 			_newAchievement.lockedImageHash = "";
@@ -511,6 +536,8 @@ namespace widgets {
 					compressedFile.remove();
 				}
 			}
+
+			_unlockedImagePath->setText(path);
 		} else {
 			_newAchievement.unlockedImageName = "";
 			_newAchievement.unlockedImageHash = "";

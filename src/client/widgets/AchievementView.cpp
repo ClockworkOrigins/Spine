@@ -71,7 +71,7 @@ namespace widgets {
 			QLabel * lbl = new QLabel(this);
 			QPixmap achievementPixmap(as.unlocked ? iconUnlocked : iconLocked);
 			if (!as.iconUnlocked.empty() && as.iconLocked.empty() && !as.unlocked) {
-				QPixmap achievementPixmapUnlocked(iconUnlocked);
+				const QPixmap achievementPixmapUnlocked(iconUnlocked);
 				if (!achievementPixmapUnlocked.isNull()) {
 					QImage img = achievementPixmapUnlocked.toImage();
 					unsigned int * d = reinterpret_cast<unsigned int*>(img.bits());
