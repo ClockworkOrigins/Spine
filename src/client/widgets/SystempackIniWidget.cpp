@@ -75,14 +75,14 @@ namespace widgets {
 	}
 
 	void SystempackIniWidget::backup() {
-		QString folder = QFileDialog::getExistingDirectory(this, QApplication::tr("SelectBackupFolder"));
+		const QString folder = QFileDialog::getExistingDirectory(this, QApplication::tr("SelectBackupFolder"));
 		if (!folder.isEmpty()) {
 			QFile::copy(_directory + "/System/Systempack.ini", folder + "/Systempack.ini");
 		}
 	}
 
 	void SystempackIniWidget::restore() {
-		QString backupFile = QFileDialog::getOpenFileName(this, QApplication::tr("SelectBackupFile"), QString(), "Systempack.ini");
+		const QString backupFile = QFileDialog::getOpenFileName(this, QApplication::tr("SelectBackupFile"), QString(), "Systempack.ini");
 		if (!backupFile.isEmpty()) {
 			QFile::copy(backupFile, _directory + "/System/Systempack.ini");
 		}
