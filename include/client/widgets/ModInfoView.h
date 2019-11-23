@@ -247,6 +247,8 @@ namespace widgets {
 		void updatePlugins(int modID, QString * usedBaseDir);
 
 		bool linkOrCopyFile(QString sourcePath, QString destinationPath);
+
+		bool canSkipFile(const QString & filename) const;
 	};
 
 } /* namespace widgets */

@@ -1633,7 +1633,9 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="14" patchVersion="17">
 		<Bug language="Deutsch">Fehlende Erfolg-Icons werden für den Management-Dialog jetzt nachgeladen</Bug>
+		<Bug language="Deutsch">Pdfs werden bei Mod-Start jetzt ignoriert</Bug>
 		
 		<Bug language="English">Missing achievement icons now are loaded for Management dialog</Bug>
+		<Bug language="English">Pdf's now are ignored when starting a mod</Bug>
 	</Version>
 </Versions>

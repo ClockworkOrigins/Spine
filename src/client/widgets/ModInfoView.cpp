@@ -2350,7 +2350,7 @@ namespace {
 				for (const std::pair<std::string, std::string> & file : files) {
 					// SP-55 skipping .mod files, the necessary ones will be copied to Data later, so only one copy is necessary
 					QString filename = QString::fromStdString(file.first);
-					if (filename.contains("Data/modvdf/") || filename.compare("tool.cfg", Qt::CaseInsensitive) == 0) {
+					if (filename.contains("Data/modvdf/") || canSkipFile(filename)) {
 						continue;
 					}
 					if (GeneralSettingsWidget::extendedLogging) {
@@ -2533,7 +2533,7 @@ namespace {
 				for (const std::pair<std::string, std::string> & file : patchFiles) {
 					QString filename = QString::fromStdString(file.first);
 
-					 if (filename.compare("tool.cfg", Qt::CaseInsensitive) == 0) continue;
+					 if (canSkipFile(filename)) continue;
 #ifdef Q_OS_WIN
 					if (IsRunAsAdmin()) {
 						if (!QDir().exists(*usedBaseDir + "/System/GD3D11/textures/replacements")) {
@@ -3353,6 +3353,12 @@ namespace {
 		const bool copied = QFile::copy(sourcePath, destinationPath);
 		return copied;
 #endif
+	}
+
+	bool ModInfoView::canSkipFile(const QString & filename) const {
+		const QFileInfo fi(filename);
+		const auto suffix = fi.suffix().toLower();
+		return filename.compare("tool.cfg", Qt::CaseInsensitive) == 0 || suffix == "pdf";
 	}
 
 } /* namespace widgets */
