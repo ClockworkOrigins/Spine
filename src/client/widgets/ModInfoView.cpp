@@ -974,7 +974,11 @@ namespace {
 				QTextStream ts(&f);
 				text = ts.readAll();
 			}
-			text = "," + text.remove(_unionPlugins.join(","));
+			const QRegularExpression regExp("(PluginList\\s=[^\n]+)\n");
+			const QRegularExpressionMatch match = regExp.match(text);
+			QString replaceText = match.captured(1);
+			replaceText = replaceText.trimmed();
+			text = text.replace(replaceText, "PluginList =");
 			{
 				QFile f(usedBaseDir + "/System/Union.ini");
 				f.open(QIODevice::WriteOnly);
@@ -1401,11 +1405,11 @@ namespace {
 	void ModInfoView::startSpacer() {
 		const QString usedBaseDir = getUsedBaseDir();
 		QString usedExecutable;
-		if (QFile(usedBaseDir + "/System/Spacer.exe").exists()) {
+		if (QFileInfo(usedBaseDir + "/System/Spacer.exe").exists()) {
 			usedExecutable = "Spacer.exe";
-		} else if (QFile(usedBaseDir + "/System/Spacer2_exe.exe").exists()) {
+		} else if (QFileInfo(usedBaseDir + "/System/Spacer2_exe.exe").exists()) {
 			usedExecutable = "Spacer2_exe.exe";
-		} else if (QFile(usedBaseDir + "/System/Spacer2.exe").exists()) {
+		} else if (QFileInfo(usedBaseDir + "/System/Spacer2.exe").exists()) {
 			usedExecutable = "Spacer2.exe";
 		}
 		// check overrides and backup original values!
@@ -3319,7 +3323,7 @@ namespace {
 					QTextStream ts(&f);
 					text = ts.readAll();
 				}
-				const QRegularExpression regExp("PluginList\\s=([^\n])+\n");
+				const QRegularExpression regExp("PluginList\\s=([^\n]+)\n");
 				const QRegularExpressionMatch match = regExp.match(text);
 				QString replaceText = match.captured(1);
 				replaceText = replaceText.trimmed();
