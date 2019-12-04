@@ -75,7 +75,10 @@ namespace spine {
 		QDir dir(_targetDirectory);
 		if (!dir.exists()) {
 			bool b = dir.mkpath(dir.absolutePath());
-			Q_UNUSED(b);
+			if (!b) {
+				emit downloadFailed(DownloadError::UnknownError);
+				return;
+			}
 		}
 		QString realName = _fileName;
 		if (QFileInfo(realName).suffix() == "z") {
@@ -102,6 +105,9 @@ namespace spine {
 					return;
 				}
 				f.close();
+			} else {
+				emit downloadFailed(DownloadError::UnknownError);
+				return;
 			}
 		} else if (_fileName.contains("directx_Jun2010_redist.exe", Qt::CaseInsensitive) && Config::IniParser->value("INSTALLATION/DirectX", true).toBool()) {
 			emit downloadProgress(_filesize);
