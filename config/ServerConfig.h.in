@@ -1,5 +1,4 @@
-#ifndef __SPINE_SERVERCONFIG_H__
-#define __SPINE_SERVERCONFIG_H__
+#pragma once
 
 #include <cstdint>
 #include <string>
@@ -12,6 +11,8 @@ const uint16_t SPINE_LOCAL_PORT = 19183;
 const uint16_t SPINE_MP_PORT = 19186;
 const uint16_t GAMEPAD_PORT = 19187;
 const uint16_t UPLOADSERVER_PORT = @UPLOADSERVER_PORT@;
+const uint16_t DATABASESERVER_PORT = @DATABASESERVER_PORT@;
+const uint16_t MANAGEMENTSERVER_PORT = @MANAGEMENTSERVER_PORT@;
 
 const uint8_t VERSION_MAJOR = @VERSION_MAJOR@;
 const uint8_t VERSION_MINOR = @VERSION_MINOR@;
@@ -23,4 +24,5 @@ const std::string DATABASEPASSWORD = "@DATABASEPASSWORD@";
 const std::string ACCOUNTSDATABASE = "@ACCOUNTSDATABASE@";
 const std::string SPINEDATABASE = "@SPINEDATABASE@";
 
-#endif /* __SPINE_SERVERCONFIG_H__ */
+const std::string SSLCHAINPATH = "@SSLCHAINPATH@";
+const std::string SSLPRIVKEYNPATH = "@SSLPRIVKEYNPATH@";

@@ -24,8 +24,10 @@
 #include <thread>
 
 #include "DatabaseCreator.h"
+#include "DatabaseServer.h"
 #include "DownloadSizeChecker.h"
 #include "GMPServer.h"
+#include "ManagementServer.h"
 #include "MariaDBWrapper.h"
 #include "MatchmakingServer.h"
 #include "SpineServerConfig.h"
@@ -41,20 +43,26 @@
 #include "tinyxml2.h"
 
 namespace spine {
+namespace server {
 
 	static const std::string DEFAULTURL = "https://clockwork-origins.de/Gothic/downloads/mods/";
 
-	Server::Server() : _listenClient(new clockUtils::sockets::TcpSocket()), _listenMPServer(new clockUtils::sockets::TcpSocket()), _downloadSizeChecker(new DownloadSizeChecker()), _matchmakingServer(new MatchmakingServer()), _newsLock(), _gmpServer(new GMPServer()), _uploadServer(new UploadServer()) {
+	Server::Server() : _listenClient(new clockUtils::sockets::TcpSocket()), _listenMPServer(new clockUtils::sockets::TcpSocket()), _downloadSizeChecker(new DownloadSizeChecker()), _matchmakingServer(new MatchmakingServer()), _newsLock(), _gmpServer(new GMPServer()), _uploadServer(new UploadServer()), _databaseServer(new DatabaseServer()), _managementServer(new ManagementServer()) {
 		DatabaseCreator::createTables();
 	}
 
 	Server::~Server() {
+		_databaseServer->stop();
+		_managementServer->stop();
+		
 		delete _listenClient;
 		delete _listenMPServer;
 		delete _downloadSizeChecker;
 		delete _matchmakingServer;
 		delete _gmpServer;
 		delete _uploadServer;
+		delete _databaseServer;
+		delete _managementServer;
 	}
 
 	int Server::run() {
@@ -65,6 +73,8 @@ namespace spine {
 #ifndef TEST_CONFIG
 		_gmpServer->run();
 #endif
+		_databaseServer->run();
+		_managementServer->run();
 
 		bool running = true;
 
@@ -5183,4 +5193,5 @@ namespace spine {
 		return level;
 	}
 
+} /* namespace server */
 } /* namespace spine */

@@ -14,11 +14,26 @@
     You should have received a copy of the GNU General Public License
     along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
-// Copyright 2018 Clockwork Origins
+// Copyright 2019 Clockwork Origins
 
-#include "Server.h"
+#pragma once
 
-int main(int, char **) {
-	spine::server::Server server;
-	return server.run();
-}
+#include <string>
+
+namespace spine {
+namespace server {
+
+#define CONNECTTODATABASE(line) \
+	MariaDBWrapper database;\
+	if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, SPINEDATABASE, 0)) {\
+		std::cout << "Couldn't connect to database: " << (line) << /*" " << database.getLastError() <<*/ std::endl;\
+		break;\
+	}
+
+	class ServerCommon {
+	public:
+		static std::string convertString(const std::string & str);
+	};
+
+} /* namespace server */
+} /* namespace spine */

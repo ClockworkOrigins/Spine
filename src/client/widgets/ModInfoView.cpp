@@ -747,8 +747,8 @@ namespace {
 			bp->setWorkingDirectory(usedBaseDir + "/" + QFileInfo(backgroundProcess).path());
 			bp->start("\"" + usedBaseDir + "/" + backgroundProcess + "\"");
 		}
-		connect(process, SIGNAL(errorOccurred(QProcess::ProcessError)), this, SLOT(errorOccurred(QProcess::ProcessError)));
-		connect(process, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(finishedMod(int, QProcess::ExitStatus)));
+		connect(process, &QProcess::errorOccurred, this, &ModInfoView::errorOccurred);
+		connect(process, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), this, &ModInfoView::finishedMod);
 		process->setWorkingDirectory(usedBaseDir + "/System/");
 		if (GeneralSettingsWidget::extendedLogging) {
 			LOGINFO("Preparation duration: " << t.elapsed());

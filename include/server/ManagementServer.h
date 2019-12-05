@@ -14,11 +14,29 @@
     You should have received a copy of the GNU General Public License
     along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
-// Copyright 2018 Clockwork Origins
+// Copyright 2019 Clockwork Origins
 
-#include "Server.h"
+#pragma once
 
-int main(int, char **) {
-	spine::server::Server server;
-	return server.run();
-}
+#include "simple-web-server/server_https.hpp"
+
+using HttpsServer = SimpleWeb::Server<SimpleWeb::HTTPS>;
+
+namespace spine {
+namespace server {
+
+	class ManagementServer {
+	public:
+		ManagementServer();
+		~ManagementServer();
+
+		int run();
+		void stop();
+
+	private:
+		HttpsServer * _server;
+		std::thread * _runner;
+	};
+
+} /* namespace server */
+} /* namespace spine */

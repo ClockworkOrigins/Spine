@@ -22,6 +22,8 @@ SET(SPINE_RSA_HEADER "config/RSAKey.h" CACHE STRING "header containing the RSA k
 SET(SPINE_PRIVATE_KEY "config/rsa.pem" CACHE STRING "private RSA key used for the server")
 SET(VCREDIST_PATH "" CACHE STRING "path to the vcredist for the used Visual Studio version")
 SET(DXREDIST_PATH "" CACHE STRING "path to the DirectX redistributable")
+SET(SSLCHAINPATH "" CACHE STRING "path to the fullchain path of the SSL certificate")
+SET(SSLPRIVKEYNPATH "" CACHE STRING "path to the private key of the SSL certificate")
 
 project(Spine CXX)
 
@@ -46,6 +48,9 @@ ELSE()
 	SET(SERVER_PORT 19180)
 	SET(UPLOADSERVER_PORT 19188)
 ENDIF()
+
+SET(DATABASESERVER_PORT 19181)
+SET(MANAGEMENTSERVER_PORT 19182)
 
 IF(WIN32)
 	SET(CMAKE_CXX_FLAGS_DEBUG		"${CMAKE_CXX_FLAGS_DEBUG} /bigobj /D_WIN32_WINNT=0x0501")

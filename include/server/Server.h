@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_SERVER_H__
-#define __SPINE_SERVER_H__
+#pragma once
 
 #include <cstdint>
 #include <mutex>
@@ -99,6 +98,11 @@ namespace common {
 	class MatchmakingServer;
 	class UploadServer;
 
+namespace server {
+
+	class DatabaseServer;
+	class ManagementServer;
+
 	class Server {
 	public:
 		Server();
@@ -114,6 +118,8 @@ namespace common {
 		mutable std::mutex _newsLock;
 		GMPServer * _gmpServer;
 		UploadServer * _uploadServer;
+		DatabaseServer * _databaseServer;
+		ManagementServer * _managementServer;
 
 		void accept(clockUtils::sockets::TcpSocket * sock);
 
@@ -191,6 +197,5 @@ namespace common {
 		uint32_t getLevel(int userID, uint32_t & currentXP, uint32_t & nextXP) const;
 	};
 
+} /* namespace server */
 } /* namespace spine */
-
-#endif /* __SPINE_SERVER_H__ */

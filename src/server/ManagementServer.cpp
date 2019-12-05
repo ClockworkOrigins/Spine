@@ -14,11 +14,28 @@
     You should have received a copy of the GNU General Public License
     along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
-// Copyright 2018 Clockwork Origins
+// Copyright 2019 Clockwork Origins
 
-#include "Server.h"
+#include "ManagementServer.h"
 
-int main(int, char **) {
-	spine::server::Server server;
-	return server.run();
-}
+#include "MariaDBWrapper.h"
+#include "SpineServerConfig.h"
+
+namespace spine {
+namespace server {
+
+	ManagementServer::ManagementServer() {
+	}
+
+	ManagementServer::~ManagementServer() {
+	}
+	
+	int ManagementServer::run() {
+		return 0;
+	}
+
+	void ManagementServer::stop() {
+	}
+
+} /* namespace server */
+} /* namespace spine */
