@@ -21,7 +21,6 @@
 #include <thread>
 
 #include "Config.h"
-#include "Conversion.h"
 #include "Database.h"
 #include "FileDownloader.h"
 #include "MultiFileDownloader.h"
@@ -41,7 +40,11 @@
 	#include "gamepad/XBoxController.h"
 #endif
 
+#include "https/Https.h"
+
 #include "security/Hash.h"
+
+#include "utils/Conversion.h"
 
 #include "widgets/AchievementView.h"
 #include "widgets/DownloadProgressDialog.h"
@@ -66,6 +69,8 @@
 #include <QFile>
 #include <QFutureWatcher>
 #include <QGroupBox>
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QLabel>
 #include <QMainWindow>
 #include <QMessageBox>
@@ -730,6 +735,23 @@ namespace {
 		if (!future.result()) {
 			splash.hide();
 			if (!dependencies.isEmpty()) {
+				https::Https::postAsync(DATABASESERVER_PORT, "getModnameForIDs", QString("{ \"Language\": \"%1\", \"ModIDs\": [ %2 ] }").arg(_language).arg(dependencies.toList().join(',')), [this, dependencies](const QJsonObject & json, int status) {
+					QString msg = QApplication::tr("DependenciesMissing");
+					if (status != 200) {
+						for (const auto & p : dependencies) {
+							msg += "\n- " + p;
+						}
+					} else {
+						const auto it = json.find("Names");
+						if (it != json.end()) {
+							const auto jsonArray = it->toArray();
+							for (const auto & i : jsonArray) {
+								msg += "\n- " + i.toString();
+							}
+						}
+					}
+					emit errorMessage(msg);
+				});
 				QString errorMessage = QApplication::tr("DependenciesMissing");
 				for (const auto & p : dependencies) {
 					errorMessage += "\n- " + p;
@@ -1093,7 +1115,7 @@ namespace {
 	}
 
 	void ModInfoView::updateModInfoView(common::ModStats ms) {
-		const QString timeString = timeToString(ms.duration);
+		const QString timeString = utils::timeToString(ms.duration);
 		_playTimeLabel->setText(timeString);
 
 		_achievementLabel->setText(R"(<a href="Foobar" style="color: #181C22">)" + QApplication::tr("AchievementText").arg(ms.achievedAchievements).arg(ms.allAchievements).arg(ms.achievedAchievements * 100 / ((ms.allAchievements) ? ms.allAchievements : 1)) + "</a>");

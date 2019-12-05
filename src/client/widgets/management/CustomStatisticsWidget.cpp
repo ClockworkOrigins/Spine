@@ -20,9 +20,9 @@
 
 #include <set>
 
-#include "Conversion.h"
-
 #include "models/CustomStatisticsModel.h"
+
+#include "utils/Conversion.h"
 
 #include <QApplication>
 #include <QComboBox>

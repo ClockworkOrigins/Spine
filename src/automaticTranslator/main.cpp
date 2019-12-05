@@ -19,7 +19,7 @@
 #include <cstdint>
 #include <iostream>
 
-#include "../../include/client/Conversion.h"
+#include "utils/Conversion.h"
 
 #include "translator/api/TranslatorAPI.h"
 #include "translator/common/MessageStructs.h"

@@ -22,7 +22,7 @@
 
 #include <iostream>
 
-#include "Conversion.h"
+#include "utils/Conversion.h"
 
 #include "translator/common/TranslationModel.h"
 

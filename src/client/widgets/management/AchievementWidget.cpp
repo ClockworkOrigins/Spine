@@ -21,8 +21,9 @@
 #include <fstream>
 
 #include "Config.h"
-#include "Conversion.h"
 #include "FileDownloader.h"
+
+#include "utils/Conversion.h"
 
 #include "boost/iostreams/copy.hpp"
 #include "boost/iostreams/filtering_streambuf.hpp"

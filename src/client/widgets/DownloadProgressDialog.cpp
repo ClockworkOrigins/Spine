@@ -18,9 +18,10 @@
 
 #include "widgets/DownloadProgressDialog.h"
 
-#include "Conversion.h"
 #include "FileDownloader.h"
 #include "MultiFileDownloader.h"
+
+#include "utils/Conversion.h"
 
 #include <QApplication>
 #include <QMainWindow>
@@ -83,7 +84,7 @@ namespace widgets {
 #ifdef Q_OS_WIN
 		_taskbarProgress->setValue(int(value / 1024));
 #endif
-		_currentValue = byteToString(value);
+		_currentValue = utils::byteToString(value);
 		setLabelText(QApplication::tr(_labelText.toStdString().c_str()).arg(_currentFileName) + "\n" + QApplication::tr("DownloadedBytes").arg(_currentValue, _maximumValue));
 	}
 
@@ -92,7 +93,7 @@ namespace widgets {
 #ifdef Q_OS_WIN
 		_taskbarProgress->setMaximum(int(max / 1024) + 1);
 #endif
-		_maximumValue = byteToString(max);
+		_maximumValue = utils::byteToString(max);
 		setLabelText(QApplication::tr(_labelText.toStdString().c_str()).arg(_currentFileName) + "\n" + QApplication::tr("DownloadedBytes").arg(_currentValue, _maximumValue));
 	}
 

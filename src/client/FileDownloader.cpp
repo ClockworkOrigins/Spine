@@ -21,8 +21,9 @@
 #include <fstream>
 
 #include "Config.h"
-#include "Conversion.h"
 #include "WindowsExtensions.h"
+
+#include "utils/Conversion.h"
 
 #include "widgets/GeneralSettingsWidget.h"
 

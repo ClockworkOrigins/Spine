@@ -14,21 +14,22 @@
     You should have received a copy of the GNU General Public License
     along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
-// Copyright 2018 Clockwork Origins
+// Copyright 2019 Clockwork Origins
 
-#ifndef __SPINE_CONVERSION_H__
-#define __SPINE_CONVERSION_H__
+#pragma once
 
 #include <cfloat>
 #include <cmath>
+#include <string>
 
 #include <QApplication>
 #include <QString>
 
 namespace spine {
+namespace utils {
 
 #define s2q(str) QString::fromUtf8(std::string(str).c_str()).replace("&apos;", "'")
-#define q2s(str) str.replace("'", "&apos;").trimmed().toUtf8().toStdString()
+#define q2s(str) QString(str).replace("'", "&apos;").trimmed().toUtf8().toStdString()
 
 	inline QString byteToString(qint64 value) {
 		QString unit = "B";
@@ -76,6 +77,5 @@ namespace spine {
 		return timeString;
 	}
 
+} /* namespace utils */
 } /* namespace spine */
-
-#endif /* __SPINE_CONVERSION_H__ */

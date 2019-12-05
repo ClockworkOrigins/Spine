@@ -20,7 +20,7 @@
 
 #include "translator/TranslationApplier.h"
 
-#include "Conversion.h"
+#include "utils/Conversion.h"
 
 #include <QtConcurrent>
 

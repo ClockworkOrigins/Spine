@@ -22,7 +22,8 @@
 #include <map>
 
 #include "Config.h"
-#include "Conversion.h"
+
+#include "utils/Conversion.h"
 
 #include <QApplication>
 #include <QCheckBox>

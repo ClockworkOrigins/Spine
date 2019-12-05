@@ -20,24 +20,23 @@
 
 #include "translator/GothicParser.h"
 
-#include "Conversion.h"
+#include "utils/Conversion.h"
 
 #include "translator/common/TranslationModel.h"
 #include "translator/api/TranslatorAPI.h"
 
 #include "gtest/gtest.h"
 
-#include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
 
 class GothicParserTest : public ::testing::Test {
 protected:
-	virtual void SetUp() override {
+	void SetUp() override {
 		model = translator::api::TranslatorAPI::createModel("", "", "");
 	}
 
-	virtual void TearDown() override {
+	void TearDown() override {
 		delete model;
 		model = nullptr;
 	}
@@ -61,7 +60,7 @@ protected:
 			ASSERT_TRUE(b);
 			QTextStream textStream(&textsFile);
 			while (!textStream.atEnd()) {
-				QString line = textStream.readLine();
+				const QString line = textStream.readLine();
 				texts.push_back(q2s(line));
 			}
 		}
