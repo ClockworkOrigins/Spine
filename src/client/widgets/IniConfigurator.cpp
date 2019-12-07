@@ -18,7 +18,7 @@
 
 #include "widgets/IniConfigurator.h"
 
-#include "Conversion.h"
+#include "utils/Conversion.h"
 
 #include "widgets/Gothic1IniWidget.h"
 #include "widgets/Gothic2IniWidget.h"

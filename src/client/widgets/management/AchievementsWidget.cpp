@@ -71,12 +71,13 @@ namespace widgets {
 		setLayout(vl);
 	}
 
-	void AchievementsWidget::updateModList(std::vector<common::SendModManagementMessage::ModManagement> modList) {
+	void AchievementsWidget::updateModList(QList<client::ManagementMod> modList) {
 		_mods = modList;
 	}
 
 	void AchievementsWidget::selectedMod(int index) {
-		Q_ASSERT(index < int(_mods.size()));
+		// TODO
+		/*Q_ASSERT(index < int(_mods.size()));
 		_modIndex = index;
 		
 		for (AchievementWidget * aw : _achievementEdits) {
@@ -91,11 +92,12 @@ namespace widgets {
 			_layout->addWidget(achievementWidget);
 
 			_achievementEdits.push_back(achievementWidget);
-		}
+		}*/
 	}
 
 	void AchievementsWidget::updateAchievements() {
-		if (_modIndex == -1) return;
+		// TODO
+		/*if (_modIndex == -1) return;
 
 		common::UpdateAchievementsMessage uam;
 		uam.modID = _mods[_modIndex].modID;
@@ -116,6 +118,7 @@ namespace widgets {
 		if (clockUtils::ClockError::SUCCESS == cErr) {
 			sock.writePacket(serialized);
 		}
+		*/
 	}
 
 	void AchievementsWidget::addAchievement() {

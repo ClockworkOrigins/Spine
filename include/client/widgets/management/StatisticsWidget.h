@@ -19,6 +19,8 @@
 #ifndef __SPINE_WIDGETS_MANAGEMENT_STATISTICSWIDGET_H__
 #define __SPINE_WIDGETS_MANAGEMENT_STATISTICSWIDGET_H__
 
+#include "ManagementCommon.h"
+
 #include "common/MessageStructs.h"
 
 #include <QModelIndex>
@@ -37,11 +39,11 @@ namespace widgets {
 		StatisticsWidget(QWidget * par);
 		~StatisticsWidget();
 
-		void updateModList(std::vector<common::SendModManagementMessage::ModManagement> modList);
+		void updateModList(QList<client::ManagementMod> modList);
 		void selectedMod(int index);
 
 	private:
-		std::vector<common::SendModManagementMessage::ModManagement> _mods;
+		QList<client::ManagementMod> _mods;
 		int _modIndex;
 		QList<QLabel *> _labelList;
 		QVBoxLayout * _downloadsLayout;

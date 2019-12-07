@@ -19,6 +19,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 namespace spine {
 namespace server {
@@ -33,6 +34,15 @@ namespace server {
 	class ServerCommon {
 	public:
 		static std::string convertString(const std::string & str);
+		
+		/**
+		 * \brief returns the id in the table for the username
+		 */
+		static int getUserID(const std::string & username);
+		static int getUserID(const std::string & username, const std::string & password);
+		static std::string getUsername(int id);
+		static std::vector<std::string> getUserList();
+		static void sendMail(const std::string & subject, const std::string & body, const std::string & replyTo);
 	};
 
 } /* namespace server */

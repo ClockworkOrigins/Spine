@@ -20,8 +20,9 @@
 
 #include <thread>
 
-#include "Conversion.h"
 #include "SpineConfig.h"
+
+#include "utils/Conversion.h"
 
 #include "clockUtils/sockets/TcpSocket.h"
 
@@ -97,12 +98,13 @@ namespace widgets {
 	UserManagementWidget::~UserManagementWidget() {
 	}
 
-	void UserManagementWidget::updateModList(std::vector<common::SendModManagementMessage::ModManagement> modList) {
+	void UserManagementWidget::updateModList(QList<client::ManagementMod> modList) {
 		_mods = modList;
 	}
 
 	void UserManagementWidget::selectedMod(int index) {
-		_modIndex = index;
+		// TODO
+		/*_modIndex = index;
 		_userListModel->clear();
 		_unlockedListModel->clear();
 		QSet<QString> unlockedUsers;
@@ -118,7 +120,7 @@ namespace widgets {
 				itm->setEditable(false);
 				_userListModel->appendRow(itm);
 			}
-		}
+		}*/
 	}
 
 	void UserManagementWidget::updateUserList(std::vector<std::string> userList) {
@@ -167,7 +169,8 @@ namespace widgets {
 	}
 
 	void UserManagementWidget::changeAccessRight(QString username, bool enabled) {
-		if (enabled) {
+		// TODO
+		/*if (enabled) {
 			_mods[_modIndex].userList.push_back(q2s(username));
 		} else {
 			for (auto it = _mods[_modIndex].userList.begin(); it != _mods[_modIndex].userList.end(); ++it) {
@@ -186,7 +189,7 @@ namespace widgets {
 		const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
 		if (clockUtils::ClockError::SUCCESS == cErr) {
 			sock.writePacket(serialized);
-		}
+		}*/
 	}
 
 } /* namespace widgets */

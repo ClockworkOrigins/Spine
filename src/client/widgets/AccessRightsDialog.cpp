@@ -18,7 +18,7 @@
 
 #include "widgets/AccessRightsDialog.h"
 
-#include "Conversion.h"
+#include "utils/Conversion.h"
 
 #include <QApplication>
 #include <QLineEdit>

@@ -30,8 +30,8 @@
 #include "ManagementServer.h"
 #include "MariaDBWrapper.h"
 #include "MatchmakingServer.h"
+#include "ServerCommon.h"
 #include "SpineServerConfig.h"
-#include "Smtp.h"
 #include "UploadServer.h"
 
 #include "common/MessageStructs.h"
@@ -418,7 +418,7 @@ namespace server {
 			return;
 		}
 		auto enabledResults = database.getResults<std::vector<std::string>>();
-		const int userID = getUserID(msg->username, msg->password);
+		const int userID = ServerCommon::getUserID(msg->username, msg->password);
 		if (userID != -1) {
 			if (!database.query(std::string("SELECT ModID, TeamID, Gothic, ReleaseDate, Type, MajorVersion, MinorVersion, PatchVersion FROM mods WHERE Enabled = 0;"))) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
@@ -733,7 +733,7 @@ namespace server {
 			std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
-		const int userID = getUserID(msg->username, msg->password); // if userID is -1 user is not in database, so it's the play time of all unregistered players summed up
+		const int userID = ServerCommon::getUserID(msg->username, msg->password); // if userID is -1 user is not in database, so it's the play time of all unregistered players summed up
 		if (!database.query("PREPARE insertStmt FROM \"INSERT INTO playtimes (ModID, UserID, Duration) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE Duration = Duration + ?\";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			return;
@@ -807,7 +807,7 @@ namespace server {
 			std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
-		const int userID = getUserID(msg->username, msg->password);
+		const int userID = ServerCommon::getUserID(msg->username, msg->password);
 		if (userID != -1) {
 			if (!database.query("PREPARE selectStmt FROM \"SELECT Duration FROM playtimes WHERE ModID = ? AND UserID = ? LIMIT 1\";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
@@ -860,7 +860,7 @@ namespace server {
 			int32_t identifier = int32_t(std::stoi(vec[0]));
 			const int userID = std::stoi(vec[1]);
 			int32_t score = int32_t(std::stoi(vec[2]));
-			std::string username = getUsername(userID);
+			std::string username = ServerCommon::getUsername(userID);
 			if (!username.empty()) {
 				scores[identifier].push_back(std::make_pair(username, score));
 			}
@@ -878,7 +878,7 @@ namespace server {
 			std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
-		const int userID = getUserID(msg->username, msg->password);
+		const int userID = ServerCommon::getUserID(msg->username, msg->password);
 		if (userID != -1) {
 			if (!database.query("PREPARE selectStmt FROM \"SELECT * FROM modScoreList WHERE ModID = ? AND Identifier = ?\";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
@@ -936,7 +936,7 @@ namespace server {
 			std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
-		const int userID = getUserID(msg->username, msg->password);
+		const int userID = ServerCommon::getUserID(msg->username, msg->password);
 		if (userID != -1) {
 			if (!database.query("PREPARE selectStmt FROM \"SELECT Identifier FROM modAchievements WHERE ModID = ? AND UserID = ?\";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
@@ -1000,7 +1000,7 @@ namespace server {
 			std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
-		const int userID = getUserID(msg->username, msg->password);
+		const int userID = ServerCommon::getUserID(msg->username, msg->password);
 		if (userID != -1) {
 			if (!database.query("PREPARE updateStmt FROM \"INSERT INTO modAchievements (ModID, UserID, Identifier) VALUES (?, ?, ?)\";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
@@ -1119,7 +1119,7 @@ namespace server {
 				const int gothicVersion = std::stoi(lastResults[0][5]);
 
 				if (!enabled) {
-					const int userID = getUserID(msg->username, msg->password);
+					const int userID = ServerCommon::getUserID(msg->username, msg->password);
 					if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
 						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 						break;
@@ -1245,7 +1245,7 @@ namespace server {
 		std::string replyMail = "noreply@clockwork-origins.de";
 
 		if (!msg->username.empty()) {
-			const int userID = getUserID(msg->username);
+			const int userID = ServerCommon::getUserID(msg->username);
 
 			MariaDBWrapper accountDatabase;
 			do {
@@ -1273,7 +1273,7 @@ namespace server {
 			} while (false);
 		}
 
-		sendMail("[Spine] New Feedback arrived", ss.str() + "\n" + msg->text + "\n" + std::to_string(int(msg->majorVersion)) + "." + std::to_string(int(msg->minorVersion)) + "." + std::to_string(int(msg->patchVersion)) + "\n\n" + msg->username, replyMail);
+		ServerCommon::sendMail("[Spine] New Feedback arrived", ss.str() + "\n" + msg->text + "\n" + std::to_string(int(msg->majorVersion)) + "." + std::to_string(int(msg->minorVersion)) + "." + std::to_string(int(msg->patchVersion)) + "\n\n" + msg->username, replyMail);
 	}
 
 	void Server::handleRequestOriginalFiles(clockUtils::sockets::TcpSocket * sock, common::RequestOriginalFilesMessage * msg) const {
@@ -1329,7 +1329,7 @@ namespace server {
 			std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
-		const int userID = getUserID(msg->username, msg->password);
+		const int userID = ServerCommon::getUserID(msg->username, msg->password);
 		if (userID != -1) {
 			if (!database.query("PREPARE insertStmt FROM \"INSERT INTO lastLoginTimes (UserID, Timestamp) VALUES (?, ?) ON DUPLICATE KEY UPDATE Timestamp = ?\";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
@@ -1469,7 +1469,7 @@ namespace server {
 			std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
-		const int userID = getUserID(msg->username, msg->password);
+		const int userID = ServerCommon::getUserID(msg->username, msg->password);
 		if (userID != -1) {
 			if (!database.query("PREPARE selectPlayedModsStmt FROM \"SELECT ModID, Duration FROM playtimes WHERE UserID = ? ORDER BY Duration DESC\";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
@@ -1647,7 +1647,7 @@ namespace server {
 			std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
-		const int userID = getUserID(msg->username, msg->password);
+		const int userID = ServerCommon::getUserID(msg->username, msg->password);
 		if (!database.query("PREPARE selectLastTimePlayedStmt FROM \"SELECT Timestamp FROM lastPlayTimes WHERE ModID = ? AND UserID = ? LIMIT 1\";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			return;
@@ -1797,7 +1797,7 @@ namespace server {
 			std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
-		const int userID = getUserID(msg->username, msg->password);
+		const int userID = ServerCommon::getUserID(msg->username, msg->password);
 		if (!database.query("PREPARE selectAllAchievementsStmt FROM \"SELECT Identifier FROM modAchievementList WHERE ModID = ?\";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			return;
@@ -1961,7 +1961,7 @@ namespace server {
 			std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
-		const int userID = getUserID(msg->username, msg->password);
+		const int userID = ServerCommon::getUserID(msg->username, msg->password);
 		if (!database.query("PREPARE selectScoreStmt FROM \"SELECT Score, UserID FROM modScores WHERE ModID = ? AND Identifier = ? ORDER BY Score DESC\";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			return;
@@ -2002,7 +2002,7 @@ namespace server {
 			}
 			auto results = database.getResults<std::vector<std::string>>();
 			for (auto score : results) {
-				ss.scores.emplace_back(getUsername(std::stoi(score[1])), std::stoi(score[0]));
+				ss.scores.emplace_back(ServerCommon::getUsername(std::stoi(score[1])), std::stoi(score[0]));
 			}
 			sassm.scores.push_back(ss);
 		}
@@ -2093,7 +2093,7 @@ namespace server {
 	}
 
 	void Server::handleSubmitNews(clockUtils::sockets::TcpSocket *, common::SubmitNewsMessage * msg) const {
-		const int userID = getUserID(msg->username, msg->password);
+		const int userID = ServerCommon::getUserID(msg->username, msg->password);
 		MariaDBWrapper database;
 		if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, SPINEDATABASE, 0)) {
 			std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
@@ -2149,7 +2149,7 @@ namespace server {
 				out.close();
 			}
 
-			sendMail("New News arrived", ss.str() + "\n" + msg->news.title + "\n" + msg->news.body, "noreply@clockwork-origins.de");
+			ServerCommon::sendMail("New News arrived", ss.str() + "\n" + msg->news.title + "\n" + msg->news.body, "noreply@clockwork-origins.de");
 		} else {
 			if (msg->images.size() != msg->news.imageFiles.size()) {
 				std::cout << "Images-Count unequal: " << msg->images.size() << " vs. " << msg->news.imageFiles.size() << std::endl;
@@ -2278,7 +2278,7 @@ namespace server {
 	void Server::handleSubmitScriptFeatures(clockUtils::sockets::TcpSocket *, common::SubmitScriptFeaturesMessage * msg) const {
 		MariaDBWrapper database;
 		do {
-			const int userID = getUserID(msg->username, msg->password);
+			const int userID = ServerCommon::getUserID(msg->username, msg->password);
 			if (userID == -1) {
 				break;
 			}
@@ -2529,7 +2529,7 @@ namespace server {
 			}
 		} while (false);
 
-		sendMail("[Spine] New Script Features arrived", std::to_string(msg->modID) + "\n" + msg->username + "\n" + std::to_string(msg->achievements.size()) + " Achievements\n" + std::to_string(msg->scores.size()) + " Scores", "noreply@clockwork-origins.de");
+		ServerCommon::sendMail("[Spine] New Script Features arrived", std::to_string(msg->modID) + "\n" + msg->username + "\n" + std::to_string(msg->achievements.size()) + " Achievements\n" + std::to_string(msg->scores.size()) + " Scores", "noreply@clockwork-origins.de");
 	}
 
 	void Server::handleRequestInfoPage(clockUtils::sockets::TcpSocket * sock, common::RequestInfoPageMessage * msg) const {
@@ -2643,7 +2643,7 @@ namespace server {
 				return;
 			}
 			lastResults = database.getResults<std::vector<std::string>>();
-			const int userID = getUserID(msg->username, msg->password);
+			const int userID = ServerCommon::getUserID(msg->username, msg->password);
 			if (!database.query("SET @paramTeamID=" + lastResults[0][0] + ";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				return;
@@ -2863,7 +2863,7 @@ namespace server {
 	}
 
 	void Server::handleSendUserInfos(clockUtils::sockets::TcpSocket * sock, common::SendUserInfosMessage * msg) const {
-		const int userID = getUserID(msg->username, msg->password);
+		const int userID = ServerCommon::getUserID(msg->username, msg->password);
 		if (userID != -1) {
 			MariaDBWrapper database;
 			if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, SPINEDATABASE, 0)) {
@@ -3038,7 +3038,7 @@ namespace server {
 
 	void Server::handleUpdateAchievementProgress(clockUtils::sockets::TcpSocket *, common::UpdateAchievementProgressMessage * msg) const {
 		do {
-			const int userID = getUserID(msg->username, msg->password);
+			const int userID = ServerCommon::getUserID(msg->username, msg->password);
 			if (userID == -1) {
 				break;
 			}
@@ -3076,7 +3076,7 @@ namespace server {
 
 	void Server::handleSubmitCompatibility(clockUtils::sockets::TcpSocket *, common::SubmitCompatibilityMessage * msg) const {
 		do {
-			const int userID = getUserID(msg->username, msg->password);
+			const int userID = ServerCommon::getUserID(msg->username, msg->password);
 			if (userID == -1) {
 				break;
 			}
@@ -3115,7 +3115,7 @@ namespace server {
 	void Server::handleRequestOwnCompatibilities(clockUtils::sockets::TcpSocket * sock, common::RequestOwnCompatibilitiesMessage * msg) const {
 		common::SendOwnCompatibilitiesMessage socm;
 		do {
-			const int userID = getUserID(msg->username, msg->password);
+			const int userID = ServerCommon::getUserID(msg->username, msg->password);
 			if (userID == -1) {
 				break;
 			}
@@ -3213,7 +3213,7 @@ namespace server {
 		srm.sum = 0;
 		srm.allowedToRate = !msg->username.empty();
 		do {
-			const int userID = getUserID(msg->username, msg->password);
+			const int userID = ServerCommon::getUserID(msg->username, msg->password);
 			MariaDBWrapper database;
 			if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, SPINEDATABASE, 0)) {
 				std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
@@ -3292,7 +3292,7 @@ namespace server {
 
 	void Server::handleSubmitRating(clockUtils::sockets::TcpSocket *, common::SubmitRatingMessage * msg) const {
 		do {
-			const int userID = getUserID(msg->username, msg->password);
+			const int userID = ServerCommon::getUserID(msg->username, msg->password);
 			if (userID == -1) {
 				break;
 			}
@@ -3387,7 +3387,7 @@ namespace server {
 	void Server::handleRequestOverallSaveData(clockUtils::sockets::TcpSocket * sock, common::RequestOverallSaveDataMessage * msg) const {
 		common::SendOverallSaveDataMessage som;
 		do {
-			const int userID = getUserID(msg->username, msg->password);
+			const int userID = ServerCommon::getUserID(msg->username, msg->password);
 			if (userID == -1) {
 				break;
 			}
@@ -3425,7 +3425,7 @@ namespace server {
 
 	void Server::handleUpdateOverallSaveData(clockUtils::sockets::TcpSocket *, common::UpdateOverallSaveDataMessage * msg) const {
 		do {
-			const int userID = getUserID(msg->username, msg->password);
+			const int userID = ServerCommon::getUserID(msg->username, msg->password);
 			if (userID == -1) {
 				break;
 			}
@@ -3464,7 +3464,7 @@ namespace server {
 	void Server::handleRequestModManagement(clockUtils::sockets::TcpSocket * sock, common::RequestModManagementMessage * msg) const {
 		common::SendModManagementMessage smmm;
 		do {
-			const int userID = getUserID(msg->username, msg->password);
+			const int userID = ServerCommon::getUserID(msg->username, msg->password);
 			if (userID == -1) {
 				break;
 			}
@@ -3577,10 +3577,6 @@ namespace server {
 						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 						break;
 					}
-					if (!database.query("SET @paramLanguage='" + msg->language + "';")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-						break;
-					}
 					if (!database.query("EXECUTE selectModNameStmt USING @paramModID, @paramLanguage;")) {
 						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 						break;
@@ -3617,7 +3613,7 @@ namespace server {
 						auto userResults = database.getResults<std::vector<std::string>>();
 						mm.userList.reserve(userResults.size());
 						for (auto user : userResults) {
-							std::string username = getUsername(std::stoi(user[0]));
+							std::string username = ServerCommon::getUsername(std::stoi(user[0]));
 							if (!username.empty()) {
 								mm.userList.push_back(username);
 							}
@@ -3908,7 +3904,7 @@ namespace server {
 					}
 				}
 			}
-			smmm.userList = getUserList();
+			smmm.userList = ServerCommon::getUserList();
 		} while (false);
 		const std::string serialized = smmm.SerializePrivate();
 		sock->writePacket(serialized);
@@ -3950,7 +3946,7 @@ namespace server {
 
 	void Server::handleUpdateEarlyAccessState(clockUtils::sockets::TcpSocket *, common::UpdateEarlyAccessStateMessage * msg) const {
 		do {
-			const int userID = getUserID(msg->username);
+			const int userID = ServerCommon::getUserID(msg->username);
 			if (userID == -1) {
 				break;
 			}
@@ -3992,7 +3988,7 @@ namespace server {
 	void Server::handleRequestModsForEditor(clockUtils::sockets::TcpSocket * sock, common::RequestModsForEditorMessage * msg) const {
 		common::SendModsForEditorMessage smfem;
 		do {
-			const int userID = getUserID(msg->username, msg->password);
+			const int userID = ServerCommon::getUserID(msg->username, msg->password);
 			if (userID == -1) {
 				break;
 			}
@@ -4092,7 +4088,7 @@ namespace server {
 
 	void Server::handleUpdateOfflineData(clockUtils::sockets::TcpSocket *, common::UpdateOfflineDataMessage * msg) const {
 		do {
-			const int userID = getUserID(msg->username, msg->password);
+			const int userID = ServerCommon::getUserID(msg->username, msg->password);
 			if (userID == -1) {
 				break;
 			}
@@ -4205,7 +4201,7 @@ namespace server {
 	void Server::handleRequestOfflineData(clockUtils::sockets::TcpSocket * sock, common::RequestOfflineDataMessage * msg) const {
 		common::SendOfflineDataMessage sodm;
 		do {
-			const int userID = getUserID(msg->username, msg->password);
+			const int userID = ServerCommon::getUserID(msg->username, msg->password);
 			if (userID == -1) {
 				break;
 			}
@@ -4297,7 +4293,7 @@ namespace server {
 				common::SendOfflineDataMessage::ScoreData sd;
 				sd.modID = std::stoi(vec[0]);
 				sd.identifier = std::stoi(vec[1]);
-				sd.username = getUsername(std::stoi(vec[2]));
+				sd.username = ServerCommon::getUsername(std::stoi(vec[2]));
 				sd.score = std::stoi(vec[3]);
 				sodm.scores.push_back(sd);
 			}
@@ -4374,7 +4370,7 @@ namespace server {
 	void Server::handleRequestAllFriends(clockUtils::sockets::TcpSocket * sock, common::RequestAllFriendsMessage * msg) const {
 		common::SendAllFriendsMessage safm;
 		do {
-			const int userID = getUserID(msg->username, msg->password);
+			const int userID = ServerCommon::getUserID(msg->username, msg->password);
 			if (userID == -1) {
 				break;
 			}
@@ -4433,7 +4429,7 @@ namespace server {
 					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					break;
 				}
-				std::string friendName = getUsername(std::stoi(vec[0]));
+				std::string friendName = ServerCommon::getUsername(std::stoi(vec[0]));
 				auto results = database.getResults<std::vector<std::string>>();
 				if (results.empty()) {
 					uint32_t currentXP, nextXP;
@@ -4450,7 +4446,7 @@ namespace server {
 			}
 			lastResults = database.getResults<std::vector<std::string>>();
 			for (auto vec : lastResults) {
-				const std::string friendName = getUsername(std::stoi(vec[0]));
+				const std::string friendName = ServerCommon::getUsername(std::stoi(vec[0]));
 				if (std::find_if(safm.friends.begin(), safm.friends.end(), [friendName](const common::Friend & o) { return o.name == friendName; }) == safm.friends.end()) {
 					uint32_t currentXP, nextXP;
 					safm.friendRequests.emplace_back(friendName, getLevel(std::stoi(vec[0]), currentXP, nextXP));
@@ -4469,8 +4465,8 @@ namespace server {
 
 	void Server::handleSendFriendRequest(clockUtils::sockets::TcpSocket *, common::SendFriendRequestMessage * msg) const {
 		do {
-			const int userID = getUserID(msg->username, msg->password);
-			const int friendID = getUserID(msg->friendname);
+			const int userID = ServerCommon::getUserID(msg->username, msg->password);
+			const int friendID = ServerCommon::getUserID(msg->friendname);
 			if (userID == -1 || friendID == -1 || userID == friendID) {
 				break;
 			}
@@ -4500,8 +4496,8 @@ namespace server {
 
 	void Server::handleAcceptFriendRequest(clockUtils::sockets::TcpSocket *, common::AcceptFriendRequestMessage * msg) const {
 		do {
-			const int userID = getUserID(msg->username, msg->password);
-			const int friendID = getUserID(msg->friendname);
+			const int userID = ServerCommon::getUserID(msg->username, msg->password);
+			const int friendID = ServerCommon::getUserID(msg->friendname);
 			if (userID == -1 || friendID == -1 || userID == friendID) {
 				break;
 			}
@@ -4531,8 +4527,8 @@ namespace server {
 
 	void Server::handleDeclineFriendRequest(clockUtils::sockets::TcpSocket *, common::DeclineFriendRequestMessage * msg) const {
 		do {
-			const int userID = getUserID(msg->username, msg->password);
-			const int friendID = getUserID(msg->friendname);
+			const int userID = ServerCommon::getUserID(msg->username, msg->password);
+			const int friendID = ServerCommon::getUserID(msg->friendname);
 			if (userID == -1 || friendID == -1 || userID == friendID) {
 				break;
 			}
@@ -4563,7 +4559,7 @@ namespace server {
 	void Server::handleRequestUserLevel(clockUtils::sockets::TcpSocket * sock, common::RequestUserLevelMessage * msg) const {
 		common::SendUserLevelMessage sulm;
 		do {
-			const int userID = getUserID(msg->username, msg->password);
+			const int userID = ServerCommon::getUserID(msg->username, msg->password);
 			if (userID == -1) {
 				break;
 			}
@@ -4924,7 +4920,7 @@ namespace server {
 		common::SendAchievementUnlockedMessage siaum;
 		siaum.unlocked = false;
 		do {
-			const int userID = getUserID(msg->username, msg->password);
+			const int userID = ServerCommon::getUserID(msg->username, msg->password);
 			if (userID == -1) {
 				break;
 			}
@@ -4953,124 +4949,11 @@ namespace server {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				break;
 			}
-			auto lastResults = database.getResults<std::vector<std::string>>();
+			const auto lastResults = database.getResults<std::vector<std::string>>();
 			siaum.unlocked = !lastResults.empty();
 		} while (false);
 		const std::string serialized = siaum.SerializePrivate();
 		sock->writePacket(serialized);
-	}
-
-	int Server::getUserID(const std::string & username, const std::string & password) const {
-		MariaDBWrapper accountDatabase;
-		if (!accountDatabase.connect("localhost", DATABASEUSER, DATABASEPASSWORD, ACCOUNTSDATABASE, 0)) {
-			std::cout << "Couldn't connect to database" << std::endl;
-			return -1;
-		}
-
-		if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT ID FROM accounts WHERE Username = ? AND Password = PASSWORD(?) LIMIT 1\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			return -1;
-		}
-		if (!accountDatabase.query("SET @paramUsername='" + username + "';")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			return -1;
-		}
-		if (!accountDatabase.query("SET @paramPassword='" + password + "';")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			return -1;
-		}
-		if (!accountDatabase.query("EXECUTE selectStmt USING @paramUsername, @paramPassword;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-		}
-		std::vector<std::vector<std::string>> results = accountDatabase.getResults<std::vector<std::string>>();
-		accountDatabase.close();
-		if (results.empty()) {
-			return -1;
-		} else {
-			return std::stoi(results[0][0]);
-		}
-	}
-
-	int Server::getUserID(const std::string & username) const {
-		MariaDBWrapper accountDatabase;
-		if (!accountDatabase.connect("localhost", DATABASEUSER, DATABASEPASSWORD, ACCOUNTSDATABASE, 0)) {
-			std::cout << "Couldn't connect to database" << std::endl;
-			return -1;
-		}
-
-		if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT ID FROM accounts WHERE Username = ? LIMIT 1\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			return -1;
-		}
-		if (!accountDatabase.query("SET @paramUsername='" + username + "';")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			return -1;
-		}
-		if (!accountDatabase.query("EXECUTE selectStmt USING @paramUsername;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-		}
-		std::vector<std::vector<std::string>> results = accountDatabase.getResults<std::vector<std::string>>();
-		accountDatabase.close();
-		if (results.empty()) {
-			return -1;
-		} else {
-			return std::stoi(results[0][0]);
-		}
-	}
-
-	std::string Server::getUsername(const int id) const {
-		MariaDBWrapper accountDatabase;
-		if (!accountDatabase.connect("localhost", DATABASEUSER, DATABASEPASSWORD, ACCOUNTSDATABASE, 0)) {
-			return "";
-		}
-
-		if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT Username FROM accounts WHERE ID = ? LIMIT 1\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			return "";
-		}
-		if (!accountDatabase.query("SET @paramID=" + std::to_string(id) + ";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			return "";
-		}
-		if (!accountDatabase.query("EXECUTE selectStmt USING @paramID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-		}
-		std::vector<std::vector<std::string>> results = accountDatabase.getResults<std::vector<std::string>>();
-		if (results.empty()) {
-			return "";
-		} else {
-			return results[0][0];
-		}
-	}
-
-	std::vector<std::string> Server::getUserList() {
-		MariaDBWrapper accountDatabase;
-		if (!accountDatabase.connect("localhost", DATABASEUSER, DATABASEPASSWORD, ACCOUNTSDATABASE, 0)) {
-			return {};
-		}
-
-		if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT Username FROM accounts ORDER BY Username ASC\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			return {};
-		}
-		if (!accountDatabase.query("EXECUTE selectStmt;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-		}
-		std::vector<std::vector<std::string>> results = accountDatabase.getResults<std::vector<std::string>>();
-		std::vector<std::string> users;
-		users.reserve(results.size());
-		for (auto vec : results) {
-			users.push_back(vec[0]);
-		}
-		return users;
-	}
-
-	void Server::sendMail(const std::string & subject, const std::string & body, const std::string & replyTo) {
-		std::thread([subject, body, replyTo]() {
-			Smtp s("127.0.0.1");
-			bool b = s.sendMail("contact@clockwork-origins.de", "bonne@clockwork-origins.de", subject, body, replyTo);
-			static_cast<void>(b);
-		}).detach();
 	}
 
 	bool Server::isTeamMemberOfMod(int modID, int userID) const {

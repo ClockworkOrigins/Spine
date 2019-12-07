@@ -16,8 +16,9 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_MANAGEMENTDIALOG_H__
-#define __SPINE_WIDGETS_MANAGEMENTDIALOG_H__
+#pragma once
+
+#include "ManagementCommon.h"
 
 #include "common/MessageStructs.h"
 
@@ -46,13 +47,13 @@ namespace widgets {
 		~ManagementDialog();
 
 	signals:
-		void receivedMods(std::vector<common::SendModManagementMessage::ModManagement>);
+		void receivedMods(QList<client::ManagementMod>);
 		void receivedUsers(std::vector<std::string>);
 		void triggerInfoPage(int32_t);
 		void checkForUpdate(int32_t);
 
 	private slots:
-		void updateModList(std::vector<common::SendModManagementMessage::ModManagement> modList);
+		void updateModList(QList<client::ManagementMod> modList);
 		void selectedMod(const QModelIndex & index);
 
 	private:
@@ -61,7 +62,7 @@ namespace widgets {
 		QString _username;
 		QString _password;
 		QString _language;
-		std::vector<common::SendModManagementMessage::ModManagement> _mods;
+		QList<client::ManagementMod> _mods;
 		int _modIndex;
 		GeneralConfigurationWidget * _generalConfigurationWidget;
 		ModFilesWidget * _modFilesWidget;
@@ -79,5 +80,3 @@ namespace widgets {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_MANAGEMENTDIALOG_H__ */

@@ -18,8 +18,9 @@
 
 #include "widgets/management/ScoresWidget.h"
 
-#include "Conversion.h"
 #include "SpineConfig.h"
+
+#include "utils/Conversion.h"
 
 #include "clockUtils/sockets/TcpSocket.h"
 
@@ -74,12 +75,13 @@ namespace widgets {
 	ScoresWidget::~ScoresWidget() {
 	}
 
-	void ScoresWidget::updateModList(std::vector<common::SendModManagementMessage::ModManagement> modList) {
+	void ScoresWidget::updateModList(QList<client::ManagementMod> modList) {
 		_mods = modList;
 	}
 
 	void ScoresWidget::selectedMod(int index) {
-		_modIndex = index;
+		// TODO
+		/*_modIndex = index;
 
 		for (auto t : _scoreEdits) {
 			QLineEdit * germanEdit = std::get<0>(t);
@@ -125,11 +127,12 @@ namespace widgets {
 			_scoreEdits.push_back(std::make_tuple(germanEdit, englishEdit, polishEdit, russianEdit));
 
 			_rowCount++;
-		}
+		}*/
 	}
 
 	void ScoresWidget::updateScores() {
-		if (_modIndex == -1) {
+		// TODO
+		/*if (_modIndex == -1) {
 			return;
 		}
 		common::UpdateScoresMessage usm;
@@ -183,7 +186,7 @@ namespace widgets {
 		clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
 		if (clockUtils::ClockError::SUCCESS == cErr) {
 			sock.writePacket(serialized);
-		}
+		}*/
 	}
 
 	void ScoresWidget::addScore() {

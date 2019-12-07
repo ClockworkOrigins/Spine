@@ -18,7 +18,7 @@
 
 #include "widgets/TranslatorDialog.h"
 
-#include "Conversion.h"
+#include "utils/Conversion.h"
 
 #include "widgets/TranslationWidget.h"
 #include "widgets/WaitSpinner.h"

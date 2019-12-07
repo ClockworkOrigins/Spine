@@ -21,11 +21,12 @@
 #include <thread>
 
 #include "Config.h"
-#include "Conversion.h"
 #include "SpineConfig.h"
 #include "UpdateLanguage.h"
 
 #include "common/MessageStructs.h"
+
+#include "utils/Conversion.h"
 
 #include "widgets/AddFriendDialog.h"
 #include "widgets/FriendRequestView.h"

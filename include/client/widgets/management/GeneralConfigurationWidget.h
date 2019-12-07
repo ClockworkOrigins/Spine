@@ -19,7 +19,7 @@
 #ifndef __SPINE_WIDGETS_MANAGEMENT_GENERALCONFIGURATIONWIDGET_H__
 #define __SPINE_WIDGETS_MANAGEMENT_GENERALCONFIGURATIONWIDGET_H__
 
-#include "common/MessageStructs.h"
+#include "ManagementCommon.h"
 
 #include <QModelIndex>
 #include <QWidget>
@@ -39,7 +39,7 @@ namespace widgets {
 		GeneralConfigurationWidget(QWidget * par);
 		~GeneralConfigurationWidget();
 
-		void updateModList(std::vector<common::SendModManagementMessage::ModManagement> modList);
+		void updateModList(QList<client::ManagementMod> modList);
 		void selectedMod(int index);
 
 	signals:
@@ -50,7 +50,7 @@ namespace widgets {
 		void openInfoPage();
 
 	private:
-		std::vector<common::SendModManagementMessage::ModManagement> _mods;
+		QList<client::ManagementMod> _mods;
 		int _modIndex;
 		QCheckBox * _enabledBox;
 		QComboBox * _typeBox;

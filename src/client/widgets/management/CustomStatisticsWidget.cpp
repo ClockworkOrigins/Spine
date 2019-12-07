@@ -86,12 +86,13 @@ namespace widgets {
 		setLayout(l);
 	}
 
-	void CustomStatisticsWidget::updateModList(std::vector<common::SendModManagementMessage::ModManagement> modList) {
+	void CustomStatisticsWidget::updateModList(QList<client::ManagementMod> modList) {
 		_mods = modList;
 	}
 
 	void CustomStatisticsWidget::selectedMod(int index) {
-		_modIndex = index;
+		// TODO
+		/*_modIndex = index;
 		_sourceModel->clear();
 		_identifierBox->clear();
 		_guildBox->clear();
@@ -142,41 +143,6 @@ namespace widgets {
 
 			_sourceModel->appendRow(QList<QStandardItem *>() << identifierItem << guildItem << nameItem << valueItem << amountItem);
 		}
-		/*for (auto it = mm.customStatistics.cbegin(); it != mm.customStatistics.cend(); ++it) {
-			int counter = 0;
-			for (auto it2 = it->second.cbegin(); it2 != it->second.cend(); ++it2) {
-				QStandardItem * identifierItem = new QStandardItem(QString::number(it->first.first));
-				QStandardItem * guildItem = new QStandardItem(QString::number(it->first.second));
-				QStandardItem * nameItem = new QStandardItem(s2q(it2->name));
-				QStandardItem * valueItem = new QStandardItem(QString::number(it2->value));
-
-				identifierItem->setData(it->first.first, models::CustomStatisticsRole::FilterRole);
-				identifierItem->setData(it->first.first, models::CustomStatisticsRole::SortRole);
-				guildItem->setData(it->first.second, models::CustomStatisticsRole::FilterRole);
-				guildItem->setData(it->first.second, models::CustomStatisticsRole::SortRole);
-				nameItem->setData(s2q(it2->name), models::CustomStatisticsRole::FilterRole);
-				nameItem->setData(s2q(it2->name), models::CustomStatisticsRole::SortRole);
-				valueItem->setData(it2->value, models::CustomStatisticsRole::FilterRole);
-				valueItem->setData(it2->value, models::CustomStatisticsRole::SortRole);
-
-				identifierItem->setEditable(false);
-				guildItem->setEditable(false);
-				nameItem->setEditable(false);
-				valueItem->setEditable(false);
-
-				_sourceModel->appendRow(QList<QStandardItem *>() << identifierItem << guildItem << nameItem << valueItem);
-
-				if (counter++ == int(it->second.size()) / 2) {
-					identifierItem->setBackground(QBrush(QColor("#800000")));
-					guildItem->setBackground(QBrush(QColor("#800000")));
-					nameItem->setBackground(QBrush(QColor("#800000")));
-					valueItem->setBackground(QBrush(QColor("#800000")));
-				}
-				nameSet.insert(s2q(it2->name));
-			}
-			identifierSet.insert(it->first.first);
-			guildSet.insert(it->first.second);
-		}*/
 
 		for (int32_t identifier : identifierSet) {
 			_identifierBox->addItem(QString::number(identifier));
@@ -186,7 +152,7 @@ namespace widgets {
 		}
 		for (QString name : nameSet) {
 			_nameBox->addItem(name);
-		}
+		}*/
 	}
 
 } /* namespace widgets */

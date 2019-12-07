@@ -19,7 +19,7 @@
 #include "widgets/SettingsDialog.h"
 
 #include "Config.h"
-#include "Conversion.h"
+#include "utils/Conversion.h"
 #include "UpdateLanguage.h"
 
 #include "widgets/DeveloperSettingsWidget.h"

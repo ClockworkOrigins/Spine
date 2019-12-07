@@ -18,9 +18,9 @@
 
 #include "widgets/ApplyTranslationDialog.h"
 
-#include "Conversion.h"
-
 #include "translator/TranslationApplier.h"
+
+#include "utils/Conversion.h"
 
 #include <QApplication>
 #include <QDialogButtonBox>

@@ -19,7 +19,7 @@
 #ifndef __SPINE_WIDGETS_MANAGEMENT_MODFILESWIDGET_H__
 #define __SPINE_WIDGETS_MANAGEMENT_MODFILESWIDGET_H__
 
-#include "common/MessageStructs.h"
+#include "ManagementCommon.h"
 
 #include <QMap>
 #include <QWidget>
@@ -47,11 +47,10 @@ namespace widgets {
 	public:
 		ModFilesWidget(QString username, QString language, QWidget * par);
 
-		void updateModList(std::vector<common::SendModManagementMessage::ModManagement> modList);
+		void updateModList(QList<client::ManagementMod> modList);
 		void selectedMod(int index);
 
 	signals:
-		void receivedMods(std::vector<common::SendModManagementMessage::ModManagement>);
 		void finishedUpload(bool, int);
 		void updateUploadText(QString);
 		void checkForUpdate(int32_t);
@@ -71,7 +70,7 @@ namespace widgets {
 		QStandardItemModel * _fileList;
 		QString _username;
 		QString _language;
-		std::vector<common::SendModManagementMessage::ModManagement> _mods;
+		QList<client::ManagementMod> _mods;
 		QTreeView * _fileTreeView;
 		int _modIndex;
 		QMap<QString, QStandardItem *> _directory;

@@ -18,27 +18,15 @@
 
 #pragma once
 
-#include "simple-web-server/server_https.hpp"
-
-using HttpsServer = SimpleWeb::Server<SimpleWeb::HTTPS>;
+#include <QString>
 
 namespace spine {
-namespace server {
+namespace client {
 
-	class ManagementServer {
-	public:
-		ManagementServer();
-		~ManagementServer();
+	typedef struct {
+		QString name;
+		int id;
+	} ManagementMod;
 
-		int run();
-		void stop();
-
-	private:
-		HttpsServer * _server;
-		std::thread * _runner;
-
-		void getMods(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
-	};
-
-} /* namespace server */
+} /* namespace client */
 } /* namespace spine */

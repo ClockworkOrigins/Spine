@@ -21,7 +21,7 @@
 #include <thread>
 
 #include "Config.h"
-#include "Conversion.h"
+#include "utils/Conversion.h"
 #include "FileDownloader.h"
 #include "MultiFileDownloader.h"
 #include "SpineConfig.h"

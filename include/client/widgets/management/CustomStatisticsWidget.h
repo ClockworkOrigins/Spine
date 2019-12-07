@@ -19,7 +19,7 @@
 #ifndef __SPINE_WIDGETS_MANAGEMENT_CUSTOMSTATISTICSWIDGET_H__
 #define __SPINE_WIDGETS_MANAGEMENT_CUSTOMSTATISTICSWIDGET_H__
 
-#include "common/MessageStructs.h"
+#include "ManagementCommon.h"
 
 #include <QModelIndex>
 #include <QWidget>
@@ -36,7 +36,7 @@ namespace widgets {
 	public:
 		CustomStatisticsWidget(QWidget * par);
 
-		void updateModList(std::vector<common::SendModManagementMessage::ModManagement> modList);
+		void updateModList(QList<client::ManagementMod> modList);
 		void selectedMod(int index);
 
 	private:
@@ -68,7 +68,7 @@ namespace widgets {
 				return identifier == other.identifier && guild == other.guild && name == other.name && value == other.value;
 			}
 		} StatTuple;
-		std::vector<common::SendModManagementMessage::ModManagement> _mods;
+		QList<client::ManagementMod> _mods;
 		int _modIndex;
 		QStandardItemModel * _sourceModel;
 		QComboBox * _identifierBox;

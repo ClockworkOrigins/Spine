@@ -22,7 +22,6 @@
 #include <thread>
 
 #include "Config.h"
-#include "Conversion.h"
 #include "FileDownloader.h"
 #include "MultiFileDownloader.h"
 #include "SpineConfig.h"
@@ -32,6 +31,8 @@
 #include "common/SpineModules.h"
 
 #include "models/SpineEditorModel.h"
+
+#include "utils/Conversion.h"
 
 #include "widgets/AchievementSpineSettingsWidget.h"
 #include "widgets/DownloadProgressDialog.h"

@@ -21,8 +21,9 @@
 #include <fstream>
 #include <thread>
 
-#include "Conversion.h"
 #include "SpineConfig.h"
+
+#include "utils/Conversion.h"
 
 #include "widgets/MainWindow.h"
 #include "widgets/WaitSpinner.h"
@@ -143,8 +144,9 @@ namespace {
 	}
 
 	void ModFilesWidget::addFile() {
+		// TODO
 		// adds a file... if already existing => just update internally
-		QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectFile"));
+		/*QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectFile"));
 		if (path.isEmpty()) return;
 
 		QString mapping = QInputDialog::getText(this, QApplication::tr("PathInDirectoryStructure"), QApplication::tr("PathInDirectoryStructureDescription"));
@@ -200,12 +202,13 @@ namespace {
 			mf.changed = true;
 			_mods[_modIndex].files.push_back(mf);
 			_fileMap.insert(file, path);
-		}
+		}*/
 	}
 
 	void ModFilesWidget::deleteFile() {
+		// TODO
 		// removes selected modfile
-		if (_fileTreeView->selectionModel()->selectedIndexes().isEmpty()) return;
+		/*if (_fileTreeView->selectionModel()->selectedIndexes().isEmpty()) return;
 
 		QModelIndex idx = _fileTreeView->selectionModel()->selectedIndexes().front();
 		QVariant v = idx.data(PathRole);
@@ -223,13 +226,14 @@ namespace {
 			}
 			_directory.remove(path);
 			_fileList->removeRow(idx.row(), idx.parent());
-		}
+		}*/
 	}
 
 	void ModFilesWidget::uploadCurrentMod() {
+		// TODO
 		// create diff and upload mods
 		// own port on server
-		_waitSpinner = new WaitSpinner(QApplication::tr("PreparingUpload"), this);
+		/*_waitSpinner = new WaitSpinner(QApplication::tr("PreparingUpload"), this);
 		connect(this, &ModFilesWidget::updateUploadText, _waitSpinner, &WaitSpinner::setText);
 #ifdef Q_OS_WIN
 		_taskbarProgress->setValue(0);
@@ -343,15 +347,16 @@ namespace {
 			} else {
 				emit finishedUpload(false, uploadFiles.size());
 			}
-		}).detach();
+		}).detach();*/
 	}
 
-	void ModFilesWidget::updateModList(std::vector<common::SendModManagementMessage::ModManagement> modList) {
+	void ModFilesWidget::updateModList(QList<client::ManagementMod> modList) {
 		_mods = modList;
 	}
 
 	void ModFilesWidget::selectedMod(int index) {
-		_modIndex = index;
+		// TODO
+		/*_modIndex = index;
 		_fileList->clear();
 		_fileList->setColumnCount(2);
 		_directory.clear();
@@ -368,11 +373,12 @@ namespace {
 
 		_majorVersionBox->setValue(int(_mods[index].majorVersion));
 		_minorVersionBox->setValue(int(_mods[index].minorVersion));
-		_patchVersionBox->setValue(int(_mods[index].patchVersion));
+		_patchVersionBox->setValue(int(_mods[index].patchVersion));*/
 	}
 
 	void ModFilesWidget::changedLanguage(QStandardItem * itm) {
-		QVariant v = itm->data(PathRole);
+		// TODO
+		/*QVariant v = itm->data(PathRole);
 		if (!v.isValid()) return;
 
 		const QString path = v.toString();
@@ -386,13 +392,14 @@ namespace {
 				it->language = q2s(itm->data(Qt::DisplayRole).toString());
 				break;
 			}
-		}
+		}*/
 	}
 
 	void ModFilesWidget::updateVersion() {
+		// TODO
 		if (_modIndex == -1) return;
 
-		common::UpdateModVersionMessage umvm;
+		/*common::UpdateModVersionMessage umvm;
 		umvm.modID = _mods[_modIndex].modID;
 		umvm.majorVersion = _majorVersionBox->value();
 		umvm.minorVersion = _minorVersionBox->value();
@@ -405,11 +412,12 @@ namespace {
 		const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
 		if (clockUtils::ClockError::SUCCESS == cErr) {
 			sock.writePacket(serialized);
-		}
+		}*/
 	}
 
 	void ModFilesWidget::finishUpload(bool success, int updatedCount) {
-		delete _waitSpinner;
+		// TODO
+		/*delete _waitSpinner;
 		_waitSpinner = nullptr;
 
 #ifdef Q_OS_WIN
@@ -426,13 +434,14 @@ namespace {
 			msg.setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 			msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
 			msg.exec();
-		}
+		}*/
 	}
 
 	void ModFilesWidget::testUpdate() {
-		if (_modIndex == -1) return;
+		// TODO
+		/*if (_modIndex == -1) return;
 
-		emit checkForUpdate(_mods[_modIndex].modID);
+		emit checkForUpdate(_mods[_modIndex].modID);*/
 	}
 
 	void ModFilesWidget::addFile(QStandardItem * itm, QString file, QString language) {

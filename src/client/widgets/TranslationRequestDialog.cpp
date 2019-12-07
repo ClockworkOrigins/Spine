@@ -18,9 +18,9 @@
 
 #include "widgets/TranslationRequestDialog.h"
 
-#include "Conversion.h"
-
 #include "translator/GothicParser.h"
+
+#include "utils/Conversion.h"
 
 #include "widgets/AccessRightsDialog.h"
 #include "widgets/ApplyTranslationDialog.h"

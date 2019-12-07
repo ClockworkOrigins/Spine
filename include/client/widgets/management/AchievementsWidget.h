@@ -19,7 +19,7 @@
 #ifndef __SPINE_WIDGETS_MANAGEMENT_ACHIEVEMENTSWIDGET_H__
 #define __SPINE_WIDGETS_MANAGEMENT_ACHIEVEMENTSWIDGET_H__
 
-#include "common/MessageStructs.h"
+#include "ManagementCommon.h"
 
 #include <QWidget>
 
@@ -36,7 +36,7 @@ namespace widgets {
 	public:
 		AchievementsWidget(QWidget * par);
 
-		void updateModList(std::vector<common::SendModManagementMessage::ModManagement> modList);
+		void updateModList(QList<client::ManagementMod> modList);
 		void selectedMod(int index);
 
 	private slots:
@@ -44,7 +44,7 @@ namespace widgets {
 		void addAchievement();
 
 	private:
-		std::vector<common::SendModManagementMessage::ModManagement> _mods;
+		QList<client::ManagementMod> _mods;
 		int _modIndex;
 		QVBoxLayout * _layout;
 		QList<AchievementWidget *> _achievementEdits;

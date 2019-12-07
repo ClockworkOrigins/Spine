@@ -18,7 +18,7 @@
 
 #include "widgets/AchievementInfoView.h"
 
-#include "Conversion.h"
+#include "utils/Conversion.h"
 
 #include <QDebug>
 #include <QFontMetrics>

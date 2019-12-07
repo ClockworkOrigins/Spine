@@ -18,10 +18,11 @@
 
 #include "widgets/InstallGothic2FromCDDialog.h"
 
-#include "Conversion.h"
 #include "SpineConfig.h"
 #include "UpdateLanguage.h"
 #include "WindowsExtensions.h"
+
+#include "utils/Conversion.h"
 
 #include "widgets/GeneralSettingsWidget.h"
 

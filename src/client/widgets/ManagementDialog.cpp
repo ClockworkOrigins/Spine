@@ -20,8 +20,11 @@
 
 #include <thread>
 
-#include "Conversion.h"
 #include "SpineConfig.h"
+
+#include "https/Https.h"
+
+#include "utils/Conversion.h"
 
 #include "widgets/management/AchievementsWidget.h"
 #include "widgets/management/CustomStatisticsWidget.h"
@@ -35,6 +38,8 @@
 
 #include <QApplication>
 #include <QDebug>
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QListView>
 #include <QSettings>
 #include <QStandardItemModel>
@@ -81,7 +86,7 @@ namespace widgets {
 		setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 		setWindowTitle(QApplication::tr("Management"));
 
-		qRegisterMetaType<std::vector<common::SendModManagementMessage::ModManagement>>("std::vector<common::SendModManagementMessage::ModManagement>");
+		qRegisterMetaType<QList<QPair<QString, int>>>("QList<QPair<QString, int>>");
 		qRegisterMetaType<std::vector<std::string>>("std::vector<std::string>");
 
 		connect(this, &ManagementDialog::receivedMods, this, &ManagementDialog::updateModList);
@@ -101,13 +106,13 @@ namespace widgets {
 		saveSettings();
 	}
 
-	void ManagementDialog::updateModList(std::vector<common::SendModManagementMessage::ModManagement> modList) {
-		std::sort(modList.begin(), modList.end(), [](const common::SendModManagementMessage::ModManagement & a, const common::SendModManagementMessage::ModManagement & b) {
+	void ManagementDialog::updateModList(QList<client::ManagementMod> modList) {
+		std::sort(modList.begin(), modList.end(), [](const client::ManagementMod & a, const client::ManagementMod & b) {
 			return a.name < b.name;
 		});
 		_mods = modList;
 		for (const auto & m : modList) {
-			QStandardItem * itm = new QStandardItem(s2q(m.name));
+			QStandardItem * itm = new QStandardItem(m.name);
 			itm->setEditable(false);
 			_modList->appendRow(itm);
 		}
@@ -134,33 +139,35 @@ namespace widgets {
 	}
 
 	void ManagementDialog::loadModList() {
-		std::thread([this]() {
-			common::RequestModManagementMessage rmmm;
-			rmmm.username = _username.toStdString();
-			rmmm.password = _password.toStdString();
-			rmmm.language = _language.toStdString();
-			std::string serialized = rmmm.SerializePublic();
-			clockUtils::sockets::TcpSocket sock;
-			clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-			if (clockUtils::ClockError::SUCCESS == cErr) {
-				sock.writePacket(serialized);
-				if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-					try {
-						common::Message * m = common::Message::DeserializePublic(serialized);
-						if (m) {
-							common::SendModManagementMessage * smmm = dynamic_cast<common::SendModManagementMessage *>(m);
-							emit receivedMods(smmm->modList);
-							emit receivedUsers(smmm->userList);
-						}
-						delete m;
-					} catch (...) {
-						return;
-					}
-				} else {
-					qDebug() << "Error occurred: " << int(cErr);
-				}
+		https::Https::postAsync(MANAGEMENTSERVER_PORT, "getMods", QString("{ \"username\": \"%1\", \"password\": \"%2\", \"language\": \"%3\" }").arg(_username, _password, _language), [this](const QJsonObject & json, int statusCode) {
+			if (statusCode != 200) return;
+			
+			const auto it = json.find("Mods");
+			
+			if (it == json.end()) return;
+
+			const auto mods = it->toArray();
+
+			QList<client::ManagementMod> modList;
+			
+			for (auto mod : mods) {
+				const auto jo = mod.toObject();
+
+				if (jo.isEmpty()) continue;
+
+				if (!jo.contains("Name")) continue;
+				
+				if (!jo.contains("ID")) continue;
+
+				client::ManagementMod entry {
+					jo["Name"].toString(),
+					jo["ID"].toInt()
+				};
+				modList.append(entry);
 			}
-		}).detach();
+
+			emit receivedMods(modList);
+		});
 	}
 
 	void ManagementDialog::restoreSettings() {

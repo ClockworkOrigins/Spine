@@ -22,7 +22,7 @@
 #include <utility>
 
 #include "Config.h"
-#include "Conversion.h"
+#include "utils/Conversion.h"
 #include "Database.h"
 #include "DatabaseFilterModel.h"
 #include "DirectXVersionCheck.h"
@@ -110,7 +110,7 @@ namespace widgets {
 	class PlayTimeItem : public QStandardItem {
 	public:
 		explicit PlayTimeItem(const int32_t playTime) : QStandardItem() {
-			const QString timeString = timeToString(playTime);
+			const QString timeString = utils::timeToString(playTime);
 			setText(timeString);
 			QStandardItem::setData(playTime, Qt::UserRole);
 		}

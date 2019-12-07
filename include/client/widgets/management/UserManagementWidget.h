@@ -19,6 +19,8 @@
 #ifndef __SPINE_WIDGETS_MANAGEMENT_USERMANAGEMENTWIDGET_H__
 #define __SPINE_WIDGETS_MANAGEMENT_USERMANAGEMENTWIDGET_H__
 
+#include "ManagementCommon.h"
+
 #include "common/MessageStructs.h"
 
 #include <QModelIndex>
@@ -39,7 +41,7 @@ namespace widgets {
 		UserManagementWidget(QString username, QString language, QWidget * par);
 		~UserManagementWidget();
 
-		void updateModList(std::vector<common::SendModManagementMessage::ModManagement> modList);
+		void updateModList(QList<client::ManagementMod> modList);
 		void selectedMod(int index);
 
 	public slots:
@@ -58,7 +60,7 @@ namespace widgets {
 		QStandardItemModel * _unlockedListModel;
 		QString _username;
 		QString _language;
-		std::vector<common::SendModManagementMessage::ModManagement> _mods;
+		QList<client::ManagementMod> _mods;
 		int _modIndex;
 		QStringList _userList;
 		QListView * _userListView;

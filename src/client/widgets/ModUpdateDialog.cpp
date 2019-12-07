@@ -21,13 +21,14 @@
 #include <thread>
 
 #include "Config.h"
-#include "Conversion.h"
 #include "Database.h"
 #include "FileDownloader.h"
 #include "MultiFileDownloader.h"
 #include "SpineConfig.h"
 
 #include "common/MessageStructs.h"
+
+#include "utils/Conversion.h"
 
 #include "widgets/DownloadProgressDialog.h"
 

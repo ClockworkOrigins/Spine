@@ -122,12 +122,13 @@ namespace widgets {
 	GeneralConfigurationWidget::~GeneralConfigurationWidget() {
 	}
 
-	void GeneralConfigurationWidget::updateModList(std::vector<common::SendModManagementMessage::ModManagement> modList) {
+	void GeneralConfigurationWidget::updateModList(QList<client::ManagementMod> modList) {
 		_mods = modList;
 	}
 
 	void GeneralConfigurationWidget::selectedMod(int index) {
-		_modIndex = index;
+		// TODO
+		/*_modIndex = index;
 		_enabledBox->setChecked(_mods[_modIndex].enabled);
 		_gothicVersionBox->setCurrentIndex(int(_mods[_modIndex].gothicVersion));
 		_typeBox->setCurrentIndex(int(_mods[_modIndex].type));
@@ -135,14 +136,15 @@ namespace widgets {
 
 		QDate date(2000, 1, 1);
 		date = date.addDays(_mods[_modIndex].releaseDate);
-		_releaseDateEdit->setDate(date);
+		_releaseDateEdit->setDate(date);*/
 	}
 
 	void GeneralConfigurationWidget::updateMod() {
+		// TODO
 		if (_modIndex == -1) {
 			return;
 		}
-		common::UpdateGeneralModConfigurationMessage ugmcm;
+		/*common::UpdateGeneralModConfigurationMessage ugmcm;
 		ugmcm.modID = _mods[_modIndex].modID;
 		ugmcm.enabled = _enabledBox->isChecked();
 		ugmcm.gothicVersion = common::GothicVersion(_gothicVersionBox->currentIndex());
@@ -155,14 +157,15 @@ namespace widgets {
 		const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
 		if (clockUtils::ClockError::SUCCESS == cErr) {
 			sock.writePacket(serialized);
-		}
+		}*/
 	}
 
 	void GeneralConfigurationWidget::openInfoPage() {
-		if (_modIndex == -1) {
+		// TODO
+		/*if (_modIndex == -1) {
 			return;
 		}
-		emit triggerInfoPage(_mods[_modIndex].modID);
+		emit triggerInfoPage(_mods[_modIndex].modID);*/
 	}
 
 } /* namespace widgets */

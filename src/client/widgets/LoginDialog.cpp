@@ -522,7 +522,7 @@ namespace {
 			content = content.arg(username, passwd, mail);
 
 			// Synchronous request examples
-			client.request("POST", "/json", content.toStdString(), [this, username, passwd, stayLoggedIn](std::shared_ptr<HttpsClient::Response> response, const SimpleWeb::error_code & ec) {
+			client.request("POST", "/json", content.toStdString(), [this, username, passwd, stayLoggedIn](std::shared_ptr<HttpsClient::Response> response, const SimpleWeb::error_code &) {
 				const clockwork::login::Response rp = statusCodeToResponse(SimpleWeb::StatusCode(std::stoi(response->status_code)));
 
 				switch (rp) {
@@ -556,7 +556,7 @@ namespace {
 				if (stayLoggedIn) {
 					QFile f(Config::BASEDIR + "/databases/Login.bin");
 					if (f.open(QIODevice::WriteOnly)) {
-						QDir homeDir = QDir::home();
+						const QDir homeDir = QDir::home();
 						int pathLength = homeDir.absolutePath().length();
 						char pl[sizeof(int)];
 						memcpy(pl, &pathLength, sizeof(int));
@@ -637,7 +637,7 @@ namespace {
 		content = content.arg(text);
 
 		// Synchronous request examples
-		client.request("POST", "/json", content.toStdString(), [this](std::shared_ptr<HttpsClient::Response> response, const SimpleWeb::error_code & ec) {
+		client.request("POST", "/json", content.toStdString(), [this](std::shared_ptr<HttpsClient::Response> response, const SimpleWeb::error_code &) {
 			const clockwork::login::Response rp = statusCodeToResponse(SimpleWeb::StatusCode(std::stoi(response->status_code)));
 
 			switch (rp) {
@@ -662,7 +662,7 @@ namespace {
 		client.io_service->run();
 	}
 
-	void LoginDialog::onPrivacyAcceptChanged(bool enabled) {
+	void LoginDialog::onPrivacyAcceptChanged(bool) {
 		changedRegisterInput();
 	}
 

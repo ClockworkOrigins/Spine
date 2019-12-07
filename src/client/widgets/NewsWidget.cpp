@@ -21,11 +21,12 @@
 #include <thread>
 
 #include "Config.h"
-#include "Conversion.h"
 #include "Database.h"
 #include "SpineConfig.h"
 
 #include "common/MessageStructs.h"
+
+#include "utils/Conversion.h"
 
 #include "widgets/AchievementView.h"
 #include "widgets/ProfileModView.h"

@@ -21,7 +21,6 @@
 #include <thread>
 
 #include "Config.h"
-#include "Conversion.h"
 #include "Database.h"
 #include "FileDownloader.h"
 #include "ImpressionUpdater.h"
@@ -35,6 +34,8 @@
 #include "common/MessageStructs.h"
 
 #include "models/SpineEditorModel.h"
+
+#include "utils/Conversion.h"
 
 #include "widgets/AboutDialog.h"
 #include "widgets/AutoUpdateDialog.h"

@@ -22,7 +22,6 @@
 #include <thread>
 
 #include "Config.h"
-#include "Conversion.h"
 #include "Database.h"
 #include "FileDownloader.h"
 #include "MultiFileDownloader.h"
@@ -30,6 +29,8 @@
 #include "UpdateLanguage.h"
 
 #include "common/SpineModules.h"
+
+#include "utils/Conversion.h"
 
 #include "widgets/DownloadProgressDialog.h"
 #include "widgets/FullscreenPreview.h"

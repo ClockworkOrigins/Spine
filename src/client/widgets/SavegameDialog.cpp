@@ -18,7 +18,7 @@
 
 #include "widgets/SavegameDialog.h"
 
-#include "Conversion.h"
+#include "utils/Conversion.h"
 #include "SavegameManager.h"
 
 #include "widgets/LocationSettingsWidget.h"

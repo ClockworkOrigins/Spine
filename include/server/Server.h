@@ -183,14 +183,6 @@ namespace server {
 		void handleUpdateImpression(clockUtils::sockets::TcpSocket * sock, common::UpdateImpressionMessage * msg) const;
 		void handleIsAchievementUnlocked(clockUtils::sockets::TcpSocket * sock, common::IsAchievementUnlockedMessage * msg) const;
 
-		/**
-		 * \brief returns the id in the table for the username
-		 */
-		int getUserID(const std::string & username) const;
-		int getUserID(const std::string & username, const std::string & password) const;
-		std::string getUsername(int id) const;
-		static std::vector<std::string> getUserList();
-		static void sendMail(const std::string & subject, const std::string & body, const std::string & replyTo);
 		bool isTeamMemberOfMod(int modID, int userID) const;
 
 		// MP stuff, communication with external server

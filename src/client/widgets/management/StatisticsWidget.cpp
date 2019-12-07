@@ -18,7 +18,7 @@
 
 #include "widgets/management/StatisticsWidget.h"
 
-#include "Conversion.h"
+#include "utils/Conversion.h"
 
 #include <QApplication>
 #include <QGroupBox>
@@ -85,12 +85,13 @@ namespace widgets {
 	StatisticsWidget::~StatisticsWidget() {
 	}
 
-	void StatisticsWidget::updateModList(std::vector<common::SendModManagementMessage::ModManagement> modList) {
+	void StatisticsWidget::updateModList(QList<client::ManagementMod> modList) {
 		_mods = modList;
 	}
 
 	void StatisticsWidget::selectedMod(int index) {
-		_modIndex = index;
+		// TODO
+		/*_modIndex = index;
 		qDeleteAll(_labelList);
 		_labelList.clear();
 		{
@@ -287,7 +288,7 @@ namespace widgets {
 					_labelList.append(achievementCountLabel);
 				}
 			}
-		}
+		}*/
 	}
 
 } /* namespace widgets */
