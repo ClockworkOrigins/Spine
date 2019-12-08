@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_MANAGEMENT_MODFILESWIDGET_H__
-#define __SPINE_WIDGETS_MANAGEMENT_MODFILESWIDGET_H__
+#pragma once
 
 #include "ManagementCommon.h"
 
@@ -37,6 +36,7 @@ namespace iniParser {
 } /* namespace clockUtils */
 
 namespace spine {
+namespace client {
 namespace widgets {
 
 	class WaitSpinner;
@@ -85,6 +85,5 @@ namespace widgets {
 	};
 
 } /* namespace widgets */
+} /* namespace client */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_MANAGEMENT_MODFILESWIDGET_H__ */

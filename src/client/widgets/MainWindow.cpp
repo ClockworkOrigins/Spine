@@ -1054,10 +1054,10 @@ namespace widgets {
 	}
 
 	void MainWindow::execManagement() {
-		ManagementDialog dlg(_username, _password, _settingsDialog->getGeneralSettingsWidget()->getLanguage(), _iniParser, this);
-		connect(&dlg, &ManagementDialog::triggerInfoPage, _modInfoPage, &ModInfoPage::loadPage);
-		connect(&dlg, &ManagementDialog::triggerInfoPage, this, &MainWindow::changeToInfoTab);
-		connect(&dlg, &ManagementDialog::triggerInfoPage, _modInfoPage, &ModInfoPage::forceEditPage);
+		client::widgets::ManagementDialog dlg(_username, _password, _settingsDialog->getGeneralSettingsWidget()->getLanguage(), _iniParser, this);
+		connect(&dlg, &client::widgets::ManagementDialog::triggerInfoPage, _modInfoPage, &ModInfoPage::loadPage);
+		connect(&dlg, &client::widgets::ManagementDialog::triggerInfoPage, this, &MainWindow::changeToInfoTab);
+		connect(&dlg, &client::widgets::ManagementDialog::triggerInfoPage, _modInfoPage, &ModInfoPage::forceEditPage);
 		connect(&dlg, SIGNAL(checkForUpdate(int32_t)), _modUpdateDialog, SLOT(checkForUpdate(int32_t)));
 		dlg.exec();
 	}

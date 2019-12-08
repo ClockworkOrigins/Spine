@@ -36,6 +36,7 @@
 #include <QVBoxLayout>
 
 namespace spine {
+namespace client {
 namespace widgets {
 
 	UserManagementWidget::UserManagementWidget(QString username, QString language, QWidget * par) : QWidget(par), _username(username), _language(language), _mods(), _modIndex(-1) {
@@ -193,4 +194,5 @@ namespace widgets {
 	}
 
 } /* namespace widgets */
+} /* namespace client */
 } /* namespace spine */

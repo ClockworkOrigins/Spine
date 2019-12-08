@@ -29,6 +29,7 @@ class QStandardItemModel;
 class QTabWidget;
 
 namespace spine {
+namespace client {
 namespace widgets {
 
 	class AchievementsWidget;
@@ -55,6 +56,7 @@ namespace widgets {
 	private slots:
 		void updateModList(QList<client::ManagementMod> modList);
 		void selectedMod(const QModelIndex & index);
+		void changedTab();
 
 	private:
 		QSettings * _iniParser;
@@ -79,4 +81,5 @@ namespace widgets {
 	};
 
 } /* namespace widgets */
+} /* namespace client */
 } /* namespace spine */

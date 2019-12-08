@@ -22,10 +22,21 @@
 
 using HttpsServer = SimpleWeb::Server<SimpleWeb::HTTPS>;
 
+namespace clockUtils {
+namespace sockets {
+	class TcpSocket;
+}
+}
+
 namespace spine {
+namespace common {
+	struct UploadAchievementIconsMessage;
+}
 namespace server {
 
 	class ManagementServer {
+		friend class Server;
+		
 	public:
 		ManagementServer();
 		~ManagementServer();
@@ -38,6 +49,12 @@ namespace server {
 		std::thread * _runner;
 
 		void getMods(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
+		void getAchievements(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
+		void updateAchievements(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
+
+		void uploadAchievementIcons(common::UploadAchievementIconsMessage * msg) const;
+
+		bool hasAdminAccessToMod(int userID, int modID) const;
 	};
 
 } /* namespace server */

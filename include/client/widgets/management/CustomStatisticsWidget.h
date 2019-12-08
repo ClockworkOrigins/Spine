@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_MANAGEMENT_CUSTOMSTATISTICSWIDGET_H__
-#define __SPINE_WIDGETS_MANAGEMENT_CUSTOMSTATISTICSWIDGET_H__
+#pragma once
 
 #include "ManagementCommon.h"
 
@@ -28,6 +27,7 @@ class QComboBox;
 class QStandardItemModel;
 
 namespace spine {
+namespace client {
 namespace widgets {
 
 	class CustomStatisticsWidget : public QWidget {
@@ -78,6 +78,5 @@ namespace widgets {
 	};
 
 } /* namespace widgets */
+} /* namespace client */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_MANAGEMENT_CUSTOMSTATISTICSWIDGET_H__ */

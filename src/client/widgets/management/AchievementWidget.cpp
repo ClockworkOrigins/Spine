@@ -41,6 +41,7 @@
 #include <QVBoxLayout>
 
 namespace spine {
+namespace client {
 namespace widgets {
 
 	AchievementWidget::AchievementWidget(QWidget * par) : QWidget(par), _unlockedImagePath(nullptr) {
@@ -127,20 +128,12 @@ namespace widgets {
 	AchievementWidget::~AchievementWidget() {
 	}
 
-	void AchievementWidget::setAchievement(int32_t modID, common::SendModManagementMessage::ModManagement::Achievement achievement) {
+	void AchievementWidget::setAchievement(int32_t modID, ManagementAchievement achievement) {
 		_currentNameLanguage.clear();
 		_currentDescriptionLanguage.clear();
 
 		_achievement = achievement;
-
-		_newAchievement.names = achievement.names;
-		_newAchievement.descriptions = achievement.descriptions;
-		_newAchievement.hidden = achievement.hidden;
-		_newAchievement.maxProgress = achievement.maxProgress;
-		_newAchievement.lockedImageName = achievement.lockedImageName;
-		_newAchievement.lockedImageHash = achievement.lockedImageHash;
-		_newAchievement.unlockedImageName = achievement.unlockedImageName;
-		_newAchievement.unlockedImageHash = achievement.unlockedImageHash;
+		_newAchievement = achievement;
 
 		nameLanguageChanged(QApplication::tr("German"));
 		descriptionLanguageChanged(QApplication::tr("German"));
@@ -148,15 +141,15 @@ namespace widgets {
 		_hiddenBox->setChecked(_newAchievement.hidden);
 		_progressBox->setValue(_newAchievement.maxProgress);
 
-		QString lockedImage = s2q(_newAchievement.lockedImageName);
+		QString lockedImage = _newAchievement.lockedImageName;
 		lockedImage.chop(2);
 		lockedImage.prepend(Config::MODDIR + "/mods/" + QString::number(modID) + "/achievements/");
 
-		if (QFileInfo::exists(lockedImage) || _newAchievement.lockedImageName.empty()) {
+		if (QFileInfo::exists(lockedImage) || _newAchievement.lockedImageName.isEmpty()) {
 			changedLockedImage(lockedImage);
 		} else {
-			const QString fileName = s2q(_newAchievement.lockedImageName);
-			FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(modID) + "/achievements/" + fileName), Config::MODDIR + "/mods/" + QString::number(modID) + "/achievements/", fileName, s2q(_newAchievement.lockedImageHash), this);
+			const QString fileName = _newAchievement.lockedImageName;
+			FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(modID) + "/achievements/" + fileName), Config::MODDIR + "/mods/" + QString::number(modID) + "/achievements/", fileName, _newAchievement.lockedImageHash, this);
 			connect(fd, &FileDownloader::downloadSucceeded, [=]() {
 				changedLockedImage(lockedImage);
 				fd->deleteLater();
@@ -165,15 +158,15 @@ namespace widgets {
 			fd->startDownload();
 		}
 
-		QString unlockedImage = s2q(_newAchievement.unlockedImageName);
+		QString unlockedImage = _newAchievement.unlockedImageName;
 		unlockedImage.chop(2);
 		unlockedImage.prepend(Config::MODDIR + "/mods/" + QString::number(modID) + "/achievements/");
 
-		if (QFileInfo::exists(unlockedImage) || _newAchievement.unlockedImageName.empty()) {
+		if (QFileInfo::exists(unlockedImage) || _newAchievement.unlockedImageName.isEmpty()) {
 			changedUnlockedImage(unlockedImage);
 		} else {
-			const QString fileName = s2q(_newAchievement.unlockedImageName);
-			FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(modID) + "/achievements/" + fileName), Config::MODDIR + "/mods/" + QString::number(modID) + "/achievements/", fileName, s2q(_newAchievement.unlockedImageHash), this);
+			const QString fileName = _newAchievement.unlockedImageName;
+			FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(modID) + "/achievements/" + fileName), Config::MODDIR + "/mods/" + QString::number(modID) + "/achievements/", fileName, _newAchievement.unlockedImageHash, this);
 			connect(fd, &FileDownloader::downloadSucceeded, [=]() {
 				changedUnlockedImage(unlockedImage);
 				fd->deleteLater();
@@ -183,7 +176,7 @@ namespace widgets {
 		}
 	}
 
-	common::UpdateAchievementsMessage::Achievement AchievementWidget::getAchievement() {
+	ManagementAchievement AchievementWidget::getAchievement() {
 		_newAchievement.hidden = _hiddenBox->isChecked();
 		_newAchievement.maxProgress = _progressBox->value();
 
@@ -201,16 +194,16 @@ namespace widgets {
 					if (_nameEdit->text().isEmpty()) {
 						_newAchievement.names.erase(it);
 					} else {
-						it->text = q2s(_nameEdit->text());
+						it->text = _nameEdit->text();
 					}
 					found = true;
 					break;
 				}
 			}
 			if (!found && !_nameEdit->text().isEmpty()) {
-				common::TranslatedText tt;
+				ManagementTranslation tt;
 				tt.language = "Deutsch";
-				tt.text = q2s(_nameEdit->text());
+				tt.text = _nameEdit->text();
 				_newAchievement.names.push_back(tt);
 			}
 		} else if (_currentNameLanguage == QApplication::tr("English")) {
@@ -220,16 +213,16 @@ namespace widgets {
 					if (_nameEdit->text().isEmpty()) {
 						_newAchievement.names.erase(it);
 					} else {
-						it->text = q2s(_nameEdit->text());
+						it->text = _nameEdit->text();
 					}
 					found = true;
 					break;
 				}
 			}
 			if (!found && !_nameEdit->text().isEmpty()) {
-				common::TranslatedText tt;
+				ManagementTranslation tt;
 				tt.language = "English";
-				tt.text = q2s(_nameEdit->text());
+				tt.text = _nameEdit->text();
 				_newAchievement.names.push_back(tt);
 			}
 		} else if (_currentNameLanguage == QApplication::tr("Polish")) {
@@ -239,16 +232,16 @@ namespace widgets {
 					if (_nameEdit->text().isEmpty()) {
 						_newAchievement.names.erase(it);
 					} else {
-						it->text = q2s(_nameEdit->text());
+						it->text = _nameEdit->text();
 					}
 					found = true;
 					break;
 				}
 			}
 			if (!found && !_nameEdit->text().isEmpty()) {
-				common::TranslatedText tt;
+				ManagementTranslation tt;
 				tt.language = "Polish";
-				tt.text = q2s(_nameEdit->text());
+				tt.text = _nameEdit->text();
 				_newAchievement.names.push_back(tt);
 			}
 		} else if (_currentNameLanguage == QApplication::tr("Russian")) {
@@ -258,35 +251,35 @@ namespace widgets {
 					if (_nameEdit->text().isEmpty()) {
 						_newAchievement.names.erase(it);
 					} else {
-						it->text = q2s(_nameEdit->text());
+						it->text = _nameEdit->text();
 					}
 					found = true;
 					break;
 				}
 			}
 			if (!found && !_nameEdit->text().isEmpty()) {
-				common::TranslatedText tt;
+				ManagementTranslation tt;
 				tt.language = "Russian";
-				tt.text = q2s(_nameEdit->text());
+				tt.text = _nameEdit->text();
 				_newAchievement.names.push_back(tt);
 			}
 		}
 		bool found = false;
 		for (auto it = _newAchievement.names.begin(); it != _newAchievement.names.end(); ++it) {
 			if (it->language == "Deutsch" && language == QApplication::tr("German")) {
-				_nameEdit->setText(s2q(it->text));
+				_nameEdit->setText(it->text);
 				found = true;
 				break;
 			} else if (it->language == "English" && language == QApplication::tr("English")) {
-				_nameEdit->setText(s2q(it->text));
+				_nameEdit->setText(it->text);
 				found = true;
 				break;
 			} else if (it->language == "Polish" && language == QApplication::tr("Polish")) {
-				_nameEdit->setText(s2q(it->text));
+				_nameEdit->setText(it->text);
 				found = true;
 				break;
 			} else if (it->language == "Russian" && language == QApplication::tr("Russian")) {
-				_nameEdit->setText(s2q(it->text));
+				_nameEdit->setText(it->text);
 				found = true;
 				break;
 			}
@@ -305,16 +298,16 @@ namespace widgets {
 					if (_descriptionEdit->text().isEmpty()) {
 						_newAchievement.descriptions.erase(it);
 					} else {
-						it->text = q2s(_descriptionEdit->text());
+						it->text = _descriptionEdit->text();
 					}
 					found = true;
 					break;
 				}
 			}
 			if (!found && !_descriptionEdit->text().isEmpty()) {
-				common::TranslatedText tt;
+				ManagementTranslation tt;
 				tt.language = "Deutsch";
-				tt.text = q2s(_descriptionEdit->text());
+				tt.text = _descriptionEdit->text();
 				_newAchievement.descriptions.push_back(tt);
 			}
 		} else if (_currentDescriptionLanguage == QApplication::tr("English")) {
@@ -324,16 +317,16 @@ namespace widgets {
 					if (_descriptionEdit->text().isEmpty()) {
 						_newAchievement.descriptions.erase(it);
 					} else {
-						it->text = q2s(_descriptionEdit->text());
+						it->text = _descriptionEdit->text();
 					}
 					found = true;
 					break;
 				}
 			}
 			if (!found && !_descriptionEdit->text().isEmpty()) {
-				common::TranslatedText tt;
+				ManagementTranslation tt;
 				tt.language = "English";
-				tt.text = q2s(_descriptionEdit->text());
+				tt.text = _descriptionEdit->text();
 				_newAchievement.descriptions.push_back(tt);
 			}
 		} else if (_currentDescriptionLanguage == QApplication::tr("Polish")) {
@@ -343,16 +336,16 @@ namespace widgets {
 					if (_descriptionEdit->text().isEmpty()) {
 						_newAchievement.descriptions.erase(it);
 					} else {
-						it->text = q2s(_descriptionEdit->text());
+						it->text = _descriptionEdit->text();
 					}
 					found = true;
 					break;
 				}
 			}
 			if (!found && !_descriptionEdit->text().isEmpty()) {
-				common::TranslatedText tt;
+				ManagementTranslation tt;
 				tt.language = "Polish";
-				tt.text = q2s(_descriptionEdit->text());
+				tt.text = _descriptionEdit->text();
 				_newAchievement.descriptions.push_back(tt);
 			}
 		} else if (_currentDescriptionLanguage == QApplication::tr("Russian")) {
@@ -362,35 +355,35 @@ namespace widgets {
 					if (_descriptionEdit->text().isEmpty()) {
 						_newAchievement.descriptions.erase(it);
 					} else {
-						it->text = q2s(_descriptionEdit->text());
+						it->text = _descriptionEdit->text();
 					}
 					found = true;
 					break;
 				}
 			}
 			if (!found && !_descriptionEdit->text().isEmpty()) {
-				common::TranslatedText tt;
+				ManagementTranslation tt;
 				tt.language = "Russian";
-				tt.text = q2s(_descriptionEdit->text());
+				tt.text = _descriptionEdit->text();
 				_newAchievement.descriptions.push_back(tt);
 			}
 		}
 		bool found = false;
 		for (auto it = _newAchievement.descriptions.begin(); it != _newAchievement.descriptions.end(); ++it) {
 			if (it->language == "Deutsch" && language == QApplication::tr("German")) {
-				_descriptionEdit->setText(s2q(it->text));
+				_descriptionEdit->setText(it->text);
 				found = true;
 				break;
 			} else if (it->language == "English" && language == QApplication::tr("English")) {
-				_descriptionEdit->setText(s2q(it->text));
+				_descriptionEdit->setText(it->text);
 				found = true;
 				break;
 			} else if (it->language == "Polish" && language == QApplication::tr("Polish")) {
-				_descriptionEdit->setText(s2q(it->text));
+				_descriptionEdit->setText(it->text);
 				found = true;
 				break;
 			} else if (it->language == "Russian" && language == QApplication::tr("Russian")) {
-				_descriptionEdit->setText(s2q(it->text));
+				_descriptionEdit->setText(it->text);
 				found = true;
 				break;
 			}
@@ -440,7 +433,7 @@ namespace widgets {
 		_lockedImage->setPixmap(pixmap);
 
 		if (!path.isEmpty() && !QPixmap(path).isNull()) {
-			if (!path.contains(s2q(_newAchievement.lockedImageName) + ".z")) {
+			if (!path.contains(_newAchievement.lockedImageName + ".z")) {
 				// compress => add to data => delete
 				QFile uncompressedFile(path);
 				if (uncompressedFile.open(QIODevice::ReadOnly)) {
@@ -463,8 +456,8 @@ namespace widgets {
 						QByteArray byteArr = compressedFile.readAll();
 						std::vector<uint8_t> buffer(byteArr.length());
 						memcpy(&buffer[0], byteArr.data(), byteArr.length());
-						_newAchievement.lockedImageName = q2s(QFileInfo(path).fileName()) + ".z";
-						_newAchievement.lockedImageHash = q2s(hashSum);
+						_newAchievement.lockedImageName = QFileInfo(path).fileName() + ".z";
+						_newAchievement.lockedImageHash = hashSum;
 						_newAchievement.lockedImageData = buffer;
 					}
 					compressedFile.close();
@@ -506,7 +499,7 @@ namespace widgets {
 		_unlockedImage->setPixmap(pixmap);
 
 		if (!path.isEmpty() && !QPixmap(path).isNull()) {
-			if (!path.contains(s2q(_newAchievement.unlockedImageName) + ".z")) {
+			if (!path.contains(_newAchievement.unlockedImageName + ".z")) {
 				// compress => add to data => delete
 				QFile uncompressedFile(path);
 				if (uncompressedFile.open(QIODevice::ReadOnly)) {
@@ -529,8 +522,8 @@ namespace widgets {
 						QByteArray byteArr = compressedFile.readAll();
 						std::vector<uint8_t> buffer(byteArr.length());
 						memcpy(&buffer[0], byteArr.data(), byteArr.length());
-						_newAchievement.unlockedImageName = q2s(QFileInfo(path).fileName()) + ".z";
-						_newAchievement.unlockedImageHash = q2s(hashSum);
+						_newAchievement.unlockedImageName = QFileInfo(path).fileName() + ".z";
+						_newAchievement.unlockedImageHash = hashSum;
 						_newAchievement.unlockedImageData = buffer;
 					}
 					compressedFile.close();
@@ -547,4 +540,5 @@ namespace widgets {
 	}
 
 } /* namespace widgets */
+} /* namespace client */
 } /* namespace spine */

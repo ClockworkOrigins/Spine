@@ -33,6 +33,7 @@
 #include <QVBoxLayout>
 
 namespace spine {
+namespace client {
 namespace widgets {
 
 	CustomStatisticsWidget::CustomStatisticsWidget(QWidget * par) : QWidget(par), _mods(), _modIndex(-1), _sourceModel(nullptr) {
@@ -156,4 +157,5 @@ namespace widgets {
 	}
 
 } /* namespace widgets */
+} /* namespace client */
 } /* namespace spine */

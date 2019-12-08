@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_MANAGEMENT_USERMANAGEMENTWIDGET_H__
-#define __SPINE_WIDGETS_MANAGEMENT_USERMANAGEMENTWIDGET_H__
+#pragma once
 
 #include "ManagementCommon.h"
 
@@ -32,6 +31,7 @@ class QSortFilterProxyModel;
 class QStandardItemModel;
 
 namespace spine {
+namespace client {
 namespace widgets {
 
 	class UserManagementWidget : public QWidget {
@@ -74,6 +74,5 @@ namespace widgets {
 	};
 
 } /* namespace widgets */
+} /* namespace client */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_MANAGEMENT_USERMANAGEMENTWIDGET_H__ */

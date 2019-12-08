@@ -16,10 +16,11 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_MANAGEMENT_ACHIEVEMENTSWIDGET_H__
-#define __SPINE_WIDGETS_MANAGEMENT_ACHIEVEMENTSWIDGET_H__
+#pragma once
 
 #include "ManagementCommon.h"
+
+#include "widgets/management/IManagementWidget.h"
 
 #include <QWidget>
 
@@ -27,30 +28,42 @@ class QVBoxLayout;
 
 namespace spine {
 namespace widgets {
+	class WaitSpinner;
+}
+namespace client {
+namespace widgets {
 
 	class AchievementWidget;
 
-	class AchievementsWidget : public QWidget {
+	class AchievementsWidget : public QWidget, public IManagementWidget {
 		Q_OBJECT
 
 	public:
-		AchievementsWidget(QWidget * par);
+		AchievementsWidget(const QString & username, const QString & password, QWidget * par);
 
-		void updateModList(QList<client::ManagementMod> modList);
+		void updateModList(QList<ManagementMod> modList);
 		void selectedMod(int index);
+		void updateView() override;
+
+	signals:
+		void removeSpinner();
+		void loadedAchievements(QList<ManagementAchievement>);
 
 	private slots:
 		void updateAchievements();
 		void addAchievement();
+		void updateAchievementViews(QList<ManagementAchievement> achievementList);
 
 	private:
 		QList<client::ManagementMod> _mods;
 		int _modIndex;
 		QVBoxLayout * _layout;
 		QList<AchievementWidget *> _achievementEdits;
+		QString _username;
+		QString _password;
+		spine::widgets::WaitSpinner * _waitSpinner;
 	};
 
 } /* namespace widgets */
+} /* namespace client */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_MANAGEMENT_ACHIEVEMENTSWIDGET_H__ */

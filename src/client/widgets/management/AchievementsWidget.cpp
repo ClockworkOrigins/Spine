@@ -20,20 +20,32 @@
 
 #include "SpineConfig.h"
 
+#include "common/MessageStructs.h"
+
+#include "https/Https.h"
+
+#include "utils/Conversion.h"
+
+#include "widgets/WaitSpinner.h"
+
 #include "widgets/management/AchievementWidget.h"
 
 #include "clockUtils/sockets/TcpSocket.h"
 
 #include <QApplication>
 #include <QDialogButtonBox>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QVBoxLayout>
 
 namespace spine {
+namespace client {
 namespace widgets {
 
-	AchievementsWidget::AchievementsWidget(QWidget * par) : QWidget(par), _mods(), _modIndex(-1), _achievementEdits() {
+	AchievementsWidget::AchievementsWidget(const QString & username, const QString & password, QWidget * par) : QWidget(par), _mods(), _modIndex(-1), _achievementEdits(), _username(username), _password(password), _waitSpinner(nullptr) {
 		QVBoxLayout * vl = new QVBoxLayout();
 
 		{
@@ -66,6 +78,15 @@ namespace widgets {
 		dbb->addButton(submitButton, QDialogButtonBox::ButtonRole::AcceptRole);
 		connect(submitButton, &QPushButton::released, this, &AchievementsWidget::updateAchievements);
 
+		connect(this, &AchievementsWidget::removeSpinner, [this]() {
+			if (!_waitSpinner) return;
+
+			delete _waitSpinner;
+			_waitSpinner = nullptr;
+		});
+
+		connect(this, &AchievementsWidget::loadedAchievements, this, &AchievementsWidget::updateAchievementViews);
+
 		vl->addWidget(dbb);
 
 		setLayout(vl);
@@ -76,49 +97,106 @@ namespace widgets {
 	}
 
 	void AchievementsWidget::selectedMod(int index) {
-		// TODO
-		/*Q_ASSERT(index < int(_mods.size()));
+		Q_ASSERT(index < int(_mods.size()));
 		_modIndex = index;
 		
 		for (AchievementWidget * aw : _achievementEdits) {
 			aw->deleteLater();
 		}
 		_achievementEdits.clear();
+	}
 
-		for (const auto & achievement : _mods[_modIndex].achievements) {
-			AchievementWidget * achievementWidget = new AchievementWidget(this);
-			achievementWidget->setAchievement(_mods[_modIndex].modID, achievement);
+	void AchievementsWidget::updateView() {
+		delete _waitSpinner;
+		_waitSpinner = new spine::widgets::WaitSpinner(QApplication::tr("Updating"), this);
 
-			_layout->addWidget(achievementWidget);
+		QJsonObject json;
+		json["username"] = _username;
+		json["password"] = _password;
+		json["modID"] = _mods[_modIndex].id;
+		
+		https::Https::postAsync(MANAGEMENTSERVER_PORT, "getAchievements", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+			if (statusCode != 200) {
+				emit removeSpinner();
+				return;
+			}
+			QList<ManagementAchievement> achievementList;
 
-			_achievementEdits.push_back(achievementWidget);
-		}*/
+			const auto it = json.find("Achievements");
+			if (it != json.end()) {
+				const auto achievementArr = it->toArray();
+				for (auto achV : achievementArr) {
+					const auto ach = achV.toObject();
+					
+					if (ach.isEmpty()) continue;
+
+					ManagementAchievement ma;
+					ma.read(ach);
+
+					achievementList.append(ma);
+				}
+			}
+			
+			emit loadedAchievements(achievementList);
+			emit removeSpinner();
+		});
 	}
 
 	void AchievementsWidget::updateAchievements() {
-		// TODO
-		/*if (_modIndex == -1) return;
+		if (_modIndex == -1) return;
 
-		common::UpdateAchievementsMessage uam;
-		uam.modID = _mods[_modIndex].modID;
+		QJsonObject json;
+		json["ModID"] = _mods[_modIndex].id;
+		json["Username"] = _username;
+		json["Password"] = _password;
 
+		common::UploadAchievementIconsMessage uaim;
+		uaim.modID = _mods[_modIndex].id;
+
+		QJsonArray achievementArray;
 		for (auto achievementEdit : _achievementEdits) {
-			common::UpdateAchievementsMessage::Achievement achievement;
-
-			achievement = achievementEdit->getAchievement();
+			const auto achievement = achievementEdit->getAchievement();
 
 			if (achievement.isValid()) {
-				uam.achievements.push_back(achievement);
+				QJsonObject ach;
+				achievement.write(ach);
+				achievementArray.append(ach);
+
+				if (!achievement.lockedImageData.empty()) {
+					common::UploadAchievementIconsMessage::Icon icon;
+					icon.name = q2s(achievement.lockedImageName);
+					icon.data = achievement.lockedImageData;
+					uaim.icons.push_back(icon);
+				}
+
+				if (!achievement.unlockedImageData.empty()) {
+					common::UploadAchievementIconsMessage::Icon icon;
+					icon.name = q2s(achievement.unlockedImageName);
+					icon.data = achievement.unlockedImageData;
+					uaim.icons.push_back(icon);
+				}
 			}
 		}
 
-		const std::string serialized = uam.SerializePublic();
+		if (achievementArray.isEmpty()) return; // no need to synchronize something if there are no achievements
+		
+		json["Achievements"] = achievementArray;
+
+		const QJsonDocument doc(json);
+		const QString content = doc.toJson(QJsonDocument::Compact);
+
+		https::Https::postAsync(MANAGEMENTSERVER_PORT, "updateAchievements", content, [](const QJsonObject &, int) {
+			// we could do some error handling here
+		});
+
+		if (uaim.icons.empty()) return;
+
+		const std::string serialized = uaim.SerializePublic();
 		clockUtils::sockets::TcpSocket sock;
 		const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
 		if (clockUtils::ClockError::SUCCESS == cErr) {
 			sock.writePacket(serialized);
 		}
-		*/
 	}
 
 	void AchievementsWidget::addAchievement() {
@@ -129,5 +207,17 @@ namespace widgets {
 		_achievementEdits.push_back(achievementWidget);
 	}
 
+	void AchievementsWidget::updateAchievementViews(QList<ManagementAchievement> achievementList) {
+		for (const auto & achievement : achievementList) {
+			AchievementWidget * achievementWidget = new AchievementWidget(this);
+			achievementWidget->setAchievement(_mods[_modIndex].id, achievement);
+
+			_layout->addWidget(achievementWidget);
+
+			_achievementEdits.push_back(achievementWidget);
+		}
+	}
+
 } /* namespace widgets */
+} /* namespace client */
 } /* namespace spine */

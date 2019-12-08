@@ -27,6 +27,7 @@
 #include <QVBoxLayout>
 
 namespace spine {
+namespace client {
 namespace widgets {
 
 	StatisticsWidget::StatisticsWidget(QWidget * par) : QWidget(par), _mods(), _modIndex(-1) {
@@ -292,4 +293,5 @@ namespace widgets {
 	}
 
 } /* namespace widgets */
+} /* namespace client */
 } /* namespace spine */

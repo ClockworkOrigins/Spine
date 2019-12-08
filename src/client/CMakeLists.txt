@@ -24,6 +24,7 @@ SET(SpineSrc
 	${srcdir}/FileDownloader.cpp
 	${srcdir}/ImpressionUpdater.cpp
 	${srcdir}/LibraryFilterModel.cpp
+	${srcdir}/ManagementCommon.cpp
 	${srcdir}/MultiFileDownloader.cpp
 	${srcdir}/ReportGenerator.cpp
 	${srcdir}/RtfToHtmlConverter.cpp

@@ -18,7 +18,13 @@
 
 #pragma once
 
+#include <cstdint>
+#include <vector>
+
+#include <QList>
 #include <QString>
+
+class QJsonObject;
 
 namespace spine {
 namespace client {
@@ -26,7 +32,38 @@ namespace client {
 	typedef struct {
 		QString name;
 		int id;
+
+		void read(const QJsonObject &json);
 	} ManagementMod;
+
+	typedef struct {
+		QString language;
+		QString text;
+
+		void read(const QJsonObject &json);
+		void write(QJsonObject & json) const;
+	} ManagementTranslation;
+
+	typedef struct {
+		QList<ManagementTranslation> names;
+		QList<ManagementTranslation> descriptions;
+
+		int32_t maxProgress;
+		bool hidden;
+
+		QString lockedImageName;
+		QString lockedImageHash;
+		std::vector<uint8_t> lockedImageData; // <= :(
+
+		QString unlockedImageName;
+		QString unlockedImageHash;
+		std::vector<uint8_t> unlockedImageData; // <= :(
+
+		void read(const QJsonObject &json);
+		void write(QJsonObject & json) const;
+
+		bool isValid() const;
+	} ManagementAchievement;
 
 } /* namespace client */
 } /* namespace spine */

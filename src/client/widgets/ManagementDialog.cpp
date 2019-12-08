@@ -46,6 +46,7 @@
 #include <QVBoxLayout>
 
 namespace spine {
+namespace client {
 namespace widgets {
 
 	ManagementDialog::ManagementDialog(QString username, QString password, QString language, QSettings * iniParser, QWidget * par) : QDialog(par), _iniParser(iniParser), _modList(nullptr), _username(username), _password(password), _language(language), _mods(), _modIndex(-1), _generalConfigurationWidget(nullptr), _modFilesWidget(nullptr), _userManagementWidget(nullptr), _statisticsWidget(nullptr) {
@@ -66,7 +67,7 @@ namespace widgets {
 			_modFilesWidget = new ModFilesWidget(username, language, this);
 			_userManagementWidget = new UserManagementWidget(username, language, this);
 			_statisticsWidget = new StatisticsWidget(this);
-			_achievementsWidget = new AchievementsWidget(this);
+			_achievementsWidget = new AchievementsWidget(_username, _password, this);
 			_scoresWidget = new ScoresWidget(this);
 			_customStatisticsWidget = new CustomStatisticsWidget(this);
 			_tabWidget->addTab(_generalConfigurationWidget, QApplication::tr("General"));
@@ -77,6 +78,8 @@ namespace widgets {
 			_tabWidget->addTab(_scoresWidget, QApplication::tr("Scores"));
 			_tabWidget->addTab(_customStatisticsWidget, QApplication::tr("CustomStatistics"));
 			hl->addWidget(_tabWidget);
+
+			connect(_tabWidget, &QTabWidget::currentChanged, this, &ManagementDialog::changedTab);
 
 			l->addLayout(hl);
 		}
@@ -136,6 +139,8 @@ namespace widgets {
 		_achievementsWidget->selectedMod(_modIndex);
 		_scoresWidget->selectedMod(_modIndex);
 		_customStatisticsWidget->selectedMod(_modIndex);
+
+		changedTab();
 	}
 
 	void ManagementDialog::loadModList() {
@@ -153,16 +158,9 @@ namespace widgets {
 			for (auto mod : mods) {
 				const auto jo = mod.toObject();
 
-				if (jo.isEmpty()) continue;
-
-				if (!jo.contains("Name")) continue;
+				ManagementMod entry;
+				entry.read(jo);
 				
-				if (!jo.contains("ID")) continue;
-
-				client::ManagementMod entry {
-					jo["Name"].toString(),
-					jo["ID"].toInt()
-				};
 				modList.append(entry);
 			}
 
@@ -181,5 +179,13 @@ namespace widgets {
 		_iniParser->setValue("WINDOWGEOMETRY/ManagementDialogGeometry", saveGeometry());
 	}
 
+	void ManagementDialog::changedTab() {
+		auto tab = _tabWidget->currentWidget();
+		auto managementWidget = dynamic_cast<IManagementWidget *>(tab);
+
+		managementWidget->updateView();
+	}
+
 } /* namespace widgets */
+} /* namespace client */
 } /* namespace spine */

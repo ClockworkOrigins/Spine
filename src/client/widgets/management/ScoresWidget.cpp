@@ -32,6 +32,7 @@
 #include <QVBoxLayout>
 
 namespace spine {
+namespace client {
 namespace widgets {
 
 	ScoresWidget::ScoresWidget(QWidget * par) : QWidget(par), _mods(), _modIndex(-1), _rowCount(1), _scoreEdits() {
@@ -206,4 +207,5 @@ namespace widgets {
 	}
 
 } /* namespace widgets */
+} /* namespace client */
 } /* namespace spine */

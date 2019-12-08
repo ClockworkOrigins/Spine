@@ -16,10 +16,9 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_MANAGEMENT_ACHIEVEMENTWIDGET_H__
-#define __SPINE_WIDGETS_MANAGEMENT_ACHIEVEMENTWIDGET_H__
+#pragma once
 
-#include "common/MessageStructs.h"
+#include "ManagementCommon.h"
 
 #include <QWidget>
 
@@ -30,6 +29,7 @@ class QLineEdit;
 class QSpinBox;
 
 namespace spine {
+namespace client {
 namespace widgets {
 
 	class AchievementWidget : public QWidget {
@@ -39,8 +39,8 @@ namespace widgets {
 		AchievementWidget(QWidget * par);
 		~AchievementWidget();
 
-		void setAchievement(int32_t modID, common::SendModManagementMessage::ModManagement::Achievement achievement);
-		common::UpdateAchievementsMessage::Achievement getAchievement();
+		void setAchievement(int32_t modID, ManagementAchievement achievement);
+		ManagementAchievement getAchievement();
 
 	private slots:
 		void nameLanguageChanged(QString language);
@@ -51,8 +51,8 @@ namespace widgets {
 		void changedUnlockedImage(QString path);
 
 	private:
-		common::SendModManagementMessage::ModManagement::Achievement _achievement;
-		common::UpdateAchievementsMessage::Achievement _newAchievement;
+		ManagementAchievement _achievement;
+		ManagementAchievement _newAchievement;
 		QString _currentNameLanguage;
 		QString _currentDescriptionLanguage;
 		QComboBox * _nameLanguageBox;
@@ -68,6 +68,5 @@ namespace widgets {
 	};
 
 } /* namespace widgets */
+} /* namespace client */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_MANAGEMENT_ACHIEVEMENTWIDGET_H__ */

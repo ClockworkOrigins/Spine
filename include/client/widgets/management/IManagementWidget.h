@@ -14,42 +14,17 @@
     You should have received a copy of the GNU General Public License
     along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
-// Copyright 2018 Clockwork Origins
+// Copyright 2019 Clockwork Origins
 
 #pragma once
-
-#include "ManagementCommon.h"
-
-#include "common/MessageStructs.h"
-
-#include <QModelIndex>
-#include <QWidget>
-
-class QLabel;
-class QVBoxLayout;
 
 namespace spine {
 namespace client {
 namespace widgets {
 
-	class StatisticsWidget : public QWidget {
-		Q_OBJECT
-
+	class IManagementWidget {
 	public:
-		StatisticsWidget(QWidget * par);
-		~StatisticsWidget();
-
-		void updateModList(QList<client::ManagementMod> modList);
-		void selectedMod(int index);
-
-	private:
-		QList<client::ManagementMod> _mods;
-		int _modIndex;
-		QList<QLabel *> _labelList;
-		QVBoxLayout * _downloadsLayout;
-		QVBoxLayout * _playersLayout;
-		QVBoxLayout * _playtimesLayout;
-		QVBoxLayout * _achievementsLayout;
+		virtual void updateView() = 0;
 	};
 
 } /* namespace widgets */

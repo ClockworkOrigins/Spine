@@ -55,6 +55,7 @@
 #endif
 
 namespace spine {
+namespace client {
 namespace widgets {
 namespace {
 	enum FileRoles {
@@ -130,7 +131,7 @@ namespace {
 
 #ifdef Q_OS_WIN
 		QWinTaskbarButton * button = new QWinTaskbarButton(this);
-		button->setWindow(MainWindow::getInstance()->windowHandle());
+		button->setWindow(spine::widgets::MainWindow::getInstance()->windowHandle());
 
 		_taskbarProgress = button->progress();
 		_taskbarProgress->setMinimum(0);
@@ -478,4 +479,5 @@ namespace {
 	}
 
 } /* namespace widgets */
+} /* namespace client */
 } /* namespace spine */

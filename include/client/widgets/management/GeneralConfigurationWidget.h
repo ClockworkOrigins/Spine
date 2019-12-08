@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_MANAGEMENT_GENERALCONFIGURATIONWIDGET_H__
-#define __SPINE_WIDGETS_MANAGEMENT_GENERALCONFIGURATIONWIDGET_H__
+#pragma once
 
 #include "ManagementCommon.h"
 
@@ -30,6 +29,7 @@ class QDateEdit;
 class QSpinBox;
 
 namespace spine {
+namespace client {
 namespace widgets {
 
 	class GeneralConfigurationWidget : public QWidget {
@@ -60,6 +60,5 @@ namespace widgets {
 	};
 
 } /* namespace widgets */
+} /* namespace client */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_MANAGEMENT_GENERALCONFIGURATIONWIDGET_H__ */

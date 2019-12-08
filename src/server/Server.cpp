@@ -280,8 +280,7 @@ namespace server {
 					common::UpdateScoresMessage * msg = dynamic_cast<common::UpdateScoresMessage *>(m);
 					handleUpdateScores(sock, msg);
 				} else if (m->type == common::MessageType::UPDATEACHIEVEMENTS) {
-					common::UpdateAchievementsMessage * msg = dynamic_cast<common::UpdateAchievementsMessage *>(m);
-					handleUpdateAchievements(sock, msg);
+					// not supported anymore
 				} else if (m->type == common::MessageType::UPDATESUCCEEDED) {
 					common::UpdateSucceededMessage * msg = dynamic_cast<common::UpdateSucceededMessage *>(m);
 					handleUpdateSucceeded(sock, msg);
@@ -294,6 +293,9 @@ namespace server {
 				} else if (m->type == common::MessageType::ISACHIEVEMENTUNLOCKED) {
 					common::IsAchievementUnlockedMessage * msg = dynamic_cast<common::IsAchievementUnlockedMessage *>(m);
 					handleIsAchievementUnlocked(sock, msg);
+				} else if (m->type == common::MessageType::UPLOADACHIEVEMENTICONS) {
+					common::UploadAchievementIconsMessage * msg = dynamic_cast<common::UploadAchievementIconsMessage *>(m);
+					_managementServer->uploadAchievementIcons(msg);
 				} else {
 					std::cerr << "unexpected control message arrived: " << int(m->type) << std::endl;
 					delete m;
@@ -4660,152 +4662,6 @@ namespace server {
 						break;
 					}
 					if (!database.query("EXECUTE updateScoreNameStmt USING @paramModID, @paramIdentifier, @paramLanguage, @paramName, @paramName;")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-						break;
-					}
-				}
-			}
-		} while (false);
-	}
-
-	void Server::handleUpdateAchievements(clockUtils::sockets::TcpSocket *, common::UpdateAchievementsMessage * msg) const {
-		do {
-			MariaDBWrapper database;
-			if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, SPINEDATABASE, 0)) {
-				std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-				break;
-			}
-			if (!database.query("PREPARE insertAchievementStmt FROM \"INSERT IGNORE INTO modAchievementList (ModID, Identifier) VALUES (?, ?)\";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("PREPARE updateAchievementNameStmt FROM \"INSERT INTO modAchievementNames (ModID, Identifier, Language, Name) VALUES (?, ?, CONVERT(? USING BINARY), CONVERT(? USING BINARY)) ON DUPLICATE KEY UPDATE Name = CONVERT(? USING BINARY)\";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("PREPARE updateAchievementDescriptionStmt FROM \"INSERT INTO modAchievementDescriptions (ModID, Identifier, Language, Description) VALUES (?, ?, CONVERT(? USING BINARY), CONVERT(? USING BINARY)) ON DUPLICATE KEY UPDATE Description = CONVERT(? USING BINARY)\";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("PREPARE updateAchievementProgressStmt FROM \"INSERT INTO modAchievementProgressMax (ModID, Identifier, Max) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE Max = ?\";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("PREPARE deleteAchievementProgressStmt FROM \"DELETE FROM modAchievementProgressMax WHERE ModID = ? AND Identifier = ? LIMIT 1\";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("PREPARE updateAchievementHiddenStmt FROM \"INSERT IGNORE INTO modAchievementHidden (ModID, Identifier) VALUES (?, ?)\";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("PREPARE deleteAchievementHiddenStmt FROM \"DELETE FROM modAchievementHidden WHERE ModID = ? AND Identifier = ? LIMIT 1\";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("PREPARE updateAchievementIconStmt FROM \"INSERT INTO modAchievementIcons (ModID, Identifier, LockedIcon, LockedHash, UnlockedIcon, UnlockedHash) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE LockedIcon = ?, LockedHash = ?, UnlockedIcon = ?, UnlockedHash = ?\";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("SET @paramModID=" + std::to_string(msg->modID) + ";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			for (size_t i = 0; i < msg->achievements.size(); i++) {
-				if (!database.query("SET @paramIdentifier=" + std::to_string(i) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-					break;
-				}
-				if (!database.query("EXECUTE insertAchievementStmt USING @paramModID, @paramIdentifier;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-					break;
-				}
-				auto achievement = msg->achievements[i];
-				for (const auto & tt : achievement.names) {
-					if (!database.query("SET @paramLanguage='" + tt.language + "';")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-						break;
-					}
-					if (!database.query("SET @paramName='" + tt.text + "';")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-						break;
-					}
-					if (!database.query("EXECUTE updateAchievementNameStmt USING @paramModID, @paramIdentifier, @paramLanguage, @paramName, @paramName;")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-						break;
-					}
-				}
-				for (const auto & tt : achievement.descriptions) {
-					if (!database.query("SET @paramLanguage='" + tt.language + "';")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-						break;
-					}
-					if (!database.query("SET @paramDescription='" + tt.text + "';")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-						break;
-					}
-					if (!database.query("EXECUTE updateAchievementDescriptionStmt USING @paramModID, @paramIdentifier, @paramLanguage, @paramDescription, @paramDescription;")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-						break;
-					}
-				}
-				if (achievement.maxProgress > 0) {
-					if (!database.query("SET @paramProgress=" + std::to_string(achievement.maxProgress) + ";")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-						break;
-					}
-					if (!database.query("EXECUTE updateAchievementProgressStmt USING @paramModID, @paramIdentifier, @paramProgress, @paramProgress;")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-						break;
-					}
-				} else {
-					if (!database.query("EXECUTE deleteAchievementProgressStmt USING @paramModID, @paramIdentifier;")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-						break;
-					}
-				}
-				if (achievement.hidden) {
-					if (!database.query("EXECUTE updateAchievementHiddenStmt USING @paramModID, @paramIdentifier;")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-						break;
-					}
-				} else {
-					if (!database.query("EXECUTE deleteAchievementHiddenStmt USING @paramModID, @paramIdentifier;")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-						break;
-					}
-				}
-				boost::filesystem::create_directories("/var/www/vhosts/clockwork-origins.de/httpdocs/Gothic/downloads/mods/" + std::to_string(msg->modID) + "/achievements");
-				if (!achievement.lockedImageData.empty()) {
-					std::ofstream out;
-					out.open("/var/www/vhosts/clockwork-origins.de/httpdocs/Gothic/downloads/mods/" + std::to_string(msg->modID) + "/achievements/" + achievement.lockedImageName, std::ios::out | std::ios::binary);
-					out.write(reinterpret_cast<char *>(&achievement.lockedImageData[0]), achievement.lockedImageData.size());
-					out.close();
-				}
-				if (!achievement.unlockedImageData.empty()) {
-					std::ofstream out;
-					out.open("/var/www/vhosts/clockwork-origins.de/httpdocs/Gothic/downloads/mods/" + std::to_string(msg->modID) + "/achievements/" + achievement.unlockedImageName, std::ios::out | std::ios::binary);
-					out.write(reinterpret_cast<char *>(&achievement.unlockedImageData[0]), achievement.unlockedImageData.size());
-					out.close();
-				}
-				if (!achievement.lockedImageData.empty() || !achievement.unlockedImageData.empty()) {
-					if (!database.query("SET @paramLockedIcon='" + achievement.lockedImageName + "';")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-						break;
-					}
-					if (!database.query("SET @paramLockedHash='" + achievement.lockedImageHash + "';")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-						break;
-					}
-					if (!database.query("SET @paramUnlockedIcon='" + achievement.unlockedImageName + "';")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-						break;
-					}
-					if (!database.query("SET @paramUnlockedHash='" + achievement.unlockedImageHash + "';")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-						break;
-					}
-					if (!database.query("EXECUTE updateAchievementIconStmt USING @paramModID, @paramIdentifier, @paramLockedIcon, @paramLockedHash, @paramUnlockedIcon, @paramUnlockedHash, @paramLockedIcon, @paramLockedHash, @paramUnlockedIcon, @paramUnlockedHash;")) {
 						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 						break;
 					}

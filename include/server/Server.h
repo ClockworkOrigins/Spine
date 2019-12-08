@@ -74,7 +74,6 @@ namespace common {
 	struct SubmitScriptFeaturesMessage;
 	struct UnlockAchievementMessage;
 	struct UpdateAchievementProgressMessage;
-	struct UpdateAchievementsMessage;
 	struct UpdateChapterStatsMessage;
 	struct UpdateEarlyAccessStateMessage;
 	struct UpdateGeneralModConfigurationMessage;
@@ -177,7 +176,6 @@ namespace server {
 		void handleRequestUserLevel(clockUtils::sockets::TcpSocket * sock, common::RequestUserLevelMessage * msg) const;
 		void handleUpdateGeneralModConfiguration(clockUtils::sockets::TcpSocket * sock, common::UpdateGeneralModConfigurationMessage * msg) const;
 		void handleUpdateScores(clockUtils::sockets::TcpSocket * sock, common::UpdateScoresMessage * msg) const;
-		void handleUpdateAchievements(clockUtils::sockets::TcpSocket * sock, common::UpdateAchievementsMessage * msg) const;
 		void handleUpdateSucceeded(clockUtils::sockets::TcpSocket * sock, common::UpdateSucceededMessage * msg) const;
 		void handleUpdateChapterStats(clockUtils::sockets::TcpSocket * sock, common::UpdateChapterStatsMessage * msg) const;
 		void handleUpdateImpression(clockUtils::sockets::TcpSocket * sock, common::UpdateImpressionMessage * msg) const;

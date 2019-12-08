@@ -1932,52 +1932,31 @@ namespace common {
 		}
 	};
 
-	struct UpdateAchievementsMessage : public Message {
-		struct Achievement {
-			std::vector<TranslatedText> names;
-			std::vector<TranslatedText> descriptions;
+	struct UploadAchievementIconsMessage : public Message {
+		int32_t modID;
 
-			int32_t maxProgress;
-			bool hidden;
-
-			std::string lockedImageName;
-			std::string lockedImageHash;
-			std::vector<uint8_t> lockedImageData;
-
-			std::string unlockedImageName;
-			std::string unlockedImageHash;
-			std::vector<uint8_t> unlockedImageData;
-
-			bool isValid() const {
-				return !names.empty();
-			}
-
+		struct Icon {
+			std::string name;
+			std::vector<uint8_t> data;
+			
 			template<class Archive>
 			void serialize(Archive & ar, const unsigned int /* file_version */) {
-				ar & names;
-				ar & descriptions;
-				ar & maxProgress;
-				ar & hidden;
-				ar & lockedImageName;
-				ar & lockedImageHash;
-				ar & lockedImageData;
-				ar & unlockedImageName;
-				ar & unlockedImageHash;
-				ar & unlockedImageData;
+				ar & name;
+				ar & data;
 			}
 		};
 
-		int32_t modID;
-		std::vector<Achievement> achievements;
+		std::vector<Icon> icons;
 
-		UpdateAchievementsMessage() : Message(), modID(), achievements() {
-			type = MessageType::UPDATEACHIEVEMENTS;
+		UploadAchievementIconsMessage() : Message(), modID() {
+			type = MessageType::UPLOADACHIEVEMENTICONS;
 		}
+		
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int /* file_version */) {
 			ar & boost::serialization::base_object<Message>(*this);
 			ar & modID;
-			ar & achievements;
+			ar & icons;
 		}
 	};
 
