@@ -274,8 +274,7 @@ namespace server {
 					common::RequestUserLevelMessage * msg = dynamic_cast<common::RequestUserLevelMessage *>(m);
 					handleRequestUserLevel(sock, msg);
 				} else if (m->type == common::MessageType::UPDATEGENERALMODCONFIGURATION) {
-					common::UpdateGeneralModConfigurationMessage * msg = dynamic_cast<common::UpdateGeneralModConfigurationMessage *>(m);
-					handleUpdateGeneralModConfiguration(sock, msg);
+					// not supported anymore
 				} else if (m->type == common::MessageType::UPDATESCORES) {
 					common::UpdateScoresMessage * msg = dynamic_cast<common::UpdateScoresMessage *>(m);
 					handleUpdateScores(sock, msg);
@@ -4572,56 +4571,6 @@ namespace server {
 		} while (false);
 		const std::string serialized = sulm.SerializePrivate();
 		sock->writePacket(serialized);
-	}
-
-	void Server::handleUpdateGeneralModConfiguration(clockUtils::sockets::TcpSocket *, common::UpdateGeneralModConfigurationMessage * msg) const {
-		do {
-			MariaDBWrapper database;
-			if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, SPINEDATABASE, 0)) {
-				std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-				break;
-			}
-			if (!database.query("PREPARE updateStmt FROM \"UPDATE mods SET Enabled = ?, Gothic = ?, Type = ?, ReleaseDate = ? WHERE ModID = ? LIMIT 1\";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("PREPARE updateDevDurationStmt FROM \"INSERT INTO devtimes (ModID, Duration) VALUES (?, ?) ON DUPLICATE KEY UPDATE Duration = ?\";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("SET @paramModID=" + std::to_string(msg->modID) + ";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("SET @paramEnabled=" + std::to_string(msg->enabled) + ";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("SET @paramGothicVersion=" + std::to_string(int(msg->gothicVersion)) + ";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("SET @paramModType=" + std::to_string(int(msg->modType)) + ";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("SET @paramReleaseDate=" + std::to_string(msg->releaseDate) + ";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("SET @paramDuration=" + std::to_string(msg->duration) + ";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("EXECUTE updateStmt USING @paramEnabled, @paramGothicVersion, @paramModType, @paramReleaseDate, @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-				break;
-			}
-			if (!database.query("EXECUTE updateDevDurationStmt USING @paramModID, @paramDuration, @paramDuration;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-				break;
-			}
-		} while (false);
 	}
 
 	void Server::handleUpdateScores(clockUtils::sockets::TcpSocket *, common::UpdateScoresMessage * msg) const {

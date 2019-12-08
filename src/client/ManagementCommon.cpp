@@ -147,5 +147,39 @@ namespace client {
 		return !names.empty();
 	}
 
+	void ManagementGeneralData::read(const QJsonObject & json) {
+		if (!json.contains("Enabled")) return;
+				
+		if (!json.contains("GothicVersion")) return;
+		
+		if (!json.contains("ModType")) return;
+		
+		if (!json.contains("ReleaseDate")) return;
+		
+		if (!json.contains("Duration")) return;
+
+		enabled = json["Enabled"].toBool();
+		gothicVersion = static_cast<common::GothicVersion>(json["GothicVersion"].toInt());
+		modType = static_cast<common::ModType>(json["ModType"].toInt());
+		duration = json["Duration"].toInt();
+		const int dateOffset = json["ReleaseDate"].toInt();
+
+		QDate rd(2000, 1, 1);
+		rd = rd.addDays(dateOffset);
+		releaseDate = rd;
+	}
+
+	void ManagementGeneralData::write(QJsonObject & json) const {
+		json["Enabled"] = enabled;
+		json["GothicVersion"] = static_cast<int32_t>(gothicVersion);
+		json["ModType"] = static_cast<int32_t>(modType);
+		json["Duration"] = duration;
+
+		const QDate date(2000, 1, 1);
+		const auto rd = static_cast<int32_t>(date.daysTo(releaseDate));
+		
+		json["ReleaseDate"] = rd;
+	}
+
 } /* namespace client */
 } /* namespace spine */

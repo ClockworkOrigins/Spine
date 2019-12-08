@@ -21,6 +21,10 @@
 #include <cstdint>
 #include <vector>
 
+#include "common/GothicVersion.h"
+#include "common/ModType.h"
+
+#include <QDate>
 #include <QList>
 #include <QString>
 
@@ -64,6 +68,17 @@ namespace client {
 
 		bool isValid() const;
 	} ManagementAchievement;
+
+	typedef struct {
+		bool enabled;
+		common::GothicVersion gothicVersion;
+		common::ModType modType;
+		int32_t duration;
+		QDate releaseDate;
+
+		void read(const QJsonObject &json);
+		void write(QJsonObject & json) const;
+	} ManagementGeneralData;
 
 } /* namespace client */
 } /* namespace spine */

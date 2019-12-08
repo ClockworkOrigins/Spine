@@ -39,6 +39,7 @@
 #include <QApplication>
 #include <QDebug>
 #include <QJsonArray>
+#include <QJsonDocument>
 #include <QJsonObject>
 #include <QListView>
 #include <QSettings>
@@ -63,7 +64,7 @@ namespace widgets {
 			hl->addWidget(modList);
 
 			_tabWidget = new QTabWidget(this);
-			_generalConfigurationWidget = new GeneralConfigurationWidget(this);
+			_generalConfigurationWidget = new GeneralConfigurationWidget(_username, _language, this);
 			_modFilesWidget = new ModFilesWidget(username, language, this);
 			_userManagementWidget = new UserManagementWidget(username, language, this);
 			_statisticsWidget = new StatisticsWidget(this);
@@ -89,7 +90,6 @@ namespace widgets {
 		setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 		setWindowTitle(QApplication::tr("Management"));
 
-		qRegisterMetaType<QList<QPair<QString, int>>>("QList<QPair<QString, int>>");
 		qRegisterMetaType<std::vector<std::string>>("std::vector<std::string>");
 
 		connect(this, &ManagementDialog::receivedMods, this, &ManagementDialog::updateModList);
@@ -144,7 +144,12 @@ namespace widgets {
 	}
 
 	void ManagementDialog::loadModList() {
-		https::Https::postAsync(MANAGEMENTSERVER_PORT, "getMods", QString("{ \"username\": \"%1\", \"password\": \"%2\", \"language\": \"%3\" }").arg(_username, _password, _language), [this](const QJsonObject & json, int statusCode) {
+		QJsonObject json;
+		json["Username"] = _username;
+		json["Password"] = _password;
+		json["Language"] = _language;
+		
+		https::Https::postAsync(MANAGEMENTSERVER_PORT, "getMods", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
 			if (statusCode != 200) return;
 			
 			const auto it = json.find("Mods");

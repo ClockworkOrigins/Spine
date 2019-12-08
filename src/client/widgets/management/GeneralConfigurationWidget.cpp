@@ -20,6 +20,10 @@
 
 #include "SpineConfig.h"
 
+#include "https/Https.h"
+
+#include "widgets/WaitSpinner.h"
+
 #include "clockUtils/sockets/TcpSocket.h"
 
 #include <QApplication>
@@ -27,6 +31,8 @@
 #include <QComboBox>
 #include <QDateEdit>
 #include <QDialogButtonBox>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLabel>
 #include <QPushButton>
 #include <QSpinBox>
@@ -36,7 +42,7 @@ namespace spine {
 namespace client {
 namespace widgets {
 
-	GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(par), _mods(), _modIndex(-1) {
+	GeneralConfigurationWidget::GeneralConfigurationWidget(const QString & username, const QString & password, QWidget * par) : QWidget(par), _mods(), _modIndex(-1), _waitSpinner(nullptr), _username(username), _password(password) {
 		QVBoxLayout * vl = new QVBoxLayout();
 
 		{
@@ -118,6 +124,15 @@ namespace widgets {
 		vl->addWidget(dbb);
 
 		setLayout(vl);
+
+		connect(this, &GeneralConfigurationWidget::removeSpinner, [this]() {
+			if (!_waitSpinner) return;
+
+			delete _waitSpinner;
+			_waitSpinner = nullptr;
+		});
+
+		connect(this, &GeneralConfigurationWidget::loadedData, this, &GeneralConfigurationWidget::updateData);
 	}
 
 	GeneralConfigurationWidget::~GeneralConfigurationWidget() {
@@ -128,45 +143,64 @@ namespace widgets {
 	}
 
 	void GeneralConfigurationWidget::selectedMod(int index) {
-		// TODO
-		/*_modIndex = index;
-		_enabledBox->setChecked(_mods[_modIndex].enabled);
-		_gothicVersionBox->setCurrentIndex(int(_mods[_modIndex].gothicVersion));
-		_typeBox->setCurrentIndex(int(_mods[_modIndex].type));
-		_devDurationBox->setValue(_mods[_modIndex].duration);
+		_modIndex = index;
+	}
 
-		QDate date(2000, 1, 1);
-		date = date.addDays(_mods[_modIndex].releaseDate);
-		_releaseDateEdit->setDate(date);*/
+	void GeneralConfigurationWidget::updateView() {
+		delete _waitSpinner;
+		_waitSpinner = new spine::widgets::WaitSpinner(QApplication::tr("Updating"), this);
+
+		QJsonObject json;
+		json["Username"] = _username;
+		json["Password"] = _password;
+		json["ModID"] = _mods[_modIndex].id;
+		
+		https::Https::postAsync(MANAGEMENTSERVER_PORT, "getGeneralConfiguration", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+			if (statusCode != 200) {
+				emit removeSpinner();
+				return;
+			}
+			ManagementGeneralData content;
+			content.read(json);
+			
+			emit loadedData(content);
+			emit removeSpinner();
+		});
 	}
 
 	void GeneralConfigurationWidget::updateMod() {
-		// TODO
-		if (_modIndex == -1) {
-			return;
-		}
-		/*common::UpdateGeneralModConfigurationMessage ugmcm;
-		ugmcm.modID = _mods[_modIndex].modID;
-		ugmcm.enabled = _enabledBox->isChecked();
-		ugmcm.gothicVersion = common::GothicVersion(_gothicVersionBox->currentIndex());
-		ugmcm.modType = common::ModType(_typeBox->currentIndex());
-		ugmcm.duration = _devDurationBox->value();
-		QDate date(2000, 1, 1);
-		ugmcm.releaseDate = uint32_t(date.daysTo(_releaseDateEdit->date()));
-		const std::string serialized = ugmcm.SerializePublic();
-		clockUtils::sockets::TcpSocket sock;
-		const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-		if (clockUtils::ClockError::SUCCESS == cErr) {
-			sock.writePacket(serialized);
-		}*/
+		if (_modIndex == -1) return;
+
+		ManagementGeneralData mgd;
+		mgd.enabled = _enabledBox->isChecked();
+		mgd.gothicVersion = static_cast<common::GothicVersion>(_gothicVersionBox->currentIndex());
+		mgd.modType = static_cast<common::ModType>(_typeBox->currentIndex());
+		mgd.duration = _devDurationBox->value();
+		mgd.releaseDate = _releaseDateEdit->date();
+
+		QJsonObject json;
+		json["Username"] = _username;
+		json["Password"] = _password;
+		json["ModID"] = _mods[_modIndex].id;
+		mgd.write(json);
+		
+		https::Https::postAsync(MANAGEMENTSERVER_PORT, "updateGeneralConfiguration", QJsonDocument(json).toJson(QJsonDocument::Compact), [](const QJsonObject & json, int statusCode) {
+			// maybe add error handling here
+		});
 	}
 
 	void GeneralConfigurationWidget::openInfoPage() {
-		// TODO
-		/*if (_modIndex == -1) {
-			return;
-		}
-		emit triggerInfoPage(_mods[_modIndex].modID);*/
+		if (_modIndex == -1) return;
+		
+		emit triggerInfoPage(_mods[_modIndex].id);
+	}
+
+	void GeneralConfigurationWidget::updateData(ManagementGeneralData content) {
+		_enabledBox->setChecked(content.enabled);
+		_gothicVersionBox->setCurrentIndex(int(content.gothicVersion));
+		_typeBox->setCurrentIndex(int(content.modType));
+		_devDurationBox->setValue(content.duration);
+		_releaseDateEdit->setDate(content.releaseDate);
 	}
 
 } /* namespace widgets */

@@ -20,6 +20,8 @@
 
 #include "ManagementCommon.h"
 
+#include "widgets/management/IManagementWidget.h"
+
 #include <QModelIndex>
 #include <QWidget>
 
@@ -29,34 +31,44 @@ class QDateEdit;
 class QSpinBox;
 
 namespace spine {
+namespace widgets {
+	class WaitSpinner;
+}
 namespace client {
 namespace widgets {
 
-	class GeneralConfigurationWidget : public QWidget {
+	class GeneralConfigurationWidget : public QWidget, public IManagementWidget {
 		Q_OBJECT
 
 	public:
-		GeneralConfigurationWidget(QWidget * par);
+		GeneralConfigurationWidget(const QString & username, const QString & password, QWidget * par);
 		~GeneralConfigurationWidget();
 
-		void updateModList(QList<client::ManagementMod> modList);
+		void updateModList(QList<ManagementMod> modList);
 		void selectedMod(int index);
+		void updateView() override;
 
 	signals:
 		void triggerInfoPage(int32_t);
+		void removeSpinner();
+		void loadedData(ManagementGeneralData);
 
 	private slots:
 		void updateMod();
 		void openInfoPage();
+		void updateData(ManagementGeneralData content);
 
 	private:
-		QList<client::ManagementMod> _mods;
+		QList<ManagementMod> _mods;
 		int _modIndex;
 		QCheckBox * _enabledBox;
 		QComboBox * _typeBox;
 		QComboBox * _gothicVersionBox;
 		QDateEdit * _releaseDateEdit;
 		QSpinBox * _devDurationBox;
+		spine::widgets::WaitSpinner * _waitSpinner;
+		QString _username;
+		QString _password;
 	};
 
 } /* namespace widgets */

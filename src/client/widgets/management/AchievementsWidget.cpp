@@ -111,9 +111,9 @@ namespace widgets {
 		_waitSpinner = new spine::widgets::WaitSpinner(QApplication::tr("Updating"), this);
 
 		QJsonObject json;
-		json["username"] = _username;
-		json["password"] = _password;
-		json["modID"] = _mods[_modIndex].id;
+		json["Username"] = _username;
+		json["Password"] = _password;
+		json["ModID"] = _mods[_modIndex].id;
 		
 		https::Https::postAsync(MANAGEMENTSERVER_PORT, "getAchievements", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
 			if (statusCode != 200) {

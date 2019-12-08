@@ -1886,28 +1886,6 @@ namespace common {
 		}
 	};
 
-	struct UpdateGeneralModConfigurationMessage : public Message {
-		int32_t modID;
-		bool enabled;
-		ModType modType;
-		uint32_t releaseDate;
-		GothicVersion gothicVersion;
-		int duration;
-		UpdateGeneralModConfigurationMessage() : Message(), modID(), enabled(), modType(), releaseDate(), gothicVersion(), duration() {
-			type = MessageType::UPDATEGENERALMODCONFIGURATION;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & modID;
-			ar & enabled;
-			ar & modType;
-			ar & releaseDate;
-			ar & gothicVersion;
-			ar & duration;
-		}
-	};
-
 	struct UpdateScoresMessage : public Message {
 		struct Score {
 			std::vector<TranslatedText> names;
