@@ -184,7 +184,7 @@ namespace widgets {
 		json["ModID"] = _mods[_modIndex].id;
 		mgd.write(json);
 		
-		https::Https::postAsync(MANAGEMENTSERVER_PORT, "updateGeneralConfiguration", QJsonDocument(json).toJson(QJsonDocument::Compact), [](const QJsonObject & json, int statusCode) {
+		https::Https::postAsync(MANAGEMENTSERVER_PORT, "updateGeneralConfiguration", QJsonDocument(json).toJson(QJsonDocument::Compact), [](const QJsonObject &, int) {
 			// maybe add error handling here
 		});
 	}

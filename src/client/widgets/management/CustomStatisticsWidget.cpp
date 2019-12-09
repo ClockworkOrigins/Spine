@@ -20,13 +20,21 @@
 
 #include <set>
 
+#include "SpineConfig.h"
+
+#include "https/Https.h"
+
 #include "models/CustomStatisticsModel.h"
 
 #include "utils/Conversion.h"
 
+#include "widgets/WaitSpinner.h"
+
 #include <QApplication>
 #include <QComboBox>
 #include <QHeaderView>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLabel>
 #include <QStandardItemModel>
 #include <QTreeView>
@@ -36,7 +44,7 @@ namespace spine {
 namespace client {
 namespace widgets {
 
-	CustomStatisticsWidget::CustomStatisticsWidget(QWidget * par) : QWidget(par), _mods(), _modIndex(-1), _sourceModel(nullptr) {
+	CustomStatisticsWidget::CustomStatisticsWidget(const QString & username, const QString & password, QWidget * par) : QWidget(par), _mods(), _modIndex(-1), _sourceModel(nullptr), _waitSpinner(nullptr), _username(username), _password(password) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -82,6 +90,15 @@ namespace widgets {
 		treeView->setAlternatingRowColors(true);
 		_sourceModel->setHorizontalHeaderLabels(QStringList() << QApplication::tr("Identifier") << QApplication::tr("Guild") << QApplication::tr("Name") << QApplication::tr("Value") << QApplication::tr("Amount"));
 
+		connect(this, &CustomStatisticsWidget::removeSpinner, [this]() {
+			if (!_waitSpinner) return;
+
+			delete _waitSpinner;
+			_waitSpinner = nullptr;
+		});
+
+		connect(this, &CustomStatisticsWidget::loadedData, this, &CustomStatisticsWidget::updateData);
+
 		treeView->setModel(sortModel);
 
 		setLayout(l);
@@ -92,33 +109,55 @@ namespace widgets {
 	}
 
 	void CustomStatisticsWidget::selectedMod(int index) {
-		// TODO
-		/*_modIndex = index;
+		_modIndex = index;
+	}
+
+	void CustomStatisticsWidget::updateView() {
+		if (_modIndex >= _mods.size()) return;
+		
 		_sourceModel->clear();
 		_identifierBox->clear();
 		_guildBox->clear();
 		_stats.clear();
 		_sourceModel->setHorizontalHeaderLabels(QStringList() << QApplication::tr("Identifier") << QApplication::tr("Guild") << QApplication::tr("Name") << QApplication::tr("Value") << QApplication::tr("Amount"));
+		
+		delete _waitSpinner;
+		_waitSpinner = new spine::widgets::WaitSpinner(QApplication::tr("Updating"), this);
 
-		if (_modIndex >= int(_mods.size())) {
-			return;
-		}
+		QJsonObject json;
+		json["Username"] = _username;
+		json["Password"] = _password;
+		json["ModID"] = _mods[_modIndex].id;
+		
+		https::Https::postAsync(MANAGEMENTSERVER_PORT, "getCustomStatistics", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+			if (statusCode != 200) {
+				emit removeSpinner();
+				return;
+			}
+			ManagementCustomStatistics mcs;
+			mcs.read(json);
+
+			emit loadedData(mcs);
+			emit removeSpinner();
+		});
+	}
+
+	void CustomStatisticsWidget::updateData(ManagementCustomStatistics content) {
 		std::set<int32_t> identifierSet;
 		std::set<int32_t> guildSet;
 		std::set<QString> nameSet;
-		common::SendModManagementMessage::ModManagement mm = _mods[_modIndex];
-		for (auto it = mm.customStatistics.cbegin(); it != mm.customStatistics.cend(); ++it) {
+		for (auto it = content.stats.cbegin(); it != content.stats.cend(); ++it) {
 			StatTuple st;
-			st.identifier = it->first.first;
-			st.guild = it->first.second;
-			for (auto it2 = it->second.cbegin(); it2 != it->second.cend(); ++it2) {
-				st.name = s2q(it2->name);
-				st.value = it2->value;
+			st.identifier = it.key().first;
+			st.guild = it.key().second;
+			for (const auto & entry : it.value()) {
+				st.name = entry.name;
+				st.value = entry.value;
 				_stats[st]++;
-				nameSet.insert(s2q(it2->name));
+				nameSet.insert(entry.name);
 			}
-			identifierSet.insert(it->first.first);
-			guildSet.insert(it->first.second);
+			identifierSet.insert(it.key().first);
+			guildSet.insert(it.key().second);
 		}
 		for (auto it = _stats.constBegin(); it != _stats.constEnd(); ++it) {
 			QStandardItem * identifierItem = new QStandardItem(QString::number(it.key().identifier));
@@ -151,9 +190,9 @@ namespace widgets {
 		for (int32_t guild : guildSet) {
 			_guildBox->addItem(QString::number(guild));
 		}
-		for (QString name : nameSet) {
+		for (const QString & name : nameSet) {
 			_nameBox->addItem(name);
-		}*/
+		}
 	}
 
 } /* namespace widgets */

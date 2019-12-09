@@ -50,6 +50,7 @@ namespace server {
 		_server->resource["^/updateAchievements"]["POST"] = std::bind(&ManagementServer::updateAchievements, this, std::placeholders::_1, std::placeholders::_2);
 		_server->resource["^/getGeneralConfiguration"]["POST"] = std::bind(&ManagementServer::getGeneralConfiguration, this, std::placeholders::_1, std::placeholders::_2);
 		_server->resource["^/updateGeneralConfiguration"]["POST"] = std::bind(&ManagementServer::updateGeneralConfiguration, this, std::placeholders::_1, std::placeholders::_2);
+		_server->resource["^/getCustomStatistics"]["POST"] = std::bind(&ManagementServer::getCustomStatistics, this, std::placeholders::_1, std::placeholders::_2);
 
 		_runner = new std::thread([this]() {
 			_server->start();
@@ -719,6 +720,108 @@ namespace server {
 			} while (false);
 
 			response->write(code);
+		} catch (...) {
+			response->write(SimpleWeb::StatusCode::client_error_bad_request);
+		}
+	}
+
+	void ManagementServer::getCustomStatistics(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+		try {
+			const std::string content = ServerCommon::convertString(request->content.string());
+
+			std::stringstream ss(content);
+
+			ptree pt;
+			read_json(ss, pt);
+		
+			const std::string username = pt.get<std::string>("Username");
+			const std::string password = pt.get<std::string>("Password");
+
+			const int userID = ServerCommon::getUserID(username, password);
+
+			if (userID == -1) {
+				response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+				return;
+			}
+
+			const int32_t modID = pt.get<int32_t>("ModID");
+
+			if (!hasAdminAccessToMod(userID, modID)) {
+				response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+				return;
+			}
+
+			SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+			std::stringstream responseStream;
+			ptree responseTree;
+
+			do {
+				CONNECTTODATABASE(__LINE__)
+				
+				if (!database.query("PREPARE selectChapterStatsStmt FROM \"SELECT Identifier, Guild, StatName, StatValue FROM chapterStats WHERE ModID = ?\";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("EXECUTE selectChapterStatsStmt USING @paramModID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				auto results = database.getResults<std::vector<std::string>>();
+
+				if (results.empty()) {
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+
+				std::map<std::pair<int32_t, int32_t>, std::vector<std::pair<std::string, int32_t>>> m;
+
+				for (auto vec : results) {
+					int32_t identifier = std::stoi(vec[0]);
+					int32_t guild = std::stoi(vec[1]);
+					const std::string statName = vec[2];
+					const int32_t statValue = std::stoi(vec[3]);
+
+					common::SendModManagementMessage::ModManagement::CustomStatistic cs;
+					cs.name = statName;
+					cs.value = statValue;
+
+					m[std::make_pair(identifier, guild)].push_back(std::make_pair(statName, statValue));
+				}
+
+				ptree statsNode;
+				for (auto it = m.begin(); it != m.end(); ++it) {
+					ptree statNode;
+
+					statNode.put("ID", it->first.first);
+					statNode.put("Guild", it->first.second);
+
+					ptree entriesNode;
+					for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
+						ptree entryNode;
+
+						entryNode.put("Name", it2->first);
+						entryNode.put("Value", it2->second);
+						
+						entriesNode.push_back(std::make_pair("", entryNode));
+					}
+					statNode.add_child("Entries", entriesNode);
+					
+					statsNode.push_back(std::make_pair("", statNode));
+				}
+				responseTree.add_child("Stats", statsNode);
+			} while (false);
+
+			write_json(responseStream, responseTree);
+
+			response->write(code, responseStream.str());
 		} catch (...) {
 			response->write(SimpleWeb::StatusCode::client_error_bad_request);
 		}

@@ -70,7 +70,7 @@ namespace widgets {
 			_statisticsWidget = new StatisticsWidget(this);
 			_achievementsWidget = new AchievementsWidget(_username, _password, this);
 			_scoresWidget = new ScoresWidget(this);
-			_customStatisticsWidget = new CustomStatisticsWidget(this);
+			_customStatisticsWidget = new CustomStatisticsWidget(_username, _password, this);
 			_tabWidget->addTab(_generalConfigurationWidget, QApplication::tr("General"));
 			_tabWidget->addTab(_modFilesWidget, QApplication::tr("ModFiles"));
 			_tabWidget->addTab(_userManagementWidget, QApplication::tr("UserManagement"));

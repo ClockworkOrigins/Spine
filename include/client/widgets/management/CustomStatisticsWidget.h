@@ -20,6 +20,8 @@
 
 #include "ManagementCommon.h"
 
+#include "widgets/management/IManagementWidget.h"
+
 #include <QModelIndex>
 #include <QWidget>
 
@@ -27,17 +29,28 @@ class QComboBox;
 class QStandardItemModel;
 
 namespace spine {
+namespace widgets {
+	class WaitSpinner;
+}
 namespace client {
 namespace widgets {
 
-	class CustomStatisticsWidget : public QWidget {
+	class CustomStatisticsWidget : public QWidget, public IManagementWidget {
 		Q_OBJECT
 
 	public:
-		CustomStatisticsWidget(QWidget * par);
+		CustomStatisticsWidget(const QString & username, const QString & password, QWidget * par);
 
-		void updateModList(QList<client::ManagementMod> modList);
+		void updateModList(QList<ManagementMod> modList);
 		void selectedMod(int index);
+		void updateView() override;
+
+	signals:
+		void removeSpinner();
+		void loadedData(ManagementCustomStatistics);
+
+	private slots:
+		void updateData(ManagementCustomStatistics content);
 
 	private:
 		typedef struct StatTuple {
@@ -68,13 +81,17 @@ namespace widgets {
 				return identifier == other.identifier && guild == other.guild && name == other.name && value == other.value;
 			}
 		} StatTuple;
-		QList<client::ManagementMod> _mods;
+
+		QList<ManagementMod> _mods;
 		int _modIndex;
 		QStandardItemModel * _sourceModel;
 		QComboBox * _identifierBox;
 		QComboBox * _guildBox;
 		QComboBox * _nameBox;
 		QMap<StatTuple, int> _stats;
+		spine::widgets::WaitSpinner * _waitSpinner;
+		QString _username;
+		QString _password;
 	};
 
 } /* namespace widgets */

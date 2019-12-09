@@ -181,5 +181,44 @@ namespace client {
 		json["ReleaseDate"] = rd;
 	}
 
+	void ManagementCustomStatistic::read(const QJsonObject & json) {
+		if (!json.contains("Name")) return;
+				
+		if (!json.contains("Value")) return;
+
+		name = json["Name"].toString();
+		value = json["Value"].toInt();
+	}
+
+	void ManagementCustomStatistics::read(const QJsonObject & json) {
+		if (!json.contains("Stats")) return;
+				
+		const auto arr = json["Stats"].toArray();
+		for (const auto entry : arr) {
+			const auto jo = entry.toObject();
+
+			if (!jo.contains("ID")) continue;
+			
+			if (!jo.contains("Guild")) continue;
+			
+			if (!jo.contains("Entries")) continue;
+
+			QPair<int32_t, int32_t> p = qMakePair(jo["ID"].toInt(), jo["Guild"].toInt());
+			QList<ManagementCustomStatistic> list;
+
+			const auto entries = jo["Entries"].toArray();
+			for (const auto entry2 : entries) {
+				const auto e = entry2.toObject();
+
+				ManagementCustomStatistic mcs;
+				mcs.read(e);
+
+				list.append(mcs);
+			}
+
+			stats.insert(p, list);
+		}
+	}
+
 } /* namespace client */
 } /* namespace spine */

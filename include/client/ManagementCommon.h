@@ -26,6 +26,7 @@
 
 #include <QDate>
 #include <QList>
+#include <QMap>
 #include <QString>
 
 class QJsonObject;
@@ -79,6 +80,19 @@ namespace client {
 		void read(const QJsonObject &json);
 		void write(QJsonObject & json) const;
 	} ManagementGeneralData;
+
+	typedef struct {
+		QString name;
+		int32_t value;
+
+		void read(const QJsonObject &json);
+	} ManagementCustomStatistic;
+
+	typedef struct {
+		QMap<QPair<int, int>, QList<ManagementCustomStatistic>> stats;
+
+		void read(const QJsonObject &json);
+	} ManagementCustomStatistics;
 
 } /* namespace client */
 } /* namespace spine */
