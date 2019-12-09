@@ -20,6 +20,8 @@
 
 #include "ManagementCommon.h"
 
+#include "widgets/management/IManagementWidget.h"
+
 #include <QMap>
 #include <QWidget>
 
@@ -36,19 +38,22 @@ namespace iniParser {
 } /* namespace clockUtils */
 
 namespace spine {
+namespace widgets {
+	class WaitSpinner;
+}
 namespace client {
 namespace widgets {
 
-	class WaitSpinner;
 
-	class ModFilesWidget : public QWidget {
+	class ModFilesWidget : public QWidget, public IManagementWidget {
 		Q_OBJECT
 
 	public:
-		ModFilesWidget(QString username, QString language, QWidget * par);
+		ModFilesWidget(const QString & username, const QString & password, const QString & language, QWidget * par);
 
 		void updateModList(QList<client::ManagementMod> modList);
 		void selectedMod(int index);
+		void updateView() override;
 
 	signals:
 		void finishedUpload(bool, int);
@@ -56,6 +61,8 @@ namespace widgets {
 		void checkForUpdate(int32_t);
 		void updateProgress(int);
 		void updateProgressMax(int);
+		void removeSpinner();
+		void loadedData(ManagementModFilesData);
 
 	private slots:
 		void addFile();
@@ -65,10 +72,12 @@ namespace widgets {
 		void updateVersion();
 		void finishUpload(bool success, int updatedCount);
 		void testUpdate();
+		void updateData(ManagementModFilesData content);
 
 	private:
 		QStandardItemModel * _fileList;
 		QString _username;
+		QString _password;
 		QString _language;
 		QList<client::ManagementMod> _mods;
 		QTreeView * _fileTreeView;
@@ -78,8 +87,9 @@ namespace widgets {
 		QSpinBox * _majorVersionBox;
 		QSpinBox * _minorVersionBox;
 		QSpinBox * _patchVersionBox;
-		WaitSpinner * _waitSpinner;
+		spine::widgets::WaitSpinner * _waitSpinner;
 		QWinTaskbarProgress * _taskbarProgress;
+		ManagementModFilesData _data;
 
 		void addFile(QStandardItem * itm, QString file, QString language);
 	};

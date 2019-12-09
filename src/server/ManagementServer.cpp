@@ -51,6 +51,8 @@ namespace server {
 		_server->resource["^/getGeneralConfiguration"]["POST"] = std::bind(&ManagementServer::getGeneralConfiguration, this, std::placeholders::_1, std::placeholders::_2);
 		_server->resource["^/updateGeneralConfiguration"]["POST"] = std::bind(&ManagementServer::updateGeneralConfiguration, this, std::placeholders::_1, std::placeholders::_2);
 		_server->resource["^/getCustomStatistics"]["POST"] = std::bind(&ManagementServer::getCustomStatistics, this, std::placeholders::_1, std::placeholders::_2);
+		_server->resource["^/getModFiles"]["POST"] = std::bind(&ManagementServer::getModFiles, this, std::placeholders::_1, std::placeholders::_2);
+		_server->resource["^/updateModVersion"]["POST"] = std::bind(&ManagementServer::updateModVersion, this, std::placeholders::_1, std::placeholders::_2);
 
 		_runner = new std::thread([this]() {
 			_server->start();
@@ -822,6 +824,171 @@ namespace server {
 			write_json(responseStream, responseTree);
 
 			response->write(code, responseStream.str());
+		} catch (...) {
+			response->write(SimpleWeb::StatusCode::client_error_bad_request);
+		}
+	}
+
+	void ManagementServer::getModFiles(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+		try {
+			const std::string content = ServerCommon::convertString(request->content.string());
+
+			std::stringstream ss(content);
+
+			ptree pt;
+			read_json(ss, pt);
+		
+			const std::string username = pt.get<std::string>("Username");
+			const std::string password = pt.get<std::string>("Password");
+
+			const int userID = ServerCommon::getUserID(username, password);
+
+			if (userID == -1) {
+				response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+				return;
+			}
+
+			const int32_t modID = pt.get<int32_t>("ModID");
+
+			if (!hasAdminAccessToMod(userID, modID)) {
+				response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+				return;
+			}
+
+			SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+			std::stringstream responseStream;
+			ptree responseTree;
+
+			do {
+				CONNECTTODATABASE(__LINE__)
+				
+				if (!database.query("PREPARE selectVersionStmt FROM \"SELECT MajorVersion, MinorVersion, PatchVersion FROM mods WHERE ModID = ? LIMIT 1\";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					break;
+				}
+				if (!database.query("PREPARE selectModFilesStmt FROM \"SELECT Path, Hash, Language FROM modfiles WHERE ModID = ?\";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("EXECUTE selectVersionStmt USING @paramModID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				auto results = database.getResults<std::vector<std::string>>();
+
+				if (results.empty()) {
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+
+				responseTree.put("VersionMajor", std::stoi(results[0][0]));
+				responseTree.put("VersionMinor", std::stoi(results[0][1]));
+				responseTree.put("VersionPatch", std::stoi(results[0][2]));
+				
+				if (!database.query("EXECUTE selectModFilesStmt USING @paramModID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				results = database.getResults<std::vector<std::string>>();
+
+				ptree filesNode;
+				for (const auto & vec : results) {
+					ptree fileNode;
+
+					fileNode.put("Name", vec[0]);
+					fileNode.put("Hash", vec[1]);
+					fileNode.put("Language", vec[2]);
+					
+					filesNode.push_back(std::make_pair("", fileNode));
+				}
+				responseTree.add_child("Files", filesNode);
+			} while (false);
+
+			write_json(responseStream, responseTree);
+
+			response->write(code, responseStream.str());
+		} catch (...) {
+			response->write(SimpleWeb::StatusCode::client_error_bad_request);
+		}
+	}
+
+	void ManagementServer::updateModVersion(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+		try {
+			const std::string content = ServerCommon::convertString(request->content.string());
+
+			std::stringstream ss(content);
+
+			ptree pt;
+			read_json(ss, pt);
+		
+			const std::string username = pt.get<std::string>("Username");
+			const std::string password = pt.get<std::string>("Password");
+
+			const int userID = ServerCommon::getUserID(username, password);
+
+			if (userID == -1) {
+				response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+				return;
+			}
+
+			const int32_t modID = pt.get<int32_t>("ModID");
+
+			if (!hasAdminAccessToMod(userID, modID)) {
+				response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+				return;
+			}
+
+			const int32_t versionMajor = pt.get<int32_t>("VersionMajor");
+			const int32_t versionMinor = pt.get<int32_t>("VersionMinor");
+			const int32_t versionPatch = pt.get<int32_t>("VersionPatch");
+
+			SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+			do {
+				CONNECTTODATABASE(__LINE__)
+
+				if (!database.query("PREPARE updateStmt FROM \"UPDATE mods SET MajorVersion = ?, MinorVersion = ?, PatchVersion = ? WHERE ModID = ? LIMIT 1\";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("SET @paramVersionMajor=" + std::to_string(versionMajor) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("SET @paramVersionMinor=" + std::to_string(versionMinor) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("SET @paramVersionPatch=" + std::to_string(versionPatch) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("EXECUTE updateStmt USING @paramVersionMajor, @paramVersionMinor, @paramVersionPatch, @paramModID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+			} while (false);
+
+			response->write(code);
 		} catch (...) {
 			response->write(SimpleWeb::StatusCode::client_error_bad_request);
 		}

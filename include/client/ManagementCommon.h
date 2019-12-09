@@ -94,5 +94,26 @@ namespace client {
 		void read(const QJsonObject &json);
 	} ManagementCustomStatistics;
 
+	typedef struct {
+		QString filename;
+		QString hash;
+		QString language;
+		bool changed;
+		bool deleted;
+		int32_t size;
+
+		void read(const QJsonObject &json);
+	} ManagementModFile;
+
+	typedef struct {
+		int32_t versionMajor;
+		int32_t versionMinor;
+		int32_t versionPatch;
+
+		QList<ManagementModFile> files;
+
+		void read(const QJsonObject &json);
+	} ManagementModFilesData;
+
 } /* namespace client */
 } /* namespace spine */

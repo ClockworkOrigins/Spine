@@ -65,7 +65,7 @@ namespace widgets {
 
 			_tabWidget = new QTabWidget(this);
 			_generalConfigurationWidget = new GeneralConfigurationWidget(_username, _language, this);
-			_modFilesWidget = new ModFilesWidget(username, language, this);
+			_modFilesWidget = new ModFilesWidget(username, password, language, this);
 			_userManagementWidget = new UserManagementWidget(username, language, this);
 			_statisticsWidget = new StatisticsWidget(this);
 			_achievementsWidget = new AchievementsWidget(_username, _password, this);
@@ -185,7 +185,7 @@ namespace widgets {
 	}
 
 	void ManagementDialog::changedTab() {
-		auto tab = _tabWidget->currentWidget();
+		const auto tab = _tabWidget->currentWidget();
 		auto managementWidget = dynamic_cast<IManagementWidget *>(tab);
 
 		managementWidget->updateView();

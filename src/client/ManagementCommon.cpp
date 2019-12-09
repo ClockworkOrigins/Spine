@@ -220,5 +220,45 @@ namespace client {
 		}
 	}
 
+	void ManagementModFile::read(const QJsonObject & json) {
+		if (!json.contains("Name")) return;
+				
+		if (!json.contains("Hash")) return;
+		
+		if (!json.contains("Language")) return;
+
+		filename = json["Name"].toString();
+		hash = json["Hash"].toString();
+		language = json["Language"].toString();
+
+		changed = false;
+		deleted = false;
+		size = 0;
+	}
+
+	void ManagementModFilesData::read(const QJsonObject & json) {
+		if (!json.contains("VersionMajor")) return;
+		
+		if (!json.contains("VersionMinor")) return;
+		
+		if (!json.contains("VersionPatch")) return;
+		
+		if (!json.contains("Files")) return;
+
+		versionMajor = json["VersionMajor"].toInt();
+		versionMinor = json["VersionMinor"].toInt();
+		versionPatch = json["VersionPatch"].toInt();
+				
+		const auto arr = json["Files"].toArray();
+		for (const auto entry : arr) {
+			const auto jo = entry.toObject();
+
+			ManagementModFile mmf;
+			mmf.read(jo);
+
+			files.append(mmf);
+		}
+	}
+
 } /* namespace client */
 } /* namespace spine */

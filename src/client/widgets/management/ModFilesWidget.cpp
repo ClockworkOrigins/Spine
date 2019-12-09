@@ -23,6 +23,10 @@
 
 #include "SpineConfig.h"
 
+#include "common/MessageStructs.h"
+
+#include "https/Https.h"
+
 #include "utils/Conversion.h"
 
 #include "widgets/MainWindow.h"
@@ -40,6 +44,8 @@
 #include <QFileDialog>
 #include <QHeaderView>
 #include <QInputDialog>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QListView>
 #include <QMessageBox>
 #include <QPushButton>
@@ -63,7 +69,7 @@ namespace {
 	};
 }
 
-	ModFilesWidget::ModFilesWidget(QString username, QString language, QWidget * par) : QWidget(par), _fileList(nullptr), _username(username), _language(language), _mods(), _fileTreeView(nullptr), _modIndex(-1), _directory(), _fileMap(), _majorVersionBox(nullptr), _minorVersionBox(nullptr), _patchVersionBox(nullptr), _waitSpinner(nullptr) {
+	ModFilesWidget::ModFilesWidget(const QString & username, const QString & password, const QString & language, QWidget * par) : QWidget(par), _fileList(nullptr), _username(username), _password(password), _language(language), _mods(), _fileTreeView(nullptr), _modIndex(-1), _directory(), _fileMap(), _majorVersionBox(nullptr), _minorVersionBox(nullptr), _patchVersionBox(nullptr), _waitSpinner(nullptr) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -129,6 +135,15 @@ namespace {
 
 		setLayout(l);
 
+		connect(this, &ModFilesWidget::removeSpinner, [this]() {
+			if (!_waitSpinner) return;
+
+			delete _waitSpinner;
+			_waitSpinner = nullptr;
+		});
+
+		connect(this, &ModFilesWidget::loadedData, this, &ModFilesWidget::updateData);
+
 #ifdef Q_OS_WIN
 		QWinTaskbarButton * button = new QWinTaskbarButton(this);
 		button->setWindow(spine::widgets::MainWindow::getInstance()->windowHandle());
@@ -145,12 +160,11 @@ namespace {
 	}
 
 	void ModFilesWidget::addFile() {
-		// TODO
 		// adds a file... if already existing => just update internally
-		/*QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectFile"));
+		const QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectFile"));
 		if (path.isEmpty()) return;
 
-		QString mapping = QInputDialog::getText(this, QApplication::tr("PathInDirectoryStructure"), QApplication::tr("PathInDirectoryStructureDescription"));
+		const QString mapping = QInputDialog::getText(this, QApplication::tr("PathInDirectoryStructure"), QApplication::tr("PathInDirectoryStructureDescription"));
 		QStringList realMappingSplit = mapping.split("/", QString::SplitBehavior::SkipEmptyParts);
 		QString realMapping;
 		for (const QString & rm : realMappingSplit) {
@@ -169,8 +183,8 @@ namespace {
 		_fileTreeView->resizeColumnToContents(0);
 		_fileTreeView->resizeColumnToContents(1);
 		bool found = false;
-		for (auto it = _mods[_modIndex].files.begin(); it != _mods[_modIndex].files.end(); ++it) {
-			QString currentFileName = s2q(it->filename);
+		for (auto & it : _data.files) {
+			QString currentFileName = it.filename;
 			while (currentFileName[0] == '/') {
 				currentFileName = currentFileName.mid(1);
 			}
@@ -178,8 +192,8 @@ namespace {
 				currentFileName.chop(2);
 			}
 			if (file == currentFileName) {
-				if (it->deleted) {
-					it->deleted = false;
+				if (it.deleted) {
+					it.deleted = false;
 				}
 				// check hash of new file
 				QFile f(path);
@@ -187,8 +201,8 @@ namespace {
 					QCryptographicHash hash(QCryptographicHash::Sha512);
 					hash.addData(&f);
 					const QString hashSum = QString::fromLatin1(hash.result().toHex());
-					if (hashSum != s2q(it->hash)) { // hash changed
-						it->changed = true;
+					if (hashSum != it.hash) { // hash changed
+						it.changed = true;
 						_fileMap.insert(file, path);
 					}
 				}
@@ -197,55 +211,60 @@ namespace {
 			}
 		}
 		if (!found) {
-			common::ModFile mf;
-			mf.filename = q2s(file);
+			ManagementModFile mf;
+			mf.filename = file;
 			mf.language = "All";
 			mf.changed = true;
-			_mods[_modIndex].files.push_back(mf);
+			_data.files.append(mf);
 			_fileMap.insert(file, path);
-		}*/
+		}
 	}
 
 	void ModFilesWidget::deleteFile() {
-		// TODO
 		// removes selected modfile
-		/*if (_fileTreeView->selectionModel()->selectedIndexes().isEmpty()) return;
+		if (_fileTreeView->selectionModel()->selectedIndexes().isEmpty()) return;
 
-		QModelIndex idx = _fileTreeView->selectionModel()->selectedIndexes().front();
-		QVariant v = idx.data(PathRole);
+		const QModelIndex idx = _fileTreeView->selectionModel()->selectedIndexes().front();
+		const QVariant v = idx.data(PathRole);
 		if (v.isValid()) {
 			const QString path = v.toString();
-			for (auto it = _mods[_modIndex].files.begin(); it != _mods[_modIndex].files.end(); ++it) {
-				QString currentFileName = s2q(it->filename);
+			for (auto & file : _data.files) {
+				QString currentFileName = file.filename;
 				if (currentFileName.endsWith(".z")) {
 					currentFileName.chop(2);
 				}
 				if (path == currentFileName) {
-					it->deleted = true;
+					file.deleted = true;
 					break;
 				}
 			}
 			_directory.remove(path);
 			_fileList->removeRow(idx.row(), idx.parent());
-		}*/
+		}
 	}
 
 	void ModFilesWidget::uploadCurrentMod() {
-		// TODO
 		// create diff and upload mods
 		// own port on server
-		/*_waitSpinner = new WaitSpinner(QApplication::tr("PreparingUpload"), this);
-		connect(this, &ModFilesWidget::updateUploadText, _waitSpinner, &WaitSpinner::setText);
+		_waitSpinner = new spine::widgets::WaitSpinner(QApplication::tr("PreparingUpload"), this);
+		connect(this, &ModFilesWidget::updateUploadText, _waitSpinner, &spine::widgets::WaitSpinner::setText);
 #ifdef Q_OS_WIN
 		_taskbarProgress->setValue(0);
 		_taskbarProgress->show();
 #endif
 		std::thread([this]() {
 			common::UploadModfilesMessage umm;
-			umm.modID = _mods[_modIndex].modID;
-			for (auto mf : _mods[_modIndex].files) {
+			umm.modID = _mods[_modIndex].id;
+			for (const auto & mmf : _data.files) {
+				common::ModFile mf;
+				mf.language = q2s(mmf.language);
+				mf.changed = mmf.changed;
+				mf.deleted = mmf.deleted;
+				mf.filename = q2s(mmf.filename);
+				mf.hash = q2s(mmf.hash);
+				mf.size = mmf.size;
 				if (mf.deleted) {
-					if (!s2q(mf.filename).endsWith(".z")) {
+					if (!mmf.filename.endsWith(".z")) {
 						mf.filename += ".z";
 					}
 					while (mf.filename[0] == '/') {
@@ -256,9 +275,17 @@ namespace {
 			}
 			qint64 maxBytes = 0;
 			QStringList uploadFiles;
-			for (auto mf : _mods[_modIndex].files) {
+			for (const auto & mmf : _data.files) {
+				common::ModFile mf;
+				mf.language = q2s(mmf.language);
+				mf.changed = mmf.changed;
+				mf.deleted = mmf.deleted;
+				mf.filename = q2s(mmf.filename);
+				mf.hash = q2s(mmf.hash);
+				mf.size = mmf.size;
+				
 				if (mf.changed) {
-					QString currentFileName = s2q(mf.filename);
+					QString currentFileName = mmf.filename;
 					while (currentFileName.startsWith("/")) {
 						currentFileName.remove(0, 1);
 					}
@@ -298,7 +325,7 @@ namespace {
 							}
 						}
 					}
-					if (!s2q(mf.filename).endsWith(".z")) {
+					if (!mmf.filename.endsWith(".z")) {
 						mf.filename += ".z";
 					}
 					while (mf.filename[0] == '/') {
@@ -307,7 +334,7 @@ namespace {
 					umm.files.push_back(mf);
 				}
 			}
-			emit updateProgressMax(maxBytes / 1024);
+			emit updateProgressMax(static_cast<int>(maxBytes / 1024));
 			std::string serialized = umm.SerializePublic();
 			clockUtils::sockets::TcpSocket sock;
 			const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", UPLOADSERVER_PORT, 10000);
@@ -318,7 +345,7 @@ namespace {
 				int size = serialized.size();
 				sock.write(&size, 4);
 				sock.write(serialized);
-				for (QString file : uploadFiles) {
+				for (const QString & file : uploadFiles) {
 					std::ifstream in(q2s(file), std::ios_base::in | std::ios_base::binary);
 					while (in.good()) {
 						char buffer[1024];
@@ -326,8 +353,8 @@ namespace {
 						const auto fileSize = in.gcount();
 						sock.write(buffer, fileSize);
 						writtenBytes += fileSize;
-						emit updateUploadText(QApplication::tr("UploadingFiles").arg(byteToString(writtenBytes), byteToString(maxBytes), bytePerTimeToString(writtenBytes, startTime.elapsed())));
-						emit updateProgress(writtenBytes / 1024);
+						emit updateUploadText(QApplication::tr("UploadingFiles").arg(utils::byteToString(writtenBytes), utils::byteToString(maxBytes), utils::bytePerTimeToString(writtenBytes, startTime.elapsed())));
+						emit updateProgress(static_cast<int>(writtenBytes / 1024));
 					}
 					in.close();
 					QFile::remove(file);
@@ -348,7 +375,7 @@ namespace {
 			} else {
 				emit finishedUpload(false, uploadFiles.size());
 			}
-		}).detach();*/
+		}).detach();
 	}
 
 	void ModFilesWidget::updateModList(QList<client::ManagementMod> modList) {
@@ -356,69 +383,89 @@ namespace {
 	}
 
 	void ModFilesWidget::selectedMod(int index) {
-		// TODO
-		/*_modIndex = index;
+		_modIndex = index;
 		_fileList->clear();
 		_fileList->setColumnCount(2);
 		_directory.clear();
+	}
+
+	void ModFilesWidget::updateView() {
+		delete _waitSpinner;
+		_waitSpinner = new spine::widgets::WaitSpinner(QApplication::tr("Updating"), this);
+
+		QJsonObject json;
+		json["Username"] = _username;
+		json["Password"] = _password;
+		json["ModID"] = _mods[_modIndex].id;
+		
+		https::Https::postAsync(MANAGEMENTSERVER_PORT, "getModFiles", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+			if (statusCode != 200) {
+				emit removeSpinner();
+				return;
+			}
+			ManagementModFilesData mmdfd;
+			mmdfd.read(json);
+			
+			emit loadedData(mmdfd);
+			emit removeSpinner();
+		});
+	}
+
+	void ModFilesWidget::updateData(ManagementModFilesData content) {
+		_data = content;
+
 		QStandardItem * baseItem = new QStandardItem("/");
 		baseItem->setEditable(false);
 		_directory.insert("/", baseItem);
-		for (const auto & f : _mods[index].files) {
-			addFile(baseItem, s2q(f.filename), s2q(f.language));
+		for (const auto & f : _data.files) {
+			addFile(baseItem, f.filename, f.language);
 		}
 		_fileList->appendRow(baseItem);
 		_fileTreeView->expandAll();
 		_fileTreeView->resizeColumnToContents(0);
 		_fileTreeView->resizeColumnToContents(1);
 
-		_majorVersionBox->setValue(int(_mods[index].majorVersion));
-		_minorVersionBox->setValue(int(_mods[index].minorVersion));
-		_patchVersionBox->setValue(int(_mods[index].patchVersion));*/
+		_majorVersionBox->setValue(_data.versionMajor);
+		_minorVersionBox->setValue(_data.versionMinor);
+		_patchVersionBox->setValue(_data.versionPatch);
 	}
 
 	void ModFilesWidget::changedLanguage(QStandardItem * itm) {
-		// TODO
-		/*QVariant v = itm->data(PathRole);
+		const QVariant v = itm->data(PathRole);
 		if (!v.isValid()) return;
 
 		const QString path = v.toString();
-		for (auto it = _mods[_modIndex].files.begin(); it != _mods[_modIndex].files.end(); ++it) {
-			QString currentFileName = s2q(it->filename);
+		for (auto & file : _data.files) {
+			QString currentFileName = file.filename;
 			if (currentFileName.endsWith(".z")) {
 				currentFileName.chop(2);
 			}
 			if (path == currentFileName) {
-				it->changed = true;
-				it->language = q2s(itm->data(Qt::DisplayRole).toString());
+				file.changed = true;
+				file.language = itm->data(Qt::DisplayRole).toString();
 				break;
 			}
-		}*/
+		}
 	}
 
 	void ModFilesWidget::updateVersion() {
-		// TODO
 		if (_modIndex == -1) return;
 
-		/*common::UpdateModVersionMessage umvm;
-		umvm.modID = _mods[_modIndex].modID;
-		umvm.majorVersion = _majorVersionBox->value();
-		umvm.minorVersion = _minorVersionBox->value();
-		umvm.patchVersion = _patchVersionBox->value();
-		_mods[_modIndex].majorVersion = _majorVersionBox->value();
-		_mods[_modIndex].minorVersion = _minorVersionBox->value();
-		_mods[_modIndex].patchVersion = _patchVersionBox->value();
-		const std::string serialized = umvm.SerializePublic();
-		clockUtils::sockets::TcpSocket sock;
-		const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-		if (clockUtils::ClockError::SUCCESS == cErr) {
-			sock.writePacket(serialized);
-		}*/
+		QJsonObject json;
+		json["Username"] = _username;
+		json["Password"] = _password;
+		json["ModID"] = _mods[_modIndex].id;
+		json["VersionMajor"] = _majorVersionBox->value();
+		json["VersionMinor"] = _minorVersionBox->value();
+		json["VersionPatch"] = _patchVersionBox->value();
+		
+		https::Https::postAsync(MANAGEMENTSERVER_PORT, "updateModVersion", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject &, int) {
+			// error handling
+		});
 	}
 
 	void ModFilesWidget::finishUpload(bool success, int updatedCount) {
-		// TODO
-		/*delete _waitSpinner;
+		delete _waitSpinner;
 		_waitSpinner = nullptr;
 
 #ifdef Q_OS_WIN
@@ -426,7 +473,7 @@ namespace {
 #endif
 
 		if (success) {
-			QMessageBox msg(QMessageBox::Icon::Information, QApplication::tr("UploadSuccessful"), QApplication::tr("UploadSuccessfulText") + "\n" + QApplication::tr("xOfyFilesHaveBeenUpdated").arg(updatedCount).arg(_mods[_modIndex].files.size()), QMessageBox::StandardButton::Ok);
+			QMessageBox msg(QMessageBox::Icon::Information, QApplication::tr("UploadSuccessful"), QApplication::tr("UploadSuccessfulText") + "\n" + QApplication::tr("xOfyFilesHaveBeenUpdated").arg(updatedCount).arg(_data.files.size()), QMessageBox::StandardButton::Ok);
 			msg.setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 			msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
 			msg.exec();
@@ -435,14 +482,13 @@ namespace {
 			msg.setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 			msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
 			msg.exec();
-		}*/
+		}
 	}
 
 	void ModFilesWidget::testUpdate() {
-		// TODO
-		/*if (_modIndex == -1) return;
+		if (_modIndex == -1) return;
 
-		emit checkForUpdate(_mods[_modIndex].modID);*/
+		emit checkForUpdate(_mods[_modIndex].id);
 	}
 
 	void ModFilesWidget::addFile(QStandardItem * itm, QString file, QString language) {
