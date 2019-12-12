@@ -20,12 +20,17 @@
 
 #include "SpineConfig.h"
 
+#include "https/Https.h"
+
 #include "utils/Conversion.h"
 
-#include "clockUtils/sockets/TcpSocket.h"
+#include "widgets/WaitSpinner.h"
 
 #include <QApplication>
 #include <QDialogButtonBox>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
@@ -35,7 +40,7 @@ namespace spine {
 namespace client {
 namespace widgets {
 
-	ScoresWidget::ScoresWidget(QWidget * par) : QWidget(par), _mods(), _modIndex(-1), _rowCount(1), _scoreEdits() {
+	ScoresWidget::ScoresWidget(const QString & username, const QString & password, QWidget * par) : QWidget(par), _mods(), _modIndex(-1), _rowCount(1), _scoreEdits(), _username(username), _password(password), _waitSpinner(nullptr) {
 		QVBoxLayout * vl = new QVBoxLayout();
 
 		{
@@ -66,6 +71,15 @@ namespace widgets {
 		dbb->addButton(submitButton, QDialogButtonBox::ButtonRole::AcceptRole);
 		connect(submitButton, &QPushButton::released, this, &ScoresWidget::updateScores);
 
+		connect(this, &ScoresWidget::removeSpinner, [this]() {
+			if (!_waitSpinner) return;
+
+			delete _waitSpinner;
+			_waitSpinner = nullptr;
+		});
+
+		connect(this, &ScoresWidget::loadedData, this, &ScoresWidget::updateData);
+
 		vl->addStretch(1);
 
 		vl->addWidget(dbb);
@@ -81,8 +95,7 @@ namespace widgets {
 	}
 
 	void ScoresWidget::selectedMod(int index) {
-		// TODO
-		/*_modIndex = index;
+		_modIndex = index;
 
 		for (auto t : _scoreEdits) {
 			QLineEdit * germanEdit = std::get<0>(t);
@@ -101,22 +114,62 @@ namespace widgets {
 			russianEdit->deleteLater();
 		}
 		_scoreEdits.clear();
+	}
+
+	void ScoresWidget::updateView() {
+		if (_modIndex >= _mods.size()) return;
 		
-		for (auto score : _mods[_modIndex].scores) {
+		delete _waitSpinner;
+		_waitSpinner = new spine::widgets::WaitSpinner(QApplication::tr("Updating"), this);
+
+		QJsonObject json;
+		json["Username"] = _username;
+		json["Password"] = _password;
+		json["ModID"] = _mods[_modIndex].id;
+		
+		https::Https::postAsync(MANAGEMENTSERVER_PORT, "getScores", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+			if (statusCode != 200) {
+				emit removeSpinner();
+				return;
+			}
+			QList<ManagementScore> scoreList;
+
+			const auto it = json.find("Scores");
+			if (it != json.end()) {
+				const auto scoreArr = it->toArray();
+				for (auto scoreV : scoreArr) {
+					const auto s = scoreV.toObject();
+					
+					if (s.isEmpty()) continue;
+
+					ManagementScore ms;
+					ms.read(s);
+
+					scoreList.append(ms);
+				}
+			}
+			
+			emit loadedData(scoreList);
+			emit removeSpinner();
+		});
+	}
+
+	void ScoresWidget::updateData(QList<ManagementScore> scores) {		
+		for (const auto & score : scores) {
 			QLineEdit * germanEdit = new QLineEdit(this);
 			QLineEdit * englishEdit = new QLineEdit(this);
 			QLineEdit * polishEdit = new QLineEdit(this);
 			QLineEdit * russianEdit = new QLineEdit(this);
 
-			for (auto tt : score.names) {
+			for (const auto & tt : score.names) {
 				if (tt.language == "Deutsch") {
-					germanEdit->setText(s2q(tt.text));
+					germanEdit->setText(tt.text);
 				} else if (tt.language == "English") {
-					englishEdit->setText(s2q(tt.text));
+					englishEdit->setText(tt.text);
 				} else if (tt.language == "Polish") {
-					polishEdit->setText(s2q(tt.text));
+					polishEdit->setText(tt.text);
 				} else if (tt.language == "Russian") {
-					russianEdit->setText(s2q(tt.text));
+					russianEdit->setText(tt.text);
 				}
 			}
 
@@ -128,66 +181,74 @@ namespace widgets {
 			_scoreEdits.push_back(std::make_tuple(germanEdit, englishEdit, polishEdit, russianEdit));
 
 			_rowCount++;
-		}*/
+		}
 	}
 
 	void ScoresWidget::updateScores() {
-		// TODO
-		/*if (_modIndex == -1) {
-			return;
-		}
-		common::UpdateScoresMessage usm;
-		usm.modID = _mods[_modIndex].modID;
+		if (_modIndex == -1) return;
 
-		for (int i = 0; i < _scoreEdits.size(); i++) {
+		QJsonObject json;
+		json["ModID"] = _mods[_modIndex].id;
+		json["Username"] = _username;
+		json["Password"] = _password;
+
+		QJsonArray scoreArray;
+
+		for (auto & scoreEdit : _scoreEdits) {
 			bool toAdd = false;
 
-			common::UpdateScoresMessage::Score score;
+			QLineEdit * germanEdit = std::get<0>(scoreEdit);
+			QLineEdit * englishEdit = std::get<1>(scoreEdit);
+			QLineEdit * polishEdit = std::get<2>(scoreEdit);
+			QLineEdit * russianEdit = std::get<3>(scoreEdit);
 
-			QLineEdit * germanEdit = std::get<0>(_scoreEdits[i]);
-			QLineEdit * englishEdit = std::get<1>(_scoreEdits[i]);
-			QLineEdit * polishEdit = std::get<2>(_scoreEdits[i]);
-			QLineEdit * russianEdit = std::get<3>(_scoreEdits[i]);
+			ManagementScore ms;
 
 			if (!germanEdit->text().isEmpty()) {
-				common::TranslatedText tt;
-				tt.language = "Deutsch";
-				tt.text = q2s(germanEdit->text());
-				score.names.push_back(tt);
+				ManagementTranslation mt;
+				mt.language = "Deutsch";
+				mt.text = germanEdit->text();
+				ms.names.append(mt);
 				toAdd = true;
 			}
 			if (!englishEdit->text().isEmpty()) {
-				common::TranslatedText tt;
-				tt.language = "English";
-				tt.text = q2s(englishEdit->text());
-				score.names.push_back(tt);
+				ManagementTranslation mt;
+				mt.language = "English";
+				mt.text = englishEdit->text();
+				ms.names.push_back(mt);
 				toAdd = true;
 			}
 			if (!polishEdit->text().isEmpty()) {
-				common::TranslatedText tt;
-				tt.language = "Polish";
-				tt.text = q2s(polishEdit->text());
-				score.names.push_back(tt);
+				ManagementTranslation mt;
+				mt.language = "Polish";
+				mt.text = polishEdit->text();
+				ms.names.push_back(mt);
 				toAdd = true;
 			}
 			if (!russianEdit->text().isEmpty()) {
-				common::TranslatedText tt;
-				tt.language = "Russian";
-				tt.text = q2s(russianEdit->text());
-				score.names.push_back(tt);
+				ManagementTranslation mt;
+				mt.language = "Russian";
+				mt.text = russianEdit->text();
+				ms.names.push_back(mt);
 				toAdd = true;
 			}
 			if (toAdd) {
-				usm.scores.push_back(score);
+				QJsonObject j;
+				ms.write(j);
+				scoreArray.append(j);
 			}
 		}
 
-		std::string serialized = usm.SerializePublic();
-		clockUtils::sockets::TcpSocket sock;
-		clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-		if (clockUtils::ClockError::SUCCESS == cErr) {
-			sock.writePacket(serialized);
-		}*/
+		if (scoreArray.isEmpty()) return; // no need to synchronize something if there are no achievements
+		
+		json["Scores"] = scoreArray;
+
+		const QJsonDocument doc(json);
+		const QString content = doc.toJson(QJsonDocument::Compact);
+
+		https::Https::postAsync(MANAGEMENTSERVER_PORT, "updateScores", content, [](const QJsonObject &, int) {
+			// we could do some error handling here
+		});
 	}
 
 	void ScoresWidget::addScore() {

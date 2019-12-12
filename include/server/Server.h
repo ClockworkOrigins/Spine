@@ -78,7 +78,6 @@ namespace common {
 	struct UpdateEarlyAccessStateMessage;
 	struct UpdateImpressionMessage;
 	struct UpdateLoginTimeMessage;
-	struct UpdateModVersionMessage;
 	struct UpdateOfflineDataMessage;
 	struct UpdateOverallSaveDataMessage;
 	struct UpdatePlayingTimeMessage;
@@ -86,7 +85,6 @@ namespace common {
 	struct UpdateRequestMessage;
 	struct UpdateRequestEncryptedMessage;
 	struct UpdateScoreMessage;
-	struct UpdateScoresMessage;
 	struct UpdateStartTimeMessage;
 	struct UpdateSucceededMessage;
 } /* namespace common */
@@ -172,7 +170,6 @@ namespace server {
 		void handleAcceptFriendRequest(clockUtils::sockets::TcpSocket * sock, common::AcceptFriendRequestMessage * msg) const;
 		void handleDeclineFriendRequest(clockUtils::sockets::TcpSocket * sock, common::DeclineFriendRequestMessage * msg) const;
 		void handleRequestUserLevel(clockUtils::sockets::TcpSocket * sock, common::RequestUserLevelMessage * msg) const;
-		void handleUpdateScores(clockUtils::sockets::TcpSocket * sock, common::UpdateScoresMessage * msg) const;
 		void handleUpdateSucceeded(clockUtils::sockets::TcpSocket * sock, common::UpdateSucceededMessage * msg) const;
 		void handleUpdateChapterStats(clockUtils::sockets::TcpSocket * sock, common::UpdateChapterStatsMessage * msg) const;
 		void handleUpdateImpression(clockUtils::sockets::TcpSocket * sock, common::UpdateImpressionMessage * msg) const;

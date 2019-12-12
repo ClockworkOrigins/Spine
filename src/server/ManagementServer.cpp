@@ -54,6 +54,8 @@ namespace server {
 		_server->resource["^/getModFiles"]["POST"] = std::bind(&ManagementServer::getModFiles, this, std::placeholders::_1, std::placeholders::_2);
 		_server->resource["^/updateModVersion"]["POST"] = std::bind(&ManagementServer::updateModVersion, this, std::placeholders::_1, std::placeholders::_2);
 		_server->resource["^/getStatistics"]["POST"] = std::bind(&ManagementServer::getStatistics, this, std::placeholders::_1, std::placeholders::_2);
+		_server->resource["^/getScores"]["POST"] = std::bind(&ManagementServer::getScores, this, std::placeholders::_1, std::placeholders::_2);
+		_server->resource["^/updateScores"]["POST"] = std::bind(&ManagementServer::updateScores, this, std::placeholders::_1, std::placeholders::_2);
 
 		_runner = new std::thread([this]() {
 			_server->start();
@@ -1252,6 +1254,182 @@ namespace server {
 			write_json(responseStream, responseTree);
 
 			response->write(code, responseStream.str());
+		} catch (...) {
+			response->write(SimpleWeb::StatusCode::client_error_bad_request);
+		}
+	}
+
+	void ManagementServer::getScores(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+		try {
+			const std::string content = ServerCommon::convertString(request->content.string());
+
+			std::stringstream ss(content);
+
+			ptree pt;
+			read_json(ss, pt);
+		
+			const std::string username = pt.get<std::string>("Username");
+			const std::string password = pt.get<std::string>("Password");
+
+			const int userID = ServerCommon::getUserID(username, password);
+
+			if (userID == -1) {
+				response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+				return;
+			}
+
+			const int32_t modID = pt.get<int32_t>("ModID");
+
+			if (!hasAdminAccessToMod(userID, modID)) {
+				response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+				return;
+			}
+			
+			SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+			std::stringstream responseStream;
+			ptree responseTree;
+
+			do {
+				CONNECTTODATABASE(__LINE__)
+				
+				if (!database.query("PREPARE selectScoreNamesStmt FROM \"SELECT Identifier, CAST(Name AS BINARY), CAST(Language AS BINARY) FROM modScoreNames WHERE ModID = ? ORDER BY Identifier ASC\";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("EXECUTE selectScoreNamesStmt USING @paramModID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				auto results = database.getResults<std::vector<std::string>>();
+
+				std::map<int32_t, std::vector<std::pair<std::string, std::string>>> map;
+
+				for (const auto & vec : results) {
+					const int32_t id = std::stoi(vec[0]);
+					const std::string name = vec[1];
+					const std::string language = vec[2];
+
+					map[id].push_back(std::make_pair(name, language));
+				}
+
+				ptree scoreNodes;
+				for (auto & it : map) {
+					ptree scoreNode;
+
+					ptree nameNodes;
+					for (auto & it2 : it.second) {
+						ptree nameNode;
+						
+						nameNode.put("Language", it2.second);
+						nameNode.put("Text", it2.first);
+						
+						nameNodes.push_back(std::make_pair("", nameNode));
+					}
+					scoreNode.add_child("Names", nameNodes);
+					
+					scoreNodes.push_back(std::make_pair("", scoreNode));
+				}
+				responseTree.add_child("Scores", scoreNodes);
+			} while (false);
+
+			write_json(responseStream, responseTree);
+
+			response->write(code, responseStream.str());
+		} catch (...) {
+			response->write(SimpleWeb::StatusCode::client_error_bad_request);
+		}
+	}
+
+	void ManagementServer::updateScores(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+		try {
+			const std::string content = ServerCommon::convertString(request->content.string());
+
+			std::stringstream ss(content);
+
+			ptree pt;
+			read_json(ss, pt);
+		
+			const std::string username = pt.get<std::string>("Username");
+			const std::string password = pt.get<std::string>("Password");
+
+			const int userID = ServerCommon::getUserID(username, password);
+
+			if (userID == -1) {
+				response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+				return;
+			}
+
+			const int32_t modID = pt.get<int32_t>("ModID");
+
+			if (!hasAdminAccessToMod(userID, modID)) {
+				response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+				return;
+			}
+
+			SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+			do {
+				CONNECTTODATABASE(__LINE__)
+					
+				if (!database.query("PREPARE insertScoreStmt FROM \"INSERT IGNORE INTO modScoreList (ModID, Identifier) VALUES (?, ?)\";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("PREPARE updateScoreNameStmt FROM \"INSERT INTO modScoreNames (ModID, Identifier, Language, Name) VALUES (?, ?, CONVERT(? USING BINARY), CONVERT(? USING BINARY)) ON DUPLICATE KEY UPDATE Name = CONVERT(? USING BINARY)\";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				const auto scores = pt.get_child("Scores");
+
+				int id = 0;
+				for (const auto & score : scores) {
+					if (!database.query("SET @paramIdentifier=" + std::to_string(id) + ";")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+					if (!database.query("EXECUTE insertScoreStmt USING @paramModID, @paramIdentifier;")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+					for (const auto & tt : score.second.get_child("Names")) {
+						if (!database.query("SET @paramLanguage='" + tt.second.get<std::string>("Language") + "';")) {
+							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+							code = SimpleWeb::StatusCode::client_error_failed_dependency;
+							break;
+						}
+						if (!database.query("SET @paramName='" + tt.second.get<std::string>("Text") + "';")) {
+							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+							code = SimpleWeb::StatusCode::client_error_failed_dependency;
+							break;
+						}
+						if (!database.query("EXECUTE updateScoreNameStmt USING @paramModID, @paramIdentifier, @paramLanguage, @paramName, @paramName;")) {
+							std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+							code = SimpleWeb::StatusCode::client_error_failed_dependency;
+							break;
+						}
+					}
+					id++;
+				}
+			} while (false);
+
+			response->write(code);
 		} catch (...) {
 			response->write(SimpleWeb::StatusCode::client_error_bad_request);
 		}

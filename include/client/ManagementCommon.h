@@ -154,5 +154,12 @@ namespace client {
 		void read(const QJsonObject &json);
 	} ManagementStatistics;
 
+	typedef struct {
+		QList<ManagementTranslation> names;
+
+		void read(const QJsonObject &json);
+		void write(QJsonObject & json) const;
+	} ManagementScore;
+
 } /* namespace client */
 } /* namespace spine */

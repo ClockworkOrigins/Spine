@@ -275,8 +275,7 @@ namespace server {
 				} else if (m->type == common::MessageType::UPDATEGENERALMODCONFIGURATION) {
 					// not supported anymore
 				} else if (m->type == common::MessageType::UPDATESCORES) {
-					common::UpdateScoresMessage * msg = dynamic_cast<common::UpdateScoresMessage *>(m);
-					handleUpdateScores(sock, msg);
+					// not supported anymore
 				} else if (m->type == common::MessageType::UPDATEACHIEVEMENTS) {
 					// not supported anymore
 				} else if (m->type == common::MessageType::UPDATESUCCEEDED) {
@@ -4536,52 +4535,6 @@ namespace server {
 		} while (false);
 		const std::string serialized = sulm.SerializePrivate();
 		sock->writePacket(serialized);
-	}
-
-	void Server::handleUpdateScores(clockUtils::sockets::TcpSocket *, common::UpdateScoresMessage * msg) const {
-		do {
-			MariaDBWrapper database;
-			if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, SPINEDATABASE, 0)) {
-				std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-				break;
-			}
-			if (!database.query("PREPARE insertScoreStmt FROM \"INSERT IGNORE INTO modScoreList (ModID, Identifier) VALUES (?, ?)\";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("PREPARE updateScoreNameStmt FROM \"INSERT INTO modScoreNames (ModID, Identifier, Language, Name) VALUES (?, ?, CONVERT(? USING BINARY), CONVERT(? USING BINARY)) ON DUPLICATE KEY UPDATE Name = CONVERT(? USING BINARY)\";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("SET @paramModID=" + std::to_string(msg->modID) + ";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			for (size_t i = 0; i < msg->scores.size(); i++) {
-				if (!database.query("SET @paramIdentifier=" + std::to_string(i) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-					break;
-				}
-				if (!database.query("EXECUTE insertScoreStmt USING @paramModID, @paramIdentifier;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-					break;
-				}
-				for (const auto & tt : msg->scores[i].names) {
-					if (!database.query("SET @paramLanguage='" + tt.language + "';")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-						break;
-					}
-					if (!database.query("SET @paramName='" + tt.text + "';")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-						break;
-					}
-					if (!database.query("EXECUTE updateScoreNameStmt USING @paramModID, @paramIdentifier, @paramLanguage, @paramName, @paramName;")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-						break;
-					}
-				}
-			}
-		} while (false);
 	}
 
 	void Server::handleUpdateSucceeded(clockUtils::sockets::TcpSocket *, common::UpdateSucceededMessage * msg) const {

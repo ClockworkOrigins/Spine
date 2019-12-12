@@ -20,35 +20,49 @@
 
 #include "ManagementCommon.h"
 
+#include "widgets/management/IManagementWidget.h"
+
 #include <QWidget>
 
 class QGridLayout;
 class QLineEdit;
 
 namespace spine {
+namespace widgets {
+	class WaitSpinner;
+}
 namespace client {
 namespace widgets {
 
-	class ScoresWidget : public QWidget {
+	class ScoresWidget : public QWidget, public IManagementWidget {
 		Q_OBJECT
 
 	public:
-		ScoresWidget(QWidget * par);
+		ScoresWidget(const QString & username, const QString & password, QWidget * par);
 		~ScoresWidget();
 
-		void updateModList(QList<client::ManagementMod> modList);
+		void updateModList(QList<ManagementMod> modList);
 		void selectedMod(int index);
+		void updateView() override;
+
+	signals:
+		void removeSpinner();
+		void loadedData(QList<ManagementScore>);
 
 	private slots:
+		void updateData(QList<ManagementScore> scores);
 		void updateScores();
 		void addScore();
 
 	private:
-		QList<client::ManagementMod> _mods;
+		QList<ManagementMod> _mods;
 		int _modIndex;
 		QGridLayout * _layout;
 		int _rowCount;
 		QList<std::tuple<QLineEdit *, QLineEdit *, QLineEdit *, QLineEdit *>> _scoreEdits;
+		QString _username;
+		QString _password;
+		spine::widgets::WaitSpinner * _waitSpinner;
 	};
 
 } /* namespace widgets */

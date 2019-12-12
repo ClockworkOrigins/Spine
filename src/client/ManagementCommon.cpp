@@ -342,5 +342,32 @@ namespace client {
 		}
 	}
 
+	void ManagementScore::read(const QJsonObject & json) {
+		// name translations
+		auto it = json.find("Names");
+		if (it != json.end()) {
+			const auto n = it->toArray();
+			for (auto nameEntry : n) {
+				const auto name = nameEntry.toObject();
+
+				if (name.isEmpty()) continue;
+
+				ManagementTranslation mt;
+				mt.read(name);
+				names.append(mt);
+			}
+		}
+	}
+
+	void ManagementScore::write(QJsonObject & json) const {
+		QJsonArray nameArray;
+		for (const auto & name : names) {
+			QJsonObject n;
+			name.write(n);
+			nameArray.append(n);
+		}
+		json["Names"] = nameArray;
+	}
+
 } /* namespace client */
 } /* namespace spine */

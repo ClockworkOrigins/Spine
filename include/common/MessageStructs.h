@@ -1867,30 +1867,6 @@ namespace common {
 		}
 	};
 
-	struct UpdateScoresMessage : public Message {
-		struct Score {
-			std::vector<TranslatedText> names;
-
-			template<class Archive>
-			void serialize(Archive & ar, const unsigned int /* file_version */) {
-				ar & names;
-			}
-		};
-
-		int32_t modID;
-		std::vector<Score> scores;
-
-		UpdateScoresMessage() : Message(), modID(), scores() {
-			type = MessageType::UPDATESCORES;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & modID;
-			ar & scores;
-		}
-	};
-
 	struct UploadAchievementIconsMessage : public Message {
 		int32_t modID;
 
