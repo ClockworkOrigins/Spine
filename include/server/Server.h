@@ -161,7 +161,6 @@ namespace server {
 		void handleRequestOverallSaveData(clockUtils::sockets::TcpSocket * sock, common::RequestOverallSaveDataMessage * msg) const;
 		void handleUpdateOverallSaveData(clockUtils::sockets::TcpSocket * sock, common::UpdateOverallSaveDataMessage * msg) const;
 		void handleRequestModManagement(clockUtils::sockets::TcpSocket * sock, common::RequestModManagementMessage * msg) const;
-		void handleUpdateModVersion(clockUtils::sockets::TcpSocket * sock, common::UpdateModVersionMessage * msg) const;
 		void handleUpdateEarlyAccessState(clockUtils::sockets::TcpSocket * sock, common::UpdateEarlyAccessStateMessage * msg) const;
 		void handleRequestModsForEditor(clockUtils::sockets::TcpSocket * sock, common::RequestModsForEditorMessage * msg) const;
 		void handleUpdateOfflineData(clockUtils::sockets::TcpSocket * sock, common::UpdateOfflineDataMessage * msg) const;

@@ -67,7 +67,7 @@ namespace widgets {
 			_generalConfigurationWidget = new GeneralConfigurationWidget(_username, _language, this);
 			_modFilesWidget = new ModFilesWidget(username, password, language, this);
 			_userManagementWidget = new UserManagementWidget(username, language, this);
-			_statisticsWidget = new StatisticsWidget(this);
+			_statisticsWidget = new StatisticsWidget(username, password, language, this);
 			_achievementsWidget = new AchievementsWidget(_username, _password, this);
 			_scoresWidget = new ScoresWidget(this);
 			_customStatisticsWidget = new CustomStatisticsWidget(_username, _password, this);

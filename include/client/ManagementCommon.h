@@ -115,5 +115,44 @@ namespace client {
 		void read(const QJsonObject &json);
 	} ManagementModFilesData;
 
+	typedef struct {
+		QString version;
+		int32_t downloads;
+
+		void read(const QJsonObject &json);
+	} ManagementVersionDownload;
+
+	typedef struct {
+		int32_t minimum;
+		int32_t maximum;
+		int32_t average;
+		int32_t median;
+
+		void read(const QJsonObject &json);
+	} ManagementStatistic;
+
+	typedef struct {
+		QString name;
+		ManagementStatistic statistic;
+
+		void read(const QJsonObject &json);
+	} ManagementAchievementStatistic;
+
+	typedef struct {
+		int32_t overallDownloads;
+		QList<ManagementVersionDownload> downloadsPerVersion;
+
+		int32_t overallPlayerCount;
+		int32_t last24HoursPlayerCount;
+		int32_t last7DaysPlayerCount;
+
+		ManagementStatistic playTime;
+		ManagementStatistic sessionTime;
+
+		QList<ManagementAchievementStatistic> achievementStatistics;
+
+		void read(const QJsonObject &json);
+	} ManagementStatistics;
+
 } /* namespace client */
 } /* namespace spine */

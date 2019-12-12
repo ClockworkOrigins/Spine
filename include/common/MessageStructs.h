@@ -1528,25 +1528,6 @@ namespace common {
 		}
 	};
 
-	struct UpdateModVersionMessage : public Message {
-		int32_t modID;
-		uint8_t majorVersion;
-		uint8_t minorVersion;
-		uint8_t patchVersion;
-
-		UpdateModVersionMessage() : Message(), modID(), majorVersion(), minorVersion(), patchVersion() {
-			type = MessageType::UPDATEMODVERSION;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & modID;
-			ar & majorVersion;
-			ar & minorVersion;
-			ar & patchVersion;
-		}
-	};
-
 	struct UpdateEarlyAccessStateMessage : public Message {
 		int32_t modID;
 		std::string username;

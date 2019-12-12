@@ -20,7 +20,7 @@
 
 #include "ManagementCommon.h"
 
-#include "common/MessageStructs.h"
+#include "widgets/management/IManagementWidget.h"
 
 #include <QModelIndex>
 #include <QWidget>
@@ -29,27 +29,42 @@ class QLabel;
 class QVBoxLayout;
 
 namespace spine {
+namespace widgets {
+	class WaitSpinner;
+}
 namespace client {
 namespace widgets {
 
-	class StatisticsWidget : public QWidget {
+	class StatisticsWidget : public QWidget, public IManagementWidget {
 		Q_OBJECT
 
 	public:
-		StatisticsWidget(QWidget * par);
+		StatisticsWidget(const QString & username, const QString & password, const QString & language, QWidget * par);
 		~StatisticsWidget();
 
-		void updateModList(QList<client::ManagementMod> modList);
+		void updateModList(QList<ManagementMod> modList);
 		void selectedMod(int index);
+		void updateView() override;
+
+	signals:
+		void removeSpinner();
+		void loadedData(ManagementStatistics);
+
+	private slots:
+		void updateData(ManagementStatistics content);
 
 	private:
-		QList<client::ManagementMod> _mods;
+		QList<ManagementMod> _mods;
 		int _modIndex;
 		QList<QLabel *> _labelList;
 		QVBoxLayout * _downloadsLayout;
 		QVBoxLayout * _playersLayout;
 		QVBoxLayout * _playtimesLayout;
 		QVBoxLayout * _achievementsLayout;
+		QString _username;
+		QString _password;
+		QString _language;
+		spine::widgets::WaitSpinner * _waitSpinner;
 	};
 
 } /* namespace widgets */

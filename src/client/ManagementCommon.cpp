@@ -260,5 +260,87 @@ namespace client {
 		}
 	}
 
+	void ManagementVersionDownload::read(const QJsonObject & json) {
+		if (!json.contains("Version")) return;
+		
+		if (!json.contains("Count")) return;
+
+		version = json["Version"].toString();
+		downloads = json["Count"].toInt();
+	}
+
+	void ManagementStatistic::read(const QJsonObject & json) {
+		if (!json.contains("Minimum")) return;
+		
+		if (!json.contains("Maximum")) return;
+		
+		if (!json.contains("Median")) return;
+		
+		if (!json.contains("Average")) return;
+
+		minimum = json["Minimum"].toInt();
+		maximum = json["Maximum"].toInt();
+		median = json["Median"].toInt();
+		average = json["Average"].toInt();
+	}
+
+	void ManagementAchievementStatistic::read(const QJsonObject & json) {
+		if (!json.contains("Name")) return;
+
+		name = json["Name"].toString();
+
+		statistic.read(json);
+	}
+
+	void ManagementStatistics::read(const QJsonObject & json) {
+		if (!json.contains("OverallDownloads")) return;
+		
+		if (!json.contains("DownloadsPerVersion")) return;
+		
+		if (!json.contains("OverallPlayerCount")) return;
+		
+		if (!json.contains("Last24HoursPlayerCount")) return;
+		
+		if (!json.contains("Last7DaysPlayerCount")) return;
+		
+		if (!json.contains("PlayTime")) return;
+		
+		if (!json.contains("SessionTime")) return;
+		
+		if (!json.contains("Achievements")) return;
+
+		overallDownloads = json["OverallDownloads"].toInt();
+
+		const auto downloadsPerVersionArr = json["DownloadsPerVersion"].toArray();
+		for (const auto & entry : downloadsPerVersionArr) {
+			const auto e = entry.toObject();
+
+			ManagementVersionDownload mvd;
+			mvd.read(e);
+
+			downloadsPerVersion.append(mvd);
+		}
+
+		overallPlayerCount = json["OverallPlayerCount"].toInt();
+		last24HoursPlayerCount = json["Last24HoursPlayerCount"].toInt();
+		last7DaysPlayerCount = json["Last7DaysPlayerCount"].toInt();
+
+		const auto playTimeJson = json["PlayTime"].toObject();
+		playTime.read(playTimeJson);
+
+		const auto sessionTimeJson = json["SessionTime"].toObject();
+		sessionTime.read(sessionTimeJson);
+
+		const auto achievementStatisticsArr = json["Achievements"].toArray();
+		for (const auto & entry : achievementStatisticsArr) {
+			const auto e = entry.toObject();
+
+			ManagementAchievementStatistic mas;
+			mas.read(e);
+
+			achievementStatistics.append(mas);
+		}
+	}
+
 } /* namespace client */
 } /* namespace spine */

@@ -238,8 +238,7 @@ namespace server {
 					common::RequestModManagementMessage * msg = dynamic_cast<common::RequestModManagementMessage *>(m);
 					handleRequestModManagement(sock, msg);
 				} else if (m->type == common::MessageType::UPDATEMODVERSION) {
-					common::UpdateModVersionMessage * msg = dynamic_cast<common::UpdateModVersionMessage *>(m);
-					handleUpdateModVersion(sock, msg);
+					// not supported anymore
 				} else if (m->type == common::MessageType::UPDATEEARLYACCESSSTATE) {
 					common::UpdateEarlyAccessStateMessage * msg = dynamic_cast<common::UpdateEarlyAccessStateMessage *>(m);
 					handleUpdateEarlyAccessState(sock, msg);
@@ -3909,40 +3908,6 @@ namespace server {
 		} while (false);
 		const std::string serialized = smmm.SerializePrivate();
 		sock->writePacket(serialized);
-	}
-
-	void Server::handleUpdateModVersion(clockUtils::sockets::TcpSocket *, common::UpdateModVersionMessage * msg) const {
-		do {
-			MariaDBWrapper database;
-			if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, SPINEDATABASE, 0)) {
-				std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-				break;
-			}
-			if (!database.query("PREPARE updateStmt FROM \"UPDATE mods SET MajorVersion = ?, MinorVersion = ?, PatchVersion = ? WHERE ModID = ? LIMIT 1\";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("SET @paramModID=" + std::to_string(msg->modID) + ";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("SET @paramMajorVersion=" + std::to_string(int(msg->majorVersion)) + ";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("SET @paramMinorVersion=" + std::to_string(int(msg->minorVersion)) + ";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("SET @paramPatchVersion=" + std::to_string(int(msg->patchVersion)) + ";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("EXECUTE updateStmt USING @paramMajorVersion, @paramMinorVersion, @paramPatchVersion, @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-				break;
-			}
-		} while (false);
 	}
 
 	void Server::handleUpdateEarlyAccessState(clockUtils::sockets::TcpSocket *, common::UpdateEarlyAccessStateMessage * msg) const {
