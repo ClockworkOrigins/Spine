@@ -752,11 +752,6 @@ namespace {
 					}
 					emit errorMessage(msg);
 				});
-				QString errorMessage = QApplication::tr("DependenciesMissing");
-				for (const auto & p : dependencies) {
-					errorMessage += "\n- " + p;
-				}
-				showErrorMessage(errorMessage);
 			}
 			_mainWindow->setEnabled(true);
 			_mainWindow->setWindowState(_oldWindowState);

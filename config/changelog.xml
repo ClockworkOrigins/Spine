@@ -1636,10 +1636,12 @@
 		<Bug language="Deutsch">Fehlende Erfolg-Icons werden für den Management-Dialog jetzt nachgeladen</Bug>
 		<Bug language="Deutsch">Pdfs werden bei Mod-Start jetzt ignoriert</Bug>
 		<Bug language="Deutsch">Plugin-Einträge in Union.ini werden jetzt besser geschrieben und gelöscht</Bug>
+		<Bug language="Deutsch">Performance im Management-Bereich deutlich verbessert</Bug>
 		
 		<Enhancement language="English">Missing dependencies for mods now are shown with name instead of ID</Enhancement>
 		<Bug language="English">Missing achievement icons now are loaded for Management dialog</Bug>
 		<Bug language="English">Pdf's now are ignored when starting a mod</Bug>
 		<Bug language="English">Plugin entries in Union.ini are inserted and deleted better now</Bug>
+		<Bug language="English">Improved performance in management dialog</Bug>
 	</Version>
 </Versions>
