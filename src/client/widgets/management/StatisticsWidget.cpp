@@ -111,12 +111,13 @@ namespace widgets {
 
 	void StatisticsWidget::selectedMod(int index) {
 		_modIndex = index;
-		qDeleteAll(_labelList);
-		_labelList.clear();
 	}
 
 	void StatisticsWidget::updateView() {
 		if (_modIndex >= _mods.size()) return;
+		
+		qDeleteAll(_labelList);
+		_labelList.clear();
 		
 		delete _waitSpinner;
 		_waitSpinner = new spine::widgets::WaitSpinner(QApplication::tr("Updating"), this);

@@ -1165,10 +1165,10 @@ namespace server {
 				}
 				ptree sessionTimeNode;
 				{
-					playTimeNode.put("Minimum", min);
-					playTimeNode.put("Maximum", max);
-					playTimeNode.put("Median", medianPlaytime);
-					playTimeNode.put("Average", results.empty() ? 0 : static_cast<int32_t>(count / results.size()));
+					sessionTimeNode.put("Minimum", min);
+					sessionTimeNode.put("Maximum", max);
+					sessionTimeNode.put("Median", medianPlaytime);
+					sessionTimeNode.put("Average", results.empty() ? 0 : static_cast<int32_t>(count / results.size()));
 				}
 				responseTree.add_child("SessionTime", sessionTimeNode);
 
