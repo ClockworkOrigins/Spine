@@ -78,10 +78,12 @@ namespace widgets {
 		dbb->addButton(submitButton, QDialogButtonBox::ButtonRole::AcceptRole);
 		connect(submitButton, &QPushButton::released, this, &AchievementsWidget::updateAchievements);
 
+		qRegisterMetaType<QList<ManagementAchievement>>("QList<ManagementAchievement>");
+
 		connect(this, &AchievementsWidget::removeSpinner, [this]() {
 			if (!_waitSpinner) return;
-
-			delete _waitSpinner;
+			
+			_waitSpinner->deleteLater();
 			_waitSpinner = nullptr;
 		});
 

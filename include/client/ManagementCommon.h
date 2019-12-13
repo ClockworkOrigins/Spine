@@ -27,6 +27,7 @@
 #include <QDate>
 #include <QList>
 #include <QMap>
+#include <QMetaType>
 #include <QString>
 
 class QJsonObject;
@@ -163,3 +164,18 @@ namespace client {
 
 } /* namespace client */
 } /* namespace spine */
+
+Q_DECLARE_METATYPE(spine::client::ManagementAchievement)
+Q_DECLARE_METATYPE(spine::client::ManagementAchievementStatistic)
+Q_DECLARE_METATYPE(spine::client::ManagementCustomStatistic)
+Q_DECLARE_METATYPE(spine::client::ManagementCustomStatistics)
+Q_DECLARE_METATYPE(spine::client::ManagementGeneralData)
+Q_DECLARE_METATYPE(spine::client::ManagementMod)
+Q_DECLARE_METATYPE(spine::client::ManagementModFile)
+Q_DECLARE_METATYPE(spine::client::ManagementModFilesData)
+Q_DECLARE_METATYPE(spine::client::ManagementScore)
+Q_DECLARE_METATYPE(spine::client::ManagementStatistic)
+Q_DECLARE_METATYPE(spine::client::ManagementStatistics)
+Q_DECLARE_METATYPE(spine::client::ManagementTranslation)
+Q_DECLARE_METATYPE(spine::client::ManagementVersionDownload)
+Q_DECLARE_METATYPE(QList<spine::client::ManagementMod>)

@@ -135,10 +135,12 @@ namespace {
 
 		setLayout(l);
 
+		qRegisterMetaType<ManagementModFilesData>("ManagementModFilesData");
+
 		connect(this, &ModFilesWidget::removeSpinner, [this]() {
 			if (!_waitSpinner) return;
-
-			delete _waitSpinner;
+			
+			_waitSpinner->deleteLater();
 			_waitSpinner = nullptr;
 		});
 

@@ -24,6 +24,8 @@
 namespace spine {
 namespace client {
 
+	// boost ptree serializes everything as string, so this has be taken into account here
+	
 	void ManagementMod::read(const QJsonObject & json) {
 		if (json.isEmpty()) return;
 
@@ -32,7 +34,7 @@ namespace client {
 		if (!json.contains("ID")) return;
 
 		name = json["Name"].toString();
-		id = json["ID"].toInt();
+		id = json["ID"].toString().toInt();
 	}
 
 	void ManagementTranslation::read(const QJsonObject & json) {
@@ -83,13 +85,13 @@ namespace client {
 		// maxProgress
 		it = json.find("MaxProgress");
 		if (it != json.end()) {
-			maxProgress = it->toInt();
+			maxProgress = it->toString().toInt();
 		}
 		
 		// hidden
 		it = json.find("Hidden");
 		if (it != json.end()) {
-			hidden = it->toBool();
+			hidden = it->toString() == "true";
 		}
 		
 		// lockedImageName
@@ -158,11 +160,11 @@ namespace client {
 		
 		if (!json.contains("Duration")) return;
 
-		enabled = json["Enabled"].toBool();
-		gothicVersion = static_cast<common::GothicVersion>(json["GothicVersion"].toInt());
-		modType = static_cast<common::ModType>(json["ModType"].toInt());
-		duration = json["Duration"].toInt();
-		const int dateOffset = json["ReleaseDate"].toInt();
+		enabled = json["Enabled"].toString() == "true";
+		gothicVersion = static_cast<common::GothicVersion>(json["GothicVersion"].toString().toInt());
+		modType = static_cast<common::ModType>(json["ModType"].toString().toInt());
+		duration = json["Duration"].toString().toInt();
+		const int dateOffset = json["ReleaseDate"].toString().toInt();
 
 		QDate rd(2000, 1, 1);
 		rd = rd.addDays(dateOffset);
@@ -187,7 +189,7 @@ namespace client {
 		if (!json.contains("Value")) return;
 
 		name = json["Name"].toString();
-		value = json["Value"].toInt();
+		value = json["Value"].toString().toInt();
 	}
 
 	void ManagementCustomStatistics::read(const QJsonObject & json) {
@@ -203,7 +205,7 @@ namespace client {
 			
 			if (!jo.contains("Entries")) continue;
 
-			QPair<int32_t, int32_t> p = qMakePair(jo["ID"].toInt(), jo["Guild"].toInt());
+			QPair<int32_t, int32_t> p = qMakePair(jo["ID"].toString().toInt(), jo["Guild"].toString().toInt());
 			QList<ManagementCustomStatistic> list;
 
 			const auto entries = jo["Entries"].toArray();
@@ -245,9 +247,9 @@ namespace client {
 		
 		if (!json.contains("Files")) return;
 
-		versionMajor = json["VersionMajor"].toInt();
-		versionMinor = json["VersionMinor"].toInt();
-		versionPatch = json["VersionPatch"].toInt();
+		versionMajor = json["VersionMajor"].toString().toInt();
+		versionMinor = json["VersionMinor"].toString().toInt();
+		versionPatch = json["VersionPatch"].toString().toInt();
 				
 		const auto arr = json["Files"].toArray();
 		for (const auto entry : arr) {
@@ -266,7 +268,7 @@ namespace client {
 		if (!json.contains("Count")) return;
 
 		version = json["Version"].toString();
-		downloads = json["Count"].toInt();
+		downloads = json["Count"].toString().toInt();
 	}
 
 	void ManagementStatistic::read(const QJsonObject & json) {
@@ -278,10 +280,10 @@ namespace client {
 		
 		if (!json.contains("Average")) return;
 
-		minimum = json["Minimum"].toInt();
-		maximum = json["Maximum"].toInt();
-		median = json["Median"].toInt();
-		average = json["Average"].toInt();
+		minimum = json["Minimum"].toString().toInt();
+		maximum = json["Maximum"].toString().toInt();
+		median = json["Median"].toString().toInt();
+		average = json["Average"].toString().toInt();
 	}
 
 	void ManagementAchievementStatistic::read(const QJsonObject & json) {
@@ -309,7 +311,7 @@ namespace client {
 		
 		if (!json.contains("Achievements")) return;
 
-		overallDownloads = json["OverallDownloads"].toInt();
+		overallDownloads = json["OverallDownloads"].toString().toInt();
 
 		const auto downloadsPerVersionArr = json["DownloadsPerVersion"].toArray();
 		for (const auto & entry : downloadsPerVersionArr) {
@@ -321,9 +323,9 @@ namespace client {
 			downloadsPerVersion.append(mvd);
 		}
 
-		overallPlayerCount = json["OverallPlayerCount"].toInt();
-		last24HoursPlayerCount = json["Last24HoursPlayerCount"].toInt();
-		last7DaysPlayerCount = json["Last7DaysPlayerCount"].toInt();
+		overallPlayerCount = json["OverallPlayerCount"].toString().toInt();
+		last24HoursPlayerCount = json["Last24HoursPlayerCount"].toString().toInt();
+		last7DaysPlayerCount = json["Last7DaysPlayerCount"].toString().toInt();
 
 		const auto playTimeJson = json["PlayTime"].toObject();
 		playTime.read(playTimeJson);

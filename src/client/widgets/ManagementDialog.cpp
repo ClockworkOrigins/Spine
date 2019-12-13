@@ -64,7 +64,7 @@ namespace widgets {
 			hl->addWidget(modList);
 
 			_tabWidget = new QTabWidget(this);
-			_generalConfigurationWidget = new GeneralConfigurationWidget(_username, _language, this);
+			_generalConfigurationWidget = new GeneralConfigurationWidget(_username, _password, this);
 			_modFilesWidget = new ModFilesWidget(username, password, language, this);
 			_userManagementWidget = new UserManagementWidget(username, password, language, this);
 			_statisticsWidget = new StatisticsWidget(username, password, language, this);
@@ -90,7 +90,7 @@ namespace widgets {
 		setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 		setWindowTitle(QApplication::tr("Management"));
 
-		qRegisterMetaType<std::vector<std::string>>("std::vector<std::string>");
+		qRegisterMetaType<QList<ManagementMod>>("QList<ManagementMod>");
 
 		connect(this, &ManagementDialog::receivedMods, this, &ManagementDialog::updateModList);
 		connect(_generalConfigurationWidget, &GeneralConfigurationWidget::triggerInfoPage, this, &ManagementDialog::triggerInfoPage);

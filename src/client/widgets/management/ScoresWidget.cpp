@@ -71,10 +71,12 @@ namespace widgets {
 		dbb->addButton(submitButton, QDialogButtonBox::ButtonRole::AcceptRole);
 		connect(submitButton, &QPushButton::released, this, &ScoresWidget::updateScores);
 
+		qRegisterMetaType<QList<ManagementScore>>("QList<ManagementScore>");
+
 		connect(this, &ScoresWidget::removeSpinner, [this]() {
 			if (!_waitSpinner) return;
-
-			delete _waitSpinner;
+			
+			_waitSpinner->deleteLater();
 			_waitSpinner = nullptr;
 		});
 

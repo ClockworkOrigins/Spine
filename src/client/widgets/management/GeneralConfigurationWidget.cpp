@@ -125,10 +125,12 @@ namespace widgets {
 
 		setLayout(vl);
 
+		qRegisterMetaType<ManagementGeneralData>("ManagementGeneralData");
+
 		connect(this, &GeneralConfigurationWidget::removeSpinner, [this]() {
 			if (!_waitSpinner) return;
 
-			delete _waitSpinner;
+			_waitSpinner->deleteLater();
 			_waitSpinner = nullptr;
 		});
 

@@ -102,8 +102,8 @@ namespace widgets {
 
 		connect(this, &UserManagementWidget::removeSpinner, [this]() {
 			if (!_waitSpinner) return;
-
-			delete _waitSpinner;
+			
+			_waitSpinner->deleteLater();
 			_waitSpinner = nullptr;
 		});
 
@@ -147,15 +147,15 @@ namespace widgets {
 			if (it != json.end()) {
 				const auto usersArr = it->toArray();
 				for (auto user : usersArr) {
-					userList.append(user.toString());
+					userList.append(user.toObject()["Name"].toString());
 				}
 			}
 
 			const auto it2 = json.find("UnlockedUsers");
 			if (it2 != json.end()) {
-				const auto usersArr = it->toArray();
+				const auto usersArr = it2->toArray();
 				for (auto user : usersArr) {
-					unlockedUserList.append(user.toString());
+					unlockedUserList.append(user.toObject()["Name"].toString());
 				}
 			}
 			
@@ -166,8 +166,6 @@ namespace widgets {
 	}
 
 	void UserManagementWidget::updateData(QStringList users) {
-		if (_modIndex >= _mods.size()) return;
-		
 		QSet<QString> unlockedUsers;
 		for (const auto & s : users) {
 			unlockedUsers.insert(s);

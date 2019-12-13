@@ -90,10 +90,12 @@ namespace widgets {
 		treeView->setAlternatingRowColors(true);
 		_sourceModel->setHorizontalHeaderLabels(QStringList() << QApplication::tr("Identifier") << QApplication::tr("Guild") << QApplication::tr("Name") << QApplication::tr("Value") << QApplication::tr("Amount"));
 
+		qRegisterMetaType<ManagementCustomStatistics>("ManagementCustomStatistics");
+
 		connect(this, &CustomStatisticsWidget::removeSpinner, [this]() {
 			if (!_waitSpinner) return;
-
-			delete _waitSpinner;
+			
+			_waitSpinner->deleteLater();
 			_waitSpinner = nullptr;
 		});
 

@@ -66,7 +66,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 	if (msg.contains("QFSFileEngine") || msg.contains("QPixmap::scaled")) {
 		return;
 	}
-	QByteArray localMsg = msg.toLocal8Bit();
+	const QByteArray localMsg = msg.toLocal8Bit();
 	switch (type) {
 	case QtDebugMsg:
 		fprintf(stderr, "Debug: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);

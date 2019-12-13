@@ -90,10 +90,12 @@ namespace widgets {
 
 		setLayout(l);
 
+		qRegisterMetaType<ManagementStatistics>("ManagementStatistics");
+
 		connect(this, &StatisticsWidget::removeSpinner, [this]() {
 			if (!_waitSpinner) return;
-
-			delete _waitSpinner;
+			
+			_waitSpinner->deleteLater();
 			_waitSpinner = nullptr;
 		});
 

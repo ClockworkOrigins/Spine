@@ -37,8 +37,16 @@ namespace https {
 		// Synchronous request... maybe make it asynchronous?
 		client.request("POST", "/" + q2s(f), content.toStdString(), [callback](std::shared_ptr<HttpsClient::Response> response, const SimpleWeb::error_code &) {
 			const QString code = s2q(response->status_code).split(" ")[0];
-			const QJsonDocument doc(QJsonDocument::fromJson(s2q(response->content.string()).toUtf8()));
-			callback(doc.object(), code.toInt());
+
+			const int statusCode = code.toInt();
+
+			if (statusCode == 200) {
+				const std::string content = response->content.string();
+				const QJsonDocument doc(QJsonDocument::fromJson(s2q(content).toUtf8()));
+				callback(doc.object(), code.toInt());
+			} else {
+				callback(QJsonObject(), statusCode);
+			}
 		});
 		client.io_service->run();
 	}

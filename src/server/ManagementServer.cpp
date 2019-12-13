@@ -1031,7 +1031,7 @@ namespace server {
 			do {
 				CONNECTTODATABASE(__LINE__)
 				
-				if (!database.query("PREPARE selectAchievementNamesStmt FROM \"SELECT Identifier, CAST(Name AS BINARY) FROM modAchievementNames WHERE ModID = ? AND Language ? ORDER BY Identifier ASC\";")) {
+				if (!database.query("PREPARE selectAchievementNamesStmt FROM \"SELECT Identifier, CAST(Name AS BINARY) FROM modAchievementNames WHERE ModID = ? AND Language = ? ORDER BY Identifier ASC\";")) {
 					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
