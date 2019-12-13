@@ -66,7 +66,7 @@ namespace widgets {
 			_tabWidget = new QTabWidget(this);
 			_generalConfigurationWidget = new GeneralConfigurationWidget(_username, _language, this);
 			_modFilesWidget = new ModFilesWidget(username, password, language, this);
-			_userManagementWidget = new UserManagementWidget(username, language, this);
+			_userManagementWidget = new UserManagementWidget(username, password, language, this);
 			_statisticsWidget = new StatisticsWidget(username, password, language, this);
 			_achievementsWidget = new AchievementsWidget(_username, _password, this);
 			_scoresWidget = new ScoresWidget(_username, _password, this);
@@ -93,7 +93,6 @@ namespace widgets {
 		qRegisterMetaType<std::vector<std::string>>("std::vector<std::string>");
 
 		connect(this, &ManagementDialog::receivedMods, this, &ManagementDialog::updateModList);
-		connect(this, &ManagementDialog::receivedUsers, _userManagementWidget, &UserManagementWidget::updateUserList);
 		connect(_generalConfigurationWidget, &GeneralConfigurationWidget::triggerInfoPage, this, &ManagementDialog::triggerInfoPage);
 		connect(_generalConfigurationWidget, &GeneralConfigurationWidget::triggerInfoPage, this, &ManagementDialog::reject);
 		connect(_modFilesWidget, &ModFilesWidget::checkForUpdate, this, &ManagementDialog::checkForUpdate);
@@ -109,8 +108,8 @@ namespace widgets {
 		saveSettings();
 	}
 
-	void ManagementDialog::updateModList(QList<client::ManagementMod> modList) {
-		std::sort(modList.begin(), modList.end(), [](const client::ManagementMod & a, const client::ManagementMod & b) {
+	void ManagementDialog::updateModList(QList<ManagementMod> modList) {
+		std::sort(modList.begin(), modList.end(), [](const ManagementMod & a, const ManagementMod & b) {
 			return a.name < b.name;
 		});
 		_mods = modList;
@@ -158,7 +157,7 @@ namespace widgets {
 
 			const auto mods = it->toArray();
 
-			QList<client::ManagementMod> modList;
+			QList<ManagementMod> modList;
 			
 			for (auto mod : mods) {
 				const auto jo = mod.toObject();

@@ -22,12 +22,17 @@
 
 #include "SpineConfig.h"
 
+#include "https/Https.h"
+
 #include "utils/Conversion.h"
 
-#include "clockUtils/sockets/TcpSocket.h"
+#include "widgets/WaitSpinner.h"
 
 #include <QApplication>
 #include <QDebug>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLineEdit>
 #include <QListView>
 #include <QPushButton>
@@ -39,7 +44,7 @@ namespace spine {
 namespace client {
 namespace widgets {
 
-	UserManagementWidget::UserManagementWidget(QString username, QString language, QWidget * par) : QWidget(par), _username(username), _language(language), _mods(), _modIndex(-1) {
+	UserManagementWidget::UserManagementWidget(const QString & username, const QString & password, QString language, QWidget * par) : QWidget(par), _username(username), _password(password), _language(language), _mods(), _modIndex(-1), _waitSpinner(nullptr) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -94,24 +99,79 @@ namespace widgets {
 		}
 
 		setLayout(l);
+
+		connect(this, &UserManagementWidget::removeSpinner, [this]() {
+			if (!_waitSpinner) return;
+
+			delete _waitSpinner;
+			_waitSpinner = nullptr;
+		});
+
+		connect(this, &UserManagementWidget::loadedData, this, &UserManagementWidget::updateData);
+		connect(this, &UserManagementWidget::loadedUsers, this, &UserManagementWidget::updateUserList);
 	}
 
 	UserManagementWidget::~UserManagementWidget() {
 	}
 
-	void UserManagementWidget::updateModList(QList<client::ManagementMod> modList) {
+	void UserManagementWidget::updateModList(QList<ManagementMod> modList) {
 		_mods = modList;
 	}
 
 	void UserManagementWidget::selectedMod(int index) {
-		// TODO
-		/*_modIndex = index;
+		_modIndex = index;
 		_userListModel->clear();
 		_unlockedListModel->clear();
+	}
+
+	void UserManagementWidget::updateView() {
+		if (_modIndex >= _mods.size()) return;
+		
+		delete _waitSpinner;
+		_waitSpinner = new spine::widgets::WaitSpinner(QApplication::tr("Updating"), this);
+
+		QJsonObject json;
+		json["Username"] = _username;
+		json["Password"] = _password;
+		json["ModID"] = _mods[_modIndex].id;
+		
+		https::Https::postAsync(MANAGEMENTSERVER_PORT, "getUsers", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+			if (statusCode != 200) {
+				emit removeSpinner();
+				return;
+			}
+			QList<QString> userList;
+			QList<QString> unlockedUserList;
+
+			const auto it = json.find("Users");
+			if (it != json.end()) {
+				const auto usersArr = it->toArray();
+				for (auto user : usersArr) {
+					userList.append(user.toString());
+				}
+			}
+
+			const auto it2 = json.find("UnlockedUsers");
+			if (it2 != json.end()) {
+				const auto usersArr = it->toArray();
+				for (auto user : usersArr) {
+					unlockedUserList.append(user.toString());
+				}
+			}
+			
+			emit loadedUsers(userList);
+			emit loadedData(unlockedUserList);
+			emit removeSpinner();
+		});
+	}
+
+	void UserManagementWidget::updateData(QStringList users) {
+		if (_modIndex >= _mods.size()) return;
+		
 		QSet<QString> unlockedUsers;
-		for (const std::string & s : _mods[index].userList) {
-			unlockedUsers.insert(s2q(s));
-			QStandardItem * itm = new QStandardItem(s2q(s));
+		for (const auto & s : users) {
+			unlockedUsers.insert(s);
+			QStandardItem * itm = new QStandardItem(s);
 			itm->setEditable(false);
 			_unlockedListModel->appendRow(itm);
 		}
@@ -121,13 +181,13 @@ namespace widgets {
 				itm->setEditable(false);
 				_userListModel->appendRow(itm);
 			}
-		}*/
+		}
 	}
 
-	void UserManagementWidget::updateUserList(std::vector<std::string> userList) {
+	void UserManagementWidget::updateUserList(QStringList userList) {
 		_userList.clear();
-		for (const std::string & s : userList) {
-			_userList.append(s2q(s));
+		for (const auto & s : userList) {
+			_userList.append(s);
 		}
 	}
 
@@ -170,27 +230,22 @@ namespace widgets {
 	}
 
 	void UserManagementWidget::changeAccessRight(QString username, bool enabled) {
-		// TODO
-		/*if (enabled) {
-			_mods[_modIndex].userList.push_back(q2s(username));
-		} else {
-			for (auto it = _mods[_modIndex].userList.begin(); it != _mods[_modIndex].userList.end(); ++it) {
-				if (*it == q2s(username)) {
-					_mods[_modIndex].userList.erase(it);
-					break;
-				}
-			}
-		}
-		common::UpdateEarlyAccessStateMessage ueasm;
-		ueasm.modID = _mods[_modIndex].modID;
-		ueasm.username = q2s(username);
-		ueasm.enabled = enabled;
-		const std::string serialized = ueasm.SerializePublic();
-		clockUtils::sockets::TcpSocket sock;
-		const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-		if (clockUtils::ClockError::SUCCESS == cErr) {
-			sock.writePacket(serialized);
-		}*/
+		if (_modIndex == -1) return;
+
+		QJsonObject json;
+		json["ModID"] = _mods[_modIndex].id;
+		json["Username"] = _username;
+		json["Password"] = _password;
+		
+		json["User"] = username;
+		json["Enabled"] = enabled;
+		
+		const QJsonDocument doc(json);
+		const QString content = doc.toJson(QJsonDocument::Compact);
+
+		https::Https::postAsync(MANAGEMENTSERVER_PORT, "changeUserAccess", content, [](const QJsonObject &, int) {
+			// we could do some error handling here
+		});
 	}
 
 } /* namespace widgets */

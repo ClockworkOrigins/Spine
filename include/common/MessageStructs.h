@@ -1313,22 +1313,6 @@ namespace common {
 		}
 	};
 
-	struct RequestModManagementMessage : public Message {
-		std::string username;
-		std::string password;
-		std::string language;
-		RequestModManagementMessage() : Message(), username(), password(), language() {
-			type = MessageType::REQUESTMODMANAGEMENT;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & username;
-			ar & password;
-			ar & language;
-		}
-	};
-
 	struct ModFile {
 		std::string filename;
 		std::string hash;
@@ -1362,158 +1346,6 @@ namespace common {
 		}
 	};
 
-	struct SendModManagementMessage : public Message {
-		struct ModManagement {
-			struct Score {
-				std::vector<TranslatedText> names;
-
-				template<class Archive>
-				void serialize(Archive & ar, const unsigned int /* file_version */) {
-					ar & names;
-				}
-			};
-
-			struct Achievement {
-				std::vector<TranslatedText> names;
-				std::vector<TranslatedText> descriptions;
-
-				int32_t maxProgress;
-				bool hidden;
-
-				std::string lockedImageName;
-				std::string lockedImageHash;
-
-				std::string unlockedImageName;
-				std::string unlockedImageHash;
-
-				template<class Archive>
-				void serialize(Archive & ar, const unsigned int /* file_version */) {
-					ar & names;
-					ar & descriptions;
-					ar & maxProgress;
-					ar & hidden;
-					ar & lockedImageName;
-					ar & lockedImageHash;
-					ar & unlockedImageName;
-					ar & unlockedImageHash;
-				}
-			};
-
-			struct Statistics {
-				struct AchievementStatistic {
-					std::string name;
-					uint32_t minTime;
-					uint32_t maxTime;
-					uint32_t medianTime;
-					uint32_t avgTime;
-
-					template<class Archive>
-					void serialize(Archive & ar, const unsigned int /* file_version */) {
-						ar & name;
-						ar & minTime;
-						ar & maxTime;
-						ar & medianTime;
-						ar & avgTime;
-					}
-				};
-
-				uint32_t overallDownloads;
-				std::map<std::string, uint32_t> downloadsPerVersion;
-				uint32_t overallPlayerCount;
-				uint32_t last24HoursPlayerCount;
-				uint32_t last7DaysPlayerCount;
-				uint32_t minPlaytime;
-				uint32_t maxPlaytime;
-				uint32_t medianPlaytime;
-				uint32_t avgPlaytime;
-				uint32_t minSessiontime;
-				uint32_t maxSessiontime;
-				uint32_t medianSessiontime;
-				uint32_t avgSessiontime;
-
-				std::vector<AchievementStatistic> achievementStatistics;
-
-				template<class Archive>
-				void serialize(Archive & ar, const unsigned int /* file_version */) {
-					ar & overallDownloads;
-					ar & downloadsPerVersion;
-					ar & overallPlayerCount;
-					ar & last24HoursPlayerCount;
-					ar & last7DaysPlayerCount;
-					ar & minPlaytime;
-					ar & maxPlaytime;
-					ar & medianPlaytime;
-					ar & avgPlaytime;
-					ar & minSessiontime;
-					ar & maxSessiontime;
-					ar & medianSessiontime;
-					ar & avgSessiontime;
-					ar & achievementStatistics;
-				}
-			};
-
-			struct CustomStatistic {
-				std::string name;
-				int32_t value;
-
-				template<class Archive>
-				void serialize(Archive & ar, const unsigned int /* file_version */) {
-					ar & name;
-					ar & value;
-				}
-			};
-
-			int32_t modID;
-			std::string name;
-			uint8_t majorVersion;
-			uint8_t minorVersion;
-			uint8_t patchVersion;
-			std::vector<ModFile> files;
-			std::vector<std::string> userList;
-			bool enabled;
-			ModType type;
-			uint32_t releaseDate;
-			GothicVersion gothicVersion;
-			int duration;
-
-			std::vector<Score> scores;
-			std::vector<Achievement> achievements;
-			Statistics statistics;
-			std::map<std::pair<int32_t, int32_t>, std::vector<CustomStatistic>> customStatistics;
-
-			template<class Archive>
-			void serialize(Archive & ar, const unsigned int /* file_version */) {
-				ar & modID;
-				ar & name;
-				ar & majorVersion;
-				ar & minorVersion;
-				ar & patchVersion;
-				ar & files;
-				ar & userList;
-				ar & enabled;
-				ar & type;
-				ar & releaseDate;
-				ar & gothicVersion;
-				ar & duration;
-				ar & scores;
-				ar & achievements;
-				ar & statistics;
-				ar & customStatistics;
-			}
-		};
-		std::vector<ModManagement> modList;
-		std::vector<std::string> userList;
-		SendModManagementMessage() : Message(), modList(), userList() {
-			type = MessageType::SENDMODMANAGEMENT;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & modList;
-			ar & userList;
-		}
-	};
-
 	struct UploadModfilesMessage : public Message {
 		int32_t modID;
 		std::vector<ModFile> files;
@@ -1525,23 +1357,6 @@ namespace common {
 			ar & boost::serialization::base_object<Message>(*this);
 			ar & modID;
 			ar & files;
-		}
-	};
-
-	struct UpdateEarlyAccessStateMessage : public Message {
-		int32_t modID;
-		std::string username;
-		bool enabled;
-
-		UpdateEarlyAccessStateMessage() : Message(), modID(), username(), enabled() {
-			type = MessageType::UPDATEEARLYACCESSSTATE;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & modID;
-			ar & username;
-			ar & enabled;
 		}
 	};
 
@@ -1576,7 +1391,7 @@ namespace common {
 		};
 		std::vector<ModForEditor> modList;
 		SendModsForEditorMessage() : Message(), modList() {
-			type = MessageType::SENDMODMANAGEMENT;
+			type = MessageType::SENDMODSFOREDITOR;
 		}
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int /* file_version */) {

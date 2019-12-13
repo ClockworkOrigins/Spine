@@ -20,7 +20,7 @@
 
 #include "ManagementCommon.h"
 
-#include "common/MessageStructs.h"
+#include "widgets/management/IManagementWidget.h"
 
 #include <QModelIndex>
 #include <QWidget>
@@ -31,23 +31,31 @@ class QSortFilterProxyModel;
 class QStandardItemModel;
 
 namespace spine {
+namespace widgets {
+	class WaitSpinner;
+}
 namespace client {
 namespace widgets {
 
-	class UserManagementWidget : public QWidget {
+	class UserManagementWidget : public QWidget, public IManagementWidget {
 		Q_OBJECT
 
 	public:
-		UserManagementWidget(QString username, QString language, QWidget * par);
+		UserManagementWidget(const QString & username, const QString & password, QString language, QWidget * par);
 		~UserManagementWidget();
 
-		void updateModList(QList<client::ManagementMod> modList);
+		void updateModList(QList<ManagementMod> modList);
 		void selectedMod(int index);
+		void updateView() override;
 
-	public slots:
-		void updateUserList(std::vector<std::string> userList);
+	signals:
+		void removeSpinner();
+		void loadedUsers(QStringList);
+		void loadedData(QStringList);
 
 	private slots:
+		void updateUserList(QStringList users);
+		void updateData(QStringList users);
 		void addUser();
 		void removeUser();
 		void selectedUser(QModelIndex index);
@@ -59,8 +67,9 @@ namespace widgets {
 		QStandardItemModel * _userListModel;
 		QStandardItemModel * _unlockedListModel;
 		QString _username;
+		QString _password;
 		QString _language;
-		QList<client::ManagementMod> _mods;
+		QList<ManagementMod> _mods;
 		int _modIndex;
 		QStringList _userList;
 		QListView * _userListView;
@@ -69,6 +78,7 @@ namespace widgets {
 		QModelIndex _selectedUnlockedUser;
 		QPushButton * _addUserButton;
 		QPushButton * _removeUserButton;
+		spine::widgets::WaitSpinner * _waitSpinner;
 
 		void changeAccessRight(QString username, bool enabled);
 	};

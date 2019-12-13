@@ -48,8 +48,7 @@ namespace widgets {
 		~ManagementDialog();
 
 	signals:
-		void receivedMods(QList<client::ManagementMod>);
-		void receivedUsers(std::vector<std::string>);
+		void receivedMods(QList<ManagementMod>);
 		void triggerInfoPage(int32_t);
 		void checkForUpdate(int32_t);
 
@@ -64,7 +63,7 @@ namespace widgets {
 		QString _username;
 		QString _password;
 		QString _language;
-		QList<client::ManagementMod> _mods;
+		QList<ManagementMod> _mods;
 		int _modIndex;
 		GeneralConfigurationWidget * _generalConfigurationWidget;
 		ModFilesWidget * _modFilesWidget;

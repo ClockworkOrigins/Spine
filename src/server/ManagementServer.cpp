@@ -56,6 +56,8 @@ namespace server {
 		_server->resource["^/getStatistics"]["POST"] = std::bind(&ManagementServer::getStatistics, this, std::placeholders::_1, std::placeholders::_2);
 		_server->resource["^/getScores"]["POST"] = std::bind(&ManagementServer::getScores, this, std::placeholders::_1, std::placeholders::_2);
 		_server->resource["^/updateScores"]["POST"] = std::bind(&ManagementServer::updateScores, this, std::placeholders::_1, std::placeholders::_2);
+		_server->resource["^/getUsers"]["POST"] = std::bind(&ManagementServer::getUsers, this, std::placeholders::_1, std::placeholders::_2);
+		_server->resource["^/changeUserAccess"]["POST"] = std::bind(&ManagementServer::changeUserAccess, this, std::placeholders::_1, std::placeholders::_2);
 
 		_runner = new std::thread([this]() {
 			_server->start();
@@ -131,7 +133,7 @@ namespace server {
 				auto lastResults = database.getResults<std::vector<std::string>>();
 				
 				ptree modNodes;
-				for (auto vec : lastResults) {
+				for (const auto & vec : lastResults) {
 					if (!database.query("SET @paramTeamID=" + vec[0] + ";")) {
 						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 						code = SimpleWeb::StatusCode::client_error_failed_dependency;
@@ -258,7 +260,7 @@ namespace server {
 				const auto results = database.getResults<std::vector<std::string>>();
 
 				ptree achievementNodes;
-				for (auto achievement : results) {
+				for (const auto & achievement : results) {
 					ptree achievementNode;
 					
 					const int currentID = std::stoi(achievement[0]);
@@ -794,22 +796,18 @@ namespace server {
 					const std::string statName = vec[2];
 					const int32_t statValue = std::stoi(vec[3]);
 
-					common::SendModManagementMessage::ModManagement::CustomStatistic cs;
-					cs.name = statName;
-					cs.value = statValue;
-
 					m[std::make_pair(identifier, guild)].push_back(std::make_pair(statName, statValue));
 				}
 
 				ptree statsNode;
-				for (auto it = m.begin(); it != m.end(); ++it) {
+				for (auto & it : m) {
 					ptree statNode;
 
-					statNode.put("ID", it->first.first);
-					statNode.put("Guild", it->first.second);
+					statNode.put("ID", it.first.first);
+					statNode.put("Guild", it.first.second);
 
 					ptree entriesNode;
-					for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
+					for (auto it2 = it.second.begin(); it2 != it.second.end(); ++it2) {
 						ptree entryNode;
 
 						entryNode.put("Name", it2->first);
@@ -1426,6 +1424,167 @@ namespace server {
 						}
 					}
 					id++;
+				}
+			} while (false);
+
+			response->write(code);
+		} catch (...) {
+			response->write(SimpleWeb::StatusCode::client_error_bad_request);
+		}
+	}
+
+	void ManagementServer::getUsers(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+		try {
+			const std::string content = ServerCommon::convertString(request->content.string());
+
+			std::stringstream ss(content);
+
+			ptree pt;
+			read_json(ss, pt);
+		
+			const std::string username = pt.get<std::string>("Username");
+			const std::string password = pt.get<std::string>("Password");
+
+			const int userID = ServerCommon::getUserID(username, password);
+
+			if (userID == -1) {
+				response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+				return;
+			}
+
+			const int32_t modID = pt.get<int32_t>("ModID");
+
+			if (!hasAdminAccessToMod(userID, modID)) {
+				response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+				return;
+			}
+			
+			SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+			std::stringstream responseStream;
+			ptree responseTree;
+
+			do {
+				CONNECTTODATABASE(__LINE__)
+				
+				if (!database.query("PREPARE selectEarlyAccessorsStmt FROM \"SELECT UserID FROM earlyUnlocks WHERE ModID = ?\";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("EXECUTE selectEarlyAccessorsStmt USING @paramModID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				auto results = database.getResults<std::vector<std::string>>();
+
+				ptree unlockedUserNodes;
+				for (const auto & vec : results) {
+					const int32_t id = std::stoi(vec[0]);
+					const std::string name = ServerCommon::getUsername(id);
+					ptree userNode;
+					userNode.put("Name", name);
+					unlockedUserNodes.push_back(std::make_pair("", userNode));
+				}
+				responseTree.add_child("UnlockedUsers", unlockedUserNodes);
+
+				const auto userList = ServerCommon::getUserList();
+				ptree userNodes;
+				for (const auto & name : userList) {
+					ptree userNode;
+					userNode.put("Name", name);
+					userNodes.push_back(std::make_pair("", userNode));
+				}
+				responseTree.add_child("Users", userNodes);
+			} while (false);
+
+			write_json(responseStream, responseTree);
+
+			response->write(code, responseStream.str());
+		} catch (...) {
+			response->write(SimpleWeb::StatusCode::client_error_bad_request);
+		}
+	}
+
+	void ManagementServer::changeUserAccess(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+		try {
+			const std::string content = ServerCommon::convertString(request->content.string());
+
+			std::stringstream ss(content);
+
+			ptree pt;
+			read_json(ss, pt);
+		
+			const std::string username = pt.get<std::string>("Username");
+			const std::string password = pt.get<std::string>("Password");
+
+			const int userID = ServerCommon::getUserID(username, password);
+
+			if (userID == -1) {
+				response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+				return;
+			}
+
+			const int32_t modID = pt.get<int32_t>("ModID");
+
+			if (!hasAdminAccessToMod(userID, modID)) {
+				response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+				return;
+			}
+
+			const std::string user = pt.get<std::string>("User");
+			const bool enabled = pt.get<bool>("Enabled");
+
+			const int accessUserID = ServerCommon::getUserID(user);
+
+			if (accessUserID == -1) {
+				response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+				return;
+			}
+
+			SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+			do {
+				CONNECTTODATABASE(__LINE__)
+					
+				if (!database.query("PREPARE insertStmt FROM \"INSERT INTO earlyUnlocks (ModID, UserID) VALUES (?, ?)\";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("PREPARE deleteStmt FROM \"DELETE FROM earlyUnlocks WHERE ModID = ? AND UserID = ? LIMIT 1\";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("SET @paramUserID=" + std::to_string(accessUserID) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (enabled) {
+					if (!database.query("EXECUTE insertStmt USING @paramModID, @paramUserID;")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+				} else {
+					if (!database.query("EXECUTE deleteStmt USING @paramModID, @paramUserID;")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
 				}
 			} while (false);
 

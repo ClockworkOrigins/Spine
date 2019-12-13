@@ -50,7 +50,6 @@ namespace common {
 	struct RequestCompatibilityListMessage;
 	struct RequestModFilesMessage;
 	struct RequestInfoPageMessage;
-	struct RequestModManagementMessage;
 	struct RequestModsForEditorMessage;
 	struct RequestOfflineDataMessage;
 	struct RequestOriginalFilesMessage;
@@ -75,7 +74,6 @@ namespace common {
 	struct UnlockAchievementMessage;
 	struct UpdateAchievementProgressMessage;
 	struct UpdateChapterStatsMessage;
-	struct UpdateEarlyAccessStateMessage;
 	struct UpdateImpressionMessage;
 	struct UpdateLoginTimeMessage;
 	struct UpdateOfflineDataMessage;
@@ -158,8 +156,6 @@ namespace server {
 		void handleAutoUpdateEncrypted(clockUtils::sockets::TcpSocket * sock, common::UpdateRequestEncryptedMessage * msg) const;
 		void handleRequestOverallSaveData(clockUtils::sockets::TcpSocket * sock, common::RequestOverallSaveDataMessage * msg) const;
 		void handleUpdateOverallSaveData(clockUtils::sockets::TcpSocket * sock, common::UpdateOverallSaveDataMessage * msg) const;
-		void handleRequestModManagement(clockUtils::sockets::TcpSocket * sock, common::RequestModManagementMessage * msg) const;
-		void handleUpdateEarlyAccessState(clockUtils::sockets::TcpSocket * sock, common::UpdateEarlyAccessStateMessage * msg) const;
 		void handleRequestModsForEditor(clockUtils::sockets::TcpSocket * sock, common::RequestModsForEditorMessage * msg) const;
 		void handleUpdateOfflineData(clockUtils::sockets::TcpSocket * sock, common::UpdateOfflineDataMessage * msg) const;
 		void handleRequestOfflineData(clockUtils::sockets::TcpSocket * sock, common::RequestOfflineDataMessage * msg) const;
