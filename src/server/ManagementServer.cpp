@@ -1136,6 +1136,7 @@ namespace server {
 					playTimeNode.put("Average", results.empty() ? 0 : static_cast<int32_t>(count / results.size()));
 				}
 				responseTree.add_child("PlayTime", playTimeNode);
+				responseTree.put("OverallPlayerCount", results.size());
 				
 				if (!database.query("EXECUTE selectSessiontimeStmt USING @paramModID;")) {
 					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
