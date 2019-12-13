@@ -1071,6 +1071,11 @@ namespace server {
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
+				if (!database.query("SET @paramLanguage='" + language + "';")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
 				if (!database.query("EXECUTE selectOverallDownloadsStmt USING @paramModID;")) {
 					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
@@ -1193,7 +1198,7 @@ namespace server {
 				results = database.getResults<std::vector<std::string>>();
 				responseTree.put("Last7DaysPlayerCount", static_cast<uint32_t>(std::stoi(results[0][0])));
 
-				if (!database.query("EXECUTE selectAchievementNamesStmt USING @paramModID;")) {
+				if (!database.query("EXECUTE selectAchievementNamesStmt USING @paramModID, @paramLanguage;")) {
 					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
