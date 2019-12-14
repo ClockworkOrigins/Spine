@@ -14,31 +14,36 @@
     You should have received a copy of the GNU General Public License
     along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
-// Copyright 2018 Clockwork Origins
+// Copyright 2019 Clockwork Origins
 
-#include <iostream>
+#include "Hashing.h"
 
-#include "utils/Compression.h"
-#include "utils/Hashing.h"
+#include <QCryptographicHash>
+#include <QFile>
 
-#include <QFileInfo>
+namespace spine {
+namespace utils {
 
-int main(const int argc, char ** argv) {
-	if (argc != 2) {
-		return 1;
-	}
-	const QString fileName(argv[1]);
-	if (QFileInfo(fileName).suffix() == "z") {
-		spine::utils::Compression::uncompress(fileName, false);
-	} else {
-		QString hash;
-		const bool b = spine::utils::Hashing::hash(argv[1], hash);
+	bool Hashing::hash(const QString & file, QString & hash) {
+		QFile f(file);
 		
-		if (!b) return 1;
+		if (!f.open(QFile::ReadOnly)) return false;
 		
-		std::cout << hash.toStdString() << std::endl;
-
-		spine::utils::Compression::compress(fileName, false);
+		QCryptographicHash cryptoHash(QCryptographicHash::Sha512);
+		if (cryptoHash.addData(&f)) {
+			hash = QString::fromLatin1(cryptoHash.result().toHex());
+			return true;
+		}
+		
+		return false;
 	}
-	return 0;
-}
+
+	bool Hashing::checkHash(const QString & file, const QString & referenceHash) {
+		QString h;
+		const bool b = hash(file, h);
+
+		return b && h == referenceHash;
+	}
+	
+} /* namespace utils */
+} /* namespace spine */

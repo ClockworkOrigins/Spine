@@ -36,6 +36,7 @@
 #include "models/SpineEditorModel.h"
 
 #include "utils/Conversion.h"
+#include "utils/Hashing.h"
 
 #include "widgets/AboutDialog.h"
 #include "widgets/AutoUpdateDialog.h"
@@ -82,7 +83,6 @@
 #include <QApplication>
 #include <QCheckBox>
 #include <QCloseEvent>
-#include <QCryptographicHash>
 #include <QDesktopServices>
 #include <QDialogButtonBox>
 #include <QDirIterator>
@@ -1274,51 +1274,46 @@ namespace widgets {
 		for (const QString & s : files) {
 			auto it = _parsedInis.find(QFileInfo(s).fileName());
 			if (it != _parsedInis.end()) {
-				QFile f(s);
-				if (f.open(QIODevice::ReadOnly)) {
-					QCryptographicHash hash(QCryptographicHash::Sha512);
-					hash.addData(&f);
-					const QString hashSum = QString::fromLatin1(hash.result().toHex());
-					if (std::get<0>(it.value()) == hashSum) {
-						// remove all files belonging to this mod AND skip it
-						// this can happen in two cases:
-						// 1. the mod is installed via Spine and manually (don't do such things, that's stupid)
-						// 2. an error occurred and Spine couldn't remove mod files for some reason
-						Database::DBError err;
-						std::vector<std::string> fs = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT File FROM modfiles WHERE ModID = " + std::to_string(std::get<1>(it.value())) + ";", err);
-						for (const std::string & file : fs) {
-							QFile tmpF(baseDir + "/" + QString::fromStdString(file));
+				const bool b = utils::Hashing::checkHash(s, std::get<0>(it.value()));
+				if (b) {
+					// remove all files belonging to this mod AND skip it
+					// this can happen in two cases:
+					// 1. the mod is installed via Spine and manually (don't do such things, that's stupid)
+					// 2. an error occurred and Spine couldn't remove mod files for some reason
+					Database::DBError err;
+					const auto fs = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT File FROM modfiles WHERE ModID = " + std::to_string(std::get<1>(it.value())) + ";", err);
+					for (const std::string & file : fs) {
+						QFile tmpF(baseDir + "/" + QString::fromStdString(file));
+						tmpF.remove();
+					}
+
+					QDirIterator itBackup(baseDir, QStringList() << "*.spbak", QDir::Files, QDirIterator::Subdirectories);
+					QStringList backupFiles;
+					while (itBackup.hasNext()) {
+						itBackup.next();
+						QString backupFileName = itBackup.filePath();
+						if (!backupFileName.isEmpty()) {
+							backupFiles.append(backupFileName);
+						}
+					}
+					for (QString backupFile : backupFiles) {
+						QFile f2(backupFile);
+						backupFile.chop(6);
+						f2.rename(backupFile);
+					}
+					QDirIterator dirIt(baseDir + "/Data", QStringList() << "*mod", QDir::Files);
+					while (dirIt.hasNext()) {
+						dirIt.next();
+						QString fileName = dirIt.filePath();
+						if (!fileName.isEmpty()) {
+							QFile tmpF(fileName);
 							tmpF.remove();
 						}
-
-						QDirIterator itBackup(baseDir, QStringList() << "*.spbak", QDir::Files, QDirIterator::Subdirectories);
-						QStringList backupFiles;
-						while (itBackup.hasNext()) {
-							itBackup.next();
-							QString backupFileName = itBackup.filePath();
-							if (!backupFileName.isEmpty()) {
-								backupFiles.append(backupFileName);
-							}
-						}
-						for (QString backupFile : backupFiles) {
-							QFile f2(backupFile);
-							backupFile.chop(6);
-							f2.rename(backupFile);
-						}
-						QDirIterator dirIt(baseDir + "/Data", QStringList() << "*mod", QDir::Files);
-						while (dirIt.hasNext()) {
-							dirIt.next();
-							QString fileName = dirIt.filePath();
-							if (!fileName.isEmpty()) {
-								QFile tmpF(fileName);
-								tmpF.remove();
-							}
-						}
-						QFile(baseDir + "/System/SpineAPI.dll").remove();
-						QFile(baseDir + "/System/m2etis.dll").remove();
-						QFile(baseDir + "/Data/Spine.vdf").remove();
-						continue;
 					}
+					QFile(baseDir + "/System/SpineAPI.dll").remove();
+					QFile(baseDir + "/System/m2etis.dll").remove();
+					QFile(baseDir + "/Data/Spine.vdf").remove();
+					continue;
 				}
 			}
 
@@ -1426,11 +1421,9 @@ namespace widgets {
 			item->setEditable(false);
 			_modListModel->appendRow(item);
 
-			QFile f(s);
-			if (f.open(QIODevice::ReadOnly)) {
-				QCryptographicHash hash(QCryptographicHash::Sha512);
-				hash.addData(&f);
-				QString hashSum = QString::fromLatin1(hash.result().toHex());
+			QString hashSum;
+			const bool b = utils::Hashing::hash(s, hashSum);
+			if (b) {
 				_parsedInis.insert(QFileInfo(s).fileName(), std::make_tuple(hashSum, modID.toInt()));
 			}
 			if (GeneralSettingsWidget::extendedLogging) {
@@ -1461,7 +1454,7 @@ namespace widgets {
 
 	void MainWindow::changedOnlineMode() {
 		_iniParser->setValue("MISC/OnlineMode", _onlineMode);
-		QString exeFileName = qApp->applicationDirPath() + "/" + qApp->applicationName();
+		const QString exeFileName = qApp->applicationDirPath() + "/" + qApp->applicationName();
 #ifdef Q_OS_WIN
 		const int result = int(::ShellExecuteA(0, "runas", exeFileName.toUtf8().constData(), 0, 0, SW_SHOWNORMAL));
 		if (result > 32) { // no error

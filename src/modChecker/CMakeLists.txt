@@ -6,7 +6,7 @@ SET(ModCheckerSrc
 
 ADD_EXECUTABLE(ModChecker ${ModCheckerSrc})
 
-target_link_libraries(ModChecker ${BOOST_LIBRARIES} ${QT_LIBRARIES} ${ZLIB_LIBRARIES})
+target_link_libraries(ModChecker SpineUtils ${BOOST_LIBRARIES} ${QT_LIBRARIES} ${ZLIB_LIBRARIES})
 
 IF(UNIX)
 	target_link_libraries(ModChecker pthread)

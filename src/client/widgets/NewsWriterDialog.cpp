@@ -18,7 +18,6 @@
 
 #include "widgets/NewsWriterDialog.h"
 
-#include <fstream>
 #include <thread>
 
 #include "Config.h"
@@ -26,19 +25,17 @@
 #include "Database.h"
 #include "SpineConfig.h"
 
+#include "utils/Compression.h"
+#include "utils/Hashing.h"
+
 #include "widgets/GeneralSettingsWidget.h"
 #include "widgets/NewsWidget.h"
-
-#include "boost/iostreams/copy.hpp"
-#include "boost/iostreams/filtering_streambuf.hpp"
-#include "boost/iostreams/filter/zlib.hpp"
 
 #include "clockUtils/sockets/TcpSocket.h"
 
 #include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
-#include <QCryptographicHash>
 #include <QDateEdit>
 #include <QDebug>
 #include <QDesktopWidget>
@@ -183,25 +180,9 @@ namespace widgets {
 			if (images.empty()) {
 				QString hashString;
 				// 1. calculate hash
-				{
-					QFile f(Config::NEWSIMAGEDIR + "/" + imageFile);
-					if (f.open(QFile::ReadOnly)) {
-						QCryptographicHash hash(QCryptographicHash::Sha512);
-						if (hash.addData(&f)) {
-							hashString = QString::fromLatin1(hash.result().toHex());
-						}
-					}
-					f.close();
-				}
+				utils::Hashing::hash(Config::NEWSIMAGEDIR + "/" + imageFile, hashString);
 				// 2. compress
-				{
-					std::ifstream uncompressedFile((Config::NEWSIMAGEDIR + "/" + imageFile).toStdString(), std::ios_base::in | std::ios_base::binary);
-					boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
-					in.push(boost::iostreams::zlib_compressor(boost::iostreams::zlib::best_compression));
-					in.push(uncompressedFile);
-					std::ofstream compressedFile((Config::NEWSIMAGEDIR + "/" + imageFile).toStdString() + ".z", std::ios_base::out | std::ios_base::binary);
-					boost::iostreams::copy(in, compressedFile);
-				}
+				utils::Compression::compress(Config::NEWSIMAGEDIR + "/" + imageFile, false);
 				imageFile += ".z";
 				// 3. add image to message
 				{
@@ -215,10 +196,10 @@ namespace widgets {
 					f.close();
 					f.remove();
 				}
-				news.imageFiles.push_back(std::make_pair(imageFile.toStdString(), hashString.toStdString()));
+				news.imageFiles.emplace_back(imageFile.toStdString(), hashString.toStdString());
 			} else {
-				news.imageFiles.push_back(std::make_pair(imageFile.toStdString() + ".z", images[0]));
-				snm.images.push_back(std::vector<uint8_t>());
+				news.imageFiles.emplace_back(imageFile.toStdString() + ".z", images[0]);
+				snm.images.emplace_back();
 			}
 		}
 		for (QCheckBox * cb : _mods) {
@@ -254,7 +235,7 @@ namespace widgets {
 			return a.name < b.name;
 		});
 		int counter = 0;
-		for (const common::Mod mod : mods) {
+		for (const common::Mod & mod : mods) {
 			QCheckBox * cb = new QCheckBox(s2q(mod.name), this);
 			cb->setProperty("modid", int(mod.id));
 			_modListLayout->addWidget(cb, counter / 3, counter % 3);
@@ -268,13 +249,13 @@ namespace widgets {
 	}
 
 	void NewsWriterDialog::addImage() {
-		QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectImage"), Config::NEWSIMAGEDIR + "/", "Images (*.png *.jpg)");
+		const QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectImage"), Config::NEWSIMAGEDIR + "/", "Images (*.png *.jpg)");
 		if (path.isEmpty()) {
 			return;
 		}
 		const QString folder = QFileInfo(path).path() + "/";
 		if (folder != Config::NEWSIMAGEDIR) {
-			QFile(path).copy(path, Config::NEWSIMAGEDIR + "/" + QFileInfo(path).fileName());
+			QFile::copy(path, Config::NEWSIMAGEDIR + "/" + QFileInfo(path).fileName());
 		}
 		_imageReferencesEdit->setText(_imageReferencesEdit->text() + QFileInfo(path).fileName() + ";");
 	}
@@ -282,7 +263,7 @@ namespace widgets {
 	void NewsWriterDialog::showEvent(QShowEvent * evt) {
 		QDialog::showEvent(evt);
 
-		QRect scr = QApplication::desktop()->screenGeometry();
+		const QRect scr = QApplication::desktop()->screenGeometry();
 		move(scr.center() - rect().center());
 	}
 

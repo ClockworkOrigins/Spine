@@ -27,19 +27,16 @@
 
 #include "https/Https.h"
 
+#include "utils/Compression.h"
 #include "utils/Conversion.h"
+#include "utils/Hashing.h"
 
 #include "widgets/MainWindow.h"
 #include "widgets/WaitSpinner.h"
 
-#include "boost/iostreams/copy.hpp"
-#include "boost/iostreams/filtering_streambuf.hpp"
-#include "boost/iostreams/filter/zlib.hpp"
-
 #include "clockUtils/sockets/TcpSocket.h"
 
 #include <QApplication>
-#include <QCryptographicHash>
 #include <QDebug>
 #include <QFileDialog>
 #include <QHeaderView>
@@ -198,15 +195,10 @@ namespace {
 					it.deleted = false;
 				}
 				// check hash of new file
-				QFile f(path);
-				if (f.open(QIODevice::ReadOnly)) {
-					QCryptographicHash hash(QCryptographicHash::Sha512);
-					hash.addData(&f);
-					const QString hashSum = QString::fromLatin1(hash.result().toHex());
-					if (hashSum != it.hash) { // hash changed
-						it.changed = true;
-						_fileMap.insert(file, path);
-					}
+				const bool b = utils::Hashing::checkHash(path, it.hash);
+				if (!b) { // hash changed
+					it.changed = true;
+					_fileMap.insert(file, path);
 				}
 				found = true;
 				break;
@@ -299,24 +291,14 @@ namespace {
 						mf.size = 0;
 					} else {
 						// hash check
-						QFile f(it.value());
-						if (f.open(QIODevice::ReadOnly)) {
-							QCryptographicHash hash(QCryptographicHash::Sha512);
-							hash.addData(&f);
-							QString hashSum = QString::fromLatin1(hash.result().toHex());
+						QString hashSum;
+						const bool b = utils::Hashing::hash(it.value(), hashSum);
+						if (b) {
 							if (hashSum == s2q(mf.hash)) { // hash the same, so just update the language
 								mf.size = 0;
 							} else {
-								f.close();
+								utils::Compression::compress(it.value(), false);
 
-								{
-									std::ifstream uncompressedFile(q2s(it.value()), std::ios_base::in | std::ios_base::binary);
-									boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
-									in.push(boost::iostreams::zlib_compressor(boost::iostreams::zlib::best_compression));
-									in.push(uncompressedFile);
-									std::ofstream compressedFile(q2s(it.value()) + ".z", std::ios_base::out | std::ios_base::binary);
-									boost::iostreams::copy(in, compressedFile);
-								}
 								std::ifstream in(q2s(it.value()) + ".z", std::ifstream::ate | std::ifstream::binary);
 								const auto size = in.tellg();
 								maxBytes += size;

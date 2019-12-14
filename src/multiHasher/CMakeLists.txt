@@ -6,7 +6,7 @@ SET(MultiHasherSrc
 
 ADD_EXECUTABLE(MultiHasher ${MultiHasherSrc})
 
-target_link_libraries(MultiHasher ${BOOST_LIBRARIES} ${QT_LIBRARIES} ${ZLIB_LIBRARIES})
+target_link_libraries(MultiHasher SpineUtils ${BOOST_LIBRARIES} ${QT_LIBRARIES} ${ZLIB_LIBRARIES})
 
 IF(UNIX)
 	target_link_libraries(MultiHasher pthread)

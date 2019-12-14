@@ -24,8 +24,9 @@
 #include "Database.h"
 #include "SpineConfig.h"
 
+#include "utils/Hashing.h"
+
 #include <QApplication>
-#include <QCryptographicHash>
 #include <QDirIterator>
 #include <QFileInfo>
 #include <QMainWindow>
@@ -204,19 +205,11 @@ namespace widgets {
 				emit updateText(fi.fileName());
 			}
 
-			QFile f(Config::MODDIR + "/mods/" + QString::number(file.modID) + "/" + file.file);
-			if (f.open(QIODevice::ReadOnly)) {
-				QCryptographicHash hash(QCryptographicHash::Sha512);
-				hash.addData(&f);
-				const QString hashSum = QString::fromLatin1(hash.result().toHex());
-				if (hashSum != file.hash) {
-					_corruptFiles.append(file);
-				}
-			} else {
-				if (!file.file.contains("directx_Jun2010_redist.exe", Qt::CaseInsensitive)) {
-					_corruptFiles.append(file);
-				}
+			const bool b = utils::Hashing::checkHash(Config::MODDIR + "/mods/" + QString::number(file.modID) + "/" + file.file, file.hash);
+			if (!b && !file.file.contains("directx_Jun2010_redist.exe", Qt::CaseInsensitive)) {
+				_corruptFiles.append(file);
 			}
+			
 			allFiles.remove(Config::MODDIR + "/mods/" + QString::number(file.modID) + "/" + file.file);
 			count++;
 			if (count % step == 0) {
@@ -232,15 +225,8 @@ namespace widgets {
 				QFileInfo fi(it2.key());
 				emit updateText(fi.fileName());
 
-				QFile f(_gothicDirectory + "/" + it2.key());
-				if (f.open(QIODevice::ReadOnly)) {
-					QCryptographicHash hash(QCryptographicHash::Sha512);
-					hash.addData(&f);
-					const QString hashSum = QString::fromLatin1(hash.result().toHex());
-					if (hashSum != it2.value()) {
-						_corruptGothicFiles.append(ModFile(it2.key(), it2.value()));
-					}
-				} else {
+				const bool b = utils::Hashing::checkHash(_gothicDirectory + "/" + it2.key(), it2.value());
+				if (!b) {
 					_corruptGothicFiles.append(ModFile(it2.key(), it2.value()));
 				}
 
@@ -257,16 +243,9 @@ namespace widgets {
 				QFileInfo fi(it2.key());
 				emit updateText(fi.fileName());
 
-				QFile f(_gothic2Directory + "/" + it2.key());
-				if (f.open(QIODevice::ReadOnly)) {
-					QCryptographicHash hash(QCryptographicHash::Sha512);
-					hash.addData(&f);
-					const QString hashSum = QString::fromLatin1(hash.result().toHex());
-					if (hashSum != it2.value()) {
-						_corruptGothic2Files.append(ModFile(it2.key(), it2.value()));
-					}
-				} else {
-					_corruptGothic2Files.append(ModFile(it2.key(), it2.value()));
+				const bool b = utils::Hashing::checkHash(_gothicDirectory + "/" + it2.key(), it2.value());
+				if (!b) {
+					_corruptGothicFiles.append(ModFile(it2.key(), it2.value()));
 				}
 
 				count++;

@@ -18,21 +18,15 @@
 
 #include "widgets/management/AchievementWidget.h"
 
-#include <fstream>
-
 #include "Config.h"
 #include "FileDownloader.h"
 
-#include "utils/Conversion.h"
-
-#include "boost/iostreams/copy.hpp"
-#include "boost/iostreams/filtering_streambuf.hpp"
-#include "boost/iostreams/filter/zlib.hpp"
+#include "utils/Compression.h"
+#include "utils/Hashing.h"
 
 #include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
-#include <QCryptographicHash>
 #include <QFileDialog>
 #include <QLabel>
 #include <QLineEdit>
@@ -265,21 +259,21 @@ namespace widgets {
 			}
 		}
 		bool found = false;
-		for (auto it = _newAchievement.names.begin(); it != _newAchievement.names.end(); ++it) {
-			if (it->language == "Deutsch" && language == QApplication::tr("German")) {
-				_nameEdit->setText(it->text);
+		for (auto & name : _newAchievement.names) {
+			if (name.language == "Deutsch" && language == QApplication::tr("German")) {
+				_nameEdit->setText(name.text);
 				found = true;
 				break;
-			} else if (it->language == "English" && language == QApplication::tr("English")) {
-				_nameEdit->setText(it->text);
+			} else if (name.language == "English" && language == QApplication::tr("English")) {
+				_nameEdit->setText(name.text);
 				found = true;
 				break;
-			} else if (it->language == "Polish" && language == QApplication::tr("Polish")) {
-				_nameEdit->setText(it->text);
+			} else if (name.language == "Polish" && language == QApplication::tr("Polish")) {
+				_nameEdit->setText(name.text);
 				found = true;
 				break;
-			} else if (it->language == "Russian" && language == QApplication::tr("Russian")) {
-				_nameEdit->setText(it->text);
+			} else if (name.language == "Russian" && language == QApplication::tr("Russian")) {
+				_nameEdit->setText(name.text);
 				found = true;
 				break;
 			}
@@ -369,21 +363,21 @@ namespace widgets {
 			}
 		}
 		bool found = false;
-		for (auto it = _newAchievement.descriptions.begin(); it != _newAchievement.descriptions.end(); ++it) {
-			if (it->language == "Deutsch" && language == QApplication::tr("German")) {
-				_descriptionEdit->setText(it->text);
+		for (const auto & description : _newAchievement.descriptions) {
+			if (description.language == "Deutsch" && language == QApplication::tr("German")) {
+				_descriptionEdit->setText(description.text);
 				found = true;
 				break;
-			} else if (it->language == "English" && language == QApplication::tr("English")) {
-				_descriptionEdit->setText(it->text);
+			} else if (description.language == "English" && language == QApplication::tr("English")) {
+				_descriptionEdit->setText(description.text);
 				found = true;
 				break;
-			} else if (it->language == "Polish" && language == QApplication::tr("Polish")) {
-				_descriptionEdit->setText(it->text);
+			} else if (description.language == "Polish" && language == QApplication::tr("Polish")) {
+				_descriptionEdit->setText(description.text);
 				found = true;
 				break;
-			} else if (it->language == "Russian" && language == QApplication::tr("Russian")) {
-				_descriptionEdit->setText(it->text);
+			} else if (description.language == "Russian" && language == QApplication::tr("Russian")) {
+				_descriptionEdit->setText(description.text);
 				found = true;
 				break;
 			}
@@ -395,7 +389,7 @@ namespace widgets {
 	}
 
 	void AchievementWidget::openLockedImage() {
-		QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectLockedAchievementImage"), _lockedImagePath->text(), "Image (*.png *.jpg)");
+		const QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectLockedAchievementImage"), _lockedImagePath->text(), "Image (*.png *.jpg)");
 		if (!path.isEmpty()) {
 			changedLockedImage(path);
 		}
@@ -435,21 +429,10 @@ namespace widgets {
 		if (!path.isEmpty() && !QPixmap(path).isNull()) {
 			if (!path.contains(_newAchievement.lockedImageName + ".z")) {
 				// compress => add to data => delete
-				QFile uncompressedFile(path);
-				if (uncompressedFile.open(QIODevice::ReadOnly)) {
-					QCryptographicHash hash(QCryptographicHash::Sha512);
-					hash.addData(&uncompressedFile);
-					QString hashSum = QString::fromLatin1(hash.result().toHex());
-					uncompressedFile.close();
-
-					{
-						std::ifstream fileToCompress(q2s(path), std::ios_base::in | std::ios_base::binary);
-						boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
-						in.push(boost::iostreams::zlib_compressor(boost::iostreams::zlib::best_compression));
-						in.push(fileToCompress);
-						std::ofstream compressedFile(q2s(path) + ".z", std::ios_base::out | std::ios_base::binary);
-						boost::iostreams::copy(in, compressedFile);
-					}
+				QString hashSum;
+				const bool b = utils::Hashing::hash(path, hashSum);
+				if (b) {
+					utils::Compression::compress(path, false);
 
 					QFile compressedFile(path + ".z");
 					if (compressedFile.open(QIODevice::ReadOnly)) {
@@ -501,21 +484,10 @@ namespace widgets {
 		if (!path.isEmpty() && !QPixmap(path).isNull()) {
 			if (!path.contains(_newAchievement.unlockedImageName + ".z")) {
 				// compress => add to data => delete
-				QFile uncompressedFile(path);
-				if (uncompressedFile.open(QIODevice::ReadOnly)) {
-					QCryptographicHash hash(QCryptographicHash::Sha512);
-					hash.addData(&uncompressedFile);
-					QString hashSum = QString::fromLatin1(hash.result().toHex());
-					uncompressedFile.close();
-
-					{
-						std::ifstream fileToCompress(q2s(path), std::ios_base::in | std::ios_base::binary);
-						boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
-						in.push(boost::iostreams::zlib_compressor(boost::iostreams::zlib::best_compression));
-						in.push(fileToCompress);
-						std::ofstream compressedFile(q2s(path) + ".z", std::ios_base::out | std::ios_base::binary);
-						boost::iostreams::copy(in, compressedFile);
-					}
+				QString hashSum;
+				const bool b = utils::Hashing::hash(path, hashSum);
+				if (b) {
+					utils::Compression::compress(path, false);
 
 					QFile compressedFile(path + ".z");
 					if (compressedFile.open(QIODevice::ReadOnly)) {

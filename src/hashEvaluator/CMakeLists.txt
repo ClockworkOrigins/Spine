@@ -6,7 +6,7 @@ SET(HashEvaluatorSrc
 
 ADD_EXECUTABLE(HashEvaluator ${HashEvaluatorSrc})
 
-target_link_libraries(HashEvaluator ${BOOST_LIBRARIES} ${QT_LIBRARIES} ${ZLIB_LIBRARIES})
+target_link_libraries(HashEvaluator SpineUtils ${BOOST_LIBRARIES} ${QT_LIBRARIES} ${ZLIB_LIBRARIES})
 
 IF(UNIX)
 	target_link_libraries(HashEvaluator pthread)

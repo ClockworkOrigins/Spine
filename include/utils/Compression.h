@@ -14,31 +14,22 @@
     You should have received a copy of the GNU General Public License
     along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
-// Copyright 2018 Clockwork Origins
+// Copyright 2019 Clockwork Origins
 
-#include <iostream>
+#pragma once
 
-#include "utils/Compression.h"
-#include "utils/Hashing.h"
+#include <QString>
 
-#include <QFileInfo>
+namespace spine {
+namespace utils {
 
-int main(const int argc, char ** argv) {
-	if (argc != 2) {
-		return 1;
-	}
-	const QString fileName(argv[1]);
-	if (QFileInfo(fileName).suffix() == "z") {
-		spine::utils::Compression::uncompress(fileName, false);
-	} else {
-		QString hash;
-		const bool b = spine::utils::Hashing::hash(argv[1], hash);
-		
-		if (!b) return 1;
-		
-		std::cout << hash.toStdString() << std::endl;
+	class Compression {
+	public:
+		static bool compress(const QString & file, bool deleteSourceAfterCompression);
+		static bool compress(const QString & file, const QString & targetFile, bool deleteSourceAfterCompression);
+		static bool uncompress(const QString & file, bool deleteSourceAfterUncompression);
+		static bool uncompress(const QString & file, const QString & targetFile, bool deleteSourceAfterUncompression);
+	};
 
-		spine::utils::Compression::compress(fileName, false);
-	}
-	return 0;
-}
+} /* namespace utils */
+} /* namespace spine */

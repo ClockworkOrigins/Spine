@@ -18,15 +18,12 @@
 
 #include "widgets/ExportDialog.h"
 
-#include <fstream>
-
 #include "Config.h"
 #include "Database.h"
 #include "SpineConfig.h"
 
-#include "boost/iostreams/copy.hpp"
-#include "boost/iostreams/filtering_streambuf.hpp"
-#include "boost/iostreams/filter/zlib.hpp"
+#include "utils/Compression.h"
+#include "utils/Conversion.h"
 
 #include <QApplication>
 #include <QtConcurrentRun>
@@ -81,11 +78,11 @@ namespace widgets {
 	}
 
 	void ExportDialog::openExportPathDialog() {
-		QString path = QFileDialog::getExistingDirectory(this, QApplication::tr("SelectExportDir"), _exportPathLineEdit->text());
+		const QString path = QFileDialog::getExistingDirectory(this, QApplication::tr("SelectExportDir"), _exportPathLineEdit->text());
 		if (!path.isEmpty()) {
 			if (_exportPathLineEdit->text() != path) {
 				_exportPathLineEdit->setText(path);
-				QDir exportDir(_exportPathLineEdit->text() + "/");
+				const QDir exportDir(_exportPathLineEdit->text() + "/");
 				const bool exists = exportDir.exists();
 				_exportPushButton->setEnabled(!_exportPathLineEdit->text().isEmpty() && exists);
 			}
@@ -113,14 +110,14 @@ namespace widgets {
 		QFutureWatcher<void> watcher(this);
 		QString exportPath = _exportPathLineEdit->text();
 		const QFuture<void> future = QtConcurrent::run([this, modfiles, exportPath, &running]() {
-			std::string database = exportPath.toStdString() + "/backup.spex";
+			const std::string database = exportPath.toStdString() + "/backup.spex";
 			Database::DBError err;
 			Database::execute(database, "CREATE TABLE IF NOT EXISTS mods(ModID INT NOT NULL, GothicVersion INT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL);", err);
 			Database::execute(database, "CREATE TABLE IF NOT EXISTS modfiles(ModID INT NOT NULL, File TEXT NOT NULL, Hash TEXT NOT NULL);", err);
 			Database::execute(database, "CREATE TABLE IF NOT EXISTS patches(ModID INT NOT NULL, Name TEXT NOT NULL);", err);
 			Database::execute(database, "CREATE TABLE IF NOT EXISTS packages(ModID INT NOT NULL, PackageID INT NOT NULL, File TEXT NOT NULL);", err);
 
-			std::vector<std::vector<std::string>> mods = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, GothicVersion, MajorVersion, MinorVersion, PatchVersion FROM mods;", err);
+			const auto mods = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, GothicVersion, MajorVersion, MinorVersion, PatchVersion FROM mods;", err);
 			Database::open(database, err);
 			Database::execute(database, "BEGIN TRANSACTION;", err);
 			for (auto vec : mods) {
@@ -129,7 +126,7 @@ namespace widgets {
 			Database::execute(database, "END TRANSACTION;", err);
 			Database::close(database, err);
 
-			std::vector<std::vector<std::string>> patches = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, Name FROM patches;", err);
+			const auto patches = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, Name FROM patches;", err);
 			Database::open(database, err);
 			Database::execute(database, "BEGIN TRANSACTION;", err);
 			for (auto vec : patches) {
@@ -138,7 +135,7 @@ namespace widgets {
 			Database::execute(database, "END TRANSACTION;", err);
 			Database::close(database, err);
 
-			std::vector<std::vector<std::string>> packages = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, PackageID, File FROM packages;", err);
+			const auto packages = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, PackageID, File FROM packages;", err);
 			Database::open(database, err);
 			Database::execute(database, "BEGIN TRANSACTION;", err);
 			for (auto vec : packages) {
@@ -159,16 +156,11 @@ namespace widgets {
 				emit updateProgress(int(i));
 				emit updateFile(QString::fromStdString(modfiles[i][1]));
 				QString targetFolder = exportPath + "/" + QString::fromStdString(modfiles[i][0]) + "/";
-				std::ifstream uncompressedFile(Config::MODDIR.toStdString() + "/mods/" + modfiles[i][0] + "/" + modfiles[i][1], std::ios_base::in | std::ios_base::binary);
-				boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
-				in.push(boost::iostreams::zlib_compressor(boost::iostreams::zlib::best_compression));
-				in.push(uncompressedFile);
 				if (!QDir(targetFolder + QFileInfo(QString::fromStdString(modfiles[i][1])).path()).exists()) {
 					bool b = QDir(targetFolder + QFileInfo(QString::fromStdString(modfiles[i][1])).path()).mkpath(targetFolder + QFileInfo(QString::fromStdString(modfiles[i][1])).path());
 					Q_UNUSED(b);
 				}
-				std::ofstream compressedFile(targetFolder.toStdString() + modfiles[i][1], std::ios_base::out | std::ios_base::binary);
-				boost::iostreams::copy(in, compressedFile);
+				utils::Compression::compress(Config::MODDIR + "/mods/" + s2q(modfiles[i][0]) + "/" + s2q(modfiles[i][1]), targetFolder + s2q(modfiles[i][1]), false);
 			}
 			emit updateProgress(int(modfiles.size()));
 		});

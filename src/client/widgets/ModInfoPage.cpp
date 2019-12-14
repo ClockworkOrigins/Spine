@@ -18,7 +18,6 @@
 
 #include "widgets/ModInfoPage.h"
 
-#include <fstream>
 #include <thread>
 
 #include "Config.h"
@@ -30,7 +29,9 @@
 
 #include "common/SpineModules.h"
 
+#include "utils/Compression.h"
 #include "utils/Conversion.h"
+#include "utils/Hashing.h"
 
 #include "widgets/DownloadProgressDialog.h"
 #include "widgets/FullscreenPreview.h"
@@ -39,15 +40,10 @@
 #include "widgets/RatingWidget.h"
 #include "widgets/WaitSpinner.h"
 
-#include "boost/iostreams/copy.hpp"
-#include "boost/iostreams/filtering_streambuf.hpp"
-#include "boost/iostreams/filter/zlib.hpp"
-
 #include "clockUtils/sockets/TcpSocket.h"
 
 #include <QApplication>
 #include <QCheckBox>
-#include <QCryptographicHash>
 #include <QDebug>
 #include <QDirIterator>
 #include <QFileDialog>
@@ -391,7 +387,7 @@ namespace widgets {
 			}
 			QString filename = QString::fromStdString(sipm->screenshots[0].first);
 			filename.chop(2);
-			QPixmap preview(Config::MODDIR + "/mods/" + QString::number(_modID) + "/screens/" + filename);
+			const QPixmap preview(Config::MODDIR + "/mods/" + QString::number(_modID) + "/screens/" + filename);
 			_previewImageLabel->setPixmap(preview.scaled(QSize(640, 480), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 			for (const auto & p : sipm->screenshots) {
 				QString fn = QString::fromStdString(p.first);
@@ -425,7 +421,7 @@ namespace widgets {
 		}
 		_descriptionView->setHtml(infoText.replace("&apos;", "'"));
 		_descriptionView->setVisible(!infoText.isEmpty());
-		_descriptionView->setMinimumHeight(_descriptionView->document()->size().height() + 75);
+		_descriptionView->setMinimumHeight(static_cast<int>(_descriptionView->document()->size().height() + 75));
 		_descriptionView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 		_descriptionEdit->setPlainText(s2q(sipm->description));
 
@@ -494,7 +490,7 @@ namespace widgets {
 		_installButton->setVisible(!installed && sipm->installAllowed);
 		_installButton->setProperty("modid", int(_modID));
 
-		QDirIterator it(Config::MODDIR + "/mods/" + QString::number(_modID) + "/System", QStringList() << "*.ini", QDir::Files, QDirIterator::Subdirectories);
+		const QDirIterator it(Config::MODDIR + "/mods/" + QString::number(_modID) + "/System", QStringList() << "*.ini", QDir::Files, QDirIterator::Subdirectories);
 		_startButton->setVisible(installed && it.hasNext());
 
 		for (const auto & p : sipm->optionalPackages) {
@@ -528,10 +524,10 @@ namespace widgets {
 		QString filename = QString::fromStdString(_screens[idx.row()].first);
 		if (!_screens[idx.row()].second.empty()) { // downloaded screens: relative path
 			filename.chop(2);
-			QPixmap preview(Config::MODDIR + "/mods/" + QString::number(_modID) + "/screens/" + filename);
+			const QPixmap preview(Config::MODDIR + "/mods/" + QString::number(_modID) + "/screens/" + filename);
 			_previewImageLabel->setPixmap(preview.scaled(QSize(640, 480), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 		} else {
-			QPixmap preview(filename);
+			const QPixmap preview(filename);
 			_previewImageLabel->setPixmap(preview.scaled(QSize(640, 480), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 		}
 	}
@@ -565,13 +561,13 @@ namespace widgets {
 			return;
 		}
 		const QString folder = _iniParser->value("PATH/Images", ".").toString();
-		QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectImage"), folder, "Images (*.png *.jpg)");
+		const QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectImage"), folder, "Images (*.png *.jpg)");
 		if (path.isEmpty()) {
 			return;
 		}
 		_iniParser->setValue("PATH/Images", QFileInfo(path).absolutePath());
 		QStandardItem * itm = new QStandardItem();
-		QPixmap thumb(path);
+		const QPixmap thumb(path);
 		itm->setIcon(thumb.scaled(QSize(300, 100), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 		_thumbnailModel->appendRow(itm);
 		_screens.emplace_back(path.toStdString(), "");
@@ -597,7 +593,7 @@ namespace widgets {
 		std::string language = _language.toStdString();
 		std::string description = q2s(_descriptionEdit->toPlainText());
 		std::vector<std::string> features;
-		for (QString s : _featuresEdit->text().split(";", QString::SkipEmptyParts)) {
+		for (const QString & s : _featuresEdit->text().split(";", QString::SkipEmptyParts)) {
 			features.push_back(q2s(s));
 		}
 		int32_t modules = 0;
@@ -633,25 +629,13 @@ namespace widgets {
 				if (p.second.empty()) {
 					// new screenshot
 					// 1. calculate hash
-					{
-						QFile f(QString::fromStdString(p.first));
-						if (f.open(QFile::ReadOnly)) {
-							QCryptographicHash hash(QCryptographicHash::Sha512);
-							if (hash.addData(&f)) {
-								p.second = QString::fromLatin1(hash.result().toHex()).toStdString();
-							}
-						}
-						f.close();
+					QString hashSum;
+					const bool b = utils::Hashing::hash(QString::fromStdString(p.first), hashSum);
+					if (b) {
+						p.second = hashSum.toStdString();
 					}
 					// 2. compress
-					{
-						std::ifstream uncompressedFile(p.first, std::ios_base::in | std::ios_base::binary);
-						boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
-						in.push(boost::iostreams::zlib_compressor(boost::iostreams::zlib::best_compression));
-						in.push(uncompressedFile);
-						std::ofstream compressedFile(p.first + ".z", std::ios_base::out | std::ios_base::binary);
-						boost::iostreams::copy(in, compressedFile);
-					}
+					utils::Compression::compress(s2q(p.first), false);
 					p.first += ".z";
 					// 3. add image to message
 					{
@@ -726,7 +710,7 @@ namespace widgets {
 
 	void ModInfoPage::showFullscreen() {
 		QItemSelectionModel * selectionModel = _thumbnailView->selectionModel();
-		QModelIndexList list = selectionModel->selectedRows();
+		const QModelIndexList list = selectionModel->selectedRows();
 		const int row = list.isEmpty() ? 0 : selectionModel->selectedRows().front().row();
 		FullscreenPreview fp(Config::MODDIR + "/mods/" + QString::number(_modID) + "/screens/" + QString::fromStdString(_screens[row].first), this);
 		fp.exec();

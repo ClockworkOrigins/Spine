@@ -18,7 +18,8 @@
 
 #include <iostream>
 
-#include <QCryptographicHash>
+#include "utils/Hashing.h"
+
 #include <QDirIterator>
 #include <QFileInfo>
 
@@ -50,34 +51,27 @@ int main(const int argc, char ** argv) {
 
 		if (!QFileInfo::exists(modkitPath + "/" + strippedPath)) {
 			const QString resultDir = QFileInfo(resultPath + "/" + strippedPath).absolutePath();
-			QDir(resultPath).mkpath(resultDir);
+			const bool b = QDir(resultPath).mkpath(resultDir);
+			Q_UNUSED(b);
 			QFile::copy(file, resultPath + "/" + strippedPath);
 		} else {
-			QFile modFile(file);
-			modFile.open(QIODevice::ReadOnly);
 			QString modFileHash;
-			QCryptographicHash hash(QCryptographicHash::Sha512);
-			if (hash.addData(&modFile)) {
-				 modFileHash = QString::fromLatin1(hash.result().toHex());
-			} else {
+			bool b = spine::utils::Hashing::hash(file, modFileHash);
+			if (!b) {
 				std::cout << "Hash Generation not possible for mod file" << std::endl;
 				return 1;
 			}
-			modFile.close();
 
-			QFile modkitFile(modkitPath + "/" + strippedPath);
-			modkitFile.open(QIODevice::ReadOnly);
 			QString modkitFileHash;
-			QCryptographicHash modkitHash(QCryptographicHash::Sha512);
-			if (modkitHash.addData(&modkitFile)) {
-				 modkitFileHash = QString::fromLatin1(modkitHash.result().toHex());
-			} else {
+			b = spine::utils::Hashing::hash(modkitPath + "/" + strippedPath, modkitFileHash);
+			if (!b) {
 				std::cout << "Hash Generation not possible for modkit file" << std::endl;
 				return 1;
 			}
 			if (modFileHash != modkitFileHash) {
 				const QString resultDir = resultPath + "/" + absolutePath;
-				QDir(resultPath).mkpath(resultDir);
+				b = QDir(resultPath).mkpath(resultDir);
+				Q_UNUSED(b);
 				QFile::copy(file, resultPath + "/" + strippedPath);
 			}
 		}

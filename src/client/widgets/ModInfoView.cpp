@@ -45,6 +45,7 @@
 #include "security/Hash.h"
 
 #include "utils/Conversion.h"
+#include "utils/Hashing.h"
 
 #include "widgets/AchievementView.h"
 #include "widgets/DownloadProgressDialog.h"
@@ -63,7 +64,6 @@
 
 #include <QApplication>
 #include <QCheckBox>
-#include <QCryptographicHash>
 #include <QDebug>
 #include <QDirIterator>
 #include <QFile>
@@ -1209,36 +1209,15 @@ namespace {
 			if (GeneralSettingsWidget::extendedLogging) {
 				LOGINFO("Checking G1 file " << it.key().toStdString());
 			}
-			if (f.open(QFile::ReadOnly)) {
-				QCryptographicHash hash(QCryptographicHash::Sha512);
-				if (hash.addData(&f)) {
-					QString hashSum = QString::fromLatin1(hash.result().toHex());
-					if (hashSum != it.value()) {
-						start = true;
-						QFileInfo fi(it.key());
-						FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/g1/" + it.key()), _gothicDirectory + "/" + fi.path(), fi.fileName(), it.value(), mfd);
-						mfd->addFileDownloader(fd);
-						if (GeneralSettingsWidget::extendedLogging) {
-							LOGWARN("Hashes don't match: " << hashSum.toStdString() << " vs. " << it.value().toStdString());
-						}
-					}
-				} else {
-					if (GeneralSettingsWidget::extendedLogging) {
-						LOGWARN("Hashing failed");
-					}
-					start = true;
-					QFileInfo fi(it.key());
-					FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/g1/" + it.key()), _gothicDirectory + "/" + fi.path(), fi.fileName(), it.value(), mfd);
-					mfd->addFileDownloader(fd);
-				}
-			} else {
-				if (GeneralSettingsWidget::extendedLogging) {
-					LOGWARN("Couldn't open file");
-				}
+			const bool b = utils::Hashing::checkHash(_gothicDirectory + "/" + it.key(), it.value());
+			if (!b) {
 				start = true;
 				QFileInfo fi(it.key());
 				FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/g1/" + it.key()), _gothicDirectory + "/" + fi.path(), fi.fileName(), it.value(), mfd);
 				mfd->addFileDownloader(fd);
+				if (GeneralSettingsWidget::extendedLogging) {
+					LOGWARN("Hashcheck failed");
+				}
 			}
 		}
 		if (start) {
@@ -1251,7 +1230,7 @@ namespace {
 		}
 
 		Database::DBError err;
-		const std::vector<std::string> ids = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID FROM mods WHERE ModID = 57 OR ModID = 37;", err);
+		const auto ids = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID FROM mods WHERE ModID = 57 OR ModID = 37;", err);
 		if (std::find_if(ids.begin(), ids.end(), [](const std::string & s) { return s == "57"; }) == ids.end()) {
 			emit installMod(57);
 		}
@@ -1303,35 +1282,13 @@ namespace {
 		bool start = false;
 
 		for (auto it = fileList.begin(); it != fileList.end(); ++it) {
-			QFile f(_gothic2Directory + "/" + it.key());
 			if (GeneralSettingsWidget::extendedLogging) {
 				LOGINFO("Checking G2 file " << it.key().toStdString());
 			}
-			if (f.open(QFile::ReadOnly)) {
-				QCryptographicHash hash(QCryptographicHash::Sha512);
-				if (hash.addData(&f)) {
-					QString hashSum = QString::fromLatin1(hash.result().toHex());
-					if (hashSum != it.value()) {
-						if (GeneralSettingsWidget::extendedLogging) {
-							LOGWARN("Hashes don't match: " << hashSum.toStdString() << " vs. " << it.value().toStdString());
-						}
-						start = true;
-						QFileInfo fi(it.key());
-						FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/g2/" + it.key()), _gothic2Directory + "/" + fi.path(), fi.fileName(), it.value(), mfd);
-						mfd->addFileDownloader(fd);
-					}
-				} else {
-					if (GeneralSettingsWidget::extendedLogging) {
-						LOGWARN("Hashing failed");
-					}
-					start = true;
-					QFileInfo fi(it.key());
-					FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/g2/" + it.key()), _gothic2Directory + "/" + fi.path(), fi.fileName(), it.value(), mfd);
-					mfd->addFileDownloader(fd);
-				}
-			} else {
+			const bool b = utils::Hashing::checkHash(_gothic2Directory + "/" + it.key(), it.value());
+			if (!b) {
 				if (GeneralSettingsWidget::extendedLogging) {
-					LOGWARN("Couldn't open file");
+					LOGWARN("Hashcheck failed");
 				}
 				start = true;
 				QFileInfo fi(it.key());
@@ -2422,23 +2379,17 @@ namespace {
 							// backup old file
 							bool copy = true;
 							QFile f(Config::MODDIR + "/mods/" + QString::number(_modID) + "/" + filename);
-							if (QFile::exists(*usedBaseDir + "/" + filename)) {
-								QFile checkFile(*usedBaseDir + "/" + filename);
-								if (checkFile.open(QIODevice::ReadOnly)) {
-									QCryptographicHash hash(QCryptographicHash::Sha512);
-									hash.addData(&checkFile);
-									const QString hashSum = QString::fromLatin1(hash.result().toHex());
-									if (hashSum == QString::fromStdString(file.second)) {
-										copy = false;
-										if (GeneralSettingsWidget::extendedLogging) {
-											LOGINFO("Skipping file");
-										}
-										_skippedFiles.append(filename);
+							if (QFileInfo::exists(*usedBaseDir + "/" + filename)) {
+								const bool b = utils::Hashing::checkHash(Config::MODDIR + "/mods/" + QString::number(_modID) + "/" + filename, QString::fromStdString(file.second));
+								if (b) {
+									copy = false;
+									if (GeneralSettingsWidget::extendedLogging) {
+										LOGINFO("Skipping file");
 									}
+									_skippedFiles.append(filename);
 								}
-								checkFile.close();
 								if (copy) {
-									if (QFile::exists(*usedBaseDir + "/" + filename + ".spbak")) {
+									if (QFileInfo::exists(*usedBaseDir + "/" + filename + ".spbak")) {
 										QFile::remove(*usedBaseDir + "/" + filename);
 									} else {
 										QFile::rename(*usedBaseDir + "/" + filename, *usedBaseDir + "/" + filename + ".spbak");
@@ -2466,7 +2417,6 @@ namespace {
 #ifdef Q_OS_WIN
 					}
 #endif
-					QFile f(Config::MODDIR + "/mods/" + QString::number(_modID) + "/" + filename);
 					QFileInfo fi(*usedBaseDir + "/" + filename);
 					QDir dir = fi.absoluteDir();
 					success = dir.mkpath(dir.absolutePath());
@@ -2476,23 +2426,17 @@ namespace {
 					}
 					// backup old file
 					bool copy = true;
-					if (QFile::exists(*usedBaseDir + "/" + filename)) {
-						QFile checkFile(*usedBaseDir + "/" + filename);
-						if (checkFile.open(QIODevice::ReadOnly)) {
-							QCryptographicHash hash(QCryptographicHash::Sha512);
-							hash.addData(&checkFile);
-							const QString hashSum = QString::fromLatin1(hash.result().toHex());
-							if (hashSum == QString::fromStdString(file.second)) {
-								copy = false;
-								if (GeneralSettingsWidget::extendedLogging) {
-									LOGINFO("Skipping file");
-								}
-								_skippedFiles.append(filename);
+					if (QFileInfo::exists(*usedBaseDir + "/" + filename)) {
+						const bool b = utils::Hashing::checkHash(*usedBaseDir + "/" + filename, QString::fromStdString(file.second));
+						if (b) {
+							copy = false;
+							if (GeneralSettingsWidget::extendedLogging) {
+								LOGINFO("Skipping file");
 							}
+							_skippedFiles.append(filename);
 						}
-						checkFile.close();
 						if (copy) {
-							if (QFile::exists(*usedBaseDir + "/" + filename + ".spbak")) {
+							if (QFileInfo::exists(*usedBaseDir + "/" + filename + ".spbak")) {
 								QFile::remove(*usedBaseDir + "/" + filename);
 							} else {
 								QFile::rename(*usedBaseDir + "/" + filename, *usedBaseDir + "/" + filename + ".spbak");
@@ -2500,11 +2444,10 @@ namespace {
 						}
 					}
 					if (copy) {
-						f.close();
 						success = linkOrCopyFile(Config::MODDIR + "/mods/" + QString::number(_modID) + "/" + filename, *usedBaseDir + "/" + filename);
 					}
 					if (!success) {
-						LOGERROR("Couldn't copy file: " << filename.toStdString() << " " << f.errorString().toStdString());
+						LOGERROR("Couldn't copy file: " << filename.toStdString());
 						break;
 					}
 					if (copy) {
@@ -2667,22 +2610,16 @@ namespace {
 								changedFile = changedFile.replace(match.captured(1), "Normalmaps_" + QString::number(normalsCounter), Qt::CaseInsensitive);
 							}
 							Q_ASSERT(QFileInfo::exists(Config::MODDIR + "/mods/" + QString::number(patchID) + "/" + filename));
-							if (QFile::exists(*usedBaseDir + "/" + changedFile)) {
-								QFile checkFile(*usedBaseDir + "/" + changedFile);
-								if (checkFile.open(QIODevice::ReadOnly)) {
-									QCryptographicHash hash(QCryptographicHash::Sha512);
-									hash.addData(&checkFile);
-									const QString hashSum = QString::fromLatin1(hash.result().toHex());
-									if (hashSum == QString::fromStdString(file.second)) {
-										copy = false;
-										if (GeneralSettingsWidget::extendedLogging) {
-											LOGINFO("Skipping file");
-										}
+							if (QFileInfo::exists(*usedBaseDir + "/" + changedFile)) {
+								const bool b = utils::Hashing::checkHash(*usedBaseDir + "/" + changedFile, QString::fromStdString(file.second));
+								if (b) {
+									copy = false;
+									if (GeneralSettingsWidget::extendedLogging) {
+										LOGINFO("Skipping file");
 									}
 								}
-								checkFile.close();
 								if (copy) {
-									if (QFile::exists(*usedBaseDir + "/" + changedFile + ".spbak")) {
+									if (QFileInfo::exists(*usedBaseDir + "/" + changedFile + ".spbak")) {
 										QFile::remove(*usedBaseDir + "/" + changedFile);
 									} else {
 										QFile::rename(*usedBaseDir + "/" + changedFile, *usedBaseDir + "/" + changedFile + ".spbak");
@@ -2700,7 +2637,6 @@ namespace {
 #ifdef Q_OS_WIN
 					}
 #endif
-					QFile f(Config::MODDIR + "/mods/" + QString::number(patchID) + "/" + filename);
 					QFileInfo fi(*usedBaseDir + "/" + filename);
 					QDir dir = fi.absoluteDir();
 					bool success = dir.mkpath(dir.absolutePath());
@@ -2715,22 +2651,16 @@ namespace {
 							LOGINFO("Copying file " << file.first);
 						}
 						bool copy = true;
-						if (QFile::exists(*usedBaseDir + "/" + filename)) {
-							QFile checkFile(*usedBaseDir + "/" + filename);
-							if (checkFile.open(QIODevice::ReadOnly)) {
-								QCryptographicHash hash(QCryptographicHash::Sha512);
-								hash.addData(&checkFile);
-								const QString hashSum = QString::fromLatin1(hash.result().toHex());
-								if (hashSum == QString::fromStdString(file.second)) {
-									copy = false;
-								}
+						if (QFileInfo::exists(*usedBaseDir + "/" + filename)) {
+							const bool b = utils::Hashing::checkHash(*usedBaseDir + "/" + filename, QString::fromStdString(file.second));
+							if (b) {
+								copy = false;
 							}
 						}
 						if (filename.contains("directx_Jun2010_redist.exe", Qt::CaseInsensitive) || filename.contains(QRegularExpression("vc*.exe", QRegularExpression::ExtendedPatternSyntaxOption))) {
 							copy = false;
 						}
 						if (copy) {
-							f.close();
 							QFile::rename(*usedBaseDir + "/" + filename, *usedBaseDir + "/" + filename + ".spbak");
 							success = linkOrCopyFile(Config::MODDIR + "/mods/" + QString::number(patchID) + "/" + filename, *usedBaseDir + "/" + filename);
 							if (!success) {

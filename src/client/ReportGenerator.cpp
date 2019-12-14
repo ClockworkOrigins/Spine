@@ -20,8 +20,9 @@
 
 #include "Config.h"
 
+#include "utils/Hashing.h"
+
 #include <QApplication>
-#include <QCryptographicHash>
 #include <QtConcurrentRun>
 #include <QDirIterator>
 #include <QFutureWatcher>
@@ -47,7 +48,7 @@ namespace spine {
 		QFutureWatcher<void> watcher;
 		connect(&watcher, &QFutureWatcher<void>::finished, &loop, &QEventLoop::quit);
 		const QFuture<void> future = QtConcurrent::run([this, fileList, filename]() {
-			QString directory = Config::BASEDIR + "/reports";
+			const QString directory = Config::BASEDIR + "/reports";
 			if (!QDir(directory).exists()) {
 				bool b = QDir().mkpath(directory);
 				Q_UNUSED(b);
@@ -57,13 +58,9 @@ namespace spine {
 				QTextStream ts(&f);
 				int currentProgress = 0;
 				for (int i = 0; i < fileList.size(); i++) {
-					QFile checkFile(fileList[i]);
-					if (checkFile.open(QIODevice::ReadOnly)) {
-						QCryptographicHash hash(QCryptographicHash::Sha512);
-						hash.addData(&checkFile);
-						QString hashSum = QString::fromLatin1(hash.result().toHex());
-						ts << fileList[i] << ": " << hashSum << "\n";
-					}
+					QString hash;
+					utils::Hashing::hash(fileList[i], hash);
+					ts << fileList[i] << ": " << hash << "\n";
 					emit updateProgress(++currentProgress);
 				}
 			}

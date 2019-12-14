@@ -18,7 +18,6 @@
 
 #include "widgets/SpineEditor.h"
 
-#include <fstream>
 #include <thread>
 
 #include "Config.h"
@@ -32,7 +31,9 @@
 
 #include "models/SpineEditorModel.h"
 
+#include "utils/Compression.h"
 #include "utils/Conversion.h"
+#include "utils/Hashing.h"
 
 #include "widgets/AchievementSpineSettingsWidget.h"
 #include "widgets/DownloadProgressDialog.h"
@@ -43,14 +44,9 @@
 #include "widgets/ScoreSpineSettingsWidget.h"
 #include "widgets/WaitSpinner.h"
 
-#include "boost/iostreams/copy.hpp"
-#include "boost/iostreams/filtering_streambuf.hpp"
-#include "boost/iostreams/filter/zlib.hpp"
-
 #include "clockUtils/sockets/TcpSocket.h"
 
 #include <QApplication>
-#include <QCryptographicHash>
 #include <QDialogButtonBox>
 #include <QDebug>
 #include <QDirIterator>
@@ -277,10 +273,10 @@ namespace widgets {
 		QEventLoop loop;
 		connect(&watcher, SIGNAL(finished()), &loop, SLOT(quit()));
 
-		QFuture<clockUtils::ClockError> future = QtConcurrent::run([this, &modname]() {
+		const QFuture<clockUtils::ClockError> future = QtConcurrent::run([this, &modname]() {
 			common::SubmitScriptFeaturesMessage ssfm;
 			common::SendModsForEditorMessage::ModForEditor mfe;
-			for (auto s : _modList) {
+			for (const auto & s : _modList) {
 				if (s2q(s.name) == modname) {
 					mfe = s;
 					break;
@@ -292,7 +288,7 @@ namespace widgets {
 			ssfm.password = _password.toStdString();
 			if (_model->getModules() & common::SpineModules::Achievements) {
 				QSet<QString> imageNames;
-				for (models::AchievementModel am : _model->getAchievements()) {
+				for (const models::AchievementModel & am : _model->getAchievements()) {
 					common::SubmitScriptFeaturesMessage::Achievement a;
 					a.name = q2s(am.name);
 					a.description = q2s(am.description);
@@ -310,7 +306,7 @@ namespace widgets {
 				}
 				for (const QString & imageFile : imageNames) {
 					QString imageHash;
-					for (auto p : mfe.images) {
+					for (const auto & p : mfe.images) {
 						QString af = QFileInfo(s2q(p.first)).fileName();
 						af.chop(2);
 						if (af == imageFile) {
@@ -326,39 +322,26 @@ namespace widgets {
 							bool b = img.save(QProcessEnvironment::systemEnvironment().value("TMP", ".") + "/tmpAchSP.png");
 							Q_UNUSED(b);
 						}
-						QFile f(QProcessEnvironment::systemEnvironment().value("TMP", ".") + "/tmpAchSP.png");
-						if (f.open(QIODevice::ReadOnly)) {
-							QCryptographicHash hash(QCryptographicHash::Sha512);
-							hash.addData(&f);
-							QString hashSum = QString::fromLatin1(hash.result().toHex());
-							if (hashSum != imageHash) {
-								f.close();
+						QString hashSum;
+						const bool b = utils::Hashing::hash(QProcessEnvironment::systemEnvironment().value("TMP", ".") + "/tmpAchSP.png", hashSum);
+						if (imageHash != hashSum) {
+							utils::Compression::compress(QProcessEnvironment::systemEnvironment().value("TMP", ".") + "/tmpAchSP.png", false);
 
-								{
-									std::ifstream uncompressedFile(QProcessEnvironment::systemEnvironment().value("TMP", ".").toStdString() + "/tmpAchSP.png", std::ios_base::in | std::ios_base::binary);
-									boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
-									in.push(boost::iostreams::zlib_compressor(boost::iostreams::zlib::best_compression));
-									in.push(uncompressedFile);
-									std::ofstream compressedFile(QProcessEnvironment::systemEnvironment().value("TMP", ".").toStdString() + "/tmpAchSP.png.z", std::ios_base::out | std::ios_base::binary);
-									boost::iostreams::copy(in, compressedFile);
-								}
-
-								QFile compressedFile(QProcessEnvironment::systemEnvironment().value("TMP", ".") + "/tmpAchSP.png.z");
-								if (compressedFile.open(QIODevice::ReadOnly)) {
-									QByteArray byteArr = compressedFile.readAll();
-									std::vector<uint8_t> buffer(byteArr.length());
-									memcpy(&buffer[0], byteArr.data(), byteArr.length());
-									ssfm.achievementImages.emplace_back(std::make_pair(QFileInfo(imageFile).fileName().toStdString(), q2s(hashSum)), buffer);
-								}
-								compressedFile.close();
-								compressedFile.remove();
+							QFile compressedFile(QProcessEnvironment::systemEnvironment().value("TMP", ".") + "/tmpAchSP.png.z");
+							if (compressedFile.open(QIODevice::ReadOnly)) {
+								QByteArray byteArr = compressedFile.readAll();
+								std::vector<uint8_t> buffer(byteArr.length());
+								memcpy(&buffer[0], byteArr.data(), byteArr.length());
+								ssfm.achievementImages.emplace_back(std::make_pair(QFileInfo(imageFile).fileName().toStdString(), q2s(hashSum)), buffer);
 							}
+							compressedFile.close();
+							compressedFile.remove();
 						}
 					}
 				}
 			}
 			if (_model->getModules() & common::SpineModules::Scores) {
-				for (models::ScoreModel sm : _model->getScores()) {
+				for (const models::ScoreModel & sm : _model->getScores()) {
 					common::SubmitScriptFeaturesMessage::Score s;
 					s.name = q2s(sm.name);
 					ssfm.scores.push_back(s);
@@ -564,7 +547,7 @@ namespace widgets {
 		QList<QPair<QString, QString>> realFiles;
 		const QString forbiddenSuffix = _model->getGothicVersion() == common::GothicVersion::GOTHIC ? "_G2" : "_G1";
 		
-		for (auto p : ikarusFiles) {
+		for (const auto & p : ikarusFiles) {
 			if (!p.first.contains(forbiddenSuffix)) {
 				realFiles.append(p);
 			}
@@ -790,9 +773,7 @@ namespace widgets {
 		}
 	}
 
-	void SpineEditor::checkIkarusInitialized() {
-
-	}
+	void SpineEditor::checkIkarusInitialized() {}
 
 	void SpineEditor::checkLeGoVersion() {
 		QDirIterator it(_model->getPath() + "/_work/data/Scripts/Content/", QStringList() << "LeGo.d", QDir::Files, QDirIterator::Subdirectories);
@@ -823,9 +804,7 @@ namespace widgets {
 		}
 	}
 
-	void SpineEditor::checkLeGoInitialized() {
-
-	}
+	void SpineEditor::checkLeGoInitialized() {}
 
 	void SpineEditor::restoreSettings() {
 		const QByteArray arr = _iniParser->value("WINDOWGEOMETRY/SpineEditorGeometry", QByteArray()).toByteArray();
