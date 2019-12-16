@@ -160,7 +160,7 @@ namespace widgets {
 		}
 	};
 
-	ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, QSettings * iniParser, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _mainWindow(mainWindow), _iniParser(iniParser), _treeView(nullptr), _sourceModel(nullptr), _sortModel(nullptr), _language(), _mods(), _gothicValid(false), _gothic2Valid(false), _username(), _parentMods(), _gothicDirectory(), _gothic2Directory(), _packageIDIconMapping(), _allowRenderer(false), _waitSpinner(nullptr) {
+	ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, QSettings * iniParser, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _mainWindow(mainWindow), _iniParser(iniParser), _treeView(nullptr), _sourceModel(nullptr), _sortModel(nullptr), _language(), _mods(), _gothicValid(false), _gothic2Valid(false), _username(), _parentMods(), _gothicDirectory(), _gothic2Directory(), _packageIDIconMapping(), _waitSpinner(nullptr), _allowRenderer(false) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 

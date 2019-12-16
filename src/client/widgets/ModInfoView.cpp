@@ -251,7 +251,7 @@ namespace {
 			_patchGroup->hide();
 
 			_pdfGroup = new QGroupBox(QApplication::tr("PDFs"), this);
-			UPDATELANGUAGESETTITLE(generalSettingsWidget, _patchGroup, "PDFs");
+			UPDATELANGUAGESETTITLE(generalSettingsWidget, _pdfGroup, "PDFs");
 			_pdfGroup->setProperty("library", true);
 			_pdfLayout = new QVBoxLayout();
 			_pdfGroup->setLayout(_pdfLayout);
