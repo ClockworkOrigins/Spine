@@ -1647,8 +1647,10 @@
 	<Version majorVersion="1" minorVersion="14" patchVersion="17">
 		<Bug language="Deutsch">Überflüssige installierte Mods werden jetzt automatisch deinstalliert (z.B. alter Freies Zielen Patch für Gothic 1)</Bug>
 		<Bug language="Deutsch">Sprachwechsel übersetzt Patches and Tools und PDF jetzt richtig</Bug>
+		<Bug language="Deutsch">Crash behoben, wenn im Management-Dialog ein Tab gewechselt wird, aber keine Mod ausgewählt ist</Bug>
 		
 		<Bug language="English">Obsolete installed mods now get automatically uninstalled (e.g. old Free Aiming patch for Gothic 1)</Bug>
 		<Bug language="English">Language change now translates patches and tools and pdf properly</Bug>
+		<Bug language="English">Fixed crash when switching tab in management dialog with no mod selected</Bug>
 	</Version>
 </Versions>

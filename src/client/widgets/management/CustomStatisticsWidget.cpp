@@ -115,7 +115,7 @@ namespace widgets {
 	}
 
 	void CustomStatisticsWidget::updateView() {
-		if (_modIndex >= _mods.size()) return;
+		if (_modIndex == -1 || _modIndex >= _mods.size()) return;
 		
 		_sourceModel->clear();
 		_identifierBox->clear();

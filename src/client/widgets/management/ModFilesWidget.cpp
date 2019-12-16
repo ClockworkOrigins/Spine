@@ -374,6 +374,8 @@ namespace {
 	}
 
 	void ModFilesWidget::updateView() {
+		if (_modIndex == -1 || _modIndex >= _mods.size()) return;
+	
 		delete _waitSpinner;
 		_waitSpinner = new spine::widgets::WaitSpinner(QApplication::tr("Updating"), this);
 

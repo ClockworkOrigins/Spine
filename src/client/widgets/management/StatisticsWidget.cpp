@@ -114,7 +114,7 @@ namespace widgets {
 	}
 
 	void StatisticsWidget::updateView() {
-		if (_modIndex >= _mods.size()) return;
+		if (_modIndex == -1 || _modIndex >= _mods.size()) return;
 		
 		qDeleteAll(_labelList);
 		_labelList.clear();

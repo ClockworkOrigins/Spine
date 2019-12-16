@@ -109,7 +109,7 @@ namespace widgets {
 	}
 
 	void AchievementsWidget::updateView() {
-		if (_modIndex >= _mods.size()) return;
+		if (_modIndex == -1 || _modIndex >= _mods.size()) return;
 		
 		delete _waitSpinner;
 		_waitSpinner = new spine::widgets::WaitSpinner(QApplication::tr("Updating"), this);
