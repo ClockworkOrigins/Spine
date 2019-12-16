@@ -900,7 +900,7 @@ namespace widgets {
 					connect(mfd, SIGNAL(downloadFailed(DownloadError)), mfd, SLOT(deleteLater()));
 					connect(mfd, SIGNAL(downloadSucceeded()), mfd, SLOT(deleteLater()));
 					common::RequestOriginalFilesMessage rofm;
-					for (IntegrityCheckDialog::ModFile file : corruptFiles) {
+					for (const IntegrityCheckDialog::ModFile & file : corruptFiles) {
 						rofm.files.emplace_back(file.modID, file.file.toStdString());
 					}
 					std::string serialized = rofm.SerializePublic();
@@ -913,7 +913,7 @@ namespace widgets {
 									if (m) {
 										common::SendOriginalFilesMessage * sofm = dynamic_cast<common::SendOriginalFilesMessage *>(m);
 										corruptFiles.clear();
-										for (const auto p : sofm->files) {
+										for (const auto & p : sofm->files) {
 											corruptFiles.append(IntegrityCheckDialog::ModFile(std::to_string(p.first), p.second.first, p.second.second));
 										}
 									}
@@ -985,7 +985,7 @@ namespace widgets {
 	void MainWindow::setDevPath() {
 		QAction * action = qobject_cast<QAction *>(sender());
 		const int id = action->property("id").toInt();
-		QString path = _settingsDialog->getDeveloperSettingsWidget()->getPath(id);
+		const QString path = _settingsDialog->getDeveloperSettingsWidget()->getPath(id);
 		const common::GothicVersion gv = _settingsDialog->getDeveloperSettingsWidget()->getGothicVersion(id);
 		if (path.isEmpty()) {
 			return;
@@ -1076,11 +1076,11 @@ namespace widgets {
 	}
 
 	void MainWindow::hideMod() {
-		QModelIndexList idxList = _modListView->selectionModel()->selectedIndexes();
+		const QModelIndexList idxList = _modListView->selectionModel()->selectedIndexes();
 		if (idxList.empty()) {
 			return;
 		}
-		QModelIndex idx = idxList.constFirst();
+		const QModelIndex idx = idxList.constFirst();
 		const int modId = idx.data(LibraryFilterModel::ModIDRole).toInt();
 		_modListView->model()->setData(idx, true, LibraryFilterModel::HiddenRole);
 		_modListView->clearSelection();
@@ -1089,11 +1089,11 @@ namespace widgets {
 	}
 
 	void MainWindow::showMod() {
-		QModelIndexList idxList = _modListView->selectionModel()->selectedIndexes();
+		const QModelIndexList idxList = _modListView->selectionModel()->selectedIndexes();
 		if (idxList.empty()) {
 			return;
 		}
-		QModelIndex idx = idxList.constFirst();
+		const QModelIndex idx = idxList.constFirst();
 		const int modId = idx.data(LibraryFilterModel::ModIDRole).toInt();
 		_modListView->model()->setData(idx, false, LibraryFilterModel::HiddenRole);
 		_modListView->clearSelection();
@@ -1102,17 +1102,17 @@ namespace widgets {
 	}
 
 	void MainWindow::uninstallMod() {
-		QModelIndexList idxList = _modListView->selectionModel()->selectedIndexes();
+		const QModelIndexList idxList = _modListView->selectionModel()->selectedIndexes();
 		if (idxList.empty()) {
 			return;
 		}
-		QModelIndex idx = idxList.constFirst();
+		const QModelIndex idx = idxList.constFirst();
 		const int modId = idx.data(LibraryFilterModel::ModIDRole).toInt();
 		const common::GothicVersion gothicVersion = common::GothicVersion(idx.data(LibraryFilterModel::GothicRole).toInt());
 		const QString directory = gothicVersion == common::GothicVersion::GOTHIC ? _gothicDirectory : _gothic2Directory;
 		_modListView->clearSelection();
 
-		const bool uninstalled = Uninstaller::uninstall(modId, idx.data(Qt::DisplayRole).toString(), directory);
+		const bool uninstalled = client::Uninstaller::uninstall(modId, idx.data(Qt::DisplayRole).toString(), directory);
 		if (uninstalled) {
 			_modListModel->clear();
 			parseMods();
@@ -1173,7 +1173,7 @@ namespace widgets {
 			l->addWidget(db);
 			dlg.setLayout(l);
 
-			QSettings steamSettings(R"(HKEY_CURRENT_USER\SOFTWARE\Valve\Steam)", QSettings::NativeFormat);
+			const QSettings steamSettings(R"(HKEY_CURRENT_USER\SOFTWARE\Valve\Steam)", QSettings::NativeFormat);
 			if (steamSettings.value("SteamPath").isValid()) {
 				const QString steamDir = steamSettings.value("SteamPath").toString();
 				const QString gothicDir = steamDir + "/SteamApps/common/Gothic";

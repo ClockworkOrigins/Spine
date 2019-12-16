@@ -16,20 +16,20 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_UNINSTALLER_H__
-#define __SPINE_UNINSTALLER_H__
+#pragma once
 
 #include <cstdint>
 
 #include <QString>
 
 namespace spine {
+namespace client {
 
 	class Uninstaller {
 	public:
 		static bool uninstall(uint32_t modID, QString modName, QString directory);
+		static bool uninstall(uint32_t modID);
 	};
 
+} /* namespace client */
 } /* namespace spine */
-
-#endif /* __SPINE_UNINSTALLER_H__ */

@@ -46,6 +46,8 @@ namespace widgets {
 	public:
 		ModDatabaseView(QMainWindow * mainWindow, QSettings * iniParser, GeneralSettingsWidget * generalSettingsWidget, QWidget * par);
 
+		static bool isInstalled(int modID);
+
 	signals:
 		void receivedModList(std::vector<common::Mod>);
 		void receivedModSizes(std::vector<std::pair<int32_t, uint64_t>>);
@@ -102,6 +104,8 @@ namespace widgets {
 		qint64 getDownloadSize(common::Mod mod) const;
 		void selectedModIndex(const QModelIndex & index);
 		void selectedPackageIndex(const QModelIndex & index);
+
+		void removeInvalidDatabaseEntries();
 	};
 
 } /* namespace widgets */

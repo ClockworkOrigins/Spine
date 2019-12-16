@@ -1644,4 +1644,9 @@
 		<Bug language="English">Plugin entries in Union.ini are inserted and deleted better now</Bug>
 		<Bug language="English">Improved performance in management dialog</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="14" patchVersion="17">
+		<Bug language="Deutsch">Überflüssige installierte Mods werden jetzt automatisch deinstalliert (z.B. alter Freies Zielen Patch für Gothic 1)</Bug>
+		
+		<Bug language="English">Obsolete installed mods now get automatically uninstalled (e.g. old Free Aiming patch for Gothic 1)</Bug>
+	</Version>
 </Versions>

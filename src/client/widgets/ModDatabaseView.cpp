@@ -160,7 +160,7 @@ namespace widgets {
 		}
 	};
 
-	ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, QSettings * iniParser, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _mainWindow(mainWindow), _iniParser(iniParser), _treeView(nullptr), _sourceModel(nullptr), _sortModel(nullptr), _language(), _mods(), _gothicValid(false), _gothic2Valid(false), _username(), _parentMods(), _gothicDirectory(), _gothic2Directory(), _packageIDIconMapping(), _allowRenderer(false) {
+	ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, QSettings * iniParser, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _mainWindow(mainWindow), _iniParser(iniParser), _treeView(nullptr), _sourceModel(nullptr), _sortModel(nullptr), _language(), _mods(), _gothicValid(false), _gothic2Valid(false), _username(), _parentMods(), _gothicDirectory(), _gothic2Directory(), _packageIDIconMapping(), _allowRenderer(false), _waitSpinner(nullptr) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -361,6 +361,8 @@ namespace widgets {
 		_allowRenderer = false;
 #endif
 		_sortModel->setRendererAllowed(_allowRenderer);
+
+		removeInvalidDatabaseEntries();
 	}
 
 	void ModDatabaseView::changeLanguage(QString language) {
@@ -1048,7 +1050,7 @@ namespace widgets {
 				}).detach();
 			}
 		} else {
-			const bool uninstalled = Uninstaller::uninstall(mod.id, s2q(mod.name), mod.gothic == common::GothicVersion::GOTHIC ? _gothicDirectory : _gothic2Directory);
+			const bool uninstalled = client::Uninstaller::uninstall(mod.id, s2q(mod.name), mod.gothic == common::GothicVersion::GOTHIC ? _gothicDirectory : _gothic2Directory);
 			if (uninstalled) {
 				int row = 0;
 				for (; row < int(_mods.size()); row++) {
@@ -1126,7 +1128,7 @@ namespace widgets {
 			msg.button(QMessageBox::StandardButton::Cancel)->setText(QApplication::tr("Cancel"));
 			if (QMessageBox::StandardButton::Ok == msg.exec()) {
 				QDir dir(Config::MODDIR + "/mods/" + QString::number(mod.id));
-				std::vector<std::string> files = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT File FROM packages WHERE PackageID = " + std::to_string(package.packageID) + ";", err);
+				const auto files = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT File FROM packages WHERE PackageID = " + std::to_string(package.packageID) + ";", err);
 				for (const std::string & s : files) {
 					QFile(dir.absolutePath() + "/" + QString::fromStdString(s)).remove();
 					Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "DELETE FROM modfiles WHERE ModID = " + std::to_string(mod.id) + " AND File = '" + s + "';", err);
@@ -1142,6 +1144,24 @@ namespace widgets {
 				resultMsg.exec();
 			}
 		}
+	}
+
+	void ModDatabaseView::removeInvalidDatabaseEntries() {
+		// Free Aiming: 223 and 227. 227 is now obsolete
+		if (isInstalled(223) && isInstalled(227)) {
+			client::Uninstaller::uninstall(227);
+		}
+		// Workaround Helper: 225 and 234. 234 is now obsolete
+		if (isInstalled(225) && isInstalled(234)) {
+			client::Uninstaller::uninstall(234);
+		}
+	}
+
+	bool ModDatabaseView::isInstalled(int modID) {
+		Database::DBError err;
+		const int count = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM mods WHERE ModID = " + std::to_string(modID) + ";", err);
+
+		return count == 1;
 	}
 
 } /* namespace widgets */
