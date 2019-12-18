@@ -97,9 +97,6 @@ namespace spine {
 				emit downloadSucceeded();
 				return;
 			}
-			
-			emit downloadFailed(DownloadError::UnknownError);
-			return;
 		}
 
 		if (_fileName.contains("directx_Jun2010_redist.exe", Qt::CaseInsensitive) && Config::IniParser->value("INSTALLATION/DirectX", true).toBool()) {

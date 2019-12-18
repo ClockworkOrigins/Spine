@@ -601,17 +601,31 @@ namespace {
 			}
 		}
 #endif
-		if (QFile(_gothicDirectory + "/System/Gothic.exe").exists()) {
+		if (QFileInfo::exists(_gothicDirectory + "/System/Gothic.exe")) {
 			QFile(_gothicDirectory + "/System/GothicGame.ini").remove();
 		}
 		_gothicDirectory = directory;
-		if (QFile(_gothicDirectory + "/System/GothicGame.ini").exists()) {
+		if (QFileInfo::exists(_gothicDirectory + "/System/GothicGame.ini")) {
 			QFile(_gothicDirectory + "/System/GothicGame.ini").remove();
 		}
 
 		if (!QDir(_gothicDirectory + "/saves").exists()) {
 			bool b = QDir(_gothicDirectory).mkdir("saves");
 			Q_UNUSED(b);
+		}
+
+		// fix Union.ini
+		{
+			QString text;
+			if (QFileInfo::exists(_gothicDirectory + "/System/Union.ini")) {
+				QFile f(_gothicDirectory + "/System/Union.ini");
+				f.open(QIODevice::ReadOnly);
+				QTextStream ts(&f);
+				text = ts.readAll();
+			}
+			if (text.count("PluginList") > 1) {
+				QFile(_gothicDirectory + "/System/Union.ini").remove();
+			}
 		}
 
 		emit updatedG1Path();
@@ -636,12 +650,26 @@ namespace {
 			}
 		}
 #endif
-		if (QFile(_gothic2Directory + "/System/Gothic2.exe").exists()) {
+		if (QFileInfo::exists(_gothic2Directory + "/System/Gothic2.exe")) {
 			QFile(_gothic2Directory + "/System/GothicGame.ini").remove();
 		}
 		_gothic2Directory = directory;
-		if (QFile(_gothic2Directory + "/System/GothicGame.ini").exists()) {
+		if (QFileInfo::exists(_gothic2Directory + "/System/GothicGame.ini")) {
 			QFile(_gothic2Directory + "/System/GothicGame.ini").remove();
+		}
+
+		// fix Union.ini
+		{
+			QString text;
+			if (QFileInfo::exists(_gothic2Directory + "/System/Union.ini")) {
+				QFile f(_gothic2Directory + "/System/Union.ini");
+				f.open(QIODevice::ReadOnly);
+				QTextStream ts(&f);
+				text = ts.readAll();
+			}
+			if (text.count("PluginList") > 1) {
+				QFile(_gothic2Directory + "/System/Union.ini").remove();
+			}
 		}
 
 		emit updatedG2Path();
@@ -991,16 +1019,19 @@ namespace {
 				QTextStream ts(&f);
 				text = ts.readAll();
 			}
-			const QRegularExpression regExp("(PluginList\\s=[^\n]+)\n");
+			const QRegularExpression regExp("(PluginList\\s=[^\n]*)\n");
 			const QRegularExpressionMatch match = regExp.match(text);
 			QString replaceText = match.captured(1);
+			LOGINFO("Replacing #2: " << q2s(replaceText));
 			replaceText = replaceText.trimmed();
-			text = text.replace(replaceText, "PluginList =");
-			{
-				QFile f(usedBaseDir + "/System/Union.ini");
-				f.open(QIODevice::WriteOnly);
-				QTextStream ts(&f);
-				ts << text;
+			if (!replaceText.isEmpty()) {
+				text = text.replace(replaceText, "PluginList =");
+				{
+					QFile f(usedBaseDir + "/System/Union.ini");
+					f.open(QIODevice::WriteOnly);
+					QTextStream ts(&f);
+					ts << text;
+				}
 			}
 			_unionPlugins.clear();
 		}
@@ -3229,6 +3260,9 @@ namespace {
 		{
 			const auto bugslayerDll = *usedBaseDir + "/System/BugslayerUtil.dll";
 			if (QFileInfo::exists(bugslayerDll)) {
+				if (QFileInfo::exists(*usedBaseDir + "/System/BugslayerUtilG.dll")) {
+					QFile::remove(*usedBaseDir + "/System/BugslayerUtilG.dll");
+				}
 				const bool b = QFile::rename(bugslayerDll, *usedBaseDir + "/System/BugslayerUtilG.dll");
 				Q_ASSERT(b);
 			}
@@ -3270,12 +3304,16 @@ namespace {
 					QTextStream ts(&f);
 					text = ts.readAll();
 				}
-				const QRegularExpression regExp("PluginList\\s=([^\n]+)\n");
+				const QRegularExpression regExp("(PluginList\\s=[^\n]*)\n");
 				const QRegularExpressionMatch match = regExp.match(text);
 				QString replaceText = match.captured(1);
+				LOGINFO("Replacing #1: " << q2s(replaceText));
 				replaceText = replaceText.trimmed();
-				replaceText += (replaceText.isEmpty() ? "" : ",") + split.join(',') + "\n";
-				text = text.replace(regExp, "PluginList =" + replaceText);
+				if (replaceText.isEmpty()) {
+					text += "\n[PLUGINS]\nPluginList = " + _unionPlugins.join(',') + "\n";
+				} else {
+					text = text.replace(replaceText, "PluginList = " + _unionPlugins.join(','));
+				}
 				{
 					QFile f(*usedBaseDir + "/System/Union.ini");
 					f.open(QIODevice::WriteOnly);
