@@ -266,10 +266,6 @@ namespace spine {
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
-		if (!database.query(std::string("CREATE TABLE IF NOT EXISTS impressions (Year INT NOT NULL, Month INT NOT NULL, Count INT NOT NULL, PRIMARY KEY (Year, Month));"))) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-			return;
-		}
 		if (!database.query(std::string("CREATE TABLE IF NOT EXISTS cheaters (UserID INT PRIMARY KEY);"))) {
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;

@@ -22,7 +22,6 @@ SET(SpineSrc
 	${srcdir}/DatabaseFilterModel.cpp
 	${srcdir}/DirValidator.cpp
 	${srcdir}/FileDownloader.cpp
-	${srcdir}/ImpressionUpdater.cpp
 	${srcdir}/LibraryFilterModel.cpp
 	${srcdir}/ManagementCommon.cpp
 	${srcdir}/MultiFileDownloader.cpp

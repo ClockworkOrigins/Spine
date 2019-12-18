@@ -283,8 +283,7 @@ namespace server {
 					common::UpdateChapterStatsMessage * msg = dynamic_cast<common::UpdateChapterStatsMessage *>(m);
 					handleUpdateChapterStats(sock, msg);
 				} else if (m->type == common::MessageType::UPDATEIMPRESSION) {
-					common::UpdateImpressionMessage * msg = dynamic_cast<common::UpdateImpressionMessage *>(m);
-					handleUpdateImpression(sock, msg);
+					// not supported anymore
 				} else if (m->type == common::MessageType::ISACHIEVEMENTUNLOCKED) {
 					common::IsAchievementUnlockedMessage * msg = dynamic_cast<common::IsAchievementUnlockedMessage *>(m);
 					handleIsAchievementUnlocked(sock, msg);
@@ -4115,32 +4114,6 @@ namespace server {
 				break;
 			}
 			if (!database.query("EXECUTE insertStmt USING @paramModID, @paramIdentifier, @paramGuild, @paramStatName, @paramStatValue;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-				break;
-			}
-		} while (false);
-	}
-
-	void Server::handleUpdateImpression(clockUtils::sockets::TcpSocket *, common::UpdateImpressionMessage * msg) const {
-		do {
-			MariaDBWrapper database;
-			if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, SPINEDATABASE, 0)) {
-				std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-				break;
-			}
-			if (!database.query("PREPARE insertStmt FROM \"INSERT INTO impressions (Year, Month, Count) VALUES (?, ?, 1) ON DUPLICATE KEY UPDATE Count = Count + 1\";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("SET @paramYear=" + std::to_string(msg->year) + ";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("SET @paramMonth=" + std::to_string(msg->month) + ";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("EXECUTE insertStmt USING @paramYear, @paramMonth;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				break;
 			}

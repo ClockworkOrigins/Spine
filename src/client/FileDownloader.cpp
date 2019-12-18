@@ -149,6 +149,7 @@ namespace spine {
 				} catch (boost::iostreams::zlib_error & e) {
 					LOGERROR("Exception: " << e.what());
 				}
+				_fileName.chop(2);
 			}
 			if (widgets::GeneralSettingsWidget::extendedLogging) {
 				LOGINFO("Checking Hash");

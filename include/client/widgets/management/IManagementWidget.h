@@ -24,6 +24,8 @@ namespace widgets {
 
 	class IManagementWidget {
 	public:
+		virtual ~IManagementWidget() {}
+
 		virtual void updateView() = 0;
 	};
 

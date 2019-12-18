@@ -74,7 +74,6 @@ namespace common {
 	struct UnlockAchievementMessage;
 	struct UpdateAchievementProgressMessage;
 	struct UpdateChapterStatsMessage;
-	struct UpdateImpressionMessage;
 	struct UpdateLoginTimeMessage;
 	struct UpdateOfflineDataMessage;
 	struct UpdateOverallSaveDataMessage;
@@ -168,7 +167,6 @@ namespace server {
 		void handleRequestUserLevel(clockUtils::sockets::TcpSocket * sock, common::RequestUserLevelMessage * msg) const;
 		void handleUpdateSucceeded(clockUtils::sockets::TcpSocket * sock, common::UpdateSucceededMessage * msg) const;
 		void handleUpdateChapterStats(clockUtils::sockets::TcpSocket * sock, common::UpdateChapterStatsMessage * msg) const;
-		void handleUpdateImpression(clockUtils::sockets::TcpSocket * sock, common::UpdateImpressionMessage * msg) const;
 		void handleIsAchievementUnlocked(clockUtils::sockets::TcpSocket * sock, common::IsAchievementUnlockedMessage * msg) const;
 
 		bool isTeamMemberOfMod(int modID, int userID) const;

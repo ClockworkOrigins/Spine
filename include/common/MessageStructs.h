@@ -1744,21 +1744,6 @@ namespace common {
 		}
 	};
 
-	struct UpdateImpressionMessage : public Message {
-		int32_t year;
-		int32_t month;
-
-		UpdateImpressionMessage() : Message(), year(), month() {
-			type = MessageType::UPDATEIMPRESSION;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & year;
-			ar & month;
-		}
-	};
-
 	struct IsAchievementUnlockedMessage : public Message {
 		std::string username;
 		std::string password;

@@ -1644,7 +1644,7 @@
 		<Bug language="English">Plugin entries in Union.ini are inserted and deleted better now</Bug>
 		<Bug language="English">Improved performance in management dialog</Bug>
 	</Version>
-	<Version majorVersion="1" minorVersion="14" patchVersion="17">
+	<Version majorVersion="1" minorVersion="15" patchVersion="0">
 		<Bug language="Deutsch">Überflüssige installierte Mods werden jetzt automatisch deinstalliert (z.B. alter Freies Zielen Patch für Gothic 1)</Bug>
 		<Bug language="Deutsch">Sprachwechsel übersetzt Patches and Tools und PDF jetzt richtig</Bug>
 		<Bug language="Deutsch">Crash behoben, wenn im Management-Dialog ein Tab gewechselt wird, aber keine Mod ausgewählt ist</Bug>

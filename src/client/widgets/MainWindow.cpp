@@ -23,7 +23,6 @@
 #include "Config.h"
 #include "Database.h"
 #include "FileDownloader.h"
-#include "ImpressionUpdater.h"
 #include "LibraryFilterModel.h"
 #include "MultiFileDownloader.h"
 #include "ReportGenerator.h"
@@ -840,12 +839,6 @@ namespace widgets {
 				_friendsView->updateFriendList();
 			} else {
 				_profileView->reset();
-			}
-
-			if (index == MainTabsOnline::Database || index == MainTabsOnline::Friends || index == MainTabsOnline::Info || index == MainTabsOnline::LibraryOnline || index == MainTabsOnline::StartOnline) {
-				ImpressionUpdater::update();
-			} else {
-				ImpressionUpdater::cancel();
 			}
 		} else {
 			if (index == MainTabsOffline::LibraryOffline) {
