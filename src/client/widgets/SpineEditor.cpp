@@ -323,7 +323,7 @@ namespace widgets {
 							Q_UNUSED(b);
 						}
 						QString hashSum;
-						const bool b = utils::Hashing::hash(QProcessEnvironment::systemEnvironment().value("TMP", ".") + "/tmpAchSP.png", hashSum);
+						utils::Hashing::hash(QProcessEnvironment::systemEnvironment().value("TMP", ".") + "/tmpAchSP.png", hashSum);
 						if (imageHash != hashSum) {
 							utils::Compression::compress(QProcessEnvironment::systemEnvironment().value("TMP", ".") + "/tmpAchSP.png", false);
 
