@@ -445,7 +445,7 @@ namespace {
 		json["VersionMinor"] = _minorVersionBox->value();
 		json["VersionPatch"] = _patchVersionBox->value();
 		
-		https::Https::postAsync(MANAGEMENTSERVER_PORT, "updateModVersion", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject &, int) {
+		https::Https::postAsync(MANAGEMENTSERVER_PORT, "updateModVersion", QJsonDocument(json).toJson(QJsonDocument::Compact), [](const QJsonObject &, int) {
 			// error handling
 		});
 	}

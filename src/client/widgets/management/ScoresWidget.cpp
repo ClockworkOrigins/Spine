@@ -22,8 +22,6 @@
 
 #include "https/Https.h"
 
-#include "utils/Conversion.h"
-
 #include "widgets/WaitSpinner.h"
 
 #include <QApplication>

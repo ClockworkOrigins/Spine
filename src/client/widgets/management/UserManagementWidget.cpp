@@ -18,13 +18,9 @@
 
 #include "widgets/management/UserManagementWidget.h"
 
-#include <thread>
-
 #include "SpineConfig.h"
 
 #include "https/Https.h"
-
-#include "utils/Conversion.h"
 
 #include "widgets/WaitSpinner.h"
 
