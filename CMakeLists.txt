@@ -28,8 +28,8 @@ SET(SSLPRIVKEYNPATH "" CACHE STRING "path to the private key of the SSL certific
 project(Spine CXX)
 
 SET(VERSION_MAJOR 1)
-SET(VERSION_MINOR 14)
-SET(VERSION_PATCH 18)
+SET(VERSION_MINOR 15)
+SET(VERSION_PATCH 0)
 
 INCLUDE(cmake/variables.cmake)
 
