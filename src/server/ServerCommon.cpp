@@ -19,6 +19,7 @@
 #include "ServerCommon.h"
 
 #include <iostream>
+#include <map>
 #include <regex>
 #include <thread>
 
@@ -142,19 +143,47 @@ namespace server {
 			return {};
 		}
 
-		if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT Username FROM accounts ORDER BY Username ASC\";")) {
+		if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT ID, Username FROM accounts ORDER BY Username ASC\";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			return {};
 		}
 		if (!accountDatabase.query("EXECUTE selectStmt;")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			return {};
 		}
-		const auto results = accountDatabase.getResults<std::vector<std::string>>();
-		std::vector<std::string> users;
-		users.reserve(results.size());
+		auto results = accountDatabase.getResults<std::vector<std::string>>();
+
+		std::map<std::string, std::string> userMap;
+		
 		for (auto vec : results) {
-			users.push_back(vec[0]);
+			userMap.insert(std::make_pair(vec[0], vec[1]));
 		}
+
+		std::vector<std::string> users;
+		do {
+			CONNECTTODATABASE(__LINE__);
+
+			if (!database.query("PREPARE selectStmt FROM \"SELECT UserID FROM lastLoginTimes\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("EXECUTE selectStmt;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			results = database.getResults<std::vector<std::string>>();
+			
+			users.reserve(results.size());
+
+			for (const auto & vec : results) {
+				const auto it = userMap.find(vec[0]);
+
+				if (it == userMap.end()) continue;
+				
+				users.push_back(it->second);
+			}
+		} while (false);
+		
 		return users;
 	}
 

@@ -1655,4 +1655,9 @@
 		<Bug language="English">Fixed crash when switching tab in management dialog with no mod selected</Bug>
 		<Bug language="English">Fixed bug that caused starting with activated Ninja to take longer with each start</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="15" patchVersion="0">
+		<Bug language="Deutsch">Benutzerverwaltung zeigt nun nur noch Spine-Nutzer an</Bug>
+		
+		<Bug language="English">User management now only shows Spine users</Bug>
+	</Version>
 </Versions>
