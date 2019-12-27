@@ -20,7 +20,6 @@
 
 #include <cstdint>
 #include <functional>
-#include <memory>
 
 class QJsonObject;
 class QString;
