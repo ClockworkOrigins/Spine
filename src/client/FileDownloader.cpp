@@ -24,6 +24,8 @@
 #include "utils/Conversion.h"
 #include "utils/Hashing.h"
 
+#include "utils/ErrorReporting.h"
+
 #include "widgets/GeneralSettingsWidget.h"
 
 #include "boost/iostreams/filter/zlib.hpp"
@@ -145,6 +147,7 @@ namespace spine {
 					utils::Compression::uncompress(_targetDirectory + "/" + _fileName, true); // remove compressed download now
 				} catch (boost::iostreams::zlib_error & e) {
 					LOGERROR("Exception: " << e.what());
+					utils::ErrorReporting::report(QString("Uncompressing of %1 failed: %2").arg(_fileName).arg(e.what()));
 				}
 				_fileName.chop(2);
 			}
@@ -269,11 +272,13 @@ namespace spine {
 			} else {
 				LOGERROR("Hash invalid: " << _fileName.toStdString());
 				emit downloadFailed(DownloadError::HashError);
+				utils::ErrorReporting::report(QString("Hash invalid: %1").arg(_fileName));
 			}
 		} else {
 			_outputFile->close();
 			_outputFile->remove();
 			LOGERROR("Unknown Error: " << reply->error() << ", " << q2s(reply->errorString()));
+			utils::ErrorReporting::report(QString("Unknown Error during download: %1, %2").arg(reply->error()).arg(reply->errorString()));
 			emit downloadFailed(DownloadError::UnknownError);
 		}
 		reply->deleteLater();

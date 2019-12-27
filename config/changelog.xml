@@ -1656,10 +1656,12 @@
 		<Bug language="English">Fixed bug that caused starting with activated Ninja to take longer with each start</Bug>
 	</Version>
 	<Version majorVersion="1" minorVersion="15" patchVersion="0">
+		<Enhancement language="Deutsch">Bei Downloadfehlern wird der Fehler jetzt automatisch gemeldet</Enhancement>
 		<Bug language="Deutsch">Benutzerverwaltung zeigt nun nur noch Spine-Nutzer an</Bug>
 		<Bug language="Deutsch">Tippfehler in englischer Übersetzung korrigiert</Bug>
 		<Bug language="Deutsch">Fehler beim Upload neuer Mod-Dateien behoben</Bug>
 		
+		<Enhancement language="English">Download errors now are automatically reported</Enhancement>
 		<Bug language="English">User management now only shows Spine users</Bug>
 		<Bug language="English">Fixed typo in English translation</Bug>
 		<Bug language="English">Fixed bug when uploading new mod files</Bug>
