@@ -209,6 +209,7 @@ namespace {
 			mf.filename = file;
 			mf.language = "All";
 			mf.changed = true;
+			mf.deleted = false;
 			_data.files.append(mf);
 			_fileMap.insert(file, path);
 		}
