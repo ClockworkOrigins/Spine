@@ -54,7 +54,7 @@ namespace {
 
 	Smtp::~Smtp() {
 		if (_connected) {
-			std::string writeMsg = "QUIT\r\n.\r\n";
+			const std::string writeMsg = "QUIT\r\n.\r\n";
 			_socket->write(writeMsg.c_str(), writeMsg.length());
 			_socket->close();
 		}
