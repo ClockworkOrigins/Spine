@@ -1657,7 +1657,9 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="15" patchVersion="0">
 		<Bug language="Deutsch">Benutzerverwaltung zeigt nun nur noch Spine-Nutzer an</Bug>
+		<Bug language="Deutsch">Tippfehler in englischer Übersetzung korrigiert</Bug>
 		
 		<Bug language="English">User management now only shows Spine users</Bug>
+		<Bug language="English">Fixed typo in English translation</Bug>
 	</Version>
 </Versions>

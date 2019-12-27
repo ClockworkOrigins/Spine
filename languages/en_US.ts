@@ -2953,7 +2953,7 @@ Until the version number was updated the new files only affect players downloadi
     </message>
     <message>
         <source>FAQQuestion5</source>
-        <translation>Starting some modifications crashes Gothic at the end of the loading bar with an access violation error..</translation>
+        <translation>Starting some modifications crashes Gothic at the end of the loading bar with an access violation error.</translation>
     </message>
     <message>
         <source>FAQAnswer5</source>
