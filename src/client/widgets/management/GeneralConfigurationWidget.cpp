@@ -154,12 +154,12 @@ namespace widgets {
 		delete _waitSpinner;
 		_waitSpinner = new spine::widgets::WaitSpinner(QApplication::tr("Updating"), this);
 
-		QJsonObject json;
-		json["Username"] = _username;
-		json["Password"] = _password;
-		json["ModID"] = _mods[_modIndex].id;
+		QJsonObject requestData;
+		requestData["Username"] = _username;
+		requestData["Password"] = _password;
+		requestData["ModID"] = _mods[_modIndex].id;
 		
-		https::Https::postAsync(MANAGEMENTSERVER_PORT, "getGeneralConfiguration", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+		https::Https::postAsync(MANAGEMENTSERVER_PORT, "getGeneralConfiguration", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
 			if (statusCode != 200) {
 				emit removeSpinner();
 				return;

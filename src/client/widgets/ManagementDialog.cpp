@@ -18,8 +18,6 @@
 
 #include "widgets/ManagementDialog.h"
 
-#include <thread>
-
 #include "SpineConfig.h"
 
 #include "https/Https.h"
@@ -34,10 +32,7 @@
 #include "widgets/management/StatisticsWidget.h"
 #include "widgets/management/UserManagementWidget.h"
 
-#include "clockUtils/sockets/TcpSocket.h"
-
 #include <QApplication>
-#include <QDebug>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -143,12 +138,12 @@ namespace widgets {
 	}
 
 	void ManagementDialog::loadModList() {
-		QJsonObject json;
-		json["Username"] = _username;
-		json["Password"] = _password;
-		json["Language"] = _language;
+		QJsonObject requestData;
+		requestData["Username"] = _username;
+		requestData["Password"] = _password;
+		requestData["Language"] = _language;
 		
-		https::Https::postAsync(MANAGEMENTSERVER_PORT, "getMods", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+		https::Https::postAsync(MANAGEMENTSERVER_PORT, "getMods", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
 			if (statusCode != 200) return;
 			
 			const auto it = json.find("Mods");
