@@ -30,8 +30,8 @@ namespace https {
 
 	class Https {
 	public:
-		static void post(uint16_t port, const QString & f, const QString & content, const std::function<void(const QJsonObject &, int statusCode)> & callback);
-		static void postAsync(uint16_t port, const QString & f, const QString & content, const std::function<void(const QJsonObject &, int statusCode)> & callback);
+		static void post(uint16_t port, const QString & f, const QString & data, const std::function<void(const QJsonObject &, int statusCode)> & callback);
+		static void postAsync(uint16_t port, const QString & f, const QString & data, const std::function<void(const QJsonObject &, int statusCode)> & callback);
 	};
 
 } /* namespace https */

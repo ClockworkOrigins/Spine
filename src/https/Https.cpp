@@ -31,11 +31,11 @@ using HttpsClient = SimpleWeb::Client<SimpleWeb::HTTPS>;
 namespace spine {
 namespace https {
 
-	void Https::post(uint16_t port, const QString & f, const QString & content, const std::function<void(const QJsonObject &, int statusCode)> & callback) {
+	void Https::post(uint16_t port, const QString & f, const QString & data, const std::function<void(const QJsonObject &, int statusCode)> & callback) {
 		HttpsClient client("clockwork-origins.com:" + std::to_string(port), false);
 
 		// Synchronous request... maybe make it asynchronous?
-		client.request("POST", "/" + q2s(f), content.toStdString(), [callback](std::shared_ptr<HttpsClient::Response> response, const SimpleWeb::error_code &) {
+		client.request("POST", "/" + q2s(f), data.toStdString(), [callback](std::shared_ptr<HttpsClient::Response> response, const SimpleWeb::error_code &) {
 			const QString code = s2q(response->status_code).split(" ")[0];
 
 			const int statusCode = code.toInt();
@@ -51,8 +51,8 @@ namespace https {
 		client.io_service->run();
 	}
 
-	void Https::postAsync(uint16_t port, const QString & f, const QString & content, const std::function<void(const QJsonObject &, int statusCode)> & callback) {
-		QtConcurrent::run(post, port, f, content, callback);
+	void Https::postAsync(uint16_t port, const QString & f, const QString & data, const std::function<void(const QJsonObject &, int statusCode)> & callback) {
+		QtConcurrent::run(post, port, f, data, callback);
 	}
 
 
