@@ -101,27 +101,27 @@ namespace server {
 				CONNECTTODATABASE(__LINE__)
 					
 				if (!database.query("PREPARE selectTeamsStmt FROM \"SELECT TeamID FROM teammembers WHERE UserID = ?\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("PREPARE selectModStmt FROM \"SELECT ModID FROM mods WHERE TeamID = ?\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("PREPARE selectModNameStmt FROM \"SELECT CAST(Name AS BINARY) FROM modnames WHERE ModID = ? AND Language = CONVERT(? USING BINARY) LIMIT 1\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("SET @paramLanguage='" + language + "';")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -135,7 +135,7 @@ namespace server {
 				ptree modNodes;
 				for (const auto & vec : lastResults) {
 					if (!database.query("SET @paramTeamID=" + vec[0] + ";")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 						code = SimpleWeb::StatusCode::client_error_failed_dependency;
 						break;
 					}
@@ -147,7 +147,7 @@ namespace server {
 					auto results = database.getResults<std::vector<std::string>>();
 					for (auto mod : results) {
 						if (!database.query("SET @paramModID=" + mod[0] + ";")) {
-							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+							std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 							code = SimpleWeb::StatusCode::client_error_failed_dependency;
 							break;
 						}
@@ -213,42 +213,42 @@ namespace server {
 				CONNECTTODATABASE(__LINE__)
 				
 				if (!database.query("PREPARE selectAchievementsStmt FROM \"SELECT Identifier FROM modAchievementList WHERE ModID = ? ORDER BY Identifier ASC\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("PREPARE selectAchievementNameStmt FROM \"SELECT CAST(Name AS BINARY), CAST(Language AS BINARY) FROM modAchievementNames WHERE ModID = ? AND Identifier = ? LIMIT 1\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("PREPARE selectAchievementDescriptionStmt FROM \"SELECT CAST(Description AS BINARY), CAST(Language AS BINARY) FROM modAchievementDescriptions WHERE ModID = ? AND Identifier = ? LIMIT 1\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("PREPARE selectAchievementProgressStmt FROM \"SELECT Max FROM modAchievementProgressMax WHERE ModID = ? AND Identifier = ? LIMIT 1\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("PREPARE selectAchievementHiddenStmt FROM \"SELECT ModID FROM modAchievementHidden WHERE ModID = ? AND Identifier = ? LIMIT 1\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("PREPARE selectAchievementIconsStmt FROM \"SELECT LockedIcon, LockedHash, UnlockedIcon, UnlockedHash FROM modAchievementIcons WHERE ModID = ? AND Identifier = ? LIMIT 1\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -266,7 +266,7 @@ namespace server {
 					const int currentID = std::stoi(achievement[0]);
 
 					if (!database.query("SET @paramIdentifier=" + std::to_string(currentID) + ";")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 						code = SimpleWeb::StatusCode::client_error_failed_dependency;
 						break;
 					}
@@ -384,47 +384,47 @@ namespace server {
 				CONNECTTODATABASE(__LINE__)
 
 				if (!database.query("PREPARE insertAchievementStmt FROM \"INSERT IGNORE INTO modAchievementList (ModID, Identifier) VALUES (?, ?)\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("PREPARE updateAchievementNameStmt FROM \"INSERT INTO modAchievementNames (ModID, Identifier, Language, Name) VALUES (?, ?, CONVERT(? USING BINARY), CONVERT(? USING BINARY)) ON DUPLICATE KEY UPDATE Name = CONVERT(? USING BINARY)\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("PREPARE updateAchievementDescriptionStmt FROM \"INSERT INTO modAchievementDescriptions (ModID, Identifier, Language, Description) VALUES (?, ?, CONVERT(? USING BINARY), CONVERT(? USING BINARY)) ON DUPLICATE KEY UPDATE Description = CONVERT(? USING BINARY)\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("PREPARE updateAchievementProgressStmt FROM \"INSERT INTO modAchievementProgressMax (ModID, Identifier, Max) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE Max = ?\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("PREPARE deleteAchievementProgressStmt FROM \"DELETE FROM modAchievementProgressMax WHERE ModID = ? AND Identifier = ? LIMIT 1\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("PREPARE updateAchievementHiddenStmt FROM \"INSERT IGNORE INTO modAchievementHidden (ModID, Identifier) VALUES (?, ?)\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("PREPARE deleteAchievementHiddenStmt FROM \"DELETE FROM modAchievementHidden WHERE ModID = ? AND Identifier = ? LIMIT 1\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("PREPARE updateAchievementIconStmt FROM \"INSERT INTO modAchievementIcons (ModID, Identifier, LockedIcon, LockedHash, UnlockedIcon, UnlockedHash) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE LockedIcon = ?, LockedHash = ?, UnlockedIcon = ?, UnlockedHash = ?\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -433,7 +433,7 @@ namespace server {
 				int id = 0;
 				for (const auto & achievement : achievements) {
 					if (!database.query("SET @paramIdentifier=" + std::to_string(id) + ";")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 						code = SimpleWeb::StatusCode::client_error_failed_dependency;
 						break;
 					}
@@ -444,12 +444,12 @@ namespace server {
 					}
 					for (const auto & tt : achievement.second.get_child("Names")) {
 						if (!database.query("SET @paramLanguage='" + tt.second.get<std::string>("Language") + "';")) {
-							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+							std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 							code = SimpleWeb::StatusCode::client_error_failed_dependency;
 							break;
 						}
 						if (!database.query("SET @paramName='" + tt.second.get<std::string>("Text") + "';")) {
-							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+							std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 							code = SimpleWeb::StatusCode::client_error_failed_dependency;
 							break;
 						}
@@ -461,12 +461,12 @@ namespace server {
 					}
 					for (const auto & tt : achievement.second.get_child("Descriptions")) {
 						if (!database.query("SET @paramLanguage='" + tt.second.get<std::string>("Language") + "';")) {
-							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+							std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 							code = SimpleWeb::StatusCode::client_error_failed_dependency;
 							break;
 						}
 						if (!database.query("SET @paramDescription='" + tt.second.get<std::string>("Text") + "';")) {
-							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+							std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 							code = SimpleWeb::StatusCode::client_error_failed_dependency;
 							break;
 						}
@@ -479,7 +479,7 @@ namespace server {
 					const int32_t maxProgress = achievement.second.get<int32_t>("MaxProgress");
 					if (maxProgress > 0) {
 						if (!database.query("SET @paramProgress=" + std::to_string(maxProgress) + ";")) {
-							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+							std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 							code = SimpleWeb::StatusCode::client_error_failed_dependency;
 							break;
 						}
@@ -517,22 +517,22 @@ namespace server {
 					
 					if (!lockedImageName.empty() || !unlockedImageName.empty()) {
 						if (!database.query("SET @paramLockedIcon='" + lockedImageName + "';")) {
-							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+							std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 							code = SimpleWeb::StatusCode::client_error_failed_dependency;
 							break;
 						}
 						if (!database.query("SET @paramLockedHash='" + lockedImageHash + "';")) {
-							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+							std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 							code = SimpleWeb::StatusCode::client_error_failed_dependency;
 							break;
 						}
 						if (!database.query("SET @paramUnlockedIcon='" + unlockedImageName + "';")) {
-							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+							std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 							code = SimpleWeb::StatusCode::client_error_failed_dependency;
 							break;
 						}
 						if (!database.query("SET @paramUnlockedHash='" + unlockedImageHash + "';")) {
-							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+							std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 							code = SimpleWeb::StatusCode::client_error_failed_dependency;
 							break;
 						}
@@ -588,17 +588,17 @@ namespace server {
 				CONNECTTODATABASE(__LINE__)
 				
 				if (!database.query("PREPARE selectModStmt FROM \"SELECT Enabled, Gothic, Type, ReleaseDate FROM mods WHERE ModID = ? LIMIT 1\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("PREPARE selectDevDurationStmt FROM \"SELECT Duration FROM devtimes WHERE ModID = ? LIMIT 1\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -675,42 +675,42 @@ namespace server {
 				CONNECTTODATABASE(__LINE__)
 
 				if (!database.query("PREPARE updateStmt FROM \"UPDATE mods SET Enabled = ?, Gothic = ?, Type = ?, ReleaseDate = ? WHERE ModID = ? LIMIT 1\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("PREPARE updateDevDurationStmt FROM \"INSERT INTO devtimes (ModID, Duration) VALUES (?, ?) ON DUPLICATE KEY UPDATE Duration = ?\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("SET @paramEnabled=" + std::to_string(enabled) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("SET @paramGothicVersion=" + std::to_string(gothicVersion) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("SET @paramModType=" + std::to_string(modType) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("SET @paramReleaseDate=" + std::to_string(releaseDate) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("SET @paramDuration=" + std::to_string(duration) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -767,12 +767,12 @@ namespace server {
 				CONNECTTODATABASE(__LINE__)
 				
 				if (!database.query("PREPARE selectChapterStatsStmt FROM \"SELECT Identifier, Guild, StatName, StatValue FROM chapterStats WHERE ModID = ?\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -865,16 +865,16 @@ namespace server {
 				CONNECTTODATABASE(__LINE__)
 				
 				if (!database.query("PREPARE selectVersionStmt FROM \"SELECT MajorVersion, MinorVersion, PatchVersion FROM mods WHERE ModID = ? LIMIT 1\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					break;
 				}
 				if (!database.query("PREPARE selectModFilesStmt FROM \"SELECT Path, Hash, Language FROM modfiles WHERE ModID = ?\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -958,27 +958,27 @@ namespace server {
 				CONNECTTODATABASE(__LINE__)
 
 				if (!database.query("PREPARE updateStmt FROM \"UPDATE mods SET MajorVersion = ?, MinorVersion = ?, PatchVersion = ? WHERE ModID = ? LIMIT 1\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("SET @paramVersionMajor=" + std::to_string(versionMajor) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("SET @paramVersionMinor=" + std::to_string(versionMinor) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("SET @paramVersionPatch=" + std::to_string(versionPatch) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -1032,47 +1032,47 @@ namespace server {
 				CONNECTTODATABASE(__LINE__)
 				
 				if (!database.query("PREPARE selectAchievementNamesStmt FROM \"SELECT Identifier, CAST(Name AS BINARY) FROM modAchievementNames WHERE ModID = ? AND Language = ? ORDER BY Identifier ASC\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("PREPARE selectOverallDownloadsStmt FROM \"SELECT Counter FROM downloads WHERE ModID = ? LIMIT 1\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("PREPARE selectDownloadsPerVersionStmt FROM \"SELECT Version, Counter FROM downloadsPerVersion WHERE ModID = ? ORDER BY Version ASC\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("PREPARE selectPlaytimeStmt FROM \"SELECT Duration FROM playtimes WHERE ModID = ? AND UserID != -1 ORDER BY Duration ASC\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("PREPARE selectSessiontimeStmt FROM \"SELECT Duration FROM sessionTimes WHERE ModID = ? ORDER BY Duration ASC\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("PREPARE selectAchievementtimeStmt FROM \"SELECT Duration FROM achievementTimes WHERE ModID = ? AND Identifier = ? ORDER BY Duration ASC\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("PREPARE selectIntervalPlayersStmt FROM \"SELECT COUNT(*) FROM lastPlayTimes WHERE ModID = ? AND UserID != -1 AND Timestamp > ?\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("SET @paramLanguage='" + language + "';")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -1174,7 +1174,7 @@ namespace server {
 
 				const int timestamp = std::chrono::duration_cast<std::chrono::hours>(std::chrono::system_clock::now() - std::chrono::system_clock::time_point()).count();
 				if (!database.query("SET @paramTimestamp=" + std::to_string(timestamp - 24) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -1187,7 +1187,7 @@ namespace server {
 				responseTree.put("Last24HoursPlayerCount", static_cast<uint32_t>(std::stoi(results[0][0])));
 
 				if (!database.query("SET @paramTimestamp=" + std::to_string(timestamp - 7 * 24) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -1216,7 +1216,7 @@ namespace server {
 					achievementStatisticNode.put("Name", name);
 
 					if (!database.query("SET @paramIdentifier=" + id + ";")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 						code = SimpleWeb::StatusCode::client_error_failed_dependency;
 						break;
 					}
@@ -1298,12 +1298,12 @@ namespace server {
 				CONNECTTODATABASE(__LINE__)
 				
 				if (!database.query("PREPARE selectScoreNamesStmt FROM \"SELECT Identifier, CAST(Name AS BINARY), CAST(Language AS BINARY) FROM modScoreNames WHERE ModID = ? ORDER BY Identifier ASC\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -1384,17 +1384,17 @@ namespace server {
 				CONNECTTODATABASE(__LINE__)
 					
 				if (!database.query("PREPARE insertScoreStmt FROM \"INSERT IGNORE INTO modScoreList (ModID, Identifier) VALUES (?, ?)\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("PREPARE updateScoreNameStmt FROM \"INSERT INTO modScoreNames (ModID, Identifier, Language, Name) VALUES (?, ?, CONVERT(? USING BINARY), CONVERT(? USING BINARY)) ON DUPLICATE KEY UPDATE Name = CONVERT(? USING BINARY)\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -1403,7 +1403,7 @@ namespace server {
 				int id = 0;
 				for (const auto & score : scores) {
 					if (!database.query("SET @paramIdentifier=" + std::to_string(id) + ";")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 						code = SimpleWeb::StatusCode::client_error_failed_dependency;
 						break;
 					}
@@ -1414,12 +1414,12 @@ namespace server {
 					}
 					for (const auto & tt : score.second.get_child("Names")) {
 						if (!database.query("SET @paramLanguage='" + tt.second.get<std::string>("Language") + "';")) {
-							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+							std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 							code = SimpleWeb::StatusCode::client_error_failed_dependency;
 							break;
 						}
 						if (!database.query("SET @paramName='" + tt.second.get<std::string>("Text") + "';")) {
-							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+							std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 							code = SimpleWeb::StatusCode::client_error_failed_dependency;
 							break;
 						}
@@ -1474,12 +1474,12 @@ namespace server {
 				CONNECTTODATABASE(__LINE__)
 				
 				if (!database.query("PREPARE selectEarlyAccessorsStmt FROM \"SELECT UserID FROM earlyUnlocks WHERE ModID = ?\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -1560,22 +1560,22 @@ namespace server {
 				CONNECTTODATABASE(__LINE__)
 					
 				if (!database.query("PREPARE insertStmt FROM \"INSERT INTO earlyUnlocks (ModID, UserID) VALUES (?, ?)\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("PREPARE deleteStmt FROM \"DELETE FROM earlyUnlocks WHERE ModID = ? AND UserID = ? LIMIT 1\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("SET @paramUserID=" + std::to_string(accessUserID) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -1618,19 +1618,19 @@ namespace server {
 			CONNECTTODATABASE(__LINE__)
 				
 			if (!database.query("PREPARE selectModStmt FROM \"SELECT TeamID FROM mods WHERE ModID = ? LIMIT 1\";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				break;
 			}
 			if (!database.query("PREPARE selectMemberStmt FROM \"SELECT UserID FROM teammembers WHERE TeamID = ? AND UserID = ? LIMIT 1\";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				break;
 			}
 			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				break;
 			}
 			if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				break;
 			}
 			if (!database.query("EXECUTE selectModStmt USING @paramModID;")) {
@@ -1642,7 +1642,7 @@ namespace server {
 			if (results.empty()) break;
 			
 			if (!database.query("SET @paramTeamID=" + results[0][0] + ";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				break;
 			}
 			
