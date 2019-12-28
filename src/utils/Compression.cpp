@@ -35,13 +35,15 @@ namespace utils {
 
 	bool Compression::compress(const QString & file, const QString & targetFile, bool deleteSourceAfterCompression) {
 		const auto sfile = file.toStdString();
-		
-		std::ifstream uncompressedFile(sfile, std::ios_base::in | std::ios_base::binary);
-		boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
-		in.push(boost::iostreams::zlib_compressor(boost::iostreams::zlib::best_compression));
-		in.push(uncompressedFile);
-		std::ofstream compressedFile(targetFile.toStdString(), std::ios_base::out | std::ios_base::binary);
-		boost::iostreams::copy(in, compressedFile);
+
+		{
+			std::ifstream uncompressedFile(sfile, std::ios_base::in | std::ios_base::binary);
+			boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
+			in.push(boost::iostreams::zlib_compressor(boost::iostreams::zlib::best_compression));
+			in.push(uncompressedFile);
+			std::ofstream compressedFile(targetFile.toStdString(), std::ios_base::out | std::ios_base::binary);
+			boost::iostreams::copy(in, compressedFile);
+		}
 
 		if (deleteSourceAfterCompression) {
 			QFile::remove(file);
@@ -65,6 +67,7 @@ namespace utils {
 			std::ofstream uncompressedFile(targetFile.toStdString(), std::ios_base::out | std::ios_base::binary);
 			boost::iostreams::copy(in, uncompressedFile);
 		}
+		
 		if (deleteSourceAfterUncompression) {
 			QFile::remove(file);
 		}
