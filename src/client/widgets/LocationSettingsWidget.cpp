@@ -45,7 +45,11 @@
 namespace spine {
 namespace widgets {
 
-	LocationSettingsWidget::LocationSettingsWidget(QSettings * iniParser, GeneralSettingsWidget * generalSettingsWidget, bool temporary, QWidget * par) : QWidget(par), _iniParser(iniParser), _gothicPathLineEdit(nullptr), _gothic2PathLineEdit(nullptr), _downloadPathLineEdit(nullptr), _screenshotPathLineEdit(nullptr), _futureCounter(0), _cancelSearch(false) {
+	LocationSettingsWidget * LocationSettingsWidget::instance = nullptr;
+
+	LocationSettingsWidget::LocationSettingsWidget(QSettings * iniParser, bool temporary, QWidget * par) : QWidget(par), _iniParser(iniParser), _gothicPathLineEdit(nullptr), _gothic2PathLineEdit(nullptr), _downloadPathLineEdit(nullptr), _screenshotPathLineEdit(nullptr), _futureCounter(0), _cancelSearch(false) {
+		instance = this;
+		
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -53,7 +57,7 @@ namespace widgets {
 			QLabel * infoLabel = new QLabel(QApplication::tr("GothicPathDescription"), this);
 			infoLabel->setWordWrap(true);
 			if (!temporary) {
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, infoLabel, "GothicPathDescription");
+				UPDATELANGUAGESETTEXT(infoLabel, "GothicPathDescription");
 			}
 			l->addWidget(infoLabel);
 			infoLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -67,7 +71,7 @@ namespace widgets {
 
 			QLabel * gothicPathLabel = new QLabel(QApplication::tr("GothicPath"), this);
 			if (!temporary) {
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, gothicPathLabel, "GothicPath");
+				UPDATELANGUAGESETTEXT(gothicPathLabel, "GothicPath");
 			}
 			_gothicPathLineEdit = new QLineEdit(path, this);
 			_gothicPathLineEdit->setValidator(new DirValidator());
@@ -84,7 +88,7 @@ namespace widgets {
 
 			gothicPathLabel = new QLabel(QApplication::tr("Gothic2Path"), this);
 			if (!temporary) {
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, gothicPathLabel, "Gothic2Path");
+				UPDATELANGUAGESETTEXT(gothicPathLabel, "Gothic2Path");
 			}
 			_gothic2PathLineEdit = new QLineEdit(path, this);
 			_gothic2PathLineEdit->setValidator(new DirValidator());
@@ -103,11 +107,11 @@ namespace widgets {
 		{
 			QPushButton * w = new QPushButton(QApplication::tr("SearchGothic"), this);
 			if (!temporary) {
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, w, "SearchGothic");
+				UPDATELANGUAGESETTEXT(w, "SearchGothic");
 			}
 			w->setToolTip(QApplication::tr("SearchGothicText"));
 			if (!temporary) {
-				UPDATELANGUAGESETTOOLTIP(generalSettingsWidget, w, "SearchGothicText");
+				UPDATELANGUAGESETTOOLTIP(w, "SearchGothicText");
 			}
 			connect(w, &QPushButton::released, this, &LocationSettingsWidget::searchGothic);
 
@@ -121,7 +125,7 @@ namespace widgets {
 
 			QLabel * downloadPathLabel = new QLabel(QApplication::tr("DownloadPath"), this);
 			if (!temporary) {
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, downloadPathLabel, "DownloadPath");
+				UPDATELANGUAGESETTEXT(downloadPathLabel, "DownloadPath");
 			}
 			_downloadPathLineEdit = new QLineEdit(path, this);
 			_downloadPathLineEdit->setReadOnly(true);
@@ -143,18 +147,18 @@ namespace widgets {
 
 			QLabel * screenshotPathLabel = new QLabel(QApplication::tr("ScreenshotPath"), this);
 			if (!temporary) {
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, screenshotPathLabel, "ScreenshotPath");
+				UPDATELANGUAGESETTEXT(screenshotPathLabel, "ScreenshotPath");
 			}
 			_screenshotPathLineEdit = new QLineEdit(path, this);
 			_screenshotPathLineEdit->setReadOnly(true);
 			_screenshotPathLineEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
 			screenshotPathLabel->setToolTip(QApplication::tr("ScreenshotTooltip"));
 			if (!temporary) {
-				UPDATELANGUAGESETTOOLTIP(generalSettingsWidget, screenshotPathLabel, "ScreenshotTooltip");
+				UPDATELANGUAGESETTOOLTIP(screenshotPathLabel, "ScreenshotTooltip");
 			}
 			_screenshotPathLineEdit->setToolTip(QApplication::tr("ScreenshotTooltip"));
 			if (!temporary) {
-				UPDATELANGUAGESETTOOLTIP(generalSettingsWidget, _screenshotPathLineEdit, "ScreenshotTooltip");
+				UPDATELANGUAGESETTOOLTIP(_screenshotPathLineEdit, "ScreenshotTooltip");
 			}
 			QPushButton * screenshotPathPushButton = new QPushButton("...", this);
 			hl->addWidget(screenshotPathLabel);
@@ -173,6 +177,10 @@ namespace widgets {
 
 		connect(this, &LocationSettingsWidget::foundGothic, this, &LocationSettingsWidget::setGothicDirectory);
 		connect(this, &LocationSettingsWidget::foundGothic2, this, &LocationSettingsWidget::setGothic2Directory);
+	}
+
+	LocationSettingsWidget * LocationSettingsWidget::getInstance() {
+		return instance;
 	}
 
 	void LocationSettingsWidget::saveSettings() {

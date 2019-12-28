@@ -49,7 +49,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		ModFilesWidget(const QString & username, const QString & password, const QString & language, QWidget * par);
+		ModFilesWidget(QWidget * par);
 
 		void updateModList(QList<client::ManagementMod> modList);
 		void selectedMod(int index);
@@ -76,9 +76,6 @@ namespace widgets {
 
 	private:
 		QStandardItemModel * _fileList;
-		QString _username;
-		QString _password;
-		QString _language;
 		QList<client::ManagementMod> _mods;
 		QTreeView * _fileTreeView;
 		int _modIndex;

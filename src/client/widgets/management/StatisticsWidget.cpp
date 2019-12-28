@@ -18,6 +18,7 @@
 
 #include "widgets/management/StatisticsWidget.h"
 
+#include "Config.h"
 #include "SpineConfig.h"
 
 #include "https/Https.h"
@@ -38,7 +39,7 @@ namespace spine {
 namespace client {
 namespace widgets {
 
-	StatisticsWidget::StatisticsWidget(const QString & username, const QString & password, const QString & language, QWidget * par) : QWidget(par), _mods(), _modIndex(-1), _username(username), _password(password), _language(language), _waitSpinner(nullptr) {
+	StatisticsWidget::StatisticsWidget(QWidget * par) : QWidget(par), _mods(), _modIndex(-1), _waitSpinner(nullptr) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -123,9 +124,9 @@ namespace widgets {
 		_waitSpinner = new spine::widgets::WaitSpinner(QApplication::tr("Updating"), this);
 
 		QJsonObject requestData;
-		requestData["Username"] = _username;
-		requestData["Password"] = _password;
-		requestData["Language"] = _language;
+		requestData["Username"] = Config::Username;
+		requestData["Password"] = Config::Password;
+		requestData["Language"] = Config::Language;
 		requestData["ModID"] = _mods[_modIndex].id;
 		
 		https::Https::postAsync(MANAGEMENTSERVER_PORT, "getStatistics", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {

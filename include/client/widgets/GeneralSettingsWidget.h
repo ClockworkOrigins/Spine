@@ -39,10 +39,11 @@ namespace widgets {
 
 		GeneralSettingsWidget(QSettings * iniParser, QWidget * par);
 
+		static GeneralSettingsWidget * getInstance();
+
 		void saveSettings();
 		void rejectSettings();
 
-		QString getLanguage() const;
 		bool getHideIncompatible() const;
 
 	signals:
@@ -63,6 +64,8 @@ namespace widgets {
 		QCheckBox * _hideIncompatibleCheckBox;
 		QCheckBox * _extendedLoggingCheckBox;
 		QCheckBox * _skipExitCheckBox;
+
+		static GeneralSettingsWidget * instance;
 	};
 
 } /* namespace widgets */

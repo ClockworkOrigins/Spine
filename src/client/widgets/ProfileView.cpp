@@ -54,16 +54,15 @@
 namespace spine {
 namespace widgets {
 
-	ProfileView::ProfileView(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _nameLabel(nullptr), _timeLabel(nullptr), _backToProfileButton(nullptr), _modnameLabel(nullptr), _achievmentDescriptionLabel(nullptr), _scrollArea(nullptr), _mainWidget(nullptr), _scrollLayout(nullptr), _achievementsWidget(nullptr), _achievementsLayout(nullptr), _scoresWidget(nullptr), _mods(), _achievements(), _username(), _language(), _gothicDirectory(), _gothic2Directory(), _specialPage(false), _hidePatchesAndToolsBox(nullptr), _mainWindow(mainWindow), _waitSpinner(nullptr), _hiddenAchievementsView(nullptr) {
+	ProfileView::ProfileView(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _nameLabel(nullptr), _timeLabel(nullptr), _backToProfileButton(nullptr), _modnameLabel(nullptr), _achievmentDescriptionLabel(nullptr), _scrollArea(nullptr), _mainWidget(nullptr), _scrollLayout(nullptr), _achievementsWidget(nullptr), _achievementsLayout(nullptr), _scoresWidget(nullptr), _mods(), _achievements(), _gothicDirectory(), _gothic2Directory(), _specialPage(false), _hidePatchesAndToolsBox(nullptr), _mainWindow(mainWindow), _waitSpinner(nullptr), _hiddenAchievementsView(nullptr) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
 		_nameLabel = new QLabel(QApplication::tr("NotLoggedIn"), this);
 		connect(generalSettingsWidget, &GeneralSettingsWidget::languageChanged, [this](QString language) {
-			if (_username.isEmpty()) {
+			if (Config::Username.isEmpty()) {
 				_nameLabel->setText(QApplication::tr("NotLoggedIn"));
 			}
-			setLanguage(language);
 		});
 		_nameLabel->setProperty("profileHeader", true);
 		_timeLabel = new QLabel("", this);
@@ -75,7 +74,7 @@ namespace widgets {
 		l->addLayout(hbl);
 
 		_backToProfileButton = new QPushButton(QApplication::tr("BackToProfile"), this);
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, _backToProfileButton, "BackToProfile");
+		UPDATELANGUAGESETTEXT(_backToProfileButton, "BackToProfile");
 		_backToProfileButton->hide();
 		connect(_backToProfileButton, SIGNAL(released()), this, SLOT(reset()));
 		connect(_backToProfileButton, SIGNAL(released()), this, SLOT(updateList()));
@@ -101,7 +100,7 @@ namespace widgets {
 		l->addWidget(_scrollArea);
 
 		_achievmentDescriptionLabel = new QLabel(QApplication::tr("AchievementViewDescription"), this);
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, _achievmentDescriptionLabel, "AchievementViewDescription");
+		UPDATELANGUAGESETTEXT(_achievmentDescriptionLabel, "AchievementViewDescription");
 		l->addWidget(_achievmentDescriptionLabel);
 		_achievmentDescriptionLabel->hide();
 		_achievmentDescriptionLabel->setWordWrap(true);
@@ -125,13 +124,13 @@ namespace widgets {
 
 		QHBoxLayout* hl = new QHBoxLayout();
 		_logoutButton = new QPushButton(QApplication::tr("Logout"), this);
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, _logoutButton, "Logout");
+		UPDATELANGUAGESETTEXT(_logoutButton, "Logout");
 		connect(_logoutButton, SIGNAL(clicked()), this, SIGNAL(triggerLogout()));
 		_logoutButton->setProperty("logout", true);
 
 		_hidePatchesAndToolsBox = new QCheckBox(QApplication::tr("HidePatchesAndTools"), this);
 		_hidePatchesAndToolsBox->setChecked(true);
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, _hidePatchesAndToolsBox, "HidePatchesAndTools");
+		UPDATELANGUAGESETTEXT(_hidePatchesAndToolsBox, "HidePatchesAndTools");
 		connect(_hidePatchesAndToolsBox, SIGNAL(stateChanged(int)), this, SLOT(toggledHidePatchesAndTools()));
 
 		hl->addWidget(_logoutButton, 0, Qt::AlignLeft);
@@ -151,7 +150,7 @@ namespace widgets {
 		connect(this, SIGNAL(receivedScoreStats(std::vector<common::SendAllScoreStatsMessage::ScoreStats>)), this, SLOT(updateScores(std::vector<common::SendAllScoreStatsMessage::ScoreStats>)));
 		connect(this, &ProfileView::receivedUserLevel, this, &ProfileView::updateUserLevel);
 
-		loggedIn(QString(), QString());
+		loginChanged();
 	}
 
 	ProfileView::~ProfileView() {
@@ -178,8 +177,8 @@ namespace widgets {
 			if (clockUtils::ClockError::SUCCESS == cErr) {
 				{
 					common::RequestUserLevelMessage rulm;
-					rulm.username = _username.toStdString();
-					rulm.password = _password.toStdString();
+					rulm.username = Config::Username.toStdString();
+					rulm.password = Config::Password.toStdString();
 					std::string serialized = rulm.SerializePublic();
 					sock.writePacket(serialized);
 					if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
@@ -199,9 +198,9 @@ namespace widgets {
 				}
 				{
 					common::RequestAllModStatsMessage ramsm;
-					ramsm.username = _username.toStdString();
-					ramsm.password = _password.toStdString();
-					ramsm.language = _language.toStdString();
+					ramsm.username = Config::Username.toStdString();
+					ramsm.password = Config::Password.toStdString();
+					ramsm.language = Config::Language.toStdString();
 					std::string serialized = ramsm.SerializePublic();
 					sock.writePacket(serialized);
 					if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
@@ -235,16 +234,10 @@ namespace widgets {
 		_specialPage = false;
 	}
 
-	void ProfileView::loggedIn(QString username, QString password) {
-		_username = username;
-		_password = password;
-		_nameLabel->setText((!username.isEmpty()) ? username : QApplication::tr("NotLoggedIn"));
-		_scrollArea->setVisible(!username.isEmpty());
-		_logoutButton->setVisible(!username.isEmpty());
-	}
-
-	void ProfileView::setLanguage(QString language) {
-		_language = language;
+	void ProfileView::loginChanged() {
+		_nameLabel->setText((!Config::Username.isEmpty()) ? Config::Username : QApplication::tr("NotLoggedIn"));
+		_scrollArea->setVisible(!Config::Username.isEmpty());
+		_logoutButton->setVisible(!Config::Username.isEmpty());
 	}
 
 	void ProfileView::openAchievementView(int32_t modID, QString modName) {
@@ -272,9 +265,9 @@ namespace widgets {
 		updateAchievements(-1, std::vector<common::SendAllAchievementStatsMessage::AchievementStats>());
 		std::thread([this, modID]() {
 			common::RequestAllAchievementStatsMessage raasm;
-			raasm.username = _username.toStdString();
-			raasm.password = _password.toStdString();
-			raasm.language = _language.toStdString();
+			raasm.username = Config::Username.toStdString();
+			raasm.password = Config::Password.toStdString();
+			raasm.language = Config::Language.toStdString();
 			raasm.modID = modID;
 			std::string serialized = raasm.SerializePublic();
 			clockUtils::sockets::TcpSocket sock;
@@ -317,9 +310,9 @@ namespace widgets {
 		_backToProfileButton->show();
 		std::thread([this, modID]() {
 			common::RequestAllScoreStatsMessage rassm;
-			rassm.username = _username.toStdString();
-			rassm.password = _password.toStdString();
-			rassm.language = _language.toStdString();
+			rassm.username = Config::Username.toStdString();
+			rassm.password = Config::Password.toStdString();
+			rassm.language = Config::Language.toStdString();
 			rassm.modID = modID;
 			std::string serialized = rassm.SerializePublic();
 			clockUtils::sockets::TcpSocket sock;
@@ -383,7 +376,7 @@ namespace widgets {
 	}
 
 	void ProfileView::updateUserLevel(uint32_t level, uint32_t currentXP, uint32_t nextXP) {
-		_nameLabel->setText(_username + " - " + QApplication::tr("Level") + " " + QString::number(level) + " (" + QString::number(currentXP) + " / " + QString::number(nextXP) + ")");
+		_nameLabel->setText(Config::Username + " - " + QApplication::tr("Level") + " " + QString::number(level) + " (" + QString::number(currentXP) + " / " + QString::number(nextXP) + ")");
 	}
 
 	void ProfileView::updateAchievements(int32_t modID, std::vector<common::SendAllAchievementStatsMessage::AchievementStats> achievementStats) {
@@ -465,11 +458,11 @@ namespace widgets {
 					rank = lastRank;
 				}
 				m->appendRow(QList<QStandardItem *>() << new QStandardItem(QString::number(rank)) << new QStandardItem(QString::fromLatin1(p.first.c_str())) << new QStandardItem(QString::number(p.second)));
-				m->item(row, 0)->setEnabled(QString::fromLatin1(p.first.c_str()) == _username);
+				m->item(row, 0)->setEnabled(QString::fromLatin1(p.first.c_str()) == Config::Username);
 				m->item(row, 0)->setTextAlignment(Qt::AlignCenter);
-				m->item(row, 1)->setEnabled(QString::fromLatin1(p.first.c_str()) == _username);
+				m->item(row, 1)->setEnabled(QString::fromLatin1(p.first.c_str()) == Config::Username);
 				m->item(row, 1)->setTextAlignment(Qt::AlignCenter);
-				m->item(row, 2)->setEnabled(QString::fromLatin1(p.first.c_str()) == _username);
+				m->item(row, 2)->setEnabled(QString::fromLatin1(p.first.c_str()) == Config::Username);
 				m->item(row, 2)->setTextAlignment(Qt::AlignCenter);
 				lastScore = p.second;
 				lastRank++;

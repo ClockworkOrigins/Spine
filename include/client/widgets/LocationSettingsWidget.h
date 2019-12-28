@@ -35,7 +35,9 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		LocationSettingsWidget(QSettings * iniParser, GeneralSettingsWidget * generalSettingsWidget, bool temporary, QWidget * par);
+		LocationSettingsWidget(QSettings * iniParser, bool temporary, QWidget * par);
+
+		static LocationSettingsWidget * getInstance();
 
 		void saveSettings();
 		void rejectSettings();
@@ -77,6 +79,8 @@ namespace widgets {
 		QLineEdit * _screenshotPathLineEdit;
 		std::atomic<int> _futureCounter;
 		bool _cancelSearch;
+
+		static LocationSettingsWidget * instance;
 
 		bool isGothicValid(QString path, QString executable, bool restored) const;
 		void searchGothicAsync(bool searchG1, bool searchG2);

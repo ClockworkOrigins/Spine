@@ -60,8 +60,7 @@ namespace widgets {
 	public slots:
 		void updateList();
 		void reset();
-		void loggedIn(QString username, QString password);
-		void setLanguage(QString language);
+		void loginChanged();
 		void openAchievementView(int32_t modID, QString modName);
 		void openScoreView(int32_t modID, QString modName);
 
@@ -87,9 +86,6 @@ namespace widgets {
 		QTabWidget * _scoresWidget;
 		QList<ProfileModView *> _mods;
 		QList<AchievementView *> _achievements;
-		QString _username;
-		QString _password;
-		QString _language;
 		QString _gothicDirectory;
 		QString _gothic2Directory;
 		bool _specialPage;

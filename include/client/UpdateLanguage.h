@@ -16,20 +16,19 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_UPDATELANGUAGE_H__
-#define __SPINE_UPDATELANGUAGE_H__
+#pragma once
+
+#include "widgets/GeneralSettingsWidget.h"
 
 #include "clockUtils/log/Log.h"
 
-#define UPDATELANGUAGESETTEXT(generalSettingsWidget, targetWidget, textIdentifier) connect(generalSettingsWidget, &spine::widgets::GeneralSettingsWidget::languageChanged, [=]() { LOGINFO(__FILE__ << ":" << __LINE__); targetWidget->setText(QApplication::tr(textIdentifier)); })
-#define UPDATELANGUAGESETTEXTARG(generalSettingsWidget, targetWidget, textIdentifier, argument) connect(generalSettingsWidget, &spine::widgets::GeneralSettingsWidget::languageChanged, [=]() { LOGINFO(__FILE__ << ":" << __LINE__); targetWidget->setText(QApplication::tr(textIdentifier).arg(argument)); })
-#define UPDATELANGUAGESETTEXTEXT(generalSettingsWidget, targetWidget, textIdentifier, concatText) connect(generalSettingsWidget, &spine::widgets::GeneralSettingsWidget::languageChanged, [=]() { LOGINFO(__FILE__ << ":" << __LINE__); targetWidget->setText(QApplication::tr(textIdentifier) + concatText); })
-#define UPDATELANGUAGESETTOOLTIP(generalSettingsWidget, targetWidget, textIdentifier) connect(generalSettingsWidget, &spine::widgets::GeneralSettingsWidget::languageChanged, [=]() { LOGINFO(__FILE__ << ":" << __LINE__); targetWidget->setToolTip(QApplication::tr(textIdentifier)); })
-#define UPDATELANGUAGESETTABTEXT(generalSettingsWidget, targetWidget, index, textIdentifier) connect(generalSettingsWidget, &spine::widgets::GeneralSettingsWidget::languageChanged, [=]() { LOGINFO(__FILE__ << ":" << __LINE__); targetWidget->setTabText(index, QApplication::tr(textIdentifier)); })
-#define UPDATELANGUAGESETTITLE(generalSettingsWidget, targetWidget, textIdentifier) connect(generalSettingsWidget, &spine::widgets::GeneralSettingsWidget::languageChanged, [=]() { LOGINFO(__FILE__ << ":" << __LINE__); targetWidget->setTitle(QApplication::tr(textIdentifier)); })
-#define UPDATELANGUAGESETWINDOWTITLE(generalSettingsWidget, targetWidget, textIdentifier) connect(generalSettingsWidget, &spine::widgets::GeneralSettingsWidget::languageChanged, [=]() { LOGINFO(__FILE__ << ":" << __LINE__); targetWidget->setWindowTitle(QApplication::tr(textIdentifier)); })
-#define UPDATELANGUAGESETPLACEHOLDERTEXT(generalSettingsWidget, targetWidget, textIdentifier) connect(generalSettingsWidget, &spine::widgets::GeneralSettingsWidget::languageChanged, [=]() { LOGINFO(__FILE__ << ":" << __LINE__); targetWidget->setPlaceholderText(QApplication::tr(textIdentifier)); })
-#define UPDATELANGUAGESETPLACEHOLDERTEXTEXT(generalSettingsWidget, targetWidget, textIdentifier, concatText) connect(generalSettingsWidget, &spine::widgets::GeneralSettingsWidget::languageChanged, [=]() { LOGINFO(__FILE__ << ":" << __LINE__); targetWidget->setPlaceholderText(QApplication::tr(textIdentifier) + concatText); })
-#define UPDATELANGUAGESETITEMTEXT(generalSettingsWidget, targetWidget, index, textIdentifier) connect(generalSettingsWidget, &spine::widgets::GeneralSettingsWidget::languageChanged, [=]() { LOGINFO(__FILE__ << ":" << __LINE__); targetWidget->setItemText(index, QApplication::tr(textIdentifier)); })
-
-#endif /* __SPINE_UPDATELANGUAGE_H__ */
+#define UPDATELANGUAGESETTEXT(targetWidget, textIdentifier) QObject::connect(spine::widgets::GeneralSettingsWidget::getInstance(), &spine::widgets::GeneralSettingsWidget::languageChanged, [=]() { LOGINFO(__FILE__ << ":" << __LINE__); targetWidget->setText(QApplication::tr(textIdentifier)); })
+#define UPDATELANGUAGESETTEXTARG(targetWidget, textIdentifier, argument) QObject::connect(spine::widgets::GeneralSettingsWidget::getInstance(), &spine::widgets::GeneralSettingsWidget::languageChanged, [=]() { LOGINFO(__FILE__ << ":" << __LINE__); targetWidget->setText(QApplication::tr(textIdentifier).arg(argument)); })
+#define UPDATELANGUAGESETTEXTEXT(targetWidget, textIdentifier, concatText) QObject::connect(spine::widgets::GeneralSettingsWidget::getInstance(), &spine::widgets::GeneralSettingsWidget::languageChanged, [=]() { LOGINFO(__FILE__ << ":" << __LINE__); targetWidget->setText(QApplication::tr(textIdentifier) + concatText); })
+#define UPDATELANGUAGESETTOOLTIP(targetWidget, textIdentifier) QObject::connect(spine::widgets::GeneralSettingsWidget::getInstance(), &spine::widgets::GeneralSettingsWidget::languageChanged, [=]() { LOGINFO(__FILE__ << ":" << __LINE__); targetWidget->setToolTip(QApplication::tr(textIdentifier)); })
+#define UPDATELANGUAGESETTABTEXT(targetWidget, index, textIdentifier) QObject::connect(spine::widgets::GeneralSettingsWidget::getInstance(), &spine::widgets::GeneralSettingsWidget::languageChanged, [=]() { LOGINFO(__FILE__ << ":" << __LINE__); targetWidget->setTabText(index, QApplication::tr(textIdentifier)); })
+#define UPDATELANGUAGESETTITLE(targetWidget, textIdentifier) QObject::connect(spine::widgets::GeneralSettingsWidget::getInstance(), &spine::widgets::GeneralSettingsWidget::languageChanged, [=]() { LOGINFO(__FILE__ << ":" << __LINE__); targetWidget->setTitle(QApplication::tr(textIdentifier)); })
+#define UPDATELANGUAGESETWINDOWTITLE(targetWidget, textIdentifier) QObject::connect(spine::widgets::GeneralSettingsWidget::getInstance(), &spine::widgets::GeneralSettingsWidget::languageChanged, [=]() { LOGINFO(__FILE__ << ":" << __LINE__); targetWidget->setWindowTitle(QApplication::tr(textIdentifier)); })
+#define UPDATELANGUAGESETPLACEHOLDERTEXT(targetWidget, textIdentifier) QObject::connect(spine::widgets::GeneralSettingsWidget::getInstance(), &spine::widgets::GeneralSettingsWidget::languageChanged, [=]() { LOGINFO(__FILE__ << ":" << __LINE__); targetWidget->setPlaceholderText(QApplication::tr(textIdentifier)); })
+#define UPDATELANGUAGESETPLACEHOLDERTEXTEXT(targetWidget, textIdentifier, concatText) QObject::connect(spine::widgets::GeneralSettingsWidget::getInstance(), &spine::widgets::GeneralSettingsWidget::languageChanged, [=]() { LOGINFO(__FILE__ << ":" << __LINE__); targetWidget->setPlaceholderText(QApplication::tr(textIdentifier) + concatText); })
+#define UPDATELANGUAGESETITEMTEXT(targetWidget, index, textIdentifier) QObject::connect(spine::widgets::GeneralSettingsWidget::getInstance(), &spine::widgets::GeneralSettingsWidget::languageChanged, [=]() { LOGINFO(__FILE__ << ":" << __LINE__); targetWidget->setItemText(index, QApplication::tr(textIdentifier)); })

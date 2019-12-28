@@ -38,7 +38,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		ScoresWidget(const QString & username, const QString & password, QWidget * par);
+		ScoresWidget(QWidget * par);
 		~ScoresWidget();
 
 		void updateModList(QList<ManagementMod> modList);
@@ -60,8 +60,6 @@ namespace widgets {
 		QGridLayout * _layout;
 		int _rowCount;
 		QList<std::tuple<QLineEdit *, QLineEdit *, QLineEdit *, QLineEdit *>> _scoreEdits;
-		QString _username;
-		QString _password;
 		spine::widgets::WaitSpinner * _waitSpinner;
 	};
 

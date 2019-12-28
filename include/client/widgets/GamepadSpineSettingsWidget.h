@@ -31,13 +31,11 @@ namespace models {
 } /* namespace models */
 namespace widgets {
 
-	class GeneralSettingsWidget;
-
 	class GamepadSpineSettingsWidget : public QWidget {
 		Q_OBJECT
 
 	public:
-		GamepadSpineSettingsWidget(GeneralSettingsWidget * generalSettingsWidget, models::SpineEditorModel * model, QWidget * par);
+		GamepadSpineSettingsWidget(models::SpineEditorModel * model, QWidget * par);
 		~GamepadSpineSettingsWidget();
 
 		void save();
@@ -47,7 +45,6 @@ namespace widgets {
 
 	private:
 		models::SpineEditorModel * _model;
-		GeneralSettingsWidget * _generalSettingsWidget;
 		QLabel * _earthquakeVibrationLabel;
 		QCheckBox * _earthquakeVibrationCheckBox;
 	};

@@ -27,7 +27,6 @@
 #include "common/MessageStructs.h"
 
 #include "widgets/DownloadProgressDialog.h"
-#include "widgets/GeneralSettingsWidget.h"
 
 #include "clockUtils/sockets/TcpSocket.h"
 
@@ -47,18 +46,18 @@
 namespace spine {
 namespace widgets {
 
-	AutoUpdateDialog::AutoUpdateDialog(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget) : QDialog(), _mainWindow(mainWindow), _manuallyChecking(false) {
+	AutoUpdateDialog::AutoUpdateDialog(QMainWindow * mainWindow) : QDialog(), _mainWindow(mainWindow), _manuallyChecking(false) {
 		QVBoxLayout * l = new QVBoxLayout();
 
 		QLabel * lbl = new QLabel(QApplication::tr("CheckingForUpdates"), this);
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "CheckingForUpdates");
+		UPDATELANGUAGESETTEXT(lbl, "CheckingForUpdates");
 
 		l->addWidget(lbl);
 
 		setLayout(l);
 
 		setWindowTitle(QApplication::tr("CheckForUpdates"));
-		UPDATELANGUAGESETWINDOWTITLE(generalSettingsWidget, this, "CheckForUpdates");
+		UPDATELANGUAGESETWINDOWTITLE(this, "CheckForUpdates");
 
 		setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 	}

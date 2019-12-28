@@ -29,7 +29,7 @@ namespace launcher {
 	public:
 		Gothic1Launcher();
 
-		bool supports(common::GothicVersion gothic) override;
+		bool supports(common::GothicVersion gothic) const override;
 
 		void setDirectory(const QString & directory) override;
 
@@ -38,6 +38,11 @@ namespace launcher {
 
 	private slots:
 		void patchCheck();
+
+	private:
+		common::GothicVersion getGothicVersion() const override {
+			return common::GothicVersion::GOTHIC;
+		};
 	};
 
 } /* namespace launcher */

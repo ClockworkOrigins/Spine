@@ -51,7 +51,7 @@
 namespace spine {
 namespace widgets {
 
-	NewsWriterDialog::NewsWriterDialog(GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QDialog(par), _newsPreviewWidget(nullptr), _titleEdit(nullptr), _dateEdit(nullptr), _bodyEdit(nullptr), _imageReferencesEdit(nullptr), _username(), _mods() {
+	NewsWriterDialog::NewsWriterDialog(QWidget * par) : QDialog(par), _newsPreviewWidget(nullptr), _titleEdit(nullptr), _dateEdit(nullptr), _bodyEdit(nullptr), _imageReferencesEdit(nullptr), _mods() {
 		QHBoxLayout * l = new QHBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -122,9 +122,6 @@ namespace widgets {
 			connect(_bodyEdit, SIGNAL(textChanged()), this, SLOT(changedNews()));
 		}
 
-		_language = generalSettingsWidget->getLanguage();
-		connect(generalSettingsWidget, SIGNAL(languageChanged(QString)), this, SLOT(setLanguage(QString)));
-
 		qRegisterMetaType<std::vector<common::Mod>>("std::vector<common::Mod>");
 		connect(this, SIGNAL(receivedModList(std::vector<common::Mod>)), this, SLOT(updateModList(std::vector<common::Mod>)));
 
@@ -146,11 +143,6 @@ namespace widgets {
 	NewsWriterDialog::~NewsWriterDialog() {
 	}
 
-	void NewsWriterDialog::setUsername(QString username, QString password) {
-		_username = username;
-		_password = password;
-	}
-
 	void NewsWriterDialog::changedNews() {
 		common::SendAllNewsMessage::News news;
 
@@ -162,12 +154,12 @@ namespace widgets {
 	}
 
 	void NewsWriterDialog::accept() {
-		if (_titleEdit->text().isEmpty() || _bodyEdit->toPlainText().isEmpty() || _username.isEmpty()) {
+		if (_titleEdit->text().isEmpty() || _bodyEdit->toPlainText().isEmpty() || Config::Username.isEmpty()) {
 			return;
 		}
 		common::SubmitNewsMessage snm;
-		snm.username = _username.toStdString();
-		snm.password = _password.toStdString();
+		snm.username = Config::Username.toStdString();
+		snm.password = Config::Password.toStdString();
 		common::SendAllNewsMessage::News news;
 
 		news.title = q2s(_titleEdit->text());
@@ -209,7 +201,7 @@ namespace widgets {
 		}
 
 		snm.news = news;
-		snm.language = _language.toStdString();
+		snm.language = Config::Language.toStdString();
 
 		const std::string serialized = snm.SerializePublic();
 		clockUtils::sockets::TcpSocket sock;
@@ -244,10 +236,6 @@ namespace widgets {
 		}
 	}
 
-	void NewsWriterDialog::setLanguage(QString language) {
-		_language = language;
-	}
-
 	void NewsWriterDialog::addImage() {
 		const QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectImage"), Config::NEWSIMAGEDIR + "/", "Images (*.png *.jpg)");
 		if (path.isEmpty()) {
@@ -270,9 +258,9 @@ namespace widgets {
 	void NewsWriterDialog::requestMods() {
 		std::thread([this]() {
 			common::RequestAllModsMessage ramm;
-			ramm.language = _language.toStdString();
-			ramm.username = _username.toStdString();
-			ramm.password = _password.toStdString();
+			ramm.language = Config::Language.toStdString();
+			ramm.username = Config::Username.toStdString();
+			ramm.password = Config::Password.toStdString();
 			std::string serialized = ramm.SerializePublic();
 			clockUtils::sockets::TcpSocket sock;
 			clockUtils::ClockError err = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);

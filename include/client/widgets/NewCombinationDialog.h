@@ -22,7 +22,6 @@
 #include <QDialog>
 
 class QCheckBox;
-class QSettings;
 
 namespace spine {
 namespace widgets {
@@ -31,14 +30,13 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		NewCombinationDialog(QString title, QString text, QSettings * iniParser, QWidget * par);
+		NewCombinationDialog(QString title, QString text, QWidget * par);
 		~NewCombinationDialog();
 
 		bool canShow() const;
 
 	private:
 		QCheckBox * _dontShowAgainBox;
-		QSettings * _iniParser;
 	};
 
 } /* namespace widgets */

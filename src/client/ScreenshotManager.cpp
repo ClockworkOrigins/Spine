@@ -218,9 +218,9 @@ namespace {
 #endif
 }
 
-	ScreenshotManager::ScreenshotManager(widgets::LocationSettingsWidget * locationSettingsWidget, QObject * par) : QObject(par), _running(false), _workerThread(nullptr), _screenshotDirectory(), _modID() {
-		_screenshotDirectory = locationSettingsWidget->getScreenshotDirectory();
-		connect(locationSettingsWidget, SIGNAL(screenshotDirectoryChanged(QString)), this, SLOT(setScreenshotDirectory(QString)));
+	ScreenshotManager::ScreenshotManager(QObject * par) : QObject(par), _running(false), _workerThread(nullptr), _screenshotDirectory(), _modID() {
+		_screenshotDirectory = widgets::LocationSettingsWidget::getInstance()->getScreenshotDirectory();
+		connect(widgets::LocationSettingsWidget::getInstance(), SIGNAL(screenshotDirectoryChanged(QString)), this, SLOT(setScreenshotDirectory(QString)));
 	}
 
 	ScreenshotManager::~ScreenshotManager() {

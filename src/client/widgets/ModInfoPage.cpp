@@ -66,7 +66,7 @@
 namespace spine {
 namespace widgets {
 
-	ModInfoPage::ModInfoPage(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QSettings * iniParser, QWidget * par) : QWidget(par), _mainWindow(mainWindow), _modnameLabel(nullptr), _previewImageLabel(nullptr), _ratingWidget(nullptr), _rateWidget(nullptr), _thumbnailView(nullptr), _installButton(nullptr), _descriptionView(nullptr), _spineFeaturesView(nullptr), _language(), _username(), _thumbnailModel(nullptr), _spineFeatureModel(nullptr), _modID(-1), _screens(), _editInfoPageButton(nullptr), _descriptionEdit(nullptr), _featuresEdit(nullptr), _spineFeaturesEdit(nullptr), _addImageButton(nullptr), _deleteImageButton(nullptr), _moduleCheckBoxes(), _applyButton(nullptr), _generalSettingsWidget(generalSettingsWidget), _iniParser(iniParser), _waitSpinner(nullptr), _optionalPackageButtons(), _forceEdit(false) {
+	ModInfoPage::ModInfoPage(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QSettings * iniParser, QWidget * par) : QWidget(par), _mainWindow(mainWindow), _modnameLabel(nullptr), _previewImageLabel(nullptr), _ratingWidget(nullptr), _rateWidget(nullptr), _thumbnailView(nullptr), _installButton(nullptr), _descriptionView(nullptr), _spineFeaturesView(nullptr), _thumbnailModel(nullptr), _spineFeatureModel(nullptr), _modID(-1), _screens(), _editInfoPageButton(nullptr), _descriptionEdit(nullptr), _featuresEdit(nullptr), _spineFeaturesEdit(nullptr), _addImageButton(nullptr), _deleteImageButton(nullptr), _moduleCheckBoxes(), _applyButton(nullptr), _generalSettingsWidget(generalSettingsWidget), _iniParser(iniParser), _waitSpinner(nullptr), _optionalPackageButtons(), _forceEdit(false) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -152,13 +152,13 @@ namespace widgets {
 		_installButton = new QPushButton(QIcon(":/svg/download.svg"), QApplication::tr("Install"), widget);
 		scrollLayout->addWidget(_installButton, 0, Qt::AlignLeft);
 		_installButton->hide();
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, _installButton, "Install");
+		UPDATELANGUAGESETTEXT(_installButton, "Install");
 		connect(_installButton, SIGNAL(released()), this, SLOT(installMod()));
 
 		_startButton = new QPushButton(QApplication::tr("StartMod"), widget);
 		scrollLayout->addWidget(_startButton, 0, Qt::AlignLeft);
 		_startButton->hide();
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, _startButton, "StartMod");
+		UPDATELANGUAGESETTEXT(_startButton, "StartMod");
 		connect(_startButton, SIGNAL(released()), this, SLOT(startMod()));
 
 		_optionalPackageButtonsLayout = new QVBoxLayout();
@@ -176,7 +176,7 @@ namespace widgets {
 		hl->addWidget(_descriptionEdit);
 		_descriptionEdit->hide();
 		_descriptionEdit->setPlaceholderText(QApplication::tr("InfoPageDescriptionPlaceholder"));
-		UPDATELANGUAGESETPLACEHOLDERTEXT(generalSettingsWidget, _descriptionEdit, "InfoPageDescriptionPlaceholder");
+		UPDATELANGUAGESETPLACEHOLDERTEXT(_descriptionEdit, "InfoPageDescriptionPlaceholder");
 
 		_spineFeaturesView = new QListView(widget);
 		hl->addWidget(_spineFeaturesView, 0, Qt::AlignTop);
@@ -185,7 +185,7 @@ namespace widgets {
 		_spineFeaturesEdit = new QGroupBox(QApplication::tr("SpineFeatures"), widget);
 		hl->addWidget(_spineFeaturesEdit);
 		_spineFeaturesEdit->hide();
-		UPDATELANGUAGESETTITLE(generalSettingsWidget, _spineFeaturesEdit, "SpineFeatures");
+		UPDATELANGUAGESETTITLE(_spineFeaturesEdit, "SpineFeatures");
 		{
 			QVBoxLayout * vl = new QVBoxLayout();
 			vl->setAlignment(Qt::AlignTop);
@@ -244,19 +244,19 @@ namespace widgets {
 		scrollLayout->addWidget(_featuresEdit);
 		_featuresEdit->hide();
 		_featuresEdit->setPlaceholderText(QApplication::tr("FeaturesEditPlaceholder"));
-		UPDATELANGUAGESETPLACEHOLDERTEXT(generalSettingsWidget, _featuresEdit, "FeaturesEditPlaceholder");
+		UPDATELANGUAGESETPLACEHOLDERTEXT(_featuresEdit, "FeaturesEditPlaceholder");
 
 		l->addWidget(scrollArea);
 
 		_editInfoPageButton = new QPushButton(QIcon(":/svg/edit.svg"), "", this);
 		_editInfoPageButton->setToolTip(QApplication::tr("EditInfoPageTooltip"));
-		UPDATELANGUAGESETTOOLTIP(generalSettingsWidget, _editInfoPageButton, "EditInfoPageTooltip");
+		UPDATELANGUAGESETTOOLTIP(_editInfoPageButton, "EditInfoPageTooltip");
 		l->addWidget(_editInfoPageButton, 0, Qt::AlignBottom | Qt::AlignRight);
 		_editInfoPageButton->hide();
 		connect(_editInfoPageButton, SIGNAL(released()), this, SLOT(switchToEdit()));
 
 		_applyButton = new QPushButton(QApplication::tr("Apply"), this);
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, _applyButton, "Apply");
+		UPDATELANGUAGESETTEXT(_applyButton, "Apply");
 		l->addWidget(_applyButton, 0, Qt::AlignBottom | Qt::AlignRight);
 		_applyButton->hide();
 		connect(_applyButton, SIGNAL(released()), this, SLOT(submitChanges()));
@@ -265,21 +265,13 @@ namespace widgets {
 
 		setLayout(l);
 
-		_language = generalSettingsWidget->getLanguage();
-
 		qRegisterMetaType<int32_t>("int32_t");
 		connect(this, SIGNAL(receivedPage(common::SendInfoPageMessage *)), this, SLOT(updatePage(common::SendInfoPageMessage *)));
 		connect(this, SIGNAL(gotRandomMod(int32_t)), this, SLOT(loadPage(int32_t)));
 	}
 
-	void ModInfoPage::setLanguage(QString language) {
-		_language = language;
-	}
-
-	void ModInfoPage::setUsername(QString username, QString password) {
-		_username = username;
-		_password = password;
-		_rateWidget->setUsername(username, password);
+	void ModInfoPage::loginChanged() {
+		_rateWidget->loginChanged();
 	}
 
 	void ModInfoPage::loadPage(int32_t modID) {
@@ -292,9 +284,9 @@ namespace widgets {
 		std::thread([this, modID]() {
 			common::RequestInfoPageMessage ripm;
 			ripm.modID = modID;
-			ripm.language = _language.toStdString();
-			ripm.username = _username.toStdString();
-			ripm.password = _password.toStdString();
+			ripm.language = Config::Language.toStdString();
+			ripm.username = Config::Username.toStdString();
+			ripm.password = Config::Password.toStdString();
 			std::string serialized = ripm.SerializePublic();
 			clockUtils::sockets::TcpSocket sock;
 			clockUtils::ClockError err = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
@@ -547,7 +539,7 @@ namespace widgets {
 		_applyButton->show();
 		_previewImageLabel->show();
 		_thumbnailView->show();
-		_addImageButton->setEnabled(_screens.size() < 10 || _username == "Bonne");
+		_addImageButton->setEnabled(_screens.size() < 10 || Config::Username == "Bonne");
 
 		_forceEdit = false;
 	}
@@ -557,7 +549,7 @@ namespace widgets {
 	}
 
 	void ModInfoPage::addImage() {
-		if (_screens.size() == 10 && _username != "Bonne") {
+		if (_screens.size() == 10 && Config::Username != "Bonne") {
 			return;
 		}
 		const QString folder = _iniParser->value("PATH/Images", ".").toString();
@@ -571,7 +563,7 @@ namespace widgets {
 		itm->setIcon(thumb.scaled(QSize(300, 100), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 		_thumbnailModel->appendRow(itm);
 		_screens.emplace_back(path.toStdString(), "");
-		_addImageButton->setEnabled(_screens.size() < 10 || _username == "Bonne");
+		_addImageButton->setEnabled(_screens.size() < 10 || Config::Username == "Bonne");
 	}
 
 	void ModInfoPage::removeImage() {
@@ -590,7 +582,7 @@ namespace widgets {
 		QEventLoop loop;
 		connect(&watcher, SIGNAL(finished()), &loop, SLOT(quit()));
 		int32_t modID = _modID;
-		std::string language = _language.toStdString();
+		std::string language = Config::Language.toStdString();
 		std::string description = q2s(_descriptionEdit->toPlainText());
 		std::vector<std::string> features;
 		for (const QString & s : _featuresEdit->text().split(";", QString::SkipEmptyParts)) {
@@ -672,7 +664,7 @@ namespace widgets {
 	void ModInfoPage::requestRandomMod() {
 		std::thread([this]() {
 			common::RequestRandomModMessage rrmm;
-			rrmm.language = _language.toStdString();
+			rrmm.language = Config::Language.toStdString();
 			std::string serialized = rrmm.SerializePublic();
 			clockUtils::sockets::TcpSocket sock;
 			clockUtils::ClockError err = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);

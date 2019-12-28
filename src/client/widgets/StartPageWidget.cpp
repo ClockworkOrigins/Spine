@@ -55,7 +55,7 @@
 namespace spine {
 namespace widgets {
 
-	StartPageWidget::StartPageWidget(bool onlineMode, QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _language(), _news(), _mainWindow(mainWindow), _newsTicker(nullptr), _newsTickerModel(nullptr), _generalSettingsWidget(generalSettingsWidget), _onlineMode(onlineMode) {
+	StartPageWidget::StartPageWidget(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _news(), _mainWindow(mainWindow), _newsTicker(nullptr), _newsTickerModel(nullptr), _generalSettingsWidget(generalSettingsWidget) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -63,7 +63,7 @@ namespace widgets {
 		welcomeLabel->setWordWrap(true);
 		welcomeLabel->setAlignment(Qt::AlignCenter);
 		welcomeLabel->setProperty("StartPageWelcome", true);
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, welcomeLabel, "WelcomeText");
+		UPDATELANGUAGESETTEXT(welcomeLabel, "WelcomeText");
 
 		l->addWidget(welcomeLabel);
 
@@ -103,7 +103,7 @@ namespace widgets {
 
 		_writeNewsButton = new QPushButton(QIcon(":/svg/edit.svg"), "", this);
 		_writeNewsButton->setToolTip(QApplication::tr("WriteNewsTooltip"));
-		UPDATELANGUAGESETTOOLTIP(generalSettingsWidget, _writeNewsButton, "WriteNewsTooltip");
+		UPDATELANGUAGESETTOOLTIP(_writeNewsButton, "WriteNewsTooltip");
 		l->addWidget(_writeNewsButton, 0, Qt::AlignBottom | Qt::AlignRight);
 		_writeNewsButton->hide();
 
@@ -116,10 +116,12 @@ namespace widgets {
 
 		connect(this, &StartPageWidget::receivedNews, this, &StartPageWidget::updateNews);
 		connect(_writeNewsButton, &QPushButton::released, this, &StartPageWidget::executeNewsWriter);
+
+		requestNewsUpdate();
 	}
 
 	void StartPageWidget::requestNewsUpdate() {
-		if (!_onlineMode) {
+		if (!Config::OnlineMode) {
 			updateNews();
 			return;
 		}
@@ -128,13 +130,13 @@ namespace widgets {
 		LOGINFO("Memory Usage requestNewsUpdate #1: " << getPRAMValue());
 #endif
 			Database::DBError err;
-			std::vector<int> res = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT IFNULL(MAX(NewsID), 0) FROM news WHERE Language = '" + _language.toStdString() + "';", err);
+			std::vector<int> res = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT IFNULL(MAX(NewsID), 0) FROM news WHERE Language = '" + Config::Language.toStdString() + "';", err);
 			if (res.empty()) {
 				res.push_back(0);
 			}
 			common::RequestAllNewsMessage ranm;
 			ranm.lastNewsID = res[0];
-			ranm.language = _language.toStdString();
+			ranm.language = Config::Language.toStdString();
 			std::string serialized = ranm.SerializePublic();
 			clockUtils::sockets::TcpSocket sock;
 			clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
@@ -146,9 +148,9 @@ namespace widgets {
 						if (m) {
 							common::SendAllNewsMessage * sanm = dynamic_cast<common::SendAllNewsMessage *>(m);
 							for (const common::SendAllNewsMessage::News & news : sanm->news) {
-								Database::execute(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "INSERT INTO news (NewsID, Title, Body, Timestamp, Language) VALUES (" + std::to_string(news.id) + ", '" + news.title + "', '" + news.body + "', " + std::to_string(news.timestamp) + ", '" + _language.toStdString() + "');", err);
+								Database::execute(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "INSERT INTO news (NewsID, Title, Body, Timestamp, Language) VALUES (" + std::to_string(news.id) + ", '" + news.title + "', '" + news.body + "', " + std::to_string(news.timestamp) + ", '" + Config::Language.toStdString() + "');", err);
 								for (const std::pair<int32_t, std::string> & mod : news.referencedMods) {
-									Database::execute(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "INSERT INTO newsModReferences (NewsID, ModID, Name, Language) VALUES (" + std::to_string(news.id) + ", " + std::to_string(mod.first) + ", '" + mod.second + "', '" + _language.toStdString() + "');", err);
+									Database::execute(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "INSERT INTO newsModReferences (NewsID, ModID, Name, Language) VALUES (" + std::to_string(news.id) + ", " + std::to_string(mod.first) + ", '" + mod.second + "', '" + Config::Language.toStdString() + "');", err);
 								}
 								for (const std::pair<std::string, std::string> & p : news.imageFiles) {
 									Database::execute(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "INSERT INTO newsImageReferences (NewsID, File, Hash) VALUES (" + std::to_string(news.id) + ", '" + p.first + "', '" + p.second + "');", err);
@@ -168,14 +170,11 @@ namespace widgets {
 	}
 
 	void StartPageWidget::setLanguage(QString language) {
-		_language = language;
 		requestNewsUpdate();
 	}
 
-	void StartPageWidget::setUsername(QString username, QString password) {
-		_writeNewsButton->setVisible(!username.isEmpty() && _onlineMode);
-		_username = username;
-		_password = password;
+	void StartPageWidget::loginChanged() {
+		_writeNewsButton->setVisible(!Config::Username.isEmpty() && Config::OnlineMode);
 	}
 
 	void StartPageWidget::updateNews() {
@@ -188,11 +187,11 @@ namespace widgets {
 		_news.clear();
 		_newsTickerModel->clear();
 		Database::DBError err;
-		std::vector<common::SendAllNewsMessage::News> news = Database::queryAll<common::SendAllNewsMessage::News, std::string, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT NewsID, Title, Body, Timestamp FROM news WHERE Language = '" + _language.toStdString() + "' ORDER BY Timestamp DESC, NewsID DESC;", err);
+		std::vector<common::SendAllNewsMessage::News> news = Database::queryAll<common::SendAllNewsMessage::News, std::string, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT NewsID, Title, Body, Timestamp FROM news WHERE Language = '" + Config::Language.toStdString() + "' ORDER BY Timestamp DESC, NewsID DESC;", err);
 #ifdef Q_OS_WIN
 		LOGINFO("Memory Usage updateNews #2: " << getPRAMValue());
 #endif
-		if (_onlineMode) {
+		if (Config::OnlineMode) {
 			std::vector<std::pair<std::string, std::string>> images = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT DISTINCT File, Hash FROM newsImageReferences;", err);
 			MultiFileDownloader * mfd = new MultiFileDownloader(this);
 			connect(mfd, SIGNAL(downloadFailed(DownloadError)), mfd, SLOT(deleteLater()));
@@ -225,11 +224,11 @@ namespace widgets {
 #ifdef Q_OS_WIN
 		LOGINFO("Memory Usage updateNews #4.1: " << getPRAMValue());
 #endif
-			std::vector<std::pair<std::string, std::string>> mods = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT DISTINCT ModID, Name FROM newsModReferences WHERE NewsID = " + std::to_string(n.id) + " AND Language = '" + _language.toStdString() + "';", err);
+			std::vector<std::pair<std::string, std::string>> mods = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT DISTINCT ModID, Name FROM newsModReferences WHERE NewsID = " + std::to_string(n.id) + " AND Language = '" + Config::Language.toStdString() + "';", err);
 			for (auto p : mods) {
 				n.referencedMods.emplace_back(std::stoi(p.first), p.second);
 			}
-			NewsWidget * newsWidget = new NewsWidget(n, _onlineMode, _newsContainer);
+			NewsWidget * newsWidget = new NewsWidget(n, Config::OnlineMode, _newsContainer);
 			_newsLayout->addWidget(newsWidget);
 			_news.push_back(newsWidget);
 			connect(newsWidget, &NewsWidget::tryInstallMod, this, &StartPageWidget::tryInstallMod);
@@ -265,8 +264,7 @@ namespace widgets {
 	}
 
 	void StartPageWidget::executeNewsWriter() {
-		NewsWriterDialog dlg(_generalSettingsWidget, this);
-		dlg.setUsername(_username, _password);
+		NewsWriterDialog dlg(this);
 		connect(&dlg, &NewsWriterDialog::refresh, this, &StartPageWidget::refresh);
 		dlg.exec();
 	}

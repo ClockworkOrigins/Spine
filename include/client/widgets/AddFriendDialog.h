@@ -33,15 +33,13 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		AddFriendDialog(QStringList users, QString username, QString password, QWidget * par);
+		AddFriendDialog(QStringList users, QWidget * par);
 		~AddFriendDialog();
 
 	private slots:
 		void sendRequest();
 
 	private:
-		QString _username;
-		QString _password;
 		QComboBox * _comboBox;
 		QStandardItemModel * _sourceModel;
 	};

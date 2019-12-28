@@ -39,7 +39,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		StatisticsWidget(const QString & username, const QString & password, const QString & language, QWidget * par);
+		StatisticsWidget(QWidget * par);
 		~StatisticsWidget();
 
 		void updateModList(QList<ManagementMod> modList);
@@ -61,9 +61,6 @@ namespace widgets {
 		QVBoxLayout * _playersLayout;
 		QVBoxLayout * _playtimesLayout;
 		QVBoxLayout * _achievementsLayout;
-		QString _username;
-		QString _password;
-		QString _language;
 		spine::widgets::WaitSpinner * _waitSpinner;
 	};
 

@@ -25,8 +25,6 @@
 
 #include "models/SpineEditorModel.h"
 
-#include "widgets/GeneralSettingsWidget.h"
-
 #include <QApplication>
 #include <QCheckBox>
 #include <QLabel>
@@ -37,7 +35,7 @@
 namespace spine {
 namespace widgets {
 
-	GeneralSpineSettingsWidget::GeneralSpineSettingsWidget(GeneralSettingsWidget * generalSettingsWidget, models::SpineEditorModel * model, QWidget * par) : QWidget(par), _model(model), _spineModuleCheckBoxes() {
+	GeneralSpineSettingsWidget::GeneralSpineSettingsWidget(models::SpineEditorModel * model, QWidget * par) : QWidget(par), _model(model), _spineModuleCheckBoxes() {
 		QVBoxLayout * vl = new QVBoxLayout();
 		vl->setAlignment(Qt::AlignTop);
 
@@ -54,7 +52,7 @@ namespace widgets {
 		}
 
 		QGroupBox * modulesBox = new QGroupBox(QApplication::tr("Modules"), this);
-		UPDATELANGUAGESETTITLE(generalSettingsWidget, modulesBox, "Modules");
+		UPDATELANGUAGESETTITLE(modulesBox, "Modules");
 		vl->addWidget(modulesBox);
 
 		{

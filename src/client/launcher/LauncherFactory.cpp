@@ -44,6 +44,52 @@ namespace launcher {
 		return ILauncherPtr();
 	}
 
+	ILauncherPtr LauncherFactory::getLauncher(int32_t modID, const QString & iniFile) const {
+		for (const auto & l : _launchers) {
+			if (!l->supports(modID, iniFile)) continue;
+
+			return l;
+		}
+
+		return ILauncherPtr();
+	}
+
+	void LauncherFactory::loginChanged() {
+		for (const auto & l : _launchers) {
+			l->loginChanged();
+		}
+	}
+
+	void LauncherFactory::setDeveloperMode(bool enabled) {		
+		for (const auto & l : _launchers) {
+			l->setDeveloperMode(enabled);
+		}
+	}
+
+	void LauncherFactory::setShowAchievements(bool enabled) {		
+		for (const auto & l : _launchers) {
+			l->setShowAchievements(enabled);
+		}
+	}
+
+	void LauncherFactory::setZSpyActivated(bool enabled) {		
+		for (const auto & l : _launchers) {
+			l->setZSpyActivated(enabled);
+		}
+	}
+
+	void LauncherFactory::restoreSettings(QSettings * settings) {
+		for (const auto & l : _launchers) {
+			l->restoreSettings(settings);
+		}
+	}
+
+	void LauncherFactory::saveSettings(QSettings * settings) {
+		for (const auto & l : _launchers) {
+			l->saveSettings(settings);
+		}
+	}
+
 	ILauncherPtr LauncherFactory::createLauncher(common::GothicVersion gothic) const {
 		ILauncherPtr launcher;
 		switch (gothic) {
@@ -69,7 +115,12 @@ namespace launcher {
 		}
 
 		if (launcher) {
-			connect(launcher.dynamicCast<QObject>().data(), SIGNAL(restartAsAdmin()), this, SIGNAL(restartAsAdmin()));
+			launcher->init();
+			
+			connect(launcher.data(), &ILauncher::restartAsAdmin, this, &LauncherFactory::restartAsAdmin);
+			connect(launcher.data(), &ILauncher::errorMessage, this, &LauncherFactory::errorMessage);
+			connect(launcher.data(), &ILauncher::openAchievementView, this, &LauncherFactory::openAchievementView);
+			connect(launcher.data(), &ILauncher::openScoreView, this, &LauncherFactory::openScoreView);
 		}
 
 		return launcher;

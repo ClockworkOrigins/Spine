@@ -41,6 +41,11 @@ namespace spine {
 	QString Config::NEWSIMAGEDIR;
 	QString Config::STYLESDIR;
 	QSettings * Config::IniParser = nullptr;
+	bool Config::OnlineMode = true;
+
+	QString Config::Username = "";
+	QString Config::Password = "";
+	QString Config::Language = "";
 
 	int Config::Init() {
 		struct TamperCheckWrapper {

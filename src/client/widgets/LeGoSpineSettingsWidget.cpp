@@ -32,12 +32,12 @@
 namespace spine {
 namespace widgets {
 
-	LeGoSpineSettingsWidget::LeGoSpineSettingsWidget(GeneralSettingsWidget * generalSettingsWidget, models::SpineEditorModel * model, QWidget * par) : QWidget(par), _model(model), _legoModuleCheckBoxes(), _achievementsEnabled(false), _gamepadEnabled(false) {
+	LeGoSpineSettingsWidget::LeGoSpineSettingsWidget(models::SpineEditorModel * model, QWidget * par) : QWidget(par), _model(model), _legoModuleCheckBoxes(), _achievementsEnabled(false), _gamepadEnabled(false) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
 		QGroupBox * modulesBox = new QGroupBox(QApplication::tr("Modules"), this);
-		UPDATELANGUAGESETTITLE(generalSettingsWidget, modulesBox, "Modules");
+		UPDATELANGUAGESETTITLE(modulesBox, "Modules");
 		l->addWidget(modulesBox);
 
 		{

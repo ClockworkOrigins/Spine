@@ -30,8 +30,6 @@
 
 #include "security/Hash.h"
 
-#include "widgets/GeneralSettingsWidget.h"
-
 #include "clockUtils/errors.h"
 #include "clockUtils/compression/Compression.h"
 #include "clockUtils/compression/algorithm/HuffmanGeneric.h"
@@ -50,6 +48,7 @@
 #include <QRegularExpressionValidator>
 #include <QSettings>
 #include <QTabWidget>
+#include <QtConcurrentRun>
 #include <QVBoxLayout>
 
 #include "simple-web-server/client_https.hpp"
@@ -113,7 +112,7 @@ namespace {
 
 }
 
-	LoginDialog::LoginDialog(bool onlineMode, QSettings * iniParser, GeneralSettingsWidget * generalSettingsWidget, QWidget *) : QDialog(nullptr), _iniParser(iniParser), _connected(false), _dontShow(false), _language(), _onlineMode(onlineMode) {
+	LoginDialog::LoginDialog(QSettings * iniParser, QWidget *) : QDialog(nullptr), _iniParser(iniParser), _connected(false), _dontShow(false), _language() {
 		QDir dir(Config::BASEDIR + "/databases");
 		if (!dir.exists()) {
 			bool b = dir.mkpath(dir.absolutePath());
@@ -222,14 +221,14 @@ namespace {
 			w->setLayout(gl);
 
 			tw->addTab(w, QApplication::tr("Register"));
-			UPDATELANGUAGESETTEXTEXT(generalSettingsWidget, l1, "Username", " *");
-			UPDATELANGUAGESETTEXTEXT(generalSettingsWidget, l2, "Mail", " *");
-			UPDATELANGUAGESETTEXTEXT(generalSettingsWidget, l3, "Password", " *");
-			UPDATELANGUAGESETTEXTEXT(generalSettingsWidget, l4, "PasswordRepeat", " *");
-			UPDATELANGUAGESETTABTEXT(generalSettingsWidget, tw, 0, "Register");
-			UPDATELANGUAGESETTEXT(generalSettingsWidget, _registerAcceptPrivacyPolicy, "AcceptPrivacy");
-			UPDATELANGUAGESETTEXT(generalSettingsWidget, _registerStayBox, "StayLoggedIn");
-			UPDATELANGUAGESETTEXT(generalSettingsWidget, _registerButton, "Register");
+			UPDATELANGUAGESETTEXTEXT(l1, "Username", " *");
+			UPDATELANGUAGESETTEXTEXT(l2, "Mail", " *");
+			UPDATELANGUAGESETTEXTEXT(l3, "Password", " *");
+			UPDATELANGUAGESETTEXTEXT(l4, "PasswordRepeat", " *");
+			UPDATELANGUAGESETTABTEXT(tw, 0, "Register");
+			UPDATELANGUAGESETTEXT(_registerAcceptPrivacyPolicy, "AcceptPrivacy");
+			UPDATELANGUAGESETTEXT(_registerStayBox, "StayLoggedIn");
+			UPDATELANGUAGESETTEXT(_registerButton, "Register");
 
 			connect(_registerButton, SIGNAL(released()), this, SLOT(registerUser()));
 			connect(_registerUsernameEdit, SIGNAL(textChanged(const QString &)), this, SLOT(changedRegisterInput()));
@@ -275,11 +274,11 @@ namespace {
 			w->setLayout(gl);
 
 			tw->addTab(w, QApplication::tr("Login"));
-			UPDATELANGUAGESETTEXTEXT(generalSettingsWidget, l1, "Username", " *");
-			UPDATELANGUAGESETTEXTEXT(generalSettingsWidget, l2, "Password", " *");
-			UPDATELANGUAGESETTABTEXT(generalSettingsWidget, tw, 1, "Login");
-			UPDATELANGUAGESETTEXT(generalSettingsWidget, _loginStayBox, "StayLoggedIn");
-			UPDATELANGUAGESETTEXT(generalSettingsWidget, _loginButton, "Login");
+			UPDATELANGUAGESETTEXTEXT(l1, "Username", " *");
+			UPDATELANGUAGESETTEXTEXT(l2, "Password", " *");
+			UPDATELANGUAGESETTABTEXT(tw, 1, "Login");
+			UPDATELANGUAGESETTEXT(_loginStayBox, "StayLoggedIn");
+			UPDATELANGUAGESETTEXT(_loginButton, "Login");
 
 			connect(_loginButton, &QPushButton::released, this, &LoginDialog::loginUser);
 			connect(_loginUsernameEdit, SIGNAL(textChanged(const QString &)), this, SLOT(changedLoginInput()));
@@ -293,13 +292,13 @@ namespace {
 		QFont fnt = infoLabel->font();
 		fnt.setPointSize(7);
 		infoLabel->setFont(fnt);
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, infoLabel, "RequiredField");
+		UPDATELANGUAGESETTEXT(infoLabel, "RequiredField");
 
 		l->addWidget(infoLabel);
 
 		QLabel * accountInfoLabel = new QLabel(QApplication::tr("AccountInformation"), this);
 		accountInfoLabel->setWordWrap(true);
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, accountInfoLabel, "AccountInformation");
+		UPDATELANGUAGESETTEXT(accountInfoLabel, "AccountInformation");
 
 		l->addWidget(accountInfoLabel);
 
@@ -312,7 +311,7 @@ namespace {
 				QCheckBox * cb = new QCheckBox(QApplication::tr("DontShowAgain"), this);
 				cb->setProperty("noLogin", true);
 				cb->setChecked(_dontShow);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, cb, "DontShowAgain");
+				UPDATELANGUAGESETTEXT(cb, "DontShowAgain");
 
 				hbl->addWidget(cb);
 
@@ -321,7 +320,7 @@ namespace {
 			{
 				QPushButton * pb = new QPushButton(QApplication::tr("ContinueWithoutLogin"), this);
 				pb->setProperty("noLogin", true);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, pb, "ContinueWithoutLogin");
+				UPDATELANGUAGESETTEXT(pb, "ContinueWithoutLogin");
 
 				hbl->addWidget(pb);
 
@@ -341,9 +340,6 @@ namespace {
 			_loginPasswordEdit->setText(QString::fromStdString(password));
 		}
 
-		_language = generalSettingsWidget->getLanguage();
-		connect(generalSettingsWidget, SIGNAL(languageChanged(QString)), this, SLOT(setLanguage(QString)));
-
 		changedLoginInput();
 		changedRegisterInput();
 
@@ -352,16 +348,8 @@ namespace {
 		setLayout(l);
 
 		setWindowTitle(QApplication::tr("Login"));
-		UPDATELANGUAGESETWINDOWTITLE(generalSettingsWidget, this, "Login");
+		UPDATELANGUAGESETWINDOWTITLE(this, "Login");
 		setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-	}
-
-	QString LoginDialog::getUsername() const {
-		return _loginUsernameEdit->text();
-	}
-
-	QString LoginDialog::getPassword() const {
-		return _loginPasswordEdit->text();
 	}
 
 	int LoginDialog::exec() {
@@ -387,7 +375,11 @@ namespace {
 		msg.button(QMessageBox::StandardButton::Cancel)->setText(QApplication::tr("Cancel"));
 		if (QMessageBox::StandardButton::Ok == msg.exec()) {
 			QFile(Config::BASEDIR + "/databases/Login.bin").remove();
-			emit loggedIn(QString(), QString());
+
+			Config::Username.clear();
+			Config::Password.clear();
+			
+			emit loggedIn();
 		}
 	}
 
@@ -401,7 +393,7 @@ namespace {
 		const QString username = _loginUsernameEdit->text();
 		bool stayLoggedIn = _loginStayBox->isChecked();
 
-		if (_onlineMode) {
+		if (Config::OnlineMode) {
 			HttpsClient client("clockwork-origins.com:19101", false);
 
 			QString content = R"({"type": 1,"username": "%1","password": "%2"})";
@@ -441,7 +433,7 @@ namespace {
 		LOGINFO("Memory Usage loginUser #3: " << getPRAMValue());
 #endif
 
-				handleLogin(username, passwd);
+				handleLogin();
 #ifdef Q_OS_WIN
 		LOGINFO("Memory Usage loginUser #4: " << getPRAMValue());
 #endif
@@ -486,7 +478,10 @@ namespace {
 #endif
 				}
 
-				emit loggedIn(username, passwd);
+				Config::Username = username;
+				Config::Password = passwd;
+
+				emit loggedIn();
 			});
 #ifdef Q_OS_WIN
 		LOGINFO("Memory Usage loginUser #7: " << getPRAMValue());
@@ -515,7 +510,7 @@ namespace {
 
 		const QString mail = _registerMailEdit->text();
 
-		if (_onlineMode) {
+		if (Config::OnlineMode) {
 			HttpsClient client("clockwork-origins.com:19101", false);
 
 			QString content = R"({"type": 0,"username": "%1","password": "%2", "mail": "%3"})";
@@ -551,7 +546,7 @@ namespace {
 				}
 				}
 
-				handleLogin(username, passwd);
+				handleLogin();
 
 				if (stayLoggedIn) {
 					QFile f(Config::BASEDIR + "/databases/Login.bin");
@@ -561,7 +556,7 @@ namespace {
 						char pl[sizeof(int)];
 						memcpy(pl, &pathLength, sizeof(int));
 						f.write(pl, sizeof(int));
-						clockUtils::compression::Compression<clockUtils::compression::algorithm::HuffmanGeneric> c;
+						const clockUtils::compression::Compression<clockUtils::compression::algorithm::HuffmanGeneric> c;
 						std::string compressedPath;
 						clockUtils::ClockError cErr = c.compress(homeDir.absolutePath().toStdString(), compressedPath);
 						Q_UNUSED(cErr);
@@ -587,7 +582,10 @@ namespace {
 					}
 				}
 
-				emit loggedIn(username, passwd);
+				Config::Username = username;
+				Config::Password = passwd;
+
+				emit loggedIn();
 			});
 			client.io_service->run();
 		}
@@ -620,10 +618,6 @@ namespace {
 	void LoginDialog::dontShowAgainChanged(int state) {
 		_dontShow = state == Qt::CheckState::Checked;
 		_iniParser->setValue("LOGIN/DontShowAgain", _dontShow);
-	}
-
-	void LoginDialog::setLanguage(QString language) {
-		_language = language;
 	}
 
 	void LoginDialog::resetPassword() {
@@ -666,8 +660,8 @@ namespace {
 		changedRegisterInput();
 	}
 
-	void LoginDialog::handleLogin(QString username, QString password) {
-		std::thread([this, username, password]() {
+	void LoginDialog::handleLogin() {
+		QtConcurrent::run([]() {
 #ifdef Q_OS_WIN
 		LOGINFO("Memory Usage handleLogin #1: " << getPRAMValue());
 #endif
@@ -675,18 +669,18 @@ namespace {
 			if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 5000)) {
 				{
 					common::UpdateLoginTimeMessage ultm;
-					ultm.username = username.toStdString();
-					ultm.password = password.toStdString();
+					ultm.username = Config::Username.toStdString();
+					ultm.password = Config::Password.toStdString();
 					const std::string serialized = ultm.SerializePublic();
 					sock.writePacket(serialized);
 				}
 				{
 					common::SendUserInfosMessage suim;
-					suim.username = username.toStdString();
-					suim.password = password.toStdString();
+					suim.username = Config::Username.toStdString();
+					suim.password = Config::Password.toStdString();
 					suim.hash = security::Hash::calculateSystemHash().toStdString();
 					suim.mac = security::Hash::getMAC().toStdString();
-					suim.language = _language.toStdString();
+					suim.language = Config::Language.toStdString();
 					const std::string serialized = suim.SerializePublic();
 					sock.writePacket(serialized);
 				}
@@ -694,7 +688,7 @@ namespace {
 #ifdef Q_OS_WIN
 		LOGINFO("Memory Usage handleLogin #2: " << getPRAMValue());
 #endif
-		}).detach();
+		});
 	}
 
 } /* namespace widgets */

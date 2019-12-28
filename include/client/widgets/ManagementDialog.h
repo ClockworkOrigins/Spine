@@ -44,7 +44,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		ManagementDialog(QString username, QString password, QString language, QSettings * iniParser, QWidget * par);
+		ManagementDialog(QSettings * iniParser, QWidget * par);
 		~ManagementDialog();
 
 	signals:
@@ -60,9 +60,6 @@ namespace widgets {
 	private:
 		QSettings * _iniParser;
 		QStandardItemModel * _modList;
-		QString _username;
-		QString _password;
-		QString _language;
 		QList<ManagementMod> _mods;
 		int _modIndex;
 		GeneralConfigurationWidget * _generalConfigurationWidget;

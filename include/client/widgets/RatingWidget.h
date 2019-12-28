@@ -41,7 +41,7 @@ namespace widgets {
 		void receivedRating(int32_t, int32_t, int32_t, bool);
 
 	public slots:
-		void setUsername(QString username, QString password);
+		void loginChanged();
 		void setModID(int32_t modID);
 		void setVisible(bool visible) override;
 		void setModName(QString name);
@@ -51,8 +51,6 @@ namespace widgets {
 
 	private:
 		std::array<QSvgWidget *, 5> _svgs;
-		QString _username;
-		QString _password;
 		int32_t _modID;
 		QString _modname;
 		bool _allowedToRate;

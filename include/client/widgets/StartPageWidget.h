@@ -40,7 +40,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		StartPageWidget(bool onlineMode, QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QWidget * par);
+		StartPageWidget(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QWidget * par);
 
 		void requestNewsUpdate();
 
@@ -51,8 +51,8 @@ namespace widgets {
 		void triggerModStart(int, QString);
 
 	public slots:
-		void setLanguage(QString language);
-		void setUsername(QString username, QString password);
+		void loginChanged();
+		void setLanguage(QString);
 
 	private slots:
 		void updateNews();
@@ -65,16 +65,12 @@ namespace widgets {
 		QScrollArea * _scrollArea;
 		QWidget * _newsContainer;
 		QVBoxLayout * _newsLayout;
-		QString _language;
 		std::vector<NewsWidget *> _news;
 		QMainWindow * _mainWindow;
 		QPushButton * _writeNewsButton;
 		QTableView * _newsTicker;
 		QStandardItemModel * _newsTickerModel;
 		GeneralSettingsWidget * _generalSettingsWidget;
-		QString _username;
-		QString _password;
-		bool _onlineMode;
 		QPushButton * _startModButton;
 
 		void showEvent(QShowEvent* evt) override;

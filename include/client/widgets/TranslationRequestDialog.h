@@ -43,7 +43,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		TranslationRequestDialog(QSettings * iniParser, QString username, QWidget * par);
+		TranslationRequestDialog(QSettings * iniParser, QWidget * par);
 		~TranslationRequestDialog();
 
 	signals:
@@ -61,7 +61,6 @@ namespace widgets {
 
 	private:
 		QSettings * _iniParser;
-		QString _username;
 		QLineEdit * _pathEdit;
 		QLineEdit * _projectNameEdit;
 		QComboBox * _sourceLanguageBox;

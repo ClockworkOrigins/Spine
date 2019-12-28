@@ -19,7 +19,6 @@
 #include "widgets/SettingsDialog.h"
 
 #include "Config.h"
-#include "utils/Conversion.h"
 #include "UpdateLanguage.h"
 
 #include "widgets/DeveloperSettingsWidget.h"
@@ -52,29 +51,29 @@ namespace widgets {
 		int tabCounter = 0;
 		_generalSettingsWidget = new GeneralSettingsWidget(_iniParser, tabWidget);
 		tabWidget->addTab(_generalSettingsWidget, QApplication::tr("General"));
-		UPDATELANGUAGESETTABTEXT(_generalSettingsWidget, tabWidget, tabCounter, "General");
+		UPDATELANGUAGESETTABTEXT(tabWidget, tabCounter, "General");
 		++tabCounter;
 
-		_gameSettingsWidget = new GameSettingsWidget(_iniParser, _generalSettingsWidget, tabWidget);
+		_gameSettingsWidget = new GameSettingsWidget(_iniParser, tabWidget);
 		tabWidget->addTab(_gameSettingsWidget, QApplication::tr("Game"));
-		UPDATELANGUAGESETTABTEXT(_generalSettingsWidget, tabWidget, tabCounter, "Game");
+		UPDATELANGUAGESETTABTEXT(tabWidget, tabCounter, "Game");
 		++tabCounter;
 
-		_locationSettingsWidget = new LocationSettingsWidget(_iniParser, _generalSettingsWidget, false, tabWidget);
+		_locationSettingsWidget = new LocationSettingsWidget(_iniParser, false, tabWidget);
 		tabWidget->addTab(_locationSettingsWidget, QApplication::tr("Locations"));
-		UPDATELANGUAGESETTABTEXT(_generalSettingsWidget, tabWidget, tabCounter, "Locations");
+		UPDATELANGUAGESETTABTEXT(tabWidget, tabCounter, "Locations");
 		++tabCounter;
 
 #ifdef Q_OS_WIN
-		_gamepadSettingsWidget = new GamepadSettingsWidget(_iniParser, _generalSettingsWidget, tabWidget);
+		_gamepadSettingsWidget = new GamepadSettingsWidget(_iniParser, tabWidget);
 		tabWidget->addTab(_gamepadSettingsWidget, QApplication::tr("Gamepad"));
-		UPDATELANGUAGESETTABTEXT(_generalSettingsWidget, tabWidget, tabCounter, "Gamepad");
+		UPDATELANGUAGESETTABTEXT(tabWidget, tabCounter, "Gamepad");
 		++tabCounter;
 #endif
 
-		_developerSettingsWidget = new DeveloperSettingsWidget(_iniParser, _generalSettingsWidget, tabWidget);
+		_developerSettingsWidget = new DeveloperSettingsWidget(_iniParser, tabWidget);
 		tabWidget->addTab(_developerSettingsWidget, QApplication::tr("Developer"));
-		UPDATELANGUAGESETTABTEXT(_generalSettingsWidget, tabWidget, tabCounter, "Developer");
+		UPDATELANGUAGESETTABTEXT(tabWidget, tabCounter, "Developer");
 		l->addWidget(tabWidget);
 		++tabCounter;
 
@@ -85,7 +84,7 @@ namespace widgets {
 
 		QPushButton * b = dbb->button(QDialogButtonBox::StandardButton::Apply);
 		b->setText(QApplication::tr("Apply"));
-		UPDATELANGUAGESETTEXT(_generalSettingsWidget, b, "Apply");
+		UPDATELANGUAGESETTEXT(b, "Apply");
 
 		connect(b, SIGNAL(clicked()), this, SIGNAL(accepted()));
 		connect(b, SIGNAL(clicked()), this, SLOT(accept()));
@@ -93,14 +92,14 @@ namespace widgets {
 
 		b = dbb->button(QDialogButtonBox::StandardButton::Discard);
 		b->setText(QApplication::tr("Discard"));
-		UPDATELANGUAGESETTEXT(_generalSettingsWidget, b, "Discard");
+		UPDATELANGUAGESETTEXT(b, "Discard");
 
 		connect(b, SIGNAL(clicked()), this, SIGNAL(rejected()));
 		connect(b, SIGNAL(clicked()), this, SLOT(reject()));
 		connect(b, SIGNAL(clicked()), this, SLOT(hide()));
 
 		setWindowTitle(QApplication::tr("Settings"));
-		UPDATELANGUAGESETWINDOWTITLE(_generalSettingsWidget, this, "Settings");
+		UPDATELANGUAGESETWINDOWTITLE(this, "Settings");
 		setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
 		restoreSettings();

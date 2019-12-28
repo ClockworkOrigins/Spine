@@ -18,6 +18,7 @@
 
 #include "widgets/management/GeneralConfigurationWidget.h"
 
+#include "Config.h"
 #include "SpineConfig.h"
 
 #include "https/Https.h"
@@ -42,7 +43,7 @@ namespace spine {
 namespace client {
 namespace widgets {
 
-	GeneralConfigurationWidget::GeneralConfigurationWidget(const QString & username, const QString & password, QWidget * par) : QWidget(par), _mods(), _modIndex(-1), _waitSpinner(nullptr), _username(username), _password(password) {
+	GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(par), _mods(), _modIndex(-1), _waitSpinner(nullptr) {
 		QVBoxLayout * vl = new QVBoxLayout();
 
 		{
@@ -155,8 +156,8 @@ namespace widgets {
 		_waitSpinner = new spine::widgets::WaitSpinner(QApplication::tr("Updating"), this);
 
 		QJsonObject requestData;
-		requestData["Username"] = _username;
-		requestData["Password"] = _password;
+		requestData["Username"] = Config::Username;
+		requestData["Password"] = Config::Password;
 		requestData["ModID"] = _mods[_modIndex].id;
 		
 		https::Https::postAsync(MANAGEMENTSERVER_PORT, "getGeneralConfiguration", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
@@ -183,8 +184,8 @@ namespace widgets {
 		mgd.releaseDate = _releaseDateEdit->date();
 
 		QJsonObject json;
-		json["Username"] = _username;
-		json["Password"] = _password;
+		json["Username"] = Config::Username;
+		json["Password"] = Config::Password;
 		json["ModID"] = _mods[_modIndex].id;
 		mgd.write(json);
 		

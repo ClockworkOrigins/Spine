@@ -22,7 +22,6 @@
 #include "Database.h"
 #include "FileDownloader.h"
 #include "MultiFileDownloader.h"
-#include "SpineConfig.h"
 
 #include <QApplication>
 #include <QCheckBox>
@@ -35,7 +34,7 @@
 namespace spine {
 namespace widgets {
 
-	NewCombinationDialog::NewCombinationDialog(QString title, QString text, QSettings * iniParser, QWidget * par) : QDialog(par), _dontShowAgainBox(nullptr), _iniParser(iniParser) {
+	NewCombinationDialog::NewCombinationDialog(QString title, QString text, QWidget * par) : QDialog(par), _dontShowAgainBox(nullptr) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -68,12 +67,12 @@ namespace widgets {
 		setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 		setWindowTitle(title);
 
-		const bool b = _iniParser->value("NEWCOMBINATIONDIALOG/DontShowAgain", false).toBool();
+		const bool b = Config::IniParser->value("NEWCOMBINATIONDIALOG/DontShowAgain", false).toBool();
 		_dontShowAgainBox->setChecked(b);
 	}
 
 	NewCombinationDialog::~NewCombinationDialog() {
-		_iniParser->setValue("NEWCOMBINATIONDIALOG/DontShowAgain", _dontShowAgainBox->isChecked());
+		Config::IniParser->setValue("NEWCOMBINATIONDIALOG/DontShowAgain", _dontShowAgainBox->isChecked());
 	}
 
 	bool NewCombinationDialog::canShow() const {

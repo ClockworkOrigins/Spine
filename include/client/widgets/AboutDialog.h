@@ -24,13 +24,11 @@
 namespace spine {
 namespace widgets {
 
-	class GeneralSettingsWidget;
-
 	class AboutDialog : public QDialog {
 		Q_OBJECT
 
 	public:
-		AboutDialog(GeneralSettingsWidget * generalSettingsWidget, QWidget * parent);
+		AboutDialog(QWidget * parent);
 	};
 
 } /* namespace widgets */

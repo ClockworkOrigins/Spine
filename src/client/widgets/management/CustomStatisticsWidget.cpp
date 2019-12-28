@@ -20,13 +20,12 @@
 
 #include <set>
 
+#include "Config.h"
 #include "SpineConfig.h"
 
 #include "https/Https.h"
 
 #include "models/CustomStatisticsModel.h"
-
-#include "utils/Conversion.h"
 
 #include "widgets/WaitSpinner.h"
 
@@ -44,7 +43,7 @@ namespace spine {
 namespace client {
 namespace widgets {
 
-	CustomStatisticsWidget::CustomStatisticsWidget(const QString & username, const QString & password, QWidget * par) : QWidget(par), _mods(), _modIndex(-1), _sourceModel(nullptr), _waitSpinner(nullptr), _username(username), _password(password) {
+	CustomStatisticsWidget::CustomStatisticsWidget(QWidget * par) : QWidget(par), _mods(), _modIndex(-1), _sourceModel(nullptr), _waitSpinner(nullptr) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -127,8 +126,8 @@ namespace widgets {
 		_waitSpinner = new spine::widgets::WaitSpinner(QApplication::tr("Updating"), this);
 
 		QJsonObject requestData;
-		requestData["Username"] = _username;
-		requestData["Password"] = _password;
+		requestData["Username"] = Config::Username;
+		requestData["Password"] = Config::Password;
 		requestData["ModID"] = _mods[_modIndex].id;
 		
 		https::Https::postAsync(MANAGEMENTSERVER_PORT, "getCustomStatistics", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {

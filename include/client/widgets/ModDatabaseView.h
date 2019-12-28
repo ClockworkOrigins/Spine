@@ -64,7 +64,7 @@ namespace widgets {
 		void updateModList(int modID, int packageID = -1);
 		void gothicValidationChanged(bool valid);
 		void gothic2ValidationChanged(bool valid);
-		void setUsername(QString username, QString password);
+		void loginChanged();
 		void setGothicDirectory(QString dir);
 		void setGothic2Directory(QString dir);
 
@@ -86,12 +86,9 @@ namespace widgets {
 		QTreeView * _treeView;
 		QStandardItemModel * _sourceModel;
 		DatabaseFilterModel * _sortModel;
-		QString _language;
 		std::vector<common::Mod> _mods;
 		bool _gothicValid;
 		bool _gothic2Valid;
-		QString _username;
-		QString _password;
 		QMap<int32_t, QModelIndex> _parentMods;
 		QMap<int32_t, std::vector<common::UpdatePackageListMessage::Package>> _packages;
 		QString _gothicDirectory;

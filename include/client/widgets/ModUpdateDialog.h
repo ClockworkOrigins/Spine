@@ -36,7 +36,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		ModUpdateDialog(QMainWindow * mainWindow, QString language);
+		ModUpdateDialog(QMainWindow * mainWindow);
 		~ModUpdateDialog();
 
 	signals:
@@ -45,7 +45,7 @@ namespace widgets {
 
 	public slots:
 		int exec() override;
-		void setUsername(QString username, QString password);
+		void loginChanged();
 		void checkForUpdate();
 		void checkForUpdate(int32_t modID);
 
@@ -68,14 +68,11 @@ namespace widgets {
 		};
 
 		QMainWindow * _mainWindow;
-		QString _language;
 		QLabel * _infoLabel;
 		QVBoxLayout * _checkBoxLayout;
 		std::vector<common::ModUpdate> _updates;
 		std::vector<QCheckBox *> _checkBoxes;
 		QCheckBox * _dontShowAgain;
-		QString _username;
-		QString _password;
 		bool _running;
 		bool _lastTimeRejected;
 		QMap<int32_t, QString> _oldVersions;

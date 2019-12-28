@@ -34,6 +34,7 @@ SET(SpineSrc
 	${srcdir}/launcher/Gothic1Launcher.cpp
 	${srcdir}/launcher/Gothic2Launcher.cpp
 	${srcdir}/launcher/Gothic1And2Launcher.cpp
+	${srcdir}/launcher/ILauncher.cpp
 	${srcdir}/launcher/LauncherFactory.cpp
 	
 	${srcdir}/models/CustomStatisticsModel.cpp
@@ -137,6 +138,7 @@ QT5_WRAP_CPP(SpineGuiHeader
 	${includedir}/launcher/Gothic1And2Launcher.h
 	${includedir}/launcher/Gothic1Launcher.h
 	${includedir}/launcher/Gothic2Launcher.h
+	${includedir}/launcher/ILauncher.h
 	${includedir}/launcher/LauncherFactory.h
 	
 	${includedir}/models/CustomStatisticsModel.h

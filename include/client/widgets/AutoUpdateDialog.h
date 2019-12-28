@@ -26,13 +26,11 @@ class QMainWindow;
 namespace spine {
 namespace widgets {
 
-	class GeneralSettingsWidget;
-
 	class AutoUpdateDialog : public QDialog {
 		Q_OBJECT
 
 	public:
-		AutoUpdateDialog(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget);
+		AutoUpdateDialog(QMainWindow * mainWindow);
 
 	public slots:
 		int exec() override;

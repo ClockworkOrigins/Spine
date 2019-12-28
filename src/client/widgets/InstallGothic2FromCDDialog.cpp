@@ -18,13 +18,10 @@
 
 #include "widgets/InstallGothic2FromCDDialog.h"
 
-#include "SpineConfig.h"
 #include "UpdateLanguage.h"
 #include "WindowsExtensions.h"
 
 #include "utils/Conversion.h"
-
-#include "widgets/GeneralSettingsWidget.h"
 
 #include <QApplication>
 #include <QFileDialog>
@@ -39,17 +36,17 @@
 
 #ifdef Q_OS_WIN
 	#include <Windows.h>
-	#include <ShellAPI.h>
+	#include <shellapi.h>
 #endif
 
 namespace spine {
 namespace widgets {
 
-	InstallGothic2FromCDDialog::InstallGothic2FromCDDialog(GeneralSettingsWidget * generalSettingsWidget) : QDialog(), _gothicPathLineEdit(nullptr) {
+	InstallGothic2FromCDDialog::InstallGothic2FromCDDialog() : QDialog(), _gothicPathLineEdit(nullptr) {
 		QVBoxLayout * l = new QVBoxLayout();
 
 		QLabel * lbl = new QLabel(QApplication::tr("SelectGothic2InstallationFolder"), this);
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "SelectGothic2InstallationFolder");
+		UPDATELANGUAGESETTEXT(lbl, "SelectGothic2InstallationFolder");
 
 		l->addWidget(lbl);
 
@@ -68,7 +65,7 @@ namespace widgets {
 		l->addLayout(hl);
 
 		QPushButton * installButton = new QPushButton(QApplication::tr("Install"), this);
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, installButton, "Install");
+		UPDATELANGUAGESETTEXT(installButton, "Install");
 		connect(installButton, SIGNAL(clicked()), this, SLOT(startInstallation()));
 
 		l->addWidget(installButton);
@@ -76,7 +73,7 @@ namespace widgets {
 		setLayout(l);
 
 		setWindowTitle(QApplication::tr("InstallGothic2FromCD"));
-		UPDATELANGUAGESETWINDOWTITLE(generalSettingsWidget, this, "InstallGothic2FromCD");
+		UPDATELANGUAGESETWINDOWTITLE(this, "InstallGothic2FromCD");
 
 		setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 

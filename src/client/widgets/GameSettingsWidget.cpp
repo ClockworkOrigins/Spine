@@ -20,8 +20,6 @@
 
 #include "UpdateLanguage.h"
 
-#include "widgets/GeneralSettingsWidget.h"
-
 #include <QApplication>
 #include <QCheckBox>
 #include <QSettings>
@@ -30,7 +28,7 @@
 namespace spine {
 namespace widgets {
 
-	GameSettingsWidget::GameSettingsWidget(QSettings * iniParser, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _iniParser(iniParser), _showAchievementsCheckBox(nullptr) {
+	GameSettingsWidget::GameSettingsWidget(QSettings * iniParser, QWidget * par) : QWidget(par), _iniParser(iniParser), _showAchievementsCheckBox(nullptr) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -39,7 +37,7 @@ namespace widgets {
 		const bool b = _iniParser->value("GAME/showAchievements", true).toBool();
 
 		_showAchievementsCheckBox->setChecked(b);
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, _showAchievementsCheckBox, "ShowAchievements");
+		UPDATELANGUAGESETTEXT(_showAchievementsCheckBox, "ShowAchievements");
 
 		l->addWidget(_showAchievementsCheckBox);
 

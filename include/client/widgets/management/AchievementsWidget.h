@@ -39,7 +39,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		AchievementsWidget(const QString & username, const QString & password, QWidget * par);
+		AchievementsWidget(QWidget * par);
 
 		void updateModList(QList<ManagementMod> modList);
 		void selectedMod(int index);
@@ -59,8 +59,6 @@ namespace widgets {
 		int _modIndex;
 		QVBoxLayout * _layout;
 		QList<AchievementWidget *> _achievementEdits;
-		QString _username;
-		QString _password;
 		spine::widgets::WaitSpinner * _waitSpinner;
 	};
 

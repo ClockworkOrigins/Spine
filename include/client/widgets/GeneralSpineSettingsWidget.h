@@ -33,13 +33,11 @@ namespace models {
 } /* namespace models */
 namespace widgets {
 
-	class GeneralSettingsWidget;
-
 	class GeneralSpineSettingsWidget : public QWidget {
 		Q_OBJECT
 
 	public:
-		GeneralSpineSettingsWidget(GeneralSettingsWidget * generalSettingsWidget, models::SpineEditorModel * model, QWidget * par);
+		GeneralSpineSettingsWidget(models::SpineEditorModel * model, QWidget * par);
 		~GeneralSpineSettingsWidget();
 
 		void save();

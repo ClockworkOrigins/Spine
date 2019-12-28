@@ -21,8 +21,6 @@
 #include "SpineConfig.h"
 #include "UpdateLanguage.h"
 
-#include "widgets/GeneralSettingsWidget.h"
-
 #include <QApplication>
 #include <QDir>
 #include <QIcon>
@@ -33,7 +31,7 @@
 namespace spine {
 namespace widgets {
 
-	AboutDialog::AboutDialog(GeneralSettingsWidget * generalSettingsWidget, QWidget * parent) : QDialog(parent, Qt::Popup) {
+	AboutDialog::AboutDialog(QWidget * parent) : QDialog(parent, Qt::Popup) {
 		QGridLayout * gridLayout = new QGridLayout(this);
 		QVBoxLayout * layout = new QVBoxLayout();
 		QFont f;
@@ -42,26 +40,26 @@ namespace widgets {
 		layout->addWidget(new QLabel(QString("Spine ") + QString::fromStdString(VERSION_STRING), this));
 		layout->addWidget(new QLabel(QString("Clockwork Origins"), this));
 		QLabel * cwMail = new QLabel(QApplication::tr("Contact") + ": <a href=\"mailto:contact@clockwork-origins.de\">contact@clockwork-origins.de</a>", this);
-		UPDATELANGUAGESETTEXTEXT(generalSettingsWidget, cwMail, "Contact", ": <a href=\"mailto:contact@clockwork-origins.de\">contact@clockwork-origins.de</a>");
+		UPDATELANGUAGESETTEXTEXT(cwMail, "Contact", ": <a href=\"mailto:contact@clockwork-origins.de\">contact@clockwork-origins.de</a>");
 		cwMail->setOpenExternalLinks(true);
 		layout->addWidget(cwMail);
 		QLabel * cwLink = new QLabel(QApplication::tr("Homepage") + ": <a href=\"https://clockwork-origins.com/\">https://clockwork-origins.com/</a>", this);
-		UPDATELANGUAGESETTEXTEXT(generalSettingsWidget, cwLink, "Homepage", ": <a href=\"https://clockwork-origins.com/\">https://clockwork-origins.com/</a>");
+		UPDATELANGUAGESETTEXTEXT(cwLink, "Homepage", ": <a href=\"https://clockwork-origins.com/\">https://clockwork-origins.com/</a>");
 		cwLink->setOpenExternalLinks(true);
 		layout->addWidget(cwLink);
 		layout->addWidget(new QLabel(QString(""), this));
 		QLabel * buildForLabel = new QLabel(QApplication::tr("BuildForQt") + " " + QT_VERSION_STR, this);
 		layout->addWidget(buildForLabel);
-		UPDATELANGUAGESETTEXTEXT(generalSettingsWidget, buildForLabel, "BuildForQt", " " + QT_VERSION_STR);
+		UPDATELANGUAGESETTEXTEXT(buildForLabel, "BuildForQt", " " + QT_VERSION_STR);
 		QLabel * runningWithLabel = new QLabel(QApplication::tr("RunningWithQt") + " " + qVersion(), this);
 		layout->addWidget(runningWithLabel);
-		UPDATELANGUAGESETTEXTEXT(generalSettingsWidget, runningWithLabel, "RunningWithQt", " " + qVersion());
+		UPDATELANGUAGESETTEXTEXT(runningWithLabel, "RunningWithQt", " " + qVersion());
 		QDir dir(QApplication::applicationDirPath() + "/../copyright/");
 		QLabel * licenseLabel = new QLabel(QApplication::tr("License") + ": " + dir.absolutePath() + "/Qt LICENSE", this);
 		layout->addWidget(licenseLabel);
-		UPDATELANGUAGESETTEXTEXT(generalSettingsWidget, licenseLabel, "License", ": " + dir.absolutePath() + "/Qt LICENSE");
+		UPDATELANGUAGESETTEXTEXT(licenseLabel, "License", ": " + dir.absolutePath() + "/Qt LICENSE");
 		QLabel * qtLink = new QLabel(QApplication::tr("Homepage") + ": <a href=\"https://www.qt.io/\">https://www.qt.io/</a>", this);
-		UPDATELANGUAGESETTEXTEXT(generalSettingsWidget, qtLink, "Homepage", ": <a href=\"https://www.qt.io/\">https://www.qt.io/</a>");
+		UPDATELANGUAGESETTEXTEXT(qtLink, "Homepage", ": <a href=\"https://www.qt.io/\">https://www.qt.io/</a>");
 		qtLink->setOpenExternalLinks(true);
 		layout->addWidget(qtLink);
 		QPixmap pixmap(":/clockworkLogo.png");

@@ -34,8 +34,8 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		SubmitCompatibilityDialog(QString language, QString username, QString password);
-		SubmitCompatibilityDialog(QString language, QString username, QString password, int32_t modID, int32_t patchID, common::GothicVersion gothicVersion);
+		SubmitCompatibilityDialog();
+		SubmitCompatibilityDialog(int32_t modID, int32_t patchID, common::GothicVersion gothicVersion);
 		~SubmitCompatibilityDialog();
 
 	signals:
@@ -50,10 +50,6 @@ namespace widgets {
 		void changedHiddenState(int state);
 
 	private:
-		QString _language;
-		QString _username;
-		QString _password;
-
 		QRadioButton * _g1Button;
 		QRadioButton * _g2Button;
 		QListView * _modView;

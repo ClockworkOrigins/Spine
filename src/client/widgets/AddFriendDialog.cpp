@@ -39,7 +39,7 @@
 namespace spine {
 namespace widgets {
 
-	AddFriendDialog::AddFriendDialog(QStringList users, QString username, QString password, QWidget * par) : QDialog(par), _username(username), _password(password), _comboBox(nullptr) {
+	AddFriendDialog::AddFriendDialog(QStringList users, QWidget * par) : QDialog(par), _comboBox(nullptr) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -52,7 +52,7 @@ namespace widgets {
 		QSortFilterProxyModel * sortModel = new QSortFilterProxyModel(_comboBox);
 		sortModel->setSourceModel(_sourceModel);
 
-		for (const QString s : users) {
+		for (const QString & s : users) {
 			_sourceModel->appendRow(new QStandardItem(s));
 		}
 
@@ -81,21 +81,21 @@ namespace widgets {
 	}
 
 	void AddFriendDialog::sendRequest() {
-		if (_username.isEmpty()) {
+		if (Config::Username.isEmpty()) {
 			return;
 		}
 		const QString friendname = _comboBox->currentText();
 		if (friendname.isEmpty()) {
 			return;
 		}
-		std::thread([this, friendname]() {
+		std::thread([friendname]() {
 			common::SendFriendRequestMessage sfrm;
-			sfrm.username = _username.toStdString();
-			sfrm.password = _password.toStdString();
+			sfrm.username = Config::Username.toStdString();
+			sfrm.password = Config::Password.toStdString();
 			sfrm.friendname = friendname.toStdString();
-			std::string serialized = sfrm.SerializePublic();
+			const std::string serialized = sfrm.SerializePublic();
 			clockUtils::sockets::TcpSocket sock;
-			clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
+			const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
 			if (clockUtils::ClockError::SUCCESS == cErr) {
 				sock.writePacket(serialized);
 			}

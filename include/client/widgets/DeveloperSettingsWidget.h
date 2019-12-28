@@ -32,13 +32,11 @@ namespace common {
 } /* namespace common */
 namespace widgets {
 
-	class GeneralSettingsWidget;
-
 	class DeveloperSettingsWidget : public QWidget {
 		Q_OBJECT
 
 	public:
-		DeveloperSettingsWidget(QSettings * iniParser, GeneralSettingsWidget * generalSettingsWidget, QWidget * par);
+		DeveloperSettingsWidget(QSettings * iniParser, QWidget * par);
 		~DeveloperSettingsWidget();
 
 		void saveSettings();

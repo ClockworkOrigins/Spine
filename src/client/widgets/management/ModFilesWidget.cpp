@@ -21,6 +21,7 @@
 #include <fstream>
 #include <thread>
 
+#include "Config.h"
 #include "SpineConfig.h"
 
 #include "common/MessageStructs.h"
@@ -66,7 +67,7 @@ namespace {
 	};
 }
 
-	ModFilesWidget::ModFilesWidget(const QString & username, const QString & password, const QString & language, QWidget * par) : QWidget(par), _fileList(nullptr), _username(username), _password(password), _language(language), _mods(), _fileTreeView(nullptr), _modIndex(-1), _directory(), _fileMap(), _majorVersionBox(nullptr), _minorVersionBox(nullptr), _patchVersionBox(nullptr), _waitSpinner(nullptr) {
+	ModFilesWidget::ModFilesWidget(QWidget * par) : QWidget(par), _fileList(nullptr), _mods(), _fileTreeView(nullptr), _modIndex(-1), _directory(), _fileMap(), _majorVersionBox(nullptr), _minorVersionBox(nullptr), _patchVersionBox(nullptr), _waitSpinner(nullptr) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -381,8 +382,8 @@ namespace {
 		_waitSpinner = new spine::widgets::WaitSpinner(QApplication::tr("Updating"), this);
 
 		QJsonObject requestData;
-		requestData["Username"] = _username;
-		requestData["Password"] = _password;
+		requestData["Username"] = Config::Username;
+		requestData["Password"] = Config::Password;
 		requestData["ModID"] = _mods[_modIndex].id;
 		
 		https::Https::postAsync(MANAGEMENTSERVER_PORT, "getModFiles", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
@@ -439,8 +440,8 @@ namespace {
 		if (_modIndex == -1) return;
 
 		QJsonObject json;
-		json["Username"] = _username;
-		json["Password"] = _password;
+		json["Username"] = Config::Username;
+		json["Password"] = Config::Password;
 		json["ModID"] = _mods[_modIndex].id;
 		json["VersionMajor"] = _majorVersionBox->value();
 		json["VersionMinor"] = _minorVersionBox->value();

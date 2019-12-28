@@ -22,6 +22,8 @@
 
 #include <QList>
 
+class QSettings;
+
 namespace spine {
 namespace launcher {
 
@@ -32,9 +34,21 @@ namespace launcher {
 		static LauncherFactory * getInstance();
 		
 		ILauncherPtr getLauncher(common::GothicVersion gothic) const;
+		ILauncherPtr getLauncher(int32_t modID, const QString & iniFile) const;
+
+		void loginChanged();
+		void setDeveloperMode(bool enabled);
+		void setShowAchievements(bool enabled);
+		void setZSpyActivated(bool enabled);
+
+		void restoreSettings(QSettings * settings);
+		void saveSettings(QSettings * settings);
 
 	signals:
 		void restartAsAdmin();
+		void errorMessage(QString);
+		void openAchievementView(int32_t, QString);
+		void openScoreView(int32_t, QString);
 
 	private:
 		QList<ILauncherPtr> _launchers;

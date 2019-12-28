@@ -39,7 +39,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		TranslatorDialog(QSettings * iniParser, QString username, QWidget * par);
+		TranslatorDialog(QSettings * iniParser, QWidget * par);
 		~TranslatorDialog();
 
 	signals:
@@ -61,7 +61,6 @@ namespace widgets {
 
 	private:
 		QSettings * _iniParser;
-		QString _username;
 		QComboBox * _projectsComboBox;
 		QProgressBar * _progressBar;
 		std::vector<::translator::common::SendProjectsMessage::Project> _projects;

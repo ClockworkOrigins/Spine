@@ -38,7 +38,6 @@
 #include "widgets/AchievementSpineSettingsWidget.h"
 #include "widgets/DownloadProgressDialog.h"
 #include "widgets/GamepadSpineSettingsWidget.h"
-#include "widgets/GeneralSettingsWidget.h"
 #include "widgets/GeneralSpineSettingsWidget.h"
 #include "widgets/LeGoSpineSettingsWidget.h"
 #include "widgets/ScoreSpineSettingsWidget.h"
@@ -76,38 +75,38 @@ namespace widgets {
 		Gamepad
 	};
 
-	SpineEditor::SpineEditor(GeneralSettingsWidget * generalSettingsWidget, QSettings * iniParser, QMainWindow * mainWindow) : QDialog(nullptr), _model(new models::SpineEditorModel(this)), _generalSettingsWidget(generalSettingsWidget), _tabWidget(nullptr), _generalSpineSettingsWidget(nullptr), _achievementSpineSettingsWidget(nullptr), _scoreSpineSettingsWidget(nullptr), _gamepadSpineSettingsWidget(nullptr), _legoSpineSettingsWidget(nullptr), _username(), _installSpineButton(nullptr), _updateSpineButton(nullptr), _installIkarusButton(nullptr), _updateIkarusButton(nullptr), _installLeGoButton(nullptr), _updateLeGoButton(nullptr), _mainWindow(mainWindow), _iniParser(iniParser), _modList() {
+	SpineEditor::SpineEditor(QSettings * iniParser, QMainWindow * mainWindow) : QDialog(nullptr), _model(new models::SpineEditorModel(this)), _tabWidget(nullptr), _generalSpineSettingsWidget(nullptr), _achievementSpineSettingsWidget(nullptr), _scoreSpineSettingsWidget(nullptr), _gamepadSpineSettingsWidget(nullptr), _legoSpineSettingsWidget(nullptr), _installSpineButton(nullptr), _updateSpineButton(nullptr), _installIkarusButton(nullptr), _updateIkarusButton(nullptr), _installLeGoButton(nullptr), _updateLeGoButton(nullptr), _mainWindow(mainWindow), _iniParser(iniParser), _modList() {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
 		_tabWidget = new QTabWidget(this);
 		l->addWidget(_tabWidget);
 
-		_generalSpineSettingsWidget = new GeneralSpineSettingsWidget(generalSettingsWidget, _model, _tabWidget);
+		_generalSpineSettingsWidget = new GeneralSpineSettingsWidget(_model, _tabWidget);
 		_tabWidget->addTab(_generalSpineSettingsWidget, QApplication::tr("General"));
-		UPDATELANGUAGESETTABTEXT(generalSettingsWidget, _tabWidget, EditorTabs::General, "General");
+		UPDATELANGUAGESETTABTEXT(_tabWidget, EditorTabs::General, "General");
 		connect(_model, SIGNAL(changed()), _generalSpineSettingsWidget, SLOT(updateFromModel()));
 
-		_legoSpineSettingsWidget = new LeGoSpineSettingsWidget(generalSettingsWidget, _model, _tabWidget);
+		_legoSpineSettingsWidget = new LeGoSpineSettingsWidget(_model, _tabWidget);
 		_tabWidget->addTab(_legoSpineSettingsWidget, QApplication::tr("LeGo"));
-		UPDATELANGUAGESETTABTEXT(generalSettingsWidget, _tabWidget, EditorTabs::LeGo, "LeGo");
+		UPDATELANGUAGESETTABTEXT(_tabWidget, EditorTabs::LeGo, "LeGo");
 		connect(_model, SIGNAL(changed()), _legoSpineSettingsWidget, SLOT(updateFromModel()));
 
-		_achievementSpineSettingsWidget = new AchievementSpineSettingsWidget(generalSettingsWidget, _model, _tabWidget);
+		_achievementSpineSettingsWidget = new AchievementSpineSettingsWidget(_model, _tabWidget);
 		_tabWidget->addTab(_achievementSpineSettingsWidget, QApplication::tr("AchievementModule"));
-		UPDATELANGUAGESETTABTEXT(generalSettingsWidget, _tabWidget, EditorTabs::Achievement, "AchievementModule");
+		UPDATELANGUAGESETTABTEXT(_tabWidget, EditorTabs::Achievement, "AchievementModule");
 		connect(_model, SIGNAL(changed()), _achievementSpineSettingsWidget, SLOT(updateFromModel()));
 		_tabWidget->setTabEnabled(EditorTabs::Achievement, false);
 
-		_scoreSpineSettingsWidget = new ScoreSpineSettingsWidget(generalSettingsWidget, _model, _tabWidget);
+		_scoreSpineSettingsWidget = new ScoreSpineSettingsWidget(_model, _tabWidget);
 		_tabWidget->addTab(_scoreSpineSettingsWidget, QApplication::tr("ScoresModule"));
-		UPDATELANGUAGESETTABTEXT(generalSettingsWidget, _tabWidget, EditorTabs::Score, "ScoresModule");
+		UPDATELANGUAGESETTABTEXT(_tabWidget, EditorTabs::Score, "ScoresModule");
 		connect(_model, SIGNAL(changed()), _scoreSpineSettingsWidget, SLOT(updateFromModel()));
 		_tabWidget->setTabEnabled(EditorTabs::Score, false);
 
-		_gamepadSpineSettingsWidget = new GamepadSpineSettingsWidget(generalSettingsWidget, _model, _tabWidget);
+		_gamepadSpineSettingsWidget = new GamepadSpineSettingsWidget(_model, _tabWidget);
 		_tabWidget->addTab(_gamepadSpineSettingsWidget, QApplication::tr("GamepadModule"));
-		UPDATELANGUAGESETTABTEXT(generalSettingsWidget, _tabWidget, EditorTabs::Score, "GamepadModule");
+		UPDATELANGUAGESETTABTEXT(_tabWidget, EditorTabs::Score, "GamepadModule");
 		connect(_model, SIGNAL(changed()), _gamepadSpineSettingsWidget, SLOT(updateFromModel()));
 		_tabWidget->setTabEnabled(EditorTabs::Gamepad, false);
 
@@ -119,37 +118,37 @@ namespace widgets {
 		connect(_model, SIGNAL(changed()), this, SLOT(updateFromModel()));
 
 		_installSpineButton = new QPushButton(QApplication::tr("InstallSpineScripts"), this);
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, _installSpineButton, "InstallSpineScripts");
+		UPDATELANGUAGESETTEXT(_installSpineButton, "InstallSpineScripts");
 		connect(_installSpineButton, SIGNAL(released()), this, SLOT(installSpineScripts()));
 		_installSpineButton->hide();
 		l->addWidget(_installSpineButton);
 
 		_updateSpineButton = new QPushButton(QApplication::tr("UpdateSpineScripts"), this);
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, _updateSpineButton, "UpdateSpineScripts");
+		UPDATELANGUAGESETTEXT(_updateSpineButton, "UpdateSpineScripts");
 		connect(_updateSpineButton, SIGNAL(released()), this, SLOT(updateSpineScripts()));
 		_updateSpineButton->hide();
 		l->addWidget(_updateSpineButton);
 
 		_installIkarusButton = new QPushButton(QApplication::tr("InstallIkarusScripts"), this);
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, _installIkarusButton, "InstallIkarusScripts");
+		UPDATELANGUAGESETTEXT(_installIkarusButton, "InstallIkarusScripts");
 		connect(_installIkarusButton, SIGNAL(released()), this, SLOT(installIkarusScripts()));
 		_installIkarusButton->hide();
 		l->addWidget(_installIkarusButton);
 
 		_updateIkarusButton = new QPushButton(QApplication::tr("UpdateIkarusScripts"), this);
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, _updateIkarusButton, "UpdateIkarusScripts");
+		UPDATELANGUAGESETTEXT(_updateIkarusButton, "UpdateIkarusScripts");
 		connect(_updateIkarusButton, SIGNAL(released()), this, SLOT(updateIkarusScripts()));
 		_updateIkarusButton->hide();
 		l->addWidget(_updateIkarusButton);
 
 		_installLeGoButton = new QPushButton(QApplication::tr("InstallLeGoScripts"), this);
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, _installLeGoButton, "InstallLeGoScripts");
+		UPDATELANGUAGESETTEXT(_installLeGoButton, "InstallLeGoScripts");
 		connect(_installLeGoButton, SIGNAL(released()), this, SLOT(installLeGoScripts()));
 		_installLeGoButton->hide();
 		l->addWidget(_installLeGoButton);
 
 		_updateLeGoButton = new QPushButton(QApplication::tr("UpdateLeGoScripts"), this);
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, _updateLeGoButton, "UpdateLeGoScripts");
+		UPDATELANGUAGESETTEXT(_updateLeGoButton, "UpdateLeGoScripts");
 		connect(_updateLeGoButton, SIGNAL(released()), this, SLOT(updateLeGoScripts()));
 		_updateLeGoButton->hide();
 		l->addWidget(_updateLeGoButton);
@@ -161,7 +160,7 @@ namespace widgets {
 
 		QPushButton * b = dbb->button(QDialogButtonBox::StandardButton::Save);
 		b->setText(QApplication::tr("Save"));
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, b, "Save");
+		UPDATELANGUAGESETTEXT(b, "Save");
 
 		connect(b, SIGNAL(clicked()), this, SIGNAL(accepted()));
 		connect(b, SIGNAL(clicked()), this, SLOT(accept()));
@@ -169,7 +168,7 @@ namespace widgets {
 
 		b = dbb->button(QDialogButtonBox::StandardButton::Discard);
 		b->setText(QApplication::tr("Discard"));
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, b, "Discard");
+		UPDATELANGUAGESETTEXT(b, "Discard");
 
 		connect(b, SIGNAL(clicked()), this, SIGNAL(rejected()));
 		connect(b, SIGNAL(clicked()), this, SLOT(reject()));
@@ -177,14 +176,14 @@ namespace widgets {
 
 		b = dbb->button(QDialogButtonBox::StandardButton::Apply);
 		b->setText(QApplication::tr("Submit"));
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, b, "Submit");
+		UPDATELANGUAGESETTEXT(b, "Submit");
 		b->setToolTip(QApplication::tr("SubmitScripts"));
-		UPDATELANGUAGESETTOOLTIP(generalSettingsWidget, b, "SubmitScripts");
+		UPDATELANGUAGESETTOOLTIP(b, "SubmitScripts");
 		connect(b, SIGNAL(released()), this, SLOT(submit()));
 
 		setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 		setWindowTitle(QApplication::tr("SpineEditor"));
-		UPDATELANGUAGESETWINDOWTITLE(generalSettingsWidget, this, "SpineEditor");
+		UPDATELANGUAGESETWINDOWTITLE(this, "SpineEditor");
 
 		restoreSettings();
 
@@ -207,11 +206,6 @@ namespace widgets {
 		checkLeGoVersion();
 		checkLeGoInitialized();
 		return QDialog::exec();
-	}
-
-	void SpineEditor::setUsername(QString username, QString password) {
-		_username = username;
-		_password = password;
 	}
 
 	void SpineEditor::achievementStateChanged(int checkState) {
@@ -283,9 +277,9 @@ namespace widgets {
 				}
 			}
 			ssfm.modID = mfe.modID;
-			ssfm.language = _generalSettingsWidget->getLanguage().toStdString();
-			ssfm.username = _username.toStdString();
-			ssfm.password = _password.toStdString();
+			ssfm.language = Config::Language.toStdString();
+			ssfm.username = Config::Username.toStdString();
+			ssfm.password = Config::Password.toStdString();
 			if (_model->getModules() & common::SpineModules::Achievements) {
 				QSet<QString> imageNames;
 				for (const models::AchievementModel & am : _model->getAchievements()) {
@@ -350,7 +344,7 @@ namespace widgets {
 			const std::string serialized = ssfm.SerializePublic();
 			clockUtils::sockets::TcpSocket sock;
 			clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-			if (_username.isEmpty()) {
+			if (Config::Username.isEmpty()) {
 				cErr = clockUtils::ClockError::INVALID_USAGE;
 			}
 			if (clockUtils::ClockError::SUCCESS == cErr) {
@@ -820,9 +814,9 @@ namespace widgets {
 	void SpineEditor::loadMods() {
 		std::thread([this]() {
 			common::RequestModsForEditorMessage rmfem;
-			rmfem.username = _username.toStdString();
-			rmfem.password = _password.toStdString();
-			rmfem.language = _generalSettingsWidget->getLanguage().toStdString();
+			rmfem.username = Config::Username.toStdString();
+			rmfem.password = Config::Password.toStdString();
+			rmfem.language = Config::Language.toStdString();
 			std::string serialized = rmfem.SerializePublic();
 			clockUtils::sockets::TcpSocket sock;
 			clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);

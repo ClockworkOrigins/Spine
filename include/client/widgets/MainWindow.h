@@ -70,7 +70,6 @@ namespace widgets {
 		void openIniConfigurator();
 		void setDevPath();
 		void submitCompatibility();
-		void setUsername(QString username, QString password);
 		void triggerModStart(int modID, QString iniFile);
 		void execFAQ();
 		void execExport();
@@ -94,7 +93,6 @@ namespace widgets {
 		ModInfoView * _modInfoView;
 		ProfileView * _profileView;
 		FriendsView * _friendsView;
-		QTextEdit * _descriptionView;
 		QString _gothicDirectory;
 		QString _gothic2Directory;
 		QSettings * _iniParser;
@@ -115,9 +113,6 @@ namespace widgets {
 		QAction * _spineEditorAction;
 		SpineEditor * _spineEditor;
 		ModInfoPage * _modInfoPage;
-		QString _username;
-		QString _password;
-		bool _onlineMode;
 
 		static MainWindow * instance;
 

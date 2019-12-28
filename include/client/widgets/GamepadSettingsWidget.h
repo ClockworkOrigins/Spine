@@ -35,13 +35,11 @@ namespace gamepad {
 } /* namespace gamepad */
 namespace widgets {
 
-	class GeneralSettingsWidget;
-
 	class GamepadSettingsWidget : public QWidget {
 		Q_OBJECT
 
 	public:
-		GamepadSettingsWidget(QSettings * iniParser, GeneralSettingsWidget * generalSettingsWidget, QWidget * par);
+		GamepadSettingsWidget(QSettings * iniParser, QWidget * par);
 		~GamepadSettingsWidget();
 
 		void saveSettings();

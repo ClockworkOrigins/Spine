@@ -40,23 +40,23 @@
 namespace spine {
 namespace widgets {
 
-	AchievementSpineSettingsWidget::AchievementSpineSettingsWidget(GeneralSettingsWidget * generalSettingsWidget, models::SpineEditorModel * model, QWidget * par) : QWidget(par), _model(model), _generalSettingsWidget(generalSettingsWidget), _orientationLabel(nullptr), _orientationComboBox(nullptr), _displayDurationLabel(nullptr), _displayDurationSpinBox(nullptr), _achievements() {
+	AchievementSpineSettingsWidget::AchievementSpineSettingsWidget(models::SpineEditorModel * model, QWidget * par) : QWidget(par), _model(model), _orientationLabel(nullptr), _orientationComboBox(nullptr), _displayDurationLabel(nullptr), _displayDurationSpinBox(nullptr), _achievements() {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
 		{
 			QHBoxLayout * hl = new QHBoxLayout();
 			_orientationLabel = new QLabel(QApplication::tr("AchievementOrientation"), this);
-			UPDATELANGUAGESETTEXT(generalSettingsWidget, _orientationLabel, "AchievementOrientation");
+			UPDATELANGUAGESETTEXT(_orientationLabel, "AchievementOrientation");
 			_orientationComboBox = new QComboBox(this);
 			_orientationComboBox->addItem(QApplication::tr("TopLeft"));
-			UPDATELANGUAGESETITEMTEXT(generalSettingsWidget, _orientationComboBox, 0, "TopLeft");
+			UPDATELANGUAGESETITEMTEXT(_orientationComboBox, 0, "TopLeft");
 			_orientationComboBox->addItem(QApplication::tr("TopRight"));
-			UPDATELANGUAGESETITEMTEXT(generalSettingsWidget, _orientationComboBox, 1, "TopRight");
+			UPDATELANGUAGESETITEMTEXT(_orientationComboBox, 1, "TopRight");
 			_orientationComboBox->addItem(QApplication::tr("BottomLeft"));
-			UPDATELANGUAGESETITEMTEXT(generalSettingsWidget, _orientationComboBox, 2, "BottomLeft");
+			UPDATELANGUAGESETITEMTEXT(_orientationComboBox, 2, "BottomLeft");
 			_orientationComboBox->addItem(QApplication::tr("BottomRight"));
-			UPDATELANGUAGESETITEMTEXT(generalSettingsWidget, _orientationComboBox, 3, "BottomRight");
+			UPDATELANGUAGESETITEMTEXT(_orientationComboBox, 3, "BottomRight");
 
 			QPushButton * orientationPreviewButton = new QPushButton(QApplication::tr("Preview"), this);
 			connect(orientationPreviewButton, &QPushButton::released, this, &AchievementSpineSettingsWidget::showOrientationPreview);
@@ -71,7 +71,7 @@ namespace widgets {
 		{
 			QHBoxLayout * hl = new QHBoxLayout();
 			_displayDurationLabel = new QLabel(QApplication::tr("DisplayDuration"), this);
-			UPDATELANGUAGESETTEXT(generalSettingsWidget, _displayDurationLabel, "DisplayDuration");
+			UPDATELANGUAGESETTEXT(_displayDurationLabel, "DisplayDuration");
 			_displayDurationSpinBox = new QSpinBox(this);
 			_displayDurationSpinBox->setMinimum(1000);
 			_displayDurationSpinBox->setMaximum(60000);
@@ -133,20 +133,20 @@ namespace widgets {
 		s.layout = new QVBoxLayout();
 		s.nameLineEdit = new QLineEdit(this);
 		s.nameLineEdit->setPlaceholderText(QApplication::tr("Name"));
-		UPDATELANGUAGESETPLACEHOLDERTEXT(_generalSettingsWidget, s.nameLineEdit, "Name");
+		UPDATELANGUAGESETPLACEHOLDERTEXT(s.nameLineEdit, "Name");
 		s.descriptionLineEdit = new QLineEdit(this);
 		s.descriptionLineEdit->setPlaceholderText(QApplication::tr("Description"));
-		UPDATELANGUAGESETPLACEHOLDERTEXT(_generalSettingsWidget, s.descriptionLineEdit, "Description");
+		UPDATELANGUAGESETPLACEHOLDERTEXT(s.descriptionLineEdit, "Description");
 		s.lockedImageLineEdit = new QLineEdit(this);
 		s.lockedImageLineEdit->setPlaceholderText(QApplication::tr("LockedImage"));
-		UPDATELANGUAGESETPLACEHOLDERTEXT(_generalSettingsWidget, s.lockedImageLineEdit, "LockedImage");
+		UPDATELANGUAGESETPLACEHOLDERTEXT(s.lockedImageLineEdit, "LockedImage");
 		s.lockedImageButton = new QPushButton("...", this);
 		s.unlockedImageLineEdit = new QLineEdit(this);
 		s.unlockedImageLineEdit->setPlaceholderText(QApplication::tr("UnlockedImage"));
-		UPDATELANGUAGESETPLACEHOLDERTEXT(_generalSettingsWidget, s.unlockedImageLineEdit, "UnlockedImage");
+		UPDATELANGUAGESETPLACEHOLDERTEXT(s.unlockedImageLineEdit, "UnlockedImage");
 		s.unlockedImageButton = new QPushButton("...", this);
 		s.hiddenCheckBox = new QCheckBox(QApplication::tr("Hidden"), this);
-		UPDATELANGUAGESETTEXT(_generalSettingsWidget, s.hiddenCheckBox, "Hidden");
+		UPDATELANGUAGESETTEXT(s.hiddenCheckBox, "Hidden");
 		s.addButton = new QPushButton("+", this);
 		s.removeButton = new QPushButton("-", this);
 		s.previewLockedImage = new QLabel(this);
@@ -154,13 +154,13 @@ namespace widgets {
 		s.previewUnlockedImage = new QLabel(this);
 		s.previewUnlockedImage->setFixedSize(64, 64);
 		s.progressLabel = new QLabel(QApplication::tr("ProgressCounter"), this);
-		UPDATELANGUAGESETTEXT(_generalSettingsWidget, s.progressLabel, "ProgressCounter");
+		UPDATELANGUAGESETTEXT(s.progressLabel, "ProgressCounter");
 		s.progressLabel->setToolTip(QApplication::tr("ProgressCounterTooltip"));
-		UPDATELANGUAGESETTOOLTIP(_generalSettingsWidget, s.progressLabel, "ProgressCounterTooltip");
+		UPDATELANGUAGESETTOOLTIP(s.progressLabel, "ProgressCounterTooltip");
 		s.progressBox = new QSpinBox(this);
 		s.progressBox->setMinimumWidth(100);
 		s.progressBox->setToolTip(QApplication::tr("ProgressCounterTooltip"));
-		UPDATELANGUAGESETTOOLTIP(_generalSettingsWidget, s.progressBox, "ProgressCounterTooltip");
+		UPDATELANGUAGESETTOOLTIP(s.progressBox, "ProgressCounterTooltip");
 		s.progressBox->setMaximum(1000000);
 
 		const QString iconUnlocked = ":/Achievement_Unlocked.png";

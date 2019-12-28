@@ -33,28 +33,23 @@ class QTextEdit;
 namespace spine {
 namespace widgets {
 
-	class GeneralSettingsWidget;
 	class NewsWidget;
 
 	class NewsWriterDialog : public QDialog {
 		Q_OBJECT
 
 	public:
-		NewsWriterDialog(GeneralSettingsWidget * generalSettingsWidget, QWidget * par);
+		NewsWriterDialog(QWidget * par);
 		~NewsWriterDialog();
 
 	signals:
 		void receivedModList(std::vector<common::Mod>);
 		void refresh();
 
-	public slots:
-		void setUsername(QString username, QString password);
-
 	private slots:
 		void changedNews();
 		void accept() override;
 		void updateModList(std::vector<common::Mod> mods);
-		void setLanguage(QString language);
 		void addImage();
 
 	private:
@@ -64,9 +59,6 @@ namespace widgets {
 		QTextEdit * _bodyEdit;
 		QGridLayout * _modListLayout;
 		QLineEdit * _imageReferencesEdit;
-		QString _username;
-		QString _password;
-		QString _language;
 		QList<QCheckBox *> _mods;
 
 		void showEvent(QShowEvent * evt) override;

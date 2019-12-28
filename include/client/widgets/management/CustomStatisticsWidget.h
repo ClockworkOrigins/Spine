@@ -39,7 +39,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		CustomStatisticsWidget(const QString & username, const QString & password, QWidget * par);
+		CustomStatisticsWidget(QWidget * par);
 
 		void updateModList(QList<ManagementMod> modList);
 		void selectedMod(int index);
@@ -90,8 +90,6 @@ namespace widgets {
 		QComboBox * _nameBox;
 		QMap<StatTuple, int> _stats;
 		spine::widgets::WaitSpinner * _waitSpinner;
-		QString _username;
-		QString _password;
 	};
 
 } /* namespace widgets */

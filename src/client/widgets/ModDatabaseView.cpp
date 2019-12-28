@@ -160,7 +160,7 @@ namespace widgets {
 		}
 	};
 
-	ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, QSettings * iniParser, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _mainWindow(mainWindow), _iniParser(iniParser), _treeView(nullptr), _sourceModel(nullptr), _sortModel(nullptr), _language(), _mods(), _gothicValid(false), _gothic2Valid(false), _username(), _parentMods(), _gothicDirectory(), _gothic2Directory(), _packageIDIconMapping(), _waitSpinner(nullptr), _allowRenderer(false) {
+	ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, QSettings * iniParser, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _mainWindow(mainWindow), _iniParser(iniParser), _treeView(nullptr), _sourceModel(nullptr), _sortModel(nullptr), _mods(), _gothicValid(false), _gothic2Valid(false), _parentMods(), _gothicDirectory(), _gothic2Directory(), _packageIDIconMapping(), _waitSpinner(nullptr), _allowRenderer(false) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -194,7 +194,7 @@ namespace widgets {
 			QHBoxLayout * hl = new QHBoxLayout();
 			QLineEdit * le = new QLineEdit(filterWidget);
 			le->setPlaceholderText(QApplication::tr("SearchPlaceholder"));
-			UPDATELANGUAGESETPLACEHOLDERTEXT(generalSettingsWidget, le, "SearchPlaceholder");
+			UPDATELANGUAGESETPLACEHOLDERTEXT(le, "SearchPlaceholder");
 
 			connect(le, SIGNAL(textChanged(const QString &)), this, SLOT(changedFilterExpression(const QString &)));
 
@@ -202,38 +202,38 @@ namespace widgets {
 
 			{
 				QGroupBox * gb = new QGroupBox(QApplication::tr("Type"), filterWidget);
-				UPDATELANGUAGESETTITLE(generalSettingsWidget, gb, "Type");
+				UPDATELANGUAGESETTITLE(gb, "Type");
 
 				QVBoxLayout * vbl = new QVBoxLayout();
 
 				QCheckBox * cb1 = new QCheckBox(QApplication::tr("TotalConversion"), filterWidget);
 				cb1->setChecked(_sortModel->isTotalConversionActive());
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, cb1, "TotalConversion");
+				UPDATELANGUAGESETTEXT(cb1, "TotalConversion");
 				connect(cb1, SIGNAL(stateChanged(int)), _sortModel, SLOT(totalConversionChanged(int)));
 
 				QCheckBox * cb2 = new QCheckBox(QApplication::tr("Enhancement"), filterWidget);
 				cb2->setChecked(_sortModel->isEnhancementActive());
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, cb2, "Enhancement");
+				UPDATELANGUAGESETTEXT(cb2, "Enhancement");
 				connect(cb2, SIGNAL(stateChanged(int)), _sortModel, SLOT(enhancementChanged(int)));
 
 				QCheckBox * cb3 = new QCheckBox(QApplication::tr("Patch"), filterWidget);
 				cb3->setChecked(_sortModel->isPathActive());
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, cb3, "Patch");
+				UPDATELANGUAGESETTEXT(cb3, "Patch");
 				connect(cb3, SIGNAL(stateChanged(int)), _sortModel, SLOT(patchChanged(int)));
 
 				QCheckBox * cb4 = new QCheckBox(QApplication::tr("Tool"), filterWidget);
 				cb4->setChecked(_sortModel->isToolActive());
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, cb4, "Tool");
+				UPDATELANGUAGESETTEXT(cb4, "Tool");
 				connect(cb4, SIGNAL(stateChanged(int)), _sortModel, SLOT(toolChanged(int)));
 
 				QCheckBox * cb5 = new QCheckBox(QApplication::tr("Original"), filterWidget);
 				cb5->setChecked(_sortModel->isOriginalActive());
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, cb5, "Original");
+				UPDATELANGUAGESETTEXT(cb5, "Original");
 				connect(cb5, SIGNAL(stateChanged(int)), _sortModel, SLOT(originalChanged(int)));
 
 				QCheckBox * cb6 = new QCheckBox(QApplication::tr("GothicMultiplayer"), filterWidget);
 				cb6->setChecked(_sortModel->isGMPActive());
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, cb6, "GothicMultiplayer");
+				UPDATELANGUAGESETTEXT(cb6, "GothicMultiplayer");
 				connect(cb6, SIGNAL(stateChanged(int)), _sortModel, SLOT(gmpChanged(int)));
 
 				vbl->addWidget(cb1);
@@ -250,23 +250,23 @@ namespace widgets {
 
 			{
 				QGroupBox * gb = new QGroupBox(QApplication::tr("Game"), filterWidget);
-				UPDATELANGUAGESETTITLE(generalSettingsWidget, gb, "Game");
+				UPDATELANGUAGESETTITLE(gb, "Game");
 
 				QVBoxLayout * vbl = new QVBoxLayout();
 
 				QCheckBox * cb1 = new QCheckBox(QApplication::tr("Gothic"), filterWidget);
 				cb1->setChecked(_sortModel->isGothicActive());
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, cb1, "Gothic");
+				UPDATELANGUAGESETTEXT(cb1, "Gothic");
 				connect(cb1, SIGNAL(stateChanged(int)), _sortModel, SLOT(gothicChanged(int)));
 
 				QCheckBox * cb2 = new QCheckBox(QApplication::tr("Gothic2"), filterWidget);
 				cb2->setChecked(_sortModel->isGothic2Active());
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, cb2, "Gothic2");
+				UPDATELANGUAGESETTEXT(cb2, "Gothic2");
 				connect(cb2, SIGNAL(stateChanged(int)), _sortModel, SLOT(gothic2Changed(int)));
 
 				QCheckBox * cb3 = new QCheckBox(QApplication::tr("GothicAndGothic2"), filterWidget);
 				cb3->setChecked(_sortModel->isGothicAndGothic2Active());
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, cb3, "GothicAndGothic2");
+				UPDATELANGUAGESETTEXT(cb3, "GothicAndGothic2");
 				connect(cb3, SIGNAL(stateChanged(int)), _sortModel, SLOT(gothicAndGothic2Changed(int)));
 				cb3->hide();
 
@@ -281,7 +281,7 @@ namespace widgets {
 
 			{
 				QGroupBox * gb = new QGroupBox(QApplication::tr("DevTime"), filterWidget);
-				UPDATELANGUAGESETTITLE(generalSettingsWidget, gb, "DevTime");
+				UPDATELANGUAGESETTITLE(gb, "DevTime");
 
 				QGridLayout * vbl = new QGridLayout();
 
@@ -298,9 +298,9 @@ namespace widgets {
 				connect(sb2, SIGNAL(valueChanged(int)), _sortModel, SLOT(maxDurationChanged(int)));
 
 				QLabel * l1 = new QLabel(QApplication::tr("MinDurationHours"), gb);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, l1, "MinDurationHours");
+				UPDATELANGUAGESETTEXT(l1, "MinDurationHours");
 				QLabel * l2 = new QLabel(QApplication::tr("MaxDurationHours"), gb);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, l2, "MaxDurationHours");
+				UPDATELANGUAGESETTEXT(l2, "MaxDurationHours");
 
 				vbl->addWidget(l1, 0, 0);
 				vbl->addWidget(sb1, 0, 1);
@@ -320,8 +320,6 @@ namespace widgets {
 		l->addWidget(_treeView);
 
 		setLayout(l);
-
-		_language = generalSettingsWidget->getLanguage();
 
 		qRegisterMetaType<std::vector<common::Mod>>("std::vector<common::Mod>");
 		qRegisterMetaType<std::vector<std::pair<int32_t, uint64_t>>>("std::vector<std::pair<int32_t, uint64_t>>");
@@ -366,7 +364,6 @@ namespace widgets {
 	}
 
 	void ModDatabaseView::changeLanguage(QString language) {
-		_language = language;
 		updateModList(-1);
 	}
 
@@ -384,9 +381,9 @@ namespace widgets {
 		LOGINFO("Memory Usage updateModList #3: " << getPRAMValue());
 #endif
 			common::RequestAllModsMessage ramm;
-			ramm.language = _language.toStdString();
-			ramm.username = _username.toStdString();
-			ramm.password = _password.toStdString();
+			ramm.language = Config::Language.toStdString();
+			ramm.username = Config::Username.toStdString();
+			ramm.password = Config::Password.toStdString();
 			std::string serialized = ramm.SerializePublic();
 			clockUtils::sockets::TcpSocket sock;
 			clockUtils::ClockError err = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
@@ -446,12 +443,10 @@ namespace widgets {
 		_gothic2Valid = valid;
 	}
 
-	void ModDatabaseView::setUsername(QString username, QString password) {
+	void ModDatabaseView::loginChanged() {
 #ifdef Q_OS_WIN
 		LOGINFO("Memory Usage ModDatabaseView::setUsername #1: " << getPRAMValue());
 #endif
-		_username = username;
-		_password = password;
 		// check if a GMP mod is installed and GMP is not installed
 		Database::DBError dbErr;
 		const std::vector<int> gmpModInstalled = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID FROM mods WHERE ModID = 62 OR ModID = 117 OR ModID = 171 OR ModID = 172 OR ModID = 173 OR ModID = 218;", dbErr);
@@ -1029,7 +1024,7 @@ namespace widgets {
 				std::thread([this, mod]() {
 					common::RequestModFilesMessage rmfm;
 					rmfm.modID = mod.id;
-					rmfm.language = _language.toStdString();
+					rmfm.language = Config::Language.toStdString();
 					std::string serialized = rmfm.SerializePublic();
 					clockUtils::sockets::TcpSocket sock;
 					if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
@@ -1100,7 +1095,7 @@ namespace widgets {
 				std::thread([this, mod, package]() {
 					common::RequestPackageFilesMessage rpfm;
 					rpfm.packageID = package.packageID;
-					rpfm.language = _language.toStdString();
+					rpfm.language = Config::Language.toStdString();
 					std::string serialized = rpfm.SerializePublic();
 					clockUtils::sockets::TcpSocket sock;
 					if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {

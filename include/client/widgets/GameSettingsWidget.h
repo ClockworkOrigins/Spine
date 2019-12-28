@@ -27,15 +27,13 @@ class QSettings;
 namespace spine {
 namespace widgets {
 
-	class GeneralSettingsWidget;
-
 	class GameSettingsWidget : public QWidget {
 		Q_OBJECT
 
 	public:
 		static int downloadRate;
 
-		GameSettingsWidget(QSettings * iniParser, GeneralSettingsWidget * generalSettingsWidget, QWidget * par);
+		GameSettingsWidget(QSettings * iniParser, QWidget * par);
 		~GameSettingsWidget();
 
 		void saveSettings();

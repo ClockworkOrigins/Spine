@@ -18,6 +18,8 @@
 
 #include "widgets/TranslatorDialog.h"
 
+#include "Config.h"
+
 #include "utils/Conversion.h"
 
 #include "widgets/TranslationWidget.h"
@@ -40,7 +42,7 @@
 namespace spine {
 namespace widgets {
 
-	TranslatorDialog::TranslatorDialog(QSettings * iniParser, QString username, QWidget * par) : QDialog(par), _iniParser(iniParser), _username(username), _projectsComboBox(nullptr), _progressBar(nullptr), _projects(), _requestTextButton(nullptr), _requestReviewButton(nullptr), _activeProject(), _textToTranslateMsg(nullptr), _textToReviewMsg(nullptr), _sourcePreview(nullptr), _destinationPreview(nullptr), _hintPreview(nullptr), _translationsLayout(nullptr), _translationWidgets(), _hintsBox(nullptr), _waitSpinner(nullptr) {
+	TranslatorDialog::TranslatorDialog(QSettings * iniParser, QWidget * par) : QDialog(par), _iniParser(iniParser), _projectsComboBox(nullptr), _progressBar(nullptr), _projects(), _requestTextButton(nullptr), _requestReviewButton(nullptr), _activeProject(), _textToTranslateMsg(nullptr), _textToReviewMsg(nullptr), _sourcePreview(nullptr), _destinationPreview(nullptr), _hintPreview(nullptr), _translationsLayout(nullptr), _translationWidgets(), _hintsBox(nullptr), _waitSpinner(nullptr) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -154,7 +156,7 @@ namespace widgets {
 					dialog.push_back(q2s(tw->getTranslation()));
 				}
 			}
-			translator::api::TranslatorAPI::sendTranslationDraft(q2s(_username), _activeProject.destinationLanguage, name, text, dialog, _textToTranslateMsg->id);
+			translator::api::TranslatorAPI::sendTranslationDraft(q2s(Config::Username), _activeProject.destinationLanguage, name, text, dialog, _textToTranslateMsg->id);
 			newRequestTranslate = true;
 		}
 		bool newRequestReview = false;
@@ -171,7 +173,7 @@ namespace widgets {
 					changed |= dialog[dialog.size() - 1] != _textToReviewMsg->dialog.second[dialog.size() - 1];
 				}
 			}
-			translator::api::TranslatorAPI::sendTranslationReview(q2s(_username), _activeProject.sourceLanguage, _activeProject.destinationLanguage, name, text, dialog, _textToReviewMsg->id, changed);
+			translator::api::TranslatorAPI::sendTranslationReview(q2s(Config::Username), _activeProject.sourceLanguage, _activeProject.destinationLanguage, name, text, dialog, _textToReviewMsg->id, changed);
 			newRequestReview = true;
 			if (!changed) {
 				_progressBar->setValue(_progressBar->value() + 1);
@@ -219,7 +221,7 @@ namespace widgets {
 			_textToReviewMsg = nullptr;
 		}
 		QtConcurrent::run([this]() {
-			_textToTranslateMsg = translator::api::TranslatorAPI::requestTextToTranslate(q2s(_username), _activeProject.projectName, _activeProject.sourceLanguage, _activeProject.destinationLanguage);
+			_textToTranslateMsg = translator::api::TranslatorAPI::requestTextToTranslate(q2s(Config::Username), _activeProject.projectName, _activeProject.sourceLanguage, _activeProject.destinationLanguage);
 			emit receivedTextToTranslate();
 		});
 	}
@@ -239,7 +241,7 @@ namespace widgets {
 			_textToReviewMsg = nullptr;
 		}
 		QtConcurrent::run([this]() {
-			_textToReviewMsg = translator::api::TranslatorAPI::requestTextToReview(q2s(_username), _activeProject.projectName, _activeProject.sourceLanguage, _activeProject.destinationLanguage);
+			_textToReviewMsg = translator::api::TranslatorAPI::requestTextToReview(q2s(Config::Username), _activeProject.projectName, _activeProject.sourceLanguage, _activeProject.destinationLanguage);
 			emit receivedTextToReview();
 		});
 
@@ -375,13 +377,13 @@ namespace widgets {
 	}
 
 	void TranslatorDialog::queryAllProjects() {
-		if (_username.isEmpty()) {
+		if (Config::Username.isEmpty()) {
 			return;
 		}
 		delete _waitSpinner;
 		_waitSpinner = new WaitSpinner(QApplication::tr("Updating"), this);
 		QtConcurrent::run([this]() {
-			translator::common::SendProjectsMessage * msg = translator::api::TranslatorAPI::getProjects(q2s(_username));
+			translator::common::SendProjectsMessage * msg = translator::api::TranslatorAPI::getProjects(q2s(Config::Username));
 			if (msg) {
 				emit receivedProjects(msg->projects);
 				delete msg;
@@ -395,7 +397,7 @@ namespace widgets {
 		delete _waitSpinner;
 		_waitSpinner = new WaitSpinner(QApplication::tr("Updating"), this);
 		QtConcurrent::run([this]() {
-			std::pair<uint32_t, uint32_t> progress = translator::api::TranslatorAPI::requestTranslationProgress(_activeProject.projectName, _activeProject.sourceLanguage, _activeProject.destinationLanguage);
+			const auto progress = translator::api::TranslatorAPI::requestTranslationProgress(_activeProject.projectName, _activeProject.sourceLanguage, _activeProject.destinationLanguage);
 			emit receivedProgress(progress);
 		});
 	}

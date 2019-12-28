@@ -18,6 +18,8 @@
 
 #include "widgets/TranslationRequestDialog.h"
 
+#include "Config.h"
+
 #include "translator/GothicParser.h"
 
 #include "utils/Conversion.h"
@@ -45,7 +47,7 @@
 namespace spine {
 namespace widgets {
 
-	TranslationRequestDialog::TranslationRequestDialog(QSettings * iniParser, QString username, QWidget * par) : QDialog(par), _iniParser(iniParser), _username(username), _model(nullptr), _progressDialog(nullptr), _widgets() {
+	TranslationRequestDialog::TranslationRequestDialog(QSettings * iniParser, QWidget * par) : QDialog(par), _iniParser(iniParser), _model(nullptr), _progressDialog(nullptr), _widgets() {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -226,7 +228,7 @@ namespace widgets {
 		QFutureWatcher<void> watcher;
 		connect(&watcher, &QFutureWatcher<void>::finished, &loop, &QEventLoop::quit);
 		const QFuture<void> future = QtConcurrent::run([this]() {
-			translator::api::TranslatorAPI::requestTranslation(q2s(_username), _model);
+			translator::api::TranslatorAPI::requestTranslation(q2s(Config::Username), _model);
 			delete _model;
 			_model = nullptr;
 		});
@@ -244,7 +246,7 @@ namespace widgets {
 	}
 
 	void TranslationRequestDialog::checkParsePossible() {
-		_parseButton->setEnabled(!_username.isEmpty() && !_pathEdit->text().isEmpty() && !_projectNameEdit->text().isEmpty() && _sourceLanguageBox->currentIndex() != _destinationLanguageBox->currentIndex());
+		_parseButton->setEnabled(!Config::Username.isEmpty() && !_pathEdit->text().isEmpty() && !_projectNameEdit->text().isEmpty() && _sourceLanguageBox->currentIndex() != _destinationLanguageBox->currentIndex());
 	}
 
 	void TranslationRequestDialog::updateRequestList(std::vector<translator::common::SendOwnProjectsMessage::Project> projects) {
@@ -316,7 +318,7 @@ namespace widgets {
 
 	void TranslationRequestDialog::requestList() {
 		QtConcurrent::run([this]() {
-			translator::common::SendOwnProjectsMessage * sopm = translator::api::TranslatorAPI::requestOwnProjects(q2s(_username));
+			translator::common::SendOwnProjectsMessage * sopm = translator::api::TranslatorAPI::requestOwnProjects(q2s(Config::Username));
 			if (sopm) {
 				emit receivedRequestList(sopm->projects);
 			}

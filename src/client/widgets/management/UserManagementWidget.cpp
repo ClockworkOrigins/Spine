@@ -18,6 +18,7 @@
 
 #include "widgets/management/UserManagementWidget.h"
 
+#include "Config.h"
 #include "SpineConfig.h"
 
 #include "https/Https.h"
@@ -40,7 +41,7 @@ namespace spine {
 namespace client {
 namespace widgets {
 
-	UserManagementWidget::UserManagementWidget(const QString & username, const QString & password, QString language, QWidget * par) : QWidget(par), _username(username), _password(password), _language(language), _mods(), _modIndex(-1), _waitSpinner(nullptr) {
+	UserManagementWidget::UserManagementWidget(QWidget * par) : QWidget(par), _mods(), _modIndex(-1), _waitSpinner(nullptr) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -127,8 +128,8 @@ namespace widgets {
 		_waitSpinner = new spine::widgets::WaitSpinner(QApplication::tr("Updating"), this);
 
 		QJsonObject requestData;
-		requestData["Username"] = _username;
-		requestData["Password"] = _password;
+		requestData["Username"] = Config::Username;
+		requestData["Password"] = Config::Password;
 		requestData["ModID"] = _mods[_modIndex].id;
 		
 		https::Https::postAsync(MANAGEMENTSERVER_PORT, "getUsers", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
@@ -228,8 +229,8 @@ namespace widgets {
 
 		QJsonObject json;
 		json["ModID"] = _mods[_modIndex].id;
-		json["Username"] = _username;
-		json["Password"] = _password;
+		json["Username"] = Config::Username;
+		json["Password"] = Config::Password;
 		
 		json["User"] = username;
 		json["Enabled"] = enabled;

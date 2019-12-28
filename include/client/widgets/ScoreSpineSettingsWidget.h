@@ -31,13 +31,11 @@ namespace models {
 } /* namespace models */
 namespace widgets {
 
-	class GeneralSettingsWidget;
-
 	class ScoreSpineSettingsWidget : public QWidget {
 		Q_OBJECT
 
 	public:
-		ScoreSpineSettingsWidget(GeneralSettingsWidget * generalSettingsWidget, models::SpineEditorModel * model, QWidget * par);
+		ScoreSpineSettingsWidget(models::SpineEditorModel * model, QWidget * par);
 		~ScoreSpineSettingsWidget();
 
 		void save();
@@ -55,7 +53,6 @@ namespace widgets {
 			QPushButton * removeButton;
 		} Score;
 		models::SpineEditorModel * _model;
-		GeneralSettingsWidget * _generalSettingsWidget;
 		QList<Score> _scores;
 
 		void clear();

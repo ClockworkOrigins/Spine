@@ -124,7 +124,7 @@ namespace widgets {
 
 	MainWindow * MainWindow::instance = nullptr;
 
-	MainWindow::MainWindow(bool showChangelog, QSettings * iniParser, QMainWindow * par) : QMainWindow(par), _modListView(nullptr), _modInfoView(nullptr), _profileView(nullptr), _friendsView(nullptr), _descriptionView(nullptr), _gothicDirectory(), _gothic2Directory(), _iniParser(iniParser), _settingsDialog(nullptr), _autoUpdateDialog(), _changelogDialog(nullptr), _modListModel(nullptr), _loginDialog(nullptr), _modUpdateDialog(nullptr), _installGothic2FromCDDialog(nullptr), _feedbackDialog(nullptr), _developerModeActive(false), _devModeAction(nullptr), _modDatabaseView(nullptr), _parsedInis(), _tabWidget(nullptr), _spineEditorAction(nullptr), _spineEditor(nullptr), _modInfoPage(nullptr), _username(), _onlineMode(true) {
+	MainWindow::MainWindow(bool showChangelog, QSettings * iniParser, QMainWindow * par) : QMainWindow(par), _modListView(nullptr), _modInfoView(nullptr), _profileView(nullptr), _friendsView(nullptr), _gothicDirectory(), _gothic2Directory(), _iniParser(iniParser), _settingsDialog(nullptr), _autoUpdateDialog(), _changelogDialog(nullptr), _modListModel(nullptr), _loginDialog(nullptr), _modUpdateDialog(nullptr), _installGothic2FromCDDialog(nullptr), _feedbackDialog(nullptr), _developerModeActive(false), _devModeAction(nullptr), _modDatabaseView(nullptr), _parsedInis(), _tabWidget(nullptr), _spineEditorAction(nullptr), _spineEditor(nullptr), _modInfoPage(nullptr) {
 		instance = this;
 
 #ifdef Q_OS_WIN
@@ -140,10 +140,10 @@ namespace widgets {
 		_settingsDialog = new SettingsDialog(_iniParser, this); // create at first
 
 #ifdef Q_OS_WIN
-		_installGothic2FromCDDialog = new InstallGothic2FromCDDialog(_settingsDialog->getGeneralSettingsWidget());
+		_installGothic2FromCDDialog = new InstallGothic2FromCDDialog();
 #endif
 
-		_feedbackDialog = new FeedbackDialog(_settingsDialog->getGeneralSettingsWidget());
+		_feedbackDialog = new FeedbackDialog();
 
 		restoreSettings();
 
@@ -154,7 +154,7 @@ namespace widgets {
 		qRegisterMetaType<int32_t>("int32_t");
 
 		QString version = _iniParser->value("MISC/Version", "").toString();
-		_onlineMode = _iniParser->value("MISC/OnlineMode", true).toBool();
+		Config::OnlineMode = _iniParser->value("MISC/OnlineMode", true).toBool();
 		if (version != QString::fromStdString(VERSION_STRING)) {
 			QStringList versionSplit = version.split(".");
 			if (versionSplit.size() == 3) {
@@ -169,15 +169,15 @@ namespace widgets {
 		LOGINFO("Memory Usage MainWindow c'tor #3: " << getPRAMValue());
 #endif
 
-		if (_onlineMode) {
+		if (Config::OnlineMode) {
 			{
 				clockUtils::sockets::TcpSocket sock;
 				const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 5000);
 				const bool cuTest = cErr == clockUtils::ClockError::SUCCESS;
 
-				_onlineMode = cuTest;
+				Config::OnlineMode = cuTest;
 			}
-			if (_onlineMode) {
+			if (Config::OnlineMode) {
 				std::thread([]() {
 					clockUtils::sockets::TcpSocket sock;
 					if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 5000)) {
@@ -218,28 +218,25 @@ namespace widgets {
 		_tabWidget = new QTabWidget(this);
 		_tabWidget->setProperty("library", true);
 
-		StartPageWidget * startPage = new StartPageWidget(_onlineMode, this, _settingsDialog->getGeneralSettingsWidget(), _tabWidget);
-		startPage->setLanguage(_settingsDialog->getGeneralSettingsWidget()->getLanguage());
+		StartPageWidget * startPage = new StartPageWidget(this, _settingsDialog->getGeneralSettingsWidget(), _tabWidget);
 		connect(_settingsDialog->getGeneralSettingsWidget(), &GeneralSettingsWidget::languageChanged, startPage, &StartPageWidget::setLanguage);
 
 		_tabWidget->addTab(startPage, QApplication::tr("Startpage"));
-		UPDATELANGUAGESETTABTEXT(_settingsDialog->getGeneralSettingsWidget(), _tabWidget, _onlineMode ? int(MainTabsOnline::StartOnline) : int(MainTabsOffline::StartOffline), "Startpage");
+		UPDATELANGUAGESETTABTEXT(_tabWidget, Config::OnlineMode ? int(MainTabsOnline::StartOnline) : int(MainTabsOffline::StartOffline), "Startpage");
 
-		if (_onlineMode) {
+		if (Config::OnlineMode) {
 			_modInfoPage = new ModInfoPage(this, _settingsDialog->getGeneralSettingsWidget(), _iniParser, this);
 			_tabWidget->addTab(_modInfoPage, QApplication::tr("InfoPage"));
-			UPDATELANGUAGESETTABTEXT(_settingsDialog->getGeneralSettingsWidget(), _tabWidget, MainTabsOnline::Info, "InfoPage");
-			_modInfoPage->setLanguage(_settingsDialog->getGeneralSettingsWidget()->getLanguage());
-			connect(_settingsDialog->getGeneralSettingsWidget(), &GeneralSettingsWidget::languageChanged, _modInfoPage, &ModInfoPage::setLanguage);
+			UPDATELANGUAGESETTABTEXT(_tabWidget, MainTabsOnline::Info, "InfoPage");
 		}
 
-		if (_onlineMode) {
+		if (Config::OnlineMode) {
 			_modDatabaseView = new ModDatabaseView(this, _iniParser, _settingsDialog->getGeneralSettingsWidget(), _tabWidget);
 			_tabWidget->addTab(_modDatabaseView, QApplication::tr("Database"));
-			UPDATELANGUAGESETTABTEXT(_settingsDialog->getGeneralSettingsWidget(), _tabWidget, MainTabsOnline::Database, "Database");
+			UPDATELANGUAGESETTABTEXT(_tabWidget, MainTabsOnline::Database, "Database");
 		}
 
-		if (_onlineMode) {
+		if (Config::OnlineMode) {
 			connect(startPage, &StartPageWidget::tryInstallMod, _modDatabaseView, static_cast<void(ModDatabaseView::*)(int, int)>(&ModDatabaseView::updateModList));
 			connect(_modInfoPage, &ModInfoPage::tryInstallMod, _modDatabaseView, static_cast<void(ModDatabaseView::*)(int, int)>(&ModDatabaseView::updateModList));
 			connect(_modInfoPage, &ModInfoPage::tryInstallPackage, _modDatabaseView, static_cast<void(ModDatabaseView::*)(int, int)>(&ModDatabaseView::updateModList));
@@ -257,7 +254,7 @@ namespace widgets {
 		LOGINFO("Memory Usage MainWindow c'tor #6: " << getPRAMValue());
 #endif
 
-		_spineEditor = new SpineEditor(_settingsDialog->getGeneralSettingsWidget(), _iniParser, this);
+		_spineEditor = new SpineEditor(_iniParser, this);
 
 		QWidget * w = new QWidget(_tabWidget);
 		w->setProperty("library", true);
@@ -297,7 +294,7 @@ namespace widgets {
 			QLineEdit * le = new QLineEdit(filterWidget);
 			le->setProperty("library", true);
 			le->setPlaceholderText(QApplication::tr("SearchPlaceholder"));
-			UPDATELANGUAGESETPLACEHOLDERTEXT(_settingsDialog->getGeneralSettingsWidget(), le, "SearchPlaceholder");
+			UPDATELANGUAGESETPLACEHOLDERTEXT(le, "SearchPlaceholder");
 
 			connect(le, &QLineEdit::textChanged, _sortModel, static_cast<void(QSortFilterProxyModel::*)(const QString &)>(&QSortFilterProxyModel::setFilterRegExp));
 
@@ -305,26 +302,26 @@ namespace widgets {
 			{
 				QGroupBox * gb = new QGroupBox(QApplication::tr("Game"), filterWidget);
 				gb->setProperty("library", true);
-				UPDATELANGUAGESETTITLE(_settingsDialog->getGeneralSettingsWidget(), gb, "Game");
+				UPDATELANGUAGESETTITLE(gb, "Game");
 
 				QVBoxLayout * vbl = new QVBoxLayout();
 
 				QCheckBox * cb1 = new QCheckBox(QApplication::tr("Gothic"), filterWidget);
 				cb1->setProperty("library", true);
 				cb1->setChecked(_sortModel->isGothicActive());
-				UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), cb1, "Gothic");
+				UPDATELANGUAGESETTEXT(cb1, "Gothic");
 				connect(cb1, SIGNAL(stateChanged(int)), _sortModel, SLOT(gothicChanged(int)));
 
 				QCheckBox * cb2 = new QCheckBox(QApplication::tr("Gothic2"), filterWidget);
 				cb2->setProperty("library", true);
 				cb2->setChecked(_sortModel->isGothic2Active());
-				UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), cb2, "Gothic2");
+				UPDATELANGUAGESETTEXT(cb2, "Gothic2");
 				connect(cb2, SIGNAL(stateChanged(int)), _sortModel, SLOT(gothic2Changed(int)));
 
 				QCheckBox * cb3 = new QCheckBox(QApplication::tr("GothicAndGothic2"), filterWidget);
 				cb3->setProperty("library", true);
 				cb3->setChecked(_sortModel->isGothicAndGothic2Active());
-				UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), cb3, "GothicAndGothic2");
+				UPDATELANGUAGESETTEXT(cb3, "GothicAndGothic2");
 				connect(cb3, SIGNAL(stateChanged(int)), _sortModel, SLOT(gothicAndGothic2Changed(int)));
 				cb3->hide();
 
@@ -339,14 +336,14 @@ namespace widgets {
 			{
 				QGroupBox * gb = new QGroupBox(QApplication::tr("General"), filterWidget);
 				gb->setProperty("library", true);
-				UPDATELANGUAGESETTITLE(_settingsDialog->getGeneralSettingsWidget(), gb, "General");
+				UPDATELANGUAGESETTITLE(gb, "General");
 
 				QVBoxLayout * vbl = new QVBoxLayout();
 
 				QCheckBox * cb1 = new QCheckBox(QApplication::tr("ShowHidden"), filterWidget);
 				cb1->setProperty("library", true);
 				cb1->setChecked(_sortModel->isShowHiddenActive());
-				UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), cb1, "ShowHidden");
+				UPDATELANGUAGESETTEXT(cb1, "ShowHidden");
 				connect(cb1, SIGNAL(stateChanged(int)), _sortModel, SLOT(showHidden(int)));
 
 				vbl->addWidget(cb1);
@@ -366,12 +363,11 @@ namespace widgets {
 		connect(_modListView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(selectedMod(const QModelIndex &)));
 		connect(_modListView, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(selectedMod(const QModelIndex &)));
 
-		_modInfoView = new ModInfoView(_onlineMode, this, _settingsDialog->getGeneralSettingsWidget(), _settingsDialog->getLocationSettingsWidget(), _settingsDialog->getGamepadSettingsWidget(), _iniParser, topWidget);
+		_modInfoView = new ModInfoView(this, _settingsDialog->getGeneralSettingsWidget(), _iniParser, topWidget);
 		_modInfoView->setProperty("library", true);
 
 		_modInfoView->setDeveloperMode(_settingsDialog->getDeveloperSettingsWidget()->isDeveloperModeActive());
 		_modInfoView->setZSpyActivated(_settingsDialog->getDeveloperSettingsWidget()->isZSpyActive());
-		_modInfoView->setLanguage(_settingsDialog->getGeneralSettingsWidget()->getLanguage());
 		_modInfoView->setShowAchievements(_settingsDialog->getGameSettingsWidget()->getShowAchievements());
 		_developerModeActive = _settingsDialog->getDeveloperSettingsWidget()->isDeveloperModeActive();
 
@@ -393,13 +389,6 @@ namespace widgets {
 		QVBoxLayout * vbl = new QVBoxLayout();
 		vbl->addWidget(_modInfoView);
 
-		_descriptionView = new QTextEdit(this);
-		_descriptionView->setReadOnly(true);
-		_descriptionView->setAcceptRichText(true);
-		_descriptionView->setProperty("noStyle", true);
-		_descriptionView->setVisible(false);
-		vbl->addWidget(_descriptionView);
-
 		topLayout->addLayout(vbl);
 
 		topWidget->setLayout(topLayout);
@@ -412,19 +401,18 @@ namespace widgets {
 #endif
 
 		_tabWidget->addTab(w, QApplication::tr("Library"));
-		UPDATELANGUAGESETTABTEXT(_settingsDialog->getGeneralSettingsWidget(), _tabWidget, (_onlineMode) ? int(MainTabsOnline::LibraryOnline) : int(MainTabsOffline::LibraryOffline), "Library");
+		UPDATELANGUAGESETTABTEXT(_tabWidget, (Config::OnlineMode) ? int(MainTabsOnline::LibraryOnline) : int(MainTabsOffline::LibraryOffline), "Library");
 
-		if (_onlineMode) {
+		if (Config::OnlineMode) {
 			_profileView = new ProfileView(this, _settingsDialog->getGeneralSettingsWidget(), _tabWidget);
-			_profileView->setLanguage(_settingsDialog->getGeneralSettingsWidget()->getLanguage());
 
 			_tabWidget->addTab(_profileView, QApplication::tr("Profile"));
-			UPDATELANGUAGESETTABTEXT(_settingsDialog->getGeneralSettingsWidget(), _tabWidget, MainTabsOnline::Profile, "Profile");
+			UPDATELANGUAGESETTABTEXT(_tabWidget, MainTabsOnline::Profile, "Profile");
 
-			_friendsView = new FriendsView(_settingsDialog->getGeneralSettingsWidget(), _tabWidget);
+			_friendsView = new FriendsView(_tabWidget);
 
 			_tabWidget->addTab(_friendsView, QApplication::tr("Friends"));
-			UPDATELANGUAGESETTABTEXT(_settingsDialog->getGeneralSettingsWidget(), _tabWidget, MainTabsOnline::Friends, "Friends");
+			UPDATELANGUAGESETTABTEXT(_tabWidget, MainTabsOnline::Friends, "Friends");
 
 			connect(_modInfoView, SIGNAL(installMod(int)), _modDatabaseView, SLOT(updateModList(int)));
 		}
@@ -437,9 +425,7 @@ namespace widgets {
 
 		setCentralWidget(_tabWidget);
 
-		connect(_modInfoView, SIGNAL(descriptionChanged(QString)), _descriptionView, SLOT(setText(QString)));
-
-		if (_onlineMode) {
+		if (Config::OnlineMode) {
 			connect(_modInfoView, SIGNAL(openAchievementView(int32_t, QString)), _profileView, SLOT(openAchievementView(int32_t, QString)));
 			connect(_modInfoView, SIGNAL(openScoreView(int32_t, QString)), _profileView, SLOT(openScoreView(int32_t, QString)));
 			connect(_modInfoView, SIGNAL(openAchievementView(int32_t, QString)), this, SLOT(openSpecialProfileView()));
@@ -467,14 +453,14 @@ namespace widgets {
 		_iniParser->setValue("MISC/firstStartup", firstStartup);
 		if (_settingsDialog->getLocationSettingsWidget()->isGothicValid(true)) {
 			_modInfoView->setGothicDirectory(_gothicDirectory);
-			if (_onlineMode) {
+			if (Config::OnlineMode) {
 				_modDatabaseView->setGothicDirectory(_gothicDirectory);
 				_profileView->setGothicDirectory(_gothicDirectory);
 			}
 		}
 		if (_settingsDialog->getLocationSettingsWidget()->isGothic2Valid(true)) {
 			_modInfoView->setGothic2Directory(_gothic2Directory);
-			if (_onlineMode) {
+			if (Config::OnlineMode) {
 				_modDatabaseView->setGothic2Directory(_gothic2Directory);
 				_profileView->setGothic2Directory(_gothic2Directory);
 				_spineEditor->getModel()->setPath(_gothic2Directory);
@@ -498,23 +484,23 @@ namespace widgets {
 		LOGINFO("Memory Usage MainWindow c'tor #14: " << getPRAMValue());
 #endif
 
-		_loginDialog = new LoginDialog(_onlineMode, _iniParser, _settingsDialog->getGeneralSettingsWidget(), this);
+		_loginDialog = new LoginDialog(_iniParser, this);
 
 		QMenu * fileMenu = new QMenu(QApplication::tr("File"), this);
-		UPDATELANGUAGESETTITLE(_settingsDialog->getGeneralSettingsWidget(), fileMenu, "File");
+		UPDATELANGUAGESETTITLE(fileMenu, "File");
 		QMenu * toolsMenu = new QMenu(QApplication::tr("Tools"), this);
-		UPDATELANGUAGESETTITLE(_settingsDialog->getGeneralSettingsWidget(), toolsMenu, "Tools");
+		UPDATELANGUAGESETTITLE(toolsMenu, "Tools");
 		QMenu * developerMenu = new QMenu(QApplication::tr("Developer"), this);
-		UPDATELANGUAGESETTITLE(_settingsDialog->getGeneralSettingsWidget(), developerMenu, "Developer");
+		UPDATELANGUAGESETTITLE(developerMenu, "Developer");
 		QMenu * helpMenu = new QMenu(QApplication::tr("Help"), this);
-		UPDATELANGUAGESETTITLE(_settingsDialog->getGeneralSettingsWidget(), helpMenu, "Help");
+		UPDATELANGUAGESETTITLE(helpMenu, "Help");
 
 		QAction * exportAction = fileMenu->addAction(QApplication::tr("Export"));
-		UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), exportAction, "Export");
+		UPDATELANGUAGESETTEXT(exportAction, "Export");
 		connect(exportAction, SIGNAL(triggered()), this, SLOT(execExport()));
 
 		QAction * importAction = fileMenu->addAction(QApplication::tr("Import"));
-		UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), importAction, "Import");
+		UPDATELANGUAGESETTEXT(importAction, "Import");
 		connect(importAction, SIGNAL(triggered()), this, SLOT(execImport()));
 
 		fileMenu->addSeparator();
@@ -523,70 +509,70 @@ namespace widgets {
 		LOGINFO("Memory Usage MainWindow c'tor #15: " << getPRAMValue());
 #endif
 
-		if (!_onlineMode) {
+		if (!Config::OnlineMode) {
 			QAction * onlineAction = fileMenu->addAction(QApplication::tr("SwitchToOnline"));
-			UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), onlineAction, "SwitchToOnline");
+			UPDATELANGUAGESETTEXT(onlineAction, "SwitchToOnline");
 			connect(onlineAction, SIGNAL(triggered()), this, SLOT(switchToOnline()));
 		} else {
 			QAction * offlineAction = fileMenu->addAction(QApplication::tr("SwitchToOffline"));
-			UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), offlineAction, "SwitchToOffline");
+			UPDATELANGUAGESETTEXT(offlineAction, "SwitchToOffline");
 			connect(offlineAction, SIGNAL(triggered()), this, SLOT(switchToOffline()));
 		}
 
 		fileMenu->addSeparator();
 
 		QAction * quitAction = fileMenu->addAction(QApplication::tr("Quit"));
-		UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), quitAction, "Quit");
+		UPDATELANGUAGESETTEXT(quitAction, "Quit");
 		connect(quitAction, SIGNAL(triggered()), this, SLOT(onQuit()));
 
 #ifdef Q_OS_WIN
 		QAction * installG2FromCDAction = toolsMenu->addAction(QApplication::tr("InstallGothic2FromCD"));
-		UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), installG2FromCDAction, "InstallGothic2FromCD");
+		UPDATELANGUAGESETTEXT(installG2FromCDAction, "InstallGothic2FromCD");
 #endif
 		QAction * openIniConfiguratorAction = toolsMenu->addAction(QApplication::tr("IniConfigurator"));
-		UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), openIniConfiguratorAction, "IniConfigurator");
-		if (_onlineMode) {
+		UPDATELANGUAGESETTEXT(openIniConfiguratorAction, "IniConfigurator");
+		if (Config::OnlineMode) {
 			QAction * submitCompatibilityAction = toolsMenu->addAction(QApplication::tr("SubmitCompatibility"));
-			UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), submitCompatibilityAction, "SubmitCompatibility");
+			UPDATELANGUAGESETTEXT(submitCompatibilityAction, "SubmitCompatibility");
 			connect(submitCompatibilityAction, SIGNAL(triggered()), this, SLOT(submitCompatibility()));
-			connect(_loginDialog, &LoginDialog::loggedIn, [submitCompatibilityAction](QString username) {
-				submitCompatibilityAction->setEnabled(!username.isEmpty());
+			connect(_loginDialog, &LoginDialog::loggedIn, [submitCompatibilityAction]() {
+				submitCompatibilityAction->setEnabled(!Config::Username.isEmpty());
 			});
 		}
 		QAction * savegameEditorAction = toolsMenu->addAction(QApplication::tr("SavegameEditor"));
-		UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), savegameEditorAction, "SavegameEditor");
+		UPDATELANGUAGESETTEXT(savegameEditorAction, "SavegameEditor");
 		toolsMenu->addSeparator();
 		QAction * settingsAction = toolsMenu->addAction(QApplication::tr("Settings"));
 		settingsAction->setShortcut(QKeySequence(Qt::Key::Key_O));
-		UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), settingsAction, "Settings");
+		UPDATELANGUAGESETTEXT(settingsAction, "Settings");
 
 		QAction * translationRequestAction = developerMenu->addAction(QApplication::tr("RequestTranslation"));
-		UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), translationRequestAction, "RequestTranslation");
+		UPDATELANGUAGESETTEXT(translationRequestAction, "RequestTranslation");
 		translationRequestAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
 		connect(translationRequestAction, SIGNAL(triggered()), this, SLOT(openTranslationRequest()));
 
 		QAction * translatorAction = developerMenu->addAction(QApplication::tr("Translator"));
-		UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), translatorAction, "Translator");
+		UPDATELANGUAGESETTEXT(translatorAction, "Translator");
 		translatorAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
 		connect(translatorAction, SIGNAL(triggered()), this, SLOT(openTranslator()));
 
 		_devModeAction = developerMenu->addAction(QApplication::tr("ActivateDeveloperMode"));
-		UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), _devModeAction, "ActivateDeveloperMode");
+		UPDATELANGUAGESETTEXT(_devModeAction, "ActivateDeveloperMode");
 		_devModeAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_D));
 		connect(_devModeAction, SIGNAL(triggered()), _settingsDialog->getDeveloperSettingsWidget(), SLOT(changedDeveloperMode()));
 		_devModeAction->setCheckable(true);
 		_devModeAction->setChecked(_settingsDialog->getDeveloperSettingsWidget()->isDeveloperModeActive());
 
 		_spineEditorAction = developerMenu->addAction(QApplication::tr("SpineEditor"));
-		UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), _spineEditorAction, "SpineEditor");
+		UPDATELANGUAGESETTEXT(_spineEditorAction, "SpineEditor");
 		_spineEditorAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S));
 		connect(_spineEditorAction, SIGNAL(triggered()), _spineEditor, SLOT(exec()));
 		_spineEditorAction->setEnabled(_settingsDialog->getDeveloperSettingsWidget()->isDeveloperModeActive());
 		connect(_settingsDialog->getDeveloperSettingsWidget(), SIGNAL(developerModeChanged(bool)), _spineEditorAction, SLOT(setEnabled(bool)));
 
-		if (_onlineMode) {
+		if (Config::OnlineMode) {
 			QAction * managementAction = developerMenu->addAction(QApplication::tr("Management"));
-			UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), managementAction, "Management");
+			UPDATELANGUAGESETTEXT(managementAction, "Management");
 			managementAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_M));
 			connect(managementAction, SIGNAL(triggered()), this, SLOT(execManagement()));
 		}
@@ -595,7 +581,7 @@ namespace widgets {
 
 		for (int i = 0; i < 10; i++) {
 			QAction * devPathAction = developerMenu->addAction(QApplication::tr("DevPath").arg(i));
-			UPDATELANGUAGESETTEXTARG(_settingsDialog->getGeneralSettingsWidget(), devPathAction, "DevPath", i);
+			UPDATELANGUAGESETTEXTARG(devPathAction, "DevPath", i);
 			devPathAction->setShortcut(QKeySequence(Qt::CTRL + (Qt::Key_0 + i)));
 			devPathAction->setProperty("id", i);
 			connect(devPathAction, SIGNAL(triggered()), this, SLOT(setDevPath()));
@@ -605,7 +591,7 @@ namespace widgets {
 		LOGINFO("Memory Usage MainWindow c'tor #16: " << getPRAMValue());
 #endif
 
-		_autoUpdateDialog = new AutoUpdateDialog(this, _settingsDialog->getGeneralSettingsWidget());
+		_autoUpdateDialog = new AutoUpdateDialog(this);
 
 #ifdef Q_OS_WIN
 		LOGINFO("Memory Usage MainWindow c'tor #17: " << getPRAMValue());
@@ -613,39 +599,39 @@ namespace widgets {
 
 		QAction * faqAction = helpMenu->addAction(QApplication::tr("FAQ"));
 		faqAction->setToolTip(QApplication::tr("FAQTooltip"));
-		UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), faqAction, "FAQ");
-		UPDATELANGUAGESETTOOLTIP(_settingsDialog->getGeneralSettingsWidget(), faqAction, "FAQTooltip");
+		UPDATELANGUAGESETTEXT(faqAction, "FAQ");
+		UPDATELANGUAGESETTOOLTIP(faqAction, "FAQTooltip");
 
-		if (_onlineMode) {
+		if (Config::OnlineMode) {
 			QAction * checkIntegrityAction = helpMenu->addAction(QApplication::tr("CheckIntegrity"));
 			checkIntegrityAction->setToolTip(QApplication::tr("CheckIntegrityTooltip"));
-			UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), checkIntegrityAction, "CheckIntegrity");
-			UPDATELANGUAGESETTOOLTIP(_settingsDialog->getGeneralSettingsWidget(), checkIntegrityAction, "CheckIntegrityTooltip");
+			UPDATELANGUAGESETTEXT(checkIntegrityAction, "CheckIntegrity");
+			UPDATELANGUAGESETTOOLTIP(checkIntegrityAction, "CheckIntegrityTooltip");
 			connect(checkIntegrityAction, SIGNAL(triggered()), this, SLOT(checkIntegrity()));
 		}
 		QAction * generateReportAction = helpMenu->addAction(QApplication::tr("GenerateReport"));
-		UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), generateReportAction, "GenerateReport");
+		UPDATELANGUAGESETTEXT(generateReportAction, "GenerateReport");
 
 		QAction * showChangelogAction = helpMenu->addAction(QApplication::tr("ShowChangelog"));
-		UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), showChangelogAction, "ShowChangelog");
+		UPDATELANGUAGESETTEXT(showChangelogAction, "ShowChangelog");
 
-		if (_onlineMode) {
+		if (Config::OnlineMode) {
 			QAction * updateAction = helpMenu->addAction(QApplication::tr("CheckForUpdates"));
-			UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), updateAction, "CheckForUpdates");
+			UPDATELANGUAGESETTEXT(updateAction, "CheckForUpdates");
 			connect(updateAction, SIGNAL(triggered()), _autoUpdateDialog, SLOT(exec()));
 		}
 
 		helpMenu->addSeparator();
 		
 		QAction * discordAction = helpMenu->addAction(QApplication::tr("Discord"));
-		UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), discordAction, "Discord");
-		if (_onlineMode) {
+		UPDATELANGUAGESETTEXT(discordAction, "Discord");
+		if (Config::OnlineMode) {
 			QAction * feedbackAction = helpMenu->addAction(QApplication::tr("Feedback"));
-			UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), feedbackAction, "Feedback");
+			UPDATELANGUAGESETTEXT(feedbackAction, "Feedback");
 			connect(feedbackAction, SIGNAL(triggered()), _feedbackDialog, SLOT(exec()));
 		}
 		QAction * aboutAction = helpMenu->addAction(QApplication::tr("About"));
-		UPDATELANGUAGESETTEXT(_settingsDialog->getGeneralSettingsWidget(), aboutAction, "About");
+		UPDATELANGUAGESETTEXT(aboutAction, "About");
 
 #ifdef Q_OS_WIN
 		LOGINFO("Memory Usage MainWindow c'tor #18: " << getPRAMValue());
@@ -686,9 +672,9 @@ namespace widgets {
 		menuBar()->addMenu(developerMenu);
 		menuBar()->addMenu(helpMenu);
 
-		if (_onlineMode) {
+		if (Config::OnlineMode) {
 			QMenu * loginMenu = new QMenu(QApplication::tr("Login"), this);
-			UPDATELANGUAGESETTITLE(_settingsDialog->getGeneralSettingsWidget(), loginMenu, "Login");
+			UPDATELANGUAGESETTITLE(loginMenu, "Login");
 			menuBar()->addMenu(loginMenu);
 			connect(loginMenu, SIGNAL(aboutToShow()), _loginDialog, SLOT(execute()));
 			connect(_loginDialog, &LoginDialog::loggedIn, [loginMenu]() {
@@ -704,7 +690,7 @@ namespace widgets {
 			QTimer::singleShot(0, _changelogDialog, &ChangelogDialog::execStartup);
 		}
 
-		if (_onlineMode) {
+		if (Config::OnlineMode) {
 			_modDatabaseView->gothicValidationChanged(_settingsDialog->getLocationSettingsWidget()->isGothicValid(true));
 			_modDatabaseView->gothic2ValidationChanged(_settingsDialog->getLocationSettingsWidget()->isGothic2Valid(true));
 		}
@@ -713,7 +699,7 @@ namespace widgets {
 #endif
 
 		connect(_tabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)));
-		if (_onlineMode) {
+		if (Config::OnlineMode) {
 			connect(_settingsDialog->getLocationSettingsWidget(), SIGNAL(validGothic(bool)), _modDatabaseView, SLOT(gothicValidationChanged(bool)));
 			connect(_settingsDialog->getLocationSettingsWidget(), SIGNAL(validGothic2(bool)), _modDatabaseView, SLOT(gothic2ValidationChanged(bool)));
 		}
@@ -728,38 +714,36 @@ namespace widgets {
 		LOGINFO("Memory Usage MainWindow c'tor #22: " << getPRAMValue());
 #endif
 
-		if (_onlineMode) {
+		if (Config::OnlineMode) {
 			QTimer::singleShot(0, _loginDialog, &LoginDialog::exec);
 		}
 
-		connect(_loginDialog, &LoginDialog::loggedIn, _modInfoView, &ModInfoView::loggedIn);
-		if (_onlineMode) {
-			connect(_loginDialog, &LoginDialog::loggedIn, _modDatabaseView, &ModDatabaseView::setUsername);
-			connect(_loginDialog, &LoginDialog::loggedIn, _profileView, &ProfileView::loggedIn);
-			connect(_loginDialog, &LoginDialog::loggedIn, startPage, &StartPageWidget::setUsername);
-			connect(_loginDialog, &LoginDialog::loggedIn, _spineEditor, &SpineEditor::setUsername);
-			connect(_loginDialog, &LoginDialog::loggedIn, _feedbackDialog, &FeedbackDialog::setUsername);
-			connect(_loginDialog, &LoginDialog::loggedIn, _modInfoPage, &ModInfoPage::setUsername);
-			connect(_loginDialog, &LoginDialog::loggedIn, _friendsView, &FriendsView::setUsername);
+		connect(_loginDialog, &LoginDialog::loggedIn, _modInfoView, &ModInfoView::loginChanged);
+		if (Config::OnlineMode) {
+			connect(_loginDialog, &LoginDialog::loggedIn, _modDatabaseView, &ModDatabaseView::loginChanged);
+			connect(_loginDialog, &LoginDialog::loggedIn, _profileView, &ProfileView::loginChanged);
+			connect(_loginDialog, &LoginDialog::loggedIn, startPage, &StartPageWidget::loginChanged);
+			connect(_loginDialog, &LoginDialog::loggedIn, _feedbackDialog, &FeedbackDialog::loginChanged);
+			connect(_loginDialog, &LoginDialog::loggedIn, _modInfoPage, &ModInfoPage::loginChanged);
+			connect(_loginDialog, &LoginDialog::loggedIn, _friendsView, &FriendsView::loginChanged);
 		}
-		connect(_loginDialog, &LoginDialog::loggedIn, this, &MainWindow::setUsername);
 
-		if (_onlineMode) {
+		if (Config::OnlineMode) {
 			connect(_profileView, SIGNAL(triggerLogout()), _loginDialog, SLOT(logout()));
 		}
 
-		if (_onlineMode) {
+		if (Config::OnlineMode) {
 			const bool checkForUpdate = _iniParser->value("MISC/checkForUpdate", true).toBool();
 			if (checkForUpdate) {
 				QTimer::singleShot(0, _autoUpdateDialog, &AutoUpdateDialog::checkForUpdate);
 			}
 		}
 
-		if (_onlineMode) {
-			_modUpdateDialog = new ModUpdateDialog(this, _settingsDialog->getGeneralSettingsWidget()->getLanguage());
-			connect(_loginDialog, &LoginDialog::loggedIn, _modUpdateDialog, &ModUpdateDialog::setUsername);
+		if (Config::OnlineMode) {
+			_modUpdateDialog = new ModUpdateDialog(this);
+			connect(_loginDialog, &LoginDialog::loggedIn, _modUpdateDialog, &ModUpdateDialog::loginChanged);
 
-			_modUpdateDialog->setUsername(_loginDialog->getUsername(), _loginDialog->getPassword());
+			_modUpdateDialog->loginChanged();
 
 			connect(_settingsDialog->getGeneralSettingsWidget(), SIGNAL(resetModUpdates()), _modUpdateDialog, SLOT(checkForUpdate()));
 
@@ -783,12 +767,10 @@ namespace widgets {
 	}
 
 	void MainWindow::selectedMod(const QModelIndex & index) {
-		_modInfoView->setIniFile(_modListModel->data(_sortModel->mapToSource(index), LibraryFilterModel::IniFileRole).toString());
-		const bool isInstalled = _modListModel->data(_sortModel->mapToSource(index), LibraryFilterModel::InstalledRole).toBool();
-		_modInfoView->setIsInstalled(isInstalled);
-		if (isInstalled) {
-			_modInfoView->setModID(_modListModel->data(_sortModel->mapToSource(index), LibraryFilterModel::ModIDRole).toString());
-		}
+		const auto idx = _sortModel->mapToSource(index);
+		const QString modID = _modListModel->data(idx, LibraryFilterModel::ModIDRole).toString();
+		const QString iniFile = _modListModel->data(idx, LibraryFilterModel::IniFileRole).toString();
+		_modInfoView->selectMod(modID, iniFile);
 	}
 
 	void MainWindow::pathChanged() {
@@ -825,7 +807,7 @@ namespace widgets {
 	}
 
 	void MainWindow::tabChanged(int index) {
-		if (_onlineMode) {
+		if (Config::OnlineMode) {
 			if (index == MainTabsOnline::Database) {
 				_modDatabaseView->updateModList(-1);
 				_profileView->reset();
@@ -990,7 +972,7 @@ namespace widgets {
 		_gothic2Directory = (gv == common::GothicVersion::GOTHIC2) ? path : "";
 		_modInfoView->setGothicDirectory(_gothicDirectory);
 		_modInfoView->setGothic2Directory(_gothic2Directory);
-		if (_onlineMode) {
+		if (Config::OnlineMode) {
 			_modDatabaseView->setGothicDirectory(_gothicDirectory);
 			_profileView->setGothicDirectory(_gothicDirectory);
 			_modDatabaseView->setGothic2Directory(_gothic2Directory);
@@ -1005,25 +987,15 @@ namespace widgets {
 	}
 
 	void MainWindow::submitCompatibility() {
-		if (!_username.isEmpty()) {
-			SubmitCompatibilityDialog dlg(_settingsDialog->getGeneralSettingsWidget()->getLanguage(), _username, _password);
+		if (!Config::Username.isEmpty()) {
+			SubmitCompatibilityDialog dlg;
 			dlg.exec();
 		}
 	}
 
-	void MainWindow::setUsername(QString username, QString password) {
-		_username = username;
-		_password = password;
-	}
-
 	void MainWindow::triggerModStart(int modID, QString iniFile) {
-		_modInfoView->setIniFile(iniFile);
-		const bool isInstalled = modID > 0;
-		_modInfoView->setIsInstalled(isInstalled);
-		if (isInstalled) {
-			_modInfoView->setModID(QString::number(modID));
-		}
-		_modInfoView->startMod();
+		_modInfoView->selectMod(QString::number(modID), iniFile);
+		_modInfoView->start();
 	}
 
 	void MainWindow::execFAQ() {
@@ -1047,7 +1019,7 @@ namespace widgets {
 	}
 
 	void MainWindow::execManagement() {
-		client::widgets::ManagementDialog dlg(_username, _password, _settingsDialog->getGeneralSettingsWidget()->getLanguage(), _iniParser, this);
+		client::widgets::ManagementDialog dlg(_iniParser, this);
 		connect(&dlg, &client::widgets::ManagementDialog::triggerInfoPage, _modInfoPage, &ModInfoPage::loadPage);
 		connect(&dlg, &client::widgets::ManagementDialog::triggerInfoPage, this, &MainWindow::changeToInfoTab);
 		connect(&dlg, &client::widgets::ManagementDialog::triggerInfoPage, _modInfoPage, &ModInfoPage::forceEditPage);
@@ -1059,12 +1031,12 @@ namespace widgets {
 		Database::DBError err;
 		Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM sync;", err);
 		Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO sync (Enabled) VALUES (1);", err);
-		_onlineMode = true;
+		Config::OnlineMode = true;
 		changedOnlineMode();
 	}
 
 	void MainWindow::switchToOffline() {
-		_onlineMode = false;
+		Config::OnlineMode = false;
 		changedOnlineMode();
 	}
 
@@ -1114,14 +1086,14 @@ namespace widgets {
 
 	void MainWindow::openTranslator() {
 #ifdef WITH_TRANSLATOR
-		TranslatorDialog dlg(_iniParser, _username, this);
+		TranslatorDialog dlg(_iniParser, this);
 		dlg.exec();
 #endif
 	}
 
 	void MainWindow::openTranslationRequest() {
 #ifdef WITH_TRANSLATOR
-		TranslationRequestDialog dlg(_iniParser, _username, this);
+		TranslationRequestDialog dlg(_iniParser, this);
 		dlg.exec();
 #endif
 	}
@@ -1156,7 +1128,7 @@ namespace widgets {
 			QVBoxLayout * l = new QVBoxLayout();
 			QLabel * descriptionLabel = new QLabel(QApplication::tr("SetGothicPathText"), &dlg);
 			descriptionLabel->setWordWrap(true);
-			LocationSettingsWidget * lsw = new LocationSettingsWidget(_iniParser, _settingsDialog->getGeneralSettingsWidget(), true, &dlg);
+			LocationSettingsWidget * lsw = new LocationSettingsWidget(_iniParser, true, &dlg);
 			QDialogButtonBox * db = new QDialogButtonBox(QDialogButtonBox::StandardButton::Ok, &dlg);
 			QPushButton * pb = db->button(QDialogButtonBox::StandardButton::Ok);
 			connect(pb, SIGNAL(clicked()), &dlg, SLOT(accept()));
@@ -1236,11 +1208,11 @@ namespace widgets {
 		if (!vec.empty()) {
 			for (int i = 0; i < _sortModel->rowCount(); i++) {
 				QModelIndex idx = _sortModel->index(i, 0);
-				if (idx.data(LibraryFilterModel::ModIDRole).toInt() == std::stoi(vec[0][0]) && idx.data(LibraryFilterModel::IniFileRole).toString().contains(QString::fromStdString(vec[0][1]))) {
+				const QString modID = QString::fromStdString(vec[0][0]);
+				const QString iniFile = QString::fromStdString(vec[0][1]);
+				if (idx.data(LibraryFilterModel::ModIDRole).toInt() == std::stoi(vec[0][0]) && idx.data(LibraryFilterModel::IniFileRole).toString().contains(iniFile)) {
 					_modListView->selectionModel()->select(idx, QItemSelectionModel::SelectionFlag::SelectCurrent);
-					_modInfoView->setIniFile(QString::fromStdString(vec[0][1]));
-					_modInfoView->setModID(QString::fromStdString(vec[0][0]));
-					_modInfoView->setIsInstalled(vec[0][0] != "-1");
+					_modInfoView->selectMod(modID, iniFile);
 					_modListView->scrollTo(idx);
 					break;
 				}
@@ -1446,7 +1418,7 @@ namespace widgets {
 	}
 
 	void MainWindow::changedOnlineMode() {
-		_iniParser->setValue("MISC/OnlineMode", _onlineMode);
+		_iniParser->setValue("MISC/OnlineMode", Config::OnlineMode);
 		const QString exeFileName = qApp->applicationDirPath() + "/" + qApp->applicationName();
 #ifdef Q_OS_WIN
 		const int result = int(::ShellExecuteA(0, "runas", exeFileName.toUtf8().constData(), 0, 0, SW_SHOWNORMAL));

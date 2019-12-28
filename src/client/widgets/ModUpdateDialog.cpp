@@ -49,7 +49,7 @@
 namespace spine {
 namespace widgets {
 
-	ModUpdateDialog::ModUpdateDialog(QMainWindow * mainWindow, QString language) : QDialog(nullptr), _mainWindow(mainWindow), _language(language), _infoLabel(nullptr), _checkBoxLayout(nullptr), _updates(), _checkBoxes(), _username("-"), _running(false), _lastTimeRejected(false), _oldVersions() {
+	ModUpdateDialog::ModUpdateDialog(QMainWindow * mainWindow) : QDialog(nullptr), _mainWindow(mainWindow), _infoLabel(nullptr), _checkBoxLayout(nullptr), _updates(), _checkBoxes(), _running(false), _lastTimeRejected(false), _oldVersions() {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -101,19 +101,13 @@ namespace widgets {
 		return QDialog::exec();
 	}
 
-	void ModUpdateDialog::setUsername(QString username, QString password) {
-		if (username == _username) {
-			return;
-		}
-		_username = username;
-		_password = password;
-
+	void ModUpdateDialog::loginChanged() {
 		if (_lastTimeRejected) {
 			_lastTimeRejected = false;
 			return;
 		}
 		if (_running) {
-			QTimer::singleShot(1000, std::bind(&ModUpdateDialog::setUsername, this, username, password));
+			QTimer::singleShot(1000, std::bind(&ModUpdateDialog::loginChanged, this));
 		} else {
 			checkForUpdate();
 		}
@@ -391,9 +385,9 @@ namespace widgets {
 			}
 			common::ModVersionCheckMessage mvcm;
 			mvcm.modVersions = m;
-			mvcm.language = _language.toStdString();
-			mvcm.username = _username.toStdString();
-			mvcm.password = _password.toStdString();
+			mvcm.language = Config::Language.toStdString();
+			mvcm.username = Config::Username.toStdString();
+			mvcm.password = Config::Password.toStdString();
 			std::string serialized = mvcm.SerializePublic();
 			clockUtils::sockets::TcpSocket sock;
 			if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
@@ -431,9 +425,9 @@ namespace widgets {
 			}
 			common::ModVersionCheckMessage mvcm;
 			mvcm.modVersions = m;
-			mvcm.language = _language.toStdString();
-			mvcm.username = _username.toStdString();
-			mvcm.password = _password.toStdString();
+			mvcm.language = Config::Language.toStdString();
+			mvcm.username = Config::Username.toStdString();
+			mvcm.password = Config::Password.toStdString();
 			std::string serialized = mvcm.SerializePublic();
 			clockUtils::sockets::TcpSocket sock;
 			if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {

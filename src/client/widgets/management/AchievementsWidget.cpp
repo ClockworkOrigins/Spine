@@ -18,6 +18,7 @@
 
 #include "widgets/management/AchievementsWidget.h"
 
+#include "Config.h"
 #include "SpineConfig.h"
 
 #include "common/MessageStructs.h"
@@ -45,7 +46,7 @@ namespace spine {
 namespace client {
 namespace widgets {
 
-	AchievementsWidget::AchievementsWidget(const QString & username, const QString & password, QWidget * par) : QWidget(par), _mods(), _modIndex(-1), _achievementEdits(), _username(username), _password(password), _waitSpinner(nullptr) {
+	AchievementsWidget::AchievementsWidget(QWidget * par) : QWidget(par), _mods(), _modIndex(-1), _achievementEdits(), _waitSpinner(nullptr) {
 		QVBoxLayout * vl = new QVBoxLayout();
 
 		{
@@ -115,8 +116,8 @@ namespace widgets {
 		_waitSpinner = new spine::widgets::WaitSpinner(QApplication::tr("Updating"), this);
 
 		QJsonObject requestData;
-		requestData["Username"] = _username;
-		requestData["Password"] = _password;
+		requestData["Username"] = Config::Username;
+		requestData["Password"] = Config::Password;
 		requestData["ModID"] = _mods[_modIndex].id;
 		
 		https::Https::postAsync(MANAGEMENTSERVER_PORT, "getAchievements", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
@@ -151,8 +152,8 @@ namespace widgets {
 
 		QJsonObject json;
 		json["ModID"] = _mods[_modIndex].id;
-		json["Username"] = _username;
-		json["Password"] = _password;
+		json["Username"] = Config::Username;
+		json["Password"] = Config::Password;
 
 		common::UploadAchievementIconsMessage uaim;
 		uaim.modID = _mods[_modIndex].id;

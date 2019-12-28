@@ -18,6 +18,7 @@
 
 #include "widgets/management/ScoresWidget.h"
 
+#include "Config.h"
 #include "SpineConfig.h"
 
 #include "https/Https.h"
@@ -38,7 +39,7 @@ namespace spine {
 namespace client {
 namespace widgets {
 
-	ScoresWidget::ScoresWidget(const QString & username, const QString & password, QWidget * par) : QWidget(par), _mods(), _modIndex(-1), _rowCount(1), _scoreEdits(), _username(username), _password(password), _waitSpinner(nullptr) {
+	ScoresWidget::ScoresWidget(QWidget * par) : QWidget(par), _mods(), _modIndex(-1), _rowCount(1), _scoreEdits(), _waitSpinner(nullptr) {
 		QVBoxLayout * vl = new QVBoxLayout();
 
 		{
@@ -123,8 +124,8 @@ namespace widgets {
 		_waitSpinner = new spine::widgets::WaitSpinner(QApplication::tr("Updating"), this);
 
 		QJsonObject requestData;
-		requestData["Username"] = _username;
-		requestData["Password"] = _password;
+		requestData["Username"] = Config::Username;
+		requestData["Password"] = Config::Password;
 		requestData["ModID"] = _mods[_modIndex].id;
 		
 		https::Https::postAsync(MANAGEMENTSERVER_PORT, "getScores", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
@@ -189,8 +190,8 @@ namespace widgets {
 
 		QJsonObject json;
 		json["ModID"] = _mods[_modIndex].id;
-		json["Username"] = _username;
-		json["Password"] = _password;
+		json["Username"] = Config::Username;
+		json["Password"] = Config::Password;
 
 		QJsonArray scoreArray;
 

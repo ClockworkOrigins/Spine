@@ -44,10 +44,10 @@
 namespace spine {
 namespace widgets {
 
-	SubmitCompatibilityDialog::SubmitCompatibilityDialog(QString language, QString username, QString password) : SubmitCompatibilityDialog(language, username, password, -1, -1, common::GothicVersion::GOTHIC2) {
+	SubmitCompatibilityDialog::SubmitCompatibilityDialog() : SubmitCompatibilityDialog(-1, -1, common::GothicVersion::GOTHIC2) {
 	}
 
-	SubmitCompatibilityDialog::SubmitCompatibilityDialog(QString language, QString username, QString password, int32_t modID, int32_t patchID, common::GothicVersion gothicVersion) : QDialog(nullptr), _language(language), _username(username), _password(password), _g1Button(nullptr), _g2Button(nullptr), _modView(nullptr), _patchView(nullptr), _compatibleButton(nullptr), _notCompatibleButton(nullptr), _modList(nullptr), _patchList(nullptr), _submitButton(nullptr), _g1Mods(), _g1Patches(), _g2Mods(), _g2Patches(), _currentPatches(), _filteredPatches(), _showSubmitted(false), _modID(modID), _patchID(patchID), _gothicVersion(gothicVersion) {
+	SubmitCompatibilityDialog::SubmitCompatibilityDialog(int32_t modID, int32_t patchID, common::GothicVersion gothicVersion) : QDialog(nullptr), _g1Button(nullptr), _g2Button(nullptr), _modView(nullptr), _patchView(nullptr), _compatibleButton(nullptr), _notCompatibleButton(nullptr), _modList(nullptr), _patchList(nullptr), _submitButton(nullptr), _g1Mods(), _g1Patches(), _g2Mods(), _g2Patches(), _currentPatches(), _filteredPatches(), _showSubmitted(false), _modID(modID), _patchID(patchID), _gothicVersion(gothicVersion) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -142,8 +142,8 @@ namespace widgets {
 			if (clockUtils::ClockError::SUCCESS == cErr) {
 				{
 					common::RequestOwnCompatibilitiesMessage rocm;
-					rocm.username = _username.toStdString();
-					rocm.password = _password.toStdString();
+					rocm.username = Config::Username.toStdString();
+					rocm.password = Config::Password.toStdString();
 					std::string serialized = rocm.SerializePublic();
 					sock.writePacket(serialized);
 					if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
@@ -174,9 +174,9 @@ namespace widgets {
 				}
 				{
 					common::RequestAllModsMessage ramm;
-					ramm.language = _language.toStdString();
-					ramm.username = _username.toStdString();
-					ramm.password = _password.toStdString();
+					ramm.language = Config::Language.toStdString();
+					ramm.username = Config::Username.toStdString();
+					ramm.password = Config::Password.toStdString();
 					std::string serialized = ramm.SerializePublic();
 					sock.writePacket(serialized);
 					if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
@@ -307,8 +307,8 @@ namespace widgets {
 	}
 
 	void SubmitCompatibilityDialog::accept() {
-		std::string username = _username.toStdString();
-		std::string password = _password.toStdString();
+		std::string username = Config::Username.toStdString();
+		std::string password = Config::Password.toStdString();
 		int32_t modID = _currentMods[_modView->currentIndex().row()].id;
 		int32_t patchID = _filteredPatches[_patchView->currentIndex().row()].id;
 		bool compatible = _compatibleButton->isChecked();

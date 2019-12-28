@@ -30,7 +30,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		FriendRequestView(QString username, QString password, QString friendname, uint32_t level, QWidget * par);
+		FriendRequestView(QString friendname, uint32_t level, QWidget * par);
 		~FriendRequestView();
 
 	signals:
@@ -41,8 +41,6 @@ namespace widgets {
 		void decline();
 
 	private:
-		QString _username;
-		QString _password;
 		QString _friendname;
 		uint32_t _level;
 	};

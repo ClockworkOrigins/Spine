@@ -27,17 +27,15 @@ class QTextEdit;
 namespace spine {
 namespace widgets {
 
-	class GeneralSettingsWidget;
-
 	class FeedbackDialog : public QDialog {
 		Q_OBJECT
 
 	public:
-		FeedbackDialog(GeneralSettingsWidget * generalSettingsWidget);
+		FeedbackDialog();
 		~FeedbackDialog();
 
 	public slots:
-		void setUsername(QString username);
+		void loginChanged();
 
 	private slots:
 		void accept() override;
@@ -46,7 +44,6 @@ namespace widgets {
 	private:
 		QTextEdit * _textEdit;
 		QLineEdit * _usernameEdit;
-		QString _username;
 
 		void closeEvent(QCloseEvent * evt) override;
 	};

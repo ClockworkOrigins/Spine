@@ -29,13 +29,11 @@ class QCheckBox;
 namespace spine {
 namespace widgets {
 
-	class GeneralSettingsWidget;
-
 	class LeGoSpineSettingsWidget : public QWidget {
 		Q_OBJECT
 
 	public:
-		LeGoSpineSettingsWidget(GeneralSettingsWidget * generalSettingsWidget, models::SpineEditorModel * model, QWidget * par);
+		LeGoSpineSettingsWidget(models::SpineEditorModel * model, QWidget * par);
 		~LeGoSpineSettingsWidget();
 
 		void save();

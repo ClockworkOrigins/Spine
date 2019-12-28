@@ -23,8 +23,6 @@
 
 #include "models/SpineEditorModel.h"
 
-#include "widgets/GeneralSettingsWidget.h"
-
 #include <QApplication>
 #include <QLineEdit>
 #include <QPushButton>
@@ -33,7 +31,7 @@
 namespace spine {
 namespace widgets {
 
-	ScoreSpineSettingsWidget::ScoreSpineSettingsWidget(GeneralSettingsWidget * generalSettingsWidget, models::SpineEditorModel * model, QWidget * par) : QWidget(par), _model(model), _generalSettingsWidget(generalSettingsWidget), _scores() {
+	ScoreSpineSettingsWidget::ScoreSpineSettingsWidget(models::SpineEditorModel * model, QWidget * par) : QWidget(par), _model(model), _scores() {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -64,7 +62,7 @@ namespace widgets {
 		s.layout = new QHBoxLayout();
 		s.lineEdit = new QLineEdit(this);
 		s.lineEdit->setPlaceholderText(QApplication::tr("Name"));
-		UPDATELANGUAGESETPLACEHOLDERTEXT(_generalSettingsWidget, s.lineEdit, "Name");
+		UPDATELANGUAGESETPLACEHOLDERTEXT(s.lineEdit, "Name");
 		s.addButton = new QPushButton("+", this);
 		s.removeButton = new QPushButton("-", this);
 		s.layout->addWidget(s.lineEdit);

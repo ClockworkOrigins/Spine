@@ -18,6 +18,7 @@
 
 #include "widgets/FeedbackDialog.h"
 
+#include "Config.h"
 #include "SpineConfig.h"
 #include "UpdateLanguage.h"
 
@@ -40,13 +41,13 @@
 namespace spine {
 namespace widgets {
 
-	FeedbackDialog::FeedbackDialog(GeneralSettingsWidget * generalSettingsWidget) : QDialog(), _textEdit(nullptr), _usernameEdit(nullptr), _username() {
+	FeedbackDialog::FeedbackDialog() : QDialog(), _textEdit(nullptr), _usernameEdit(nullptr) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
 		QLabel * infoLabel = new QLabel(QApplication::tr("FeedbackText"), this);
 		l->addWidget(infoLabel);
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, infoLabel, "FeedbackText");
+		UPDATELANGUAGESETTEXT(infoLabel, "FeedbackText");
 
 		_textEdit = new QTextEdit(this);
 		l->addWidget(_textEdit);
@@ -62,30 +63,29 @@ namespace widgets {
 
 		QPushButton * b = dbb->button(QDialogButtonBox::StandardButton::Apply);
 		b->setText(QApplication::tr("Submit"));
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, b, "Submit");
+		UPDATELANGUAGESETTEXT(b, "Submit");
 
 		connect(b, SIGNAL(clicked()), this, SLOT(accept()));
 
 		b = dbb->button(QDialogButtonBox::StandardButton::Discard); 
 		b->setText(QApplication::tr("Discard"));
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, b, "Discard");
+		UPDATELANGUAGESETTEXT(b, "Discard");
 
 		connect(b, SIGNAL(clicked()), this, SIGNAL(rejected()));
 		connect(b, SIGNAL(clicked()), this, SLOT(reject()));
 		connect(b, SIGNAL(clicked()), this, SLOT(hide()));
 
 		setWindowTitle(QApplication::tr("Feedback"));
-		UPDATELANGUAGESETWINDOWTITLE(generalSettingsWidget, this, "Feedback");
+		UPDATELANGUAGESETWINDOWTITLE(this, "Feedback");
 		setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 	}
 
 	FeedbackDialog::~FeedbackDialog() {
 	}
 
-	void FeedbackDialog::setUsername(QString username) {
-		_username = username;
-		_usernameEdit->setText(username);
-		_usernameEdit->setEnabled(!_username.isEmpty());
+	void FeedbackDialog::loginChanged() {
+		_usernameEdit->setText(Config::Username);
+		_usernameEdit->setEnabled(!Config::Username.isEmpty());
 	}
 
 	void FeedbackDialog::accept() {

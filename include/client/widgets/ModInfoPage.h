@@ -64,8 +64,7 @@ namespace widgets {
 		void openScoreView(int32_t, QString);
 
 	public slots:
-		void setLanguage(QString language);
-		void setUsername(QString username, QString password);
+		void loginChanged();
 		void loadPage(int32_t modID);
 		void finishedInstallation(int modID, int packageID, bool success);
 		void switchToEdit();
@@ -97,9 +96,6 @@ namespace widgets {
 		QVBoxLayout * _optionalPackageButtonsLayout;
 		QTextBrowser * _descriptionView;
 		QListView * _spineFeaturesView;
-		QString _language;
-		QString _username;
-		QString _password;
 		QStandardItemModel * _thumbnailModel;
 		QStandardItemModel * _spineFeatureModel;
 		int32_t _modID;

@@ -27,13 +27,11 @@ class QLineEdit;
 namespace spine {
 namespace widgets {
 
-	class GeneralSettingsWidget;
-
 	class InstallGothic2FromCDDialog : public QDialog {
 		Q_OBJECT
 
 	public:
-		InstallGothic2FromCDDialog(GeneralSettingsWidget * generalSettingsWidget);
+		InstallGothic2FromCDDialog();
 
 	signals:
 		void updateGothic2Directory(QString);

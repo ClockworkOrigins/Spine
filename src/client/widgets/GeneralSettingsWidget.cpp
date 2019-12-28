@@ -43,15 +43,18 @@ namespace widgets {
 	int GeneralSettingsWidget::downloadRate = 5120;
 	bool GeneralSettingsWidget::extendedLogging = false;
 	bool GeneralSettingsWidget::skipExitCheckbox = false;
+	GeneralSettingsWidget * GeneralSettingsWidget::instance = nullptr;
 
 	GeneralSettingsWidget::GeneralSettingsWidget(QSettings * iniParser, QWidget * par) : QWidget(par), _iniParser(iniParser), _languageComboBox(nullptr), _styleComboBox(nullptr), _autoUpdateBox(nullptr), _hideIncompatibleCheckBox(nullptr), _extendedLoggingCheckBox(nullptr) {
+		instance = this;
+		
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
 		{
 			QHBoxLayout * hl = new QHBoxLayout();
 
-			const QString language = _iniParser->value("MISC/language", "English").toString();
+			Config::Language = _iniParser->value("MISC/language", "English").toString();
 
 			QLabel * languageLabel = new QLabel(QApplication::tr("Language"), this);
 			_languageComboBox = new QComboBox(this);
@@ -60,7 +63,7 @@ namespace widgets {
 			_languageComboBox->addItem("English");
 			_languageComboBox->addItem("Polish");
 			_languageComboBox->addItem("Russian");
-			_languageComboBox->setCurrentText(language);
+			_languageComboBox->setCurrentText(Config::Language);
 			hl->addWidget(languageLabel);
 			hl->addWidget(_languageComboBox);
 
@@ -68,7 +71,7 @@ namespace widgets {
 
 			l->addLayout(hl);
 
-			UPDATELANGUAGESETTEXT(this, languageLabel, "Language");
+			UPDATELANGUAGESETTEXT(languageLabel, "Language");
 
 			l->addSpacing(10);
 		}
@@ -99,7 +102,7 @@ namespace widgets {
 
 			l->addLayout(hl);
 
-			UPDATELANGUAGESETTEXT(this, styleLabel, "Style");
+			UPDATELANGUAGESETTEXT(styleLabel, "Style");
 
 			l->addSpacing(10);
 
@@ -113,13 +116,13 @@ namespace widgets {
 
 			l->addWidget(_autoUpdateBox);
 
-			UPDATELANGUAGESETTEXT(this, _autoUpdateBox, "AutoUpdateCheck");
+			UPDATELANGUAGESETTEXT(_autoUpdateBox, "AutoUpdateCheck");
 
 			l->addSpacing(10);
 		}
 		{
 			QPushButton * pb = new QPushButton(QApplication::tr("ReactivateModUpdates"), this);
-			UPDATELANGUAGESETTEXT(this, pb, "ReactivateModUpdates");
+			UPDATELANGUAGESETTEXT(pb, "ReactivateModUpdates");
 			connect(pb, SIGNAL(released()), this, SLOT(reactivateModUpdates()));
 
 			l->addWidget(pb);
@@ -132,15 +135,15 @@ namespace widgets {
 				downloadRate = 5120;
 			}
 			QLabel * kbpsLabel = new QLabel(QApplication::tr("DownloadRate"), this);
-			UPDATELANGUAGESETTEXT(this, kbpsLabel, "DownloadRate");
+			UPDATELANGUAGESETTEXT(kbpsLabel, "DownloadRate");
 			kbpsLabel->setToolTip(QApplication::tr("DownloadRateTooltip"));
-			UPDATELANGUAGESETTOOLTIP(this, kbpsLabel, "DownloadRateTooltip");
+			UPDATELANGUAGESETTOOLTIP(kbpsLabel, "DownloadRateTooltip");
 			_downloadRateSpinBox = new QSpinBox(this);
 			_downloadRateSpinBox->setMaximum(5120);
 			_downloadRateSpinBox->setMinimum(1);
 			_downloadRateSpinBox->setValue(downloadRate);
 			_downloadRateSpinBox->setToolTip(QApplication::tr("DownloadRateTooltip"));
-			UPDATELANGUAGESETTOOLTIP(this, _downloadRateSpinBox, "DownloadRateTooltip");
+			UPDATELANGUAGESETTOOLTIP(_downloadRateSpinBox, "DownloadRateTooltip");
 			hl->addWidget(kbpsLabel);
 			hl->addWidget(_downloadRateSpinBox);
 
@@ -151,7 +154,7 @@ namespace widgets {
 		{
 			const bool hideIncompatible = _iniParser->value("MISC/hideIncompatible", true).toBool();;
 			_hideIncompatibleCheckBox = new QCheckBox(QApplication::tr("HideIncompatiblePatches"), this);
-			UPDATELANGUAGESETTEXT(this, _hideIncompatibleCheckBox, "HideIncompatiblePatches");
+			UPDATELANGUAGESETTEXT(_hideIncompatibleCheckBox, "HideIncompatiblePatches");
 			_hideIncompatibleCheckBox->setChecked(hideIncompatible);
 
 			l->addWidget(_hideIncompatibleCheckBox);
@@ -159,9 +162,9 @@ namespace widgets {
 		{
 			extendedLogging = _iniParser->value("MISC/extendedLogging", false).toBool();
 			_extendedLoggingCheckBox = new QCheckBox(QApplication::tr("ExtendedLogging"), this);
-			UPDATELANGUAGESETTEXT(this, _extendedLoggingCheckBox, "ExtendedLogging");
+			UPDATELANGUAGESETTEXT(_extendedLoggingCheckBox, "ExtendedLogging");
 			_extendedLoggingCheckBox->setToolTip(QApplication::tr("ExtendedLoggingTooltip"));
-			UPDATELANGUAGESETTOOLTIP(this, _extendedLoggingCheckBox, "ExtendedLoggingTooltip");
+			UPDATELANGUAGESETTOOLTIP(_extendedLoggingCheckBox, "ExtendedLoggingTooltip");
 			_extendedLoggingCheckBox->setChecked(extendedLogging);
 
 			l->addWidget(_extendedLoggingCheckBox);
@@ -169,9 +172,9 @@ namespace widgets {
 		{
 			skipExitCheckbox = _iniParser->value("MISC/skipExitCheckbox", false).toBool();
 			_skipExitCheckBox = new QCheckBox(QApplication::tr("SkipExitCheckbox"), this);
-			UPDATELANGUAGESETTEXT(this, _skipExitCheckBox, "SkipExitCheckbox");
+			UPDATELANGUAGESETTEXT(_skipExitCheckBox, "SkipExitCheckbox");
 			_skipExitCheckBox->setToolTip(QApplication::tr("SkipExitCheckboxTooltip"));
-			UPDATELANGUAGESETTOOLTIP(this, _skipExitCheckBox, "SkipExitCheckboxTooltip");
+			UPDATELANGUAGESETTOOLTIP(_skipExitCheckBox, "SkipExitCheckboxTooltip");
 			_skipExitCheckBox->setChecked(skipExitCheckbox);
 
 			l->addWidget(_skipExitCheckBox);
@@ -180,6 +183,10 @@ namespace widgets {
 		l->addStretch(1);
 
 		setLayout(l);
+	}
+
+	GeneralSettingsWidget * GeneralSettingsWidget::getInstance() {
+		return instance;
 	}
 
 	void GeneralSettingsWidget::saveSettings() {
@@ -205,6 +212,7 @@ namespace widgets {
 				translator->load(qApp->applicationDirPath() + "/en_US");
 			}
 			qApp->installTranslator(translator);
+			Config::Language = _languageComboBox->currentText();
 			emit languageChanged(_languageComboBox->currentText());
 		}
 		{
@@ -273,10 +281,6 @@ namespace widgets {
 		skipExitCheckbox = _iniParser->value("skipExitCheckbox", false).toBool();
 		_skipExitCheckBox->setChecked(skipExitCheckbox);
 		_iniParser->endGroup();
-	}
-
-	QString GeneralSettingsWidget::getLanguage() const {
-		return _languageComboBox->currentText();
 	}
 
 	bool GeneralSettingsWidget::getHideIncompatible() const {

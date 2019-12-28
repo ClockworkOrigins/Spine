@@ -19,21 +19,139 @@
 #pragma once
 
 #include "common/GothicVersion.h"
+#include "common/ModStats.h"
 
 #include <QSharedPointer>
 #include <QtPlugin>
 
+class QHBoxLayout;
+class QLabel;
+class QPushButton;
+class QSettings;
+class QTimer;
+class QVBoxLayout;
+
+namespace clockUtils {
+	enum class ClockError;
+namespace sockets {
+	class TcpSocket;
+}
+}
+
 namespace spine {
+	class ScreenshotManager;
+namespace common {
+	struct UpdateAchievementProgressMessage;
+	struct UpdateScoreMessage;
+	struct UnlockAchievementMessage;
+	struct UpdateOverallSaveDataMessage;
+} /* namespace common */
+namespace widgets {
+	class RatingWidget;
+}
 namespace launcher {
 
-	class ILauncher {
+	class ILauncher : public QObject {
+		Q_OBJECT
+		
 	public:
 		virtual ~ILauncher() {}
 
-		virtual bool supports(common::GothicVersion gothic) = 0;
+		virtual void init();
+
+		virtual bool supports(common::GothicVersion gothic) const = 0;
+		virtual bool supports(int32_t modID, const QString & iniFile) const = 0;
+
+		QWidget * getLibraryWidget() const;
+
+		virtual void loginChanged();
+		virtual void setDeveloperMode(bool) {}
+		void setShowAchievements(bool enabled);
+		virtual void setZSpyActivated(bool) {}
+
+		virtual void restoreSettings(QSettings *) {}
+		virtual void saveSettings(QSettings *) {}
+
+		virtual void updateView(int modID, const QString & iniFile) = 0;
+
+		virtual void start() = 0;
+
+		void refresh(int modID);
 
 	signals:
-		virtual void restartAsAdmin() = 0;
+		void restartAsAdmin();
+		void receivedModStats(common::ModStats);
+		void errorMessage(QString);
+		void openAchievementView(int32_t, QString);
+		void openScoreView(int32_t, QString);
+
+	protected:
+		QWidget * _widget = nullptr;
+		QVBoxLayout * _layout = nullptr;
+		QHBoxLayout * _upperLayout = nullptr;
+		QPushButton * _startButton;
+
+		QString _name;
+		int32_t _modID;
+
+		QString _iniFile;
+
+		QTime * _timer;
+
+		virtual void createWidget();
+
+		void updateCommonView(int modID, const QString & name);
+
+		void updateModInfoView(common::ModStats ms);
+
+		void startScreenshotManager(int modID);
+		void stopScreenshotManager();
+
+		void startCommon();
+		void stopCommon();
+
+		virtual QString getOverallSavePath() const = 0;
+
+		virtual void syncAdditionalTimes(int) {}
+
+		virtual void updateModStats() {}
+
+	private:
+		QLabel * _playTimeLabel;
+		widgets::RatingWidget * _ratingWidget;
+		QLabel * _installDate;
+		QLabel * _lastPlayedDate;
+		QLabel * _achievementLabel;
+		QLabel * _scoresLabel;
+
+		ScreenshotManager * _screenshotManager;
+
+		clockUtils::sockets::TcpSocket * _listenSocket;
+		clockUtils::sockets::TcpSocket * _socket;
+
+		bool _showAchievements;
+
+		void prepareAchievementView();
+		void prepareScoreView();
+
+		void acceptedConnection(clockUtils::sockets::TcpSocket * sock, clockUtils::ClockError err);
+		void receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets::TcpSocket * socket, clockUtils::ClockError err);
+
+		void tryCleanCaches();
+
+		void cacheScore(common::UpdateScoreMessage * usm);
+		void removeScore(common::UpdateScoreMessage * usm);
+
+		void cacheAchievement(common::UnlockAchievementMessage * uam);
+		void removeAchievement(common::UnlockAchievementMessage * uam);
+
+		void cacheAchievementProgress(common::UpdateAchievementProgressMessage * uapm);
+		void removeAchievementProgress(common::UpdateAchievementProgressMessage * uapm);
+
+		void cacheOverallSaveData(common::UpdateOverallSaveDataMessage * uom);
+		void removeOverallSaveData(common::UpdateOverallSaveDataMessage * uom);
+
+		void synchronizeOfflineData();
 	};
 	typedef QSharedPointer<ILauncher> ILauncherPtr;
 

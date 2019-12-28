@@ -35,13 +35,11 @@ namespace models {
 } /* namespace models */
 namespace widgets {
 
-	class GeneralSettingsWidget;
-
 	class AchievementSpineSettingsWidget : public QWidget {
 		Q_OBJECT
 
 	public:
-		AchievementSpineSettingsWidget(GeneralSettingsWidget * generalSettingsWidget, models::SpineEditorModel * model, QWidget * par);
+		AchievementSpineSettingsWidget(models::SpineEditorModel * model, QWidget * par);
 		~AchievementSpineSettingsWidget();
 
 		void save();
@@ -74,7 +72,6 @@ namespace widgets {
 			QLabel * previewUnlockedImage;
 		} Achievement;
 		models::SpineEditorModel * _model;
-		GeneralSettingsWidget * _generalSettingsWidget;
 		QLabel * _orientationLabel;
 		QComboBox * _orientationComboBox;
 		QLabel * _displayDurationLabel;

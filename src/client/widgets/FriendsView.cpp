@@ -30,7 +30,6 @@
 
 #include "widgets/AddFriendDialog.h"
 #include "widgets/FriendRequestView.h"
-#include "widgets/GeneralSettingsWidget.h"
 #include "widgets/WaitSpinner.h"
 
 #include "clockUtils/sockets/TcpSocket.h"
@@ -47,7 +46,7 @@
 namespace spine {
 namespace widgets {
 
-	FriendsView::FriendsView(GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _friendsList(nullptr), _waitSpinner(nullptr), _model(nullptr), _username(), _sendRequestButton(nullptr), _users(), _friendRequests(), _scrollArea(nullptr), _mainWidget(nullptr), _scrollLayout(nullptr) {
+	FriendsView::FriendsView(QWidget * par) : QWidget(par), _friendsList(nullptr), _waitSpinner(nullptr), _model(nullptr), _sendRequestButton(nullptr), _users(), _friendRequests(), _scrollArea(nullptr), _mainWidget(nullptr), _scrollLayout(nullptr) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -57,7 +56,7 @@ namespace widgets {
 
 			_sendRequestButton = new QPushButton("+", this);
 			_sendRequestButton->setToolTip(QApplication::tr("SendFriendRequest"));
-			UPDATELANGUAGESETTOOLTIP(generalSettingsWidget, _sendRequestButton, "SendFriendRequest");
+			UPDATELANGUAGESETTOOLTIP(_sendRequestButton, "SendFriendRequest");
 			hl->addWidget(_sendRequestButton);
 
 			l->addLayout(hl);
@@ -100,7 +99,7 @@ namespace widgets {
 	}
 
 	void FriendsView::updateFriendList() {
-		if (_username.isEmpty()) {
+		if (Config::Username.isEmpty()) {
 			return;
 		}
 		delete _waitSpinner;
@@ -108,8 +107,8 @@ namespace widgets {
 		_users.clear();
 		std::thread([this]() {
 			common::RequestAllFriendsMessage rafm;
-			rafm.username = _username.toStdString();
-			rafm.password = _password.toStdString();
+			rafm.username = Config::Username.toStdString();
+			rafm.password = Config::Password.toStdString();
 			std::string serialized = rafm.SerializePublic();
 			clockUtils::sockets::TcpSocket sock;
 			clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
@@ -123,7 +122,7 @@ namespace widgets {
 							emit receivedFriends(safm->friends, safm->friendRequests);
 							for (const std::string & n : safm->nonFriends) {
 								QString qn = s2q(n);
-								if (qn != _username) {
+								if (qn != Config::Username) {
 									_users << qn;
 								}
 							}
@@ -139,10 +138,8 @@ namespace widgets {
 		}).detach();
 	}
 
-	void FriendsView::setUsername(QString username, QString password) {
-		_username = username;
-		_password = password;
-		_sendRequestButton->setVisible(!username.isEmpty());
+	void FriendsView::loginChanged() {
+		_sendRequestButton->setVisible(!Config::Username.isEmpty());
 	}
 
 	void FriendsView::updateFriendsList(std::vector<common::Friend> friends, std::vector<common::Friend> friendRequests) {
@@ -157,7 +154,7 @@ namespace widgets {
 		_friendRequests.clear();
 
 		for (const common::Friend & f : friendRequests) {
-			FriendRequestView * frv = new FriendRequestView(_username, _password, s2q(f.name), f.level, this);
+			FriendRequestView * frv = new FriendRequestView(s2q(f.name), f.level, this);
 			_scrollLayout->addWidget(frv);
 			_friendRequests.append(frv);
 			connect(frv, &FriendRequestView::accepted, this, &FriendsView::acceptedFriend);
@@ -169,7 +166,7 @@ namespace widgets {
 	}
 
 	void FriendsView::openAddFriendDialog() {
-		AddFriendDialog dlg(_users, _username, _password, this);
+		AddFriendDialog dlg(_users, this);
 		dlg.exec();
 	}
 

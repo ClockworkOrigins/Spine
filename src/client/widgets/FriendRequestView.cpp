@@ -36,7 +36,7 @@
 namespace spine {
 namespace widgets {
 
-	FriendRequestView::FriendRequestView(QString username, QString password, QString friendname, uint32_t level, QWidget * par) : QWidget(par), _username(username), _password(password), _friendname(friendname), _level(level) {
+	FriendRequestView::FriendRequestView(QString friendname, uint32_t level, QWidget * par) : QWidget(par), _friendname(friendname), _level(level) {
 		QHBoxLayout * l = new QHBoxLayout();
 		l->setAlignment(Qt::AlignCenter);
 
@@ -70,8 +70,8 @@ namespace widgets {
 
 	void FriendRequestView::accept() {
 		common::AcceptFriendRequestMessage afrm;
-		afrm.username = _username.toStdString();
-		afrm.password = _password.toStdString();
+		afrm.username = Config::Username.toStdString();
+		afrm.password = Config::Password.toStdString();
 		afrm.friendname = _friendname.toStdString();
 		const std::string serialized = afrm.SerializePublic();
 		clockUtils::sockets::TcpSocket sock;
@@ -85,8 +85,8 @@ namespace widgets {
 
 	void FriendRequestView::decline() {
 		common::DeclineFriendRequestMessage dfrm;
-		dfrm.username = _username.toStdString();
-		dfrm.password = _password.toStdString();
+		dfrm.username = Config::Username.toStdString();
+		dfrm.password = Config::Password.toStdString();
 		dfrm.friendname = _friendname.toStdString();
 		const std::string serialized = dfrm.SerializePublic();
 		clockUtils::sockets::TcpSocket sock;

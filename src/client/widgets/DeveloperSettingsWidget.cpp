@@ -24,8 +24,6 @@
 
 #include "common/GothicVersion.h"
 
-#include "widgets/GeneralSettingsWidget.h"
-
 #include <QApplication>
 #include <QCheckBox>
 #include <QFileDialog>
@@ -38,14 +36,14 @@
 namespace spine {
 namespace widgets {
 
-	DeveloperSettingsWidget::DeveloperSettingsWidget(QSettings * iniParser, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _iniParser(iniParser), _developerModeCheckbox(nullptr), _zSpyCheckbox(nullptr), _devPaths() {
+	DeveloperSettingsWidget::DeveloperSettingsWidget(QSettings * iniParser, QWidget * par) : QWidget(par), _iniParser(iniParser), _developerModeCheckbox(nullptr), _zSpyCheckbox(nullptr), _devPaths() {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
 		{
 			QLabel * label = new QLabel(QApplication::tr("DeveloperModeInfo"), this);
 			label->setWordWrap(true);
-			UPDATELANGUAGESETTEXT(generalSettingsWidget, label, "DeveloperModeInfo");
+			UPDATELANGUAGESETTEXT(label, "DeveloperModeInfo");
 
 			l->addWidget(label);
 		}
@@ -53,7 +51,7 @@ namespace widgets {
 			const bool developerMode = _iniParser->value("DEVELOPER/Active", false).toBool();
 
 			_developerModeCheckbox = new QCheckBox(QApplication::tr("ActivateDeveloperMode"), this);
-			UPDATELANGUAGESETTEXT(generalSettingsWidget, _developerModeCheckbox, "ActivateDeveloperMode");
+			UPDATELANGUAGESETTEXT(_developerModeCheckbox, "ActivateDeveloperMode");
 			_developerModeCheckbox->setChecked(developerMode);
 
 			l->addWidget(_developerModeCheckbox);
@@ -62,7 +60,7 @@ namespace widgets {
 			const bool zSpy = _iniParser->value("DEVELOPER/ZSpy", false).toBool();
 
 			_zSpyCheckbox = new QCheckBox(QApplication::tr("ActivateZSpy"), this);
-			UPDATELANGUAGESETTEXT(generalSettingsWidget, _developerModeCheckbox, "ActivateZSpy");
+			UPDATELANGUAGESETTEXT(_developerModeCheckbox, "ActivateZSpy");
 			_zSpyCheckbox->setChecked(zSpy);
 
 			l->addWidget(_zSpyCheckbox);
@@ -74,7 +72,7 @@ namespace widgets {
 			const common::GothicVersion gv = common::GothicVersion(_iniParser->value("DEVELOPER/Gothic_" + QString::number(i), int(common::GothicVersion::GOTHIC2)).toInt());
 
 			QLabel * gothicPathLabel = new QLabel(QApplication::tr("DevPath").arg(i), this);
-			UPDATELANGUAGESETTEXTARG(generalSettingsWidget, gothicPathLabel, "DevPath", i);
+			UPDATELANGUAGESETTEXTARG(gothicPathLabel, "DevPath", i);
 			QLineEdit * gothicPathLineEdit = new QLineEdit(path, this);
 			gothicPathLineEdit->setValidator(new DirValidator());
 			gothicPathLineEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
@@ -171,7 +169,7 @@ namespace widgets {
 				break;
 			}
 		}
-		QString path = QFileDialog::getExistingDirectory(this, QApplication::tr("SelectGothicDir"), le->text());
+		const QString path = QFileDialog::getExistingDirectory(this, QApplication::tr("SelectGothicDir"), le->text());
 		if (!path.isEmpty()) {
 			le->setText(path);
 		}

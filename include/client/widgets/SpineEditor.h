@@ -35,7 +35,6 @@ namespace widgets {
 
 	class AchievementSpineSettingsWidget;
 	class GamepadSpineSettingsWidget;
-	class GeneralSettingsWidget;
 	class GeneralSpineSettingsWidget;
 	class LeGoSpineSettingsWidget;
 	class ScoreSpineSettingsWidget;
@@ -44,14 +43,13 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		SpineEditor(GeneralSettingsWidget * generalSettingsWidget, QSettings * iniParser, QMainWindow * mainWindow);
+		SpineEditor(QSettings * iniParser, QMainWindow * mainWindow);
 		~SpineEditor();
 
 		models::SpineEditorModel * getModel() const;
 
 	public slots:
 		int exec() override;
-		void setUsername(QString username, QString password);
 
 	private slots:
 		void achievementStateChanged(int checkState);
@@ -70,15 +68,12 @@ namespace widgets {
 
 	private:
 		models::SpineEditorModel * _model;
-		GeneralSettingsWidget * _generalSettingsWidget;
 		QTabWidget * _tabWidget;
 		GeneralSpineSettingsWidget * _generalSpineSettingsWidget;
 		AchievementSpineSettingsWidget * _achievementSpineSettingsWidget;
 		ScoreSpineSettingsWidget * _scoreSpineSettingsWidget;
 		GamepadSpineSettingsWidget * _gamepadSpineSettingsWidget;
 		LeGoSpineSettingsWidget * _legoSpineSettingsWidget;
-		QString _username;
-		QString _password;
 		QPushButton * _installSpineButton;
 		QPushButton * _updateSpineButton;
 		QPushButton * _installIkarusButton;

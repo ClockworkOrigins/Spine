@@ -22,8 +22,6 @@
 
 #include "models/SpineEditorModel.h"
 
-#include "widgets/GeneralSettingsWidget.h"
-
 #include <QApplication>
 #include <QCheckBox>
 #include <QLabel>
@@ -32,14 +30,14 @@
 namespace spine {
 namespace widgets {
 
-	GamepadSpineSettingsWidget::GamepadSpineSettingsWidget(GeneralSettingsWidget * generalSettingsWidget, models::SpineEditorModel * model, QWidget * par) : QWidget(par), _model(model), _generalSettingsWidget(generalSettingsWidget), _earthquakeVibrationLabel(nullptr), _earthquakeVibrationCheckBox(nullptr) {
+	GamepadSpineSettingsWidget::GamepadSpineSettingsWidget(models::SpineEditorModel * model, QWidget * par) : QWidget(par), _model(model), _earthquakeVibrationLabel(nullptr), _earthquakeVibrationCheckBox(nullptr) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
 		{
 			QHBoxLayout * hl = new QHBoxLayout();
 			_earthquakeVibrationLabel = new QLabel(QApplication::tr("EarthquakeVibration"), this);
-			UPDATELANGUAGESETTEXT(generalSettingsWidget, _earthquakeVibrationLabel, "EarthquakeVibration");
+			UPDATELANGUAGESETTEXT(_earthquakeVibrationLabel, "EarthquakeVibration");
 			_earthquakeVibrationCheckBox = new QCheckBox(this);
 
 			hl->addWidget(_earthquakeVibrationLabel);

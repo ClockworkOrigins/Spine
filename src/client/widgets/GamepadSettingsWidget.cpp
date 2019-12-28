@@ -22,8 +22,6 @@
 
 #include "gamepad/XBoxController.h"
 
-#include "widgets/GeneralSettingsWidget.h"
-
 #include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
@@ -118,19 +116,19 @@ namespace {
 	}
 }
 
-	GamepadSettingsWidget::GamepadSettingsWidget(QSettings * iniParser, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _iniParser(iniParser), _gamepadButtonToButtonMap(), _actionToButtonMap() {
+	GamepadSettingsWidget::GamepadSettingsWidget(QSettings * iniParser, QWidget * par) : QWidget(par), _iniParser(iniParser), _gamepadButtonToButtonMap(), _actionToButtonMap() {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
 		_gamepadEnabled = new QCheckBox(QApplication::tr("GamepadActive"), this);
-		UPDATELANGUAGESETTEXT(generalSettingsWidget, _gamepadEnabled, "GamepadActive");
+		UPDATELANGUAGESETTEXT(_gamepadEnabled, "GamepadActive");
 		l->addWidget(_gamepadEnabled);
 
 		{
 			QHBoxLayout * hl = new QHBoxLayout();
 
 			QLabel * lbl = new QLabel(QApplication::tr("UsedGamepad"), this);
-			UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "UsedGamepad");
+			UPDATELANGUAGESETTEXT(lbl, "UsedGamepad");
 			hl->addWidget(lbl);
 
 			_controllerList = new QComboBox(this);
@@ -148,7 +146,7 @@ namespace {
 			QHBoxLayout * hl = new QHBoxLayout();
 
 			QLabel * lbl = new QLabel(QApplication::tr("KeyDelay"), this);
-			UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "KeyDelay");
+			UPDATELANGUAGESETTEXT(lbl, "KeyDelay");
 			hl->addWidget(lbl);
 
 			_keyDelayBox = new QSpinBox(this);
@@ -160,13 +158,13 @@ namespace {
 		}
 		{
 			QGroupBox * gb = new QGroupBox(QApplication::tr("AssignmentOfKeys"));
-			UPDATELANGUAGESETTITLE(generalSettingsWidget, gb, "AssignmentOfKeys");
+			UPDATELANGUAGESETTITLE(gb, "AssignmentOfKeys");
 			QGridLayout * gl = new QGridLayout();
 
 			int row = 0;
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("MoveForward"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "MoveForward");
+				UPDATELANGUAGESETTEXT(lbl, "MoveForward");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -181,7 +179,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("MoveBackward"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "MoveBackward");
+				UPDATELANGUAGESETTEXT(lbl, "MoveBackward");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -196,7 +194,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("TurnLeft"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "TurnLeft");
+				UPDATELANGUAGESETTEXT(lbl, "TurnLeft");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -211,7 +209,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("TurnRight"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "TurnRight");
+				UPDATELANGUAGESETTEXT(lbl, "TurnRight");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -226,7 +224,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("ActionLeft"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "ActionLeft");
+				UPDATELANGUAGESETTEXT(lbl, "ActionLeft");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -241,7 +239,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("ActionRight"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "ActionRight");
+				UPDATELANGUAGESETTEXT(lbl, "ActionRight");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -256,7 +254,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("Action"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "Action");
+				UPDATELANGUAGESETTEXT(lbl, "Action");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -271,7 +269,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("StrafeLeft"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "StrafeLeft");
+				UPDATELANGUAGESETTEXT(lbl, "StrafeLeft");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -286,7 +284,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("StrafeRight"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "StrafeRight");
+				UPDATELANGUAGESETTEXT(lbl, "StrafeRight");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -301,7 +299,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("Inventory"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "Inventory");
+				UPDATELANGUAGESETTEXT(lbl, "Inventory");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -316,7 +314,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("Map"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "Map");
+				UPDATELANGUAGESETTEXT(lbl, "Map");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -331,7 +329,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("Sneak"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "Sneak");
+				UPDATELANGUAGESETTEXT(lbl, "Sneak");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -346,7 +344,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("Status"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "Status");
+				UPDATELANGUAGESETTEXT(lbl, "Status");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -361,7 +359,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("Log"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "Log");
+				UPDATELANGUAGESETTEXT(lbl, "Log");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -376,7 +374,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("Heal"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "Heal");
+				UPDATELANGUAGESETTEXT(lbl, "Heal");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -391,7 +389,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("Potion"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "Potion");
+				UPDATELANGUAGESETTEXT(lbl, "Potion");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -406,7 +404,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("LockTarget"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "LockTarget");
+				UPDATELANGUAGESETTEXT(lbl, "LockTarget");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -421,7 +419,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("Parade"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "Parade");
+				UPDATELANGUAGESETTEXT(lbl, "Parade");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -436,7 +434,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("Slow"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "Slow");
+				UPDATELANGUAGESETTEXT(lbl, "Slow");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -451,7 +449,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("Jump"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "Jump");
+				UPDATELANGUAGESETTEXT(lbl, "Jump");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -466,7 +464,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("DrawWeapon"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "DrawWeapon");
+				UPDATELANGUAGESETTEXT(lbl, "DrawWeapon");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -481,7 +479,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("DrawMeleeWeapon"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "DrawMeleeWeapon");
+				UPDATELANGUAGESETTEXT(lbl, "DrawMeleeWeapon");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -496,7 +494,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("DrawRangedWeapon"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "DrawRangedWeapon");
+				UPDATELANGUAGESETTEXT(lbl, "DrawRangedWeapon");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -511,7 +509,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("Look"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "Look");
+				UPDATELANGUAGESETTEXT(lbl, "Look");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -526,7 +524,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("LookFP"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "LookFP");
+				UPDATELANGUAGESETTEXT(lbl, "LookFP");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -541,7 +539,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("PreviousSpell"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "PreviousSpell");
+				UPDATELANGUAGESETTEXT(lbl, "PreviousSpell");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -556,7 +554,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("NextSpell"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "NextSpell");
+				UPDATELANGUAGESETTEXT(lbl, "NextSpell");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -571,7 +569,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("DrawSpell"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "DrawSpell");
+				UPDATELANGUAGESETTEXT(lbl, "DrawSpell");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);
@@ -586,7 +584,7 @@ namespace {
 			}
 			{
 				QLabel * lbl = new QLabel(QApplication::tr("Enter"), this);
-				UPDATELANGUAGESETTEXT(generalSettingsWidget, lbl, "Enter");
+				UPDATELANGUAGESETTEXT(lbl, "Enter");
 				gl->addWidget(lbl, row % 14, 2 * (row / 14));
 
 				QPushButton * pb = new QPushButton(QApplication::tr("Unassigned"), this);

@@ -37,6 +37,11 @@ namespace spine {
 		static QString NEWSIMAGEDIR;
 		static QString STYLESDIR;
 		static QSettings * IniParser;
+
+		static bool OnlineMode;
+		static QString Username;
+		static QString Password;
+		static QString Language;
 	};
 
 } /* namespace spine */

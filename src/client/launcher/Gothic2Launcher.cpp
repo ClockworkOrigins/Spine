@@ -47,7 +47,7 @@ namespace launcher {
 		connect(this, &Gothic2Launcher::updatedPath, this, &Gothic2Launcher::patchCheck, Qt::QueuedConnection);
 	}
 
-	bool Gothic2Launcher::supports(common::GothicVersion gothic) {
+	bool Gothic2Launcher::supports(common::GothicVersion gothic) const {
 		return gothic == common::GothicVersion::GOTHIC2;
 	}
 

@@ -41,7 +41,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		GeneralConfigurationWidget(const QString & username, const QString & password, QWidget * par);
+		GeneralConfigurationWidget(QWidget * par);
 		~GeneralConfigurationWidget();
 
 		void updateModList(QList<ManagementMod> modList);
@@ -67,8 +67,6 @@ namespace widgets {
 		QDateEdit * _releaseDateEdit;
 		QSpinBox * _devDurationBox;
 		spine::widgets::WaitSpinner * _waitSpinner;
-		QString _username;
-		QString _password;
 	};
 
 } /* namespace widgets */

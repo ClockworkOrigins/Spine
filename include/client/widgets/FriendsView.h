@@ -33,14 +33,13 @@ namespace spine {
 namespace widgets {
 
 	class FriendRequestView;
-	class GeneralSettingsWidget;
 	class WaitSpinner;
 
 	class FriendsView : public QWidget {
 		Q_OBJECT
 
 	public:
-		FriendsView(GeneralSettingsWidget * generalSettingsWidget, QWidget * par);
+		FriendsView(QWidget * par);
 		~FriendsView();
 
 		void updateFriendList();
@@ -49,7 +48,7 @@ namespace widgets {
 		void receivedFriends(std::vector<common::Friend>, std::vector<common::Friend>);
 
 	public slots:
-		void setUsername(QString username, QString password);
+		void loginChanged();
 
 	private slots:
 		void updateFriendsList(std::vector<common::Friend> friends, std::vector<common::Friend> friendRequests);
@@ -60,8 +59,6 @@ namespace widgets {
 		QListView * _friendsList;
 		WaitSpinner * _waitSpinner;
 		QStandardItemModel * _model;
-		QString _username;
-		QString _password;
 		QPushButton * _sendRequestButton;
 		QStringList _users;
 		QList<FriendRequestView *> _friendRequests;

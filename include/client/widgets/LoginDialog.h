@@ -28,19 +28,14 @@ class QSettings;
 namespace spine {
 namespace widgets {
 
-	class GeneralSettingsWidget;
-
 	class LoginDialog : public QDialog {
 		Q_OBJECT
 
 	public:
-		LoginDialog(bool onlineMode, QSettings * iniParser, GeneralSettingsWidget * generalSettingsWidget, QWidget * par);
-
-		QString getUsername() const;
-		QString getPassword() const;
+		LoginDialog(QSettings * iniParser, QWidget * par);
 
 	signals:
-		void loggedIn(QString, QString);
+		void loggedIn();
 		void showErrorMessage(QString);
 		void showInfoMessage(QString);
 
@@ -58,7 +53,6 @@ namespace widgets {
 		void showErrorMessageBox(QString message);
 		void showInfoMessageBox(QString message);
 		void dontShowAgainChanged(int state);
-		void setLanguage(QString language);
 		void resetPassword();
 		void onPrivacyAcceptChanged(bool enabled);
 
@@ -86,9 +80,7 @@ namespace widgets {
 
 		QString _language;
 
-		bool _onlineMode;
-
-		void handleLogin(QString username, QString password);
+		void handleLogin();
 	};
 
 } /* namespace widgets */

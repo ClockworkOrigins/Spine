@@ -18,6 +18,7 @@
 
 #include "widgets/ManagementDialog.h"
 
+#include "Config.h"
 #include "SpineConfig.h"
 
 #include "https/Https.h"
@@ -45,7 +46,7 @@ namespace spine {
 namespace client {
 namespace widgets {
 
-	ManagementDialog::ManagementDialog(QString username, QString password, QString language, QSettings * iniParser, QWidget * par) : QDialog(par), _iniParser(iniParser), _modList(nullptr), _username(username), _password(password), _language(language), _mods(), _modIndex(-1), _generalConfigurationWidget(nullptr), _modFilesWidget(nullptr), _userManagementWidget(nullptr), _statisticsWidget(nullptr) {
+	ManagementDialog::ManagementDialog(QSettings * iniParser, QWidget * par) : QDialog(par), _iniParser(iniParser), _modList(nullptr), _mods(), _modIndex(-1), _generalConfigurationWidget(nullptr), _modFilesWidget(nullptr), _userManagementWidget(nullptr), _statisticsWidget(nullptr) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -59,13 +60,13 @@ namespace widgets {
 			hl->addWidget(modList);
 
 			_tabWidget = new QTabWidget(this);
-			_generalConfigurationWidget = new GeneralConfigurationWidget(_username, _password, this);
-			_modFilesWidget = new ModFilesWidget(username, password, language, this);
-			_userManagementWidget = new UserManagementWidget(username, password, language, this);
-			_statisticsWidget = new StatisticsWidget(username, password, language, this);
-			_achievementsWidget = new AchievementsWidget(_username, _password, this);
-			_scoresWidget = new ScoresWidget(_username, _password, this);
-			_customStatisticsWidget = new CustomStatisticsWidget(_username, _password, this);
+			_generalConfigurationWidget = new GeneralConfigurationWidget(this);
+			_modFilesWidget = new ModFilesWidget(this);
+			_userManagementWidget = new UserManagementWidget(this);
+			_statisticsWidget = new StatisticsWidget(this);
+			_achievementsWidget = new AchievementsWidget(this);
+			_scoresWidget = new ScoresWidget(this);
+			_customStatisticsWidget = new CustomStatisticsWidget(this);
 			_tabWidget->addTab(_generalConfigurationWidget, QApplication::tr("General"));
 			_tabWidget->addTab(_modFilesWidget, QApplication::tr("ModFiles"));
 			_tabWidget->addTab(_userManagementWidget, QApplication::tr("UserManagement"));
@@ -139,9 +140,9 @@ namespace widgets {
 
 	void ManagementDialog::loadModList() {
 		QJsonObject requestData;
-		requestData["Username"] = _username;
-		requestData["Password"] = _password;
-		requestData["Language"] = _language;
+		requestData["Username"] = Config::Username;
+		requestData["Password"] = Config::Password;
+		requestData["Language"] = Config::Language;
 		
 		https::Https::postAsync(MANAGEMENTSERVER_PORT, "getMods", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
 			if (statusCode != 200) return;

@@ -18,8 +18,7 @@
 
 #include "widgets/RatingWidget.h"
 
-#include <thread>
-
+#include "Config.h"
 #include "SpineConfig.h"
 
 #include "common/MessageStructs.h"
@@ -32,6 +31,7 @@
 #include <QHBoxLayout>
 #include <QMouseEvent>
 #include <QSvgWidget>
+#include <QtConcurrentRun>
 
 #ifdef Q_OS_WIN
 	#include "WindowsExtensions.h"
@@ -40,7 +40,7 @@
 namespace spine {
 namespace widgets {
 
-	RatingWidget::RatingWidget(QWidget * par) : QWidget(par), _svgs(), _username(), _modID(), _modname(), _allowedToRate(false), _editable(true), _visible(false) {
+	RatingWidget::RatingWidget(QWidget * par) : QWidget(par), _svgs(), _modID(), _modname(), _allowedToRate(false), _editable(true), _visible(false) {
 		QHBoxLayout * l = new QHBoxLayout();
 		for (size_t i = 0; i < _svgs.size(); i++) {
 			_svgs[i] = new QSvgWidget(":/svg/star.svg", this);
@@ -57,9 +57,7 @@ namespace widgets {
 		QWidget::setVisible(_visible && (!_editable || _allowedToRate));
 	}
 
-	void RatingWidget::setUsername(QString username, QString password) {
-		_username = username;
-		_password = password;
+	void RatingWidget::loginChanged() {
 		requestRating();
 	}
 
@@ -123,10 +121,10 @@ namespace widgets {
 				_svgs[i]->load(QString(":/svg/star-edit.svg"));
 			}
 		}
-		std::thread([this, value]() {
+		QtConcurrent::run([this, value]() {
 			common::SubmitRatingMessage srm;
-			srm.username = _username.toStdString();
-			srm.password = _password.toStdString();
+			srm.username = Config::Username.toStdString();
+			srm.password = Config::Password.toStdString();
 			srm.modID = _modID;
 			srm.rating = value;
 			const std::string serialized = srm.SerializePublic();
@@ -134,11 +132,11 @@ namespace widgets {
 			if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
 				sock.writePacket(serialized);
 			}
-		}).detach();
+		});
 	}
 
 	void RatingWidget::requestRating() {
-		std::thread([this]() {
+		QtConcurrent::run([this]() {
 #ifdef Q_OS_WIN
 		LOGINFO("Memory Usage RatingWidget::requestRating #1: " << getPRAMValue());
 #endif
@@ -148,8 +146,8 @@ namespace widgets {
 				{
 					common::RequestRatingMessage rrm;
 					rrm.modID = _modID;
-					rrm.username = _username.toStdString();
-					rrm.password = _password.toStdString();
+					rrm.username = Config::Username.toStdString();
+					rrm.password = Config::Password.toStdString();
 					std::string serialized = rrm.SerializePublic();
 					sock.writePacket(serialized);
 					if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
@@ -171,7 +169,7 @@ namespace widgets {
 #ifdef Q_OS_WIN
 		LOGINFO("Memory Usage RatingWidget::requestRating #2: " << getPRAMValue());
 #endif
-		}).detach();
+		});
 	}
 
 } /* namespace widgets */

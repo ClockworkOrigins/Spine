@@ -41,7 +41,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		UserManagementWidget(const QString & username, const QString & password, QString language, QWidget * par);
+		UserManagementWidget(QWidget * par);
 		~UserManagementWidget();
 
 		void updateModList(QList<ManagementMod> modList);
@@ -66,9 +66,6 @@ namespace widgets {
 		QSortFilterProxyModel * _sortModel;
 		QStandardItemModel * _userListModel;
 		QStandardItemModel * _unlockedListModel;
-		QString _username;
-		QString _password;
-		QString _language;
 		QList<ManagementMod> _mods;
 		int _modIndex;
 		QStringList _userList;

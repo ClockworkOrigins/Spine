@@ -29,15 +29,12 @@ namespace std {
 } /* namespace std */
 
 namespace spine {
-namespace widgets {
-	class LocationSettingsWidget;
-} /* namespace widgets */
 
 	class ScreenshotManager : public QObject {
 		Q_OBJECT
 
 	public:
-		ScreenshotManager(widgets::LocationSettingsWidget * locationSettingsWidget, QObject * par);
+		ScreenshotManager(QObject * par);
 		~ScreenshotManager();
 
 		void start(int32_t modID);
