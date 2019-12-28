@@ -83,7 +83,6 @@ namespace widgets {
 		void restartAsAdmin();
 		void openAchievementView(int32_t, QString);
 		void openScoreView(int32_t, QString);
-		void updatedG1Path();
 		void updatedG2Path();
 		void receivedCompatibilityList(int, std::vector<int32_t>, std::vector<int32_t>);
 		void changeSplashMessage(QString, int, QColor);
@@ -108,8 +107,6 @@ namespace widgets {
 		void restartSpineAsAdmin();
 		void prepareAchievementView();
 		void prepareScoreView();
-		void patchCheckG1();
-		void patchCheckG2();
 		void updateCompatibilityList(int modID, std::vector<int32_t> incompatiblePatches, std::vector<int32_t> forbiddenPatches);
 		void startSpacer();
 		void finishedSpacer();

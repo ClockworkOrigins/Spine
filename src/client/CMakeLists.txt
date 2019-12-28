@@ -31,6 +31,11 @@ SET(SpineSrc
 	${srcdir}/ScreenshotManager.cpp
 	${srcdir}/Uninstaller.cpp
 	
+	${srcdir}/launcher/Gothic1Launcher.cpp
+	${srcdir}/launcher/Gothic2Launcher.cpp
+	${srcdir}/launcher/Gothic1And2Launcher.cpp
+	${srcdir}/launcher/LauncherFactory.cpp
+	
 	${srcdir}/models/CustomStatisticsModel.cpp
 	${srcdir}/models/SpineEditorModel.cpp
 	
@@ -128,6 +133,11 @@ QT5_WRAP_CPP(SpineGuiHeader
 	${includedir}/MultiFileDownloader.h
 	${includedir}/ReportGenerator.h
 	${includedir}/ScreenshotManager.h
+
+	${includedir}/launcher/Gothic1And2Launcher.h
+	${includedir}/launcher/Gothic1Launcher.h
+	${includedir}/launcher/Gothic2Launcher.h
+	${includedir}/launcher/LauncherFactory.h
 	
 	${includedir}/models/CustomStatisticsModel.h
 	${includedir}/models/SpineEditorModel.h
@@ -251,6 +261,7 @@ IF(WITH_TRANSLATOR)
 ENDIF(WITH_TRANSLATOR)
 
 SOURCE_GROUP(gamepad /gamepad/*)
+SOURCE_GROUP(launcher /launcher/*)
 SOURCE_GROUP(models /models/*)
 SOURCE_GROUP(resources /resources/*)
 SOURCE_GROUP(security /security/*)
