@@ -12,52 +12,33 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
 #include "widgets/ModInfoView.h"
 
 #include "Config.h"
-#include "Database.h"
-#include "FileDownloader.h"
-
-#include "common/MessageStructs.h"
-
-#ifdef Q_OS_WIN
-	#include "gamepad/KeyMapping.h"
-	#include "gamepad/XBoxController.h"
-#endif
 
 #include "launcher/Gothic1And2Launcher.h"
 #include "launcher/LauncherFactory.h"
 
-#include "widgets/AchievementView.h"
-
 #include "widgets/GeneralSettingsWidget.h"
-#include "widgets/LocationSettingsWidget.h"
-#include "widgets/SubmitCompatibilityDialog.h"
 
+#include <QAbstractButton>
 #include <QApplication>
-#include <QDirIterator>
-#include <QFile>
-#include <QJsonArray>
-#include <QMainWindow>
 #include <QMessageBox>
-#include <QPushButton>
-#include <QRegularExpression>
-#include <QSettings>
-#include <QSplashScreen>
 #include <QVBoxLayout>
 
 #ifdef Q_OS_WIN
+	#include <Windows.h>
 	#include <shellapi.h>
 #endif
 
 namespace spine {
 namespace widgets {
 
-	ModInfoView::ModInfoView(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QSettings * iniParser, QWidget * par) : QWidget(par), _mainWindow(mainWindow), _iniParser(iniParser) {
+	ModInfoView::ModInfoView(GeneralSettingsWidget * generalSettingsWidget, QSettings * iniParser, QWidget * par) : QWidget(par), _layout(nullptr), _iniParser(iniParser) {
 		connect(this, &ModInfoView::errorMessage, this, &ModInfoView::showErrorMessage);
 
 		{

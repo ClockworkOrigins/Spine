@@ -12,7 +12,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
@@ -363,7 +363,7 @@ namespace widgets {
 		connect(_modListView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(selectedMod(const QModelIndex &)));
 		connect(_modListView, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(selectedMod(const QModelIndex &)));
 
-		_modInfoView = new ModInfoView(this, _settingsDialog->getGeneralSettingsWidget(), _iniParser, topWidget);
+		_modInfoView = new ModInfoView(_settingsDialog->getGeneralSettingsWidget(), _iniParser, topWidget);
 		_modInfoView->setProperty("library", true);
 
 		_modInfoView->setDeveloperMode(_settingsDialog->getDeveloperSettingsWidget()->isDeveloperModeActive());
@@ -637,7 +637,7 @@ namespace widgets {
 		LOGINFO("Memory Usage MainWindow c'tor #18: " << getPRAMValue());
 #endif
 
-		AboutDialog * aboutDialog = new AboutDialog(_settingsDialog->getGeneralSettingsWidget(), this);
+		AboutDialog * aboutDialog = new AboutDialog(this);
 
 #ifdef Q_OS_WIN
 		LOGINFO("Memory Usage MainWindow c'tor #19: " << getPRAMValue());

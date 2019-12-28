@@ -12,54 +12,31 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_MODINFOVIEW_H__
-#define __SPINE_WIDGETS_MODINFOVIEW_H__
+#pragma once
 
 #include <cstdint>
-#include <set>
-
-#include "common/ModStats.h"
 
 #include "launcher/ILauncher.h"
 
-#include <QProcess>
 #include <QWidget>
 
-class QCheckBox;
-class QGridLayout;
-class QGroupBox;
-class QLabel;
-class QMainWindow;
-class QNetworkAccessManager;
-class QPushButton;
 class QSettings;
-class QSlider;
 class QVBoxLayout;
 
 namespace spine {
-	class ScreenshotManager;
-namespace common {
-	enum class GothicVersion;
-} /* namespace common */
-namespace gamepad {
-	class GamePadXbox;
-} /* namespace gamepad */
 namespace widgets {
 
-	class GamepadSettingsWidget;
 	class GeneralSettingsWidget;
-	class LocationSettingsWidget;
-	class RatingWidget;
 
 	class ModInfoView : public QWidget {
 		Q_OBJECT
 
 	public:
-		ModInfoView(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QSettings * iniParser, QWidget * par);
+		ModInfoView(GeneralSettingsWidget * generalSettingsWidget, QSettings * iniParser, QWidget * par);
 		~ModInfoView();
 
 		void setGothicDirectory(QString directory);
@@ -88,8 +65,6 @@ namespace widgets {
 		void showErrorMessage(QString msg);
 
 	private:
-		QMainWindow * _mainWindow;
-
 		QVBoxLayout * _layout;
 		QWidget * _lastWidget;
 
@@ -103,5 +78,3 @@ namespace widgets {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_MODINFOVIEW_H__ */
