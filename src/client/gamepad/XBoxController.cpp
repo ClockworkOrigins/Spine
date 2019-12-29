@@ -70,11 +70,7 @@ namespace {
 		// Get the state
 		DWORD Result = XInputGetState(idx, &controllerState);
 
-		if (Result == ERROR_SUCCESS) {
-			return true;
-		} else {
-			return false;
-		}
+		return Result == ERROR_SUCCESS;
 	}
 
 	bool GamePadXbox::isConnected() {
@@ -84,11 +80,7 @@ namespace {
 		// Get the state
 		DWORD Result = XInputGetState(_index, &_controllerState);
 
-		if (Result == ERROR_SUCCESS) {
-			return true;
-		} else {
-			return false;
-		}
+		return Result == ERROR_SUCCESS;
 	}
 
 	void GamePadXbox::vibrate(float leftmotor, float rightmotor) {
@@ -423,7 +415,7 @@ namespace {
 			if (_sock) {
 				common::GamepadActiveMessage gem;
 				gem.active = _active;
-				std::string serialized = gem.SerializeBlank();
+				const std::string serialized = gem.SerializeBlank();
 				_sock->writePacket(serialized);
 			}
 		}

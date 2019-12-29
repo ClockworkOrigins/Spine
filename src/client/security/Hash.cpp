@@ -18,7 +18,6 @@
 
 #include "security/Hash.h"
 
-#include <array>
 #include <memory>
 
 #include <QCryptographicHash>
@@ -26,7 +25,6 @@
 #include <QDir>
 #include <QRegularExpression>
 #include <QProcessEnvironment>
-#include <iostream>
 
 #ifdef Q_OS_WIN
 	#include <Windows.h>
@@ -196,16 +194,8 @@ namespace security {
 		DWORD fileSystemFlags = 0;
 		QString windowsRoot = QProcessEnvironment::systemEnvironment().value("windir");
 		windowsRoot = windowsRoot.split(":").front();
-		QString serialNumberString = "";
-		if (GetVolumeInformation(
-			(windowsRoot + ":\\").toStdString().c_str(),
-			volumeName,
-			ARRAYSIZE(volumeName),
-			&serialNumber,
-			&maxComponentLen,
-			&fileSystemFlags,
-			fileSystemName,
-			ARRAYSIZE(fileSystemName))) {
+		QString serialNumberString;
+		if (GetVolumeInformation((windowsRoot + ":\\").toStdString().c_str(), volumeName, ARRAYSIZE(volumeName), &serialNumber, &maxComponentLen, &fileSystemFlags, fileSystemName, ARRAYSIZE(fileSystemName))) {
 			printf("Volume Name: %s\n", volumeName);
 			printf("Serial Number: %lu\n", serialNumber);
 			printf("File System Name: %s\n", fileSystemName);

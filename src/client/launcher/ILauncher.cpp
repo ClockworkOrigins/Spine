@@ -821,7 +821,7 @@ namespace launcher {
 
 	void ILauncher::synchronizeOfflineData() {
 		// this code is incredible slow due to around 2.500 SQL inserts
-		QtConcurrent::run([this]() {
+		QtConcurrent::run([]() {
 			try {
 				if (Config::OnlineMode) {
 					// update server from local data in case Sync flag is set
@@ -834,18 +834,18 @@ namespace launcher {
 								Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM sync;", err);
 								Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO sync (Enabled) VALUES (0);", err);
 								common::UpdateOfflineDataMessage uodm;
-								std::vector<std::vector<std::string>> achievements = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Identifier FROM modAchievements;", err);
+								const auto achievements = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Identifier FROM modAchievements;", err);
 								for (auto vec : achievements) {
 									common::UpdateOfflineDataMessage::AchievementData ad {};
 									ad.modID = std::stoi(vec[0]);
 									ad.identifier = std::stoi(vec[1]);
-									std::vector<int> progress = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Current FROM modAchievementProgress WHERE Username = '" + Config::Username.toStdString() + "' AND ModID = " + vec[0] + " AND Identifier = " + vec[1] + " LIMIT 1;", err);
+									const auto progress = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Current FROM modAchievementProgress WHERE Username = '" + Config::Username.toStdString() + "' AND ModID = " + vec[0] + " AND Identifier = " + vec[1] + " LIMIT 1;", err);
 									if (!progress.empty()) {
 										ad.current = progress[0];
 									}
 									uodm.achievements.push_back(ad);
 								}
-								std::vector<std::vector<std::string>> scores = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Identifier, Score FROM modScores;", err);
+								const auto scores = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Identifier, Score FROM modScores;", err);
 								for (auto vec : scores) {
 									common::UpdateOfflineDataMessage::ScoreData sd {};
 									sd.modID = std::stoi(vec[0]);
@@ -853,7 +853,7 @@ namespace launcher {
 									sd.score = std::stoi(vec[2]);
 									uodm.scores.push_back(sd);
 								}
-								std::vector<std::vector<std::string>> overallSaveData = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Entry, Value FROM overallSaveData;", err);
+								const auto overallSaveData = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Entry, Value FROM overallSaveData;", err);
 								for (auto vec : overallSaveData) {
 									common::UpdateOfflineDataMessage::OverallSaveData od;
 									od.modID = std::stoi(vec[0]);
@@ -861,7 +861,7 @@ namespace launcher {
 									od.value = vec[2];
 									uodm.overallSaves.push_back(od);
 								}
-								std::vector<std::vector<int>> playTimes = Database::queryAll<std::vector<int>, int, int>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Duration FROM playTimes;", err);
+								const auto playTimes = Database::queryAll<std::vector<int>, int, int>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Duration FROM playTimes;", err);
 								for (auto vec : playTimes) {
 									uodm.playTimes.emplace_back(vec[0], vec[1]);
 								}
