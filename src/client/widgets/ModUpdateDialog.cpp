@@ -18,8 +18,6 @@
 
 #include "widgets/ModUpdateDialog.h"
 
-#include <thread>
-
 #include "Config.h"
 #include "Database.h"
 #include "FileDownloader.h"
@@ -43,6 +41,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QSet>
+#include <QtConcurrentRun>
 #include <QTimer>
 #include <QVBoxLayout>
 
@@ -377,7 +376,7 @@ namespace widgets {
 
 	void ModUpdateDialog::checkForUpdate() {
 		_running = true;
-		std::thread([this]() {
+		QtConcurrent::run([this]() {
 			Database::DBError err;
 			std::vector<common::ModVersion> m = Database::queryAll<common::ModVersion, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, MajorVersion, MinorVersion, PatchVersion FROM mods;", err);
 			for (common::ModVersion mv : m) {
@@ -413,12 +412,12 @@ namespace widgets {
 					}
 				}
 			}
-		}).detach();
+		});
 	}
 
 	void ModUpdateDialog::checkForUpdate(int32_t modID) {
 		_running = true;
-		std::thread([this, modID]() {
+		QtConcurrent::run([this, modID]() {
 			std::vector<common::ModVersion> m = { common::ModVersion(modID, 0, 0, 0) };
 			for (common::ModVersion mv : m) {
 				_oldVersions.insert(mv.modID, QString("%1.%2.%3").arg(int(mv.majorVersion)).arg(int(mv.minorVersion)).arg(int(mv.patchVersion)));
@@ -453,7 +452,7 @@ namespace widgets {
 					}
 				}
 			}
-		}).detach();
+		});
 	}
 
 	void ModUpdateDialog::hideUpdates(QList<common::ModUpdate> hides) const {

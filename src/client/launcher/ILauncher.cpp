@@ -821,7 +821,7 @@ namespace launcher {
 
 	void ILauncher::synchronizeOfflineData() {
 		// this code is incredible slow due to around 2.500 SQL inserts
-		std::thread([this]() {
+		QtConcurrent::run([this]() {
 			try {
 				if (Config::OnlineMode) {
 					// update server from local data in case Sync flag is set
@@ -928,7 +928,7 @@ namespace launcher {
 				}
 			} catch (...) {
 			}
-		}).detach();
+		});
 	}
 
 } /* namespace launcher */

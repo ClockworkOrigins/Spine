@@ -28,6 +28,7 @@
 #include <QLocale>
 #include <QProcessEnvironment>
 #include <QSettings>
+#include <QtConcurrentRun>
 #include <QTranslator>
 
 #ifdef Q_OS_WIN
@@ -51,7 +52,7 @@ namespace spine {
 		struct TamperCheckWrapper {
 			TamperCheckWrapper() {
 #ifdef SPINE_RELEASE
-				t = std::thread([this]() {
+				t = QtConcurrent::run([this]() {
 					while (running || false) {
 						if (IsDebuggerPresent()) {
 							// do some weird stuff here
@@ -67,11 +68,11 @@ namespace spine {
 			~TamperCheckWrapper() {
 				running = false;
 #ifdef SPINE_RELEASE
-				t.join();
+				t.waitForFinished();
 #endif
 			}
 			bool running = true;
-			std::thread t;
+			QFuture<void> t;
 		};
 		static TamperCheckWrapper tcw;
 

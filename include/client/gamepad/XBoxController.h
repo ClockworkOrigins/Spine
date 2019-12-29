@@ -12,16 +12,16 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_GAMEPAD_XBOXCONTROLLER_H__
-#define __SPINE_GAMEPAD_XBOXCONTROLLER_H__
+#pragma once
 
 #include <map>
 #include <mutex>
-#include <thread>
+
+#include <QFuture>
 
 #define WIN32_LEAN_AND_MEAN // We don't want the extra stuff like MFC and such
 #include <windows.h>
@@ -147,7 +147,7 @@ namespace gamepad {
 		bool _active;
 		mutable std::mutex _lock;
 		clockUtils::sockets::TcpSocket * _sock;
-		std::thread _worker;
+		QFuture<void> _worker;
 
 		void execute();
 		void activate();
@@ -156,5 +156,3 @@ namespace gamepad {
 
 } /* namespace gamepad */
 } /* namespace spine */
-
-#endif /* __SPINE_GAMEPAD_XBOXCONTROLLER_H__ */

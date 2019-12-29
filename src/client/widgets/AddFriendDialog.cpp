@@ -18,8 +18,6 @@
 
 #include "widgets/AddFriendDialog.h"
 
-#include <thread>
-
 #include "Config.h"
 #include "SpineConfig.h"
 
@@ -30,10 +28,10 @@
 #include <QApplication>
 #include <QComboBox>
 #include <QCompleter>
-#include <QDebug>
 #include <QPushButton>
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
+#include <QtConcurrentRun>
 #include <QVBoxLayout>
 
 namespace spine {
@@ -88,7 +86,7 @@ namespace widgets {
 		if (friendname.isEmpty()) {
 			return;
 		}
-		std::thread([friendname]() {
+		QtConcurrent::run([friendname]() {
 			common::SendFriendRequestMessage sfrm;
 			sfrm.username = Config::Username.toStdString();
 			sfrm.password = Config::Password.toStdString();
@@ -99,7 +97,7 @@ namespace widgets {
 			if (clockUtils::ClockError::SUCCESS == cErr) {
 				sock.writePacket(serialized);
 			}
-		}).detach();
+		});
 		close();
 	}
 

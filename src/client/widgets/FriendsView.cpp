@@ -18,8 +18,6 @@
 
 #include "widgets/FriendsView.h"
 
-#include <thread>
-
 #include "Config.h"
 #include "SpineConfig.h"
 #include "UpdateLanguage.h"
@@ -35,12 +33,12 @@
 #include "clockUtils/sockets/TcpSocket.h"
 
 #include <QApplication>
-#include <QDebug>
 #include <QListView>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
+#include <QtConcurrentRun>
 #include <QVBoxLayout>
 
 namespace spine {
@@ -105,7 +103,7 @@ namespace widgets {
 		delete _waitSpinner;
 		_waitSpinner = new WaitSpinner(QApplication::tr("LoadingFriends"), this);
 		_users.clear();
-		std::thread([this]() {
+		QtConcurrent::run([this]() {
 			common::RequestAllFriendsMessage rafm;
 			rafm.username = Config::Username.toStdString();
 			rafm.password = Config::Password.toStdString();
@@ -135,7 +133,7 @@ namespace widgets {
 					qDebug() << "Error occurred: " << int(cErr);
 				}
 			}
-		}).detach();
+		});
 	}
 
 	void FriendsView::loginChanged() {

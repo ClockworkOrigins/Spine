@@ -18,8 +18,6 @@
 
 #include "widgets/SubmitCompatibilityDialog.h"
 
-#include <thread>
-
 #include "Config.h"
 #include "utils/Conversion.h"
 #include "Database.h"
@@ -39,6 +37,7 @@
 #include <QPushButton>
 #include <QRadioButton>
 #include <QStandardItemModel>
+#include <QtConcurrentRun>
 #include <QVBoxLayout>
 
 namespace spine {
@@ -136,7 +135,7 @@ namespace widgets {
 		Database::DBError err;
 		Database::execute(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, "CREATE TABLE IF NOT EXISTS ownCompatibilityVotes(ModID INT NOT NULL, PatchID INT NOT NULL, Compatible INT NOT NULL, PRIMARY KEY(ModID, PatchID));", err);
 
-		std::thread([this]() {
+		QtConcurrent::run([this]() {
 			clockUtils::sockets::TcpSocket sock;
 			clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
 			if (clockUtils::ClockError::SUCCESS == cErr) {
@@ -199,7 +198,7 @@ namespace widgets {
 			} else {
 				qDebug() << "Error occurred: " << int(cErr);
 			}
-		}).detach();
+		});
 	}
 
 	SubmitCompatibilityDialog::~SubmitCompatibilityDialog() {
@@ -312,7 +311,7 @@ namespace widgets {
 		int32_t modID = _currentMods[_modView->currentIndex().row()].id;
 		int32_t patchID = _filteredPatches[_patchView->currentIndex().row()].id;
 		bool compatible = _compatibleButton->isChecked();
-		std::thread([username, password, modID, patchID, compatible]() {
+		QtConcurrent::run([username, password, modID, patchID, compatible]() {
 			common::SubmitCompatibilityMessage scm;
 			scm.username = username;
 			scm.password = password;
@@ -330,7 +329,7 @@ namespace widgets {
 			Database::DBError dbErr;
 			Database::execute(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, "INSERT INTO ownCompatibilityVotes (ModID, PatchID, Compatible) VALUES (" + std::to_string(modID) + ", " + std::to_string(patchID) + ", " + std::to_string(compatible) + ");", dbErr);
 			Q_ASSERT(!dbErr.error);
-		}).detach();
+		});
 
 		QDialog::accept();
 	}

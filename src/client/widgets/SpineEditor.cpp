@@ -18,8 +18,6 @@
 
 #include "widgets/SpineEditor.h"
 
-#include <thread>
-
 #include "Config.h"
 #include "FileDownloader.h"
 #include "MultiFileDownloader.h"
@@ -812,7 +810,7 @@ namespace widgets {
 	}
 
 	void SpineEditor::loadMods() {
-		std::thread([this]() {
+		QtConcurrent::run([this]() {
 			common::RequestModsForEditorMessage rmfem;
 			rmfem.username = Config::Username.toStdString();
 			rmfem.password = Config::Password.toStdString();
@@ -837,7 +835,7 @@ namespace widgets {
 					qDebug() << "Error occurred: " << int(cErr);
 				}
 			}
-		}).detach();
+		});
 	}
 
 } /* namespace widgets */

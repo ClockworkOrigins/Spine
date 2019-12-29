@@ -12,15 +12,15 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_SCREENSHOTMANAGER_H__
-#define __SPINE_SCREENSHOTMANAGER_H__
+#pragma once
 
 #include <cstdint>
 
+#include <QFuture>
 #include <QObject>
 #include <QString>
 
@@ -45,7 +45,7 @@ namespace spine {
 
 	private:
 		bool _running;
-		std::thread * _workerThread;
+		QFuture<void> _workerThread;
 		QString _screenshotDirectory;
 		int32_t _modID;
 
@@ -54,5 +54,3 @@ namespace spine {
 	};
 
 } /* namespace spine */
-
-#endif /* __SPINE_SCREENSHOTMANAGER_H__ */

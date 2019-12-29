@@ -18,8 +18,6 @@
 
 #include "widgets/ProfileView.h"
 
-#include <thread>
-
 #include "Config.h"
 #include "utils/Conversion.h"
 #include "FileDownloader.h"
@@ -47,6 +45,7 @@
 #include <QPushButton>
 #include <QScrollArea>
 #include <QStandardItemModel>
+#include <QtConcurrentRun>
 #include <QTableView>
 #include <QTabWidget>
 #include <QVBoxLayout>
@@ -171,7 +170,7 @@ namespace widgets {
 		_nameLabel->show();
 		_timeLabel->show();
 		_scrollArea->show();
-		std::thread([this]() {
+		QtConcurrent::run([this]() {
 			clockUtils::sockets::TcpSocket sock;
 			clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
 			if (clockUtils::ClockError::SUCCESS == cErr) {
@@ -219,7 +218,7 @@ namespace widgets {
 					}
 				}
 			}
-		}).detach();
+		});
 	}
 
 	void ProfileView::setGothicDirectory(QString path) {
@@ -263,7 +262,7 @@ namespace widgets {
 		_modnameLabel->show();
 		_backToProfileButton->show();
 		updateAchievements(-1, std::vector<common::SendAllAchievementStatsMessage::AchievementStats>());
-		std::thread([this, modID]() {
+		QtConcurrent::run([this, modID]() {
 			common::RequestAllAchievementStatsMessage raasm;
 			raasm.username = Config::Username.toStdString();
 			raasm.password = Config::Password.toStdString();
@@ -289,7 +288,7 @@ namespace widgets {
 					qDebug() << "Error occurred: " << int(cErr);
 				}
 			}
-		}).detach();
+		});
 	}
 
 	void ProfileView::openScoreView(int32_t modID, QString modName) {
@@ -308,7 +307,7 @@ namespace widgets {
 		_modnameLabel->setText(modName);
 		_modnameLabel->show();
 		_backToProfileButton->show();
-		std::thread([this, modID]() {
+		QtConcurrent::run([this, modID]() {
 			common::RequestAllScoreStatsMessage rassm;
 			rassm.username = Config::Username.toStdString();
 			rassm.password = Config::Password.toStdString();
@@ -334,7 +333,7 @@ namespace widgets {
 					qDebug() << "Error occurred: " << int(cErr);
 				}
 			}
-		}).detach();
+		});
 	}
 
 	void ProfileView::updateModList(std::vector<common::ModStats> mods) {

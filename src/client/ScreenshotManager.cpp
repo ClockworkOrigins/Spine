@@ -30,6 +30,7 @@
 
 #include <QDirIterator>
 #include <QSysInfo>
+#include <QtConcurrentRun>
 
 #ifdef Q_OS_WIN
 	#include <Windows.h>
@@ -218,16 +219,14 @@ namespace {
 #endif
 }
 
-	ScreenshotManager::ScreenshotManager(QObject * par) : QObject(par), _running(false), _workerThread(nullptr), _screenshotDirectory(), _modID() {
+	ScreenshotManager::ScreenshotManager(QObject * par) : QObject(par), _running(false), _screenshotDirectory(), _modID() {
 		_screenshotDirectory = widgets::LocationSettingsWidget::getInstance()->getScreenshotDirectory();
 		connect(widgets::LocationSettingsWidget::getInstance(), SIGNAL(screenshotDirectoryChanged(QString)), this, SLOT(setScreenshotDirectory(QString)));
 	}
 
 	ScreenshotManager::~ScreenshotManager() {
-		if (_workerThread) {
-			_running = false;
-			_workerThread->join();
-			delete _workerThread;
+		if (!_workerThread.isFinished()) {
+			_workerThread.waitForFinished();
 		}
 	}
 
@@ -241,7 +240,7 @@ namespace {
 		}
 
 		_running = true;
-		_workerThread = new std::thread(std::bind(&ScreenshotManager::execute, this));
+		_workerThread = QtConcurrent::run(this, &ScreenshotManager::execute);
 	}
 
 	void ScreenshotManager::stop() {
@@ -258,9 +257,7 @@ namespace {
 			QFile(it.filePath()).remove();
 		}
 		_running = false;
-		_workerThread->join();
-		delete _workerThread;
-		_workerThread = nullptr;
+		_workerThread.waitForFinished();
 	}
 
 	void ScreenshotManager::setScreenshotDirectory(QString screenshotDirectory) {

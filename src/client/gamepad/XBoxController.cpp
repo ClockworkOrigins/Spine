@@ -26,6 +26,8 @@
 
 #include "clockUtils/sockets/TcpSocket.h"
 
+#include <QtConcurrentRun>
+
 namespace spine {
 namespace gamepad {
 namespace {
@@ -48,7 +50,7 @@ namespace {
 		_index = idx;
 		State.reset();
 		_specialButtons.insert(std::make_pair(GamePadButton::GamePad_Button_BACK, DIK_KeyCodes::KEY_ESCAPE));
-		_worker = std::thread(std::bind(&GamePadXbox::execute, this));
+		_worker = QtConcurrent::run(this, &GamePadXbox::execute);
 	}
 
 	GamePadXbox::~GamePadXbox() {
@@ -57,9 +59,7 @@ namespace {
 			vibrate(0.0f, 0.0f);
 		}
 		_running = false;
-		if (_worker.joinable()) {
-			_worker.join();
-		}
+		_worker.waitForFinished();
 	}
 
 	bool GamePadXbox::isConnected(GamePadIndex idx) {

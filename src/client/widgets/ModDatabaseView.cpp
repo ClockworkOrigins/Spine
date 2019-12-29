@@ -18,7 +18,6 @@
 
 #include "widgets/ModDatabaseView.h"
 
-#include <thread>
 #include <utility>
 
 #include "Config.h"
@@ -58,6 +57,7 @@
 #include <QSpinBox>
 #include <QStandardItemModel>
 #include <QTableView>
+#include <QtConcurrentRun>
 #include <QTreeView>
 #include <QVBoxLayout>
 
@@ -376,7 +376,7 @@ namespace widgets {
 #ifdef Q_OS_WIN
 		LOGINFO("Memory Usage updateModList #2: " << getPRAMValue());
 #endif
-		std::thread([this, modID, packageID]() {
+		QtConcurrent::run([this, modID, packageID]() {
 #ifdef Q_OS_WIN
 		LOGINFO("Memory Usage updateModList #3: " << getPRAMValue());
 #endif
@@ -432,7 +432,7 @@ namespace widgets {
 #ifdef Q_OS_WIN
 		LOGINFO("Memory Usage updateModList #4: " << getPRAMValue());
 #endif
-		}).detach();
+		});
 	}
 
 	void ModDatabaseView::gothicValidationChanged(bool valid) {
@@ -694,7 +694,7 @@ namespace widgets {
 				}
 
 				// notify server download was successful
-				std::thread([mod]() {
+				QtConcurrent::run([mod]() {
 					common::DownloadSucceededMessage dsm;
 					dsm.modID = mod.id;
 					const std::string serialized = dsm.SerializePublic();
@@ -702,7 +702,7 @@ namespace widgets {
 					if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
 						sock.writePacket(serialized);
 					}
-				}).detach();
+				});
 				QMessageBox msg(QMessageBox::Icon::Information, QApplication::tr("InstallationSuccessful"), QApplication::tr("InstallationSuccessfulText").arg(s2q(mod.name)), QMessageBox::StandardButton::Ok);
 				msg.setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 				msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
@@ -901,7 +901,7 @@ namespace widgets {
 				Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "END TRANSACTION;", err);
 				Database::close(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, err);
 				// notify server download was successful
-				std::thread([package]() {
+				QtConcurrent::run([package]() {
 					common::PackageDownloadSucceededMessage pdsm;
 					pdsm.packageID = package.packageID;
 					const std::string serialized = pdsm.SerializePublic();
@@ -909,7 +909,7 @@ namespace widgets {
 					if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
 						sock.writePacket(serialized);
 					}
-				}).detach();
+				});
 				QMessageBox msg(QMessageBox::Icon::Information, QApplication::tr("InstallationSuccessful"), QApplication::tr("InstallationSuccessfulText").arg(s2q(package.name)), QMessageBox::StandardButton::Ok);
 				msg.setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 				msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
@@ -1021,7 +1021,7 @@ namespace widgets {
 			msg.button(QMessageBox::StandardButton::Cancel)->setText(QApplication::tr("Cancel"));
 			if (mod.id == 40 || mod.id == 57 || mod.id == 37 || mod.id == 116 || mod.id == 36 || QMessageBox::StandardButton::Ok == msg.exec()) {
 				// step 1: request all necessary files from server
-				std::thread([this, mod]() {
+				QtConcurrent::run([this, mod]() {
 					common::RequestModFilesMessage rmfm;
 					rmfm.modID = mod.id;
 					rmfm.language = Config::Language.toStdString();
@@ -1042,7 +1042,7 @@ namespace widgets {
 							}
 						}
 					}
-				}).detach();
+				});
 			}
 		} else {
 			const bool uninstalled = client::Uninstaller::uninstall(mod.id, s2q(mod.name), mod.gothic == common::GothicVersion::GOTHIC ? _gothicDirectory : _gothic2Directory);
@@ -1092,7 +1092,7 @@ namespace widgets {
 			msg.button(QMessageBox::StandardButton::Cancel)->setText(QApplication::tr("Cancel"));
 			if (QMessageBox::StandardButton::Ok == msg.exec()) {
 				// step 1: request all necessary files from server
-				std::thread([this, mod, package]() {
+				QtConcurrent::run([this, mod, package]() {
 					common::RequestPackageFilesMessage rpfm;
 					rpfm.packageID = package.packageID;
 					rpfm.language = Config::Language.toStdString();
@@ -1113,7 +1113,7 @@ namespace widgets {
 							}
 						}
 					}
-				}).detach();
+				});
 			}
 		} else {
 			qDebug() << "Uninstall pressed";

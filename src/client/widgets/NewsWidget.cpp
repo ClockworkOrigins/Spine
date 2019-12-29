@@ -18,8 +18,6 @@
 
 #include "widgets/NewsWidget.h"
 
-#include <thread>
-
 #include "Config.h"
 #include "Database.h"
 #include "SpineConfig.h"
@@ -41,6 +39,7 @@
 #include <QPushButton>
 #include <QScrollBar>
 #include <QStyleOption>
+#include <QtConcurrentRun>
 #include <QTextBrowser>
 #include <QVBoxLayout>
 
@@ -169,7 +168,7 @@ namespace widgets {
 		if (url.toString().startsWith("http://") || url.toString().startsWith("https://") || url.toString().startsWith("www.")) {
 			QDesktopServices::openUrl(url);
 
-			std::thread([this, url]() {
+			QtConcurrent::run([this, url]() {
 				common::LinkClickedMessage lcm;
 				lcm.newsID = _newsID;
 				lcm.url = url.toString().toStdString();
@@ -180,7 +179,7 @@ namespace widgets {
 				if (clockUtils::ClockError::SUCCESS == err) {
 					sock.writePacket(serialized);
 				}
-			}).detach();
+			});
 		}
 	}
 

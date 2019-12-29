@@ -520,7 +520,7 @@ namespace {
 	}
 
 	void setOverallSaveValueInt(const char * key, int value) {
-		std::string v = std::to_string(value);
+		const std::string v = std::to_string(value);
 		setOverallSaveValue(key, v.c_str());
 	}
 
@@ -531,12 +531,10 @@ namespace {
 			const auto it = overallSaveEntries.find(keyStr);
 			if (it != overallSaveEntries.end() && !it->second.empty()) {
 				return std::stoi(it->second);
-			} else {
-				return -1;
 			}
-		} else {
 			return -1;
 		}
+		return -1;
 	}
 
 	int32_t getShowAchievements() {

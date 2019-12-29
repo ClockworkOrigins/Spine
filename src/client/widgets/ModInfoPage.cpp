@@ -18,8 +18,6 @@
 
 #include "widgets/ModInfoPage.h"
 
-#include <thread>
-
 #include "Config.h"
 #include "Database.h"
 #include "FileDownloader.h"
@@ -281,7 +279,7 @@ namespace widgets {
 		delete _waitSpinner;
 		_waitSpinner = new WaitSpinner(QApplication::tr("LoadingPage"), this);
 		_modID = modID;
-		std::thread([this, modID]() {
+		QtConcurrent::run([this, modID]() {
 			common::RequestInfoPageMessage ripm;
 			ripm.modID = modID;
 			ripm.language = Config::Language.toStdString();
@@ -310,7 +308,7 @@ namespace widgets {
 			} else {
 				qDebug() << "Error occurred: " << int(err);
 			}
-		}).detach();
+		});
 	}
 
 	void ModInfoPage::finishedInstallation(int modID, int, bool success) {
@@ -662,7 +660,7 @@ namespace widgets {
 	}
 
 	void ModInfoPage::requestRandomMod() {
-		std::thread([this]() {
+		QtConcurrent::run([this]() {
 			common::RequestRandomModMessage rrmm;
 			rrmm.language = Config::Language.toStdString();
 			std::string serialized = rrmm.SerializePublic();
@@ -689,7 +687,7 @@ namespace widgets {
 			} else {
 				qDebug() << "Error occurred: " << int(err);
 			}
-		}).detach();
+		});
 	}
 
 	void ModInfoPage::startMod() {

@@ -18,8 +18,6 @@
 
 #include "widgets/MainWindow.h"
 
-#include <thread>
-
 #include "Config.h"
 #include "Database.h"
 #include "FileDownloader.h"
@@ -96,6 +94,7 @@
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
 #include <QStorageInfo>
+#include <QtConcurrentRun>
 #include <QTextEdit>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -178,7 +177,7 @@ namespace widgets {
 				Config::OnlineMode = cuTest;
 			}
 			if (Config::OnlineMode) {
-				std::thread([]() {
+				QtConcurrent::run([]() {
 					clockUtils::sockets::TcpSocket sock;
 					if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 5000)) {
 						common::UpdateStartTimeMessage ustm;
@@ -187,7 +186,7 @@ namespace widgets {
 						const std::string serialized = ustm.SerializePublic();
 						sock.writePacket(serialized);
 					}
-				}).detach();
+				});
 			}
 		}
 

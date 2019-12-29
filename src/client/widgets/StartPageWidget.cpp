@@ -18,8 +18,6 @@
 
 #include "widgets/StartPageWidget.h"
 
-#include <thread>
-
 #include "Config.h"
 #include "Database.h"
 #include "FileDownloader.h"
@@ -46,6 +44,7 @@
 #include <QSettings>
 #include <QStandardItemModel>
 #include <QTableView>
+#include <QtConcurrentRun>
 #include <QVBoxLayout>
 
 #ifdef Q_OS_WIN
@@ -125,7 +124,7 @@ namespace widgets {
 			updateNews();
 			return;
 		}
-		std::thread([this]() {
+		QtConcurrent::run([this]() {
 #ifdef Q_OS_WIN
 		LOGINFO("Memory Usage requestNewsUpdate #1: " << getPRAMValue());
 #endif
@@ -166,7 +165,7 @@ namespace widgets {
 #ifdef Q_OS_WIN
 		LOGINFO("Memory Usage requestNewsUpdate #2: " << getPRAMValue());
 #endif
-		}).detach();
+		});
 	}
 
 	void StartPageWidget::setLanguage(QString language) {
@@ -295,7 +294,7 @@ namespace widgets {
 				_startModButton->setProperty("modID", std::stoi(vec[0][0]));
 				_startModButton->setProperty("ini", ini);
 
-				QSettings iniParser(ini, QSettings::IniFormat);
+				const QSettings iniParser(ini, QSettings::IniFormat);
 				const QString title = iniParser.value("INFO/Title", "").toString();
 				_startModButton->setText(QApplication::tr("StartModName").arg(title));
 			} else {

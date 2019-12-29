@@ -18,8 +18,6 @@
 
 #include "widgets/NewsWriterDialog.h"
 
-#include <thread>
-
 #include "Config.h"
 #include "utils/Conversion.h"
 #include "Database.h"
@@ -45,6 +43,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QtConcurrentRun>
 #include <QTextBrowser>
 #include <QVBoxLayout>
 
@@ -256,7 +255,7 @@ namespace widgets {
 	}
 
 	void NewsWriterDialog::requestMods() {
-		std::thread([this]() {
+		QtConcurrent::run([this]() {
 			common::RequestAllModsMessage ramm;
 			ramm.language = Config::Language.toStdString();
 			ramm.username = Config::Username.toStdString();
@@ -283,7 +282,7 @@ namespace widgets {
 					qDebug() << "Error occurred: " << int(err);
 				}
 			}
-		}).detach();
+		});
 	}
 
 } /* namespace widgets */

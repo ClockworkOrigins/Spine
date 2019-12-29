@@ -19,7 +19,6 @@
 #include "widgets/management/ModFilesWidget.h"
 
 #include <fstream>
-#include <thread>
 
 #include "Config.h"
 #include "SpineConfig.h"
@@ -38,7 +37,6 @@
 #include "clockUtils/sockets/TcpSocket.h"
 
 #include <QApplication>
-#include <QDebug>
 #include <QFileDialog>
 #include <QHeaderView>
 #include <QInputDialog>
@@ -49,6 +47,7 @@
 #include <QPushButton>
 #include <QSpinBox>
 #include <QStandardItemModel>
+#include <QtConcurrentRun>
 #include <QTime>
 #include <QTreeView>
 #include <QVBoxLayout>
@@ -248,7 +247,7 @@ namespace {
 		_taskbarProgress->setValue(0);
 		_taskbarProgress->show();
 #endif
-		std::thread([this]() {
+		QtConcurrent::run([this]() {
 			common::UploadModfilesMessage umm;
 			umm.modID = _mods[_modIndex].id;
 			for (const auto & mmf : _data.files) {
@@ -361,7 +360,7 @@ namespace {
 			} else {
 				emit finishedUpload(false, uploadFiles.size());
 			}
-		}).detach();
+		});
 	}
 
 	void ModFilesWidget::updateModList(QList<client::ManagementMod> modList) {
