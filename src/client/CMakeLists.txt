@@ -40,8 +40,6 @@ SET(SpineSrc
 	${srcdir}/models/CustomStatisticsModel.cpp
 	${srcdir}/models/SpineEditorModel.cpp
 	
-	${srcdir}/security/Hash.cpp
-	
 	${srcdir}/translator/GothicParser.cpp
 	${srcdir}/translator/TranslationApplier.cpp
 	
@@ -266,7 +264,6 @@ SOURCE_GROUP(gamepad /gamepad/*)
 SOURCE_GROUP(launcher /launcher/*)
 SOURCE_GROUP(models /models/*)
 SOURCE_GROUP(resources /resources/*)
-SOURCE_GROUP(security /security/*)
 SOURCE_GROUP(translator /translator/*)
 SOURCE_GROUP(widgets /widgets/*)
 SOURCE_GROUP(widgets\\gothicIniPages /widgets/gothicIniPages/*)
@@ -294,7 +291,7 @@ ENDIF(WIN32)
 ADD_EXECUTABLE(Spine ${GUI_TYPE} ${SpineSrc} ${SpineGuiHeader} ${SpineGuiHeaderWindows} ${SpineGuiHeaderTranslator} ${QT_TRANSLATION_FILES} ${QT_RESOURCE_FILES} ${WINDOWS_RC_FILES})
 add_dependencies(Spine SpineAPI)
 
-target_link_libraries(Spine SpineCommon SpineHttps SpineUtils ${BOOST_LIBRARIES} ${CLOCKUTILS_LIBRARIES} ${CLOCKWORK_LIBRARIES} ${OPENSSL_LIBRARIES} ${QT_LIBRARIES} ${SQLITE3_LIBRARIES} ${TRANSLATOR_LIBRARIES} ${ZLIB_LIBRARIES})
+target_link_libraries(Spine SpineCommon SpineHttps SpineSecurity SpineUtils ${BOOST_LIBRARIES} ${CLOCKUTILS_LIBRARIES} ${CLOCKWORK_LIBRARIES} ${OPENSSL_LIBRARIES} ${QT_LIBRARIES} ${SQLITE3_LIBRARIES} ${TRANSLATOR_LIBRARIES} ${ZLIB_LIBRARIES})
 
 IF(UNIX)
 	target_link_libraries(Spine pthread)
