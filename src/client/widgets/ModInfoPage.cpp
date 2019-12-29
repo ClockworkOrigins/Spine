@@ -64,7 +64,7 @@
 namespace spine {
 namespace widgets {
 
-	ModInfoPage::ModInfoPage(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QSettings * iniParser, QWidget * par) : QWidget(par), _mainWindow(mainWindow), _modnameLabel(nullptr), _previewImageLabel(nullptr), _ratingWidget(nullptr), _rateWidget(nullptr), _thumbnailView(nullptr), _installButton(nullptr), _descriptionView(nullptr), _spineFeaturesView(nullptr), _thumbnailModel(nullptr), _spineFeatureModel(nullptr), _modID(-1), _screens(), _editInfoPageButton(nullptr), _descriptionEdit(nullptr), _featuresEdit(nullptr), _spineFeaturesEdit(nullptr), _addImageButton(nullptr), _deleteImageButton(nullptr), _moduleCheckBoxes(), _applyButton(nullptr), _generalSettingsWidget(generalSettingsWidget), _iniParser(iniParser), _waitSpinner(nullptr), _optionalPackageButtons(), _forceEdit(false) {
+	ModInfoPage::ModInfoPage(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _mainWindow(mainWindow), _modnameLabel(nullptr), _previewImageLabel(nullptr), _ratingWidget(nullptr), _rateWidget(nullptr), _thumbnailView(nullptr), _installButton(nullptr), _descriptionView(nullptr), _spineFeaturesView(nullptr), _thumbnailModel(nullptr), _spineFeatureModel(nullptr), _modID(-1), _screens(), _editInfoPageButton(nullptr), _descriptionEdit(nullptr), _featuresEdit(nullptr), _spineFeaturesEdit(nullptr), _addImageButton(nullptr), _deleteImageButton(nullptr), _moduleCheckBoxes(), _applyButton(nullptr), _generalSettingsWidget(generalSettingsWidget), _waitSpinner(nullptr), _optionalPackageButtons(), _forceEdit(false) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -550,12 +550,12 @@ namespace widgets {
 		if (_screens.size() == 10 && Config::Username != "Bonne") {
 			return;
 		}
-		const QString folder = _iniParser->value("PATH/Images", ".").toString();
+		const QString folder = Config::IniParser->value("PATH/Images", ".").toString();
 		const QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectImage"), folder, "Images (*.png *.jpg)");
 		if (path.isEmpty()) {
 			return;
 		}
-		_iniParser->setValue("PATH/Images", QFileInfo(path).absolutePath());
+		Config::IniParser->setValue("PATH/Images", QFileInfo(path).absolutePath());
 		QStandardItem * itm = new QStandardItem();
 		const QPixmap thumb(path);
 		itm->setIcon(thumb.scaled(QSize(300, 100), Qt::KeepAspectRatio, Qt::SmoothTransformation));

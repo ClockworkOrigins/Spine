@@ -12,25 +12,17 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_SAVEGAMEDIALOG_H__
-#define __SPINE_WIDGETS_SAVEGAMEDIALOG_H__
+#pragma once
 
 #include <QDialog>
 
-class QSettings;
 class QSortFilterProxyModel;
 class QStandardItem;
 class QStandardItemModel;
-
-namespace clockUtils {
-namespace iniParser {
-	class IniParser;
-} /* namespace iniParser */
-} /* namespace clockUtils */
 
 namespace spine {
 	class SavegameManager;
@@ -43,7 +35,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		SavegameDialog(LocationSettingsWidget * locationSettingsWidget, QSettings * iniParser, QWidget * par);
+		SavegameDialog(LocationSettingsWidget * locationSettingsWidget, QWidget * par);
 		~SavegameDialog();
 
 	private slots:
@@ -60,7 +52,6 @@ namespace widgets {
 		QString _gothic2Directory;
 		QString _openedFile;
 		QList<Variable> _variables;
-		QSettings * _iniParser;
 
 		void updateView();
 		void restoreSettings();
@@ -69,5 +60,3 @@ namespace widgets {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_SAVEGAMEDIALOG_H__ */

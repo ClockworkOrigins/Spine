@@ -16,15 +16,13 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_SPINEEDITOR_H__
-#define __SPINE_WIDGETS_SPINEEDITOR_H__
+#pragma once
 
 #include "common/MessageStructs.h"
 
 #include <QDialog>
 
 class QMainWindow;
-class QSettings;
 class QTabWidget;
 
 namespace spine {
@@ -43,7 +41,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		SpineEditor(QSettings * iniParser, QMainWindow * mainWindow);
+		SpineEditor(QMainWindow * mainWindow);
 		~SpineEditor();
 
 		models::SpineEditorModel * getModel() const;
@@ -81,7 +79,6 @@ namespace widgets {
 		QPushButton * _installLeGoButton;
 		QPushButton * _updateLeGoButton;
 		QMainWindow * _mainWindow;
-		QSettings * _iniParser;
 		std::vector<common::SendModsForEditorMessage::ModForEditor> _modList;
 
 		void closeEvent(QCloseEvent * evt) override;
@@ -97,5 +94,3 @@ namespace widgets {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_SPINEEDITOR_H__ */

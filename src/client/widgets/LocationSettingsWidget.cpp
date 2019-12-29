@@ -18,8 +18,6 @@
 
 #include "widgets/LocationSettingsWidget.h"
 
-#include <thread>
-
 #include "Config.h"
 #include "DirValidator.h"
 #include "UpdateLanguage.h"
@@ -47,7 +45,7 @@ namespace widgets {
 
 	LocationSettingsWidget * LocationSettingsWidget::instance = nullptr;
 
-	LocationSettingsWidget::LocationSettingsWidget(QSettings * iniParser, bool temporary, QWidget * par) : QWidget(par), _iniParser(iniParser), _gothicPathLineEdit(nullptr), _gothic2PathLineEdit(nullptr), _downloadPathLineEdit(nullptr), _screenshotPathLineEdit(nullptr), _futureCounter(0), _cancelSearch(false) {
+	LocationSettingsWidget::LocationSettingsWidget(bool temporary, QWidget * par) : QWidget(par), _gothicPathLineEdit(nullptr), _gothic2PathLineEdit(nullptr), _downloadPathLineEdit(nullptr), _screenshotPathLineEdit(nullptr), _futureCounter(0), _cancelSearch(false) {
 		instance = this;
 		
 		QVBoxLayout * l = new QVBoxLayout();
@@ -67,7 +65,7 @@ namespace widgets {
 		{
 			QGridLayout * hl = new QGridLayout();
 
-			QString path = _iniParser->value("PATH/Gothic", "").toString();
+			QString path = Config::IniParser->value("PATH/Gothic", "").toString();
 
 			QLabel * gothicPathLabel = new QLabel(QApplication::tr("GothicPath"), this);
 			if (!temporary) {
@@ -84,7 +82,7 @@ namespace widgets {
 
 			hl->setAlignment(Qt::AlignLeft);
 
-			path = _iniParser->value("PATH/Gothic2", "").toString();
+			path = Config::IniParser->value("PATH/Gothic2", "").toString();
 
 			gothicPathLabel = new QLabel(QApplication::tr("Gothic2Path"), this);
 			if (!temporary) {
@@ -121,7 +119,7 @@ namespace widgets {
 		{
 			QHBoxLayout * hl = new QHBoxLayout();
 
-			const QString path = _iniParser->value("PATH/Downloads", Config::BASEDIR).toString();
+			const QString path = Config::IniParser->value("PATH/Downloads", Config::BASEDIR).toString();
 
 			QLabel * downloadPathLabel = new QLabel(QApplication::tr("DownloadPath"), this);
 			if (!temporary) {
@@ -143,7 +141,7 @@ namespace widgets {
 		{
 			QHBoxLayout * hl = new QHBoxLayout();
 
-			const QString path = _iniParser->value("PATH/Screenshots", Config::BASEDIR + "/screens/").toString();
+			const QString path = Config::IniParser->value("PATH/Screenshots", Config::BASEDIR + "/screens/").toString();
 
 			QLabel * screenshotPathLabel = new QLabel(QApplication::tr("ScreenshotPath"), this);
 			if (!temporary) {
@@ -187,11 +185,11 @@ namespace widgets {
 		bool changedG1Path = false;
 		bool changedG2Path = false;
 		{
-			const QString path = _iniParser->value("PATH/Gothic", "").toString();
+			const QString path = Config::IniParser->value("PATH/Gothic", "").toString();
 			if (path != _gothicPathLineEdit->text()) {
 				if (dynamic_cast<const DirValidator *>(_gothicPathLineEdit->validator())->isValid(_gothicPathLineEdit->text()) && isGothicValid(false)) {
 					changedG1Path = true;
-					_iniParser->setValue("PATH/Gothic", _gothicPathLineEdit->text());
+					Config::IniParser->setValue("PATH/Gothic", _gothicPathLineEdit->text());
 				} else {
 					if (!_gothicPathLineEdit->text().isEmpty()) {
 						QMessageBox resultMsg(QMessageBox::Icon::Warning, QApplication::tr("InvalidPath"), QApplication::tr("InvalidGothicPath"), QMessageBox::StandardButton::Ok);
@@ -204,11 +202,11 @@ namespace widgets {
 			}
 		}
 		{
-			const QString path = _iniParser->value("PATH/Gothic2", "").toString();
+			const QString path = Config::IniParser->value("PATH/Gothic2", "").toString();
 			if (path != _gothic2PathLineEdit->text()) {
 				if (dynamic_cast<const DirValidator *>(_gothic2PathLineEdit->validator())->isValid(_gothic2PathLineEdit->text()) && isGothic2Valid(false)) {
 					changedG2Path = true;
-					_iniParser->setValue("PATH/Gothic2", _gothic2PathLineEdit->text());
+					Config::IniParser->setValue("PATH/Gothic2", _gothic2PathLineEdit->text());
 				} else {
 					if (!_gothic2PathLineEdit->text().isEmpty()) {
 						QMessageBox resultMsg(QMessageBox::Icon::Warning, QApplication::tr("InvalidPath"), QApplication::tr("InvalidGothic2Path"), QMessageBox::StandardButton::Ok);
@@ -229,11 +227,11 @@ namespace widgets {
 				emit validGothic2(isGothic2Valid(false));
 			}
 		}
-		_iniParser->setValue("PATH/Downloads", _downloadPathLineEdit->text());
+		Config::IniParser->setValue("PATH/Downloads", _downloadPathLineEdit->text());
 		if (Config::MODDIR != _downloadPathLineEdit->text()) {
 			{
 				QDir oldDir(Config::MODDIR + "/mods");
-				QDir dir = _downloadPathLineEdit->text() + "/mods";
+				const QDir dir = _downloadPathLineEdit->text() + "/mods";
 				if (oldDir.exists() && !dir.exists()) {
 					QDirIterator it(oldDir.absolutePath(), QStringList() << "*", QDir::Files, QDirIterator::Subdirectories);
 					QStringList files;
@@ -266,9 +264,9 @@ namespace widgets {
 			emit downloadPathChanged();
 		}
 		{
-			const QString path = _iniParser->value("PATH/Screenshots", "").toString();
+			const QString path = Config::IniParser->value("PATH/Screenshots", "").toString();
 			if (path != _screenshotPathLineEdit->text()) {
-				_iniParser->setValue("PATH/Screenshots", _screenshotPathLineEdit->text());
+				Config::IniParser->setValue("PATH/Screenshots", _screenshotPathLineEdit->text());
 				emit screenshotDirectoryChanged(_screenshotPathLineEdit->text());
 			}
 		}
@@ -276,19 +274,19 @@ namespace widgets {
 
 	void LocationSettingsWidget::rejectSettings() {
 		{
-			const QString path = _iniParser->value("PATH/Gothic", "").toString();
+			const QString path = Config::IniParser->value("PATH/Gothic", "").toString();
 			_gothicPathLineEdit->setText(path);
 		}
 		{
-			const QString path = _iniParser->value("PATH/Gothic2", "").toString();
+			const QString path = Config::IniParser->value("PATH/Gothic2", "").toString();
 			_gothic2PathLineEdit->setText(path);
 		}
 		{
-			const QString path = _iniParser->value("PATH/Downloads", "").toString();
+			const QString path = Config::IniParser->value("PATH/Downloads", "").toString();
 			_downloadPathLineEdit->setText(path);
 		}
 		{
-			const QString path = _iniParser->value("PATH/Screenshots", Config::BASEDIR + "/screens/").toString();
+			const QString path = Config::IniParser->value("PATH/Screenshots", Config::BASEDIR + "/screens/").toString();
 			_screenshotPathLineEdit->setText(path);
 		}
 	}
@@ -307,16 +305,16 @@ namespace widgets {
 
 	void LocationSettingsWidget::setGothicDirectory(QString path) {
 		_gothicPathLineEdit->setText(path);
-		_iniParser->setValue("PATH/Gothic", _gothicPathLineEdit->text());
-		_iniParser->setValue("PATH/Gothic2", _gothic2PathLineEdit->text());
+		Config::IniParser->setValue("PATH/Gothic", _gothicPathLineEdit->text());
+		Config::IniParser->setValue("PATH/Gothic2", _gothic2PathLineEdit->text());
 		emit pathChanged();
 		emit validGothic(isGothicValid(false));
 	}
 
 	void LocationSettingsWidget::setGothic2Directory(QString path) {
 		_gothic2PathLineEdit->setText(path);
-		_iniParser->setValue("PATH/Gothic", _gothicPathLineEdit->text());
-		_iniParser->setValue("PATH/Gothic2", _gothic2PathLineEdit->text());
+		Config::IniParser->setValue("PATH/Gothic", _gothicPathLineEdit->text());
+		Config::IniParser->setValue("PATH/Gothic2", _gothic2PathLineEdit->text());
 		emit pathChanged();
 		emit validGothic2(isGothic2Valid(false));
 	}
@@ -330,7 +328,7 @@ namespace widgets {
 	}
 
 	void LocationSettingsWidget::openGothicFileDialog() {
-		QString path = QFileDialog::getExistingDirectory(this, QApplication::tr("SelectGothicDir"), _gothicPathLineEdit->text());
+		const QString path = QFileDialog::getExistingDirectory(this, QApplication::tr("SelectGothicDir"), _gothicPathLineEdit->text());
 		if (!path.isEmpty()) {
 			if (_gothicPathLineEdit->text() != path) {
 				_gothicPathLineEdit->setText(path);
@@ -351,7 +349,7 @@ namespace widgets {
 	}
 
 	void LocationSettingsWidget::openGothic2FileDialog() {
-		QString path = QFileDialog::getExistingDirectory(this, QApplication::tr("SelectGothic2Dir"), _gothic2PathLineEdit->text());
+		const QString path = QFileDialog::getExistingDirectory(this, QApplication::tr("SelectGothic2Dir"), _gothic2PathLineEdit->text());
 		if (!path.isEmpty()) {
 			if (_gothic2PathLineEdit->text() != path) {
 				_gothic2PathLineEdit->setText(path);
@@ -420,7 +418,7 @@ namespace widgets {
 	}
 
 	void LocationSettingsWidget::openScreenshotDirectoryFileDialog() {
-		QString path = QFileDialog::getExistingDirectory(this, QApplication::tr("SelectScreenshotDir"), _screenshotPathLineEdit->text());
+		const QString path = QFileDialog::getExistingDirectory(this, QApplication::tr("SelectScreenshotDir"), _screenshotPathLineEdit->text());
 		if (!path.isEmpty()) {
 			if (_screenshotPathLineEdit->text() != path) {
 				_screenshotPathLineEdit->setText(path);

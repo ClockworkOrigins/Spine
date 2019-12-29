@@ -12,12 +12,11 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_MAINWINDOW_H__
-#define __SPINE_WIDGETS_MAINWINDOW_H__
+#pragma once
 
 #include <cstdint>
 
@@ -25,7 +24,6 @@
 #include <QMap>
 
 class QListView;
-class QSettings;
 class QStandardItemModel;
 class QTabWidget;
 class QTextEdit;
@@ -54,7 +52,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		MainWindow(bool showChangelog, QSettings * iniParser, QMainWindow * par = nullptr);
+		MainWindow(bool showChangelog, QMainWindow * par = nullptr);
 		~MainWindow();
 
 		static MainWindow * getInstance() { return instance; }
@@ -95,7 +93,6 @@ namespace widgets {
 		FriendsView * _friendsView;
 		QString _gothicDirectory;
 		QString _gothic2Directory;
-		QSettings * _iniParser;
 		SettingsDialog * _settingsDialog;
 		AutoUpdateDialog * _autoUpdateDialog;
 		ChangelogDialog * _changelogDialog;
@@ -130,5 +127,3 @@ namespace widgets {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_MAINWINDOW_H__ */

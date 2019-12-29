@@ -18,9 +18,9 @@
 
 #include "widgets/ApplyTranslationDialog.h"
 
-#include "translator/TranslationApplier.h"
+#include "Config.h"
 
-#include "utils/Conversion.h"
+#include "translator/TranslationApplier.h"
 
 #include <QApplication>
 #include <QDialogButtonBox>
@@ -35,7 +35,7 @@
 namespace spine {
 namespace widgets {
 
-	ApplyTranslationDialog::ApplyTranslationDialog(uint32_t requestID, QString title, QSettings * iniParser, QWidget * par) : QDialog(par), _iniParser(iniParser), _requestID(requestID) {
+	ApplyTranslationDialog::ApplyTranslationDialog(uint32_t requestID, QString title, QWidget * par) : QDialog(par), _requestID(requestID) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -85,7 +85,7 @@ namespace widgets {
 	}
 
 	void ApplyTranslationDialog::openFileDialog() {
-		QString path = QFileDialog::getExistingDirectory(this, QApplication::tr("SelectGothicDir"), _pathEdit->text());
+		const QString path = QFileDialog::getExistingDirectory(this, QApplication::tr("SelectGothicDir"), _pathEdit->text());
 		if (!path.isEmpty()) {
 			if (_pathEdit->text() != path) {
 				_pathEdit->setText(path);
@@ -106,14 +106,14 @@ namespace widgets {
 	}
 
 	void ApplyTranslationDialog::restoreSettings() {
-		const QByteArray arr = _iniParser->value("WINDOWGEOMETRY/ApplyTranslationDialogGeometry", QByteArray()).toByteArray();
+		const QByteArray arr = Config::IniParser->value("WINDOWGEOMETRY/ApplyTranslationDialogGeometry", QByteArray()).toByteArray();
 		if (!restoreGeometry(arr)) {
-			_iniParser->remove("WINDOWGEOMETRY/ApplyTranslationDialogGeometry");
+			Config::IniParser->remove("WINDOWGEOMETRY/ApplyTranslationDialogGeometry");
 		}
 	}
 
 	void ApplyTranslationDialog::saveSettings() {
-		_iniParser->setValue("WINDOWGEOMETRY/ApplyTranslationDialogGeometry", saveGeometry());
+		Config::IniParser->setValue("WINDOWGEOMETRY/ApplyTranslationDialogGeometry", saveGeometry());
 	}
 
 } /* namespace widgets */

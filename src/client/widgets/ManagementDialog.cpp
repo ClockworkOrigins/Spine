@@ -23,8 +23,6 @@
 
 #include "https/Https.h"
 
-#include "utils/Conversion.h"
-
 #include "widgets/management/AchievementsWidget.h"
 #include "widgets/management/CustomStatisticsWidget.h"
 #include "widgets/management/GeneralConfigurationWidget.h"
@@ -46,7 +44,7 @@ namespace spine {
 namespace client {
 namespace widgets {
 
-	ManagementDialog::ManagementDialog(QSettings * iniParser, QWidget * par) : QDialog(par), _iniParser(iniParser), _modList(nullptr), _mods(), _modIndex(-1), _generalConfigurationWidget(nullptr), _modFilesWidget(nullptr), _userManagementWidget(nullptr), _statisticsWidget(nullptr) {
+	ManagementDialog::ManagementDialog(QWidget * par) : QDialog(par), _modList(nullptr), _mods(), _modIndex(-1), _generalConfigurationWidget(nullptr), _modFilesWidget(nullptr), _userManagementWidget(nullptr), _statisticsWidget(nullptr) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -169,14 +167,14 @@ namespace widgets {
 	}
 
 	void ManagementDialog::restoreSettings() {
-		const QByteArray arr = _iniParser->value("WINDOWGEOMETRY/ManagementDialogGeometry", QByteArray()).toByteArray();
+		const QByteArray arr = Config::IniParser->value("WINDOWGEOMETRY/ManagementDialogGeometry", QByteArray()).toByteArray();
 		if (!restoreGeometry(arr)) {
-			_iniParser->remove("WINDOWGEOMETRY/ManagementDialogGeometry");
+			Config::IniParser->remove("WINDOWGEOMETRY/ManagementDialogGeometry");
 		}
 	}
 
 	void ManagementDialog::saveSettings() {
-		_iniParser->setValue("WINDOWGEOMETRY/ManagementDialogGeometry", saveGeometry());
+		Config::IniParser->setValue("WINDOWGEOMETRY/ManagementDialogGeometry", saveGeometry());
 	}
 
 	void ManagementDialog::changedTab() {

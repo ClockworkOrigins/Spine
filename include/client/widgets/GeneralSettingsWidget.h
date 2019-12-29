@@ -33,11 +33,9 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		static int downloadRate;
-		static bool extendedLogging;
 		static bool skipExitCheckbox;
 
-		GeneralSettingsWidget(QSettings * iniParser, QWidget * par);
+		GeneralSettingsWidget(QWidget * par);
 
 		static GeneralSettingsWidget * getInstance();
 
@@ -56,7 +54,6 @@ namespace widgets {
 		void reactivateModUpdates();
 
 	private:
-		QSettings * _iniParser;
 		QComboBox * _languageComboBox;
 		QComboBox * _styleComboBox;
 		QCheckBox * _autoUpdateBox;

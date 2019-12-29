@@ -18,7 +18,6 @@
 
 #include "models/CustomStatisticsModel.h"
 
-#include <QSettings>
 #include <QStandardItemModel>
 
 namespace spine {

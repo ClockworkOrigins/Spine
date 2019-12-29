@@ -12,19 +12,17 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_DEVELOPERSETTINGSWIDGET_H__
-#define __SPINE_WIDGETS_DEVELOPERSETTINGSWIDGET_H__
+#pragma once
 
 #include <QWidget>
 
 class QCheckBox;
 class QLineEdit;
 class QPushButton;
-class QSettings;
 
 namespace spine {
 namespace common {
@@ -36,7 +34,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		DeveloperSettingsWidget(QSettings * iniParser, QWidget * par);
+		DeveloperSettingsWidget(QWidget * par);
 		~DeveloperSettingsWidget();
 
 		void saveSettings();
@@ -67,7 +65,6 @@ namespace widgets {
 			QCheckBox * g1Box;
 			QCheckBox * g2Box;
 		};
-		QSettings * _iniParser;
 		QCheckBox * _developerModeCheckbox;
 		QCheckBox * _zSpyCheckbox;
 		QList<DevPath> _devPaths;
@@ -75,5 +72,3 @@ namespace widgets {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_DEVELOPERSETTINGSWIDGET_H__ */

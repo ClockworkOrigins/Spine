@@ -24,7 +24,6 @@
 
 #include <QWidget>
 
-class QSettings;
 class QVBoxLayout;
 
 namespace spine {
@@ -36,7 +35,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		ModInfoView(GeneralSettingsWidget * generalSettingsWidget, QSettings * iniParser, QWidget * par);
+		ModInfoView(GeneralSettingsWidget * generalSettingsWidget, QWidget * par);
 		~ModInfoView();
 
 		void setGothicDirectory(QString directory);
@@ -69,8 +68,6 @@ namespace widgets {
 		QWidget * _lastWidget;
 
 		launcher::ILauncherPtr _currentLauncher;
-
-		QSettings * _iniParser;
 
 		void restoreSettings();
 		void saveSettings();

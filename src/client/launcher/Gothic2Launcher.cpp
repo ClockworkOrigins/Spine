@@ -128,12 +128,12 @@ namespace launcher {
 		bool start = false;
 
 		for (auto it = fileList.begin(); it != fileList.end(); ++it) {
-			if (widgets::GeneralSettingsWidget::extendedLogging) {
+			if (Config::extendedLogging) {
 				LOGINFO("Checking G2 file " << it.key().toStdString());
 			}
 			const bool b = utils::Hashing::checkHash(_directory + "/" + it.key(), it.value()); // TODO: hash check is performed twice, here and in FileDownloader
 			if (!b) {
-				if (widgets::GeneralSettingsWidget::extendedLogging) {
+				if (Config::extendedLogging) {
 					LOGWARN("Hashcheck failed");
 				}
 				start = true;

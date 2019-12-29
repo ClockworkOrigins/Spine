@@ -19,11 +19,12 @@
 #include "widgets/ProfileModView.h"
 
 #include "Config.h"
-#include "utils/Conversion.h"
 #include "Database.h"
 #include "SpineConfig.h"
 
 #include "common/GothicVersion.h"
+
+#include "utils/Conversion.h"
 
 #include <QApplication>
 #include <QDirIterator>
@@ -35,7 +36,7 @@
 
 #ifdef Q_OS_WIN
 	#include <QtWinExtras/qwinfunctions.h>
-	#include <ShellAPI.h>
+	#include <shellapi.h>
 #endif
 
 namespace spine {

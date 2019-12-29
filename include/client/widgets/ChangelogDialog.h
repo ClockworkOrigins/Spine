@@ -12,16 +12,14 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_CHANGELOGDIALOG_H__
-#define __SPINE_WIDGETS_CHANGELOGDIALOG_H__
+#pragma once
 
 #include <QDialog>
 
-class QSettings;
 class QTextBrowser;
 
 namespace spine {
@@ -31,7 +29,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		ChangelogDialog(QSettings * iniParser, QWidget * par);
+		ChangelogDialog(QWidget * par);
 		~ChangelogDialog();
 
 	public slots:
@@ -43,7 +41,6 @@ namespace widgets {
 
 	private:
 		QTextBrowser * _changelogBrowser;
-		QSettings * _iniParser;
 
 		void restoreSettings();
 		void saveSettings();
@@ -51,5 +48,3 @@ namespace widgets {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_CHANGELOGDIALOG_H__ */

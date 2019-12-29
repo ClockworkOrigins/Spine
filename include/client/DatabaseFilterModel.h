@@ -12,16 +12,13 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_DATABASEFILTERMODEL_H__
-#define __SPINE_DATABASEFILTERMODEL_H__
+#pragma once
 
 #include <QSortFilterProxyModel>
-
-class QSettings;
 
 namespace spine {
 
@@ -49,7 +46,7 @@ namespace spine {
 		Q_OBJECT
 
 	public:
-		DatabaseFilterModel(QSettings * iniParser, QObject * par);
+		DatabaseFilterModel(QObject * par);
 
 		bool isGothicActive() const {
 			return _gothicActive;
@@ -113,7 +110,6 @@ namespace spine {
 		void maxDurationChanged(int);
 
 	private:
-		QSettings * _iniParser;
 		bool _gothicActive;
 		bool _gothic2Active;
 		bool _gothicAndGothic2Active;
@@ -131,5 +127,3 @@ namespace spine {
 	};
 
 } /* namespace spine */
-
-#endif /* __SPINE_DATABASEFILTERMODEL_H__ */

@@ -454,28 +454,28 @@ namespace {
 		} while (deleted);
 	}
 
-	void Gothic1And2Launcher::restoreSettings(QSettings * settings) {
-		bool b = settings->value("DEVELOPER/CompileScripts", false).toBool();
+	void Gothic1And2Launcher::restoreSettings() {
+		bool b = Config::IniParser->value("DEVELOPER/CompileScripts", false).toBool();
 		_compileScripts->setChecked(b);
-		b = settings->value("DEVELOPER/WindowedMode", false).toBool();
+		b = Config::IniParser->value("DEVELOPER/WindowedMode", false).toBool();
 		_startupWindowed->setChecked(b);
-		const int i = settings->value("DEVELOPER/zSpyLevel", 10).toInt();
+		const int i = Config::IniParser->value("DEVELOPER/zSpyLevel", 10).toInt();
 		_zSpyLevel->setValue(i);
-		b = settings->value("DEVELOPER/ConvertTextures", false).toBool();
+		b = Config::IniParser->value("DEVELOPER/ConvertTextures", false).toBool();
 		_convertTextures->setChecked(b);
-		b = settings->value("DEVELOPER/NoSound", false).toBool();
+		b = Config::IniParser->value("DEVELOPER/NoSound", false).toBool();
 		_noSound->setChecked(b);
-		b = settings->value("DEVELOPER/NoMusic", false).toBool();
+		b = Config::IniParser->value("DEVELOPER/NoMusic", false).toBool();
 		_noMusic->setChecked(b);
 	}
 
-	void Gothic1And2Launcher::saveSettings(QSettings * settings) {
-		settings->setValue("DEVELOPER/CompileScripts", _compileScripts->isChecked());
-		settings->setValue("DEVELOPER/WindowedMode", _startupWindowed->isChecked());
-		settings->setValue("DEVELOPER/zSpyLevel", _zSpyLevel->value());
-		settings->setValue("DEVELOPER/ConvertTextures", _convertTextures->isChecked());
-		settings->setValue("DEVELOPER/NoSound", _noSound->isChecked());
-		settings->setValue("DEVELOPER/NoMusic", _noMusic->isChecked());
+	void Gothic1And2Launcher::saveSettings() {
+		Config::IniParser->setValue("DEVELOPER/CompileScripts", _compileScripts->isChecked());
+		Config::IniParser->setValue("DEVELOPER/WindowedMode", _startupWindowed->isChecked());
+		Config::IniParser->setValue("DEVELOPER/zSpyLevel", _zSpyLevel->value());
+		Config::IniParser->setValue("DEVELOPER/ConvertTextures", _convertTextures->isChecked());
+		Config::IniParser->setValue("DEVELOPER/NoSound", _noSound->isChecked());
+		Config::IniParser->setValue("DEVELOPER/NoMusic", _noMusic->isChecked());
 	}
 
 	void Gothic1And2Launcher::updateView(int modID, const QString & iniFile) {
@@ -689,7 +689,7 @@ namespace {
 		connect(process, &QProcess::errorOccurred, this, &Gothic1And2Launcher::errorOccurred);
 		connect(process, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), this, &Gothic1And2Launcher::finishedMod);
 		process->setWorkingDirectory(_directory + "/System/");
-		if (widgets::GeneralSettingsWidget::extendedLogging) {
+		if (Config::extendedLogging) {
 			LOGINFO("Preparation duration: " << t.elapsed());
 		}
 		QStringList args;
@@ -760,7 +760,7 @@ namespace {
 
 	void Gothic1And2Launcher::finishedMod(int, QProcess::ExitStatus status) {
 		LOGINFO("Finished Mod");
-		if (widgets::GeneralSettingsWidget::extendedLogging) {
+		if (Config::extendedLogging) {
 			LOGINFO("Resetting ini files");
 		}
 		{
@@ -920,7 +920,7 @@ namespace {
 					if (QFile(_lastBaseDir + "/" + file).remove()) {
 						Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "DELETE FROM usedFiles WHERE File = '" + file.toStdString() + "';", err);
 						removed.insert(file);
-						if (widgets::GeneralSettingsWidget::extendedLogging) {
+						if (Config::extendedLogging) {
 							LOGINFO("Removed file " << file.toStdString());
 						}
 					} else {
@@ -929,7 +929,7 @@ namespace {
 							removeSymlink(_lastBaseDir + "/" + file);
 						}
 #endif
-						if (widgets::GeneralSettingsWidget::extendedLogging) {
+						if (Config::extendedLogging) {
 							LOGINFO("Couldn't remove file " << file.toStdString());
 						}
 					}
@@ -937,11 +937,11 @@ namespace {
 					if (QDir(_lastBaseDir + "/" + file).remove(_lastBaseDir + "/" + file)) {
 						Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "DELETE FROM usedFiles WHERE File = '" + file.toStdString() + "';", err);
 						removed.insert(file);
-						if (widgets::GeneralSettingsWidget::extendedLogging) {
+						if (Config::extendedLogging) {
 							LOGINFO("Removed file " << file.toStdString());
 						}
 					} else {
-						if (widgets::GeneralSettingsWidget::extendedLogging) {
+						if (Config::extendedLogging) {
 							LOGINFO("Couldn't remove file " << file.toStdString());
 						}
 					}
@@ -955,7 +955,7 @@ namespace {
 				_copiedFiles.removeOne(file);
 			}
 
-			if (widgets::GeneralSettingsWidget::extendedLogging) {
+			if (Config::extendedLogging) {
 				LOGINFO("Not removed files: " << _copiedFiles.size());
 			}
 
@@ -1131,7 +1131,7 @@ namespace {
 		int normalsCounter = -1;
 		if (_modID != -1) {
 			emitSplashMessage(QApplication::tr("DetermingCorrectGothicPath"));
-			if (widgets::GeneralSettingsWidget::extendedLogging) {
+			if (Config::extendedLogging) {
 				LOGINFO("Installed Mod");
 			}
 			bool success = true;
@@ -1166,7 +1166,7 @@ namespace {
 					if (filename.contains("Data/modvdf/") || canSkipFile(filename)) {
 						continue;
 					}
-					if (widgets::GeneralSettingsWidget::extendedLogging) {
+					if (Config::extendedLogging) {
 						LOGINFO("Copying file " << file.first);
 					}
 #ifdef Q_OS_WIN
@@ -1218,7 +1218,7 @@ namespace {
 								const bool b = utils::Hashing::checkHash(Config::MODDIR + "/mods/" + QString::number(_modID) + "/" + filename, QString::fromStdString(file.second));
 								if (b) {
 									copy = false;
-									if (widgets::GeneralSettingsWidget::extendedLogging) {
+									if (Config::extendedLogging) {
 										LOGINFO("Skipping file");
 									}
 									_skippedFiles.append(filename);
@@ -1265,7 +1265,7 @@ namespace {
 						const bool b = utils::Hashing::checkHash(_directory + "/" + filename, QString::fromStdString(file.second));
 						if (b) {
 							copy = false;
-							if (widgets::GeneralSettingsWidget::extendedLogging) {
+							if (Config::extendedLogging) {
 								LOGINFO("Skipping file");
 							}
 							_skippedFiles.append(filename);
@@ -1316,7 +1316,7 @@ namespace {
 				if (err.error || patchFiles.empty()) {
 					continue;
 				}
-				if (widgets::GeneralSettingsWidget::extendedLogging) {
+				if (Config::extendedLogging) {
 					LOGINFO("Applying patch " << patchID);
 				}
 				bool raisedNormalCounter = false;
@@ -1441,7 +1441,7 @@ namespace {
 								const bool b = utils::Hashing::checkHash(_directory + "/" + changedFile, QString::fromStdString(file.second));
 								if (b) {
 									copy = false;
-									if (widgets::GeneralSettingsWidget::extendedLogging) {
+									if (Config::extendedLogging) {
 										LOGINFO("Skipping file");
 									}
 								}
@@ -1474,7 +1474,7 @@ namespace {
 					// backup old file, if already backed up, don't patch
 					qDebug() << _copiedFiles;
 					if (!_copiedFiles.contains(filename, Qt::CaseInsensitive) && !_skippedFiles.contains(filename, Qt::CaseInsensitive) && ((QFileInfo::exists(_directory + "/" + filename) && !QFileInfo::exists(_directory + "/" + filename + ".spbak")) || !QFileInfo::exists(_directory + "/" + filename))) {
-						if (widgets::GeneralSettingsWidget::extendedLogging) {
+						if (Config::extendedLogging) {
 							LOGINFO("Copying file " << file.first);
 						}
 						bool copy = true;

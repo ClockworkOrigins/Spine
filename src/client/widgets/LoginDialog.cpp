@@ -20,7 +20,6 @@
 
 #include <regex>
 #include <sstream>
-#include <thread>
 
 #include "Config.h"
 #include "SpineConfig.h"
@@ -112,7 +111,7 @@ namespace {
 
 }
 
-	LoginDialog::LoginDialog(QSettings * iniParser, QWidget *) : QDialog(nullptr), _iniParser(iniParser), _connected(false), _dontShow(false), _language() {
+	LoginDialog::LoginDialog(QWidget *) : QDialog(nullptr), _connected(false), _dontShow(false), _language() {
 		QDir dir(Config::BASEDIR + "/databases");
 		if (!dir.exists()) {
 			bool b = dir.mkpath(dir.absolutePath());
@@ -302,7 +301,7 @@ namespace {
 
 		l->addWidget(accountInfoLabel);
 
-		_dontShow = _iniParser->value("LOGIN/DontShowAgain", false).toBool();
+		_dontShow = Config::IniParser->value("LOGIN/DontShowAgain", false).toBool();
 
 		{
 			QHBoxLayout * hbl = new QHBoxLayout();
@@ -617,11 +616,11 @@ namespace {
 
 	void LoginDialog::dontShowAgainChanged(int state) {
 		_dontShow = state == Qt::CheckState::Checked;
-		_iniParser->setValue("LOGIN/DontShowAgain", _dontShow);
+		Config::IniParser->setValue("LOGIN/DontShowAgain", _dontShow);
 	}
 
 	void LoginDialog::resetPassword() {
-		QString text = QInputDialog::getText(this, QApplication::tr("ForgotPassword"), QApplication::tr("ForgotPasswordDescription"));
+		const QString text = QInputDialog::getText(this, QApplication::tr("ForgotPassword"), QApplication::tr("ForgotPasswordDescription"));
 		if (text.isEmpty()) {
 			return;
 		}

@@ -12,12 +12,11 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_GAMEPADSETTINGSWIDGET_H__
-#define __SPINE_WIDGETS_GAMEPADSETTINGSWIDGET_H__
+#pragma once
 
 #include <QMap>
 #include <QWidget>
@@ -25,7 +24,6 @@
 class QCheckBox;
 class QComboBox;
 class QPushButton;
-class QSettings;
 class QSpinBox;
 
 namespace spine {
@@ -39,7 +37,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		GamepadSettingsWidget(QSettings * iniParser, QWidget * par);
+		GamepadSettingsWidget(QWidget * par);
 		~GamepadSettingsWidget();
 
 		void saveSettings();
@@ -56,7 +54,6 @@ namespace widgets {
 		void newButton();
 
 	private:
-		QSettings * _iniParser;
 		QCheckBox * _gamepadEnabled;
 		QComboBox * _controllerList;
 		QSpinBox * _keyDelayBox;
@@ -67,5 +64,3 @@ namespace widgets {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_GAMEPADSETTINGSWIDGET_H__ */

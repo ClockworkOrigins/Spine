@@ -18,6 +18,7 @@
 
 #include "widgets/GamepadSettingsWidget.h"
 
+#include "Config.h"
 #include "UpdateLanguage.h"
 
 #include "gamepad/XBoxController.h"
@@ -116,7 +117,7 @@ namespace {
 	}
 }
 
-	GamepadSettingsWidget::GamepadSettingsWidget(QSettings * iniParser, QWidget * par) : QWidget(par), _iniParser(iniParser), _gamepadButtonToButtonMap(), _actionToButtonMap() {
+	GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gamepadButtonToButtonMap(), _actionToButtonMap() {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -613,24 +614,24 @@ namespace {
 	}
 
 	void GamepadSettingsWidget::saveSettings() {
-		_iniParser->beginGroup("GAMEPAD");
-		_iniParser->setValue("enabled", _gamepadEnabled->isChecked());
-		_iniParser->setValue("index", _controllerList->count() ? _controllerList->currentData(Qt::UserRole).toInt() : 0);
-		_iniParser->setValue("keyDelay", _keyDelayBox->value());
+		Config::IniParser->beginGroup("GAMEPAD");
+		Config::IniParser->setValue("enabled", _gamepadEnabled->isChecked());
+		Config::IniParser->setValue("index", _controllerList->count() ? _controllerList->currentData(Qt::UserRole).toInt() : 0);
+		Config::IniParser->setValue("keyDelay", _keyDelayBox->value());
 
 		for (auto it = _gamepadButtonToButtonMap.begin(); it != _gamepadButtonToButtonMap.end(); ++it) {
-			_iniParser->setValue(it.value()->property("action").toString(), it.key());
+			Config::IniParser->setValue(it.value()->property("action").toString(), it.key());
 		}
-		_iniParser->endGroup();
+		Config::IniParser->endGroup();
 	}
 
 	void GamepadSettingsWidget::rejectSettings() {
-		_iniParser->beginGroup("GAMEPAD");
-		const bool firstStartup = !_iniParser->contains("enabled");
-		const bool enabled = _iniParser->value("enabled", false).toBool();
+		Config::IniParser->beginGroup("GAMEPAD");
+		const bool firstStartup = !Config::IniParser->contains("enabled");
+		const bool enabled = Config::IniParser->value("enabled", false).toBool();
 		_gamepadEnabled->setChecked(enabled);
 
-		int i = _iniParser->value("index", 0).toInt();
+		int i = Config::IniParser->value("index", 0).toInt();
 		for (int j = 0; j < _controllerList->count(); j++) {
 			if (_controllerList->itemData(j, Qt::UserRole).toInt() == i) {
 				_controllerList->setCurrentIndex(j);
@@ -638,7 +639,7 @@ namespace {
 			}
 		}
 
-		i = _iniParser->value("keyDelay", 150).toInt();
+		i = Config::IniParser->value("keyDelay", 150).toInt();
 		_keyDelayBox->setValue(i);
 
 		if (firstStartup) {
@@ -667,14 +668,14 @@ namespace {
 			}
 		} else {
 			for (auto it = _actionToButtonMap.begin(); it != _actionToButtonMap.end(); ++it) {
-				i = _iniParser->value(it.key(), gamepad::GamePadButton_Max).toInt();
+				i = Config::IniParser->value(it.key(), gamepad::GamePadButton_Max).toInt();
 				it.value()->setText(buttonToString(gamepad::GamePadButton(i)));
 				if (i != gamepad::GamePadButton_Max) {
 					_gamepadButtonToButtonMap.insert(gamepad::GamePadButton(i), it.value());
 				}
 			}
 		}
-		_iniParser->endGroup();
+		Config::IniParser->endGroup();
 	}
 
 	bool GamepadSettingsWidget::isEnabled() const {

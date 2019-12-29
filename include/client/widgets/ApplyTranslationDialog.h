@@ -12,12 +12,11 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_APPLYTRANSLATIONDIALOG_H__
-#define __SPINE_WIDGETS_APPLYTRANSLATIONDIALOG_H__
+#pragma once
 
 #include "common/MessageStructs.h"
 
@@ -34,7 +33,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		ApplyTranslationDialog(uint32_t requestID, QString title, QSettings * iniParser, QWidget * par);
+		ApplyTranslationDialog(uint32_t requestID, QString title, QWidget * par);
 		~ApplyTranslationDialog();
 
 	private slots :
@@ -42,7 +41,6 @@ namespace widgets {
 		void applyTranslation();
 
 	private:
-		QSettings * _iniParser;
 		uint32_t _requestID;
 		QLineEdit * _pathEdit;
 		QPushButton * _applyButton;
@@ -53,5 +51,3 @@ namespace widgets {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_APPLYTRANSLATIONDIALOG_H__ */

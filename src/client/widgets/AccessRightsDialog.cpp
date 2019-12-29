@@ -18,6 +18,8 @@
 
 #include "widgets/AccessRightsDialog.h"
 
+#include "Config.h"
+
 #include "utils/Conversion.h"
 
 #include <QApplication>
@@ -36,7 +38,7 @@
 namespace spine {
 namespace widgets {
 
-	AccessRightsDialog::AccessRightsDialog(uint32_t requestID, QString title, QSettings * iniParser, QWidget * par) : QDialog(par), _iniParser(iniParser), _requestID(requestID) {
+	AccessRightsDialog::AccessRightsDialog(uint32_t requestID, QString title, QWidget * par) : QDialog(par), _requestID(requestID) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -172,14 +174,14 @@ namespace widgets {
 	}
 
 	void AccessRightsDialog::restoreSettings() {
-		const QByteArray arr = _iniParser->value("WINDOWGEOMETRY/AccessRightsDialogGeometry", QByteArray()).toByteArray();
+		const QByteArray arr = Config::IniParser->value("WINDOWGEOMETRY/AccessRightsDialogGeometry", QByteArray()).toByteArray();
 		if (!restoreGeometry(arr)) {
-			_iniParser->remove("WINDOWGEOMETRY/AccessRightsDialogGeometry");
+			Config::IniParser->remove("WINDOWGEOMETRY/AccessRightsDialogGeometry");
 		}
 	}
 
 	void AccessRightsDialog::saveSettings() {
-		_iniParser->setValue("WINDOWGEOMETRY/AccessRightsDialogGeometry", saveGeometry());
+		Config::IniParser->setValue("WINDOWGEOMETRY/AccessRightsDialogGeometry", saveGeometry());
 	}
 
 } /* namespace widgets */

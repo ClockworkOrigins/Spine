@@ -22,7 +22,6 @@
 #include <thread>
 
 #include <QApplication>
-#include <QDebug>
 #include <QDirIterator>
 #include <QFontDatabase>
 #include <QLocale>
@@ -47,6 +46,9 @@ namespace spine {
 	QString Config::Username = "";
 	QString Config::Password = "";
 	QString Config::Language = "";
+	
+	int Config::downloadRate = 5120;
+	bool Config::extendedLogging = false;
 
 	int Config::Init() {
 		struct TamperCheckWrapper {

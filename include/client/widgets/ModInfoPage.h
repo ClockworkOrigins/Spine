@@ -12,12 +12,11 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_MODINFOPAGE_H__
-#define __SPINE_WIDGETS_MODINFOPAGE_H__
+#pragma once
 
 #include "common/MessageStructs.h"
 #include "common/SpineModules.h"
@@ -33,7 +32,6 @@ class QLineEdit;
 class QListView;
 class QMainWindow;
 class QPushButton;
-class QSettings;
 class QStandardItemModel;
 class QTextBrowser;
 class QTextEdit;
@@ -52,7 +50,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		ModInfoPage(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QSettings * iniParser, QWidget * par);
+		ModInfoPage(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QWidget * par);
 
 	signals:
 		void receivedPage(common::SendInfoPageMessage *);
@@ -109,7 +107,6 @@ namespace widgets {
 		QMap<common::SpineModules, QCheckBox *> _moduleCheckBoxes;
 		QPushButton * _applyButton;
 		GeneralSettingsWidget * _generalSettingsWidget;
-		QSettings * _iniParser;
 		WaitSpinner * _waitSpinner;
 		QList<QPushButton *> _optionalPackageButtons;
 		bool _forceEdit;
@@ -120,5 +117,3 @@ namespace widgets {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_MODINFOPAGE_H__ */

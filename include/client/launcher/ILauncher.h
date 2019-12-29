@@ -27,7 +27,6 @@
 class QHBoxLayout;
 class QLabel;
 class QPushButton;
-class QSettings;
 class QTimer;
 class QVBoxLayout;
 
@@ -69,8 +68,8 @@ namespace launcher {
 		void setShowAchievements(bool enabled);
 		virtual void setZSpyActivated(bool) {}
 
-		virtual void restoreSettings(QSettings *) {}
-		virtual void saveSettings(QSettings *) {}
+		virtual void restoreSettings() {}
+		virtual void saveSettings() {}
 
 		virtual void updateView(int modID, const QString & iniFile) = 0;
 

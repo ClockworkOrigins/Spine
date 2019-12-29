@@ -18,91 +18,93 @@
 
 #include "DatabaseFilterModel.h"
 
+#include "Config.h"
+
 #include <QApplication>
 #include <QSettings>
 #include <QStandardItemModel>
 
 namespace spine {
 
-	DatabaseFilterModel::DatabaseFilterModel(QSettings * iniParser, QObject * par) : QSortFilterProxyModel(par), _iniParser(iniParser), _gothicActive(true), _gothic2Active(true), _gothicAndGothic2Active(true), _totalConversionActive(true), _enhancementActive(true), _patchActive(true), _toolActive(true), _originalActive(true), _gmpActive(true), _minDuration(0), _maxDuration(1000), _rendererAllowed(false) {
-		_iniParser->beginGroup("DATABASEFILTER");
-		_gothicActive = _iniParser->value("Gothic", true).toBool();
-		_gothic2Active = _iniParser->value("Gothic2", true).toBool();
-		_gothicAndGothic2Active = _iniParser->value("GothicAndGothic2", true).toBool();
-		_totalConversionActive = _iniParser->value("TotalConversion", true).toBool();
-		_enhancementActive = _iniParser->value("Enhancement", true).toBool();
-		_patchActive = _iniParser->value("Patch", true).toBool();
-		_toolActive = _iniParser->value("Tool", true).toBool();
-		_originalActive = _iniParser->value("Original", true).toBool();
-		_gmpActive = _iniParser->value("GMP", true).toBool();
-		_minDuration = _iniParser->value("MinDuration", 0).toInt();
-		_maxDuration = _iniParser->value("MaxDuration", 1000).toInt();
-		_iniParser->endGroup();
+	DatabaseFilterModel::DatabaseFilterModel(QObject * par) : QSortFilterProxyModel(par), _gothicActive(true), _gothic2Active(true), _gothicAndGothic2Active(true), _totalConversionActive(true), _enhancementActive(true), _patchActive(true), _toolActive(true), _originalActive(true), _gmpActive(true), _minDuration(0), _maxDuration(1000), _rendererAllowed(false) {
+		Config::IniParser->beginGroup("DATABASEFILTER");
+		_gothicActive = Config::IniParser->value("Gothic", true).toBool();
+		_gothic2Active = Config::IniParser->value("Gothic2", true).toBool();
+		_gothicAndGothic2Active = Config::IniParser->value("GothicAndGothic2", true).toBool();
+		_totalConversionActive = Config::IniParser->value("TotalConversion", true).toBool();
+		_enhancementActive = Config::IniParser->value("Enhancement", true).toBool();
+		_patchActive = Config::IniParser->value("Patch", true).toBool();
+		_toolActive = Config::IniParser->value("Tool", true).toBool();
+		_originalActive = Config::IniParser->value("Original", true).toBool();
+		_gmpActive = Config::IniParser->value("GMP", true).toBool();
+		_minDuration = Config::IniParser->value("MinDuration", 0).toInt();
+		_maxDuration = Config::IniParser->value("MaxDuration", 1000).toInt();
+		Config::IniParser->endGroup();
 	}
 
 	void DatabaseFilterModel::gothicChanged(int state) {
 		_gothicActive = state == Qt::Checked;
-		_iniParser->setValue("DATABASEFILTER/Gothic", _gothicActive);
+		Config::IniParser->setValue("DATABASEFILTER/Gothic", _gothicActive);
 		invalidateFilter();
 	}
 
 	void DatabaseFilterModel::gothic2Changed(int state) {
 		_gothic2Active = state == Qt::Checked;
-		_iniParser->setValue("DATABASEFILTER/Gothic2", _gothic2Active);
+		Config::IniParser->setValue("DATABASEFILTER/Gothic2", _gothic2Active);
 		invalidateFilter();
 	}
 
 	void DatabaseFilterModel::gothicAndGothic2Changed(int state) {
 		_gothicAndGothic2Active = state == Qt::Checked;
-		_iniParser->setValue("DATABASEFILTER/GothicAndGothic2", _gothicAndGothic2Active);
+		Config::IniParser->setValue("DATABASEFILTER/GothicAndGothic2", _gothicAndGothic2Active);
 		invalidateFilter();
 	}
 
 	void DatabaseFilterModel::totalConversionChanged(int state) {
 		_totalConversionActive = state == Qt::Checked;
-		_iniParser->setValue("DATABASEFILTER/TotalConversion", _totalConversionActive);
+		Config::IniParser->setValue("DATABASEFILTER/TotalConversion", _totalConversionActive);
 		invalidateFilter();
 	}
 
 	void DatabaseFilterModel::enhancementChanged(int state) {
 		_enhancementActive = state == Qt::Checked;
-		_iniParser->setValue("DATABASEFILTER/Enhancement", _enhancementActive);
+		Config::IniParser->setValue("DATABASEFILTER/Enhancement", _enhancementActive);
 		invalidateFilter();
 	}
 
 	void DatabaseFilterModel::patchChanged(int state) {
 		_patchActive = state == Qt::Checked;
-		_iniParser->setValue("DATABASEFILTER/Patch", _patchActive);
+		Config::IniParser->setValue("DATABASEFILTER/Patch", _patchActive);
 		invalidateFilter();
 	}
 
 	void DatabaseFilterModel::toolChanged(int state) {
 		_toolActive = state == Qt::Checked;
-		_iniParser->setValue("DATABASEFILTER/Tool", _toolActive);
+		Config::IniParser->setValue("DATABASEFILTER/Tool", _toolActive);
 		invalidateFilter();
 	}
 
 	void DatabaseFilterModel::originalChanged(int state) {
 		_originalActive = state == Qt::Checked;
-		_iniParser->setValue("DATABASEFILTER/Original", _originalActive);
+		Config::IniParser->setValue("DATABASEFILTER/Original", _originalActive);
 		invalidateFilter();
 	}
 
 	void DatabaseFilterModel::gmpChanged(int state) {
 		_gmpActive = state == Qt::Checked;
-		_iniParser->setValue("DATABASEFILTER/GMP", _gmpActive);
+		Config::IniParser->setValue("DATABASEFILTER/GMP", _gmpActive);
 		invalidateFilter();
 	}
 
 	void DatabaseFilterModel::minDurationChanged(int minDuration) {
 		_minDuration = minDuration;
-		_iniParser->setValue("DATABASEFILTER/MinDuration", _minDuration);
+		Config::IniParser->setValue("DATABASEFILTER/MinDuration", _minDuration);
 		invalidateFilter();
 	}
 
 	void DatabaseFilterModel::maxDurationChanged(int maxDuration) {
 		_maxDuration = maxDuration;
-		_iniParser->setValue("DATABASEFILTER/MaxDuration", _maxDuration);
+		Config::IniParser->setValue("DATABASEFILTER/MaxDuration", _maxDuration);
 		invalidateFilter();
 	}
 

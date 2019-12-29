@@ -12,7 +12,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
@@ -24,7 +24,6 @@
 
 #include <QDialog>
 
-class QSettings;
 class QStandardItemModel;
 class QTabWidget;
 
@@ -44,7 +43,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		ManagementDialog(QSettings * iniParser, QWidget * par);
+		ManagementDialog(QWidget * par);
 		~ManagementDialog();
 
 	signals:
@@ -58,7 +57,6 @@ namespace widgets {
 		void changedTab();
 
 	private:
-		QSettings * _iniParser;
 		QStandardItemModel * _modList;
 		QList<ManagementMod> _mods;
 		int _modIndex;

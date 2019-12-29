@@ -123,8 +123,8 @@ namespace launcher {
 		
 		void setDeveloperMode(bool enabled) override;
 
-		void restoreSettings(QSettings * settings) override;
-		void saveSettings(QSettings * settings) override;
+		void restoreSettings() override;
+		void saveSettings() override;
 
 		void removeEmptyDirs() const;
 

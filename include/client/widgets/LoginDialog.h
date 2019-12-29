@@ -12,18 +12,16 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_LOGINDIALOG_H__
-#define __SPINE_WIDGETS_LOGINDIALOG_H__
+#pragma once
 
 #include <QDialog>
 
 class QCheckBox;
 class QLineEdit;
-class QSettings;
 
 namespace spine {
 namespace widgets {
@@ -32,7 +30,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		LoginDialog(QSettings * iniParser, QWidget * par);
+		LoginDialog(QWidget * par);
 
 	signals:
 		void loggedIn();
@@ -57,8 +55,6 @@ namespace widgets {
 		void onPrivacyAcceptChanged(bool enabled);
 
 	private:
-		QSettings * _iniParser;
-
 		bool _connected;
 
 		QLineEdit * _registerUsernameEdit;
@@ -85,5 +81,3 @@ namespace widgets {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_LOGINDIALOG_H__ */

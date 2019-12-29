@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_CONFIG_H__
-#define __SPINE_CONFIG_H__
+#pragma once
 
 #include <QString>
 
@@ -42,8 +41,9 @@ namespace spine {
 		static QString Username;
 		static QString Password;
 		static QString Language;
+
+		static int downloadRate;
+		static bool extendedLogging;
 	};
 
 } /* namespace spine */
-
-#endif /* __SPINE_CONFIG_H__ */

@@ -160,7 +160,7 @@ namespace launcher {
 
 		for (auto it = fileList.begin(); it != fileList.end(); ++it) {
 			QFile f(_directory + "/" + it.key());
-			if (widgets::GeneralSettingsWidget::extendedLogging) {
+			if (Config::extendedLogging) {
 				LOGINFO("Checking G1 file " << it.key().toStdString());
 			}
 			const bool b = utils::Hashing::checkHash(_directory + "/" + it.key(), it.value()); // TODO: hash check is performed twice, here and in FileDownloader
@@ -169,7 +169,7 @@ namespace launcher {
 				QFileInfo fi(it.key());
 				FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/g1/" + it.key()), _directory + "/" + fi.path(), fi.fileName(), it.value(), mfd);
 				mfd->addFileDownloader(fd);
-				if (widgets::GeneralSettingsWidget::extendedLogging) {
+				if (Config::extendedLogging) {
 					LOGWARN("Hashcheck failed");
 				}
 			}

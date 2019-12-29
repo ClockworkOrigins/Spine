@@ -12,12 +12,11 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_STARTPAGEWIDGET_H__
-#define __SPINE_WIDGETS_STARTPAGEWIDGET_H__
+#pragma once
 
 #include "common/MessageStructs.h"
 
@@ -78,5 +77,3 @@ namespace widgets {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_STARTPAGEWIDGET_H__ */

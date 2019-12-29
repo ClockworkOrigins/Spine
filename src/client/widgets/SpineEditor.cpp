@@ -73,7 +73,7 @@ namespace widgets {
 		Gamepad
 	};
 
-	SpineEditor::SpineEditor(QSettings * iniParser, QMainWindow * mainWindow) : QDialog(nullptr), _model(new models::SpineEditorModel(this)), _tabWidget(nullptr), _generalSpineSettingsWidget(nullptr), _achievementSpineSettingsWidget(nullptr), _scoreSpineSettingsWidget(nullptr), _gamepadSpineSettingsWidget(nullptr), _legoSpineSettingsWidget(nullptr), _installSpineButton(nullptr), _updateSpineButton(nullptr), _installIkarusButton(nullptr), _updateIkarusButton(nullptr), _installLeGoButton(nullptr), _updateLeGoButton(nullptr), _mainWindow(mainWindow), _iniParser(iniParser), _modList() {
+	SpineEditor::SpineEditor(QMainWindow * mainWindow) : QDialog(nullptr), _model(new models::SpineEditorModel(this)), _tabWidget(nullptr), _generalSpineSettingsWidget(nullptr), _achievementSpineSettingsWidget(nullptr), _scoreSpineSettingsWidget(nullptr), _gamepadSpineSettingsWidget(nullptr), _legoSpineSettingsWidget(nullptr), _installSpineButton(nullptr), _updateSpineButton(nullptr), _installIkarusButton(nullptr), _updateIkarusButton(nullptr), _installLeGoButton(nullptr), _updateLeGoButton(nullptr), _mainWindow(mainWindow), _modList() {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -799,14 +799,14 @@ namespace widgets {
 	void SpineEditor::checkLeGoInitialized() {}
 
 	void SpineEditor::restoreSettings() {
-		const QByteArray arr = _iniParser->value("WINDOWGEOMETRY/SpineEditorGeometry", QByteArray()).toByteArray();
+		const QByteArray arr = Config::IniParser->value("WINDOWGEOMETRY/SpineEditorGeometry", QByteArray()).toByteArray();
 		if (!restoreGeometry(arr)) {
-			_iniParser->remove("WINDOWGEOMETRY/SpineEditorGeometry");
+			Config::IniParser->remove("WINDOWGEOMETRY/SpineEditorGeometry");
 		}
 	}
 
 	void SpineEditor::saveSettings() {
-		_iniParser->setValue("WINDOWGEOMETRY/SpineEditorGeometry", saveGeometry());
+		Config::IniParser->setValue("WINDOWGEOMETRY/SpineEditorGeometry", saveGeometry());
 	}
 
 	void SpineEditor::loadMods() {

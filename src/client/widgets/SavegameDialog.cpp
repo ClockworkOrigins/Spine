@@ -18,7 +18,7 @@
 
 #include "widgets/SavegameDialog.h"
 
-#include "utils/Conversion.h"
+#include "Config.h"
 #include "SavegameManager.h"
 
 #include "widgets/LocationSettingsWidget.h"
@@ -38,7 +38,7 @@
 namespace spine {
 namespace widgets {
 
-	SavegameDialog::SavegameDialog(LocationSettingsWidget * locationSettingsWidget, QSettings * iniParser, QWidget * par) : QDialog(par), _model(nullptr), _savegameManager(new SavegameManager(this)), _gothicDirectory(locationSettingsWidget->getGothicDirectory()), _gothic2Directory(locationSettingsWidget->getGothic2Directory()), _iniParser(iniParser) {
+	SavegameDialog::SavegameDialog(LocationSettingsWidget * locationSettingsWidget, QWidget * par) : QDialog(par), _filterModel(nullptr), _model(nullptr), _savegameManager(new SavegameManager(this)), _gothicDirectory(locationSettingsWidget->getGothicDirectory()), _gothic2Directory(locationSettingsWidget->getGothic2Directory()) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -104,7 +104,7 @@ namespace widgets {
 	}
 
 	void SavegameDialog::openG1Save() {
-		QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectSave"), _gothicDirectory, "SAVEDAT.SAV");
+		const QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectSave"), _gothicDirectory, "SAVEDAT.SAV");
 		if (!path.isEmpty()) {
 			_openedFile = path;
 			_savegameManager->load(path);
@@ -113,7 +113,7 @@ namespace widgets {
 	}
 
 	void SavegameDialog::openG2Save() {
-		QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectSave"), _gothic2Directory, "SAVEDAT.SAV");
+		const QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectSave"), _gothic2Directory, "SAVEDAT.SAV");
 		if (!path.isEmpty()) {
 			_openedFile = path;
 			_savegameManager->load(path);
@@ -146,14 +146,14 @@ namespace widgets {
 	}
 
 	void SavegameDialog::restoreSettings() {
-		const QByteArray arr = _iniParser->value("WINDOWGEOMETRY/SavegameDialogGeometry", QByteArray()).toByteArray();
+		const QByteArray arr = Config::IniParser->value("WINDOWGEOMETRY/SavegameDialogGeometry", QByteArray()).toByteArray();
 		if (!restoreGeometry(arr)) {
-			_iniParser->remove("WINDOWGEOMETRY/SavegameDialogGeometry");
+			Config::IniParser->remove("WINDOWGEOMETRY/SavegameDialogGeometry");
 		}
 	}
 
 	void SavegameDialog::saveSettings() {
-		_iniParser->setValue("WINDOWGEOMETRY/SavegameDialogGeometry", saveGeometry());
+		Config::IniParser->setValue("WINDOWGEOMETRY/SavegameDialogGeometry", saveGeometry());
 	}
 
 } /* namespace widgets */

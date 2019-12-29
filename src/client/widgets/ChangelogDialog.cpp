@@ -43,14 +43,14 @@
 namespace spine {
 namespace widgets {
 
-	ChangelogDialog::ChangelogDialog(QSettings * iniParser, QWidget * par) : QDialog(par), _changelogBrowser(nullptr), _iniParser(iniParser) {
+	ChangelogDialog::ChangelogDialog(QWidget * par) : QDialog(par), _changelogBrowser(nullptr) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
 		_changelogBrowser = new QTextBrowser(this);
 		l->addWidget(_changelogBrowser);
 
-		const bool dsa = iniParser->value("CHANGELOGDIALOG/DontShowAgain", false).toBool();
+		const bool dsa = Config::IniParser->value("CHANGELOGDIALOG/DontShowAgain", false).toBool();
 		QCheckBox * cb = new QCheckBox(QApplication::tr("DontShowAgain"), this);
 		cb->setChecked(dsa);
 		l->addWidget(cb);
@@ -82,7 +82,7 @@ namespace widgets {
 	}
 
 	int ChangelogDialog::execStartup() {
-		const bool dsa = _iniParser->value("CHANGELOGDIALOG/DontShowAgain", false).toBool();
+		const bool dsa = Config::IniParser->value("CHANGELOGDIALOG/DontShowAgain", false).toBool();
 		if (dsa) {
 			return QDialog::Accepted;
 		} else {
@@ -102,7 +102,7 @@ namespace widgets {
 			return QDialog::Rejected;
 		}
 
-		QString language = _iniParser->value("MISC/language", "English").toString();
+		QString language = Config::IniParser->value("MISC/language", "English").toString();
 		if (language != "Deutsch" && language != "English" && language != "Russian") {
 			language = "English";
 		}
@@ -168,18 +168,18 @@ namespace widgets {
 	}
 
 	void ChangelogDialog::changedShowState(int state) {
-		_iniParser->setValue("CHANGELOGDIALOG/DontShowAgain", state == Qt::Checked);
+		Config::IniParser->setValue("CHANGELOGDIALOG/DontShowAgain", state == Qt::Checked);
 	}
 
 	void ChangelogDialog::restoreSettings() {
-		const QByteArray arr = _iniParser->value("WINDOWGEOMETRY/ChangelogDialogGeometry", QByteArray()).toByteArray();
+		const QByteArray arr = Config::IniParser->value("WINDOWGEOMETRY/ChangelogDialogGeometry", QByteArray()).toByteArray();
 		if (!restoreGeometry(arr)) {
-			_iniParser->remove("WINDOWGEOMETRY/ChangelogDialogGeometry");
+			Config::IniParser->remove("WINDOWGEOMETRY/ChangelogDialogGeometry");
 		}
 	}
 
 	void ChangelogDialog::saveSettings() {
-		_iniParser->setValue("WINDOWGEOMETRY/ChangelogDialogGeometry", saveGeometry());
+		Config::IniParser->setValue("WINDOWGEOMETRY/ChangelogDialogGeometry", saveGeometry());
 	}
 
 } /* namespace widgets */

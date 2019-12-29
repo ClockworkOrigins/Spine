@@ -78,15 +78,15 @@ namespace launcher {
 		}
 	}
 
-	void LauncherFactory::restoreSettings(QSettings * settings) {
+	void LauncherFactory::restoreSettings() {
 		for (const auto & l : _launchers) {
-			l->restoreSettings(settings);
+			l->restoreSettings();
 		}
 	}
 
-	void LauncherFactory::saveSettings(QSettings * settings) {
+	void LauncherFactory::saveSettings() {
 		for (const auto & l : _launchers) {
-			l->saveSettings(settings);
+			l->saveSettings();
 		}
 	}
 

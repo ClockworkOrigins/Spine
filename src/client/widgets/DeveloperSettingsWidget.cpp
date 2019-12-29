@@ -36,7 +36,7 @@
 namespace spine {
 namespace widgets {
 
-	DeveloperSettingsWidget::DeveloperSettingsWidget(QSettings * iniParser, QWidget * par) : QWidget(par), _iniParser(iniParser), _developerModeCheckbox(nullptr), _zSpyCheckbox(nullptr), _devPaths() {
+	DeveloperSettingsWidget::DeveloperSettingsWidget(QWidget * par) : QWidget(par), _developerModeCheckbox(nullptr), _zSpyCheckbox(nullptr), _devPaths() {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -48,7 +48,7 @@ namespace widgets {
 			l->addWidget(label);
 		}
 		{
-			const bool developerMode = _iniParser->value("DEVELOPER/Active", false).toBool();
+			const bool developerMode = Config::IniParser->value("DEVELOPER/Active", false).toBool();
 
 			_developerModeCheckbox = new QCheckBox(QApplication::tr("ActivateDeveloperMode"), this);
 			UPDATELANGUAGESETTEXT(_developerModeCheckbox, "ActivateDeveloperMode");
@@ -57,7 +57,7 @@ namespace widgets {
 			l->addWidget(_developerModeCheckbox);
 		}
 		{
-			const bool zSpy = _iniParser->value("DEVELOPER/ZSpy", false).toBool();
+			const bool zSpy = Config::IniParser->value("DEVELOPER/ZSpy", false).toBool();
 
 			_zSpyCheckbox = new QCheckBox(QApplication::tr("ActivateZSpy"), this);
 			UPDATELANGUAGESETTEXT(_developerModeCheckbox, "ActivateZSpy");
@@ -68,8 +68,8 @@ namespace widgets {
 		for (int i = 0; i < 10; i++) {
 			QGridLayout * hl = new QGridLayout();
 
-			const QString path = _iniParser->value("DEVELOPER/Path_" + QString::number(i), "").toString();
-			const common::GothicVersion gv = common::GothicVersion(_iniParser->value("DEVELOPER/Gothic_" + QString::number(i), int(common::GothicVersion::GOTHIC2)).toInt());
+			const QString path = Config::IniParser->value("DEVELOPER/Path_" + QString::number(i), "").toString();
+			const common::GothicVersion gv = common::GothicVersion(Config::IniParser->value("DEVELOPER/Gothic_" + QString::number(i), int(common::GothicVersion::GOTHIC2)).toInt());
 
 			QLabel * gothicPathLabel = new QLabel(QApplication::tr("DevPath").arg(i), this);
 			UPDATELANGUAGESETTEXTARG(gothicPathLabel, "DevPath", i);
@@ -109,11 +109,11 @@ namespace widgets {
 	}
 
 	void DeveloperSettingsWidget::saveSettings() {
-		_iniParser->setValue("DEVELOPER/Active", _developerModeCheckbox->isChecked());
-		_iniParser->setValue("DEVELOPER/ZSpy", _zSpyCheckbox->isChecked());
+		Config::IniParser->setValue("DEVELOPER/Active", _developerModeCheckbox->isChecked());
+		Config::IniParser->setValue("DEVELOPER/ZSpy", _zSpyCheckbox->isChecked());
 		for (int i = 0; i < _devPaths.size(); i++) {
-			_iniParser->setValue("DEVELOPER/Path_" + QString::number(i), _devPaths[i].lineEdit->text());
-			_iniParser->setValue("DEVELOPER/Gothic_" + QString::number(i), _devPaths[i].g1Box->isChecked() ? int(common::GothicVersion::GOTHIC) : int(common::GothicVersion::GOTHIC2));
+			Config::IniParser->setValue("DEVELOPER/Path_" + QString::number(i), _devPaths[i].lineEdit->text());
+			Config::IniParser->setValue("DEVELOPER/Gothic_" + QString::number(i), _devPaths[i].g1Box->isChecked() ? int(common::GothicVersion::GOTHIC) : int(common::GothicVersion::GOTHIC2));
 		}
 		emit developerModeChanged(_developerModeCheckbox->isChecked());
 		emit zSpyChanged(_zSpyCheckbox->isChecked());
@@ -121,16 +121,16 @@ namespace widgets {
 
 	void DeveloperSettingsWidget::rejectSettings() {
 		{
-			const bool developerMode = _iniParser->value("DEVELOPER/Active", false).toBool();
+			const bool developerMode = Config::IniParser->value("DEVELOPER/Active", false).toBool();
 			_developerModeCheckbox->setChecked(developerMode);
 		}
 		{
-			const bool zSpy = _iniParser->value("DEVELOPER/ZSpy", false).toBool();
+			const bool zSpy = Config::IniParser->value("DEVELOPER/ZSpy", false).toBool();
 			_zSpyCheckbox->setChecked(zSpy);
 		}
 		for (int i = 0; i < _devPaths.size(); i++) {
-			const QString path = _iniParser->value("DEVELOPER/Path_" + QString::number(i), "").toString();
-			const common::GothicVersion gv = common::GothicVersion(_iniParser->value("DEVELOPER/Gothic_" + QString::number(i), int(common::GothicVersion::GOTHIC2)).toInt());
+			const QString path = Config::IniParser->value("DEVELOPER/Path_" + QString::number(i), "").toString();
+			const common::GothicVersion gv = common::GothicVersion(Config::IniParser->value("DEVELOPER/Gothic_" + QString::number(i), int(common::GothicVersion::GOTHIC2)).toInt());
 
 			_devPaths[i].lineEdit->setText(path);
 			_devPaths[i].g1Box->setChecked(gv == common::GothicVersion::GOTHIC);
@@ -156,7 +156,7 @@ namespace widgets {
 
 	void DeveloperSettingsWidget::changedDeveloperMode() {
 		_developerModeCheckbox->setChecked(!_developerModeCheckbox->isChecked());
-		_iniParser->setValue("DEVELOPER/Active", _developerModeCheckbox->isChecked());
+		Config::IniParser->setValue("DEVELOPER/Active", _developerModeCheckbox->isChecked());
 		emit developerModeChanged(_developerModeCheckbox->isChecked());
 	}
 

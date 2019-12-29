@@ -12,17 +12,15 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_SETTINGSDIALOG_H__
-#define __SPINE_WIDGETS_SETTINGSDIALOG_H__
+#pragma once
 
 #include <QDialog>
 
 class QLabel;
-class QSettings;
 
 namespace spine {
 namespace widgets {
@@ -37,7 +35,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		SettingsDialog(QSettings * iniParser, QWidget * par);
+		SettingsDialog(QWidget * par);
 		~SettingsDialog();
 
 		DeveloperSettingsWidget * getDeveloperSettingsWidget() const {
@@ -65,7 +63,6 @@ namespace widgets {
 		void reject() override;
 
 	private:
-		QSettings * _iniParser;
 		DeveloperSettingsWidget * _developerSettingsWidget;
 		GameSettingsWidget * _gameSettingsWidget;
 		GamepadSettingsWidget * _gamepadSettingsWidget;
@@ -79,5 +76,3 @@ namespace widgets {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_SETTINGSDIALOG_H__ */

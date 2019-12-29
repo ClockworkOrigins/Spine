@@ -47,7 +47,7 @@
 namespace spine {
 namespace widgets {
 
-	TranslationRequestDialog::TranslationRequestDialog(QSettings * iniParser, QWidget * par) : QDialog(par), _iniParser(iniParser), _model(nullptr), _progressDialog(nullptr), _widgets() {
+	TranslationRequestDialog::TranslationRequestDialog(QWidget * par) : QDialog(par), _model(nullptr), _progressDialog(nullptr), _widgets() {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -182,7 +182,7 @@ namespace widgets {
 	}
 
 	void TranslationRequestDialog::openFileDialog() {
-		QString path = QFileDialog::getExistingDirectory(this, QApplication::tr("SelectGothicDir"), _pathEdit->text());
+		const QString path = QFileDialog::getExistingDirectory(this, QApplication::tr("SelectGothicDir"), _pathEdit->text());
 		if (!path.isEmpty()) {
 			if (_pathEdit->text() != path) {
 				_pathEdit->setText(path);
@@ -293,7 +293,7 @@ namespace widgets {
 		Q_ASSERT(sender());
 		const int requestID = sender()->property("requestID").toInt();
 		const QString title = sender()->property("title").toString();
-		AccessRightsDialog dlg(requestID, title, _iniParser, this);
+		AccessRightsDialog dlg(requestID, title, this);
 		dlg.exec();
 	}
 
@@ -301,19 +301,19 @@ namespace widgets {
 		Q_ASSERT(sender());
 		const int requestID = sender()->property("requestID").toInt();
 		const QString title = sender()->property("title").toString();
-		ApplyTranslationDialog dlg(requestID, title, _iniParser, this);
+		ApplyTranslationDialog dlg(requestID, title, this);
 		dlg.exec();
 	}
 
 	void TranslationRequestDialog::restoreSettings() {
-		const QByteArray arr = _iniParser->value("WINDOWGEOMETRY/TranslationRequestDialogGeometry", QByteArray()).toByteArray();
+		const QByteArray arr = Config::IniParser->value("WINDOWGEOMETRY/TranslationRequestDialogGeometry", QByteArray()).toByteArray();
 		if (!restoreGeometry(arr)) {
-			_iniParser->remove("WINDOWGEOMETRY/TranslationRequestDialogGeometry");
+			Config::IniParser->remove("WINDOWGEOMETRY/TranslationRequestDialogGeometry");
 		}
 	}
 
 	void TranslationRequestDialog::saveSettings() {
-		_iniParser->setValue("WINDOWGEOMETRY/TranslationRequestDialogGeometry", saveGeometry());
+		Config::IniParser->setValue("WINDOWGEOMETRY/TranslationRequestDialogGeometry", saveGeometry());
 	}
 
 	void TranslationRequestDialog::requestList() {

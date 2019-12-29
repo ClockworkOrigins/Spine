@@ -12,17 +12,15 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_GAMESETTINGSWIDGET_H__
-#define __SPINE_WIDGETS_GAMESETTINGSWIDGET_H__
+#pragma once
 
 #include <QWidget>
 
 class QCheckBox;
-class QSettings;
 
 namespace spine {
 namespace widgets {
@@ -33,7 +31,7 @@ namespace widgets {
 	public:
 		static int downloadRate;
 
-		GameSettingsWidget(QSettings * iniParser, QWidget * par);
+		GameSettingsWidget(QWidget * par);
 		~GameSettingsWidget();
 
 		void saveSettings();
@@ -45,11 +43,8 @@ namespace widgets {
 		void showAchievementsChanged(bool);
 
 	private:
-		QSettings * _iniParser;
 		QCheckBox * _showAchievementsCheckBox;
 	};
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_GAMESETTINGSWIDGET_H__ */

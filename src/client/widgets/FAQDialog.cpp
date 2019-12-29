@@ -18,6 +18,8 @@
 
 #include "widgets/FAQDialog.h"
 
+#include "Config.h"
+
 #include "widgets/FAQEntry.h"
 
 #include <QApplication>
@@ -28,7 +30,7 @@
 namespace spine {
 namespace widgets {
 
-	FAQDialog::FAQDialog(QSettings * iniParser, QWidget * par) : QDialog(par), _iniParser(iniParser) {
+	FAQDialog::FAQDialog(QWidget * par) : QDialog(par) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -70,14 +72,14 @@ namespace widgets {
 	}
 
 	void FAQDialog::restoreSettings() {
-		const QByteArray arr = _iniParser->value("WINDOWGEOMETRY/FAQDialogGeometry", QByteArray()).toByteArray();
+		const QByteArray arr = Config::IniParser->value("WINDOWGEOMETRY/FAQDialogGeometry", QByteArray()).toByteArray();
 		if (!restoreGeometry(arr)) {
-			_iniParser->remove("WINDOWGEOMETRY/FAQDialogGeometry");
+			Config::IniParser->remove("WINDOWGEOMETRY/FAQDialogGeometry");
 		}
 	}
 
 	void FAQDialog::saveSettings() {
-		_iniParser->setValue("WINDOWGEOMETRY/FAQDialogGeometry", saveGeometry());
+		Config::IniParser->setValue("WINDOWGEOMETRY/FAQDialogGeometry", saveGeometry());
 	}
 
 } /* namespace widgets */

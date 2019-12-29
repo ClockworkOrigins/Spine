@@ -42,36 +42,36 @@
 namespace spine {
 namespace widgets {
 
-	SettingsDialog::SettingsDialog(QSettings * iniParser, QWidget * par) : QDialog(par), _iniParser(iniParser), _developerSettingsWidget(nullptr), _gameSettingsWidget(nullptr), _gamepadSettingsWidget(nullptr), _generalSettingsWidget(nullptr), _locationSettingsWidget(nullptr) {
+	SettingsDialog::SettingsDialog(QWidget * par) : QDialog(par), _developerSettingsWidget(nullptr), _gameSettingsWidget(nullptr), _gamepadSettingsWidget(nullptr), _generalSettingsWidget(nullptr), _locationSettingsWidget(nullptr) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
 		QTabWidget * tabWidget = new QTabWidget(this);
 
 		int tabCounter = 0;
-		_generalSettingsWidget = new GeneralSettingsWidget(_iniParser, tabWidget);
+		_generalSettingsWidget = new GeneralSettingsWidget(tabWidget);
 		tabWidget->addTab(_generalSettingsWidget, QApplication::tr("General"));
 		UPDATELANGUAGESETTABTEXT(tabWidget, tabCounter, "General");
 		++tabCounter;
 
-		_gameSettingsWidget = new GameSettingsWidget(_iniParser, tabWidget);
+		_gameSettingsWidget = new GameSettingsWidget(tabWidget);
 		tabWidget->addTab(_gameSettingsWidget, QApplication::tr("Game"));
 		UPDATELANGUAGESETTABTEXT(tabWidget, tabCounter, "Game");
 		++tabCounter;
 
-		_locationSettingsWidget = new LocationSettingsWidget(_iniParser, false, tabWidget);
+		_locationSettingsWidget = new LocationSettingsWidget(false, tabWidget);
 		tabWidget->addTab(_locationSettingsWidget, QApplication::tr("Locations"));
 		UPDATELANGUAGESETTABTEXT(tabWidget, tabCounter, "Locations");
 		++tabCounter;
 
 #ifdef Q_OS_WIN
-		_gamepadSettingsWidget = new GamepadSettingsWidget(_iniParser, tabWidget);
+		_gamepadSettingsWidget = new GamepadSettingsWidget(tabWidget);
 		tabWidget->addTab(_gamepadSettingsWidget, QApplication::tr("Gamepad"));
 		UPDATELANGUAGESETTABTEXT(tabWidget, tabCounter, "Gamepad");
 		++tabCounter;
 #endif
 
-		_developerSettingsWidget = new DeveloperSettingsWidget(_iniParser, tabWidget);
+		_developerSettingsWidget = new DeveloperSettingsWidget(tabWidget);
 		tabWidget->addTab(_developerSettingsWidget, QApplication::tr("Developer"));
 		UPDATELANGUAGESETTABTEXT(tabWidget, tabCounter, "Developer");
 		l->addWidget(tabWidget);
@@ -136,14 +136,14 @@ namespace widgets {
 	}
 
 	void SettingsDialog::restoreSettings() {
-		const QByteArray arr = _iniParser->value("WINDOWGEOMETRY/SettingsDialogGeometry", QByteArray()).toByteArray();
+		const QByteArray arr = Config::IniParser->value("WINDOWGEOMETRY/SettingsDialogGeometry", QByteArray()).toByteArray();
 		if (!restoreGeometry(arr)) {
-			_iniParser->remove("WINDOWGEOMETRY/SettingsDialogGeometry");
+			Config::IniParser->remove("WINDOWGEOMETRY/SettingsDialogGeometry");
 		}
 	}
 
 	void SettingsDialog::saveSettings() {
-		_iniParser->setValue("WINDOWGEOMETRY/SettingsDialogGeometry", saveGeometry());
+		Config::IniParser->setValue("WINDOWGEOMETRY/SettingsDialogGeometry", saveGeometry());
 	}
 
 } /* namespace widgets */

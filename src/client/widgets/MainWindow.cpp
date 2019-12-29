@@ -123,20 +123,20 @@ namespace widgets {
 
 	MainWindow * MainWindow::instance = nullptr;
 
-	MainWindow::MainWindow(bool showChangelog, QSettings * iniParser, QMainWindow * par) : QMainWindow(par), _modListView(nullptr), _modInfoView(nullptr), _profileView(nullptr), _friendsView(nullptr), _gothicDirectory(), _gothic2Directory(), _iniParser(iniParser), _settingsDialog(nullptr), _autoUpdateDialog(), _changelogDialog(nullptr), _modListModel(nullptr), _loginDialog(nullptr), _modUpdateDialog(nullptr), _installGothic2FromCDDialog(nullptr), _feedbackDialog(nullptr), _developerModeActive(false), _devModeAction(nullptr), _modDatabaseView(nullptr), _parsedInis(), _tabWidget(nullptr), _spineEditorAction(nullptr), _spineEditor(nullptr), _modInfoPage(nullptr) {
+	MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par), _modListView(nullptr), _modInfoView(nullptr), _profileView(nullptr), _friendsView(nullptr), _gothicDirectory(), _gothic2Directory(), _settingsDialog(nullptr), _autoUpdateDialog(), _changelogDialog(nullptr), _modListModel(nullptr), _loginDialog(nullptr), _modUpdateDialog(nullptr), _installGothic2FromCDDialog(nullptr), _feedbackDialog(nullptr), _developerModeActive(false), _devModeAction(nullptr), _modDatabaseView(nullptr), _parsedInis(), _tabWidget(nullptr), _spineEditorAction(nullptr), _spineEditor(nullptr), _modInfoPage(nullptr) {
 		instance = this;
 
 #ifdef Q_OS_WIN
 		LOGINFO("Memory Usage MainWindow c'tor #1: " << getPRAMValue());
 #endif
 
-		if (!_iniParser->contains("INSTALLATION/DirectX")) {
+		if (!Config::IniParser->contains("INSTALLATION/DirectX")) {
 			// so far Spine automatically install DirectX during installation, but to enforce reinstall on download of e.g. renderer, this can manually set to false in the ini
-			_iniParser->setValue("INSTALLATION/DirectX", true);
+			Config::IniParser->setValue("INSTALLATION/DirectX", true);
 		}
 
 		setWindowIcon(QIcon(":/Spine.ico"));
-		_settingsDialog = new SettingsDialog(_iniParser, this); // create at first
+		_settingsDialog = new SettingsDialog(this); // create at first
 
 #ifdef Q_OS_WIN
 		_installGothic2FromCDDialog = new InstallGothic2FromCDDialog();
@@ -152,8 +152,8 @@ namespace widgets {
 
 		qRegisterMetaType<int32_t>("int32_t");
 
-		QString version = _iniParser->value("MISC/Version", "").toString();
-		Config::OnlineMode = _iniParser->value("MISC/OnlineMode", true).toBool();
+		QString version = Config::IniParser->value("MISC/Version", "").toString();
+		Config::OnlineMode = Config::IniParser->value("MISC/OnlineMode", true).toBool();
 		if (version != QString::fromStdString(VERSION_STRING)) {
 			QStringList versionSplit = version.split(".");
 			if (versionSplit.size() == 3) {
@@ -207,7 +207,7 @@ namespace widgets {
 			versionSettings.setValue("VersionMinor", VERSION_MINOR);
 			versionSettings.setValue("VersionPatch", VERSION_PATCH);
 
-			_iniParser->setValue("MISC/Version", QString::fromStdString(VERSION_STRING));
+			Config::IniParser->setValue("MISC/Version", QString::fromStdString(VERSION_STRING));
 		}
 
 #ifdef Q_OS_WIN
@@ -224,13 +224,13 @@ namespace widgets {
 		UPDATELANGUAGESETTABTEXT(_tabWidget, Config::OnlineMode ? int(MainTabsOnline::StartOnline) : int(MainTabsOffline::StartOffline), "Startpage");
 
 		if (Config::OnlineMode) {
-			_modInfoPage = new ModInfoPage(this, _settingsDialog->getGeneralSettingsWidget(), _iniParser, this);
+			_modInfoPage = new ModInfoPage(this, _settingsDialog->getGeneralSettingsWidget(), this);
 			_tabWidget->addTab(_modInfoPage, QApplication::tr("InfoPage"));
 			UPDATELANGUAGESETTABTEXT(_tabWidget, MainTabsOnline::Info, "InfoPage");
 		}
 
 		if (Config::OnlineMode) {
-			_modDatabaseView = new ModDatabaseView(this, _iniParser, _settingsDialog->getGeneralSettingsWidget(), _tabWidget);
+			_modDatabaseView = new ModDatabaseView(this, _settingsDialog->getGeneralSettingsWidget(), _tabWidget);
 			_tabWidget->addTab(_modDatabaseView, QApplication::tr("Database"));
 			UPDATELANGUAGESETTABTEXT(_tabWidget, MainTabsOnline::Database, "Database");
 		}
@@ -253,7 +253,7 @@ namespace widgets {
 		LOGINFO("Memory Usage MainWindow c'tor #6: " << getPRAMValue());
 #endif
 
-		_spineEditor = new SpineEditor(_iniParser, this);
+		_spineEditor = new SpineEditor(this);
 
 		QWidget * w = new QWidget(_tabWidget);
 		w->setProperty("library", true);
@@ -270,7 +270,7 @@ namespace widgets {
 		connect(_modListView, &LibraryListView::showModTriggered, this, &MainWindow::showMod);
 		connect(_modListView, &LibraryListView::uninstallModTriggered, this, &MainWindow::uninstallMod);
 		_modListModel = new QStandardItemModel(_modListView);
-		_sortModel = new LibraryFilterModel(_iniParser, _modListView);
+		_sortModel = new LibraryFilterModel(_modListView);
 		_sortModel->setSourceModel(_modListModel);
 		_sortModel->setSortCaseSensitivity(Qt::CaseSensitivity::CaseInsensitive);
 		_sortModel->setFilterCaseSensitivity(Qt::CaseSensitivity::CaseInsensitive);
@@ -362,7 +362,7 @@ namespace widgets {
 		connect(_modListView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(selectedMod(const QModelIndex &)));
 		connect(_modListView, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(selectedMod(const QModelIndex &)));
 
-		_modInfoView = new ModInfoView(_settingsDialog->getGeneralSettingsWidget(), _iniParser, topWidget);
+		_modInfoView = new ModInfoView(_settingsDialog->getGeneralSettingsWidget(), topWidget);
 		_modInfoView->setProperty("library", true);
 
 		_modInfoView->setDeveloperMode(_settingsDialog->getDeveloperSettingsWidget()->isDeveloperModeActive());
@@ -436,12 +436,12 @@ namespace widgets {
 			connect(_modInfoPage, SIGNAL(openScoreView(int32_t, QString)), this, SLOT(openSpecialProfileView()));
 		}
 
-		bool firstStartup = _iniParser->value("MISC/firstStartup", true).toBool();
-		QString path = _iniParser->value("PATH/Gothic", "").toString();
+		bool firstStartup = Config::IniParser->value("MISC/firstStartup", true).toBool();
+		QString path = Config::IniParser->value("PATH/Gothic", "").toString();
 		if (!path.isEmpty()) {
 			_gothicDirectory = path;
 		}
-		path = _iniParser->value("PATH/Gothic2", "").toString();
+		path = Config::IniParser->value("PATH/Gothic2", "").toString();
 		if (!path.isEmpty()) {
 			_gothic2Directory = path;
 		}
@@ -449,7 +449,7 @@ namespace widgets {
 			findGothic();
 		}
 		firstStartup = false;
-		_iniParser->setValue("MISC/firstStartup", firstStartup);
+		Config::IniParser->setValue("MISC/firstStartup", firstStartup);
 		if (_settingsDialog->getLocationSettingsWidget()->isGothicValid(true)) {
 			_modInfoView->setGothicDirectory(_gothicDirectory);
 			if (Config::OnlineMode) {
@@ -483,7 +483,7 @@ namespace widgets {
 		LOGINFO("Memory Usage MainWindow c'tor #14: " << getPRAMValue());
 #endif
 
-		_loginDialog = new LoginDialog(_iniParser, this);
+		_loginDialog = new LoginDialog(this);
 
 		QMenu * fileMenu = new QMenu(QApplication::tr("File"), this);
 		UPDATELANGUAGESETTITLE(fileMenu, "File");
@@ -642,7 +642,7 @@ namespace widgets {
 		LOGINFO("Memory Usage MainWindow c'tor #19: " << getPRAMValue());
 #endif
 
-		_changelogDialog = new ChangelogDialog(_iniParser, this);
+		_changelogDialog = new ChangelogDialog(this);
 
 #ifdef Q_OS_WIN
 		LOGINFO("Memory Usage MainWindow c'tor #20: " << getPRAMValue());
@@ -732,7 +732,7 @@ namespace widgets {
 		}
 
 		if (Config::OnlineMode) {
-			const bool checkForUpdate = _iniParser->value("MISC/checkForUpdate", true).toBool();
+			const bool checkForUpdate = Config::IniParser->value("MISC/checkForUpdate", true).toBool();
 			if (checkForUpdate) {
 				QTimer::singleShot(0, _autoUpdateDialog, &AutoUpdateDialog::checkForUpdate);
 			}
@@ -952,7 +952,7 @@ namespace widgets {
 	}
 
 	void MainWindow::openIniConfigurator() {
-		IniConfigurator cfg(_gothicDirectory, _gothic2Directory, _iniParser, this);
+		IniConfigurator cfg(_gothicDirectory, _gothic2Directory, Config::IniParser, this);
 		cfg.exec();
 	}
 
@@ -998,7 +998,7 @@ namespace widgets {
 	}
 
 	void MainWindow::execFAQ() {
-		FAQDialog dlg(_iniParser, this);
+		FAQDialog dlg(this);
 		dlg.exec();
 	}
 
@@ -1013,12 +1013,12 @@ namespace widgets {
 	}
 
 	void MainWindow::openSavegameEditor() {
-		SavegameDialog dlg(_settingsDialog->getLocationSettingsWidget(), _iniParser, this);
+		SavegameDialog dlg(_settingsDialog->getLocationSettingsWidget(), this);
 		dlg.exec();
 	}
 
 	void MainWindow::execManagement() {
-		client::widgets::ManagementDialog dlg(_iniParser, this);
+		client::widgets::ManagementDialog dlg(this);
 		connect(&dlg, &client::widgets::ManagementDialog::triggerInfoPage, _modInfoPage, &ModInfoPage::loadPage);
 		connect(&dlg, &client::widgets::ManagementDialog::triggerInfoPage, this, &MainWindow::changeToInfoTab);
 		connect(&dlg, &client::widgets::ManagementDialog::triggerInfoPage, _modInfoPage, &ModInfoPage::forceEditPage);
@@ -1085,14 +1085,14 @@ namespace widgets {
 
 	void MainWindow::openTranslator() {
 #ifdef WITH_TRANSLATOR
-		TranslatorDialog dlg(_iniParser, this);
+		TranslatorDialog dlg(this);
 		dlg.exec();
 #endif
 	}
 
 	void MainWindow::openTranslationRequest() {
 #ifdef WITH_TRANSLATOR
-		TranslationRequestDialog dlg(_iniParser, this);
+		TranslationRequestDialog dlg(this);
 		dlg.exec();
 #endif
 	}
@@ -1127,7 +1127,7 @@ namespace widgets {
 			QVBoxLayout * l = new QVBoxLayout();
 			QLabel * descriptionLabel = new QLabel(QApplication::tr("SetGothicPathText"), &dlg);
 			descriptionLabel->setWordWrap(true);
-			LocationSettingsWidget * lsw = new LocationSettingsWidget(_iniParser, true, &dlg);
+			LocationSettingsWidget * lsw = new LocationSettingsWidget(true, &dlg);
 			QDialogButtonBox * db = new QDialogButtonBox(QDialogButtonBox::StandardButton::Ok, &dlg);
 			QPushButton * pb = db->button(QDialogButtonBox::StandardButton::Ok);
 			connect(pb, SIGNAL(clicked()), &dlg, SLOT(accept()));
@@ -1161,7 +1161,7 @@ namespace widgets {
 	}
 
 	void MainWindow::parseMods() {
-		if (GeneralSettingsWidget::extendedLogging) {
+		if (Config::extendedLogging) {
 			LOGINFO("Parsing Mods");
 		}
 
@@ -1170,7 +1170,7 @@ namespace widgets {
 #endif
 		_parsedInis.clear();
 		if (!_developerModeActive) {
-			if (GeneralSettingsWidget::extendedLogging) {
+			if (Config::extendedLogging) {
 				LOGINFO("Parsing Installed Mods");
 			}
 			parseInstalledMods();
@@ -1180,7 +1180,7 @@ namespace widgets {
 		LOGINFO("Memory Usage parseMods #2: " << getPRAMValue());
 #endif
 		if (!_gothicDirectory.isEmpty()) {
-			if (GeneralSettingsWidget::extendedLogging) {
+			if (Config::extendedLogging) {
 				LOGINFO("Parsing Mods in Gothic 1 Folder");
 			}
 			parseMods(_gothicDirectory);
@@ -1190,7 +1190,7 @@ namespace widgets {
 		LOGINFO("Memory Usage parseMods #3: " << getPRAMValue());
 #endif
 		if (!_gothic2Directory.isEmpty()) {
-			if (GeneralSettingsWidget::extendedLogging) {
+			if (Config::extendedLogging) {
 				LOGINFO("Parsing Mods in Gothic 2 Folder");
 			}
 			parseMods(_gothic2Directory);
@@ -1316,7 +1316,7 @@ namespace widgets {
 	}
 
 	void MainWindow::parseInstalledMods() {
-		if (GeneralSettingsWidget::extendedLogging) {
+		if (Config::extendedLogging) {
 			LOGINFO("Checking Files in " << Config::MODDIR.toStdString());
 		}
 		QDirIterator it(Config::MODDIR + "/mods", QStringList() << "*.ini", QDir::Files, QDirIterator::Subdirectories);
@@ -1332,7 +1332,7 @@ namespace widgets {
 			QSettings iniParser(s, QSettings::IniFormat);
 			QString title = iniParser.value("INFO/Title", "").toString();
 			if (title.isEmpty()) {
-				if (GeneralSettingsWidget::extendedLogging) {
+				if (Config::extendedLogging) {
 					LOGINFO("No title set in " << s.toStdString());
 				}
 				continue;
@@ -1352,7 +1352,7 @@ namespace widgets {
 				mid = common::GothicVersion(Database::queryNth<std::vector<int>, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + modID.toStdString() + " LIMIT 1;", err, 0).front());
 				found = true;
 			} else {
-				if (GeneralSettingsWidget::extendedLogging) {
+				if (Config::extendedLogging) {
 					LOGINFO("Mod installed, but not in database");
 				}
 				continue;
@@ -1390,34 +1390,34 @@ namespace widgets {
 			if (b) {
 				_parsedInis.insert(QFileInfo(s).fileName(), std::make_tuple(hashSum, modID.toInt()));
 			}
-			if (GeneralSettingsWidget::extendedLogging) {
+			if (Config::extendedLogging) {
 				LOGINFO("Listing Mod: " << title.toStdString());
 			}
 		}
 	}
 
 	void MainWindow::restoreSettings() {
-		_iniParser->beginGroup("WINDOWGEOMETRY");
-		QByteArray arr = _iniParser->value("MainWindowGeometry", QByteArray()).toByteArray();
+		Config::IniParser->beginGroup("WINDOWGEOMETRY");
+		QByteArray arr = Config::IniParser->value("MainWindowGeometry", QByteArray()).toByteArray();
 		if (!restoreGeometry(arr)) {
-			_iniParser->remove("MainWindowGeometry");
+			Config::IniParser->remove("MainWindowGeometry");
 		}
-		arr = _iniParser->value("MainWindowState", QByteArray()).toByteArray();
+		arr = Config::IniParser->value("MainWindowState", QByteArray()).toByteArray();
 		if (!restoreGeometry(arr)) {
-			_iniParser->remove("MainWindowState");
+			Config::IniParser->remove("MainWindowState");
 		}
-		_iniParser->endGroup();
+		Config::IniParser->endGroup();
 	}
 
 	void MainWindow::saveSettings() {
-		_iniParser->beginGroup("WINDOWGEOMETRY");
-		_iniParser->setValue("MainWindowGeometry", saveGeometry());
-		_iniParser->setValue("MainWindowState", saveState());
-		_iniParser->endGroup();
+		Config::IniParser->beginGroup("WINDOWGEOMETRY");
+		Config::IniParser->setValue("MainWindowGeometry", saveGeometry());
+		Config::IniParser->setValue("MainWindowState", saveState());
+		Config::IniParser->endGroup();
 	}
 
 	void MainWindow::changedOnlineMode() {
-		_iniParser->setValue("MISC/OnlineMode", Config::OnlineMode);
+		Config::IniParser->setValue("MISC/OnlineMode", Config::OnlineMode);
 		const QString exeFileName = qApp->applicationDirPath() + "/" + qApp->applicationName();
 #ifdef Q_OS_WIN
 		const int result = int(::ShellExecuteA(0, "runas", exeFileName.toUtf8().constData(), 0, 0, SW_SHOWNORMAL));

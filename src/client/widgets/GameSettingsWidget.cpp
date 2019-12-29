@@ -18,6 +18,7 @@
 
 #include "widgets/GameSettingsWidget.h"
 
+#include "Config.h"
 #include "UpdateLanguage.h"
 
 #include <QApplication>
@@ -28,13 +29,13 @@
 namespace spine {
 namespace widgets {
 
-	GameSettingsWidget::GameSettingsWidget(QSettings * iniParser, QWidget * par) : QWidget(par), _iniParser(iniParser), _showAchievementsCheckBox(nullptr) {
+	GameSettingsWidget::GameSettingsWidget(QWidget * par) : QWidget(par), _showAchievementsCheckBox(nullptr) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
 		_showAchievementsCheckBox = new QCheckBox(QApplication::tr("ShowAchievements"), this);
 
-		const bool b = _iniParser->value("GAME/showAchievements", true).toBool();
+		const bool b = Config::IniParser->value("GAME/showAchievements", true).toBool();
 
 		_showAchievementsCheckBox->setChecked(b);
 		UPDATELANGUAGESETTEXT(_showAchievementsCheckBox, "ShowAchievements");
@@ -48,15 +49,15 @@ namespace widgets {
 	}
 
 	void GameSettingsWidget::saveSettings() {
-		const bool b = _iniParser->value("GAME/showAchievements", true).toBool();
+		const bool b = Config::IniParser->value("GAME/showAchievements", true).toBool();
 		if (b != _showAchievementsCheckBox->isChecked()) {
-			_iniParser->setValue("GAME/showAchievements", _showAchievementsCheckBox->isChecked());
+			Config::IniParser->setValue("GAME/showAchievements", _showAchievementsCheckBox->isChecked());
 			emit showAchievementsChanged(_showAchievementsCheckBox->isChecked());
 		}
 	}
 
 	void GameSettingsWidget::rejectSettings() {
-		const bool b = _iniParser->value("GAME/showAchievements", true).toBool();
+		const bool b = Config::IniParser->value("GAME/showAchievements", true).toBool();
 		_showAchievementsCheckBox->setChecked(b);
 	}
 

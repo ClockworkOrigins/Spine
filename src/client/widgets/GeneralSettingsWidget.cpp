@@ -40,12 +40,10 @@
 namespace spine {
 namespace widgets {
 
-	int GeneralSettingsWidget::downloadRate = 5120;
-	bool GeneralSettingsWidget::extendedLogging = false;
 	bool GeneralSettingsWidget::skipExitCheckbox = false;
 	GeneralSettingsWidget * GeneralSettingsWidget::instance = nullptr;
 
-	GeneralSettingsWidget::GeneralSettingsWidget(QSettings * iniParser, QWidget * par) : QWidget(par), _iniParser(iniParser), _languageComboBox(nullptr), _styleComboBox(nullptr), _autoUpdateBox(nullptr), _hideIncompatibleCheckBox(nullptr), _extendedLoggingCheckBox(nullptr) {
+	GeneralSettingsWidget::GeneralSettingsWidget(QWidget * par) : QWidget(par), _languageComboBox(nullptr), _styleComboBox(nullptr), _autoUpdateBox(nullptr), _hideIncompatibleCheckBox(nullptr), _extendedLoggingCheckBox(nullptr) {
 		instance = this;
 		
 		QVBoxLayout * l = new QVBoxLayout();
@@ -54,7 +52,7 @@ namespace widgets {
 		{
 			QHBoxLayout * hl = new QHBoxLayout();
 
-			Config::Language = _iniParser->value("MISC/language", "English").toString();
+			Config::Language = Config::IniParser->value("MISC/language", "English").toString();
 
 			QLabel * languageLabel = new QLabel(QApplication::tr("Language"), this);
 			_languageComboBox = new QComboBox(this);
@@ -78,7 +76,7 @@ namespace widgets {
 		{
 			QHBoxLayout * hl = new QHBoxLayout();
 
-			const QString style = _iniParser->value("MISC/style", "Default").toString();
+			const QString style = Config::IniParser->value("MISC/style", "Default").toString();
 
 			QLabel * styleLabel = new QLabel(QApplication::tr("Style"), this);
 			_styleComboBox = new QComboBox(this);
@@ -111,7 +109,7 @@ namespace widgets {
 		{
 			_autoUpdateBox = new QCheckBox(QApplication::tr("AutoUpdateCheck"), this);;
 
-			const bool checkForUpdates = _iniParser->value("MISC/checkForUpdates", true).toBool();
+			const bool checkForUpdates = Config::IniParser->value("MISC/checkForUpdates", true).toBool();
 			_autoUpdateBox->setChecked(checkForUpdates);
 
 			l->addWidget(_autoUpdateBox);
@@ -130,9 +128,9 @@ namespace widgets {
 		{
 			QHBoxLayout * hl = new QHBoxLayout();
 
-			downloadRate = _iniParser->value("MISC/kbps", 5120).toInt();
-			if (downloadRate > 5120) {
-				downloadRate = 5120;
+			Config::downloadRate = Config::IniParser->value("MISC/kbps", 5120).toInt();
+			if (Config::downloadRate > 5120) {
+				Config::downloadRate = 5120;
 			}
 			QLabel * kbpsLabel = new QLabel(QApplication::tr("DownloadRate"), this);
 			UPDATELANGUAGESETTEXT(kbpsLabel, "DownloadRate");
@@ -141,7 +139,7 @@ namespace widgets {
 			_downloadRateSpinBox = new QSpinBox(this);
 			_downloadRateSpinBox->setMaximum(5120);
 			_downloadRateSpinBox->setMinimum(1);
-			_downloadRateSpinBox->setValue(downloadRate);
+			_downloadRateSpinBox->setValue(Config::downloadRate);
 			_downloadRateSpinBox->setToolTip(QApplication::tr("DownloadRateTooltip"));
 			UPDATELANGUAGESETTOOLTIP(_downloadRateSpinBox, "DownloadRateTooltip");
 			hl->addWidget(kbpsLabel);
@@ -152,7 +150,7 @@ namespace widgets {
 			l->addLayout(hl);
 		}
 		{
-			const bool hideIncompatible = _iniParser->value("MISC/hideIncompatible", true).toBool();;
+			const bool hideIncompatible = Config::IniParser->value("MISC/hideIncompatible", true).toBool();;
 			_hideIncompatibleCheckBox = new QCheckBox(QApplication::tr("HideIncompatiblePatches"), this);
 			UPDATELANGUAGESETTEXT(_hideIncompatibleCheckBox, "HideIncompatiblePatches");
 			_hideIncompatibleCheckBox->setChecked(hideIncompatible);
@@ -160,17 +158,17 @@ namespace widgets {
 			l->addWidget(_hideIncompatibleCheckBox);
 		}
 		{
-			extendedLogging = _iniParser->value("MISC/extendedLogging", false).toBool();
+			Config::extendedLogging = Config::IniParser->value("MISC/extendedLogging", false).toBool();
 			_extendedLoggingCheckBox = new QCheckBox(QApplication::tr("ExtendedLogging"), this);
 			UPDATELANGUAGESETTEXT(_extendedLoggingCheckBox, "ExtendedLogging");
 			_extendedLoggingCheckBox->setToolTip(QApplication::tr("ExtendedLoggingTooltip"));
 			UPDATELANGUAGESETTOOLTIP(_extendedLoggingCheckBox, "ExtendedLoggingTooltip");
-			_extendedLoggingCheckBox->setChecked(extendedLogging);
+			_extendedLoggingCheckBox->setChecked(Config::extendedLogging);
 
 			l->addWidget(_extendedLoggingCheckBox);
 		}
 		{
-			skipExitCheckbox = _iniParser->value("MISC/skipExitCheckbox", false).toBool();
+			skipExitCheckbox = Config::IniParser->value("MISC/skipExitCheckbox", false).toBool();
 			_skipExitCheckBox = new QCheckBox(QApplication::tr("SkipExitCheckbox"), this);
 			UPDATELANGUAGESETTEXT(_skipExitCheckBox, "SkipExitCheckbox");
 			_skipExitCheckBox->setToolTip(QApplication::tr("SkipExitCheckboxTooltip"));
@@ -190,10 +188,10 @@ namespace widgets {
 	}
 
 	void GeneralSettingsWidget::saveSettings() {
-		_iniParser->beginGroup("MISC");
-		const QString language = _iniParser->value("language", "English").toString();
+		Config::IniParser->beginGroup("MISC");
+		const QString language = Config::IniParser->value("language", "English").toString();
 		if (language != _languageComboBox->currentText()) {
-			_iniParser->setValue("language", _languageComboBox->currentText());
+			Config::IniParser->setValue("language", _languageComboBox->currentText());
 			QTranslator * translator = new QTranslator(qApp);
 			if (_languageComboBox->currentText() == "Deutsch") {
 				QLocale::setDefault(QLocale("de_DE"));
@@ -216,9 +214,9 @@ namespace widgets {
 			emit languageChanged(_languageComboBox->currentText());
 		}
 		{
-			const QString style = _iniParser->value("style", "Default").toString();
+			const QString style = Config::IniParser->value("style", "Default").toString();
 			if (style != _styleComboBox->currentText()) {
-				_iniParser->setValue("style", _styleComboBox->currentText());
+				Config::IniParser->setValue("style", _styleComboBox->currentText());
 				QString cssFile = ":styles.css";
 				if (_styleComboBox->currentText() == "Default") {
 					cssFile = ":styles.css";
@@ -239,48 +237,48 @@ namespace widgets {
 			}
 		}
 
-		_iniParser->setValue("checkForUpdates", _autoUpdateBox->isChecked());
+		Config::IniParser->setValue("checkForUpdates", _autoUpdateBox->isChecked());
 		{
-			downloadRate = _downloadRateSpinBox->value();
-			_iniParser->setValue("kbps", downloadRate);
+			Config::downloadRate = _downloadRateSpinBox->value();
+			Config::IniParser->setValue("kbps", Config::downloadRate);
 		}
-		const bool hideIncompatible = _iniParser->value("hideIncompatible", true).toBool();
-		_iniParser->setValue("hideIncompatible", _hideIncompatibleCheckBox->isChecked());
+		const bool hideIncompatible = Config::IniParser->value("hideIncompatible", true).toBool();
+		Config::IniParser->setValue("hideIncompatible", _hideIncompatibleCheckBox->isChecked());
 		if (hideIncompatible != _hideIncompatibleCheckBox->isChecked()) {
 			emit changedHideIncompatible(_hideIncompatibleCheckBox->isChecked());
 		}
-		_iniParser->setValue("extendedLogging", _extendedLoggingCheckBox->isChecked());
-		extendedLogging = _extendedLoggingCheckBox->isChecked();
+		Config::IniParser->setValue("extendedLogging", _extendedLoggingCheckBox->isChecked());
+		Config::extendedLogging = _extendedLoggingCheckBox->isChecked();
 
-		_iniParser->setValue("skipExitCheckbox", _skipExitCheckBox->isChecked());
+		Config::IniParser->setValue("skipExitCheckbox", _skipExitCheckBox->isChecked());
 		skipExitCheckbox = _skipExitCheckBox->isChecked();
-		_iniParser->endGroup();
+		Config::IniParser->endGroup();
 	}
 
 	void GeneralSettingsWidget::rejectSettings() {
-		_iniParser->beginGroup("MISC");
-		const QString language = _iniParser->value("language", "English").toString();
+		Config::IniParser->beginGroup("MISC");
+		const QString language = Config::IniParser->value("language", "English").toString();
 		_languageComboBox->setCurrentText(language);
 
-		const QString style = _iniParser->value("style", "Default").toString();
+		const QString style = Config::IniParser->value("style", "Default").toString();
 		_styleComboBox->setCurrentText(style);
 
-		const bool checkForUpdates = _iniParser->value("checkForUpdates", true).toBool();
+		const bool checkForUpdates = Config::IniParser->value("checkForUpdates", true).toBool();
 		_autoUpdateBox->setChecked(checkForUpdates);
 		{
-			int kbps = _iniParser->value("kbps", 5120).toInt();
+			int kbps = Config::IniParser->value("kbps", 5120).toInt();
 			if (kbps > 5120) {
 				kbps = 5120;
 			}
-			downloadRate = kbps;
+			Config::downloadRate = kbps;
 		}
-		const bool hideIncompatible = _iniParser->value("hideIncompatible", true).toBool();
+		const bool hideIncompatible = Config::IniParser->value("hideIncompatible", true).toBool();
 		_hideIncompatibleCheckBox->setChecked(hideIncompatible);
-		extendedLogging = _iniParser->value("extendedLogging", false).toBool();
-		_extendedLoggingCheckBox->setChecked(extendedLogging);
-		skipExitCheckbox = _iniParser->value("skipExitCheckbox", false).toBool();
+		Config::extendedLogging = Config::IniParser->value("extendedLogging", false).toBool();
+		_extendedLoggingCheckBox->setChecked(Config::extendedLogging);
+		skipExitCheckbox = Config::IniParser->value("skipExitCheckbox", false).toBool();
 		_skipExitCheckBox->setChecked(skipExitCheckbox);
-		_iniParser->endGroup();
+		Config::IniParser->endGroup();
 	}
 
 	bool GeneralSettingsWidget::getHideIncompatible() const {
@@ -289,12 +287,12 @@ namespace widgets {
 
 	void GeneralSettingsWidget::changedStyle(QString styleName) {
 		if (styleName == "...") {
-			QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectStyle"), Config::STYLESDIR, "*.css");
+			const QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectStyle"), Config::STYLESDIR, "*.css");
 			if (!path.isEmpty() && !path.contains(Config::STYLESDIR)) {
 				QFile(path).copy(Config::STYLESDIR + "/" + QFileInfo(path).fileName());
 				_styleComboBox->clear();
 
-				const QString style = _iniParser->value("MISC/style", "Default").toString();
+				const QString style = Config::IniParser->value("MISC/style", "Default").toString();
 				_styleComboBox->addItem("Default");
 
 				QDirIterator it(Config::STYLESDIR, QStringList() << "*.css", QDir::Files, QDirIterator::Subdirectories);

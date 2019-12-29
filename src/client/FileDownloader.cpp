@@ -58,7 +58,7 @@ namespace spine {
 	void FileDownloader::requestFileSize() {
 		const QNetworkRequest request(_url);
 		QNetworkReply * reply = _webAccessManager->head(request);
-		reply->setReadBufferSize(widgets::GeneralSettingsWidget::downloadRate * 8);
+		reply->setReadBufferSize(Config::downloadRate * 8);
 		connect(reply, SIGNAL(finished()), this, SLOT(determineFileSize()));
 		connect(this, SIGNAL(abort()), reply, SLOT(abort()));
 	}
@@ -68,7 +68,7 @@ namespace spine {
 	}
 
 	void FileDownloader::startDownload() {
-		if (widgets::GeneralSettingsWidget::extendedLogging) {
+		if (Config::extendedLogging) {
 			LOGINFO("Starting Download of file " << _fileName.toStdString() << " from " << _url.toString().toStdString());
 		}
 		QDir dir(_targetDirectory);
@@ -86,7 +86,7 @@ namespace spine {
 		if (QFileInfo(_targetDirectory + "/" + realName).exists()) {
 			const bool b = utils::Hashing::checkHash(_targetDirectory + "/" + realName, _hash);
 			if (b) {
-				if (widgets::GeneralSettingsWidget::extendedLogging) {
+				if (Config::extendedLogging) {
 					LOGINFO("Skipping file as it already exists");
 				}
 				if (_filesize == -1) {
@@ -108,7 +108,7 @@ namespace spine {
 		}
 		_outputFile = new QFile(_targetDirectory + "/" + _fileName);
 		if (!_outputFile->open(QIODevice::WriteOnly)) {
-			if (widgets::GeneralSettingsWidget::extendedLogging) {
+			if (Config::extendedLogging) {
 				LOGINFO("Can't open file for output");
 			}
 			emit downloadFailed(DownloadError::UnknownError);
@@ -116,7 +116,7 @@ namespace spine {
 		}
 		const QNetworkRequest request(_url);
 		QNetworkReply * reply = _webAccessManager->get(request);
-		reply->setReadBufferSize(widgets::GeneralSettingsWidget::downloadRate * 8);
+		reply->setReadBufferSize(Config::downloadRate * 8);
 		connect(reply, SIGNAL(downloadProgress(qint64, qint64)), this, SLOT(updateDownloadProgress(qint64, qint64)));
 		connect(reply, SIGNAL(readyRead()), this, SLOT(writeToFile()));
 		connect(reply, SIGNAL(finished()), this, SLOT(fileDownloaded()));
@@ -132,7 +132,7 @@ namespace spine {
 	void FileDownloader::fileDownloaded() {
 		QNetworkReply * reply = dynamic_cast<QNetworkReply *>(sender());
 		if (reply->error() == QNetworkReply::NetworkError::NoError) {
-			if (widgets::GeneralSettingsWidget::extendedLogging) {
+			if (Config::extendedLogging) {
 				LOGINFO("Uncompressing file");
 			}
 			const QByteArray data = reply->readAll(); // the rest
@@ -151,17 +151,17 @@ namespace spine {
 				}
 				_fileName.chop(2);
 			}
-			if (widgets::GeneralSettingsWidget::extendedLogging) {
+			if (Config::extendedLogging) {
 				LOGINFO("Checking Hash");
 			}
 			const bool b = utils::Hashing::checkHash(_targetDirectory + "/" + _fileName, _hash);
 			if (b) {
-				if (widgets::GeneralSettingsWidget::extendedLogging) {
+				if (Config::extendedLogging) {
 					LOGINFO("Hash Check passed");
 				}
 				if (_fileName.startsWith("vc") && _fileName.endsWith(".exe")) {
 #ifdef Q_OS_WIN
-					if (widgets::GeneralSettingsWidget::extendedLogging) {
+					if (Config::extendedLogging) {
 						LOGINFO("Starting Visual Studio Redistributable");
 					}
 					SHELLEXECUTEINFO shExecInfo = { 0 };
@@ -186,7 +186,7 @@ namespace spine {
 						LOGERROR("Execute failed: " << _fileName.toStdString());
 						emit downloadFailed(DownloadError::UnknownError);
 					} else {
-						if (widgets::GeneralSettingsWidget::extendedLogging) {
+						if (Config::extendedLogging) {
 							LOGINFO("Download succeeded");
 						}
 						emit downloadSucceeded();
@@ -194,7 +194,7 @@ namespace spine {
 #endif
 				} else if (_fileName == "directx_Jun2010_redist.exe") {
 #ifdef Q_OS_WIN
-					if (widgets::GeneralSettingsWidget::extendedLogging) {
+					if (Config::extendedLogging) {
 						LOGINFO("Starting DirectX Redistributable");
 					}
 					bool dxSuccess = true;
@@ -255,7 +255,7 @@ namespace spine {
 						}
 					}
 					if (dxSuccess) {
-						if (widgets::GeneralSettingsWidget::extendedLogging) {
+						if (Config::extendedLogging) {
 							LOGINFO("Download succeeded");
 						}
 						emit downloadSucceeded();
@@ -264,7 +264,7 @@ namespace spine {
 					Config::IniParser->setValue("INSTALLATION/DirectX", true);
 #endif
 				} else {
-					if (widgets::GeneralSettingsWidget::extendedLogging) {
+					if (Config::extendedLogging) {
 						LOGINFO("Download succeeded");
 					}
 					emit downloadSucceeded();

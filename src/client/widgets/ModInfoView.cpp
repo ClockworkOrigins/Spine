@@ -38,7 +38,7 @@
 namespace spine {
 namespace widgets {
 
-	ModInfoView::ModInfoView(GeneralSettingsWidget * generalSettingsWidget, QSettings * iniParser, QWidget * par) : QWidget(par), _layout(nullptr), _iniParser(iniParser) {
+	ModInfoView::ModInfoView(GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _layout(nullptr) {
 		connect(this, &ModInfoView::errorMessage, this, &ModInfoView::showErrorMessage);
 
 		{
@@ -164,11 +164,11 @@ namespace widgets {
 	}
 
 	void ModInfoView::restoreSettings() {
-		launcher::LauncherFactory::getInstance()->restoreSettings(_iniParser);
+		launcher::LauncherFactory::getInstance()->restoreSettings();
 	}
 
 	void ModInfoView::saveSettings() {
-		launcher::LauncherFactory::getInstance()->saveSettings(_iniParser);
+		launcher::LauncherFactory::getInstance()->saveSettings();
 	}
 
 } /* namespace widgets */

@@ -42,7 +42,7 @@
 namespace spine {
 namespace widgets {
 
-	TranslatorDialog::TranslatorDialog(QSettings * iniParser, QWidget * par) : QDialog(par), _iniParser(iniParser), _projectsComboBox(nullptr), _progressBar(nullptr), _projects(), _requestTextButton(nullptr), _requestReviewButton(nullptr), _activeProject(), _textToTranslateMsg(nullptr), _textToReviewMsg(nullptr), _sourcePreview(nullptr), _destinationPreview(nullptr), _hintPreview(nullptr), _translationsLayout(nullptr), _translationWidgets(), _hintsBox(nullptr), _waitSpinner(nullptr) {
+	TranslatorDialog::TranslatorDialog(QWidget * par) : QDialog(par), _projectsComboBox(nullptr), _progressBar(nullptr), _projects(), _requestTextButton(nullptr), _requestReviewButton(nullptr), _activeProject(), _textToTranslateMsg(nullptr), _textToReviewMsg(nullptr), _sourcePreview(nullptr), _destinationPreview(nullptr), _hintPreview(nullptr), _translationsLayout(nullptr), _translationWidgets(), _hintsBox(nullptr), _waitSpinner(nullptr) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
@@ -366,14 +366,14 @@ namespace widgets {
 	}
 
 	void TranslatorDialog::restoreSettings() {
-		const QByteArray arr = _iniParser->value("WINDOWGEOMETRY/TranslatorDialogGeometry", QByteArray()).toByteArray();
+		const QByteArray arr = Config::IniParser->value("WINDOWGEOMETRY/TranslatorDialogGeometry", QByteArray()).toByteArray();
 		if (!restoreGeometry(arr)) {
-			_iniParser->remove("WINDOWGEOMETRY/TranslatorDialogGeometry");
+			Config::IniParser->remove("WINDOWGEOMETRY/TranslatorDialogGeometry");
 		}
 	}
 
 	void TranslatorDialog::saveSettings() {
-		_iniParser->setValue("WINDOWGEOMETRY/TranslatorDialogGeometry", saveGeometry());
+		Config::IniParser->setValue("WINDOWGEOMETRY/TranslatorDialogGeometry", saveGeometry());
 	}
 
 	void TranslatorDialog::queryAllProjects() {

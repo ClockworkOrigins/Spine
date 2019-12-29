@@ -160,13 +160,13 @@ namespace widgets {
 		}
 	};
 
-	ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, QSettings * iniParser, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _mainWindow(mainWindow), _iniParser(iniParser), _treeView(nullptr), _sourceModel(nullptr), _sortModel(nullptr), _mods(), _gothicValid(false), _gothic2Valid(false), _parentMods(), _gothicDirectory(), _gothic2Directory(), _packageIDIconMapping(), _waitSpinner(nullptr), _allowRenderer(false) {
+	ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _mainWindow(mainWindow), _treeView(nullptr), _sourceModel(nullptr), _sortModel(nullptr), _mods(), _gothicValid(false), _gothic2Valid(false), _parentMods(), _gothicDirectory(), _gothic2Directory(), _packageIDIconMapping(), _waitSpinner(nullptr), _allowRenderer(false) {
 		QVBoxLayout * l = new QVBoxLayout();
 		l->setAlignment(Qt::AlignTop);
 
 		_treeView = new QTreeView(this);
 		_sourceModel = new QStandardItemModel(this);
-		_sortModel = new DatabaseFilterModel(iniParser, this);
+		_sortModel = new DatabaseFilterModel(this);
 		_sortModel->setSourceModel(_sourceModel);
 		_sortModel->setSortRole(Qt::UserRole);
 		_sortModel->setFilterRole(DatabaseRole::FilterRole);

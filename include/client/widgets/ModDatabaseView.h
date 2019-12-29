@@ -12,12 +12,11 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_MODDATABASEVIEW_H__
-#define __SPINE_WIDGETS_MODDATABASEVIEW_H__
+#pragma once
 
 #include <QMap>
 #include <QModelIndex>
@@ -27,7 +26,6 @@
 
 class QMainWindow;
 class QResizeEvent;
-class QSettings;
 class QStandardItemModel;
 class QTableView;
 class QTreeView;
@@ -44,7 +42,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		ModDatabaseView(QMainWindow * mainWindow, QSettings * iniParser, GeneralSettingsWidget * generalSettingsWidget, QWidget * par);
+		ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QWidget * par);
 
 		static bool isInstalled(int modID);
 
@@ -82,7 +80,6 @@ namespace widgets {
 
 	private:
 		QMainWindow * _mainWindow;
-		QSettings * _iniParser;
 		QTreeView * _treeView;
 		QStandardItemModel * _sourceModel;
 		DatabaseFilterModel * _sortModel;
@@ -107,5 +104,3 @@ namespace widgets {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_MODDATABASEVIEW_H__ */

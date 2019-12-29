@@ -22,8 +22,6 @@
 
 #include <QList>
 
-class QSettings;
-
 namespace spine {
 namespace launcher {
 
@@ -41,8 +39,8 @@ namespace launcher {
 		void setShowAchievements(bool enabled);
 		void setZSpyActivated(bool enabled);
 
-		void restoreSettings(QSettings * settings);
-		void saveSettings(QSettings * settings);
+		void restoreSettings();
+		void saveSettings();
 
 	signals:
 		void restartAsAdmin();

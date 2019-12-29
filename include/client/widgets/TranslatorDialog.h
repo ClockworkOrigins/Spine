@@ -12,12 +12,11 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_TRANSLATORDIALOG_H__
-#define __SPINE_WIDGETS_TRANSLATORDIALOG_H__
+#pragma once
 
 #include <QDialog>
 
@@ -25,7 +24,6 @@
 
 class QComboBox;
 class QProgressBar;
-class QSettings;
 class QTextBrowser;
 class QVBoxLayout;
 
@@ -39,7 +37,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		TranslatorDialog(QSettings * iniParser, QWidget * par);
+		TranslatorDialog(QWidget * par);
 		~TranslatorDialog();
 
 	signals:
@@ -60,7 +58,6 @@ namespace widgets {
 		void updateProgress(std::pair<uint32_t, uint32_t> progress);
 
 	private:
-		QSettings * _iniParser;
 		QComboBox * _projectsComboBox;
 		QProgressBar * _progressBar;
 		std::vector<::translator::common::SendProjectsMessage::Project> _projects;
@@ -88,5 +85,3 @@ namespace widgets {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_TRANSLATORDIALOG_H__ */

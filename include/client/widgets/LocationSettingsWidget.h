@@ -12,12 +12,11 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_LOCATIONSETTINGSWIDGET_H__
-#define __SPINE_WIDGETS_LOCATIONSETTINGSWIDGET_H__
+#pragma once
 
 #include <atomic>
 
@@ -35,7 +34,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		LocationSettingsWidget(QSettings * iniParser, bool temporary, QWidget * par);
+		LocationSettingsWidget(bool temporary, QWidget * par);
 
 		static LocationSettingsWidget * getInstance();
 
@@ -72,7 +71,6 @@ namespace widgets {
 		void openScreenshotDirectoryFileDialog();
 
 	private:
-		QSettings * _iniParser;
 		QLineEdit * _gothicPathLineEdit;
 		QLineEdit * _gothic2PathLineEdit;
 		QLineEdit * _downloadPathLineEdit;
@@ -89,5 +87,3 @@ namespace widgets {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_LOCATIONSETTINGSWIDGET_H__ */

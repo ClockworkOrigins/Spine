@@ -146,7 +146,7 @@ int main(int argc, char ** argv) {
 
 	int ret;
 	{
-		spine::widgets::MainWindow wnd(false, spine::Config::IniParser);
+		spine::widgets::MainWindow wnd(false);
 
 #ifdef Q_OS_WIN
 		LOGINFO("Memory Usage main #2: " << spine::getPRAMValue());

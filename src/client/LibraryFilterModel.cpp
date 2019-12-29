@@ -18,6 +18,8 @@
 
 #include "LibraryFilterModel.h"
 
+#include "Config.h"
+
 #include "common/GothicVersion.h"
 
 #include <QSettings>
@@ -25,36 +27,36 @@
 
 namespace spine {
 
-	LibraryFilterModel::LibraryFilterModel(QSettings * iniParser, QObject * par) : QSortFilterProxyModel(par), _iniParser(iniParser), _gothicActive(true), _gothic2Active(true), _gothicAndGothic2Active(true), _showHidden(false) {
-		_iniParser->beginGroup("LIBRARYFILTER");
-		_gothicActive = _iniParser->value("Gothic", true).toBool();
-		_gothic2Active = _iniParser->value("Gothic2", true).toBool();
-		_gothicAndGothic2Active = _iniParser->value("GothicAndGothic2", true).toBool();
-		_showHidden = _iniParser->value("ShowHidden", false).toBool();
-		_iniParser->endGroup();
+	LibraryFilterModel::LibraryFilterModel(QObject * par) : QSortFilterProxyModel(par), _gothicActive(true), _gothic2Active(true), _gothicAndGothic2Active(true), _showHidden(false) {
+		Config::IniParser->beginGroup("LIBRARYFILTER");
+		_gothicActive = Config::IniParser->value("Gothic", true).toBool();
+		_gothic2Active = Config::IniParser->value("Gothic2", true).toBool();
+		_gothicAndGothic2Active = Config::IniParser->value("GothicAndGothic2", true).toBool();
+		_showHidden = Config::IniParser->value("ShowHidden", false).toBool();
+		Config::IniParser->endGroup();
 	}
 
 	void LibraryFilterModel::gothicChanged(int state) {
 		_gothicActive = state == Qt::Checked;
-		_iniParser->setValue("LIBRARYFILTER/Gothic", _gothicActive);
+		Config::IniParser->setValue("LIBRARYFILTER/Gothic", _gothicActive);
 		invalidateFilter();
 	}
 
 	void LibraryFilterModel::gothic2Changed(int state) {
 		_gothic2Active = state == Qt::Checked;
-		_iniParser->setValue("LIBRARYFILTER/Gothic2", _gothic2Active);
+		Config::IniParser->setValue("LIBRARYFILTER/Gothic2", _gothic2Active);
 		invalidateFilter();
 	}
 
 	void LibraryFilterModel::gothicAndGothic2Changed(int state) {
 		_gothicAndGothic2Active = state == Qt::Checked;
-		_iniParser->setValue("LIBRARYFILTER/GothicAndGothic2", _gothicAndGothic2Active);
+		Config::IniParser->setValue("LIBRARYFILTER/GothicAndGothic2", _gothicAndGothic2Active);
 		invalidateFilter();
 	}
 
 	void LibraryFilterModel::showHidden(int state) {
 		_showHidden = state == Qt::Checked;
-		_iniParser->setValue("LIBRARYFILTER/ShowHidden", _showHidden);
+		Config::IniParser->setValue("LIBRARYFILTER/ShowHidden", _showHidden);
 		invalidateFilter();
 	}
 
