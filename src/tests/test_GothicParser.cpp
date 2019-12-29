@@ -45,18 +45,18 @@ protected:
 		{
 			ASSERT_TRUE(QFileInfo::exists("tests/" + folder + "/names.txt"));
 			QFile namesFile("tests/" + folder + "/names.txt");
-			bool b = namesFile.open(QIODevice::ReadOnly);
+			const bool b = namesFile.open(QIODevice::ReadOnly);
 			ASSERT_TRUE(b);
 			QTextStream nameStream(&namesFile);
 			while (!nameStream.atEnd()) {
-				QString line = nameStream.readLine();
+				const QString line = nameStream.readLine();
 				names.push_back(q2s(line));
 			}
 		}
 		{
 			ASSERT_TRUE(QFileInfo::exists("tests/" + folder + "/texts.txt"));
 			QFile textsFile("tests/" + folder + "/texts.txt");
-			bool b = textsFile.open(QIODevice::ReadOnly);
+			const bool b = textsFile.open(QIODevice::ReadOnly);
 			ASSERT_TRUE(b);
 			QTextStream textStream(&textsFile);
 			while (!textStream.atEnd()) {
@@ -67,7 +67,7 @@ protected:
 		{
 			ASSERT_TRUE(QFileInfo::exists("tests/" + folder + "/dialogs.txt"));
 			QFile dialogsFile("tests/" + folder + "/dialogs.txt");
-			bool b = dialogsFile.open(QIODevice::ReadOnly);
+			const bool b = dialogsFile.open(QIODevice::ReadOnly);
 			ASSERT_TRUE(b);
 			QTextStream dialogStream(&dialogsFile);
 			std::vector<std::string> dialog;
@@ -87,7 +87,7 @@ protected:
 	}
 
 	void parseScript(QString folder) {
-		spine::translation::GothicParser gp(nullptr);
+		spine::translator::GothicParser gp(nullptr);
 		gp.parseFile("tests/" + folder + "/test.d", model);
 	}
 
@@ -123,7 +123,7 @@ protected:
 		compare();
 	}
 
-	translator::common::TranslationModel * model;
+	translator::common::TranslationModel * model = nullptr;
 	std::vector<std::string> names;
 	std::vector<std::string> texts;
 	std::vector<std::vector<std::string>> dialogs;

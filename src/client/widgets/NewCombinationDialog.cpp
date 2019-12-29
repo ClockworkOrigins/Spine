@@ -18,10 +18,8 @@
 
 #include "widgets/NewCombinationDialog.h"
 
-#include "Config.h"
-#include "Database.h"
-#include "FileDownloader.h"
-#include "MultiFileDownloader.h"
+#include "utils/Config.h"
+#include "utils/Database.h"
 
 #include <QApplication>
 #include <QCheckBox>
@@ -31,53 +29,51 @@
 #include <QSettings>
 #include <QVBoxLayout>
 
-namespace spine {
-namespace widgets {
+using namespace spine;
+using namespace spine::utils;
+using namespace spine::widgets;
 
-	NewCombinationDialog::NewCombinationDialog(QString title, QString text, QWidget * par) : QDialog(par), _dontShowAgainBox(nullptr) {
-		QVBoxLayout * l = new QVBoxLayout();
-		l->setAlignment(Qt::AlignTop);
+NewCombinationDialog::NewCombinationDialog(QString title, QString text, QWidget * par) : QDialog(par), _dontShowAgainBox(nullptr) {
+	QVBoxLayout * l = new QVBoxLayout();
+	l->setAlignment(Qt::AlignTop);
 
-		QLabel * infoLabel = new QLabel(text, this);
-		infoLabel->setWordWrap(true);
-		l->addWidget(infoLabel);
+	QLabel * infoLabel = new QLabel(text, this);
+	infoLabel->setWordWrap(true);
+	l->addWidget(infoLabel);
 
-		_dontShowAgainBox = new QCheckBox(QApplication::tr("DontShowAgain"), this);
-		l->addWidget(_dontShowAgainBox);
+	_dontShowAgainBox = new QCheckBox(QApplication::tr("DontShowAgain"), this);
+	l->addWidget(_dontShowAgainBox);
 
-		QDialogButtonBox * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Ok | QDialogButtonBox::StandardButton::Cancel, Qt::Orientation::Horizontal, this);
-		l->addWidget(dbb);
+	QDialogButtonBox * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Ok | QDialogButtonBox::StandardButton::Cancel, Qt::Orientation::Horizontal, this);
+	l->addWidget(dbb);
 
-		setLayout(l);
+	setLayout(l);
 
-		QPushButton * btn = dbb->button(QDialogButtonBox::StandardButton::Ok);
-		btn->setText(QApplication::tr("Ok"));
+	QPushButton * btn = dbb->button(QDialogButtonBox::StandardButton::Ok);
+	btn->setText(QApplication::tr("Ok"));
 
-		connect(btn, SIGNAL(clicked()), this, SIGNAL(accepted()));
-		connect(btn, SIGNAL(clicked()), this, SLOT(accept()));
-		connect(btn, SIGNAL(clicked()), this, SLOT(hide()));
+	connect(btn, SIGNAL(clicked()), this, SIGNAL(accepted()));
+	connect(btn, SIGNAL(clicked()), this, SLOT(accept()));
+	connect(btn, SIGNAL(clicked()), this, SLOT(hide()));
 
-		btn = dbb->button(QDialogButtonBox::StandardButton::Cancel);
-		btn->setText(QApplication::tr("Cancel"));
+	btn = dbb->button(QDialogButtonBox::StandardButton::Cancel);
+	btn->setText(QApplication::tr("Cancel"));
 
-		connect(btn, SIGNAL(clicked()), this, SIGNAL(rejected()));
-		connect(btn, SIGNAL(clicked()), this, SLOT(reject()));
-		connect(btn, SIGNAL(clicked()), this, SLOT(hide()));
+	connect(btn, SIGNAL(clicked()), this, SIGNAL(rejected()));
+	connect(btn, SIGNAL(clicked()), this, SLOT(reject()));
+	connect(btn, SIGNAL(clicked()), this, SLOT(hide()));
 
-		setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-		setWindowTitle(title);
+	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+	setWindowTitle(title);
 
-		const bool b = Config::IniParser->value("NEWCOMBINATIONDIALOG/DontShowAgain", false).toBool();
-		_dontShowAgainBox->setChecked(b);
-	}
+	const bool b = Config::IniParser->value("NEWCOMBINATIONDIALOG/DontShowAgain", false).toBool();
+	_dontShowAgainBox->setChecked(b);
+}
 
-	NewCombinationDialog::~NewCombinationDialog() {
-		Config::IniParser->setValue("NEWCOMBINATIONDIALOG/DontShowAgain", _dontShowAgainBox->isChecked());
-	}
+NewCombinationDialog::~NewCombinationDialog() {
+	Config::IniParser->setValue("NEWCOMBINATIONDIALOG/DontShowAgain", _dontShowAgainBox->isChecked());
+}
 
-	bool NewCombinationDialog::canShow() const {
-		return !_dontShowAgainBox->isChecked();
-	}
-
-} /* namespace widgets */
-} /* namespace spine */
+bool NewCombinationDialog::canShow() const {
+	return !_dontShowAgainBox->isChecked();
+}

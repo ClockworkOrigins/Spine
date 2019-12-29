@@ -12,12 +12,11 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_TRANSLATOR_TRANSLATIONAPPLIER_H__
-#define __SPINE_TRANSLATOR_TRANSLATIONAPPLIER_H__
+#pragma once
 
 #include <atomic>
 #include <cstdint>
@@ -25,7 +24,7 @@
 #include <QObject>
 
 namespace spine {
-namespace translation {
+namespace translator {
 
 	class TranslationApplier : public QObject {
 		Q_OBJECT
@@ -49,7 +48,5 @@ namespace translation {
 		void parseName(QString line, QMap<QString, QString> names, QString & newFileContent);
 	};
 
-} /* namespace translation */
+} /* namespace translator */
 } /* namespace spine */
-
-#endif /* __SPINE_TRANSLATOR_TRANSLATIONAPPLIER_H__ */

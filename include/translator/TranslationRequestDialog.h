@@ -35,7 +35,7 @@ namespace common {
 } /* namespace translator */
 
 namespace spine {
-namespace widgets {
+namespace translator {
 
 	class TranslationRequestDialog : public QDialog {
 		Q_OBJECT
@@ -45,7 +45,7 @@ namespace widgets {
 		~TranslationRequestDialog();
 
 	signals:
-		void receivedRequestList(std::vector<translator::common::SendOwnProjectsMessage::Project>);
+		void receivedRequestList(std::vector<::translator::common::SendOwnProjectsMessage::Project>);
 
 	private slots:
 		void openFileDialog();
@@ -53,7 +53,7 @@ namespace widgets {
 		void requestTranslation();
 		void updateProgress(int current, int max);
 		void checkParsePossible();
-		void updateRequestList(std::vector<translator::common::SendOwnProjectsMessage::Project> projects);
+		void updateRequestList(std::vector<::translator::common::SendOwnProjectsMessage::Project> projects);
 		void openAccessDialog();
 		void applyTranslation();
 
@@ -64,7 +64,7 @@ namespace widgets {
 		QComboBox * _destinationLanguageBox;
 		QPushButton * _parseButton;
 		QPushButton * _requestButton;
-		translator::common::TranslationModel * _model;
+		::translator::common::TranslationModel * _model;
 		QProgressDialog * _progressDialog;
 		QLabel * _nameLabel;
 		QLabel * _nameCountLabel;
@@ -83,5 +83,5 @@ namespace widgets {
 		void requestList();
 	};
 
-} /* namespace widgets */
+} /* namespace translator */
 } /* namespace spine */

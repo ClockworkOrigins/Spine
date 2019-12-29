@@ -38,13 +38,15 @@ class QTextEdit;
 class QVBoxLayout;
 
 namespace spine {
+namespace gui {
+	class WaitSpinner;
+}
 namespace widgets {
 
 	class GeneralSettingsWidget;
 	class NewsWidget;
 	class NewsWriterDialog;
 	class RatingWidget;
-	class WaitSpinner;
 
 	class ModInfoPage : public QWidget {
 		Q_OBJECT
@@ -107,7 +109,7 @@ namespace widgets {
 		QMap<common::SpineModules, QCheckBox *> _moduleCheckBoxes;
 		QPushButton * _applyButton;
 		GeneralSettingsWidget * _generalSettingsWidget;
-		WaitSpinner * _waitSpinner;
+		gui::WaitSpinner * _waitSpinner;
 		QList<QPushButton *> _optionalPackageButtons;
 		bool _forceEdit;
 

@@ -18,12 +18,13 @@
 
 #include "widgets/management/GeneralConfigurationWidget.h"
 
-#include "Config.h"
 #include "SpineConfig.h"
+
+#include "gui/WaitSpinner.h"
 
 #include "https/Https.h"
 
-#include "widgets/WaitSpinner.h"
+#include "utils/Config.h"
 
 #include "clockUtils/sockets/TcpSocket.h"
 
@@ -39,175 +40,173 @@
 #include <QSpinBox>
 #include <QVBoxLayout>
 
-namespace spine {
-namespace client {
-namespace widgets {
+using namespace spine;
+using namespace spine::client;
+using namespace spine::client::widgets;
+using namespace spine::gui;
+using namespace spine::utils;
 
-	GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(par), _mods(), _modIndex(-1), _waitSpinner(nullptr) {
-		QVBoxLayout * vl = new QVBoxLayout();
+GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(par), _mods(), _modIndex(-1), _waitSpinner(nullptr) {
+	QVBoxLayout * vl = new QVBoxLayout();
+
+	{
+		QGridLayout * l = new QGridLayout();
+		l->setAlignment(Qt::AlignTop);
 
 		{
-			QGridLayout * l = new QGridLayout();
-			l->setAlignment(Qt::AlignTop);
+			QLabel * lbl = new QLabel(QApplication::tr("Enabled"), this);
+			lbl->setToolTip(QApplication::tr("ModEnabledTooltip"));
+			_enabledBox = new QCheckBox(this);
+			_enabledBox->setToolTip(QApplication::tr("ModEnabledTooltip"));
 
-			{
-				QLabel * lbl = new QLabel(QApplication::tr("Enabled"), this);
-				lbl->setToolTip(QApplication::tr("ModEnabledTooltip"));
-				_enabledBox = new QCheckBox(this);
-				_enabledBox->setToolTip(QApplication::tr("ModEnabledTooltip"));
-
-				l->addWidget(lbl, 0, 0);
-				l->addWidget(_enabledBox, 0, 1);
-			}
-
-			{
-				QLabel * lbl = new QLabel(QApplication::tr("GothicVersion"), this);
-				_gothicVersionBox = new QComboBox(this);
-				_gothicVersionBox->setEditable(false);
-
-				QStringList items;
-				items << QApplication::tr("Gothic") << QApplication::tr("Gothic2") << QApplication::tr("GothicInGothic2") << QApplication::tr("GothicAndGothic2");
-
-				_gothicVersionBox->addItems(items);
-
-				l->addWidget(lbl, 1, 0);
-				l->addWidget(_gothicVersionBox, 1, 1);
-			}
-
-			{
-				QLabel * lbl = new QLabel(QApplication::tr("ModType"), this);
-				_typeBox = new QComboBox(this);
-				_typeBox->setEditable(false);
-
-				QStringList items;
-				items << QApplication::tr("TotalConversion") << QApplication::tr("Enhancement") << QApplication::tr("Patch") << QApplication::tr("Tool") << QApplication::tr("Original") << QApplication::tr("GothicMultiplayer");
-
-				_typeBox->addItems(items);
-
-				l->addWidget(lbl, 2, 0);
-				l->addWidget(_typeBox, 2, 1);
-			}
-
-			{
-				QLabel * lbl = new QLabel(QApplication::tr("ReleaseDate"), this);
-				_releaseDateEdit = new QDateEdit(this);
-				_releaseDateEdit->setCalendarPopup(true);
-
-				l->addWidget(lbl, 3, 0);
-				l->addWidget(_releaseDateEdit, 3, 1);
-			}
-
-			{
-				QLabel * lbl = new QLabel(QApplication::tr("DevDurationDescription"), this);
-				_devDurationBox = new QSpinBox(this);
-				_devDurationBox->setMinimum(0);
-				_devDurationBox->setMaximum(500 * 60); // 300h
-
-				l->addWidget(lbl, 4, 0);
-				l->addWidget(_devDurationBox, 4, 1);
-			}
-
-			vl->addLayout(l);
+			l->addWidget(lbl, 0, 0);
+			l->addWidget(_enabledBox, 0, 1);
 		}
 
-		QDialogButtonBox * dbb = new QDialogButtonBox(this);
-		QPushButton * submitButton = new QPushButton(QApplication::tr("Submit"), this);
-		dbb->addButton(submitButton, QDialogButtonBox::ButtonRole::AcceptRole);
-		connect(submitButton, &QPushButton::released, this, &GeneralConfigurationWidget::updateMod);
+		{
+			QLabel * lbl = new QLabel(QApplication::tr("GothicVersion"), this);
+			_gothicVersionBox = new QComboBox(this);
+			_gothicVersionBox->setEditable(false);
 
-		QPushButton * infoPageButton = new QPushButton(QApplication::tr("InfoPage"), this);
-		infoPageButton->setToolTip(QApplication::tr("EditInfoPageTooltip"));
-		dbb->addButton(infoPageButton, QDialogButtonBox::ButtonRole::ActionRole);
-		connect(infoPageButton, &QPushButton::released, this, &GeneralConfigurationWidget::openInfoPage);
+			QStringList items;
+			items << QApplication::tr("Gothic") << QApplication::tr("Gothic2") << QApplication::tr("GothicInGothic2") << QApplication::tr("GothicAndGothic2");
 
-		vl->addStretch(1);
+			_gothicVersionBox->addItems(items);
 
-		vl->addWidget(dbb);
+			l->addWidget(lbl, 1, 0);
+			l->addWidget(_gothicVersionBox, 1, 1);
+		}
 
-		setLayout(vl);
+		{
+			QLabel * lbl = new QLabel(QApplication::tr("ModType"), this);
+			_typeBox = new QComboBox(this);
+			_typeBox->setEditable(false);
 
-		qRegisterMetaType<ManagementGeneralData>("ManagementGeneralData");
+			QStringList items;
+			items << QApplication::tr("TotalConversion") << QApplication::tr("Enhancement") << QApplication::tr("Patch") << QApplication::tr("Tool") << QApplication::tr("Original") << QApplication::tr("GothicMultiplayer");
 
-		connect(this, &GeneralConfigurationWidget::removeSpinner, [this]() {
-			if (!_waitSpinner) return;
+			_typeBox->addItems(items);
 
-			_waitSpinner->deleteLater();
-			_waitSpinner = nullptr;
-		});
+			l->addWidget(lbl, 2, 0);
+			l->addWidget(_typeBox, 2, 1);
+		}
 
-		connect(this, &GeneralConfigurationWidget::loadedData, this, &GeneralConfigurationWidget::updateData);
+		{
+			QLabel * lbl = new QLabel(QApplication::tr("ReleaseDate"), this);
+			_releaseDateEdit = new QDateEdit(this);
+			_releaseDateEdit->setCalendarPopup(true);
+
+			l->addWidget(lbl, 3, 0);
+			l->addWidget(_releaseDateEdit, 3, 1);
+		}
+
+		{
+			QLabel * lbl = new QLabel(QApplication::tr("DevDurationDescription"), this);
+			_devDurationBox = new QSpinBox(this);
+			_devDurationBox->setMinimum(0);
+			_devDurationBox->setMaximum(500 * 60); // 300h
+
+			l->addWidget(lbl, 4, 0);
+			l->addWidget(_devDurationBox, 4, 1);
+		}
+
+		vl->addLayout(l);
 	}
 
-	GeneralConfigurationWidget::~GeneralConfigurationWidget() {
-	}
+	QDialogButtonBox * dbb = new QDialogButtonBox(this);
+	QPushButton * submitButton = new QPushButton(QApplication::tr("Submit"), this);
+	dbb->addButton(submitButton, QDialogButtonBox::ButtonRole::AcceptRole);
+	connect(submitButton, &QPushButton::released, this, &GeneralConfigurationWidget::updateMod);
 
-	void GeneralConfigurationWidget::updateModList(QList<client::ManagementMod> modList) {
-		_mods = modList;
-	}
+	QPushButton * infoPageButton = new QPushButton(QApplication::tr("InfoPage"), this);
+	infoPageButton->setToolTip(QApplication::tr("EditInfoPageTooltip"));
+	dbb->addButton(infoPageButton, QDialogButtonBox::ButtonRole::ActionRole);
+	connect(infoPageButton, &QPushButton::released, this, &GeneralConfigurationWidget::openInfoPage);
 
-	void GeneralConfigurationWidget::selectedMod(int index) {
-		_modIndex = index;
-	}
+	vl->addStretch(1);
 
-	void GeneralConfigurationWidget::updateView() {
-		if (_modIndex == -1 || _modIndex >= _mods.size()) return;
-		
-		delete _waitSpinner;
-		_waitSpinner = new spine::widgets::WaitSpinner(QApplication::tr("Updating"), this);
+	vl->addWidget(dbb);
 
-		QJsonObject requestData;
-		requestData["Username"] = Config::Username;
-		requestData["Password"] = Config::Password;
-		requestData["ModID"] = _mods[_modIndex].id;
-		
-		https::Https::postAsync(MANAGEMENTSERVER_PORT, "getGeneralConfiguration", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
-			if (statusCode != 200) {
-				emit removeSpinner();
-				return;
-			}
-			ManagementGeneralData content;
-			content.read(json);
-			
-			emit loadedData(content);
+	setLayout(vl);
+
+	qRegisterMetaType<ManagementGeneralData>("ManagementGeneralData");
+
+	connect(this, &GeneralConfigurationWidget::removeSpinner, [this]() {
+		if (!_waitSpinner) return;
+
+		_waitSpinner->deleteLater();
+		_waitSpinner = nullptr;
+	});
+
+	connect(this, &GeneralConfigurationWidget::loadedData, this, &GeneralConfigurationWidget::updateData);
+}
+
+GeneralConfigurationWidget::~GeneralConfigurationWidget() {
+}
+
+void GeneralConfigurationWidget::updateModList(QList<client::ManagementMod> modList) {
+	_mods = modList;
+}
+
+void GeneralConfigurationWidget::selectedMod(int index) {
+	_modIndex = index;
+}
+
+void GeneralConfigurationWidget::updateView() {
+	if (_modIndex == -1 || _modIndex >= _mods.size()) return;
+	
+	delete _waitSpinner;
+	_waitSpinner = new WaitSpinner(QApplication::tr("Updating"), this);
+
+	QJsonObject requestData;
+	requestData["Username"] = Config::Username;
+	requestData["Password"] = Config::Password;
+	requestData["ModID"] = _mods[_modIndex].id;
+	
+	https::Https::postAsync(MANAGEMENTSERVER_PORT, "getGeneralConfiguration", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+		if (statusCode != 200) {
 			emit removeSpinner();
-		});
-	}
-
-	void GeneralConfigurationWidget::updateMod() {
-		if (_modIndex == -1) return;
-
-		ManagementGeneralData mgd;
-		mgd.enabled = _enabledBox->isChecked();
-		mgd.gothicVersion = static_cast<common::GothicVersion>(_gothicVersionBox->currentIndex());
-		mgd.modType = static_cast<common::ModType>(_typeBox->currentIndex());
-		mgd.duration = _devDurationBox->value();
-		mgd.releaseDate = _releaseDateEdit->date();
-
-		QJsonObject json;
-		json["Username"] = Config::Username;
-		json["Password"] = Config::Password;
-		json["ModID"] = _mods[_modIndex].id;
-		mgd.write(json);
+			return;
+		}
+		ManagementGeneralData content;
+		content.read(json);
 		
-		https::Https::postAsync(MANAGEMENTSERVER_PORT, "updateGeneralConfiguration", QJsonDocument(json).toJson(QJsonDocument::Compact), [](const QJsonObject &, int) {
-			// maybe add error handling here
-		});
-	}
+		emit loadedData(content);
+		emit removeSpinner();
+	});
+}
 
-	void GeneralConfigurationWidget::openInfoPage() {
-		if (_modIndex == -1) return;
-		
-		emit triggerInfoPage(_mods[_modIndex].id);
-	}
+void GeneralConfigurationWidget::updateMod() {
+	if (_modIndex == -1) return;
 
-	void GeneralConfigurationWidget::updateData(ManagementGeneralData content) {
-		_enabledBox->setChecked(content.enabled);
-		_gothicVersionBox->setCurrentIndex(int(content.gothicVersion));
-		_typeBox->setCurrentIndex(int(content.modType));
-		_devDurationBox->setValue(content.duration);
-		_releaseDateEdit->setDate(content.releaseDate);
-	}
+	ManagementGeneralData mgd;
+	mgd.enabled = _enabledBox->isChecked();
+	mgd.gothicVersion = static_cast<common::GothicVersion>(_gothicVersionBox->currentIndex());
+	mgd.modType = static_cast<common::ModType>(_typeBox->currentIndex());
+	mgd.duration = _devDurationBox->value();
+	mgd.releaseDate = _releaseDateEdit->date();
 
-} /* namespace widgets */
-} /* namespace client */
-} /* namespace spine */
+	QJsonObject json;
+	json["Username"] = Config::Username;
+	json["Password"] = Config::Password;
+	json["ModID"] = _mods[_modIndex].id;
+	mgd.write(json);
+	
+	https::Https::postAsync(MANAGEMENTSERVER_PORT, "updateGeneralConfiguration", QJsonDocument(json).toJson(QJsonDocument::Compact), [](const QJsonObject &, int) {
+		// maybe add error handling here
+	});
+}
+
+void GeneralConfigurationWidget::openInfoPage() {
+	if (_modIndex == -1) return;
+	
+	emit triggerInfoPage(_mods[_modIndex].id);
+}
+
+void GeneralConfigurationWidget::updateData(ManagementGeneralData content) {
+	_enabledBox->setChecked(content.enabled);
+	_gothicVersionBox->setCurrentIndex(int(content.gothicVersion));
+	_typeBox->setCurrentIndex(int(content.modType));
+	_devDurationBox->setValue(content.duration);
+	_releaseDateEdit->setDate(content.releaseDate);
+}

@@ -12,12 +12,11 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
-// Copyright 2018 Clockwork Origins
+// Copyright 2019 Clockwork Origins
 
-#ifndef __SPINE_TRANSLATOR_GOTHICPARSER_H__
-#define __SPINE_TRANSLATOR_GOTHICPARSER_H__
+#pragma once
 
 #include <atomic>
 
@@ -30,7 +29,7 @@ namespace common {
 } /* namespace translator */
 
 namespace spine {
-namespace translation {
+namespace translator {
 
 	class GothicParser : public QObject {
 		Q_OBJECT
@@ -38,8 +37,8 @@ namespace translation {
 	public:
 		GothicParser(QObject * par);
 
-		void parseTexts(QString path, translator::common::TranslationModel * model);
-		void parseFile(QString filePath, translator::common::TranslationModel * model);
+		void parseTexts(QString path, ::translator::common::TranslationModel * model);
+		void parseFile(QString filePath, ::translator::common::TranslationModel * model);
 
 	signals:
 		void updatedProgress(int current, int max);
@@ -49,10 +48,8 @@ namespace translation {
 		std::atomic<int> _currentProgress;
 		int _maxProgress;
 
-		void parseName(QString line, translator::common::TranslationModel * model);
+		void parseName(QString line, ::translator::common::TranslationModel * model);
 	};
 
-} /* namespace translation */
+} /* namespace translator */
 } /* namespace spine */
-
-#endif /* __SPINE_TRANSLATOR_GOTHICPARSER_H__ */

@@ -18,12 +18,13 @@
 
 #include "widgets/GeneralSpineSettingsWidget.h"
 
-#include "Config.h"
-#include "UpdateLanguage.h"
-
 #include "common/SpineModules.h"
 
 #include "models/SpineEditorModel.h"
+
+#include "utils/Config.h"
+
+#include "widgets/UpdateLanguage.h"
 
 #include <QApplication>
 #include <QCheckBox>
@@ -32,126 +33,124 @@
 #include <QGroupBox>
 #include <QVBoxLayout>
 
-namespace spine {
-namespace widgets {
+using namespace spine;
+using namespace spine::utils;
+using namespace spine::widgets;
 
-	GeneralSpineSettingsWidget::GeneralSpineSettingsWidget(models::SpineEditorModel * model, QWidget * par) : QWidget(par), _model(model), _spineModuleCheckBoxes() {
-		QVBoxLayout * vl = new QVBoxLayout();
-		vl->setAlignment(Qt::AlignTop);
+GeneralSpineSettingsWidget::GeneralSpineSettingsWidget(models::SpineEditorModel * model, QWidget * par) : QWidget(par), _model(model), _spineModuleCheckBoxes() {
+	QVBoxLayout * vl = new QVBoxLayout();
+	vl->setAlignment(Qt::AlignTop);
+
+	{
+		QHBoxLayout * hl = new QHBoxLayout();
+		QLabel * l = new QLabel(QApplication::tr("Name"), this);
+		_modNameEdit = new QLineEdit(this);
+		
+		hl->addWidget(l);
+		hl->addWidget(_modNameEdit);
+		hl->addStretch(1);
+
+		vl->addLayout(hl);
+	}
+
+	QGroupBox * modulesBox = new QGroupBox(QApplication::tr("Modules"), this);
+	UPDATELANGUAGESETTITLE(modulesBox, "Modules");
+	vl->addWidget(modulesBox);
+
+	{
+		QGridLayout * gl = new QGridLayout();
+		modulesBox->setLayout(gl);
 
 		{
-			QHBoxLayout * hl = new QHBoxLayout();
-			QLabel * l = new QLabel(QApplication::tr("Name"), this);
-			_modNameEdit = new QLineEdit(this);
-			
-			hl->addWidget(l);
-			hl->addWidget(_modNameEdit);
-			hl->addStretch(1);
-
-			vl->addLayout(hl);
+			QCheckBox * cb = new QCheckBox(QApplication::tr("UsernameModule"), modulesBox);
+			gl->addWidget(cb, 0, 0);
+			_spineModuleCheckBoxes.insert(common::SpineModules::GetCurrentUsername, cb);
 		}
-
-		QGroupBox * modulesBox = new QGroupBox(QApplication::tr("Modules"), this);
-		UPDATELANGUAGESETTITLE(modulesBox, "Modules");
-		vl->addWidget(modulesBox);
-
 		{
-			QGridLayout * gl = new QGridLayout();
-			modulesBox->setLayout(gl);
-
-			{
-				QCheckBox * cb = new QCheckBox(QApplication::tr("UsernameModule"), modulesBox);
-				gl->addWidget(cb, 0, 0);
-				_spineModuleCheckBoxes.insert(common::SpineModules::GetCurrentUsername, cb);
-			}
-			{
-				QCheckBox * cb = new QCheckBox(QApplication::tr("AchievementModule"), modulesBox);
-				gl->addWidget(cb, 0, 1);
-				_spineModuleCheckBoxes.insert(common::SpineModules::Achievements, cb);
-				connect(cb, SIGNAL(stateChanged(int)), this, SIGNAL(changedAchievementState(int)));
-			}
-			{
-				QCheckBox * cb = new QCheckBox(QApplication::tr("ScoresModule"), modulesBox);
-				gl->addWidget(cb, 0, 2);
-				_spineModuleCheckBoxes.insert(common::SpineModules::Scores, cb);
-				connect(cb, SIGNAL(stateChanged(int)), this, SIGNAL(changedScoreState(int)));
-			}
-			{
-				QCheckBox * cb = new QCheckBox(QApplication::tr("MultiplayerModule"), modulesBox);
-				gl->addWidget(cb, 1, 0);
-				_spineModuleCheckBoxes.insert(common::SpineModules::Multiplayer, cb);
-			}
-			{
-				QCheckBox * cb = new QCheckBox(QApplication::tr("OverallSaveModule"), modulesBox);
-				gl->addWidget(cb, 1, 1);
-				_spineModuleCheckBoxes.insert(common::SpineModules::OverallSave, cb);
-			}
-			{
-				QCheckBox * cb = new QCheckBox(QApplication::tr("GamepadModule"), modulesBox);
-				gl->addWidget(cb, 1, 2);
-				_spineModuleCheckBoxes.insert(common::SpineModules::Gamepad, cb);
-			}
-			{
-				QCheckBox * cb = new QCheckBox(QApplication::tr("FriendsModule"), modulesBox);
-				gl->addWidget(cb, 2, 0);
-				_spineModuleCheckBoxes.insert(common::SpineModules::Friends, cb);
-			}
-			{
-				QCheckBox * cb = new QCheckBox(QApplication::tr("StatisticsModule"), modulesBox);
-				gl->addWidget(cb, 2, 1);
-				_spineModuleCheckBoxes.insert(common::SpineModules::Statistics, cb);
-			}
+			QCheckBox * cb = new QCheckBox(QApplication::tr("AchievementModule"), modulesBox);
+			gl->addWidget(cb, 0, 1);
+			_spineModuleCheckBoxes.insert(common::SpineModules::Achievements, cb);
+			connect(cb, SIGNAL(stateChanged(int)), this, SIGNAL(changedAchievementState(int)));
 		}
-
-		setLayout(vl);
+		{
+			QCheckBox * cb = new QCheckBox(QApplication::tr("ScoresModule"), modulesBox);
+			gl->addWidget(cb, 0, 2);
+			_spineModuleCheckBoxes.insert(common::SpineModules::Scores, cb);
+			connect(cb, SIGNAL(stateChanged(int)), this, SIGNAL(changedScoreState(int)));
+		}
+		{
+			QCheckBox * cb = new QCheckBox(QApplication::tr("MultiplayerModule"), modulesBox);
+			gl->addWidget(cb, 1, 0);
+			_spineModuleCheckBoxes.insert(common::SpineModules::Multiplayer, cb);
+		}
+		{
+			QCheckBox * cb = new QCheckBox(QApplication::tr("OverallSaveModule"), modulesBox);
+			gl->addWidget(cb, 1, 1);
+			_spineModuleCheckBoxes.insert(common::SpineModules::OverallSave, cb);
+		}
+		{
+			QCheckBox * cb = new QCheckBox(QApplication::tr("GamepadModule"), modulesBox);
+			gl->addWidget(cb, 1, 2);
+			_spineModuleCheckBoxes.insert(common::SpineModules::Gamepad, cb);
+		}
+		{
+			QCheckBox * cb = new QCheckBox(QApplication::tr("FriendsModule"), modulesBox);
+			gl->addWidget(cb, 2, 0);
+			_spineModuleCheckBoxes.insert(common::SpineModules::Friends, cb);
+		}
+		{
+			QCheckBox * cb = new QCheckBox(QApplication::tr("StatisticsModule"), modulesBox);
+			gl->addWidget(cb, 2, 1);
+			_spineModuleCheckBoxes.insert(common::SpineModules::Statistics, cb);
+		}
 	}
 
-	GeneralSpineSettingsWidget::~GeneralSpineSettingsWidget() {
+	setLayout(vl);
+}
+
+GeneralSpineSettingsWidget::~GeneralSpineSettingsWidget() {
+}
+
+void GeneralSpineSettingsWidget::save() {
+	_model->setModName(_modNameEdit->text());
+	int32_t modules = 0;
+	if (_spineModuleCheckBoxes[common::SpineModules::GetCurrentUsername]->isChecked()) {
+		modules |= common::SpineModules::GetCurrentUsername;
 	}
-
-	void GeneralSpineSettingsWidget::save() {
-		_model->setModName(_modNameEdit->text());
-		int32_t modules = 0;
-		if (_spineModuleCheckBoxes[common::SpineModules::GetCurrentUsername]->isChecked()) {
-			modules |= common::SpineModules::GetCurrentUsername;
-		}
-		if (_spineModuleCheckBoxes[common::SpineModules::Achievements]->isChecked()) {
-			modules |= common::SpineModules::Achievements;
-		}
-		if (_spineModuleCheckBoxes[common::SpineModules::Scores]->isChecked()) {
-			modules |= common::SpineModules::Scores;
-		}
-		if (_spineModuleCheckBoxes[common::SpineModules::Multiplayer]->isChecked()) {
-			modules |= common::SpineModules::Multiplayer;
-		}
-		if (_spineModuleCheckBoxes[common::SpineModules::OverallSave]->isChecked()) {
-			modules |= common::SpineModules::OverallSave;
-		}
-		if (_spineModuleCheckBoxes[common::SpineModules::Gamepad]->isChecked()) {
-			modules |= common::SpineModules::Gamepad;
-		}
-		if (_spineModuleCheckBoxes[common::SpineModules::Friends]->isChecked()) {
-			modules |= common::SpineModules::Friends;
-		}
-		if (_spineModuleCheckBoxes[common::SpineModules::Statistics]->isChecked()) {
-			modules |= common::SpineModules::Statistics;
-		}
-		_model->setModules(modules);
+	if (_spineModuleCheckBoxes[common::SpineModules::Achievements]->isChecked()) {
+		modules |= common::SpineModules::Achievements;
 	}
-
-	void GeneralSpineSettingsWidget::updateFromModel() {
-		_modNameEdit->setText(_model->getModName());
-
-		const int32_t modules = _model->getModules();
-		_spineModuleCheckBoxes[common::SpineModules::GetCurrentUsername]->setChecked(modules & common::SpineModules::GetCurrentUsername);
-		_spineModuleCheckBoxes[common::SpineModules::Achievements]->setChecked(modules & common::SpineModules::Achievements);
-		_spineModuleCheckBoxes[common::SpineModules::Scores]->setChecked(modules & common::SpineModules::Scores);
-		_spineModuleCheckBoxes[common::SpineModules::Multiplayer]->setChecked(modules & common::SpineModules::Multiplayer);
-		_spineModuleCheckBoxes[common::SpineModules::OverallSave]->setChecked(modules & common::SpineModules::OverallSave);
-		_spineModuleCheckBoxes[common::SpineModules::Gamepad]->setChecked(modules & common::SpineModules::Gamepad);
-		_spineModuleCheckBoxes[common::SpineModules::Friends]->setChecked(modules & common::SpineModules::Friends);
-		_spineModuleCheckBoxes[common::SpineModules::Statistics]->setChecked(modules & common::SpineModules::Statistics);
+	if (_spineModuleCheckBoxes[common::SpineModules::Scores]->isChecked()) {
+		modules |= common::SpineModules::Scores;
 	}
+	if (_spineModuleCheckBoxes[common::SpineModules::Multiplayer]->isChecked()) {
+		modules |= common::SpineModules::Multiplayer;
+	}
+	if (_spineModuleCheckBoxes[common::SpineModules::OverallSave]->isChecked()) {
+		modules |= common::SpineModules::OverallSave;
+	}
+	if (_spineModuleCheckBoxes[common::SpineModules::Gamepad]->isChecked()) {
+		modules |= common::SpineModules::Gamepad;
+	}
+	if (_spineModuleCheckBoxes[common::SpineModules::Friends]->isChecked()) {
+		modules |= common::SpineModules::Friends;
+	}
+	if (_spineModuleCheckBoxes[common::SpineModules::Statistics]->isChecked()) {
+		modules |= common::SpineModules::Statistics;
+	}
+	_model->setModules(modules);
+}
 
-} /* namespace widgets */
-} /* namespace spine */
+void GeneralSpineSettingsWidget::updateFromModel() {
+	_modNameEdit->setText(_model->getModName());
+
+	const int32_t modules = _model->getModules();
+	_spineModuleCheckBoxes[common::SpineModules::GetCurrentUsername]->setChecked(modules & common::SpineModules::GetCurrentUsername);
+	_spineModuleCheckBoxes[common::SpineModules::Achievements]->setChecked(modules & common::SpineModules::Achievements);
+	_spineModuleCheckBoxes[common::SpineModules::Scores]->setChecked(modules & common::SpineModules::Scores);
+	_spineModuleCheckBoxes[common::SpineModules::Multiplayer]->setChecked(modules & common::SpineModules::Multiplayer);
+	_spineModuleCheckBoxes[common::SpineModules::OverallSave]->setChecked(modules & common::SpineModules::OverallSave);
+	_spineModuleCheckBoxes[common::SpineModules::Gamepad]->setChecked(modules & common::SpineModules::Gamepad);
+	_spineModuleCheckBoxes[common::SpineModules::Friends]->setChecked(modules & common::SpineModules::Friends);
+	_spineModuleCheckBoxes[common::SpineModules::Statistics]->setChecked(modules & common::SpineModules::Statistics);
+}

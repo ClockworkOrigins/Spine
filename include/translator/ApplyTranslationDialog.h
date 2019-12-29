@@ -12,43 +12,42 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_TRANSLATIONWIDGET_H__
-#define __SPINE_WIDGETS_TRANSLATIONWIDGET_H__
+#pragma once
 
-#include <QWidget>
+#include "common/MessageStructs.h"
+
+#include <QDialog>
 
 class QLineEdit;
+class QPushButton;
+class QSettings;
 
 namespace spine {
-namespace widgets {
+namespace translator {
 
-	class TranslationWidget : public QWidget {
+	class ApplyTranslationDialog : public QDialog {
 		Q_OBJECT
 
 	public:
-		TranslationWidget(QString sourceText, QString targetText, QWidget * par);
-		~TranslationWidget();
+		ApplyTranslationDialog(uint32_t requestID, QString title, QWidget * par);
+		~ApplyTranslationDialog();
 
-		QString getTranslation() const;
-		void setFocusToTranslation();
-
-	signals:
-		void selectedSource(QString);
-		void selectedDestination(QString);
-
-	private slots:
-		void focusChanged();
+	private slots :
+		void openFileDialog();
+		void applyTranslation();
 
 	private:
-		QLineEdit * _sourceEdit;
-		QLineEdit * _translationEdit;
+		uint32_t _requestID;
+		QLineEdit * _pathEdit;
+		QPushButton * _applyButton;
+
+		void restoreSettings();
+		void saveSettings();
 	};
 
-} /* namespace widgets */
+} /* namespace translator */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_TRANSLATIONWIDGET_H__ */

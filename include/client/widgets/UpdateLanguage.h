@@ -12,13 +12,13 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
 #pragma once
 
-#include "widgets/GeneralSettingsWidget.h"
+#include "client/widgets/GeneralSettingsWidget.h"
 
 #include "clockUtils/log/Log.h"
 

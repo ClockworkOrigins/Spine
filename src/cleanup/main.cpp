@@ -16,7 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#include "Config.h"
+#include "utils/Config.h"
 
 #include <QAbstractButton>
 #include <QApplication>
@@ -24,9 +24,12 @@
 #include <QMessageBox>
 #include <QTimer>
 
+using namespace spine;
+using namespace spine::utils;
+
 int main(int argc, char ** argv) {
 	QApplication app(argc, argv);
-	const int i = spine::Config::Init();
+	const int i = Config::Init();
 	if (i != 0) {
 		return i;
 	}
@@ -38,11 +41,11 @@ int main(int argc, char ** argv) {
 	const int result = QApplication::exec();
 
 	if (QMessageBox::StandardButton::Ok == msg.result()) {
-		if (!spine::Config::BASEDIR.isEmpty() && spine::Config::BASEDIR.endsWith("Clockwork Origins/Spine")) {
-			QDir(spine::Config::BASEDIR + "/").removeRecursively();
+		if (!Config::BASEDIR.isEmpty() && Config::BASEDIR.endsWith("Clockwork Origins/Spine")) {
+			QDir(Config::BASEDIR + "/").removeRecursively();
 		}
-		if (!spine::Config::MODDIR.isEmpty()) {
-			QDir(spine::Config::MODDIR + "/mods/").removeRecursively();
+		if (!Config::MODDIR.isEmpty()) {
+			QDir(Config::MODDIR + "/mods/").removeRecursively();
 		}
 	}
 

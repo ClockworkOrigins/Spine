@@ -16,11 +16,10 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#include "widgets/WaitSpinner.h"
+#include "gui/WaitSpinner.h"
 
-#include "Config.h"
-#include "Database.h"
-#include "UpdateLanguage.h"
+#include "utils/Config.h"
+#include "utils/Database.h"
 
 #include <QLabel>
 #include <QSvgRenderer>
@@ -29,7 +28,7 @@
 #include <QVBoxLayout>
 
 namespace spine {
-namespace widgets {
+namespace gui {
 
 	WaitSpinner::WaitSpinner(QString text, QWidget * par) : QWidget(par) {
 		QHBoxLayout * l = new QHBoxLayout();
@@ -67,5 +66,5 @@ namespace widgets {
 		return QSize(55 + _textWidth, 55);
 	}
 
-} /* namespace widgets */
+} /* namespace gui */
 } /* namespace spine */

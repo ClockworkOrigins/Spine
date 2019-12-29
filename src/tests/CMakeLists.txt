@@ -7,17 +7,11 @@ SET(UnitTesterSrc
 	${srcdir}/main.cpp
 	
 	${srcdir}/test_GothicParser.cpp
-
-	${CMAKE_SOURCE_DIR}/src/client/translator/GothicParser.cpp
-)
-
-QT5_WRAP_CPP(UnitTesterGuiHeader
-	${includedir}/translator/GothicParser.h
 )
 
 ADD_EXECUTABLE(UnitTester ${UnitTesterSrc} ${UnitTesterGuiHeader})
 
-target_link_libraries(UnitTester ${GTEST_LIBRARIES} ${QT_LIBRARIES} ${TRANSLATOR_LIBRARIES})
+target_link_libraries(UnitTester SpineTranslator ${GTEST_LIBRARIES} ${QT_LIBRARIES} ${TRANSLATOR_LIBRARIES})
 
 IF(UNIX)
 	target_link_libraries(UnitTester pthread)

@@ -18,10 +18,10 @@
 
 #include "widgets/ModInfoView.h"
 
-#include "Config.h"
-
 #include "launcher/Gothic1And2Launcher.h"
 #include "launcher/LauncherFactory.h"
+
+#include "utils/Config.h"
 
 #include "widgets/GeneralSettingsWidget.h"
 
@@ -35,141 +35,139 @@
 	#include <shellapi.h>
 #endif
 
-namespace spine {
-namespace widgets {
+using namespace spine;
+using namespace spine::utils;
+using namespace spine::widgets;
 
-	ModInfoView::ModInfoView(GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _layout(nullptr) {
-		connect(this, &ModInfoView::errorMessage, this, &ModInfoView::showErrorMessage);
+ModInfoView::ModInfoView(GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _layout(nullptr) {
+	connect(this, &ModInfoView::errorMessage, this, &ModInfoView::showErrorMessage);
 
-		{
-			const auto factory = launcher::LauncherFactory::getInstance();
-			connect(factory, &launcher::LauncherFactory::restartAsAdmin, this, &ModInfoView::restartSpineAsAdmin);
-			
-			{
-				const auto launcher = factory->getLauncher(common::GothicVersion::GOTHIC);
-				const auto gothicLauncher = launcher.dynamicCast<launcher::Gothic1And2Launcher>();
-
-				connect(gothicLauncher.data(), &launcher::Gothic1And2Launcher::installMod, this, &ModInfoView::installMod);
-			}
-			{
-				const auto launcher = factory->getLauncher(common::GothicVersion::GOTHIC2);
-				const auto gothicLauncher = launcher.dynamicCast<launcher::Gothic1And2Launcher>();
-
-				connect(gothicLauncher.data(), &launcher::Gothic1And2Launcher::installMod, this, &ModInfoView::installMod);
-			}
-		}
-
-		setHideIncompatible(generalSettingsWidget->getHideIncompatible());
-		connect(generalSettingsWidget, &GeneralSettingsWidget::changedHideIncompatible, this, &ModInfoView::setHideIncompatible);
-
-		restoreSettings();
-
-		_lastWidget = nullptr;
-	}
-
-	ModInfoView::~ModInfoView() {
-		saveSettings();
-	}
-
-	void ModInfoView::selectMod(const QString & modID, const QString & iniFile) {
-		_currentLauncher = launcher::LauncherFactory::getInstance()->getLauncher(modID.toInt(), iniFile);
-
-		if (_lastWidget) {
-			_layout->removeWidget(_lastWidget);
-			_lastWidget->hide();
-			_lastWidget = nullptr;
-		}
+	{
+		const auto factory = launcher::LauncherFactory::getInstance();
+		connect(factory, &launcher::LauncherFactory::restartAsAdmin, this, &ModInfoView::restartSpineAsAdmin);
 		
-		if (!_currentLauncher) return;
-		
-		_currentLauncher->updateView(modID.toInt(), iniFile);
-		_lastWidget = _currentLauncher->getLibraryWidget();
-		_layout->addWidget(_lastWidget);
-		_lastWidget->show();
-	}
-
-	void ModInfoView::setGothicDirectory(QString directory) {
-		const auto factory = launcher::LauncherFactory::getInstance();
-		const auto launcher = factory->getLauncher(common::GothicVersion::GOTHIC);
-		auto gothicLauncher = launcher.dynamicCast<launcher::Gothic1And2Launcher>();
-		gothicLauncher->setDirectory(directory);
-	}
-
-	void ModInfoView::setGothic2Directory(QString directory) {
-		const auto factory = launcher::LauncherFactory::getInstance();
-		const auto launcher = factory->getLauncher(common::GothicVersion::GOTHIC2);
-		auto gothicLauncher = launcher.dynamicCast<launcher::Gothic1And2Launcher>();
-		gothicLauncher->setDirectory(directory);
-	}
-
-	void ModInfoView::start() {
-		if (!_currentLauncher) return;
-
-		_currentLauncher->start();
-	}
-
-	void ModInfoView::loginChanged() {
-		if (Config::OnlineMode) {
-			launcher::LauncherFactory::getInstance()->loginChanged();
-		}
-	}
-
-	void ModInfoView::setDeveloperMode(bool active) {
-		launcher::LauncherFactory::getInstance()->setDeveloperMode(active);
-	}
-
-	void ModInfoView::setZSpyActivated(bool active) {
-		launcher::LauncherFactory::getInstance()->setZSpyActivated(active);
-	}
-
-	void ModInfoView::setShowAchievements(bool showAchievements) {
-		launcher::LauncherFactory::getInstance()->setShowAchievements(showAchievements);
-	}
-
-	void ModInfoView::setHideIncompatible(bool enabled) {
-		const auto factory = launcher::LauncherFactory::getInstance();
 		{
 			const auto launcher = factory->getLauncher(common::GothicVersion::GOTHIC);
-			auto gothicLauncher = launcher.dynamicCast<launcher::Gothic1And2Launcher>();
-			gothicLauncher->setHideIncompatible(enabled);
+			const auto gothicLauncher = launcher.dynamicCast<launcher::Gothic1And2Launcher>();
+
+			connect(gothicLauncher.data(), &launcher::Gothic1And2Launcher::installMod, this, &ModInfoView::installMod);
 		}
 		{
 			const auto launcher = factory->getLauncher(common::GothicVersion::GOTHIC2);
-			auto gothicLauncher = launcher.dynamicCast<launcher::Gothic1And2Launcher>();
-			gothicLauncher->setHideIncompatible(enabled);
+			const auto gothicLauncher = launcher.dynamicCast<launcher::Gothic1And2Launcher>();
+
+			connect(gothicLauncher.data(), &launcher::Gothic1And2Launcher::installMod, this, &ModInfoView::installMod);
 		}
 	}
 
-	void ModInfoView::updatedMod(int modID) {
-		if (!_currentLauncher) return;
-		
-		_currentLauncher->refresh(modID);
-	}
+	setHideIncompatible(generalSettingsWidget->getHideIncompatible());
+	connect(generalSettingsWidget, &GeneralSettingsWidget::changedHideIncompatible, this, &ModInfoView::setHideIncompatible);
 
-	void ModInfoView::restartSpineAsAdmin() {
+	restoreSettings();
+
+	_lastWidget = nullptr;
+}
+
+ModInfoView::~ModInfoView() {
+	saveSettings();
+}
+
+void ModInfoView::selectMod(const QString & modID, const QString & iniFile) {
+	_currentLauncher = launcher::LauncherFactory::getInstance()->getLauncher(modID.toInt(), iniFile);
+
+	if (_lastWidget) {
+		_layout->removeWidget(_lastWidget);
+		_lastWidget->hide();
+		_lastWidget = nullptr;
+	}
+	
+	if (!_currentLauncher) return;
+	
+	_currentLauncher->updateView(modID.toInt(), iniFile);
+	_lastWidget = _currentLauncher->getLibraryWidget();
+	_layout->addWidget(_lastWidget);
+	_lastWidget->show();
+}
+
+void ModInfoView::setGothicDirectory(QString directory) {
+	const auto factory = launcher::LauncherFactory::getInstance();
+	const auto launcher = factory->getLauncher(common::GothicVersion::GOTHIC);
+	auto gothicLauncher = launcher.dynamicCast<launcher::Gothic1And2Launcher>();
+	gothicLauncher->setDirectory(directory);
+}
+
+void ModInfoView::setGothic2Directory(QString directory) {
+	const auto factory = launcher::LauncherFactory::getInstance();
+	const auto launcher = factory->getLauncher(common::GothicVersion::GOTHIC2);
+	auto gothicLauncher = launcher.dynamicCast<launcher::Gothic1And2Launcher>();
+	gothicLauncher->setDirectory(directory);
+}
+
+void ModInfoView::start() {
+	if (!_currentLauncher) return;
+
+	_currentLauncher->start();
+}
+
+void ModInfoView::loginChanged() {
+	if (Config::OnlineMode) {
+		launcher::LauncherFactory::getInstance()->loginChanged();
+	}
+}
+
+void ModInfoView::setDeveloperMode(bool active) {
+	launcher::LauncherFactory::getInstance()->setDeveloperMode(active);
+}
+
+void ModInfoView::setZSpyActivated(bool active) {
+	launcher::LauncherFactory::getInstance()->setZSpyActivated(active);
+}
+
+void ModInfoView::setShowAchievements(bool showAchievements) {
+	launcher::LauncherFactory::getInstance()->setShowAchievements(showAchievements);
+}
+
+void ModInfoView::setHideIncompatible(bool enabled) {
+	const auto factory = launcher::LauncherFactory::getInstance();
+	{
+		const auto launcher = factory->getLauncher(common::GothicVersion::GOTHIC);
+		auto gothicLauncher = launcher.dynamicCast<launcher::Gothic1And2Launcher>();
+		gothicLauncher->setHideIncompatible(enabled);
+	}
+	{
+		const auto launcher = factory->getLauncher(common::GothicVersion::GOTHIC2);
+		auto gothicLauncher = launcher.dynamicCast<launcher::Gothic1And2Launcher>();
+		gothicLauncher->setHideIncompatible(enabled);
+	}
+}
+
+void ModInfoView::updatedMod(int modID) {
+	if (!_currentLauncher) return;
+	
+	_currentLauncher->refresh(modID);
+}
+
+void ModInfoView::restartSpineAsAdmin() {
 #ifdef Q_OS_WIN
-		const QString exeFileName = qApp->applicationDirPath() + "/" + qApp->applicationName();
-		const int result = int(::ShellExecuteA(nullptr, "runas", exeFileName.toUtf8().constData(), nullptr, nullptr, SW_SHOWNORMAL));
-		if (result > 32) { // no error
-			qApp->quit();
-		}
+	const QString exeFileName = qApp->applicationDirPath() + "/" + qApp->applicationName();
+	const int result = int(::ShellExecuteA(nullptr, "runas", exeFileName.toUtf8().constData(), nullptr, nullptr, SW_SHOWNORMAL));
+	if (result > 32) { // no error
+		qApp->quit();
+	}
 #endif
-	}
+}
 
-	void ModInfoView::showErrorMessage(QString msg) {
-		QMessageBox msgBox(QMessageBox::Icon::Information, QApplication::tr("ErrorOccurred"), msg, QMessageBox::StandardButton::Ok);
-		msgBox.setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-		msgBox.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
-		msgBox.exec();
-	}
+void ModInfoView::showErrorMessage(QString msg) {
+	QMessageBox msgBox(QMessageBox::Icon::Information, QApplication::tr("ErrorOccurred"), msg, QMessageBox::StandardButton::Ok);
+	msgBox.setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+	msgBox.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
+	msgBox.exec();
+}
 
-	void ModInfoView::restoreSettings() {
-		launcher::LauncherFactory::getInstance()->restoreSettings();
-	}
+void ModInfoView::restoreSettings() {
+	launcher::LauncherFactory::getInstance()->restoreSettings();
+}
 
-	void ModInfoView::saveSettings() {
-		launcher::LauncherFactory::getInstance()->saveSettings();
-	}
-
-} /* namespace widgets */
-} /* namespace spine */
+void ModInfoView::saveSettings() {
+	launcher::LauncherFactory::getInstance()->saveSettings();
+}

@@ -18,7 +18,7 @@
 
 #include "widgets/FAQDialog.h"
 
-#include "Config.h"
+#include "utils/Config.h"
 
 #include "widgets/FAQEntry.h"
 
@@ -27,60 +27,58 @@
 #include <QSettings>
 #include <QVBoxLayout>
 
-namespace spine {
-namespace widgets {
+using namespace spine;
+using namespace spine::utils;
+using namespace spine::widgets;
 
-	FAQDialog::FAQDialog(QWidget * par) : QDialog(par) {
-		QVBoxLayout * l = new QVBoxLayout();
-		l->setAlignment(Qt::AlignTop);
+FAQDialog::FAQDialog(QWidget * par) : QDialog(par) {
+	QVBoxLayout * l = new QVBoxLayout();
+	l->setAlignment(Qt::AlignTop);
 
-		QScrollArea * scrollArea = new QScrollArea(this);
-		QWidget * mainWidget = new QWidget(this);
-		QVBoxLayout * scrollLayout = new QVBoxLayout();
-		scrollLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
-		mainWidget->setLayout(scrollLayout);
-		scrollArea->setWidget(mainWidget);
-		scrollArea->setWidgetResizable(true);
-		mainWidget->setProperty("FAQ", true);
+	QScrollArea * scrollArea = new QScrollArea(this);
+	QWidget * mainWidget = new QWidget(this);
+	QVBoxLayout * scrollLayout = new QVBoxLayout();
+	scrollLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+	mainWidget->setLayout(scrollLayout);
+	scrollArea->setWidget(mainWidget);
+	scrollArea->setWidgetResizable(true);
+	mainWidget->setProperty("FAQ", true);
 
-		l->addWidget(scrollArea);
+	l->addWidget(scrollArea);
 
-		setLayout(l);
+	setLayout(l);
 
-		initEntries(mainWidget, scrollLayout);
+	initEntries(mainWidget, scrollLayout);
 
-		setWindowTitle(QApplication::tr("FAQ"));
-		setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+	setWindowTitle(QApplication::tr("FAQ"));
+	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-		restoreSettings();
+	restoreSettings();
+}
+
+FAQDialog::~FAQDialog() {
+	saveSettings();
+}
+
+void FAQDialog::initEntries(QWidget * par, QLayout * l) {
+	l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion1"), QApplication::tr("FAQAnswer1"), par));
+	l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion2"), QApplication::tr("FAQAnswer2"), par));
+	l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion3"), QApplication::tr("FAQAnswer3"), par));
+	l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion4"), QApplication::tr("FAQAnswer4"), par));
+	l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion5"), QApplication::tr("FAQAnswer5"), par));
+	l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion6"), QApplication::tr("FAQAnswer6"), par));
+	l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion7"), QApplication::tr("FAQAnswer7"), par));
+	l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion8"), QApplication::tr("FAQAnswer8"), par));
+	l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion9"), QApplication::tr("FAQAnswer9"), par));
+}
+
+void FAQDialog::restoreSettings() {
+	const QByteArray arr = Config::IniParser->value("WINDOWGEOMETRY/FAQDialogGeometry", QByteArray()).toByteArray();
+	if (!restoreGeometry(arr)) {
+		Config::IniParser->remove("WINDOWGEOMETRY/FAQDialogGeometry");
 	}
+}
 
-	FAQDialog::~FAQDialog() {
-		saveSettings();
-	}
-
-	void FAQDialog::initEntries(QWidget * par, QLayout * l) {
-		l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion1"), QApplication::tr("FAQAnswer1"), par));
-		l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion2"), QApplication::tr("FAQAnswer2"), par));
-		l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion3"), QApplication::tr("FAQAnswer3"), par));
-		l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion4"), QApplication::tr("FAQAnswer4"), par));
-		l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion5"), QApplication::tr("FAQAnswer5"), par));
-		l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion6"), QApplication::tr("FAQAnswer6"), par));
-		l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion7"), QApplication::tr("FAQAnswer7"), par));
-		l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion8"), QApplication::tr("FAQAnswer8"), par));
-		l->addWidget(new FAQEntry(QApplication::tr("FAQQuestion9"), QApplication::tr("FAQAnswer9"), par));
-	}
-
-	void FAQDialog::restoreSettings() {
-		const QByteArray arr = Config::IniParser->value("WINDOWGEOMETRY/FAQDialogGeometry", QByteArray()).toByteArray();
-		if (!restoreGeometry(arr)) {
-			Config::IniParser->remove("WINDOWGEOMETRY/FAQDialogGeometry");
-		}
-	}
-
-	void FAQDialog::saveSettings() {
-		Config::IniParser->setValue("WINDOWGEOMETRY/FAQDialogGeometry", saveGeometry());
-	}
-
-} /* namespace widgets */
-} /* namespace spine */
+void FAQDialog::saveSettings() {
+	Config::IniParser->setValue("WINDOWGEOMETRY/FAQDialogGeometry", saveGeometry());
+}

@@ -31,7 +31,7 @@ class QDateEdit;
 class QSpinBox;
 
 namespace spine {
-namespace widgets {
+namespace gui {
 	class WaitSpinner;
 }
 namespace client {
@@ -66,7 +66,7 @@ namespace widgets {
 		QComboBox * _gothicVersionBox;
 		QDateEdit * _releaseDateEdit;
 		QSpinBox * _devDurationBox;
-		spine::widgets::WaitSpinner * _waitSpinner;
+		gui::WaitSpinner * _waitSpinner;
 	};
 
 } /* namespace widgets */

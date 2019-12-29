@@ -29,7 +29,7 @@ class QComboBox;
 class QStandardItemModel;
 
 namespace spine {
-namespace widgets {
+namespace gui {
 	class WaitSpinner;
 }
 namespace client {
@@ -89,7 +89,7 @@ namespace widgets {
 		QComboBox * _guildBox;
 		QComboBox * _nameBox;
 		QMap<StatTuple, int> _stats;
-		spine::widgets::WaitSpinner * _waitSpinner;
+		gui::WaitSpinner * _waitSpinner;
 	};
 
 } /* namespace widgets */

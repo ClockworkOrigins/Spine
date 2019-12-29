@@ -38,12 +38,11 @@ namespace iniParser {
 } /* namespace clockUtils */
 
 namespace spine {
-namespace widgets {
+namespace gui {
 	class WaitSpinner;
 }
 namespace client {
 namespace widgets {
-
 
 	class ModFilesWidget : public QWidget, public IManagementWidget {
 		Q_OBJECT
@@ -84,7 +83,7 @@ namespace widgets {
 		QSpinBox * _majorVersionBox;
 		QSpinBox * _minorVersionBox;
 		QSpinBox * _patchVersionBox;
-		spine::widgets::WaitSpinner * _waitSpinner;
+		gui::WaitSpinner * _waitSpinner;
 		QWinTaskbarProgress * _taskbarProgress;
 		ManagementModFilesData _data;
 

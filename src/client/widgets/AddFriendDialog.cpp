@@ -18,10 +18,11 @@
 
 #include "widgets/AddFriendDialog.h"
 
-#include "Config.h"
 #include "SpineConfig.h"
 
 #include "common/MessageStructs.h"
+
+#include "utils/Config.h"
 
 #include "clockUtils/sockets/TcpSocket.h"
 
@@ -34,72 +35,70 @@
 #include <QtConcurrentRun>
 #include <QVBoxLayout>
 
-namespace spine {
-namespace widgets {
+using namespace spine;
+using namespace spine::utils;
+using namespace spine::widgets;
 
-	AddFriendDialog::AddFriendDialog(QStringList users, QWidget * par) : QDialog(par), _comboBox(nullptr) {
-		QVBoxLayout * l = new QVBoxLayout();
-		l->setAlignment(Qt::AlignTop);
+AddFriendDialog::AddFriendDialog(QStringList users, QWidget * par) : QDialog(par), _comboBox(nullptr) {
+	QVBoxLayout * l = new QVBoxLayout();
+	l->setAlignment(Qt::AlignTop);
 
 
-		_comboBox = new QComboBox(this);
-		_comboBox->setEditable(true);
-		_comboBox->setDuplicatesEnabled(false);
+	_comboBox = new QComboBox(this);
+	_comboBox->setEditable(true);
+	_comboBox->setDuplicatesEnabled(false);
 
-		_sourceModel = new QStandardItemModel(_comboBox);
-		QSortFilterProxyModel * sortModel = new QSortFilterProxyModel(_comboBox);
-		sortModel->setSourceModel(_sourceModel);
+	_sourceModel = new QStandardItemModel(_comboBox);
+	QSortFilterProxyModel * sortModel = new QSortFilterProxyModel(_comboBox);
+	sortModel->setSourceModel(_sourceModel);
 
-		for (const QString & s : users) {
-			_sourceModel->appendRow(new QStandardItem(s));
-		}
-
-		QCompleter * completer = new QCompleter(this);
-		completer->setCaseSensitivity(Qt::CaseInsensitive);
-		completer->setModel(sortModel);
-		completer->setCompletionColumn(0);
-		completer->setCompletionMode(QCompleter::PopupCompletion);
-		_comboBox->setCompleter(completer);
-
-		l->addWidget(_comboBox);
-
-		QPushButton * requestButton = new QPushButton(QApplication::tr("SendFriendRequest"), this);
-
-		l->addWidget(requestButton);
-
-		setLayout(l);
-
-		connect(requestButton, &QPushButton::released, this, &AddFriendDialog::sendRequest);
-
-		setWindowTitle(QApplication::tr("SendFriendRequest"));
-		setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+	for (const QString & s : users) {
+		_sourceModel->appendRow(new QStandardItem(s));
 	}
 
-	AddFriendDialog::~AddFriendDialog() {
-	}
+	QCompleter * completer = new QCompleter(this);
+	completer->setCaseSensitivity(Qt::CaseInsensitive);
+	completer->setModel(sortModel);
+	completer->setCompletionColumn(0);
+	completer->setCompletionMode(QCompleter::PopupCompletion);
+	_comboBox->setCompleter(completer);
 
-	void AddFriendDialog::sendRequest() {
-		if (Config::Username.isEmpty()) {
-			return;
-		}
-		const QString friendname = _comboBox->currentText();
-		if (friendname.isEmpty()) {
-			return;
-		}
-		QtConcurrent::run([friendname]() {
-			common::SendFriendRequestMessage sfrm;
-			sfrm.username = Config::Username.toStdString();
-			sfrm.password = Config::Password.toStdString();
-			sfrm.friendname = friendname.toStdString();
-			const std::string serialized = sfrm.SerializePublic();
-			clockUtils::sockets::TcpSocket sock;
-			const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-			if (clockUtils::ClockError::SUCCESS == cErr) {
-				sock.writePacket(serialized);
-			}
-		});
-		close();
-	}
+	l->addWidget(_comboBox);
 
-} /* namespace widgets */
-} /* namespace spine */
+	QPushButton * requestButton = new QPushButton(QApplication::tr("SendFriendRequest"), this);
+
+	l->addWidget(requestButton);
+
+	setLayout(l);
+
+	connect(requestButton, &QPushButton::released, this, &AddFriendDialog::sendRequest);
+
+	setWindowTitle(QApplication::tr("SendFriendRequest"));
+	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+}
+
+AddFriendDialog::~AddFriendDialog() {
+}
+
+void AddFriendDialog::sendRequest() {
+	if (Config::Username.isEmpty()) {
+		return;
+	}
+	const QString friendname = _comboBox->currentText();
+	if (friendname.isEmpty()) {
+		return;
+	}
+	QtConcurrent::run([friendname]() {
+		common::SendFriendRequestMessage sfrm;
+		sfrm.username = Config::Username.toStdString();
+		sfrm.password = Config::Password.toStdString();
+		sfrm.friendname = friendname.toStdString();
+		const std::string serialized = sfrm.SerializePublic();
+		clockUtils::sockets::TcpSocket sock;
+		const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
+		if (clockUtils::ClockError::SUCCESS == cErr) {
+			sock.writePacket(serialized);
+		}
+	});
+	close();
+}

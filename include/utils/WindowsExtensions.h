@@ -18,36 +18,24 @@
 
 #pragma once
 
-#include "common/MessageStructs.h"
+#include <QString>
 
-#include <QDialog>
+#ifdef Q_OS_WIN
 
-class QLineEdit;
-class QPushButton;
-class QSettings;
+typedef void * HANDLE;
 
 namespace spine {
-namespace widgets {
+namespace utils {
 
-	class ApplyTranslationDialog : public QDialog {
-		Q_OBJECT
+	bool IsRunAsAdmin();
+	bool makeSymlink(QString sourceFile, QString targetFile);
+	bool makeSymlinkFolder(QString sourceDir, QString targetDir);
+	void removeSymlink(QString symLink);
+	int GetProcId(const char * ProcName);
+	HANDLE GetProcHandle(const char * ProcName);
+	uint32_t getPRAMValue();
 
-	public:
-		ApplyTranslationDialog(uint32_t requestID, QString title, QWidget * par);
-		~ApplyTranslationDialog();
-
-	private slots :
-		void openFileDialog();
-		void applyTranslation();
-
-	private:
-		uint32_t _requestID;
-		QLineEdit * _pathEdit;
-		QPushButton * _applyButton;
-
-		void restoreSettings();
-		void saveSettings();
-	};
-
-} /* namespace widgets */
+} /* namespace utils */
 } /* namespace spine */
+
+#endif

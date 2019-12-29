@@ -29,7 +29,7 @@ class QLabel;
 class QVBoxLayout;
 
 namespace spine {
-namespace widgets {
+namespace gui {
 	class WaitSpinner;
 }
 namespace client {
@@ -61,7 +61,7 @@ namespace widgets {
 		QVBoxLayout * _playersLayout;
 		QVBoxLayout * _playtimesLayout;
 		QVBoxLayout * _achievementsLayout;
-		spine::widgets::WaitSpinner * _waitSpinner;
+		gui::WaitSpinner * _waitSpinner;
 	};
 
 } /* namespace widgets */

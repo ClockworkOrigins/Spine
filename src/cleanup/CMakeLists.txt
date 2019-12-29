@@ -2,11 +2,7 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include/client)
 
 SET(srcdir ${CMAKE_CURRENT_SOURCE_DIR})
 
-SET(CleanupSrc
-	${srcdir}/main.cpp
-
-	${CMAKE_SOURCE_DIR}/src/client/Config.cpp
-)
+FILE(GLOB CleanupSrc ${srcdir}/*.cpp)
 
 SET(ResourceFile ${srcdir}/resources/resources.qrc)
 
@@ -17,7 +13,7 @@ QT5_ADD_RESOURCES(QT_RESOURCE_FILES ${ResourceFile})
 
 ADD_EXECUTABLE(cleanup ${CleanupSrc} ${QT_RESOURCE_FILES})
 
-target_link_libraries(cleanup ${CLOCKUTILS_LIBRARIES} ${QT_LIBRARIES})
+target_link_libraries(cleanup SpineUtils ${CLOCKUTILS_LIBRARIES} ${QT_LIBRARIES})
 
 IF(UNIX)
 	target_link_libraries(cleanup pthread)

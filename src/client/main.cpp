@@ -22,8 +22,10 @@
 #include <fstream>
 #include <thread>
 
-#include "Config.h"
 #include "SpineConfig.h"
+
+#include "utils/Config.h"
+#include "utils/WindowsExtensions.h"
 
 #include "clockUtils/compression/Compression.h"
 #include "clockUtils/compression/algorithm/HuffmanFixed.h"
@@ -37,9 +39,11 @@
 #include <QtConcurrent/QtConcurrentRun>
 
 #ifdef Q_OS_WIN
-	#include "WindowsExtensions.h"
 	#include <Windows.h>
 #endif
+
+using namespace spine;
+using namespace spine::utils;
 
 bool CheckOneInstance() {
 #ifdef Q_OS_WIN
@@ -121,17 +125,17 @@ int main(int argc, char ** argv) {
 	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
 	QApplication app(argc, argv);
-	const int configSucceeded = spine::Config::Init();
+	const int configSucceeded = Config::Init();
 	if (configSucceeded != 0) {
 		return -1;
 	}
 
-	QFileInfoList fil = QDir(spine::Config::BASEDIR + "/logs/").entryInfoList(QDir::Filter::Files, QDir::SortFlag::Time | QDir::SortFlag::Reversed);
+	QFileInfoList fil = QDir(Config::BASEDIR + "/logs/").entryInfoList(QDir::Filter::Files, QDir::SortFlag::Time | QDir::SortFlag::Reversed);
 	while (fil.size() > 9) {
 		QFile(fil[0].absoluteFilePath()).remove();
 		fil.pop_front();
 	}
-	std::ofstream out(spine::Config::BASEDIR.toStdString() + "/logs/log_" + std::to_string(time(nullptr)) + ".log");
+	std::ofstream out(Config::BASEDIR.toStdString() + "/logs/log_" + std::to_string(time(nullptr)) + ".log");
 	clockUtils::log::Logger::addSink(&out);
 
 #ifndef SPINE_RELEASE
@@ -141,7 +145,7 @@ int main(int argc, char ** argv) {
 	LOGINFO("Start logging");
 
 #ifdef Q_OS_WIN
-	LOGINFO("Memory Usage main #1: " << spine::getPRAMValue());
+	LOGINFO("Memory Usage main #1: " << getPRAMValue());
 #endif
 
 	int ret;
@@ -149,15 +153,15 @@ int main(int argc, char ** argv) {
 		spine::widgets::MainWindow wnd(false);
 
 #ifdef Q_OS_WIN
-		LOGINFO("Memory Usage main #2: " << spine::getPRAMValue());
+		LOGINFO("Memory Usage main #2: " << getPRAMValue());
 #endif
 		wnd.show();
 
 #ifdef Q_OS_WIN
-		LOGINFO("Memory Usage main #3: " << spine::getPRAMValue());
+		LOGINFO("Memory Usage main #3: " << getPRAMValue());
 #endif
 		ret = QApplication::exec();
 	}
-	delete spine::Config::IniParser;
+	delete Config::IniParser;
 	return ret;
 }

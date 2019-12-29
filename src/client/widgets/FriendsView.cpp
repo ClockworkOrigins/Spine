@@ -18,17 +18,18 @@
 
 #include "widgets/FriendsView.h"
 
-#include "Config.h"
 #include "SpineConfig.h"
-#include "UpdateLanguage.h"
 
 #include "common/MessageStructs.h"
 
+#include "gui/WaitSpinner.h"
+
+#include "utils/Config.h"
 #include "utils/Conversion.h"
 
 #include "widgets/AddFriendDialog.h"
 #include "widgets/FriendRequestView.h"
-#include "widgets/WaitSpinner.h"
+#include "widgets/UpdateLanguage.h"
 
 #include "clockUtils/sockets/TcpSocket.h"
 
@@ -41,136 +42,135 @@
 #include <QtConcurrentRun>
 #include <QVBoxLayout>
 
-namespace spine {
-namespace widgets {
+using namespace spine;
+using namespace spine::gui;
+using namespace spine::utils;
+using namespace spine::widgets;
 
-	FriendsView::FriendsView(QWidget * par) : QWidget(par), _friendsList(nullptr), _waitSpinner(nullptr), _model(nullptr), _sendRequestButton(nullptr), _users(), _friendRequests(), _scrollArea(nullptr), _mainWidget(nullptr), _scrollLayout(nullptr) {
-		QVBoxLayout * l = new QVBoxLayout();
-		l->setAlignment(Qt::AlignTop);
+FriendsView::FriendsView(QWidget * par) : QWidget(par), _friendsList(nullptr), _waitSpinner(nullptr), _model(nullptr), _sendRequestButton(nullptr), _users(), _friendRequests(), _scrollArea(nullptr), _mainWidget(nullptr), _scrollLayout(nullptr) {
+	QVBoxLayout * l = new QVBoxLayout();
+	l->setAlignment(Qt::AlignTop);
 
-		{
-			QHBoxLayout * hl = new QHBoxLayout();
-			hl->addStretch(1);
+	{
+		QHBoxLayout * hl = new QHBoxLayout();
+		hl->addStretch(1);
 
-			_sendRequestButton = new QPushButton("+", this);
-			_sendRequestButton->setToolTip(QApplication::tr("SendFriendRequest"));
-			UPDATELANGUAGESETTOOLTIP(_sendRequestButton, "SendFriendRequest");
-			hl->addWidget(_sendRequestButton);
+		_sendRequestButton = new QPushButton("+", this);
+		_sendRequestButton->setToolTip(QApplication::tr("SendFriendRequest"));
+		UPDATELANGUAGESETTOOLTIP(_sendRequestButton, "SendFriendRequest");
+		hl->addWidget(_sendRequestButton);
 
-			l->addLayout(hl);
+		l->addLayout(hl);
 
-			connect(_sendRequestButton, &QPushButton::released, this, &FriendsView::openAddFriendDialog);
+		connect(_sendRequestButton, &QPushButton::released, this, &FriendsView::openAddFriendDialog);
 
-			_sendRequestButton->setVisible(false);
-		}
-
-		_scrollArea = new QScrollArea(this);
-		_mainWidget = new QWidget(this);
-		_scrollLayout = new QVBoxLayout();
-		_scrollLayout->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
-		_mainWidget->setLayout(_scrollLayout);
-		_scrollArea->setWidget(_mainWidget);
-		_scrollArea->setWidgetResizable(true);
-		_mainWidget->setProperty("default", true);
-		_scrollArea->setFixedWidth(550);
-		_scrollArea->hide();
-
-		l->addWidget(_scrollArea, 0, Qt::AlignHCenter);
-
-		_friendsList = new QListView(this);
-		_friendsList->setEditTriggers(QAbstractItemView::EditTrigger::NoEditTriggers);
-		_model = new QStandardItemModel(this);
-		QSortFilterProxyModel * filterModel = new QSortFilterProxyModel(this);
-		filterModel->setSourceModel(_model);
-		_friendsList->setModel(filterModel);
-
-		l->addWidget(_friendsList, 1);
-
-		setLayout(l);
-
-		qRegisterMetaType<std::vector<std::string>>("std::vector<common::Friend::string>");
-		qRegisterMetaType<std::vector<common::Friend>>("std::vector<common::Friend>");
-		connect(this, &FriendsView::receivedFriends, this, &FriendsView::updateFriendsList);
+		_sendRequestButton->setVisible(false);
 	}
 
-	FriendsView::~FriendsView() {
-	}
+	_scrollArea = new QScrollArea(this);
+	_mainWidget = new QWidget(this);
+	_scrollLayout = new QVBoxLayout();
+	_scrollLayout->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
+	_mainWidget->setLayout(_scrollLayout);
+	_scrollArea->setWidget(_mainWidget);
+	_scrollArea->setWidgetResizable(true);
+	_mainWidget->setProperty("default", true);
+	_scrollArea->setFixedWidth(550);
+	_scrollArea->hide();
 
-	void FriendsView::updateFriendList() {
-		if (Config::Username.isEmpty()) {
-			return;
-		}
-		delete _waitSpinner;
-		_waitSpinner = new WaitSpinner(QApplication::tr("LoadingFriends"), this);
-		_users.clear();
-		QtConcurrent::run([this]() {
-			common::RequestAllFriendsMessage rafm;
-			rafm.username = Config::Username.toStdString();
-			rafm.password = Config::Password.toStdString();
-			std::string serialized = rafm.SerializePublic();
-			clockUtils::sockets::TcpSocket sock;
-			clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-			if (clockUtils::ClockError::SUCCESS == cErr) {
-				sock.writePacket(serialized);
-				if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-					try {
-						common::Message * m = common::Message::DeserializePublic(serialized);
-						if (m) {
-							common::SendAllFriendsMessage * safm = dynamic_cast<common::SendAllFriendsMessage *>(m);
-							emit receivedFriends(safm->friends, safm->friendRequests);
-							for (const std::string & n : safm->nonFriends) {
-								QString qn = s2q(n);
-								if (qn != Config::Username) {
-									_users << qn;
-								}
+	l->addWidget(_scrollArea, 0, Qt::AlignHCenter);
+
+	_friendsList = new QListView(this);
+	_friendsList->setEditTriggers(QAbstractItemView::EditTrigger::NoEditTriggers);
+	_model = new QStandardItemModel(this);
+	QSortFilterProxyModel * filterModel = new QSortFilterProxyModel(this);
+	filterModel->setSourceModel(_model);
+	_friendsList->setModel(filterModel);
+
+	l->addWidget(_friendsList, 1);
+
+	setLayout(l);
+
+	qRegisterMetaType<std::vector<std::string>>("std::vector<common::Friend::string>");
+	qRegisterMetaType<std::vector<common::Friend>>("std::vector<common::Friend>");
+	connect(this, &FriendsView::receivedFriends, this, &FriendsView::updateFriendsList);
+}
+
+FriendsView::~FriendsView() {
+}
+
+void FriendsView::updateFriendList() {
+	if (Config::Username.isEmpty()) {
+		return;
+	}
+	delete _waitSpinner;
+	_waitSpinner = new WaitSpinner(QApplication::tr("LoadingFriends"), this);
+	_users.clear();
+	QtConcurrent::run([this]() {
+		common::RequestAllFriendsMessage rafm;
+		rafm.username = Config::Username.toStdString();
+		rafm.password = Config::Password.toStdString();
+		std::string serialized = rafm.SerializePublic();
+		clockUtils::sockets::TcpSocket sock;
+		clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
+		if (clockUtils::ClockError::SUCCESS == cErr) {
+			sock.writePacket(serialized);
+			if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
+				try {
+					common::Message * m = common::Message::DeserializePublic(serialized);
+					if (m) {
+						common::SendAllFriendsMessage * safm = dynamic_cast<common::SendAllFriendsMessage *>(m);
+						emit receivedFriends(safm->friends, safm->friendRequests);
+						for (const std::string & n : safm->nonFriends) {
+							QString qn = s2q(n);
+							if (qn != Config::Username) {
+								_users << qn;
 							}
 						}
-						delete m;
-					} catch (...) {
-						return;
 					}
-				} else {
-					qDebug() << "Error occurred: " << int(cErr);
+					delete m;
+				} catch (...) {
+					return;
 				}
+			} else {
+				qDebug() << "Error occurred: " << int(cErr);
 			}
-		});
-	}
-
-	void FriendsView::loginChanged() {
-		_sendRequestButton->setVisible(!Config::Username.isEmpty());
-	}
-
-	void FriendsView::updateFriendsList(std::vector<common::Friend> friends, std::vector<common::Friend> friendRequests) {
-		_model->clear();
-		for (const common::Friend & s : friends) {
-			_model->appendRow(new QStandardItem(s2q(s.name) + " (" + QApplication::tr("Level") + " " + QString::number(s.level) + ")"));
 		}
+	});
+}
 
-		for (FriendRequestView * frv : _friendRequests) {
-			frv->deleteLater();
-		}
-		_friendRequests.clear();
+void FriendsView::loginChanged() {
+	_sendRequestButton->setVisible(!Config::Username.isEmpty());
+}
 
-		for (const common::Friend & f : friendRequests) {
-			FriendRequestView * frv = new FriendRequestView(s2q(f.name), f.level, this);
-			_scrollLayout->addWidget(frv);
-			_friendRequests.append(frv);
-			connect(frv, &FriendRequestView::accepted, this, &FriendsView::acceptedFriend);
-		}
-		_scrollArea->setVisible(!friendRequests.empty());
-
-		delete _waitSpinner;
-		_waitSpinner = nullptr;
+void FriendsView::updateFriendsList(std::vector<common::Friend> friends, std::vector<common::Friend> friendRequests) {
+	_model->clear();
+	for (const common::Friend & s : friends) {
+		_model->appendRow(new QStandardItem(s2q(s.name) + " (" + QApplication::tr("Level") + " " + QString::number(s.level) + ")"));
 	}
 
-	void FriendsView::openAddFriendDialog() {
-		AddFriendDialog dlg(_users, this);
-		dlg.exec();
+	for (FriendRequestView * frv : _friendRequests) {
+		frv->deleteLater();
 	}
+	_friendRequests.clear();
 
-	void FriendsView::acceptedFriend() {
-		updateFriendList();
+	for (const common::Friend & f : friendRequests) {
+		FriendRequestView * frv = new FriendRequestView(s2q(f.name), f.level, this);
+		_scrollLayout->addWidget(frv);
+		_friendRequests.append(frv);
+		connect(frv, &FriendRequestView::accepted, this, &FriendsView::acceptedFriend);
 	}
+	_scrollArea->setVisible(!friendRequests.empty());
 
-} /* namespace widgets */
-} /* namespace spine */
+	delete _waitSpinner;
+	_waitSpinner = nullptr;
+}
+
+void FriendsView::openAddFriendDialog() {
+	AddFriendDialog dlg(_users, this);
+	dlg.exec();
+}
+
+void FriendsView::acceptedFriend() {
+	updateFriendList();
+}

@@ -23,6 +23,7 @@
 class QSettings;
 
 namespace spine {
+namespace utils {
 
 	class Config {
 	public:
@@ -46,4 +47,5 @@ namespace spine {
 		static bool extendedLogging;
 	};
 
+} /* namespace utils */
 } /* namespace spine */

@@ -12,32 +12,32 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_FULLSCREENPREVIEW_H__
-#define __SPINE_WIDGETS_FULLSCREENPREVIEW_H__
+#pragma once
 
-#include <QDialog>
+#include <QWidget>
 
 namespace spine {
-namespace widgets {
+namespace gui {
 
-	class FullscreenPreview : public QDialog {
+	class WaitSpinner : public QWidget {
+		Q_OBJECT
+
 	public:
-		FullscreenPreview(QString imagePath, QWidget * parent);
-		~FullscreenPreview();
+		WaitSpinner(QString text, QWidget * par);
+		~WaitSpinner();
+
+	signals:
+		void setText(QString);
 
 	private:
-		QPixmap _pixmap;
+		int _textWidth;
 
-		void paintEvent(QPaintEvent * evt) override;
-		void mouseDoubleClickEvent(QMouseEvent * evt) override;
-		void mousePressEvent(QMouseEvent * evt) override;
+		QSize sizeHint() const override;
 	};
 
-} /* namespace widgets */
+} /* namespace gui */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_FULLSCREENPREVIEW_H__ */

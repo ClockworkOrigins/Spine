@@ -31,7 +31,7 @@ class QSortFilterProxyModel;
 class QStandardItemModel;
 
 namespace spine {
-namespace widgets {
+namespace gui {
 	class WaitSpinner;
 }
 namespace client {
@@ -75,7 +75,7 @@ namespace widgets {
 		QModelIndex _selectedUnlockedUser;
 		QPushButton * _addUserButton;
 		QPushButton * _removeUserButton;
-		spine::widgets::WaitSpinner * _waitSpinner;
+		gui::WaitSpinner * _waitSpinner;
 
 		void changeAccessRight(QString username, bool enabled);
 	};

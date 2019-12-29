@@ -28,7 +28,7 @@ class QGridLayout;
 class QLineEdit;
 
 namespace spine {
-namespace widgets {
+namespace gui {
 	class WaitSpinner;
 }
 namespace client {
@@ -60,7 +60,7 @@ namespace widgets {
 		QGridLayout * _layout;
 		int _rowCount;
 		QList<std::tuple<QLineEdit *, QLineEdit *, QLineEdit *, QLineEdit *>> _scoreEdits;
-		spine::widgets::WaitSpinner * _waitSpinner;
+		gui::WaitSpinner * _waitSpinner;
 	};
 
 } /* namespace widgets */

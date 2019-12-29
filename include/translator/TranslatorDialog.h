@@ -28,10 +28,12 @@ class QTextBrowser;
 class QVBoxLayout;
 
 namespace spine {
-namespace widgets {
+namespace gui {
+	class WaitSpinner;
+}
+namespace translator {
 
 	class TranslationWidget;
-	class WaitSpinner;
 
 	class TranslatorDialog : public QDialog {
 		Q_OBJECT
@@ -41,7 +43,7 @@ namespace widgets {
 		~TranslatorDialog();
 
 	signals:
-		void receivedProjects(std::vector<translator::common::SendProjectsMessage::Project>);
+		void receivedProjects(std::vector<::translator::common::SendProjectsMessage::Project>);
 		void receivedTextToTranslate();
 		void receivedTextToReview();
 		void receivedProgress(std::pair<uint32_t, uint32_t>);
@@ -49,7 +51,7 @@ namespace widgets {
 	private slots:
 		void submit();
 		void discard();
-		void updateProjects(std::vector<translator::common::SendProjectsMessage::Project> projects);
+		void updateProjects(std::vector<::translator::common::SendProjectsMessage::Project> projects);
 		void requestText();
 		void requestReview();
 		void updateTextToTranslate();
@@ -72,7 +74,7 @@ namespace widgets {
 		QVBoxLayout * _translationsLayout;
 		QList<TranslationWidget *> _translationWidgets;
 		QComboBox * _hintsBox;
-		WaitSpinner * _waitSpinner;
+		gui::WaitSpinner * _waitSpinner;
 
 		void closeEvent(QCloseEvent * evt) override;
 		void restoreSettings();
@@ -83,5 +85,5 @@ namespace widgets {
 		bool eventFilter(QObject * o, QEvent * e) override;
 	};
 
-} /* namespace widgets */
+} /* namespace translator */
 } /* namespace spine */

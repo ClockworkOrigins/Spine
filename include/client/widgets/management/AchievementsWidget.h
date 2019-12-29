@@ -27,7 +27,7 @@
 class QVBoxLayout;
 
 namespace spine {
-namespace widgets {
+namespace gui {
 	class WaitSpinner;
 }
 namespace client {
@@ -59,7 +59,7 @@ namespace widgets {
 		int _modIndex;
 		QVBoxLayout * _layout;
 		QList<AchievementWidget *> _achievementEdits;
-		spine::widgets::WaitSpinner * _waitSpinner;
+		gui::WaitSpinner * _waitSpinner;
 	};
 
 } /* namespace widgets */

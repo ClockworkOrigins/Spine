@@ -22,9 +22,7 @@
 #include <string>
 #include <thread>
 
-#ifdef Q_OS_WIN
-	#include "WindowsExtensions.h"
-#endif
+#include "utils/WindowsExtensions.h"
 
 #include "widgets/LocationSettingsWidget.h"
 
@@ -36,7 +34,9 @@
 	#include <Windows.h>
 #endif
 
-namespace spine {
+using namespace spine;
+using namespace spine::utils;
+
 namespace {
 
 #ifdef Q_OS_WIN
@@ -219,94 +219,92 @@ namespace {
 #endif
 }
 
-	ScreenshotManager::ScreenshotManager(QObject * par) : QObject(par), _running(false), _screenshotDirectory(), _modID() {
-		_screenshotDirectory = widgets::LocationSettingsWidget::getInstance()->getScreenshotDirectory();
-		connect(widgets::LocationSettingsWidget::getInstance(), SIGNAL(screenshotDirectoryChanged(QString)), this, SLOT(setScreenshotDirectory(QString)));
-	}
+ScreenshotManager::ScreenshotManager(QObject * par) : QObject(par), _running(false), _screenshotDirectory(), _modID() {
+	_screenshotDirectory = widgets::LocationSettingsWidget::getInstance()->getScreenshotDirectory();
+	connect(widgets::LocationSettingsWidget::getInstance(), SIGNAL(screenshotDirectoryChanged(QString)), this, SLOT(setScreenshotDirectory(QString)));
+}
 
-	ScreenshotManager::~ScreenshotManager() {
-		if (!_workerThread.isFinished()) {
-			_workerThread.waitForFinished();
-		}
-	}
-
-	void ScreenshotManager::start(int32_t modID) {
-		_modID = modID;
-
-		const QString path = _screenshotDirectory + "/" + QString::number(_modID) + "/";
-		if (!QDir(path).exists()) {
-			bool b = QDir(path).mkpath(path);
-			Q_UNUSED(b);
-		}
-
-		_running = true;
-		_workerThread = QtConcurrent::run(this, &ScreenshotManager::execute);
-	}
-
-	void ScreenshotManager::stop() {
-		// convert all screenshots to png
-		QDirIterator it(_screenshotDirectory + "/" + QString::number(_modID) + "/", QStringList() << "*.bmp", QDir::Filter::Files);
-		while (it.hasNext()) {
-			it.next();
-			{
-				QImage img(it.filePath());
-				Q_ASSERT(!img.isNull());
-				bool b = img.save(it.fileInfo().absolutePath() + "/" + it.fileInfo().baseName() + ".png");
-				Q_UNUSED(b);
-			}
-			QFile(it.filePath()).remove();
-		}
-		_running = false;
+ScreenshotManager::~ScreenshotManager() {
+	if (!_workerThread.isFinished()) {
 		_workerThread.waitForFinished();
 	}
+}
 
-	void ScreenshotManager::setScreenshotDirectory(QString screenshotDirectory) {
-		_screenshotDirectory = screenshotDirectory;
+void ScreenshotManager::start(int32_t modID) {
+	_modID = modID;
+
+	const QString path = _screenshotDirectory + "/" + QString::number(_modID) + "/";
+	if (!QDir(path).exists()) {
+		bool b = QDir(path).mkpath(path);
+		Q_UNUSED(b);
 	}
 
-	void ScreenshotManager::execute() {
+	_running = true;
+	_workerThread = QtConcurrent::run(this, &ScreenshotManager::execute);
+}
+
+void ScreenshotManager::stop() {
+	// convert all screenshots to png
+	QDirIterator it(_screenshotDirectory + "/" + QString::number(_modID) + "/", QStringList() << "*.bmp", QDir::Filter::Files);
+	while (it.hasNext()) {
+		it.next();
+		{
+			QImage img(it.filePath());
+			Q_ASSERT(!img.isNull());
+			bool b = img.save(it.fileInfo().absolutePath() + "/" + it.fileInfo().baseName() + ".png");
+			Q_UNUSED(b);
+		}
+		QFile(it.filePath()).remove();
+	}
+	_running = false;
+	_workerThread.waitForFinished();
+}
+
+void ScreenshotManager::setScreenshotDirectory(QString screenshotDirectory) {
+	_screenshotDirectory = screenshotDirectory;
+}
+
+void ScreenshotManager::execute() {
 #ifdef Q_OS_WIN
-		bool toggled = false;
-		while (_running) {
-			std::this_thread::sleep_for(std::chrono::milliseconds(100));
-			const SHORT tabKeyState = GetAsyncKeyState(VK_F12);
+	bool toggled = false;
+	while (_running) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		const SHORT tabKeyState = GetAsyncKeyState(VK_F12);
 
-			// Test high bit - if set, key was down when GetAsyncKeyState was called.
-			if ((1 << 15) & tabKeyState && !toggled) {
-				toggled = true;
-				takeScreenshot();
-			} else if (!((1 << 15) & tabKeyState) && toggled) {
-				toggled = false;
-			}
+		// Test high bit - if set, key was down when GetAsyncKeyState was called.
+		if ((1 << 15) & tabKeyState && !toggled) {
+			toggled = true;
+			takeScreenshot();
+		} else if (!((1 << 15) & tabKeyState) && toggled) {
+			toggled = false;
 		}
-#endif
 	}
+#endif
+}
 
-	void ScreenshotManager::takeScreenshot() {
+void ScreenshotManager::takeScreenshot() {
 #ifdef Q_OS_WIN
-		int procID = GetProcId("Gothic.exe");
-		if (procID <= 0) {
-			procID = GetProcId("GothicMod.exe");
-		}
-		if (procID <= 0) {
-			procID = GetProcId("Gothic2.exe");
-		}
-
-		HWND hWnd = findWindowFromProcessId(procID);
-
-		HBITMAP hBitmap = ScreenCapture(hWnd);
-		PBITMAPINFO info = CreateBitmapInfoStruct(hBitmap);
-
-		HDC hScreenDC = GetDC(hWnd);
-		// and a device context to put it in
-		HDC hMemoryDC = CreateCompatibleDC(hScreenDC);
-
-		createBmpFile(LPSTR((_screenshotDirectory.toStdString() + "/" + std::to_string(_modID) + "/screen_" + std::to_string(time(nullptr)) + ".bmp").c_str()), info, hBitmap, hMemoryDC);
-
-		// clean up
-		DeleteDC(hMemoryDC);
-		DeleteDC(hScreenDC);
-#endif
+	int procID = GetProcId("Gothic.exe");
+	if (procID <= 0) {
+		procID = GetProcId("GothicMod.exe");
+	}
+	if (procID <= 0) {
+		procID = GetProcId("Gothic2.exe");
 	}
 
-} /* namespace spine */
+	HWND hWnd = findWindowFromProcessId(procID);
+
+	HBITMAP hBitmap = ScreenCapture(hWnd);
+	PBITMAPINFO info = CreateBitmapInfoStruct(hBitmap);
+
+	HDC hScreenDC = GetDC(hWnd);
+	// and a device context to put it in
+	HDC hMemoryDC = CreateCompatibleDC(hScreenDC);
+
+	createBmpFile(LPSTR((_screenshotDirectory.toStdString() + "/" + std::to_string(_modID) + "/screen_" + std::to_string(time(nullptr)) + ".bmp").c_str()), info, hBitmap, hMemoryDC);
+
+	// clean up
+	DeleteDC(hMemoryDC);
+	DeleteDC(hScreenDC);
+#endif
+}

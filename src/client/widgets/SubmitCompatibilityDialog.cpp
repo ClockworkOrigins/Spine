@@ -18,13 +18,14 @@
 
 #include "widgets/SubmitCompatibilityDialog.h"
 
-#include "Config.h"
-#include "utils/Conversion.h"
-#include "Database.h"
 #include "FileDownloader.h"
 #include "SpineConfig.h"
 
 #include "common/MessageStructs.h"
+
+#include "utils/Config.h"
+#include "utils/Conversion.h"
+#include "utils/Database.h"
 
 #include "clockUtils/sockets/TcpSocket.h"
 
@@ -40,304 +41,302 @@
 #include <QtConcurrentRun>
 #include <QVBoxLayout>
 
-namespace spine {
-namespace widgets {
+using namespace spine;
+using namespace spine::utils;
+using namespace spine::widgets;
 
-	SubmitCompatibilityDialog::SubmitCompatibilityDialog() : SubmitCompatibilityDialog(-1, -1, common::GothicVersion::GOTHIC2) {
+SubmitCompatibilityDialog::SubmitCompatibilityDialog() : SubmitCompatibilityDialog(-1, -1, common::GothicVersion::GOTHIC2) {
+}
+
+SubmitCompatibilityDialog::SubmitCompatibilityDialog(int32_t modID, int32_t patchID, common::GothicVersion gothicVersion) : QDialog(nullptr), _g1Button(nullptr), _g2Button(nullptr), _modView(nullptr), _patchView(nullptr), _compatibleButton(nullptr), _notCompatibleButton(nullptr), _modList(nullptr), _patchList(nullptr), _submitButton(nullptr), _g1Mods(), _g1Patches(), _g2Mods(), _g2Patches(), _currentPatches(), _filteredPatches(), _showSubmitted(false), _modID(modID), _patchID(patchID), _gothicVersion(gothicVersion) {
+	QVBoxLayout * l = new QVBoxLayout();
+	l->setAlignment(Qt::AlignTop);
+
+	{
+		QGroupBox * gb = new QGroupBox(this);
+		QHBoxLayout * hl = new QHBoxLayout();
+		hl->setAlignment(Qt::AlignCenter);
+
+		_g1Button = new QRadioButton(QApplication::tr("Gothic"), gb);
+		_g2Button = new QRadioButton(QApplication::tr("Gothic2"), gb);
+		_g1Button->setChecked(true);
+
+		hl->addWidget(_g1Button);
+		hl->addWidget(_g2Button);
+
+		gb->setLayout(hl);
+
+		l->addWidget(gb);
+
+		connect(_g1Button, SIGNAL(toggled(bool)), this, SLOT(updateView()));
+		connect(_g2Button, SIGNAL(toggled(bool)), this, SLOT(updateView()));
 	}
+	{
+		QHBoxLayout * hl = new QHBoxLayout();
 
-	SubmitCompatibilityDialog::SubmitCompatibilityDialog(int32_t modID, int32_t patchID, common::GothicVersion gothicVersion) : QDialog(nullptr), _g1Button(nullptr), _g2Button(nullptr), _modView(nullptr), _patchView(nullptr), _compatibleButton(nullptr), _notCompatibleButton(nullptr), _modList(nullptr), _patchList(nullptr), _submitButton(nullptr), _g1Mods(), _g1Patches(), _g2Mods(), _g2Patches(), _currentPatches(), _filteredPatches(), _showSubmitted(false), _modID(modID), _patchID(patchID), _gothicVersion(gothicVersion) {
-		QVBoxLayout * l = new QVBoxLayout();
-		l->setAlignment(Qt::AlignTop);
+		_modView = new QListView(this);
+		_patchView = new QListView(this);
+		_modList = new QStandardItemModel(_modView);
+		_patchList = new QStandardItemModel(_patchView);
+		_modView->setModel(_modList);
+		_patchView->setModel(_patchList);
 
-		{
-			QGroupBox * gb = new QGroupBox(this);
-			QHBoxLayout * hl = new QHBoxLayout();
-			hl->setAlignment(Qt::AlignCenter);
+		connect(_modView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(selectIndex(const QModelIndex &)));
+		connect(_patchView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(selectPatchIndex(const QModelIndex &)));
 
-			_g1Button = new QRadioButton(QApplication::tr("Gothic"), gb);
-			_g2Button = new QRadioButton(QApplication::tr("Gothic2"), gb);
-			_g1Button->setChecked(true);
+		hl->addWidget(_modView);
+		hl->addWidget(_patchView);
 
-			hl->addWidget(_g1Button);
-			hl->addWidget(_g2Button);
+		l->addLayout(hl);
+	}
+	{
+		QGroupBox * gb = new QGroupBox(this);
+		QHBoxLayout * hl = new QHBoxLayout();
+		hl->setAlignment(Qt::AlignCenter);
 
-			gb->setLayout(hl);
+		_compatibleButton = new QRadioButton(QApplication::tr("Compatible"), this);
+		_notCompatibleButton = new QRadioButton(QApplication::tr("NotCompatible"), this);
+		_compatibleButton->setChecked(true);
 
-			l->addWidget(gb);
+		hl->addWidget(_compatibleButton);
+		hl->addWidget(_notCompatibleButton);
 
-			connect(_g1Button, SIGNAL(toggled(bool)), this, SLOT(updateView()));
-			connect(_g2Button, SIGNAL(toggled(bool)), this, SLOT(updateView()));
-		}
-		{
-			QHBoxLayout * hl = new QHBoxLayout();
+		gb->setLayout(hl);
 
-			_modView = new QListView(this);
-			_patchView = new QListView(this);
-			_modList = new QStandardItemModel(_modView);
-			_patchList = new QStandardItemModel(_patchView);
-			_modView->setModel(_modList);
-			_patchView->setModel(_patchList);
+		l->addWidget(gb);
+	}
+	QCheckBox * showSubmitted = new QCheckBox(QApplication::tr("ShowAlreadySubmittedCompatibilities"), this);
+	l->addWidget(showSubmitted);
+	connect(showSubmitted, SIGNAL(stateChanged(int)), this, SLOT(changedHiddenState(int)));
 
-			connect(_modView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(selectIndex(const QModelIndex &)));
-			connect(_patchView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(selectPatchIndex(const QModelIndex &)));
+	QDialogButtonBox * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Ok | QDialogButtonBox::StandardButton::Cancel, Qt::Orientation::Horizontal, this);
+	l->addWidget(dbb);
 
-			hl->addWidget(_modView);
-			hl->addWidget(_patchView);
+	setLayout(l);
 
-			l->addLayout(hl);
-		}
-		{
-			QGroupBox * gb = new QGroupBox(this);
-			QHBoxLayout * hl = new QHBoxLayout();
-			hl->setAlignment(Qt::AlignCenter);
+	QPushButton * b = dbb->button(QDialogButtonBox::StandardButton::Ok);
+	b->setText(QApplication::tr("Submit"));
+	_submitButton = b;
 
-			_compatibleButton = new QRadioButton(QApplication::tr("Compatible"), this);
-			_notCompatibleButton = new QRadioButton(QApplication::tr("NotCompatible"), this);
-			_compatibleButton->setChecked(true);
+	connect(b, SIGNAL(clicked()), this, SIGNAL(accepted()));
+	connect(b, SIGNAL(clicked()), this, SLOT(accept()));
+	connect(b, SIGNAL(clicked()), this, SLOT(hide()));
 
-			hl->addWidget(_compatibleButton);
-			hl->addWidget(_notCompatibleButton);
+	b = dbb->button(QDialogButtonBox::StandardButton::Cancel);
+	b->setText(QApplication::tr("Cancel"));
 
-			gb->setLayout(hl);
+	connect(b, SIGNAL(clicked()), this, SIGNAL(rejected()));
+	connect(b, SIGNAL(clicked()), this, SLOT(reject()));
+	connect(b, SIGNAL(clicked()), this, SLOT(hide()));
 
-			l->addWidget(gb);
-		}
-		QCheckBox * showSubmitted = new QCheckBox(QApplication::tr("ShowAlreadySubmittedCompatibilities"), this);
-		l->addWidget(showSubmitted);
-		connect(showSubmitted, SIGNAL(stateChanged(int)), this, SLOT(changedHiddenState(int)));
+	connect(this, SIGNAL(receivedModList(std::vector<common::Mod>)), this, SLOT(updateModList(std::vector<common::Mod>)));
 
-		QDialogButtonBox * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Ok | QDialogButtonBox::StandardButton::Cancel, Qt::Orientation::Horizontal, this);
-		l->addWidget(dbb);
+	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+	setWindowTitle(QApplication::tr("SubmitCompatibility"));
 
-		setLayout(l);
+	Database::DBError err;
+	Database::execute(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, "CREATE TABLE IF NOT EXISTS ownCompatibilityVotes(ModID INT NOT NULL, PatchID INT NOT NULL, Compatible INT NOT NULL, PRIMARY KEY(ModID, PatchID));", err);
 
-		QPushButton * b = dbb->button(QDialogButtonBox::StandardButton::Ok);
-		b->setText(QApplication::tr("Submit"));
-		_submitButton = b;
-
-		connect(b, SIGNAL(clicked()), this, SIGNAL(accepted()));
-		connect(b, SIGNAL(clicked()), this, SLOT(accept()));
-		connect(b, SIGNAL(clicked()), this, SLOT(hide()));
-
-		b = dbb->button(QDialogButtonBox::StandardButton::Cancel);
-		b->setText(QApplication::tr("Cancel"));
-
-		connect(b, SIGNAL(clicked()), this, SIGNAL(rejected()));
-		connect(b, SIGNAL(clicked()), this, SLOT(reject()));
-		connect(b, SIGNAL(clicked()), this, SLOT(hide()));
-
-		connect(this, SIGNAL(receivedModList(std::vector<common::Mod>)), this, SLOT(updateModList(std::vector<common::Mod>)));
-
-		setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-		setWindowTitle(QApplication::tr("SubmitCompatibility"));
-
-		Database::DBError err;
-		Database::execute(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, "CREATE TABLE IF NOT EXISTS ownCompatibilityVotes(ModID INT NOT NULL, PatchID INT NOT NULL, Compatible INT NOT NULL, PRIMARY KEY(ModID, PatchID));", err);
-
-		QtConcurrent::run([this]() {
-			clockUtils::sockets::TcpSocket sock;
-			clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-			if (clockUtils::ClockError::SUCCESS == cErr) {
-				{
-					common::RequestOwnCompatibilitiesMessage rocm;
-					rocm.username = Config::Username.toStdString();
-					rocm.password = Config::Password.toStdString();
-					std::string serialized = rocm.SerializePublic();
-					sock.writePacket(serialized);
-					if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-						try {
-							common::Message * m = common::Message::DeserializePublic(serialized);
-							if (m) {
-								common::SendOwnCompatibilitiesMessage * socm = dynamic_cast<common::SendOwnCompatibilitiesMessage *>(m);
-								if (socm) {
-									Database::DBError dbErr;
-									Database::execute(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, "DELETE FROM ownCompatibilityVotes;", dbErr);
-									Database::open(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, dbErr);
-									Database::execute(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, "BEGIN TRANSACTION;", dbErr);
-									for (common::SendOwnCompatibilitiesMessage::Compatibility c : socm->compatibilities) {
-										Database::execute(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, "INSERT INTO ownCompatibilityVotes (ModID, PatchID, Compatible) VALUES (" + std::to_string(c.modID) + ", " + std::to_string(c.patchID) + ", " + std::to_string(c.compatible) + ");", dbErr);
-									}
-									Database::execute(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, "END TRANSACTION;", dbErr);
-									Database::close(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, dbErr);
+	QtConcurrent::run([this]() {
+		clockUtils::sockets::TcpSocket sock;
+		clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
+		if (clockUtils::ClockError::SUCCESS == cErr) {
+			{
+				common::RequestOwnCompatibilitiesMessage rocm;
+				rocm.username = Config::Username.toStdString();
+				rocm.password = Config::Password.toStdString();
+				std::string serialized = rocm.SerializePublic();
+				sock.writePacket(serialized);
+				if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
+					try {
+						common::Message * m = common::Message::DeserializePublic(serialized);
+						if (m) {
+							common::SendOwnCompatibilitiesMessage * socm = dynamic_cast<common::SendOwnCompatibilitiesMessage *>(m);
+							if (socm) {
+								Database::DBError dbErr;
+								Database::execute(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, "DELETE FROM ownCompatibilityVotes;", dbErr);
+								Database::open(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, dbErr);
+								Database::execute(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, "BEGIN TRANSACTION;", dbErr);
+								for (common::SendOwnCompatibilitiesMessage::Compatibility c : socm->compatibilities) {
+									Database::execute(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, "INSERT INTO ownCompatibilityVotes (ModID, PatchID, Compatible) VALUES (" + std::to_string(c.modID) + ", " + std::to_string(c.patchID) + ", " + std::to_string(c.compatible) + ");", dbErr);
 								}
+								Database::execute(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, "END TRANSACTION;", dbErr);
+								Database::close(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, dbErr);
 							}
-							delete m;
-						} catch (...) {
-							return;
 						}
-					} else {
-						qDebug() << "Error occurred: " << int(cErr);
+						delete m;
+					} catch (...) {
 						return;
 					}
-				}
-				{
-					common::RequestAllModsMessage ramm;
-					ramm.language = Config::Language.toStdString();
-					ramm.username = Config::Username.toStdString();
-					ramm.password = Config::Password.toStdString();
-					std::string serialized = ramm.SerializePublic();
-					sock.writePacket(serialized);
-					if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-						try {
-							common::Message * m = common::Message::DeserializePublic(serialized);
-							if (m) {
-								common::UpdateAllModsMessage * uamm = dynamic_cast<common::UpdateAllModsMessage *>(m);
-								if (uamm) {
-									emit receivedModList(uamm->mods);
-								}
-							}
-							delete m;
-						} catch (...) {
-							return;
-						}
-					} else {
-						qDebug() << "Error occurred: " << int(cErr);
-					}
-				}
-			} else {
-				qDebug() << "Error occurred: " << int(cErr);
-			}
-		});
-	}
-
-	SubmitCompatibilityDialog::~SubmitCompatibilityDialog() {
-	}
-
-	void SubmitCompatibilityDialog::updateModList(std::vector<common::Mod> mods) {
-		for (const common::Mod & mod : mods) {
-			if (mod.gothic == common::GothicVersion::GOTHIC && (mod.type == common::ModType::TOTALCONVERSION || mod.type == common::ModType::ENHANCEMENT || mod.type == common::ModType::ORIGINAL)) {
-				_g1Mods.append(mod);
-			} else if (mod.gothic == common::GothicVersion::GOTHIC && (mod.type == common::ModType::PATCH || mod.type == common::ModType::TOOL)) {
-				_g1Patches.append(mod);
-			} else if (mod.gothic == common::GothicVersion::GOTHIC2 && (mod.type == common::ModType::TOTALCONVERSION || mod.type == common::ModType::ENHANCEMENT || mod.type == common::ModType::ORIGINAL)) {
-				_g2Mods.append(mod);
-			} else if (mod.gothic == common::GothicVersion::GOTHIC2 && (mod.type == common::ModType::PATCH || mod.type == common::ModType::TOOL)) {
-				_g2Patches.append(mod);
-			} else if (mod.gothic == common::GothicVersion::Gothic1And2 && (mod.type == common::ModType::PATCH || mod.type == common::ModType::TOOL)) {
-				_g1Patches.append(mod);
-				_g2Patches.append(mod);
-			}
-		}
-		const std::function<bool(const common::Mod & a, const common::Mod & b)> compareFunc = [](const common::Mod & a, const common::Mod & b) {
-			return a.name < b.name;
-		};
-		std::sort(_g1Mods.begin(), _g1Mods.end(), compareFunc);
-		std::sort(_g1Patches.begin(), _g1Patches.end(), compareFunc);
-		std::sort(_g2Mods.begin(), _g2Mods.end(), compareFunc);
-		std::sort(_g2Patches.begin(), _g2Patches.end(), compareFunc);
-
-		if (_gothicVersion == common::GothicVersion::GOTHIC) {
-			_g1Button->setChecked(true);
-			_g2Button->setChecked(false);
-		} else if (_gothicVersion == common::GothicVersion::GOTHIC2) {
-			_g1Button->setChecked(false);
-			_g2Button->setChecked(true);
-		}
-
-		updateView();
-	}
-
-	void SubmitCompatibilityDialog::updateView() {
-		const common::GothicVersion gv = _g1Button->isChecked() ? common::GothicVersion::GOTHIC : common::GothicVersion::GOTHIC2;
-		_modList->clear();
-		QList<common::Mod> tmpMods = (gv == common::GothicVersion::GOTHIC) ? _g1Mods : _g2Mods;
-		_currentPatches = (gv == common::GothicVersion::GOTHIC) ? _g1Patches : _g2Patches;
-		_currentMods.clear();
-		for (const common::Mod & mod : tmpMods) {
-			Database::DBError err;
-			const int count = Database::queryCount(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, "SELECT * FROM ownCompatibilityVotes WHERE ModID = " + std::to_string(mod.id) + ";", err);
-			if (count < _currentPatches.size() || _showSubmitted) {
-				_currentMods.append(mod);
-			}
-		}
-		int row = 0;
-		int counter = 0;
-		for (const common::Mod & mod : _currentMods) {
-			if (mod.id == _modID) {
-				row = counter;
-			}
-			QStandardItem * itm = new QStandardItem(s2q(mod.name));
-			itm->setEditable(false);
-			_modList->appendRow(itm);
-			counter++;
-		}
-		if (!_currentMods.empty()) {
-			_modView->setCurrentIndex(_modList->index(row, 0));
-			selectIndex(_modList->index(row, 0));
-		}
-	}
-
-	void SubmitCompatibilityDialog::selectIndex(const QModelIndex & idx) {
-		_filteredPatches.clear();
-		_patchList->clear();
-		QList<bool> compatibles;
-		for (const common::Mod & mod : _currentPatches) {
-			Database::DBError err;
-			const std::vector<int> results = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, "SELECT Compatible FROM ownCompatibilityVotes WHERE ModID = " + std::to_string(_currentMods[idx.row()].id) + " AND PatchID = " + std::to_string(mod.id) + " LIMIT 1;", err);
-			if (results.empty() || _showSubmitted) {
-				if (results.empty()) {
-					compatibles.append(true);
 				} else {
-					compatibles.append(results[0] == 1);
+					qDebug() << "Error occurred: " << int(cErr);
+					return;
 				}
-				_filteredPatches.append(mod);
 			}
-		}
-		int counter = 0;
-		int row = 0;
-		for (const common::Mod & mod : _filteredPatches) {
-			if (mod.id == _patchID) {
-				row = counter;
-			}
-			QStandardItem * itm = new QStandardItem(s2q(mod.name));
-			itm->setEditable(false);
-			itm->setData(compatibles[counter++], Qt::UserRole);
-			_patchList->appendRow(itm);
-		}
-		if (!_filteredPatches.empty()) {
-			_patchView->setCurrentIndex(_modList->index(row, 0));
-		}
-	}
-
-	void SubmitCompatibilityDialog::selectPatchIndex(const QModelIndex & idx) {
-		_compatibleButton->setChecked(idx.data(Qt::UserRole).toBool());
-		_notCompatibleButton->setChecked(!idx.data(Qt::UserRole).toBool());
-	}
-
-	void SubmitCompatibilityDialog::accept() {
-		std::string username = Config::Username.toStdString();
-		std::string password = Config::Password.toStdString();
-		int32_t modID = _currentMods[_modView->currentIndex().row()].id;
-		int32_t patchID = _filteredPatches[_patchView->currentIndex().row()].id;
-		bool compatible = _compatibleButton->isChecked();
-		QtConcurrent::run([username, password, modID, patchID, compatible]() {
-			common::SubmitCompatibilityMessage scm;
-			scm.username = username;
-			scm.password = password;
-			scm.modID = modID;
-			scm.patchID = patchID;
-			scm.compatible = compatible;
-			const std::string serialized = scm.SerializePublic();
-			clockUtils::sockets::TcpSocket sock;
-			clockUtils::ClockError err = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-			if (clockUtils::ClockError::SUCCESS == err) {
+			{
+				common::RequestAllModsMessage ramm;
+				ramm.language = Config::Language.toStdString();
+				ramm.username = Config::Username.toStdString();
+				ramm.password = Config::Password.toStdString();
+				std::string serialized = ramm.SerializePublic();
 				sock.writePacket(serialized);
-			} else {
-				qDebug() << "Error occurred: " << int(err);
+				if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
+					try {
+						common::Message * m = common::Message::DeserializePublic(serialized);
+						if (m) {
+							common::UpdateAllModsMessage * uamm = dynamic_cast<common::UpdateAllModsMessage *>(m);
+							if (uamm) {
+								emit receivedModList(uamm->mods);
+							}
+						}
+						delete m;
+					} catch (...) {
+						return;
+					}
+				} else {
+					qDebug() << "Error occurred: " << int(cErr);
+				}
 			}
-			Database::DBError dbErr;
-			Database::execute(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, "INSERT INTO ownCompatibilityVotes (ModID, PatchID, Compatible) VALUES (" + std::to_string(modID) + ", " + std::to_string(patchID) + ", " + std::to_string(compatible) + ");", dbErr);
-			Q_ASSERT(!dbErr.error);
-		});
+		} else {
+			qDebug() << "Error occurred: " << int(cErr);
+		}
+	});
+}
 
-		QDialog::accept();
+SubmitCompatibilityDialog::~SubmitCompatibilityDialog() {
+}
+
+void SubmitCompatibilityDialog::updateModList(std::vector<common::Mod> mods) {
+	for (const common::Mod & mod : mods) {
+		if (mod.gothic == common::GothicVersion::GOTHIC && (mod.type == common::ModType::TOTALCONVERSION || mod.type == common::ModType::ENHANCEMENT || mod.type == common::ModType::ORIGINAL)) {
+			_g1Mods.append(mod);
+		} else if (mod.gothic == common::GothicVersion::GOTHIC && (mod.type == common::ModType::PATCH || mod.type == common::ModType::TOOL)) {
+			_g1Patches.append(mod);
+		} else if (mod.gothic == common::GothicVersion::GOTHIC2 && (mod.type == common::ModType::TOTALCONVERSION || mod.type == common::ModType::ENHANCEMENT || mod.type == common::ModType::ORIGINAL)) {
+			_g2Mods.append(mod);
+		} else if (mod.gothic == common::GothicVersion::GOTHIC2 && (mod.type == common::ModType::PATCH || mod.type == common::ModType::TOOL)) {
+			_g2Patches.append(mod);
+		} else if (mod.gothic == common::GothicVersion::Gothic1And2 && (mod.type == common::ModType::PATCH || mod.type == common::ModType::TOOL)) {
+			_g1Patches.append(mod);
+			_g2Patches.append(mod);
+		}
+	}
+	const std::function<bool(const common::Mod & a, const common::Mod & b)> compareFunc = [](const common::Mod & a, const common::Mod & b) {
+		return a.name < b.name;
+	};
+	std::sort(_g1Mods.begin(), _g1Mods.end(), compareFunc);
+	std::sort(_g1Patches.begin(), _g1Patches.end(), compareFunc);
+	std::sort(_g2Mods.begin(), _g2Mods.end(), compareFunc);
+	std::sort(_g2Patches.begin(), _g2Patches.end(), compareFunc);
+
+	if (_gothicVersion == common::GothicVersion::GOTHIC) {
+		_g1Button->setChecked(true);
+		_g2Button->setChecked(false);
+	} else if (_gothicVersion == common::GothicVersion::GOTHIC2) {
+		_g1Button->setChecked(false);
+		_g2Button->setChecked(true);
 	}
 
-	void SubmitCompatibilityDialog::changedHiddenState(int state) {
-		_showSubmitted = state == Qt::CheckState::Checked;
-		updateView();
-	}
+	updateView();
+}
 
-} /* namespace widgets */
-} /* namespace spine */
+void SubmitCompatibilityDialog::updateView() {
+	const common::GothicVersion gv = _g1Button->isChecked() ? common::GothicVersion::GOTHIC : common::GothicVersion::GOTHIC2;
+	_modList->clear();
+	QList<common::Mod> tmpMods = (gv == common::GothicVersion::GOTHIC) ? _g1Mods : _g2Mods;
+	_currentPatches = (gv == common::GothicVersion::GOTHIC) ? _g1Patches : _g2Patches;
+	_currentMods.clear();
+	for (const common::Mod & mod : tmpMods) {
+		Database::DBError err;
+		const int count = Database::queryCount(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, "SELECT * FROM ownCompatibilityVotes WHERE ModID = " + std::to_string(mod.id) + ";", err);
+		if (count < _currentPatches.size() || _showSubmitted) {
+			_currentMods.append(mod);
+		}
+	}
+	int row = 0;
+	int counter = 0;
+	for (const common::Mod & mod : _currentMods) {
+		if (mod.id == _modID) {
+			row = counter;
+		}
+		QStandardItem * itm = new QStandardItem(s2q(mod.name));
+		itm->setEditable(false);
+		_modList->appendRow(itm);
+		counter++;
+	}
+	if (!_currentMods.empty()) {
+		_modView->setCurrentIndex(_modList->index(row, 0));
+		selectIndex(_modList->index(row, 0));
+	}
+}
+
+void SubmitCompatibilityDialog::selectIndex(const QModelIndex & idx) {
+	_filteredPatches.clear();
+	_patchList->clear();
+	QList<bool> compatibles;
+	for (const common::Mod & mod : _currentPatches) {
+		Database::DBError err;
+		const std::vector<int> results = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, "SELECT Compatible FROM ownCompatibilityVotes WHERE ModID = " + std::to_string(_currentMods[idx.row()].id) + " AND PatchID = " + std::to_string(mod.id) + " LIMIT 1;", err);
+		if (results.empty() || _showSubmitted) {
+			if (results.empty()) {
+				compatibles.append(true);
+			} else {
+				compatibles.append(results[0] == 1);
+			}
+			_filteredPatches.append(mod);
+		}
+	}
+	int counter = 0;
+	int row = 0;
+	for (const common::Mod & mod : _filteredPatches) {
+		if (mod.id == _patchID) {
+			row = counter;
+		}
+		QStandardItem * itm = new QStandardItem(s2q(mod.name));
+		itm->setEditable(false);
+		itm->setData(compatibles[counter++], Qt::UserRole);
+		_patchList->appendRow(itm);
+	}
+	if (!_filteredPatches.empty()) {
+		_patchView->setCurrentIndex(_modList->index(row, 0));
+	}
+}
+
+void SubmitCompatibilityDialog::selectPatchIndex(const QModelIndex & idx) {
+	_compatibleButton->setChecked(idx.data(Qt::UserRole).toBool());
+	_notCompatibleButton->setChecked(!idx.data(Qt::UserRole).toBool());
+}
+
+void SubmitCompatibilityDialog::accept() {
+	std::string username = Config::Username.toStdString();
+	std::string password = Config::Password.toStdString();
+	int32_t modID = _currentMods[_modView->currentIndex().row()].id;
+	int32_t patchID = _filteredPatches[_patchView->currentIndex().row()].id;
+	bool compatible = _compatibleButton->isChecked();
+	QtConcurrent::run([username, password, modID, patchID, compatible]() {
+		common::SubmitCompatibilityMessage scm;
+		scm.username = username;
+		scm.password = password;
+		scm.modID = modID;
+		scm.patchID = patchID;
+		scm.compatible = compatible;
+		const std::string serialized = scm.SerializePublic();
+		clockUtils::sockets::TcpSocket sock;
+		clockUtils::ClockError err = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
+		if (clockUtils::ClockError::SUCCESS == err) {
+			sock.writePacket(serialized);
+		} else {
+			qDebug() << "Error occurred: " << int(err);
+		}
+		Database::DBError dbErr;
+		Database::execute(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, "INSERT INTO ownCompatibilityVotes (ModID, PatchID, Compatible) VALUES (" + std::to_string(modID) + ", " + std::to_string(patchID) + ", " + std::to_string(compatible) + ");", dbErr);
+		Q_ASSERT(!dbErr.error);
+	});
+
+	QDialog::accept();
+}
+
+void SubmitCompatibilityDialog::changedHiddenState(int state) {
+	_showSubmitted = state == Qt::CheckState::Checked;
+	updateView();
+}

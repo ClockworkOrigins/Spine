@@ -16,13 +16,13 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#include "widgets/TranslationWidget.h"
+#include "translator/TranslationWidget.h"
 
 #include <QHBoxLayout>
 #include <QLineEdit>
 
 namespace spine {
-namespace widgets {
+namespace translator {
 
 	TranslationWidget::TranslationWidget(QString sourceText, QString targetText, QWidget * par) : QWidget(par), _sourceEdit(nullptr), _translationEdit(nullptr) {
 		QHBoxLayout * l = new QHBoxLayout();
@@ -57,5 +57,5 @@ namespace widgets {
 		emit selectedDestination(_translationEdit->text());
 	}
 
-} /* namespace widgets */
+} /* namespace translator */
 } /* namespace spine */

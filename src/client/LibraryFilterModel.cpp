@@ -18,55 +18,54 @@
 
 #include "LibraryFilterModel.h"
 
-#include "Config.h"
-
 #include "common/GothicVersion.h"
+
+#include "utils/Config.h"
 
 #include <QSettings>
 #include <QStandardItemModel>
 
-namespace spine {
+using namespace spine;
+using namespace spine::utils;
 
-	LibraryFilterModel::LibraryFilterModel(QObject * par) : QSortFilterProxyModel(par), _gothicActive(true), _gothic2Active(true), _gothicAndGothic2Active(true), _showHidden(false) {
-		Config::IniParser->beginGroup("LIBRARYFILTER");
-		_gothicActive = Config::IniParser->value("Gothic", true).toBool();
-		_gothic2Active = Config::IniParser->value("Gothic2", true).toBool();
-		_gothicAndGothic2Active = Config::IniParser->value("GothicAndGothic2", true).toBool();
-		_showHidden = Config::IniParser->value("ShowHidden", false).toBool();
-		Config::IniParser->endGroup();
-	}
+LibraryFilterModel::LibraryFilterModel(QObject * par) : QSortFilterProxyModel(par), _gothicActive(true), _gothic2Active(true), _gothicAndGothic2Active(true), _showHidden(false) {
+	Config::IniParser->beginGroup("LIBRARYFILTER");
+	_gothicActive = Config::IniParser->value("Gothic", true).toBool();
+	_gothic2Active = Config::IniParser->value("Gothic2", true).toBool();
+	_gothicAndGothic2Active = Config::IniParser->value("GothicAndGothic2", true).toBool();
+	_showHidden = Config::IniParser->value("ShowHidden", false).toBool();
+	Config::IniParser->endGroup();
+}
 
-	void LibraryFilterModel::gothicChanged(int state) {
-		_gothicActive = state == Qt::Checked;
-		Config::IniParser->setValue("LIBRARYFILTER/Gothic", _gothicActive);
-		invalidateFilter();
-	}
+void LibraryFilterModel::gothicChanged(int state) {
+	_gothicActive = state == Qt::Checked;
+	Config::IniParser->setValue("LIBRARYFILTER/Gothic", _gothicActive);
+	invalidateFilter();
+}
 
-	void LibraryFilterModel::gothic2Changed(int state) {
-		_gothic2Active = state == Qt::Checked;
-		Config::IniParser->setValue("LIBRARYFILTER/Gothic2", _gothic2Active);
-		invalidateFilter();
-	}
+void LibraryFilterModel::gothic2Changed(int state) {
+	_gothic2Active = state == Qt::Checked;
+	Config::IniParser->setValue("LIBRARYFILTER/Gothic2", _gothic2Active);
+	invalidateFilter();
+}
 
-	void LibraryFilterModel::gothicAndGothic2Changed(int state) {
-		_gothicAndGothic2Active = state == Qt::Checked;
-		Config::IniParser->setValue("LIBRARYFILTER/GothicAndGothic2", _gothicAndGothic2Active);
-		invalidateFilter();
-	}
+void LibraryFilterModel::gothicAndGothic2Changed(int state) {
+	_gothicAndGothic2Active = state == Qt::Checked;
+	Config::IniParser->setValue("LIBRARYFILTER/GothicAndGothic2", _gothicAndGothic2Active);
+	invalidateFilter();
+}
 
-	void LibraryFilterModel::showHidden(int state) {
-		_showHidden = state == Qt::Checked;
-		Config::IniParser->setValue("LIBRARYFILTER/ShowHidden", _showHidden);
-		invalidateFilter();
-	}
+void LibraryFilterModel::showHidden(int state) {
+	_showHidden = state == Qt::Checked;
+	Config::IniParser->setValue("LIBRARYFILTER/ShowHidden", _showHidden);
+	invalidateFilter();
+}
 
-	bool LibraryFilterModel::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const {
-		bool result = true;
-		QStandardItemModel * model = dynamic_cast<QStandardItemModel *>(sourceModel());
-		result = result && ((common::GothicVersion(model->data(model->index(source_row, 0), GothicRole).toInt()) == common::GothicVersion::GOTHIC && _gothicActive) || (common::GothicVersion(model->data(model->index(source_row, 0), GothicRole).toInt()) == common::GothicVersion::GOTHIC2 && _gothic2Active) || (common::GothicVersion(model->data(model->index(source_row, 0), GothicRole).toInt()) == common::GothicVersion::GOTHICINGOTHIC2 && _gothicAndGothic2Active) || (common::GothicVersion(model->data(model->index(source_row, 0), GothicRole).toInt()) == common::GothicVersion::Gothic1And2 && (_gothicActive || _gothic2Active || _gothicAndGothic2Active)));
-		result = result && (_showHidden || !model->data(model->index(source_row, 0), HiddenRole).toBool());
-		result = result && QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
-		return result;
-	}
-
-} /* namespace spine */
+bool LibraryFilterModel::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const {
+	bool result = true;
+	QStandardItemModel * model = dynamic_cast<QStandardItemModel *>(sourceModel());
+	result = result && ((common::GothicVersion(model->data(model->index(source_row, 0), GothicRole).toInt()) == common::GothicVersion::GOTHIC && _gothicActive) || (common::GothicVersion(model->data(model->index(source_row, 0), GothicRole).toInt()) == common::GothicVersion::GOTHIC2 && _gothic2Active) || (common::GothicVersion(model->data(model->index(source_row, 0), GothicRole).toInt()) == common::GothicVersion::GOTHICINGOTHIC2 && _gothicAndGothic2Active) || (common::GothicVersion(model->data(model->index(source_row, 0), GothicRole).toInt()) == common::GothicVersion::Gothic1And2 && (_gothicActive || _gothic2Active || _gothicAndGothic2Active)));
+	result = result && (_showHidden || !model->data(model->index(source_row, 0), HiddenRole).toBool());
+	result = result && QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
+	return result;
+}

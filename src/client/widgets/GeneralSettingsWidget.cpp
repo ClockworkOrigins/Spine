@@ -18,10 +18,12 @@
 
 #include "widgets/GeneralSettingsWidget.h"
 
-#include "Config.h"
-#include "Database.h"
 #include "SpineConfig.h"
-#include "UpdateLanguage.h"
+
+#include "utils/Config.h"
+#include "utils/Database.h"
+
+#include "widgets/UpdateLanguage.h"
 
 #include "clockUtils/iniParser/iniParser.h"
 
@@ -37,282 +39,280 @@
 #include <QTranslator>
 #include <QVBoxLayout>
 
-namespace spine {
-namespace widgets {
+using namespace spine;
+using namespace spine::utils;
+using namespace spine::widgets;
 
-	bool GeneralSettingsWidget::skipExitCheckbox = false;
-	GeneralSettingsWidget * GeneralSettingsWidget::instance = nullptr;
+bool GeneralSettingsWidget::skipExitCheckbox = false;
+GeneralSettingsWidget * GeneralSettingsWidget::instance = nullptr;
 
-	GeneralSettingsWidget::GeneralSettingsWidget(QWidget * par) : QWidget(par), _languageComboBox(nullptr), _styleComboBox(nullptr), _autoUpdateBox(nullptr), _hideIncompatibleCheckBox(nullptr), _extendedLoggingCheckBox(nullptr) {
-		instance = this;
-		
-		QVBoxLayout * l = new QVBoxLayout();
-		l->setAlignment(Qt::AlignTop);
+GeneralSettingsWidget::GeneralSettingsWidget(QWidget * par) : QWidget(par), _languageComboBox(nullptr), _styleComboBox(nullptr), _autoUpdateBox(nullptr), _hideIncompatibleCheckBox(nullptr), _extendedLoggingCheckBox(nullptr) {
+	instance = this;
+	
+	QVBoxLayout * l = new QVBoxLayout();
+	l->setAlignment(Qt::AlignTop);
 
-		{
-			QHBoxLayout * hl = new QHBoxLayout();
+	{
+		QHBoxLayout * hl = new QHBoxLayout();
 
-			Config::Language = Config::IniParser->value("MISC/language", "English").toString();
+		Config::Language = Config::IniParser->value("MISC/language", "English").toString();
 
-			QLabel * languageLabel = new QLabel(QApplication::tr("Language"), this);
-			_languageComboBox = new QComboBox(this);
-			_languageComboBox->setEditable(false);
-			_languageComboBox->addItem("Deutsch");
-			_languageComboBox->addItem("English");
-			_languageComboBox->addItem("Polish");
-			_languageComboBox->addItem("Russian");
-			_languageComboBox->setCurrentText(Config::Language);
-			hl->addWidget(languageLabel);
-			hl->addWidget(_languageComboBox);
+		QLabel * languageLabel = new QLabel(QApplication::tr("Language"), this);
+		_languageComboBox = new QComboBox(this);
+		_languageComboBox->setEditable(false);
+		_languageComboBox->addItem("Deutsch");
+		_languageComboBox->addItem("English");
+		_languageComboBox->addItem("Polish");
+		_languageComboBox->addItem("Russian");
+		_languageComboBox->setCurrentText(Config::Language);
+		hl->addWidget(languageLabel);
+		hl->addWidget(_languageComboBox);
 
-			hl->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+		hl->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
-			l->addLayout(hl);
+		l->addLayout(hl);
 
-			UPDATELANGUAGESETTEXT(languageLabel, "Language");
+		UPDATELANGUAGESETTEXT(languageLabel, "Language");
 
-			l->addSpacing(10);
+		l->addSpacing(10);
+	}
+	{
+		QHBoxLayout * hl = new QHBoxLayout();
+
+		const QString style = Config::IniParser->value("MISC/style", "Default").toString();
+
+		QLabel * styleLabel = new QLabel(QApplication::tr("Style"), this);
+		_styleComboBox = new QComboBox(this);
+		_styleComboBox->setEditable(false);
+		_styleComboBox->addItem("Default");
+		_styleComboBox->addItem("Dark Theme By Elgcahlxukuth");
+		_styleComboBox->addItem("Dark Theme By Milky-Way"); // not yet
+
+		QDirIterator it(Config::STYLESDIR, QStringList() << "*.css", QDir::Files, QDirIterator::Subdirectories);
+		while (it.hasNext()) {
+			it.next();
+			_styleComboBox->addItem(QFileInfo(it.fileName()).baseName());
 		}
-		{
-			QHBoxLayout * hl = new QHBoxLayout();
+
+		_styleComboBox->addItem("...");
+		_styleComboBox->setCurrentText(style);
+		hl->addWidget(styleLabel);
+		hl->addWidget(_styleComboBox);
+
+		hl->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+
+		l->addLayout(hl);
+
+		UPDATELANGUAGESETTEXT(styleLabel, "Style");
+
+		l->addSpacing(10);
+
+		connect(_styleComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(changedStyle(QString)));
+	}
+	{
+		_autoUpdateBox = new QCheckBox(QApplication::tr("AutoUpdateCheck"), this);;
+
+		const bool checkForUpdates = Config::IniParser->value("MISC/checkForUpdates", true).toBool();
+		_autoUpdateBox->setChecked(checkForUpdates);
+
+		l->addWidget(_autoUpdateBox);
+
+		UPDATELANGUAGESETTEXT(_autoUpdateBox, "AutoUpdateCheck");
+
+		l->addSpacing(10);
+	}
+	{
+		QPushButton * pb = new QPushButton(QApplication::tr("ReactivateModUpdates"), this);
+		UPDATELANGUAGESETTEXT(pb, "ReactivateModUpdates");
+		connect(pb, SIGNAL(released()), this, SLOT(reactivateModUpdates()));
+
+		l->addWidget(pb);
+	}
+	{
+		QHBoxLayout * hl = new QHBoxLayout();
+
+		Config::downloadRate = Config::IniParser->value("MISC/kbps", 5120).toInt();
+		if (Config::downloadRate > 5120) {
+			Config::downloadRate = 5120;
+		}
+		QLabel * kbpsLabel = new QLabel(QApplication::tr("DownloadRate"), this);
+		UPDATELANGUAGESETTEXT(kbpsLabel, "DownloadRate");
+		kbpsLabel->setToolTip(QApplication::tr("DownloadRateTooltip"));
+		UPDATELANGUAGESETTOOLTIP(kbpsLabel, "DownloadRateTooltip");
+		_downloadRateSpinBox = new QSpinBox(this);
+		_downloadRateSpinBox->setMaximum(5120);
+		_downloadRateSpinBox->setMinimum(1);
+		_downloadRateSpinBox->setValue(Config::downloadRate);
+		_downloadRateSpinBox->setToolTip(QApplication::tr("DownloadRateTooltip"));
+		UPDATELANGUAGESETTOOLTIP(_downloadRateSpinBox, "DownloadRateTooltip");
+		hl->addWidget(kbpsLabel);
+		hl->addWidget(_downloadRateSpinBox);
+
+		hl->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+
+		l->addLayout(hl);
+	}
+	{
+		const bool hideIncompatible = Config::IniParser->value("MISC/hideIncompatible", true).toBool();;
+		_hideIncompatibleCheckBox = new QCheckBox(QApplication::tr("HideIncompatiblePatches"), this);
+		UPDATELANGUAGESETTEXT(_hideIncompatibleCheckBox, "HideIncompatiblePatches");
+		_hideIncompatibleCheckBox->setChecked(hideIncompatible);
+
+		l->addWidget(_hideIncompatibleCheckBox);
+	}
+	{
+		Config::extendedLogging = Config::IniParser->value("MISC/extendedLogging", false).toBool();
+		_extendedLoggingCheckBox = new QCheckBox(QApplication::tr("ExtendedLogging"), this);
+		UPDATELANGUAGESETTEXT(_extendedLoggingCheckBox, "ExtendedLogging");
+		_extendedLoggingCheckBox->setToolTip(QApplication::tr("ExtendedLoggingTooltip"));
+		UPDATELANGUAGESETTOOLTIP(_extendedLoggingCheckBox, "ExtendedLoggingTooltip");
+		_extendedLoggingCheckBox->setChecked(Config::extendedLogging);
+
+		l->addWidget(_extendedLoggingCheckBox);
+	}
+	{
+		skipExitCheckbox = Config::IniParser->value("MISC/skipExitCheckbox", false).toBool();
+		_skipExitCheckBox = new QCheckBox(QApplication::tr("SkipExitCheckbox"), this);
+		UPDATELANGUAGESETTEXT(_skipExitCheckBox, "SkipExitCheckbox");
+		_skipExitCheckBox->setToolTip(QApplication::tr("SkipExitCheckboxTooltip"));
+		UPDATELANGUAGESETTOOLTIP(_skipExitCheckBox, "SkipExitCheckboxTooltip");
+		_skipExitCheckBox->setChecked(skipExitCheckbox);
+
+		l->addWidget(_skipExitCheckBox);
+	}
+
+	l->addStretch(1);
+
+	setLayout(l);
+}
+
+GeneralSettingsWidget * GeneralSettingsWidget::getInstance() {
+	return instance;
+}
+
+void GeneralSettingsWidget::saveSettings() {
+	Config::IniParser->beginGroup("MISC");
+	const QString language = Config::IniParser->value("language", "English").toString();
+	if (language != _languageComboBox->currentText()) {
+		Config::IniParser->setValue("language", _languageComboBox->currentText());
+		QTranslator * translator = new QTranslator(qApp);
+		if (_languageComboBox->currentText() == "Deutsch") {
+			QLocale::setDefault(QLocale("de_DE"));
+			translator->load(qApp->applicationDirPath() + "/de_DE");
+		} else if (_languageComboBox->currentText() == "Polish") {
+			QLocale::setDefault(QLocale(QLocale::Language::Polish, QLocale::Country::Poland));
+			translator->load(qApp->applicationDirPath() + "/po_PO");
+		} else if (_languageComboBox->currentText() == "Russian") {
+			QLocale::setDefault(QLocale(QLocale::Language::Russian, QLocale::Country::Russia));
+			translator->load(qApp->applicationDirPath() + "/ru_RU");
+		} else if (_languageComboBox->currentText() == "Spanish") {
+			QLocale::setDefault(QLocale(QLocale::Language::Spanish, QLocale::Country::Spain));
+			translator->load(qApp->applicationDirPath() + "/es_ES");
+		} else {
+			QLocale::setDefault(QLocale("en_US"));
+			translator->load(qApp->applicationDirPath() + "/en_US");
+		}
+		qApp->installTranslator(translator);
+		Config::Language = _languageComboBox->currentText();
+		emit languageChanged(_languageComboBox->currentText());
+	}
+	{
+		const QString style = Config::IniParser->value("style", "Default").toString();
+		if (style != _styleComboBox->currentText()) {
+			Config::IniParser->setValue("style", _styleComboBox->currentText());
+			QString cssFile = ":styles.css";
+			if (_styleComboBox->currentText() == "Default") {
+				cssFile = ":styles.css";
+			} else if (_styleComboBox->currentText() == "Dark Theme By Elgcahlxukuth") {
+				cssFile = ":dark_theme_for_spine_app.css";
+			} else if (_styleComboBox->currentText() == "Dark Theme By Milky-Way") {
+				cssFile = ":monokai.css";
+			} else if (_styleComboBox->currentText() == "...") {
+				cssFile = ":styles.css";
+			} else {
+				cssFile = Config::STYLESDIR + "/" + _styleComboBox->currentText() + ".css";
+			}
+			QFile f(cssFile);
+			if (f.open(QIODevice::ReadOnly)) {
+				const QString s(f.readAll());
+				qApp->setStyleSheet(s);
+			}
+		}
+	}
+
+	Config::IniParser->setValue("checkForUpdates", _autoUpdateBox->isChecked());
+	{
+		Config::downloadRate = _downloadRateSpinBox->value();
+		Config::IniParser->setValue("kbps", Config::downloadRate);
+	}
+	const bool hideIncompatible = Config::IniParser->value("hideIncompatible", true).toBool();
+	Config::IniParser->setValue("hideIncompatible", _hideIncompatibleCheckBox->isChecked());
+	if (hideIncompatible != _hideIncompatibleCheckBox->isChecked()) {
+		emit changedHideIncompatible(_hideIncompatibleCheckBox->isChecked());
+	}
+	Config::IniParser->setValue("extendedLogging", _extendedLoggingCheckBox->isChecked());
+	Config::extendedLogging = _extendedLoggingCheckBox->isChecked();
+
+	Config::IniParser->setValue("skipExitCheckbox", _skipExitCheckBox->isChecked());
+	skipExitCheckbox = _skipExitCheckBox->isChecked();
+	Config::IniParser->endGroup();
+}
+
+void GeneralSettingsWidget::rejectSettings() {
+	Config::IniParser->beginGroup("MISC");
+	const QString language = Config::IniParser->value("language", "English").toString();
+	_languageComboBox->setCurrentText(language);
+
+	const QString style = Config::IniParser->value("style", "Default").toString();
+	_styleComboBox->setCurrentText(style);
+
+	const bool checkForUpdates = Config::IniParser->value("checkForUpdates", true).toBool();
+	_autoUpdateBox->setChecked(checkForUpdates);
+	{
+		int kbps = Config::IniParser->value("kbps", 5120).toInt();
+		if (kbps > 5120) {
+			kbps = 5120;
+		}
+		Config::downloadRate = kbps;
+	}
+	const bool hideIncompatible = Config::IniParser->value("hideIncompatible", true).toBool();
+	_hideIncompatibleCheckBox->setChecked(hideIncompatible);
+	Config::extendedLogging = Config::IniParser->value("extendedLogging", false).toBool();
+	_extendedLoggingCheckBox->setChecked(Config::extendedLogging);
+	skipExitCheckbox = Config::IniParser->value("skipExitCheckbox", false).toBool();
+	_skipExitCheckBox->setChecked(skipExitCheckbox);
+	Config::IniParser->endGroup();
+}
+
+bool GeneralSettingsWidget::getHideIncompatible() const {
+	return _hideIncompatibleCheckBox->isChecked();
+}
+
+void GeneralSettingsWidget::changedStyle(QString styleName) {
+	if (styleName == "...") {
+		const QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectStyle"), Config::STYLESDIR, "*.css");
+		if (!path.isEmpty() && !path.contains(Config::STYLESDIR)) {
+			QFile(path).copy(Config::STYLESDIR + "/" + QFileInfo(path).fileName());
+			_styleComboBox->clear();
 
 			const QString style = Config::IniParser->value("MISC/style", "Default").toString();
-
-			QLabel * styleLabel = new QLabel(QApplication::tr("Style"), this);
-			_styleComboBox = new QComboBox(this);
-			_styleComboBox->setEditable(false);
 			_styleComboBox->addItem("Default");
-			_styleComboBox->addItem("Dark Theme By Elgcahlxukuth");
-			_styleComboBox->addItem("Dark Theme By Milky-Way"); // not yet
 
 			QDirIterator it(Config::STYLESDIR, QStringList() << "*.css", QDir::Files, QDirIterator::Subdirectories);
 			while (it.hasNext()) {
 				it.next();
-				_styleComboBox->addItem(QFileInfo(it.fileName()).baseName());
+				_styleComboBox->addItem(QFileInfo(it.fileName()).completeBaseName());
 			}
 
 			_styleComboBox->addItem("...");
 			_styleComboBox->setCurrentText(style);
-			hl->addWidget(styleLabel);
-			hl->addWidget(_styleComboBox);
-
-			hl->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-
-			l->addLayout(hl);
-
-			UPDATELANGUAGESETTEXT(styleLabel, "Style");
-
-			l->addSpacing(10);
-
-			connect(_styleComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(changedStyle(QString)));
-		}
-		{
-			_autoUpdateBox = new QCheckBox(QApplication::tr("AutoUpdateCheck"), this);;
-
-			const bool checkForUpdates = Config::IniParser->value("MISC/checkForUpdates", true).toBool();
-			_autoUpdateBox->setChecked(checkForUpdates);
-
-			l->addWidget(_autoUpdateBox);
-
-			UPDATELANGUAGESETTEXT(_autoUpdateBox, "AutoUpdateCheck");
-
-			l->addSpacing(10);
-		}
-		{
-			QPushButton * pb = new QPushButton(QApplication::tr("ReactivateModUpdates"), this);
-			UPDATELANGUAGESETTEXT(pb, "ReactivateModUpdates");
-			connect(pb, SIGNAL(released()), this, SLOT(reactivateModUpdates()));
-
-			l->addWidget(pb);
-		}
-		{
-			QHBoxLayout * hl = new QHBoxLayout();
-
-			Config::downloadRate = Config::IniParser->value("MISC/kbps", 5120).toInt();
-			if (Config::downloadRate > 5120) {
-				Config::downloadRate = 5120;
-			}
-			QLabel * kbpsLabel = new QLabel(QApplication::tr("DownloadRate"), this);
-			UPDATELANGUAGESETTEXT(kbpsLabel, "DownloadRate");
-			kbpsLabel->setToolTip(QApplication::tr("DownloadRateTooltip"));
-			UPDATELANGUAGESETTOOLTIP(kbpsLabel, "DownloadRateTooltip");
-			_downloadRateSpinBox = new QSpinBox(this);
-			_downloadRateSpinBox->setMaximum(5120);
-			_downloadRateSpinBox->setMinimum(1);
-			_downloadRateSpinBox->setValue(Config::downloadRate);
-			_downloadRateSpinBox->setToolTip(QApplication::tr("DownloadRateTooltip"));
-			UPDATELANGUAGESETTOOLTIP(_downloadRateSpinBox, "DownloadRateTooltip");
-			hl->addWidget(kbpsLabel);
-			hl->addWidget(_downloadRateSpinBox);
-
-			hl->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-
-			l->addLayout(hl);
-		}
-		{
-			const bool hideIncompatible = Config::IniParser->value("MISC/hideIncompatible", true).toBool();;
-			_hideIncompatibleCheckBox = new QCheckBox(QApplication::tr("HideIncompatiblePatches"), this);
-			UPDATELANGUAGESETTEXT(_hideIncompatibleCheckBox, "HideIncompatiblePatches");
-			_hideIncompatibleCheckBox->setChecked(hideIncompatible);
-
-			l->addWidget(_hideIncompatibleCheckBox);
-		}
-		{
-			Config::extendedLogging = Config::IniParser->value("MISC/extendedLogging", false).toBool();
-			_extendedLoggingCheckBox = new QCheckBox(QApplication::tr("ExtendedLogging"), this);
-			UPDATELANGUAGESETTEXT(_extendedLoggingCheckBox, "ExtendedLogging");
-			_extendedLoggingCheckBox->setToolTip(QApplication::tr("ExtendedLoggingTooltip"));
-			UPDATELANGUAGESETTOOLTIP(_extendedLoggingCheckBox, "ExtendedLoggingTooltip");
-			_extendedLoggingCheckBox->setChecked(Config::extendedLogging);
-
-			l->addWidget(_extendedLoggingCheckBox);
-		}
-		{
-			skipExitCheckbox = Config::IniParser->value("MISC/skipExitCheckbox", false).toBool();
-			_skipExitCheckBox = new QCheckBox(QApplication::tr("SkipExitCheckbox"), this);
-			UPDATELANGUAGESETTEXT(_skipExitCheckBox, "SkipExitCheckbox");
-			_skipExitCheckBox->setToolTip(QApplication::tr("SkipExitCheckboxTooltip"));
-			UPDATELANGUAGESETTOOLTIP(_skipExitCheckBox, "SkipExitCheckboxTooltip");
-			_skipExitCheckBox->setChecked(skipExitCheckbox);
-
-			l->addWidget(_skipExitCheckBox);
-		}
-
-		l->addStretch(1);
-
-		setLayout(l);
-	}
-
-	GeneralSettingsWidget * GeneralSettingsWidget::getInstance() {
-		return instance;
-	}
-
-	void GeneralSettingsWidget::saveSettings() {
-		Config::IniParser->beginGroup("MISC");
-		const QString language = Config::IniParser->value("language", "English").toString();
-		if (language != _languageComboBox->currentText()) {
-			Config::IniParser->setValue("language", _languageComboBox->currentText());
-			QTranslator * translator = new QTranslator(qApp);
-			if (_languageComboBox->currentText() == "Deutsch") {
-				QLocale::setDefault(QLocale("de_DE"));
-				translator->load(qApp->applicationDirPath() + "/de_DE");
-			} else if (_languageComboBox->currentText() == "Polish") {
-				QLocale::setDefault(QLocale(QLocale::Language::Polish, QLocale::Country::Poland));
-				translator->load(qApp->applicationDirPath() + "/po_PO");
-			} else if (_languageComboBox->currentText() == "Russian") {
-				QLocale::setDefault(QLocale(QLocale::Language::Russian, QLocale::Country::Russia));
-				translator->load(qApp->applicationDirPath() + "/ru_RU");
-			} else if (_languageComboBox->currentText() == "Spanish") {
-				QLocale::setDefault(QLocale(QLocale::Language::Spanish, QLocale::Country::Spain));
-				translator->load(qApp->applicationDirPath() + "/es_ES");
-			} else {
-				QLocale::setDefault(QLocale("en_US"));
-				translator->load(qApp->applicationDirPath() + "/en_US");
-			}
-			qApp->installTranslator(translator);
-			Config::Language = _languageComboBox->currentText();
-			emit languageChanged(_languageComboBox->currentText());
-		}
-		{
-			const QString style = Config::IniParser->value("style", "Default").toString();
-			if (style != _styleComboBox->currentText()) {
-				Config::IniParser->setValue("style", _styleComboBox->currentText());
-				QString cssFile = ":styles.css";
-				if (_styleComboBox->currentText() == "Default") {
-					cssFile = ":styles.css";
-				} else if (_styleComboBox->currentText() == "Dark Theme By Elgcahlxukuth") {
-					cssFile = ":dark_theme_for_spine_app.css";
-				} else if (_styleComboBox->currentText() == "Dark Theme By Milky-Way") {
-					cssFile = ":monokai.css";
-				} else if (_styleComboBox->currentText() == "...") {
-					cssFile = ":styles.css";
-				} else {
-					cssFile = Config::STYLESDIR + "/" + _styleComboBox->currentText() + ".css";
-				}
-				QFile f(cssFile);
-				if (f.open(QIODevice::ReadOnly)) {
-					const QString s(f.readAll());
-					qApp->setStyleSheet(s);
-				}
-			}
-		}
-
-		Config::IniParser->setValue("checkForUpdates", _autoUpdateBox->isChecked());
-		{
-			Config::downloadRate = _downloadRateSpinBox->value();
-			Config::IniParser->setValue("kbps", Config::downloadRate);
-		}
-		const bool hideIncompatible = Config::IniParser->value("hideIncompatible", true).toBool();
-		Config::IniParser->setValue("hideIncompatible", _hideIncompatibleCheckBox->isChecked());
-		if (hideIncompatible != _hideIncompatibleCheckBox->isChecked()) {
-			emit changedHideIncompatible(_hideIncompatibleCheckBox->isChecked());
-		}
-		Config::IniParser->setValue("extendedLogging", _extendedLoggingCheckBox->isChecked());
-		Config::extendedLogging = _extendedLoggingCheckBox->isChecked();
-
-		Config::IniParser->setValue("skipExitCheckbox", _skipExitCheckBox->isChecked());
-		skipExitCheckbox = _skipExitCheckBox->isChecked();
-		Config::IniParser->endGroup();
-	}
-
-	void GeneralSettingsWidget::rejectSettings() {
-		Config::IniParser->beginGroup("MISC");
-		const QString language = Config::IniParser->value("language", "English").toString();
-		_languageComboBox->setCurrentText(language);
-
-		const QString style = Config::IniParser->value("style", "Default").toString();
-		_styleComboBox->setCurrentText(style);
-
-		const bool checkForUpdates = Config::IniParser->value("checkForUpdates", true).toBool();
-		_autoUpdateBox->setChecked(checkForUpdates);
-		{
-			int kbps = Config::IniParser->value("kbps", 5120).toInt();
-			if (kbps > 5120) {
-				kbps = 5120;
-			}
-			Config::downloadRate = kbps;
-		}
-		const bool hideIncompatible = Config::IniParser->value("hideIncompatible", true).toBool();
-		_hideIncompatibleCheckBox->setChecked(hideIncompatible);
-		Config::extendedLogging = Config::IniParser->value("extendedLogging", false).toBool();
-		_extendedLoggingCheckBox->setChecked(Config::extendedLogging);
-		skipExitCheckbox = Config::IniParser->value("skipExitCheckbox", false).toBool();
-		_skipExitCheckBox->setChecked(skipExitCheckbox);
-		Config::IniParser->endGroup();
-	}
-
-	bool GeneralSettingsWidget::getHideIncompatible() const {
-		return _hideIncompatibleCheckBox->isChecked();
-	}
-
-	void GeneralSettingsWidget::changedStyle(QString styleName) {
-		if (styleName == "...") {
-			const QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectStyle"), Config::STYLESDIR, "*.css");
-			if (!path.isEmpty() && !path.contains(Config::STYLESDIR)) {
-				QFile(path).copy(Config::STYLESDIR + "/" + QFileInfo(path).fileName());
-				_styleComboBox->clear();
-
-				const QString style = Config::IniParser->value("MISC/style", "Default").toString();
-				_styleComboBox->addItem("Default");
-
-				QDirIterator it(Config::STYLESDIR, QStringList() << "*.css", QDir::Files, QDirIterator::Subdirectories);
-				while (it.hasNext()) {
-					it.next();
-					_styleComboBox->addItem(QFileInfo(it.fileName()).completeBaseName());
-				}
-
-				_styleComboBox->addItem("...");
-				_styleComboBox->setCurrentText(style);
-			}
 		}
 	}
+}
 
-	void GeneralSettingsWidget::reactivateModUpdates() {
-		Database::DBError err;
-		Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "DELETE FROM updates;", err);
+void GeneralSettingsWidget::reactivateModUpdates() {
+	Database::DBError err;
+	Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "DELETE FROM updates;", err);
 
-		emit resetModUpdates();
-	}
-
-} /* namespace widgets */
-} /* namespace spine */
+	emit resetModUpdates();
+}

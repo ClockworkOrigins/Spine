@@ -18,6 +18,8 @@
 
 #include "WindowsExtensions.h"
 
+#ifdef Q_OS_WIN
+
 #include <QApplication>
 #include <QDebug>
 #include <QDir>
@@ -25,15 +27,14 @@
 #include <QProcess>
 #include <QSysInfo>
 
-#ifdef Q_OS_WIN
-	#include <Windows.h>
-	#include <Psapi.h>
-	#include <TlHelp32.h>
+#include <Windows.h>
+#include <Psapi.h>
+#include <TlHelp32.h>
 
-	#pragma comment(lib, "Psapi.lib")
-#endif
+#pragma comment(lib, "Psapi.lib")
 
 namespace spine {
+namespace utils {
 
 	bool IsRunAsAdmin() {
 #ifdef Q_OS_WIN
@@ -163,4 +164,7 @@ namespace spine {
 		return result;
 	}
 
+} /* namespace utils */
 } /* namespace spine */
+
+#endif

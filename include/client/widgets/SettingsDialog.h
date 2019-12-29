@@ -23,11 +23,13 @@
 class QLabel;
 
 namespace spine {
+namespace gamepad {
+	class GamepadSettingsWidget;
+}
 namespace widgets {
 
 	class DeveloperSettingsWidget;
 	class GameSettingsWidget;
-	class GamepadSettingsWidget;
 	class GeneralSettingsWidget;
 	class LocationSettingsWidget;
 
@@ -46,7 +48,7 @@ namespace widgets {
 			return _gameSettingsWidget;
 		}
 
-		GamepadSettingsWidget * getGamepadSettingsWidget() const {
+		gamepad::GamepadSettingsWidget * getGamepadSettingsWidget() const {
 			return _gamepadSettingsWidget;
 		}
 
@@ -65,7 +67,7 @@ namespace widgets {
 	private:
 		DeveloperSettingsWidget * _developerSettingsWidget;
 		GameSettingsWidget * _gameSettingsWidget;
-		GamepadSettingsWidget * _gamepadSettingsWidget;
+		gamepad::GamepadSettingsWidget * _gamepadSettingsWidget;
 		GeneralSettingsWidget * _generalSettingsWidget;
 		LocationSettingsWidget * _locationSettingsWidget;
 

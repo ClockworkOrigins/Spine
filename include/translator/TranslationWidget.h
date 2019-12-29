@@ -18,49 +18,34 @@
 
 #pragma once
 
-#include <QMap>
 #include <QWidget>
 
-class QCheckBox;
-class QComboBox;
-class QPushButton;
-class QSpinBox;
+class QLineEdit;
 
 namespace spine {
-namespace gamepad {
-	enum GamePadIndex;
-	enum GamePadButton;
-} /* namespace gamepad */
-namespace widgets {
+namespace translator {
 
-	class GamepadSettingsWidget : public QWidget {
+	class TranslationWidget : public QWidget {
 		Q_OBJECT
 
 	public:
-		GamepadSettingsWidget(QWidget * par);
-		~GamepadSettingsWidget();
+		TranslationWidget(QString sourceText, QString targetText, QWidget * par);
+		~TranslationWidget();
 
-		void saveSettings();
-		void rejectSettings();
+		QString getTranslation() const;
+		void setFocusToTranslation();
 
-		bool isEnabled() const;
-		gamepad::GamePadIndex getIndex() const;
-		int getKeyDelay() const;
-
-		QMap<QString, gamepad::GamePadButton> getKeyMapping() const;
+	signals:
+		void selectedSource(QString);
+		void selectedDestination(QString);
 
 	private slots:
-		void changedGamepadState(int checkState);
-		void newButton();
+		void focusChanged();
 
 	private:
-		QCheckBox * _gamepadEnabled;
-		QComboBox * _controllerList;
-		QSpinBox * _keyDelayBox;
-
-		QMap<gamepad::GamePadButton, QPushButton *> _gamepadButtonToButtonMap;
-		QMap<QString, QPushButton *> _actionToButtonMap;
+		QLineEdit * _sourceEdit;
+		QLineEdit * _translationEdit;
 	};
 
-} /* namespace widgets */
+} /* namespace translator */
 } /* namespace spine */

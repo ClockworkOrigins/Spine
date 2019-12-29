@@ -18,13 +18,13 @@
 
 #include "widgets/FeedbackDialog.h"
 
-#include "Config.h"
 #include "SpineConfig.h"
-#include "UpdateLanguage.h"
 
 #include "common/MessageStructs.h"
 
-#include "widgets/GeneralSettingsWidget.h"
+#include "utils/Config.h"
+
+#include "widgets/UpdateLanguage.h"
 
 #include "clockUtils/sockets/TcpSocket.h"
 
@@ -38,94 +38,92 @@
 #include <QTextEdit>
 #include <QVBoxLayout>
 
-namespace spine {
-namespace widgets {
+using namespace spine;
+using namespace spine::utils;
+using namespace spine::widgets;
 
-	FeedbackDialog::FeedbackDialog() : QDialog(), _textEdit(nullptr), _usernameEdit(nullptr) {
-		QVBoxLayout * l = new QVBoxLayout();
-		l->setAlignment(Qt::AlignTop);
+FeedbackDialog::FeedbackDialog() : QDialog(), _textEdit(nullptr), _usernameEdit(nullptr) {
+	QVBoxLayout * l = new QVBoxLayout();
+	l->setAlignment(Qt::AlignTop);
 
-		QLabel * infoLabel = new QLabel(QApplication::tr("FeedbackText"), this);
-		l->addWidget(infoLabel);
-		UPDATELANGUAGESETTEXT(infoLabel, "FeedbackText");
+	QLabel * infoLabel = new QLabel(QApplication::tr("FeedbackText"), this);
+	l->addWidget(infoLabel);
+	UPDATELANGUAGESETTEXT(infoLabel, "FeedbackText");
 
-		_textEdit = new QTextEdit(this);
-		l->addWidget(_textEdit);
+	_textEdit = new QTextEdit(this);
+	l->addWidget(_textEdit);
 
-		_usernameEdit = new QLineEdit(this);
-		l->addWidget(_usernameEdit);
-		_usernameEdit->setDisabled(true);
+	_usernameEdit = new QLineEdit(this);
+	l->addWidget(_usernameEdit);
+	_usernameEdit->setDisabled(true);
 
-		QDialogButtonBox * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Apply | QDialogButtonBox::StandardButton::Discard, Qt::Orientation::Horizontal, this);
-		l->addWidget(dbb);
+	QDialogButtonBox * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Apply | QDialogButtonBox::StandardButton::Discard, Qt::Orientation::Horizontal, this);
+	l->addWidget(dbb);
 
-		setLayout(l);
+	setLayout(l);
 
-		QPushButton * b = dbb->button(QDialogButtonBox::StandardButton::Apply);
-		b->setText(QApplication::tr("Submit"));
-		UPDATELANGUAGESETTEXT(b, "Submit");
+	QPushButton * b = dbb->button(QDialogButtonBox::StandardButton::Apply);
+	b->setText(QApplication::tr("Submit"));
+	UPDATELANGUAGESETTEXT(b, "Submit");
 
-		connect(b, SIGNAL(clicked()), this, SLOT(accept()));
+	connect(b, SIGNAL(clicked()), this, SLOT(accept()));
 
-		b = dbb->button(QDialogButtonBox::StandardButton::Discard); 
-		b->setText(QApplication::tr("Discard"));
-		UPDATELANGUAGESETTEXT(b, "Discard");
+	b = dbb->button(QDialogButtonBox::StandardButton::Discard); 
+	b->setText(QApplication::tr("Discard"));
+	UPDATELANGUAGESETTEXT(b, "Discard");
 
-		connect(b, SIGNAL(clicked()), this, SIGNAL(rejected()));
-		connect(b, SIGNAL(clicked()), this, SLOT(reject()));
-		connect(b, SIGNAL(clicked()), this, SLOT(hide()));
+	connect(b, SIGNAL(clicked()), this, SIGNAL(rejected()));
+	connect(b, SIGNAL(clicked()), this, SLOT(reject()));
+	connect(b, SIGNAL(clicked()), this, SLOT(hide()));
 
-		setWindowTitle(QApplication::tr("Feedback"));
-		UPDATELANGUAGESETWINDOWTITLE(this, "Feedback");
-		setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+	setWindowTitle(QApplication::tr("Feedback"));
+	UPDATELANGUAGESETWINDOWTITLE(this, "Feedback");
+	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+}
+
+FeedbackDialog::~FeedbackDialog() {
+}
+
+void FeedbackDialog::loginChanged() {
+	_usernameEdit->setText(Config::Username);
+	_usernameEdit->setEnabled(!Config::Username.isEmpty());
+}
+
+void FeedbackDialog::accept() {
+	common::FeedbackMessage fm;
+	fm.text = _textEdit->toPlainText().trimmed().toStdString();
+	fm.majorVersion = VERSION_MAJOR;
+	fm.minorVersion = VERSION_MINOR;
+	fm.patchVersion = VERSION_PATCH;
+	fm.username = _usernameEdit->text().toStdString();
+	if (fm.text.empty()) {
+		return;
 	}
-
-	FeedbackDialog::~FeedbackDialog() {
-	}
-
-	void FeedbackDialog::loginChanged() {
-		_usernameEdit->setText(Config::Username);
-		_usernameEdit->setEnabled(!Config::Username.isEmpty());
-	}
-
-	void FeedbackDialog::accept() {
-		common::FeedbackMessage fm;
-		fm.text = _textEdit->toPlainText().trimmed().toStdString();
-		fm.majorVersion = VERSION_MAJOR;
-		fm.minorVersion = VERSION_MINOR;
-		fm.patchVersion = VERSION_PATCH;
-		fm.username = _usernameEdit->text().toStdString();
-		if (fm.text.empty()) {
+	const std::string serialized = fm.SerializePublic();
+	clockUtils::sockets::TcpSocket sock;
+	const clockUtils::ClockError err = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
+	if (clockUtils::ClockError::SUCCESS == err) {
+		if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
+			QMessageBox resultMsg(QMessageBox::Icon::Information, QApplication::tr("FeedbackSuccessful"), QApplication::tr("FeedbackSuccessfulText"), QMessageBox::StandardButton::Ok);
+			resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+			resultMsg.exec();
+			_textEdit->clear();
+			QDialog::accept();
 			return;
 		}
-		const std::string serialized = fm.SerializePublic();
-		clockUtils::sockets::TcpSocket sock;
-		const clockUtils::ClockError err = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-		if (clockUtils::ClockError::SUCCESS == err) {
-			if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
-				QMessageBox resultMsg(QMessageBox::Icon::Information, QApplication::tr("FeedbackSuccessful"), QApplication::tr("FeedbackSuccessfulText"), QMessageBox::StandardButton::Ok);
-				resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-				resultMsg.exec();
-				_textEdit->clear();
-				QDialog::accept();
-				return;
-			}
-		}
-		QMessageBox resultMsg(QMessageBox::Icon::Warning, QApplication::tr("FeedbackUnsuccessful"), QApplication::tr("FeedbackUnsuccessfulText"), QMessageBox::StandardButton::Ok);
-		resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-		resultMsg.exec();
-		QDialog::accept();
 	}
+	QMessageBox resultMsg(QMessageBox::Icon::Warning, QApplication::tr("FeedbackUnsuccessful"), QApplication::tr("FeedbackUnsuccessfulText"), QMessageBox::StandardButton::Ok);
+	resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+	resultMsg.exec();
+	QDialog::accept();
+}
 
-	void FeedbackDialog::reject() {
-		QDialog::reject();
-	}
+void FeedbackDialog::reject() {
+	QDialog::reject();
+}
 
-	void FeedbackDialog::closeEvent(QCloseEvent * evt) {
-		QDialog::closeEvent(evt);
-		evt->accept();
-		reject();
-	}
-
-} /* namespace widgets */
-} /* namespace spine */
+void FeedbackDialog::closeEvent(QCloseEvent * evt) {
+	QDialog::closeEvent(evt);
+	evt->accept();
+	reject();
+}

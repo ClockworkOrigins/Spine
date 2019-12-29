@@ -29,7 +29,7 @@ class QSortFilterProxyModel;
 class QStandardItemModel;
 
 namespace spine {
-namespace widgets {
+namespace translator {
 
 	class AccessRightsDialog : public QDialog {
 		Q_OBJECT
@@ -67,5 +67,5 @@ namespace widgets {
 		void saveSettings();
 	};
 
-} /* namespace widgets */
+} /* namespace translator */
 } /* namespace spine */

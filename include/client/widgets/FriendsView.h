@@ -12,12 +12,11 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_FRIENDSVIEW_H__
-#define __SPINE_WIDGETS_FRIENDSVIEW_H__
+#pragma once
 
 #include "common/MessageStructs.h"
 
@@ -30,10 +29,12 @@ class QStandardItemModel;
 class QVBoxLayout;
 
 namespace spine {
+namespace gui {
+	class WaitSpinner;
+}
 namespace widgets {
 
 	class FriendRequestView;
-	class WaitSpinner;
 
 	class FriendsView : public QWidget {
 		Q_OBJECT
@@ -57,7 +58,7 @@ namespace widgets {
 
 	private:
 		QListView * _friendsList;
-		WaitSpinner * _waitSpinner;
+		gui::WaitSpinner * _waitSpinner;
 		QStandardItemModel * _model;
 		QPushButton * _sendRequestButton;
 		QStringList _users;
@@ -69,5 +70,3 @@ namespace widgets {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_FRIENDSVIEW_H__ */

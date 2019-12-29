@@ -32,13 +32,15 @@ class QTabWidget;
 class QVBoxLayout;
 
 namespace spine {
+namespace gui {
+	class WaitSpinner;
+}
 namespace widgets {
 
 	class AchievementView;
 	class GeneralSettingsWidget;
 	class HiddenAchievementsView;
 	class ProfileModView;
-	class WaitSpinner;
 
 	class ProfileView : public QWidget {
 		Q_OBJECT
@@ -92,7 +94,7 @@ namespace widgets {
 		QPushButton * _logoutButton;
 		QCheckBox* _hidePatchesAndToolsBox;
 		QMainWindow * _mainWindow;
-		WaitSpinner * _waitSpinner;
+		gui::WaitSpinner * _waitSpinner;
 		HiddenAchievementsView * _hiddenAchievementsView;
 	};
 

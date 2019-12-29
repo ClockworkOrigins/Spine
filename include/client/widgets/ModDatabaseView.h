@@ -30,13 +30,16 @@ class QStandardItemModel;
 class QTableView;
 class QTreeView;
 
+
 namespace spine {
 	class DatabaseFilterModel;
+namespace gui {
+	class WaitSpinner;
+}
 namespace widgets {
 
 	class GeneralSettingsWidget;
 	class TextItem;
-	class WaitSpinner;
 
 	class ModDatabaseView : public QWidget {
 		Q_OBJECT
@@ -91,7 +94,7 @@ namespace widgets {
 		QString _gothicDirectory;
 		QString _gothic2Directory;
 		QMap<int32_t, TextItem *> _packageIDIconMapping;
-		WaitSpinner * _waitSpinner;
+		gui::WaitSpinner * _waitSpinner;
 		bool _allowRenderer;
 
 		void resizeEvent(QResizeEvent * evt) override;

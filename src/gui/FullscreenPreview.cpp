@@ -16,7 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#include "widgets/FullscreenPreview.h"
+#include "gui/FullscreenPreview.h"
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -24,11 +24,11 @@
 #include <QPixmap>
 
 namespace spine {
-namespace widgets {
+namespace gui {
 
 	FullscreenPreview::FullscreenPreview(QString imagePath, QWidget * parent) : QDialog(parent, Qt::Popup) {
 		imagePath.chop(2);
-		QPixmap preview(imagePath);
+		const QPixmap preview(imagePath);
 		QSize targetSize = preview.size();
 		if (targetSize.width() > QApplication::desktop()->screenGeometry().size().width() || targetSize.height() > QApplication::desktop()->screenGeometry().size().height()) {
 			targetSize = QApplication::desktop()->screenGeometry().size();
@@ -62,5 +62,5 @@ namespace widgets {
 		accept();
 	}
 
-} /* namespace widgets */
+} /* namespace gui */
 } /* namespace spine */

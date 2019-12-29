@@ -18,16 +18,17 @@
 
 #ifdef WITH_TRANSLATOR
 
-#include "translator/TranslationApplier.h"
+#include "translator/GothicParser.h"
+
+#include <iostream>
 
 #include "utils/Conversion.h"
 
+#include "translator/common/TranslationModel.h"
+
 #include <QtConcurrent>
 
-#include "translator/api/TranslatorAPI.h"
-#include "translator/common/MessageStructs.h"
-
-const QSet<QString> IGNORE_FILES = { "EngineClasses", "PrintDebug.d", "PrintPlus.d", "BodyStates.d", "Ikarus_Const", "Ikarus_Doc", "Ikarus.d", "LeGo/", "_intern/Constants.d", "Camera.d", "Menu.d", "Music.d", "ParticleFX.d", "SFX.d", "VisualFX.d", "CamInst.d", "MusicInst.d", "PfxInst.d", "/PFX/", "PfxInstEngine.d", "PfxInstMagic.d", "/Camera/", "/Music/", "/SFX/", "/VisualFX/", "SfxInst.d", "SfxInstSpeech.d", "VisualFxInst.d", "Menu_Defines.d", ".src", "/GFA/" };
+const QSet<QString> IGNORE_FILES = { "EngineClasses", "PrintDebug.d", "PrintPlus.d", "BodyStates.d", "Ikarus_Const", "Ikarus_Doc", "Ikarus.d", "LeGo/", "_intern/Constants.d", "Camera.d", "Menu.d", "Music.d", "ParticleFX.d", "SFX.d", "VisualFX.d", "CamInst.d", "MusicInst.d", "PfxInst.d", "/PFX/", "PfxInstEngine.d", "PfxInstMagic.d", "/Camera/", "/Music/", "/SFX/", "/VisualFX/", "SfxInst.d", "SfxInstSpeech.d", "VisualFxInst.d", "Menu_Defines.d", "/GFA/" };
 const QSet<QString> IGNORE_FUNCTIONS = {
 	"AI_PlayAni", "AI_Teleport", "AI_GotoFP", "AI_GotoWP", "PrintDebugNpc", "BLOOD_EMITTER", "BLOOD_TEXTURE", "Hlp_StrCmp", "Mdl_ApplyOverlayMds", "Mdl_RemoveOverlayMDS", "Mdl_StartFaceAni", "AI_StartState",
 	"Npc_StopAni", "AI_PlayAniBS", "Wld_PlayEffect", "Npc_GetDistToWP", "Npc_IsOnFP", "Npc_PlayAni", "Wld_IsFPAvailable", "Mdl_ApplyRandomAni", "Mdl_ApplyRandomAniFreq", "Wld_IsNextFPAvailable", "AI_GotoNextFP",
@@ -36,27 +37,23 @@ const QSet<QString> IGNORE_FUNCTIONS = {
 	"Snd_Play", "B_SetLevelchange", "MEM_GetGothOpt", "MEM_SetGothOpt", "B_Say", "onSelAction", "onSelAction_s", "userString", "Update_ChoiceBox", "Npc_ExchangeRoutine", "AI_StopFX", "Mob_HasItems", "MEM_Error",
 	"Spine_OverallSaveGetInt", "Spine_OverallSaveGetString", "Spine_OverallSaveSetInt", "Spine_OverallSaveSetString", "Spine_UpdateStatistic", "MEM_WriteString", "MEM_SendToSpy", "Mob_CreateItems"
 };
-const QSet<QRegularExpression> IGNORE_REGEX = { QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*wp[ \t]*="), QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*visual[ \t]*="), QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*scemeName[ \t]*="), QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*visual_change[ \t]*="), QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*effect[ \t]*="), QRegularExpression("[ \t]*TA_[a-zA-Z_0-9]+[ \t]*\\([ \t]*[0-9]+[ \t]*,[ \t]*[0-9]+[ \t]*,[ \t]*[0-9]+[ \t]*,[ \t]*[0-9]+[ \t]*,[ \t]*\""), QRegularExpression("items\\[[0-9]+\\]"), QRegularExpression("musictheme[ \t]*="), QRegularExpression("backPic[ \t]*="), QRegularExpression("onChgSetOption[ \t]*="), QRegularExpression("onChgSetOptionSection[ \t]*="), QRegularExpression("hideIfOptionSectionSet[ \t]*="), QRegularExpression("hideIfOptionSet[ \t]*="), QRegularExpression("fontName[ \t]*="), QRegularExpression("BIP01 ") };
+const QList<QRegularExpression> IGNORE_REGEX = { QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*wp[ \t]*="), QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*visual[ \t]*="), QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*scemeName[ \t]*="), QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*visual_change[ \t]*="), QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*effect[ \t]*="), QRegularExpression("[ \t]*TA_[a-zA-Z_0-9]+[ \t]*\\([ \t]*[0-9]+[ \t]*,[ \t]*[0-9]+[ \t]*,[ \t]*[0-9]+[ \t]*,[ \t]*[0-9]+[ \t]*,[ \t]*\""), QRegularExpression("items\\[[0-9]+\\]"), QRegularExpression("musictheme[ \t]*="), QRegularExpression("backPic[ \t]*="), QRegularExpression("onChgSetOption[ \t]*="), QRegularExpression("onChgSetOptionSection[ \t]*="), QRegularExpression("hideIfOptionSectionSet[ \t]*="), QRegularExpression("hideIfOptionSet[ \t]*="), QRegularExpression("fontName[ \t]*="), QRegularExpression("BIP01 ") };
 
 namespace spine {
-namespace translation {
+namespace translator {
 
-	TranslationApplier::TranslationApplier(uint32_t requestID, QObject * par) : QObject(par), _requestID(requestID), _currentProgress(0), _maxProgress(0) {
+	GothicParser::GothicParser(QObject * par) : QObject(par), _currentProgress(0), _maxProgress(0) {
 	}
 
-	void TranslationApplier::parseTexts(QString path) {
-		QFuture<translator::common::SendTranslationDownloadMessage *> f = QtConcurrent::run(translator::api::TranslatorAPI::requestTranslationDownload, _requestID);
-
-		QString translatedPath = QFileInfo(path + "/../translated/").absolutePath();
-
+	void GothicParser::parseTexts(QString path, ::translator::common::TranslationModel * model) {
 		// 1. determine all files
 		_currentProgress = 0;
 		QStringList filesToParse;
 
-		QDirIterator dirIt(path, QStringList() << "*.d" << "*.src", QDir::Filter::Files, QDirIterator::IteratorFlag::Subdirectories);
-		while (dirIt.hasNext()) {
-			dirIt.next();
-			QString filePath = dirIt.filePath();
+		QDirIterator it(path, QStringList() << "*.d", QDir::Filter::Files, QDirIterator::IteratorFlag::Subdirectories);
+		while (it.hasNext()) {
+			it.next();
+			QString filePath = it.filePath();
 			bool found = false;
 			for (const QString & s : IGNORE_FILES) {
 				if (filePath.contains(s, Qt::CaseInsensitive)) {
@@ -65,77 +62,48 @@ namespace translation {
 				}
 			}
 			if (!found) {
-				filesToParse.append(dirIt.filePath());
-			} else {
-				QString oldPath = filePath;
-				const QString newPath = QFileInfo(oldPath.replace(path, translatedPath)).absoluteFilePath();
-				if (QFileInfo::exists(newPath)) {
-					QFile::remove(newPath);
-				}
-				bool b = QDir().mkpath(QFileInfo(newPath).absolutePath());
-				Q_UNUSED(b);
-				const bool copied = QFile::copy(filePath, newPath);
-				Q_ASSERT(copied);
+				filesToParse.append(it.filePath());
 			}
 		}
 		_maxProgress = filesToParse.size();
-		emit updateMaxProgress(_maxProgress);
-
-		QMap<QString, QString> names;
-		QMap<QString, QString> texts;
-		QList<QPair<QStringList, QStringList>> dialogs;
-		translator::common::SendTranslationDownloadMessage * stdm = f.result();
-		if (stdm == nullptr) {
-			emit updatedCurrentProgress(_maxProgress);
-			return;
-		}
-		for (auto it = stdm->names.cbegin(); it != stdm->names.cend(); ++it) {
-			names.insert(s2q(it->first).trimmed(), s2q(it->second).trimmed());
-		}
-		for (auto it = stdm->texts.cbegin(); it != stdm->texts.cend(); ++it) {
-			texts.insert(s2q(it->first).trimmed(), s2q(it->second).trimmed());
-		}
-		for (auto it = stdm->dialogs.cbegin(); it != stdm->dialogs.cend(); ++it) {
-			Q_ASSERT(it->first.size() == it->second.size());
-			QStringList original;
-			QStringList translated;
-			for (size_t i = 0; i < it->first.size(); i++) {
-				original << s2q(it->first[i]).trimmed();
-				translated << s2q(it->second[i]).trimmed();
-			}
-			dialogs.append(qMakePair(original, translated));
-		}
-		delete stdm;
 
 		// 2. Parse them asynchronously
 		QEventLoop loop;
 		QFutureWatcher<void> * watcher = new QFutureWatcher<void>();
-		connect(watcher, &QFutureWatcher<void>::finished, this, &TranslationApplier::finished);
+		connect(watcher, &QFutureWatcher<void>::finished, this, &GothicParser::finished);
 		connect(watcher, &QFutureWatcher<void>::finished, &loop, &QEventLoop::quit);
 		connect(watcher, &QFutureWatcher<void>::finished, watcher, &QFutureWatcher<void>::deleteLater);
-		const QFuture<void> future = QtConcurrent::map(filesToParse, [this, path, translatedPath, names, texts, dialogs](QString filePath) {
-			parseFile(filePath, path, translatedPath, names, texts, dialogs);
+		const QFuture<void> future = QtConcurrent::map(filesToParse, [this, model](QString filePath) {
+			parseFile(filePath, model);
 			++_currentProgress;
-			emit updatedCurrentProgress(_currentProgress);
+			emit updatedProgress(_currentProgress, _maxProgress);
 		});
 		watcher->setFuture(future);
 		loop.exec();
+		std::cout << model->getDialogTextCount() << " Dialog Texts" << std::endl;
+
+		int count = 0;
+		for (auto d : model->getDialogs()) {
+			for (const auto & d2 : d) {
+				count += s2q(d2).split(' ').count();
+			}
+		}
+		std::cout << "Words: " << count << std::endl;
+
+		model->postProcess();
+		std::cout << model->getNames().size() << " Names" << std::endl;
+		std::cout << model->getTexts().size() << " Texts" << std::endl;
+		std::cout << model->getDialogs().size() << " Dialogs" << std::endl;
+		std::cout << model->getDialogTextCount() << " Dialog Texts" << std::endl;
+		std::cout << (model->getNames().size() + model->getTexts().size() + model->getDialogTextCount()) << " Overall" << std::endl;
 	}
 
-	void TranslationApplier::parseFile(QString filePath, QString basePath, QString translatedPath, QMap<QString, QString> names, QMap<QString, QString> texts, QList<QPair<QStringList, QStringList>> dialogs) {
-		QString newPath = filePath;
-		newPath = newPath.replace(basePath, translatedPath);
-		const QString absolutePath = QFileInfo(newPath).absolutePath();
-		if (!QDir().exists(absolutePath)) {
-			bool b = QDir().mkpath(absolutePath);
-			Q_UNUSED(b);
-		}
-		QFile inFile(filePath);
-		QFile outFile(newPath);
-		if (inFile.open(QIODevice::ReadOnly) && outFile.open(QIODevice::WriteOnly)) {
-			QTextStream ts(&inFile);
-			QTextStream outStream(&outFile);
-			QString newFileContent;
+	void GothicParser::parseFile(QString filePath, ::translator::common::TranslationModel * model) {
+		//static QMutex l;
+		//QMutexLocker lg(&l);
+		QFile f(filePath);
+		if (f.open(QIODevice::ReadOnly)) {
+			QTextStream ts(&f);
 			bool starComment = false;
 			bool svm = false;
 			bool inFunction = false;
@@ -143,9 +111,6 @@ namespace translation {
 			QStringList dialogsInFunction;
 			while (!ts.atEnd()) {
 				QString line = ts.readLine();
-				if (line.isEmpty()) {
-					newFileContent += '\n';
-				}
 				bool comment = false;
 				bracketCount += line.count("{");
 				bracketCount -= line.count("}");
@@ -159,7 +124,6 @@ namespace translation {
 						}
 					}
 					if (found) {
-						newFileContent += line + "\n";
 						break;
 					}
 					for (const QRegularExpression & re : IGNORE_REGEX) {
@@ -169,12 +133,11 @@ namespace translation {
 						}
 					}
 					if (found) {
-						newFileContent += line + "\n";
 						break;
 					}
 					if (!starComment && line.contains(QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*name[ \t]*=[ \t]*\"[^\"]+\"[ \t]*;"))) {
 						// Name
-						parseName(line, names, newFileContent);
+						parseName(line, model);
 						break;
 					}
 					if (line.contains(QRegularExpression("instance[ \t]+SVM_[0-9]+[ \t]*\\(C_SVM\\)", QRegularExpression::PatternOption::CaseInsensitiveOption))) {
@@ -187,7 +150,6 @@ namespace translation {
 					}
 					if (!starComment && inFunction && line.contains(QRegularExpression("[ \t]*AI_Output[ \t]*\\([ \t]*[^,]+[ \t]*,[ \t]*[^,]+[ \t]*,[ \t]*\"[^\"]+[ \t]*\"\\);[ \t]\\/\\/", QRegularExpression::PatternOption::CaseInsensitiveOption))) {
 						QString dialogText = QRegularExpression("[ \t]*AI_Output[ \t]*\\([ \t]*[^,]+[ \t]*,[ \t]*[^,]+[ \t]*,[ \t]*\"[^\"]+[ \t]*\"\\);[ \t]\\/\\/", QRegularExpression::PatternOption::CaseInsensitiveOption).match(line).captured(0);
-						newFileContent += dialogText;
 						dialogText = line.remove(dialogText);
 						dialogsInFunction.append(dialogText);
 					}
@@ -202,23 +164,17 @@ namespace translation {
 									jumpToCommentForSVM = true;
 								} else if (!svm) {
 									started = true;
-									newFileContent += line.left(i + 1);
 								}
 							} else if (!jumpToCommentForSVM) {
 								line = line.mid(i + 1);
-								if (text.isEmpty()) {
-									newFileContent += "\"";
-								}
 								break;
 							}
 						} else if (line.at(i) == '/' && i + 1 < line.size() && line.at(i + 1) == '/' && !started && !starComment) {
 							if (jumpToCommentForSVM) {
 								started = true;
-								newFileContent += line.left(i + 2);
 								i++;
 							} else {
 								comment = true;
-								newFileContent += line + "\n";
 								break;
 							}
 						} else if (line.at(i) == '/' && i + 1 < line.size() && line.at(i + 1) == '*' && !started && !starComment) {
@@ -226,27 +182,21 @@ namespace translation {
 							i++;
 						} else if (line.at(i) == '*' && i + 1 < line.size() && line.at(i + 1) == '/' && !started && starComment) {
 							starComment = false;
-							newFileContent += line.left(i + 1);
 							line = line.mid(i + 1);
 							break;
 						} else if (line.at(i) == '}' && i + 1 < line.size() && line.at(i + 1) == ';' && svm && !starComment) {
 							svm = false;
-							newFileContent += line.left(i + 1);
 							line = line.mid(i + 1);
 							break;
 						} else if (line.at(i) == '}' && i + 1 < line.size() && line.at(i + 1) == ';' && inFunction && !starComment && bracketCount == 0) {
 							inFunction = false;
 							if (!dialogsInFunction.isEmpty()) {
-								for (auto p : dialogs) {
-									if (p.first == dialogsInFunction) {
-										for (int j = 0; j < dialogsInFunction.size(); j++) {
-											newFileContent = newFileContent.replace("//" + p.first[j], "//" + p.second[j]);
-										}
-										break;
-									}
+								std::vector<std::string> dialogs;
+								for (const QString & s : dialogsInFunction) {
+									dialogs.push_back(q2s(s));
 								}
+								model->addDialog(dialogs);
 							}
-							newFileContent += line.left(i + 1);
 							line = line.mid(i + 1);
 							break;
 						} else {
@@ -259,55 +209,26 @@ namespace translation {
 						}
 					}
 					if (!text.isEmpty() && !text.trimmed().isEmpty() && text.contains(QRegularExpression("[a-zA-Z]+")) && !text.startsWith("$") && !text.endsWith(".TGA", Qt::CaseInsensitive) && !text.endsWith(".BIK", Qt::CaseInsensitive) && !text.endsWith(".ZEN", Qt::CaseInsensitive) && !text.endsWith(".3DS", Qt::CaseInsensitive) && !text.endsWith(".ASC", Qt::CaseInsensitive) && !text.endsWith(".WAV", Qt::CaseInsensitive) && (text.contains(" ") || text.count("_") < 2)) {
-						if (texts.contains(text.trimmed())) {
-							if (text.endsWith("\"")) {
-								text.chop(1);
-							}
-							QString translatedText = texts[text.trimmed()];
-							if (translatedText.endsWith("\"")) {
-								translatedText.chop(1);
-							}
-							if (translatedText.startsWith("\"")) {
-								translatedText = translatedText.mid(1);
-							}
-							translatedText = translatedText.replace("\"", "'");
-							newFileContent += text.replace(text.trimmed(), translatedText);
-							if (!jumpToCommentForSVM) {
-								newFileContent += "\"";
-							}
-						} else {
-							newFileContent += text + "\"";
-						}
-					} else {
-						newFileContent += text;
-						if (!text.isEmpty()) {
-							newFileContent += "\"";
-						}
+						model->addText(q2s(text.trimmed()));
 					}
 					// if we parsed the whole line and didn't close /* start next line
-					if (atEnd || line.isEmpty()) {
-						if (!jumpToCommentForSVM) {
-							newFileContent += line;
-						}
-						newFileContent += "\n";
+					if (atEnd) {
 						break;
 					}
 				}
 			}
-			outStream << newFileContent;
 		}
 	}
 
-	void TranslationApplier::parseName(QString line, QMap<QString, QString> names, QString & newFileContent) {
+	void GothicParser::parseName(QString line, ::translator::common::TranslationModel * model) {
 		bool started = false;
 		QString name;
 		for (int i = 0; i < line.size(); i++) {
 			if (line.at(i) == '\"') {
 				if (!started) {
-					newFileContent += line.left(i + 1);
 					started = true;
 				} else {
-					line = line.mid(i);
+					line = line.mid(i + 1);
 					break;
 				}
 			} else {
@@ -317,18 +238,11 @@ namespace translation {
 			}
 		}
 		if (!name.isEmpty() && name.contains(QRegularExpression("[a-zA-Z]+")) && !name.startsWith("$") && !name.endsWith(".TGA", Qt::CaseInsensitive)) {
-			if (names.contains(name.trimmed())) {
-				QString translatedName = names[name.trimmed()];
-				translatedName.replace("\"", "'");
-				newFileContent += name.replace(name.trimmed(), translatedName);
-			} else {
-				newFileContent += name;
-			}
+			model->addName(q2s(name.trimmed()));
 		}
-		newFileContent += line + "\n";
 	}
 
-} /* namespace translation */
+} /* namespace translator */
 } /* namespace spine */
 
 #endif /* WITH_TRANSLATOR */

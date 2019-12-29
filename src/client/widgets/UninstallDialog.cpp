@@ -18,11 +18,8 @@
 
 #include "widgets/UninstallDialog.h"
 
-#include "Config.h"
-#include "Database.h"
-#include "FileDownloader.h"
-#include "MultiFileDownloader.h"
-#include "SpineConfig.h"
+#include "utils/Config.h"
+#include "utils/Database.h"
 
 #include <QApplication>
 #include <QCheckBox>
@@ -32,52 +29,50 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-namespace spine {
-namespace widgets {
+using namespace spine;
+using namespace spine::utils;
+using namespace spine::widgets;
 
-	UninstallDialog::UninstallDialog(QString title, QString text, QString path) : QDialog(nullptr), _savegameCheckbox(nullptr) {
-		QVBoxLayout * l = new QVBoxLayout();
-		l->setAlignment(Qt::AlignTop);
+UninstallDialog::UninstallDialog(QString title, QString text, QString path) : QDialog(nullptr), _savegameCheckbox(nullptr) {
+	QVBoxLayout * l = new QVBoxLayout();
+	l->setAlignment(Qt::AlignTop);
 
-		QLabel * infoLabel = new QLabel(text, this);
-		infoLabel->setWordWrap(true);
-		l->addWidget(infoLabel);
+	QLabel * infoLabel = new QLabel(text, this);
+	infoLabel->setWordWrap(true);
+	l->addWidget(infoLabel);
 
-		QDirIterator it(path, QStringList() << "*ini", QDir::Files, QDirIterator::Subdirectories);
-		_savegameCheckbox = new QCheckBox(QApplication::tr("LeaveSavegame"), this);
-		l->addWidget(_savegameCheckbox);
-		_savegameCheckbox->setChecked(true);
-		_savegameCheckbox->setVisible(it.hasNext());
+	const QDirIterator it(path, QStringList() << "*ini", QDir::Files, QDirIterator::Subdirectories);
+	_savegameCheckbox = new QCheckBox(QApplication::tr("LeaveSavegame"), this);
+	l->addWidget(_savegameCheckbox);
+	_savegameCheckbox->setChecked(true);
+	_savegameCheckbox->setVisible(it.hasNext());
 
-		QDialogButtonBox * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Ok | QDialogButtonBox::StandardButton::Cancel, Qt::Orientation::Horizontal, this);
-		l->addWidget(dbb);
+	QDialogButtonBox * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Ok | QDialogButtonBox::StandardButton::Cancel, Qt::Orientation::Horizontal, this);
+	l->addWidget(dbb);
 
-		setLayout(l);
+	setLayout(l);
 
-		QPushButton * b = dbb->button(QDialogButtonBox::StandardButton::Ok);
-		b->setText(QApplication::tr("Ok"));
+	QPushButton * b = dbb->button(QDialogButtonBox::StandardButton::Ok);
+	b->setText(QApplication::tr("Ok"));
 
-		connect(b, SIGNAL(clicked()), this, SIGNAL(accepted()));
-		connect(b, SIGNAL(clicked()), this, SLOT(accept()));
-		connect(b, SIGNAL(clicked()), this, SLOT(hide()));
+	connect(b, SIGNAL(clicked()), this, SIGNAL(accepted()));
+	connect(b, SIGNAL(clicked()), this, SLOT(accept()));
+	connect(b, SIGNAL(clicked()), this, SLOT(hide()));
 
-		b = dbb->button(QDialogButtonBox::StandardButton::Cancel);
-		b->setText(QApplication::tr("Cancel"));
+	b = dbb->button(QDialogButtonBox::StandardButton::Cancel);
+	b->setText(QApplication::tr("Cancel"));
 
-		connect(b, SIGNAL(clicked()), this, SIGNAL(rejected()));
-		connect(b, SIGNAL(clicked()), this, SLOT(reject()));
-		connect(b, SIGNAL(clicked()), this, SLOT(hide()));
+	connect(b, SIGNAL(clicked()), this, SIGNAL(rejected()));
+	connect(b, SIGNAL(clicked()), this, SLOT(reject()));
+	connect(b, SIGNAL(clicked()), this, SLOT(hide()));
 
-		setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-		setWindowTitle(title);
-	}
+	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+	setWindowTitle(title);
+}
 
-	UninstallDialog::~UninstallDialog() {
-	}
+UninstallDialog::~UninstallDialog() {
+}
 
-	bool UninstallDialog::keepSavegame() const {
-		return _savegameCheckbox->isChecked();
-	}
-
-} /* namespace widgets */
-} /* namespace spine */
+bool UninstallDialog::keepSavegame() const {
+	return _savegameCheckbox->isChecked();
+}

@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8.12)
+cmake_minimum_required (VERSION 3.7.0)
 
 #########################################################################
 #########################################################################
@@ -88,6 +88,8 @@ INCLUDE(cmake/addToBinDir.cmake)
 INCLUDE_DIRECTORIES(include)
 INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/include)
 INCLUDE_DIRECTORIES(SYSTEM ${CMAKE_CURRENT_BINARY_DIR})
+
+SET(CMAKE_AUTOMOC ON)
 
 ADD_SUBDIRECTORY(src)
 IF(EXISTS "${VCREDIST_PATH}" AND EXISTS "${DXREDIST_PATH}" AND WIN32)
