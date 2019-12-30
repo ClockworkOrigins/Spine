@@ -12,12 +12,11 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_RATINGWIDGET_H__
-#define __SPINE_WIDGETS_RATINGWIDGET_H__
+#pragma once
 
 #include <array>
 #include <cstdint>
@@ -33,7 +32,12 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		RatingWidget(QWidget * par);
+		enum class RatingMode {
+			Overall,
+			User
+		};
+		
+		RatingWidget(RatingMode mode, QWidget * par);
 
 		void setEditable(bool editable);
 
@@ -56,6 +60,7 @@ namespace widgets {
 		bool _allowedToRate;
 		bool _editable;
 		bool _visible;
+		RatingMode _mode;
 
 		void mousePressEvent(QMouseEvent * evt) override;
 		void requestRating();
@@ -63,5 +68,3 @@ namespace widgets {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_RATINGWIDGET_H__ */

@@ -94,12 +94,12 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, GeneralSettingsWidget * gener
 
 		{
 			QVBoxLayout * vl = new QVBoxLayout();
-			_ratingWidget = new RatingWidget(this);
+			_ratingWidget = new RatingWidget(widgets::RatingWidget::RatingMode::Overall, this);
 			vl->addWidget(_ratingWidget, 0, Qt::AlignTop | Qt::AlignRight);
 			_ratingWidget->setEditable(false);
 			_ratingWidget->setVisible(false);
 
-			_rateWidget = new RatingWidget(this);
+			_rateWidget = new RatingWidget(widgets::RatingWidget::RatingMode::User, this);
 			vl->addWidget(_rateWidget, 0, Qt::AlignTop | Qt::AlignRight);
 			_rateWidget->setEditable(true);
 			_rateWidget->setVisible(false);

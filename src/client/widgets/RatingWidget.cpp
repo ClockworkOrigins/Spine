@@ -38,7 +38,7 @@ using namespace spine;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-RatingWidget::RatingWidget(QWidget * par) : QWidget(par), _svgs(), _modID(), _modname(), _allowedToRate(false), _editable(true), _visible(false) {
+RatingWidget::RatingWidget(RatingMode mode, QWidget * par) : QWidget(par), _svgs(), _modID(), _modname(), _allowedToRate(false), _editable(true), _visible(false), _mode(mode) {
 	QHBoxLayout * l = new QHBoxLayout();
 	for (size_t i = 0; i < _svgs.size(); i++) {
 		_svgs[i] = new QSvgWidget(":/svg/star.svg", this);
@@ -47,7 +47,7 @@ RatingWidget::RatingWidget(QWidget * par) : QWidget(par), _svgs(), _modID(), _mo
 	}
 	setLayout(l);
 
-	connect(this, SIGNAL(receivedRating(int32_t, int32_t, int32_t, bool)), this, SLOT(updateRating(int32_t, int32_t, int32_t, bool)));
+	connect(this, &RatingWidget::receivedRating, this, &RatingWidget::updateRating);
 }
 
 void RatingWidget::setEditable(bool editable) {
@@ -144,8 +144,12 @@ void RatingWidget::requestRating() {
 			{
 				common::RequestRatingMessage rrm;
 				rrm.modID = _modID;
-				rrm.username = Config::Username.toStdString();
-				rrm.password = Config::Password.toStdString();
+
+				if (_mode == RatingMode::User) {
+					rrm.username = Config::Username.toStdString();
+					rrm.password = Config::Password.toStdString();
+				}
+				
 				std::string serialized = rrm.SerializePublic();
 				sock.writePacket(serialized);
 				if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {

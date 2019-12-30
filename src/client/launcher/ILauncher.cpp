@@ -108,7 +108,7 @@ void ILauncher::createWidget() {
 		_upperLayout->addStretch(1);
 
 		if (Config::OnlineMode) {
-			_ratingWidget = new widgets::RatingWidget(_widget);
+			_ratingWidget = new widgets::RatingWidget(widgets::RatingWidget::RatingMode::User, _widget);
 			_ratingWidget->setProperty("library", true);
 			_upperLayout->addWidget(_ratingWidget, 1, Qt::AlignRight);
 			_ratingWidget->setEditable(true);
