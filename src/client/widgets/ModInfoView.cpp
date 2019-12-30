@@ -65,6 +65,8 @@ ModInfoView::ModInfoView(GeneralSettingsWidget * generalSettingsWidget, QWidget 
 
 	restoreSettings();
 
+	_layout = new QVBoxLayout();
+	setLayout(_layout);
 	_lastWidget = nullptr;
 }
 

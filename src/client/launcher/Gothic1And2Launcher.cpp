@@ -102,8 +102,8 @@ void Gothic1And2Launcher::init() {
 
 	qRegisterMetaType<std::vector<int32_t>>("std::vector<int32_t>");
 
-	connect(this, SIGNAL(receivedModStats(common::ModStats)), this, SLOT(updateGothic1And2Launcher(common::ModStats)));
-	connect(this, SIGNAL(receivedCompatibilityList(int, std::vector<int32_t>, std::vector<int32_t>)), this, SLOT(updateCompatibilityList(int, std::vector<int32_t>, std::vector<int32_t>)));
+	connect(this, &Gothic1And2Launcher::receivedModStats, this, &Gothic1And2Launcher::updateModInfoView);
+	connect(this, &Gothic1And2Launcher::receivedCompatibilityList, this, &Gothic1And2Launcher::updateCompatibilityList);
 	
 	Database::DBError err;
 	Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "CREATE TABLE IF NOT EXISTS patchConfigs(ModID INT NOT NULL, PatchID INT NOT NULL, Enabled INT NOT NULL);", err);

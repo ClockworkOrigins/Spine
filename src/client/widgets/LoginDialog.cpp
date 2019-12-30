@@ -331,9 +331,9 @@ LoginDialog::LoginDialog(QWidget *) : QDialog(nullptr), _connected(false), _dont
 		l->addLayout(hbl);
 	}
 
-	connect(this, SIGNAL(loggedIn(QString, QString)), this, SLOT(loginSuccess()));
-	connect(this, SIGNAL(showErrorMessage(QString)), this, SLOT(showErrorMessageBox(QString)));
-	connect(this, SIGNAL(showInfoMessage(QString)), this, SLOT(showInfoMessageBox(QString)));
+	connect(this, &LoginDialog::loggedIn, this, &LoginDialog::loginSuccess);
+	connect(this, &LoginDialog::showErrorMessage, this, &LoginDialog::showErrorMessageBox);
+	connect(this, &LoginDialog::showInfoMessage, this, &LoginDialog::showInfoMessageBox);
 
 	if (!username.empty() && !password.empty()) {
 		_loginUsernameEdit->setText(QString::fromStdString(username));

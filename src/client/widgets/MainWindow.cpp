@@ -361,8 +361,8 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	LOGINFO("Memory Usage MainWindow c'tor #8: " << getPRAMValue());
 #endif
 
-	connect(_modListView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(selectedMod(const QModelIndex &)));
-	connect(_modListView, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(selectedMod(const QModelIndex &)));
+	connect(_modListView, &LibraryListView::clicked, this, &MainWindow::selectedMod);
+	connect(_modListView, &LibraryListView::doubleClicked, this, &MainWindow::selectedMod);
 
 	_modInfoView = new ModInfoView(_settingsDialog->getGeneralSettingsWidget(), topWidget);
 	_modInfoView->setProperty("library", true);
@@ -372,12 +372,11 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	_modInfoView->setShowAchievements(_settingsDialog->getGameSettingsWidget()->getShowAchievements());
 	_developerModeActive = _settingsDialog->getDeveloperSettingsWidget()->isDeveloperModeActive();
 
-	connect(_modListView, SIGNAL(doubleClicked(const QModelIndex &)), _modInfoView, SLOT(startMod()));
-	connect(_settingsDialog->getDeveloperSettingsWidget(), SIGNAL(developerModeChanged(bool)), _modInfoView, SLOT(setDeveloperMode(bool)));
-	connect(_settingsDialog->getDeveloperSettingsWidget(), SIGNAL(zSpyChanged(bool)), _modInfoView, SLOT(setZSpyActivated(bool)));
-	connect(_settingsDialog->getDeveloperSettingsWidget(), SIGNAL(developerModeChanged(bool)), this, SLOT(setDeveloperMode(bool)));
-	connect(_settingsDialog->getGeneralSettingsWidget(), SIGNAL(languageChanged(QString)), _modInfoView, SLOT(setLanguage(QString)));
-	connect(_settingsDialog->getGameSettingsWidget(), SIGNAL(showAchievementsChanged(bool)), _modInfoView, SLOT(setShowAchievements(bool)));
+	connect(_modListView, &LibraryListView::doubleClicked, _modInfoView, &ModInfoView::start);
+	connect(_settingsDialog->getDeveloperSettingsWidget(), &DeveloperSettingsWidget::developerModeChanged, _modInfoView, &ModInfoView::setDeveloperMode);
+	connect(_settingsDialog->getDeveloperSettingsWidget(), &DeveloperSettingsWidget::zSpyChanged, _modInfoView, &ModInfoView::setZSpyActivated);
+	connect(_settingsDialog->getDeveloperSettingsWidget(), &DeveloperSettingsWidget::developerModeChanged, this, &MainWindow::setDeveloperMode);
+	connect(_settingsDialog->getGameSettingsWidget(), &GameSettingsWidget::showAchievementsChanged, _modInfoView, &ModInfoView::setShowAchievements);
 
 	_modListView->setFixedWidth(400);
 
