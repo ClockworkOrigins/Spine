@@ -37,7 +37,7 @@ namespace client {
 
 	typedef struct {
 		QString name;
-		int id;
+		int id = 0;
 
 		void read(const QJsonObject &json);
 	} ManagementMod;
@@ -54,8 +54,8 @@ namespace client {
 		QList<ManagementTranslation> names;
 		QList<ManagementTranslation> descriptions;
 
-		int32_t maxProgress;
-		bool hidden;
+		int32_t maxProgress = 0;
+		bool hidden = false;
 
 		QString lockedImageName;
 		QString lockedImageHash;
@@ -72,10 +72,10 @@ namespace client {
 	} ManagementAchievement;
 
 	typedef struct {
-		bool enabled;
+		bool enabled = false;
 		common::GothicVersion gothicVersion;
 		common::ModType modType;
-		int32_t duration;
+		int32_t duration = 0;
 		QDate releaseDate;
 
 		void read(const QJsonObject &json);
@@ -84,7 +84,7 @@ namespace client {
 
 	typedef struct {
 		QString name;
-		int32_t value;
+		int32_t value = 0;
 
 		void read(const QJsonObject &json);
 	} ManagementCustomStatistic;
@@ -99,9 +99,9 @@ namespace client {
 		QString filename;
 		QString hash;
 		QString language;
-		bool changed;
-		bool deleted;
-		int32_t size;
+		bool changed = false;
+		bool deleted = false;
+		int32_t size = 0;
 
 		void read(const QJsonObject &json);
 	} ManagementModFile;
@@ -124,10 +124,10 @@ namespace client {
 	} ManagementVersionDownload;
 
 	typedef struct {
-		int32_t minimum;
-		int32_t maximum;
-		int32_t average;
-		int32_t median;
+		int32_t minimum = 0;
+		int32_t maximum = 0;
+		int32_t average = 0;
+		int32_t median = 0;
 
 		void read(const QJsonObject &json);
 	} ManagementStatistic;
@@ -143,9 +143,9 @@ namespace client {
 		int32_t overallDownloads;
 		QList<ManagementVersionDownload> downloadsPerVersion;
 
-		int32_t overallPlayerCount;
-		int32_t last24HoursPlayerCount;
-		int32_t last7DaysPlayerCount;
+		int32_t overallPlayerCount = 0;
+		int32_t last24HoursPlayerCount = 0;
+		int32_t last7DaysPlayerCount = 0;
 
 		ManagementStatistic playTime;
 		ManagementStatistic sessionTime;
