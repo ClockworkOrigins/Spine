@@ -1660,10 +1660,12 @@
 		<Bug language="Deutsch">Benutzerverwaltung zeigt nun nur noch Spine-Nutzer an</Bug>
 		<Bug language="Deutsch">Tippfehler in englischer Übersetzung korrigiert</Bug>
 		<Bug language="Deutsch">Fehler beim Upload neuer Mod-Dateien behoben</Bug>
+		<Bug language="Deutsch">Integritätsprüfung für Gothic 2 behoben</Bug>
 		
 		<Enhancement language="English">Download errors now are automatically reported</Enhancement>
 		<Bug language="English">User management now only shows Spine users</Bug>
 		<Bug language="English">Fixed typo in English translation</Bug>
 		<Bug language="English">Fixed bug when uploading new mod files</Bug>
+		<Bug language="English">Fixed integrity check for Gothic 2</Bug>
 	</Version>
 </Versions>

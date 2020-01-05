@@ -244,9 +244,9 @@ void IntegrityCheckDialog::process() {
 			QFileInfo fi(it2.key());
 			emit updateText(fi.fileName());
 
-			const bool b = utils::Hashing::checkHash(_gothicDirectory + "/" + it2.key(), it2.value());
+			const bool b = utils::Hashing::checkHash(_gothic2Directory + "/" + it2.key(), it2.value());
 			if (!b) {
-				_corruptGothicFiles.append(ModFile(it2.key(), it2.value()));
+				_corruptGothic2Files.append(ModFile(it2.key(), it2.value()));
 			}
 
 			count++;
