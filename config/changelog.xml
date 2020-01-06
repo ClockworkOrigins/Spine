@@ -1657,12 +1657,14 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="15" patchVersion="0">
 		<Enhancement language="Deutsch">Bei Downloadfehlern wird der Fehler jetzt automatisch gemeldet</Enhancement>
+		<Enhancement language="Deutsch">BETA: Gothic 2 kann jetzt über Steam gestartet werden, wenn es sich dabei um die Steam-Version handelt, und somit kann über Steam die Spielzeit gemessen werden</Enhancement>
 		<Bug language="Deutsch">Benutzerverwaltung zeigt nun nur noch Spine-Nutzer an</Bug>
 		<Bug language="Deutsch">Tippfehler in englischer Übersetzung korrigiert</Bug>
 		<Bug language="Deutsch">Fehler beim Upload neuer Mod-Dateien behoben</Bug>
 		<Bug language="Deutsch">Integritätsprüfung für Gothic 2 behoben</Bug>
 		
 		<Enhancement language="English">Download errors now are automatically reported</Enhancement>
+		<Enhancement language="English">BETA: Gothic 2 now can be started via Steam when it's the Steam version and so Steam can track the play time</Enhancement>
 		<Bug language="English">User management now only shows Spine users</Bug>
 		<Bug language="English">Fixed typo in English translation</Bug>
 		<Bug language="English">Fixed bug when uploading new mod files</Bug>

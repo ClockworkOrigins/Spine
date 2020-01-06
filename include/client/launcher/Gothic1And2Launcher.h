@@ -53,11 +53,13 @@ namespace launcher {
 		void receivedCompatibilityList(int, std::vector<int32_t>, std::vector<int32_t>);
 		void changeSplashMessage(QString, int, QColor);
 
+	protected slots:
+		void finishedMod(int exitCode, QProcess::ExitStatus exitStatus);
+
 	private slots:
 		void startSpacer();
 		void finishedSpacer();
 		void updateCompatibilityList(int modID, std::vector<int32_t> incompatiblePatches, std::vector<int32_t> forbiddenPatches);
-		void finishedMod(int exitCode, QProcess::ExitStatus exitStatus);
 		void changedPatchState();
 		void errorOccurred(QProcess::ProcessError error);
 
@@ -66,6 +68,12 @@ namespace launcher {
 
 		void createWidget() override;
 		virtual common::GothicVersion getGothicVersion() const = 0;
+
+		virtual QString getExecutable() const = 0;
+
+		virtual void startViaSteam(QStringList arguments) = 0;
+
+		virtual bool canBeStartedWithSteam() const = 0;
 
 	private:
 		QPushButton * _startSpacerButton;

@@ -140,20 +140,13 @@ namespace utils {
 	}
 
 	HANDLE GetProcHandle(const char * ProcName) {
-		PROCESSENTRY32   pe32;
+		const int procID = GetProcId(ProcName);
 
-		pe32.dwSize = sizeof(PROCESSENTRY32);
-		const HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+		return GetProcHandle(procID);
+	}
 
-		if (Process32First(hSnapshot, &pe32)) {
-			do {
-				if (strcmp(pe32.szExeFile, ProcName) == 0) {
-					break;
-				}
-			} while (Process32Next(hSnapshot, &pe32));
-		}
-
-		return hSnapshot;
+	HANDLE GetProcHandle(int procID) {
+		return procID == 0 ? INVALID_HANDLE_VALUE : OpenProcess(PROCESS_ALL_ACCESS, FALSE, procID);
 	}
 
 	uint32_t getPRAMValue() { // Note: this value is in KB!

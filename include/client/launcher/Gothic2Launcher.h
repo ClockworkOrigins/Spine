@@ -43,6 +43,10 @@ namespace launcher {
 		common::GothicVersion getGothicVersion() const override {
 			return common::GothicVersion::GOTHIC2;
 		};
+
+		QString getExecutable() const override;
+		bool canBeStartedWithSteam() const override;
+		void startViaSteam(QStringList arguments) override;
 	};
 
 } /* namespace launcher */

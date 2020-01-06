@@ -21,6 +21,7 @@
 #include "FileDownloader.h"
 #include "MultiFileDownloader.h"
 #include "SpineConfig.h"
+#include "SteamProcess.h"
 
 #include "utils/Config.h"
 #include "utils/Database.h"
@@ -42,6 +43,7 @@
 #include <QTextStream>
 
 using namespace spine;
+using namespace spine::client;
 using namespace spine::launcher;
 using namespace spine::utils;
 
@@ -199,5 +201,22 @@ void Gothic1Launcher::patchCheck() {
 
 #ifdef Q_OS_WIN
 	LOGINFO("Memory Usage patchCheckG1 #2: " << getPRAMValue());
+#endif
+}
+
+QString Gothic1Launcher::getExecutable() const {
+	return "GothicMod.exe";
+}
+
+bool Gothic1Launcher::canBeStartedWithSteam() const {
+	return false;
+}
+
+void Gothic1Launcher::startViaSteam(QStringList arguments) {
+#ifdef Q_OS_WIN
+	SteamProcess * sp = new SteamProcess(65540, getExecutable(), arguments);
+	connect(sp, &SteamProcess::finished, this, &Gothic1Launcher::finishedMod);
+	connect(sp, &SteamProcess::finished, sp, &SteamProcess::deleteLater);
+	sp->start(5);
 #endif
 }

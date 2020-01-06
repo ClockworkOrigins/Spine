@@ -14,29 +14,41 @@
     You should have received a copy of the GNU General Public License
     along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
-// Copyright 2018 Clockwork Origins
+// Copyright 2020 Clockwork Origins
 
 #pragma once
 
+#include <cstdint>
+
+#include <QObject>
+#include <QProcess>
 #include <QString>
 
 #ifdef Q_OS_WIN
 
-typedef void * HANDLE;
-
 namespace spine {
-namespace utils {
+namespace client {
 
-	bool IsRunAsAdmin();
-	bool makeSymlink(QString sourceFile, QString targetFile);
-	bool makeSymlinkFolder(QString sourceDir, QString targetDir);
-	void removeSymlink(QString symLink);
-	int GetProcId(const char * ProcName);
-	HANDLE GetProcHandle(const char * ProcName);
-	HANDLE GetProcHandle(int procID);
-	uint32_t getPRAMValue();
+	class SteamProcess : public QObject {
+		Q_OBJECT
+		
+	public:
+		SteamProcess(int32_t steamID, QString executable, QStringList arguments);
 
-} /* namespace utils */
+		void start(int timeoutInSecs);
+
+	signals:
+		void finished(int, QProcess::ExitStatus);
+
+	private:
+		int32_t _steamID;
+		QString _executable;
+		QStringList _arguments;
+
+		void checkIfProcessRunning(int timeoutInSecs);
+	};
+
+} /* namespace client */
 } /* namespace spine */
 
 #endif

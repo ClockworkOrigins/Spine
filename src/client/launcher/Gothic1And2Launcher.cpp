@@ -754,7 +754,11 @@ void Gothic1And2Launcher::start() {
 	if (newGMP) {
 		process->start("\"" + _directory + "/" + usedExecutable + "\"", args);
 	} else {
-		process->start("\"" + _directory + "/System/" + usedExecutable + "\"", args);
+		if (usedExecutable.compare(getExecutable(), Qt::CaseInsensitive) == 0 && canBeStartedWithSteam()) {
+			startViaSteam(args);
+		} else {
+			process->start("\"" + _directory + "/System/" + usedExecutable + "\"", args);
+		}
 	}
 	LOGINFO("Started " << usedExecutable.toStdString());
 
@@ -1138,11 +1142,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 			LOGINFO("Installed Mod");
 		}
 		bool success = true;
-		if (getGothicVersion() == common::GothicVersion::GOTHIC) {
-			*usedExecutable = "GothicMod.exe";
-		} else if (getGothicVersion() == common::GothicVersion::GOTHIC2) {
-			*usedExecutable = "Gothic2.exe";
-		}
+		*usedExecutable = getExecutable();
 
 		if (ninja) {
 			prepareForNinja();
