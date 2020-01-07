@@ -43,9 +43,12 @@
 #include <QTextStream>
 
 using namespace spine;
-using namespace spine::client;
 using namespace spine::launcher;
 using namespace spine::utils;
+
+#ifdef Q_OS_WIN
+using namespace spine::client;
+#endif
 
 Gothic2Launcher::Gothic2Launcher() {
 	connect(this, &Gothic2Launcher::updatedPath, this, &Gothic2Launcher::patchCheck, Qt::QueuedConnection);
