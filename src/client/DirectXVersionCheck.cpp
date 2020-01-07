@@ -18,6 +18,7 @@
 
 #include "DirectXVersionCheck.h"
 
+#ifdef Q_OS_WIN
 #include <iostream>
 
 #define INITGUID
@@ -501,3 +502,5 @@ namespace spine {
 	}
 
 } /* namespace spine */
+
+#endif

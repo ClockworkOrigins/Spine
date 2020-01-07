@@ -16,8 +16,11 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_DIRECTXVERSIONCHECK_H__
-#define __SPINE_DIRECTXVERSIONCHECK_H__
+#pragma once
+
+#include <QObject>
+
+#ifdef Q_OS_WIN
 
 namespace spine {
 
@@ -28,4 +31,4 @@ namespace spine {
 
 } /* namespace spine */
 
-#endif /* __SPINE_DIRECTXVERSIONCHECK_H__ */
+#endif
