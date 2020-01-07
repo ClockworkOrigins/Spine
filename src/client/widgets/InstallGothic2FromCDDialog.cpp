@@ -18,6 +18,7 @@
 
 #include "widgets/InstallGothic2FromCDDialog.h"
 
+#ifdef Q_OS_WIN
 #include "utils/Conversion.h"
 #include "utils/WindowsExtensions.h"
 
@@ -34,10 +35,8 @@
 #include <QTextBrowser>
 #include <QVBoxLayout>
 
-#ifdef Q_OS_WIN
-	#include <Windows.h>
-	#include <shellapi.h>
-#endif
+#include <Windows.h>
+#include <shellapi.h>
 
 using namespace spine;
 using namespace spine::utils;
@@ -230,3 +229,5 @@ void InstallGothic2FromCDDialog::updateLog() {
 		emit updateProgressLog(_installationLog);
 	}
 }
+
+#endif

@@ -16,11 +16,12 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_INSTALLGOTHIC2FROMCDDIALOG_H__
-#define __SPINE_WIDGETS_INSTALLGOTHIC2FROMCDDIALOG_H__
+#pragma once
 
 #include <QDialog>
 #include <QProcess>
+
+#ifdef Q_OS_WIN
 
 class QLineEdit;
 
@@ -55,4 +56,4 @@ namespace widgets {
 } /* namespace widgets */
 } /* namespace spine */
 
-#endif /* __SPINE_WIDGETS_INSTALLGOTHIC2FROMCDDIALOG_H__ */
+#endif
