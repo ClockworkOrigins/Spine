@@ -41,7 +41,7 @@ namespace launcher {
 	public:
 		void init() override;
 
-		virtual bool supports(common::GothicVersion gothic) const = 0;
+		bool supports(common::GothicVersion gothic) const override = 0;
 		bool supports(int32_t modID, const QString & iniFile) const override;
 
 		virtual void setDirectory(const QString & directory);

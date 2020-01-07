@@ -35,7 +35,10 @@
 #endif
 
 using namespace spine;
+
+#ifdef Q_OS_WIN
 using namespace spine::utils;
+#endif
 
 namespace {
 
