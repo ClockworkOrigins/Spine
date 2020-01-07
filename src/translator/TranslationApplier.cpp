@@ -22,7 +22,12 @@
 
 #include "utils/Conversion.h"
 
-#include <QtConcurrent>
+#include <QDirIterator>
+#include <QFileInfo>
+#include <QFutureWatcher>
+#include <QRegularExpression>
+#include <QtConcurrentMap>
+#include <QtConcurrentRun>
 
 #include "translator/api/TranslatorAPI.h"
 #include "translator/common/MessageStructs.h"

@@ -26,7 +26,10 @@
 
 #include "translator/common/TranslationModel.h"
 
-#include <QtConcurrent>
+#include <QDirIterator>
+#include <QFutureWatcher>
+#include <QRegularExpression>
+#include <QtConcurrentMap>
 
 const QSet<QString> IGNORE_FILES = { "EngineClasses", "PrintDebug.d", "PrintPlus.d", "BodyStates.d", "Ikarus_Const", "Ikarus_Doc", "Ikarus.d", "LeGo/", "_intern/Constants.d", "Camera.d", "Menu.d", "Music.d", "ParticleFX.d", "SFX.d", "VisualFX.d", "CamInst.d", "MusicInst.d", "PfxInst.d", "/PFX/", "PfxInstEngine.d", "PfxInstMagic.d", "/Camera/", "/Music/", "/SFX/", "/VisualFX/", "SfxInst.d", "SfxInstSpeech.d", "VisualFxInst.d", "Menu_Defines.d", "/GFA/" };
 const QSet<QString> IGNORE_FUNCTIONS = {
