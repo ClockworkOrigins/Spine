@@ -16,7 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#include "gui/FullscreenPreview.h"
+#include "FullscreenPreview.h"
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -35,9 +35,6 @@ namespace gui {
 		}
 		_pixmap = preview.scaled(targetSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 		setWindowState(windowState() | Qt::WindowState::WindowFullScreen);
-	}
-
-	FullscreenPreview::~FullscreenPreview() {
 	}
 
 	void FullscreenPreview::paintEvent(QPaintEvent *) {

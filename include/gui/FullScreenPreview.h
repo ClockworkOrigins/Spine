@@ -26,7 +26,6 @@ namespace gui {
 	class FullscreenPreview : public QDialog {
 	public:
 		FullscreenPreview(QString imagePath, QWidget * parent);
-		~FullscreenPreview();
 
 	private:
 		QPixmap _pixmap;
