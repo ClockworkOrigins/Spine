@@ -41,12 +41,15 @@
 #include <QVBoxLayout>
 
 #ifdef Q_OS_WIN
-	#include <ShellAPI.h>
+	#include <shellapi.h>
 #endif
 
 using namespace spine;
-using namespace spine::utils;
 using namespace spine::widgets;
+
+#ifdef Q_OS_WIN
+using namespace spine::utils;
+#endif
 
 AutoUpdateDialog::AutoUpdateDialog(QMainWindow * mainWindow) : QDialog(), _mainWindow(mainWindow), _manuallyChecking(false) {
 	QVBoxLayout * l = new QVBoxLayout();
