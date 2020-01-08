@@ -8,4 +8,4 @@ FILE(GLOB SpineTranslatorHeader ${includedir}/*.h)
 
 ADD_LIBRARY(SpineTranslator STATIC ${SpineTranslatorSrc} ${SpineTranslatorHeader})
 
-TARGET_LINK_LIBRARIES(SpineTranslator SpineGui SpineUtils)
+TARGET_LINK_LIBRARIES(SpineTranslator SpineGui SpineUtils ${TRANSLATOR_LIBRARIES})
