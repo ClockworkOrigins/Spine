@@ -58,8 +58,8 @@ namespace launcher {
 
 		virtual void init();
 
-		virtual bool supports(common::GothicVersion gothic) const = 0;
-		virtual bool supports(int32_t modID, const QString & iniFile) const = 0;
+		virtual bool supportsGame(common::GothicVersion gothic) const = 0;
+		virtual bool supportsModAndIni(int32_t modID, const QString & iniFile) const = 0;
 
 		QWidget * getLibraryWidget() const;
 
@@ -157,4 +157,4 @@ namespace launcher {
 } /* namespace launcher */
 } /* namespace spine */
 
-Q_DECLARE_INTERFACE(spine::launcher::ILauncher, "spine::launcher::ILauncher");
+Q_DECLARE_INTERFACE(spine::launcher::ILauncher, "spine::launcher::ILauncher")

@@ -29,7 +29,7 @@ namespace launcher {
 	public:
 		Gothic1Launcher();
 
-		bool supports(common::GothicVersion gothic) const override;
+		bool supportsGame(common::GothicVersion gothic) const override;
 
 		void setDirectory(const QString & directory) override;
 

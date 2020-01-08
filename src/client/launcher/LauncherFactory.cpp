@@ -36,7 +36,7 @@ namespace launcher {
 
 	ILauncherPtr LauncherFactory::getLauncher(common::GothicVersion gothic) const {
 		for (const auto & l : _launchers) {
-			if (!l->supports(gothic)) continue;
+			if (!l->supportsGame(gothic)) continue;
 
 			return l;
 		}
@@ -46,7 +46,7 @@ namespace launcher {
 
 	ILauncherPtr LauncherFactory::getLauncher(int32_t modID, const QString & iniFile) const {
 		for (const auto & l : _launchers) {
-			if (!l->supports(modID, iniFile)) continue;
+			if (!l->supportsModAndIni(modID, iniFile)) continue;
 
 			return l;
 		}

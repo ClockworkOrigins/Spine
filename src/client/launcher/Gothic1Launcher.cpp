@@ -54,7 +54,7 @@ Gothic1Launcher::Gothic1Launcher() {
 	connect(this, &Gothic1Launcher::updatedPath, this, &Gothic1Launcher::patchCheck, Qt::QueuedConnection);
 }
 
-bool Gothic1Launcher::supports(common::GothicVersion gothic) const {
+bool Gothic1Launcher::supportsGame(common::GothicVersion gothic) const {
 	return gothic == common::GothicVersion::GOTHIC;
 }
 

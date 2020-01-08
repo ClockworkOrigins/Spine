@@ -160,7 +160,7 @@ void Gothic1And2Launcher::init() {
 	}
 }
 
-bool Gothic1And2Launcher::supports(int32_t modID, const QString & iniFile) const {
+bool Gothic1And2Launcher::supportsModAndIni(int32_t modID, const QString & iniFile) const {
 	if (modID == -1) {
 		return iniFile.contains(_directory, Qt::CaseInsensitive);
 	}
@@ -169,7 +169,7 @@ bool Gothic1And2Launcher::supports(int32_t modID, const QString & iniFile) const
 	const int gvInt = Database::queryNth<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + std::to_string(modID) + " LIMIT 1;", err, 0);
 	const auto gv = static_cast<common::GothicVersion>(gvInt);
 
-	return supports(gv);
+	return supportsGame(gv);
 }
 
 void Gothic1And2Launcher::setDirectory(const QString & directory) {
