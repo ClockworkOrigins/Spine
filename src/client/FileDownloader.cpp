@@ -278,7 +278,9 @@ void FileDownloader::fileDownloaded() {
 		_outputFile->close();
 		_outputFile->remove();
 		LOGERROR("Unknown Error: " << reply->error() << ", " << q2s(reply->errorString()));
-		utils::ErrorReporting::report(QString("Unknown Error during download: %1, %2").arg(reply->error()).arg(reply->errorString()));
+		if (reply->error() != QNetworkReply::OperationCanceledError) {
+			utils::ErrorReporting::report(QString("Unknown Error during download: %1, %2").arg(reply->error()).arg(reply->errorString()));
+		}
 		emit downloadFailed(DownloadError::UnknownError);
 	}
 	reply->deleteLater();
