@@ -1670,4 +1670,9 @@
 		<Bug language="English">Fixed bug when uploading new mod files</Bug>
 		<Bug language="English">Fixed integrity check for Gothic 2</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="15" patchVersion="1">
+		<Bug language="Deutsch">Fehler behoben, wodurch Spine nicht komplett beendet wurde</Bug>
+		
+		<Bug language="English">Fixed bug that caused Spine not completely shutting down</Bug>
+	</Version>
 </Versions>

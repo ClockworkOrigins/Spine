@@ -55,7 +55,7 @@ int Config::Init() {
 	struct TamperCheckWrapper {
 		TamperCheckWrapper() {
 #ifdef SPINE_RELEASE
-			t = QtConcurrent::run([this]() {
+			t = std::thread([this]() {
 				while (running || false) {
 					if (IsDebuggerPresent()) {
 						// do some weird stuff here
@@ -71,11 +71,11 @@ int Config::Init() {
 		~TamperCheckWrapper() {
 			running = false;
 #ifdef SPINE_RELEASE
-			t.waitForFinished();
+			t.join();
 #endif
 		}
 		bool running = true;
-		QFuture<void> t;
+		std::thread t;
 	};
 	static TamperCheckWrapper tcw;
 
