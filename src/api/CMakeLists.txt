@@ -17,12 +17,12 @@ FILE(GLOB APIHeader ${includedir}/*.h)
 
 configure_file(${CMAKE_SOURCE_DIR}/media/Spine.vdf ${CMAKE_BINARY_DIR}/media/Spine.vdf COPYONLY)
 
-ADD_LIBRARY(SpineAPI SHARED ${CommonSrc} ${APIHeader})
-set_target_properties(SpineAPI PROPERTIES POSITION_INDEPENDENT_CODE ON)
+ADD_LIBRARY(SpineAPI${ARCH_POSTFIX} SHARED ${CommonSrc} ${APIHeader})
+set_target_properties(SpineAPI${ARCH_POSTFIX} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-target_link_libraries(SpineAPI SpineCommon ${CLOCKUTILS_LIBRARIES})
+target_link_libraries(SpineAPI${ARCH_POSTFIX} SpineCommon ${CLOCKUTILS_LIBRARIES})
 
 IF(WIN32)
-	target_link_libraries(SpineAPI ws2_32)
-	add_custom_command(TARGET SpineAPI POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_BINARY_DIR}/bin/$<CONFIGURATION>/SpineAPI.dll ${CMAKE_BINARY_DIR}/bin)
+	target_link_libraries(SpineAPI${ARCH_POSTFIX} ws2_32)
+	add_custom_command(TARGET SpineAPI${ARCH_POSTFIX} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_BINARY_DIR}/bin/$<CONFIGURATION>/SpineAPI${ARCH_POSTFIX}.dll ${CMAKE_BINARY_DIR}/bin)
 ENDIF(WIN32)

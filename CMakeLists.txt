@@ -9,6 +9,7 @@ cmake_minimum_required (VERSION 3.7.0)
 
 OPTION(WITH_CLIENT "builds with client" OFF)
 OPTION(WITH_SERVER "builds with server" OFF)
+OPTION(WITH_API "builds with API" OFF)
 OPTION(WITH_CONSOLE "build with console" OFF)
 OPTION(WITH_TOOLS "build with helper tools" ON)
 OPTION(WITH_TRANSLATOR "build with translator" OFF)
