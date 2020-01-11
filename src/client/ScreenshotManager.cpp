@@ -224,7 +224,7 @@ namespace {
 
 ScreenshotManager::ScreenshotManager(QObject * par) : QObject(par), _running(false), _screenshotDirectory(), _modID() {
 	_screenshotDirectory = widgets::LocationSettingsWidget::getInstance()->getScreenshotDirectory();
-	connect(widgets::LocationSettingsWidget::getInstance(), SIGNAL(screenshotDirectoryChanged(QString)), this, SLOT(setScreenshotDirectory(QString)));
+	connect(widgets::LocationSettingsWidget::getInstance(), &widgets::LocationSettingsWidget::screenshotDirectoryChanged, this, &ScreenshotManager::setScreenshotDirectory);
 }
 
 ScreenshotManager::~ScreenshotManager() {
