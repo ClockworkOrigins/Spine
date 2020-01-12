@@ -47,7 +47,7 @@ namespace common {
 
 		int length = 0;
 		const int packetSize = RSA_size(publicKey) - 42;
-		const int determinedSize = ((in.length() - 1) / packetSize + 1) * RSA_size(publicKey);
+		const int determinedSize = static_cast<int>(((in.length() - 1) / packetSize + 1) * RSA_size(publicKey));
 		unsigned char * arr = new unsigned char[determinedSize];
 		for (size_t i = 0; i < (in.length() - 1) / packetSize + 1; i++) {
 			length += RSA_public_encrypt(std::min(packetSize, completeLength), reinterpret_cast<const unsigned char *>(in.c_str()) + i * packetSize, arr + length, publicKey, RSA_PKCS1_OAEP_PADDING);
@@ -84,7 +84,7 @@ namespace common {
 
 		int length = 0;
 		const int packetSize = RSA_size(privateKey) - 12;
-		const int determinedSize = ((in.length() - 1) / packetSize + 1) * RSA_size(privateKey);
+		const int determinedSize = static_cast<int>(((in.length() - 1) / packetSize + 1) * RSA_size(privateKey));
 		unsigned char * arr = new unsigned char[determinedSize];
 		for (size_t i = 0; i < (in.length() - 1) / packetSize + 1; i++) {
 			length += RSA_private_encrypt(std::min(packetSize, completeLength), reinterpret_cast<const unsigned char *>(in.c_str()) + i * packetSize, arr + length, privateKey, RSA_PKCS1_PADDING);
@@ -123,7 +123,7 @@ namespace common {
 			RSA_free(publicKey);
 			return false;
 		}
-		const int determinedSize = ((in.length() - 1) / packetSize + 1) * RSA_size(publicKey);
+		const int determinedSize = static_cast<int>(((in.length() - 1) / packetSize + 1) * RSA_size(publicKey));
 		unsigned char * arr = new unsigned char[determinedSize];
 		for (size_t i = 0; i < (in.length() - 1) / packetSize + 1; i++) {
 			length += RSA_public_decrypt(std::min(packetSize, completeLength), reinterpret_cast<const unsigned char *>(in.c_str()) + i * packetSize, arr + length, publicKey, RSA_PKCS1_PADDING);
@@ -164,7 +164,7 @@ namespace common {
 			RSA_free(privateKey);
 			return false;
 		}
-		const int determinedSize = ((in.length() - 1) / packetSize + 1) * RSA_size(privateKey);
+		const int determinedSize = static_cast<int>(((in.length() - 1) / packetSize + 1) * RSA_size(privateKey));
 		unsigned char * arr = new unsigned char[determinedSize];
 		for (size_t i = 0; i < (in.length() - 1) / packetSize + 1; i++) {
 			length += RSA_private_decrypt(std::min(packetSize, completeLength), reinterpret_cast<const unsigned char *>(in.c_str()) + i * packetSize, arr + length, privateKey, RSA_PKCS1_OAEP_PADDING);

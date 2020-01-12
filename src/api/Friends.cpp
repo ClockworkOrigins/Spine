@@ -61,7 +61,7 @@ namespace {
 
 	int32_t getFriendCount() {
 		if (initialized && (activatedModules & common::SpineModules::Friends)) {
-			return friends.size();
+			return static_cast<int32_t>(friends.size());
 		}
 		return 0;
 	}
