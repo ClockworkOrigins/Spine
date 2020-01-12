@@ -36,6 +36,7 @@
 #endif
 
 using namespace spine;
+using namespace spine::launcher;
 using namespace spine::utils;
 using namespace spine::widgets;
 
@@ -43,22 +44,25 @@ ModInfoView::ModInfoView(GeneralSettingsWidget * generalSettingsWidget, QWidget 
 	connect(this, &ModInfoView::errorMessage, this, &ModInfoView::showErrorMessage);
 
 	{
-		const auto factory = launcher::LauncherFactory::getInstance();
-		connect(factory, &launcher::LauncherFactory::restartAsAdmin, this, &ModInfoView::restartSpineAsAdmin);
+		const auto factory = LauncherFactory::getInstance();
+		connect(factory, &LauncherFactory::restartAsAdmin, this, &ModInfoView::restartSpineAsAdmin);
 		
 		{
 			const auto launcher = factory->getLauncher(common::GothicVersion::GOTHIC);
-			const auto gothicLauncher = launcher.dynamicCast<launcher::Gothic1And2Launcher>();
+			const auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
 
-			connect(gothicLauncher.data(), &launcher::Gothic1And2Launcher::installMod, this, &ModInfoView::installMod);
+			connect(gothicLauncher.data(), &Gothic1And2Launcher::installMod, this, &ModInfoView::installMod);
 		}
 		{
 			const auto launcher = factory->getLauncher(common::GothicVersion::GOTHIC2);
-			const auto gothicLauncher = launcher.dynamicCast<launcher::Gothic1And2Launcher>();
+			const auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
 
-			connect(gothicLauncher.data(), &launcher::Gothic1And2Launcher::installMod, this, &ModInfoView::installMod);
+			connect(gothicLauncher.data(), &Gothic1And2Launcher::installMod, this, &ModInfoView::installMod);
 		}
 	}
+
+	connect(LauncherFactory::getInstance(), &LauncherFactory::openAchievementView, this, &ModInfoView::openAchievementView);
+	connect(LauncherFactory::getInstance(), &LauncherFactory::openScoreView, this, &ModInfoView::openScoreView);
 
 	setHideIncompatible(generalSettingsWidget->getHideIncompatible());
 	connect(generalSettingsWidget, &GeneralSettingsWidget::changedHideIncompatible, this, &ModInfoView::setHideIncompatible);
@@ -75,7 +79,7 @@ ModInfoView::~ModInfoView() {
 }
 
 void ModInfoView::selectMod(const QString & modID, const QString & iniFile) {
-	_currentLauncher = launcher::LauncherFactory::getInstance()->getLauncher(modID.toInt(), iniFile);
+	_currentLauncher = LauncherFactory::getInstance()->getLauncher(modID.toInt(), iniFile);
 
 	if (_lastWidget) {
 		_layout->removeWidget(_lastWidget);
@@ -92,16 +96,16 @@ void ModInfoView::selectMod(const QString & modID, const QString & iniFile) {
 }
 
 void ModInfoView::setGothicDirectory(QString directory) {
-	const auto factory = launcher::LauncherFactory::getInstance();
+	const auto factory = LauncherFactory::getInstance();
 	const auto launcher = factory->getLauncher(common::GothicVersion::GOTHIC);
-	auto gothicLauncher = launcher.dynamicCast<launcher::Gothic1And2Launcher>();
+	auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
 	gothicLauncher->setDirectory(directory);
 }
 
 void ModInfoView::setGothic2Directory(QString directory) {
-	const auto factory = launcher::LauncherFactory::getInstance();
+	const auto factory = LauncherFactory::getInstance();
 	const auto launcher = factory->getLauncher(common::GothicVersion::GOTHIC2);
-	auto gothicLauncher = launcher.dynamicCast<launcher::Gothic1And2Launcher>();
+	auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
 	gothicLauncher->setDirectory(directory);
 }
 
@@ -113,32 +117,32 @@ void ModInfoView::start() {
 
 void ModInfoView::loginChanged() {
 	if (Config::OnlineMode) {
-		launcher::LauncherFactory::getInstance()->loginChanged();
+		LauncherFactory::getInstance()->loginChanged();
 	}
 }
 
 void ModInfoView::setDeveloperMode(bool active) {
-	launcher::LauncherFactory::getInstance()->setDeveloperMode(active);
+	LauncherFactory::getInstance()->setDeveloperMode(active);
 }
 
 void ModInfoView::setZSpyActivated(bool active) {
-	launcher::LauncherFactory::getInstance()->setZSpyActivated(active);
+	LauncherFactory::getInstance()->setZSpyActivated(active);
 }
 
 void ModInfoView::setShowAchievements(bool showAchievements) {
-	launcher::LauncherFactory::getInstance()->setShowAchievements(showAchievements);
+	LauncherFactory::getInstance()->setShowAchievements(showAchievements);
 }
 
 void ModInfoView::setHideIncompatible(bool enabled) {
-	const auto factory = launcher::LauncherFactory::getInstance();
+	const auto factory = LauncherFactory::getInstance();
 	{
 		const auto launcher = factory->getLauncher(common::GothicVersion::GOTHIC);
-		auto gothicLauncher = launcher.dynamicCast<launcher::Gothic1And2Launcher>();
+		auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
 		gothicLauncher->setHideIncompatible(enabled);
 	}
 	{
 		const auto launcher = factory->getLauncher(common::GothicVersion::GOTHIC2);
-		auto gothicLauncher = launcher.dynamicCast<launcher::Gothic1And2Launcher>();
+		auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
 		gothicLauncher->setHideIncompatible(enabled);
 	}
 }
@@ -167,9 +171,9 @@ void ModInfoView::showErrorMessage(QString msg) {
 }
 
 void ModInfoView::restoreSettings() {
-	launcher::LauncherFactory::getInstance()->restoreSettings();
+	LauncherFactory::getInstance()->restoreSettings();
 }
 
 void ModInfoView::saveSettings() {
-	launcher::LauncherFactory::getInstance()->saveSettings();
+	LauncherFactory::getInstance()->saveSettings();
 }

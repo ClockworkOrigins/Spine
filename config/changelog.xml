@@ -1675,4 +1675,9 @@
 		
 		<Bug language="English">Fixed bug that caused Spine not completely shutting down</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="16" patchVersion="0">
+		<Bug language="Deutsch">Öffnen der Erfolge/Scores von der Bibliothek aus funktioniert jetzt wieder</Bug>
+		
+		<Bug language="English">Opening achievements/scores from the library works again</Bug>
+	</Version>
 </Versions>
