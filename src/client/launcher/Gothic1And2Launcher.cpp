@@ -26,6 +26,8 @@
 
 #include "https/Https.h"
 
+#include "launcher/LauncherFactory.h"
+
 #include "security/Hash.h"
 
 #include "utils/Config.h"
@@ -162,7 +164,7 @@ void Gothic1And2Launcher::init() {
 
 bool Gothic1And2Launcher::supportsModAndIni(int32_t modID, const QString & iniFile) const {
 	if (modID == -1) {
-		return iniFile.contains(_directory, Qt::CaseInsensitive);
+		return !_directory.isEmpty() && iniFile.contains(_directory, Qt::CaseInsensitive);
 	}
 
 	Database::DBError err;
@@ -228,26 +230,51 @@ void Gothic1And2Launcher::createWidget() {
 	_compileScripts->setProperty("library", true);
 	UPDATELANGUAGESETTEXT(_compileScripts, "CompileScripts");
 	_compileScripts->hide();
+	connect(_compileScripts, &QCheckBox::stateChanged, [this]() {
+		const auto launcher = LauncherFactory::getInstance()->getLauncher(getGothicVersion() == common::GameType::Gothic ? common::GameType::Gothic2 : common::GameType::Gothic);
+		const auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
+		gothicLauncher->_compileScripts->setChecked(_compileScripts->isChecked());
+	});
 
 	_startupWindowed = new QCheckBox(QApplication::tr("StartupWindowed"), _widget);
 	_startupWindowed->setProperty("library", true);
 	UPDATELANGUAGESETTEXT(_startupWindowed, "StartupWindowed");
 	_startupWindowed->hide();
+	connect(_startupWindowed, &QCheckBox::stateChanged, [this]() {
+		const auto launcher = LauncherFactory::getInstance()->getLauncher(getGothicVersion() == common::GameType::Gothic ? common::GameType::Gothic2 : common::GameType::Gothic);
+		const auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
+		gothicLauncher->_startupWindowed->setChecked(_startupWindowed->isChecked());
+	});
 
 	_convertTextures = new QCheckBox(QApplication::tr("ConvertTextures"), _widget);
 	_convertTextures->setProperty("library", true);
 	UPDATELANGUAGESETTEXT(_convertTextures, "ConvertTextures");
 	_convertTextures->hide();
+	connect(_convertTextures, &QCheckBox::stateChanged, [this]() {
+		const auto launcher = LauncherFactory::getInstance()->getLauncher(getGothicVersion() == common::GameType::Gothic ? common::GameType::Gothic2 : common::GameType::Gothic);
+		const auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
+		gothicLauncher->_convertTextures->setChecked(_convertTextures->isChecked());
+	});
 
 	_noSound = new QCheckBox(QApplication::tr("DeactivateSound"), _widget);
 	_noSound->setProperty("library", true);
 	UPDATELANGUAGESETTEXT(_noSound, "DeactivateSound");
 	_noSound->hide();
+	connect(_noSound, &QCheckBox::stateChanged, [this]() {
+		const auto launcher = LauncherFactory::getInstance()->getLauncher(getGothicVersion() == common::GameType::Gothic ? common::GameType::Gothic2 : common::GameType::Gothic);
+		const auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
+		gothicLauncher->_noSound->setChecked(_noSound->isChecked());
+	});
 
 	_noMusic = new QCheckBox(QApplication::tr("DeactivateMusic"), _widget);
 	_noMusic->setProperty("library", true);
 	UPDATELANGUAGESETTEXT(_noMusic, "DeactivateMusic");
 	_noMusic->hide();
+	connect(_noMusic, &QCheckBox::stateChanged, [this]() {
+		const auto launcher = LauncherFactory::getInstance()->getLauncher(getGothicVersion() == common::GameType::Gothic ? common::GameType::Gothic2 : common::GameType::Gothic);
+		const auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
+		gothicLauncher->_noMusic->setChecked(_noMusic->isChecked());
+	});
 
 	QHBoxLayout * hl = new QHBoxLayout();
 	{
@@ -458,27 +485,31 @@ void Gothic1And2Launcher::removeEmptyDirs() const {
 }
 
 void Gothic1And2Launcher::restoreSettings() {
-	bool b = Config::IniParser->value("DEVELOPER/CompileScripts", false).toBool();
-	_compileScripts->setChecked(b);
-	b = Config::IniParser->value("DEVELOPER/WindowedMode", false).toBool();
-	_startupWindowed->setChecked(b);
-	const int i = Config::IniParser->value("DEVELOPER/zSpyLevel", 10).toInt();
-	_zSpyLevel->setValue(i);
-	b = Config::IniParser->value("DEVELOPER/ConvertTextures", false).toBool();
-	_convertTextures->setChecked(b);
-	b = Config::IniParser->value("DEVELOPER/NoSound", false).toBool();
-	_noSound->setChecked(b);
-	b = Config::IniParser->value("DEVELOPER/NoMusic", false).toBool();
-	_noMusic->setChecked(b);
+	Config::IniParser->beginGroup("DEVELOPER");
+		bool b = Config::IniParser->value("CompileScripts", false).toBool();
+		_compileScripts->setChecked(b);
+		b = Config::IniParser->value("WindowedMode", false).toBool();
+		_startupWindowed->setChecked(b);
+		const int i = Config::IniParser->value("zSpyLevel", 10).toInt();
+		_zSpyLevel->setValue(i);
+		b = Config::IniParser->value("ConvertTextures", false).toBool();
+		_convertTextures->setChecked(b);
+		b = Config::IniParser->value("NoSound", false).toBool();
+		_noSound->setChecked(b);
+		b = Config::IniParser->value("NoMusic", false).toBool();
+		_noMusic->setChecked(b);
+	Config::IniParser->endGroup();
 }
 
 void Gothic1And2Launcher::saveSettings() {
-	Config::IniParser->setValue("DEVELOPER/CompileScripts", _compileScripts->isChecked());
-	Config::IniParser->setValue("DEVELOPER/WindowedMode", _startupWindowed->isChecked());
-	Config::IniParser->setValue("DEVELOPER/zSpyLevel", _zSpyLevel->value());
-	Config::IniParser->setValue("DEVELOPER/ConvertTextures", _convertTextures->isChecked());
-	Config::IniParser->setValue("DEVELOPER/NoSound", _noSound->isChecked());
-	Config::IniParser->setValue("DEVELOPER/NoMusic", _noMusic->isChecked());
+	Config::IniParser->beginGroup("DEVELOPER");
+		Config::IniParser->setValue("CompileScripts", _compileScripts->isChecked());
+		Config::IniParser->setValue("WindowedMode", _startupWindowed->isChecked());
+		Config::IniParser->setValue("zSpyLevel", _zSpyLevel->value());
+		Config::IniParser->setValue("ConvertTextures", _convertTextures->isChecked());
+		Config::IniParser->setValue("NoSound", _noSound->isChecked());
+		Config::IniParser->setValue("NoMusic", _noMusic->isChecked());
+	Config::IniParser->endGroup();
 }
 
 void Gothic1And2Launcher::updateView(int modID, const QString & iniFile) {
@@ -1136,13 +1167,15 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 	}
 
 	int normalsCounter = -1;
+
+	*usedExecutable = getExecutable();
+	
 	if (_modID != -1) {
 		emitSplashMessage(QApplication::tr("DetermingCorrectGothicPath"));
 		if (Config::extendedLogging) {
 			LOGINFO("Installed Mod");
 		}
 		bool success = true;
-		*usedExecutable = getExecutable();
 
 		if (ninja) {
 			prepareForNinja();

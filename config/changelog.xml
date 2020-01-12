@@ -1675,9 +1675,11 @@
 		
 		<Bug language="English">Fixed bug that caused Spine not completely shutting down</Bug>
 	</Version>
-	<Version majorVersion="1" minorVersion="16" patchVersion="0">
+	<Version majorVersion="1" minorVersion="15" patchVersion="2">
 		<Bug language="Deutsch">Öffnen der Erfolge/Scores von der Bibliothek aus funktioniert jetzt wieder</Bug>
+		<Bug language="Deutsch">Mods, die nicht über Spine installiert wurden, lassen sich jetzt wieder starten</Bug>
 		
 		<Bug language="English">Opening achievements/scores from the library works again</Bug>
+		<Bug language="English">Mods that haven't been downloaded via Spine can be started again</Bug>
 	</Version>
 </Versions>

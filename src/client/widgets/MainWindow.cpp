@@ -1306,6 +1306,7 @@ void MainWindow::parseMods(QString baseDir) {
 		item->setData(s, LibraryFilterModel::IniFileRole);
 		item->setData(false, LibraryFilterModel::InstalledRole);
 		item->setData(false, LibraryFilterModel::HiddenRole);
+		item->setData(-1, LibraryFilterModel::ModIDRole);
 		item->setEditable(false);
 		if (QFileInfo::exists(baseDir + "/System/Gothic.exe")) {
 			item->setData(int(common::GameType::Gothic), LibraryFilterModel::GothicRole);
