@@ -45,10 +45,10 @@ using namespace spine;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-SubmitCompatibilityDialog::SubmitCompatibilityDialog() : SubmitCompatibilityDialog(-1, -1, common::GothicVersion::GOTHIC2) {
+SubmitCompatibilityDialog::SubmitCompatibilityDialog() : SubmitCompatibilityDialog(-1, -1, common::GameType::Gothic2) {
 }
 
-SubmitCompatibilityDialog::SubmitCompatibilityDialog(int32_t modID, int32_t patchID, common::GothicVersion gothicVersion) : QDialog(nullptr), _g1Button(nullptr), _g2Button(nullptr), _modView(nullptr), _patchView(nullptr), _compatibleButton(nullptr), _notCompatibleButton(nullptr), _modList(nullptr), _patchList(nullptr), _submitButton(nullptr), _g1Mods(), _g1Patches(), _g2Mods(), _g2Patches(), _currentPatches(), _filteredPatches(), _showSubmitted(false), _modID(modID), _patchID(patchID), _gothicVersion(gothicVersion) {
+SubmitCompatibilityDialog::SubmitCompatibilityDialog(int32_t modID, int32_t patchID, common::GameType gothicVersion) : QDialog(nullptr), _g1Button(nullptr), _g2Button(nullptr), _modView(nullptr), _patchView(nullptr), _compatibleButton(nullptr), _notCompatibleButton(nullptr), _modList(nullptr), _patchList(nullptr), _submitButton(nullptr), _g1Mods(), _g1Patches(), _g2Mods(), _g2Patches(), _currentPatches(), _filteredPatches(), _showSubmitted(false), _modID(modID), _patchID(patchID), _gothicVersion(gothicVersion) {
 	QVBoxLayout * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
@@ -208,15 +208,15 @@ SubmitCompatibilityDialog::~SubmitCompatibilityDialog() {
 
 void SubmitCompatibilityDialog::updateModList(std::vector<common::Mod> mods) {
 	for (const common::Mod & mod : mods) {
-		if (mod.gothic == common::GothicVersion::GOTHIC && (mod.type == common::ModType::TOTALCONVERSION || mod.type == common::ModType::ENHANCEMENT || mod.type == common::ModType::ORIGINAL)) {
+		if (mod.gothic == common::GameType::Gothic && (mod.type == common::ModType::TOTALCONVERSION || mod.type == common::ModType::ENHANCEMENT || mod.type == common::ModType::ORIGINAL)) {
 			_g1Mods.append(mod);
-		} else if (mod.gothic == common::GothicVersion::GOTHIC && (mod.type == common::ModType::PATCH || mod.type == common::ModType::TOOL)) {
+		} else if (mod.gothic == common::GameType::Gothic && (mod.type == common::ModType::PATCH || mod.type == common::ModType::TOOL)) {
 			_g1Patches.append(mod);
-		} else if (mod.gothic == common::GothicVersion::GOTHIC2 && (mod.type == common::ModType::TOTALCONVERSION || mod.type == common::ModType::ENHANCEMENT || mod.type == common::ModType::ORIGINAL)) {
+		} else if (mod.gothic == common::GameType::Gothic2 && (mod.type == common::ModType::TOTALCONVERSION || mod.type == common::ModType::ENHANCEMENT || mod.type == common::ModType::ORIGINAL)) {
 			_g2Mods.append(mod);
-		} else if (mod.gothic == common::GothicVersion::GOTHIC2 && (mod.type == common::ModType::PATCH || mod.type == common::ModType::TOOL)) {
+		} else if (mod.gothic == common::GameType::Gothic2 && (mod.type == common::ModType::PATCH || mod.type == common::ModType::TOOL)) {
 			_g2Patches.append(mod);
-		} else if (mod.gothic == common::GothicVersion::Gothic1And2 && (mod.type == common::ModType::PATCH || mod.type == common::ModType::TOOL)) {
+		} else if (mod.gothic == common::GameType::Gothic1And2 && (mod.type == common::ModType::PATCH || mod.type == common::ModType::TOOL)) {
 			_g1Patches.append(mod);
 			_g2Patches.append(mod);
 		}
@@ -229,10 +229,10 @@ void SubmitCompatibilityDialog::updateModList(std::vector<common::Mod> mods) {
 	std::sort(_g2Mods.begin(), _g2Mods.end(), compareFunc);
 	std::sort(_g2Patches.begin(), _g2Patches.end(), compareFunc);
 
-	if (_gothicVersion == common::GothicVersion::GOTHIC) {
+	if (_gothicVersion == common::GameType::Gothic) {
 		_g1Button->setChecked(true);
 		_g2Button->setChecked(false);
-	} else if (_gothicVersion == common::GothicVersion::GOTHIC2) {
+	} else if (_gothicVersion == common::GameType::Gothic2) {
 		_g1Button->setChecked(false);
 		_g2Button->setChecked(true);
 	}
@@ -241,10 +241,10 @@ void SubmitCompatibilityDialog::updateModList(std::vector<common::Mod> mods) {
 }
 
 void SubmitCompatibilityDialog::updateView() {
-	const common::GothicVersion gv = _g1Button->isChecked() ? common::GothicVersion::GOTHIC : common::GothicVersion::GOTHIC2;
+	const common::GameType gv = _g1Button->isChecked() ? common::GameType::Gothic : common::GameType::Gothic2;
 	_modList->clear();
-	QList<common::Mod> tmpMods = (gv == common::GothicVersion::GOTHIC) ? _g1Mods : _g2Mods;
-	_currentPatches = (gv == common::GothicVersion::GOTHIC) ? _g1Patches : _g2Patches;
+	QList<common::Mod> tmpMods = (gv == common::GameType::Gothic) ? _g1Mods : _g2Mods;
+	_currentPatches = (gv == common::GameType::Gothic) ? _g1Patches : _g2Patches;
 	_currentMods.clear();
 	for (const common::Mod & mod : tmpMods) {
 		Database::DBError err;

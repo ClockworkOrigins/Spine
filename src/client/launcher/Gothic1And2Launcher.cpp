@@ -67,13 +67,13 @@ using namespace spine::utils;
 namespace {
 	
 	struct ModVersion {
-		common::GothicVersion gothicVersion;
+		common::GameType gothicVersion;
 		int majorVersion;
 		int minorVersion;
 		int patchVersion;
 		ModVersion() : gothicVersion(), majorVersion(), minorVersion(), patchVersion() {
 		}
-		ModVersion(int i1, int i2, int i3, int i4) : gothicVersion(common::GothicVersion(i1)), majorVersion(i2), minorVersion(i3), patchVersion(i4) {
+		ModVersion(int i1, int i2, int i3, int i4) : gothicVersion(common::GameType(i1)), majorVersion(i2), minorVersion(i3), patchVersion(i4) {
 		}
 	};
 
@@ -167,7 +167,7 @@ bool Gothic1And2Launcher::supportsModAndIni(int32_t modID, const QString & iniFi
 
 	Database::DBError err;
 	const int gvInt = Database::queryNth<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + std::to_string(modID) + " LIMIT 1;", err, 0);
-	const auto gv = static_cast<common::GothicVersion>(gvInt);
+	const auto gv = static_cast<common::GameType>(gvInt);
 
 	return supportsGame(gv);
 }
@@ -328,8 +328,8 @@ void Gothic1And2Launcher::updateCompatibilityList(int modID, std::vector<int32_t
 
 	const auto patches = Database::queryAll<Patch, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, Name FROM patches WHERE ModID != 228 ORDER BY Name ASC;", err);
 	for (const Patch & p : patches) {
-		const common::GothicVersion gv = common::GothicVersion(std::stoi(Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + std::to_string(p.modID) + " LIMIT 1;", err, 0)));
-		if ((gv == modGv.gothicVersion || ((modGv.gothicVersion == common::GothicVersion::GOTHIC || modGv.gothicVersion == common::GothicVersion::GOTHIC2 || modGv.gothicVersion == common::GothicVersion::GOTHICINGOTHIC2) && gv == common::GothicVersion::Gothic1And2)) && (!contains(incompatiblePatches, p.modID) || !_hideIncompatible) && !contains(forbiddenPatches, p.modID)) {
+		const common::GameType gv = common::GameType(std::stoi(Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + std::to_string(p.modID) + " LIMIT 1;", err, 0)));
+		if ((gv == modGv.gothicVersion || ((modGv.gothicVersion == common::GameType::Gothic || modGv.gothicVersion == common::GameType::Gothic2 || modGv.gothicVersion == common::GameType::GothicInGothic2) && gv == common::GameType::Gothic1And2)) && (!contains(incompatiblePatches, p.modID) || !_hideIncompatible) && !contains(forbiddenPatches, p.modID)) {
 			QCheckBox * cb = new QCheckBox(s2q(p.name), _widget);
 			cb->setProperty("library", true);
 			_patchLayout->addWidget(cb, _patchCounter / 2, _patchCounter % 2);
@@ -597,8 +597,8 @@ void Gothic1And2Launcher::updateView(int modID, const QString & iniFile) {
 		const auto gothicVersion = getGothicVersion();
 		
 		for (const Patch & p : patches) {
-			const common::GothicVersion gv = common::GothicVersion(std::stoi(Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + std::to_string(p.modID) + " LIMIT 1;", err, 0)));
-			if (gv == gothicVersion || ((gothicVersion == common::GothicVersion::GOTHIC || gothicVersion == common::GothicVersion::GOTHIC2 || gothicVersion == common::GothicVersion::GOTHICINGOTHIC2) && gv == common::GothicVersion::Gothic1And2)) {
+			const common::GameType gv = common::GameType(std::stoi(Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + std::to_string(p.modID) + " LIMIT 1;", err, 0)));
+			if (gv == gothicVersion || ((gothicVersion == common::GameType::Gothic || gothicVersion == common::GameType::Gothic2 || gothicVersion == common::GameType::GothicInGothic2) && gv == common::GameType::Gothic1And2)) {
 				QCheckBox * cb = new QCheckBox(s2q(p.name), _widget);
 				cb->setProperty("library", true);
 				_patchLayout->addWidget(cb);

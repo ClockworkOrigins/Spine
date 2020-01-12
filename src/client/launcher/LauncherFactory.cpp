@@ -30,11 +30,11 @@ namespace launcher {
 	}
 
 	LauncherFactory::LauncherFactory() {
-		_launchers.append(createLauncher(common::GothicVersion::GOTHIC));
-		_launchers.append(createLauncher(common::GothicVersion::GOTHIC2));
+		_launchers.append(createLauncher(common::GameType::Gothic));
+		_launchers.append(createLauncher(common::GameType::Gothic2));
 	}
 
-	ILauncherPtr LauncherFactory::getLauncher(common::GothicVersion gothic) const {
+	ILauncherPtr LauncherFactory::getLauncher(common::GameType gothic) const {
 		for (const auto & l : _launchers) {
 			if (!l->supportsGame(gothic)) continue;
 
@@ -90,22 +90,22 @@ namespace launcher {
 		}
 	}
 
-	ILauncherPtr LauncherFactory::createLauncher(common::GothicVersion gothic) const {
+	ILauncherPtr LauncherFactory::createLauncher(common::GameType gothic) const {
 		ILauncherPtr launcher;
 		switch (gothic) {
-		case common::GothicVersion::GOTHIC: {
+		case common::GameType::Gothic: {
 			launcher = QSharedPointer<Gothic1Launcher>(new Gothic1Launcher());
 			break;
 		}
-		case common::GothicVersion::GOTHIC2: {
+		case common::GameType::Gothic2: {
 			launcher = QSharedPointer<Gothic2Launcher>(new Gothic2Launcher());
 			break;
 		}
-		case common::GothicVersion::GOTHICINGOTHIC2: {
+		case common::GameType::GothicInGothic2: {
 			// not supported as launcher
 			break;
 		}
-		case common::GothicVersion::Gothic1And2: {
+		case common::GameType::Gothic1And2: {
 			// not supported as launcher
 			break;
 		}

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "common/GothicVersion.h"
+#include "common/GameType.h"
 #include "common/ModStats.h"
 
 #include <QSharedPointer>
@@ -58,7 +58,7 @@ namespace launcher {
 
 		virtual void init();
 
-		virtual bool supportsGame(common::GothicVersion gothic) const = 0;
+		virtual bool supportsGame(common::GameType gothic) const = 0;
 		virtual bool supportsModAndIni(int32_t modID, const QString & iniFile) const = 0;
 
 		QWidget * getLibraryWidget() const;

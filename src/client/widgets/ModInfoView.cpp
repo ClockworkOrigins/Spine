@@ -48,13 +48,13 @@ ModInfoView::ModInfoView(GeneralSettingsWidget * generalSettingsWidget, QWidget 
 		connect(factory, &LauncherFactory::restartAsAdmin, this, &ModInfoView::restartSpineAsAdmin);
 		
 		{
-			const auto launcher = factory->getLauncher(common::GothicVersion::GOTHIC);
+			const auto launcher = factory->getLauncher(common::GameType::Gothic);
 			const auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
 
 			connect(gothicLauncher.data(), &Gothic1And2Launcher::installMod, this, &ModInfoView::installMod);
 		}
 		{
-			const auto launcher = factory->getLauncher(common::GothicVersion::GOTHIC2);
+			const auto launcher = factory->getLauncher(common::GameType::Gothic2);
 			const auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
 
 			connect(gothicLauncher.data(), &Gothic1And2Launcher::installMod, this, &ModInfoView::installMod);
@@ -97,14 +97,14 @@ void ModInfoView::selectMod(const QString & modID, const QString & iniFile) {
 
 void ModInfoView::setGothicDirectory(QString directory) {
 	const auto factory = LauncherFactory::getInstance();
-	const auto launcher = factory->getLauncher(common::GothicVersion::GOTHIC);
+	const auto launcher = factory->getLauncher(common::GameType::Gothic);
 	auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
 	gothicLauncher->setDirectory(directory);
 }
 
 void ModInfoView::setGothic2Directory(QString directory) {
 	const auto factory = LauncherFactory::getInstance();
-	const auto launcher = factory->getLauncher(common::GothicVersion::GOTHIC2);
+	const auto launcher = factory->getLauncher(common::GameType::Gothic2);
 	auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
 	gothicLauncher->setDirectory(directory);
 }
@@ -136,12 +136,12 @@ void ModInfoView::setShowAchievements(bool showAchievements) {
 void ModInfoView::setHideIncompatible(bool enabled) {
 	const auto factory = LauncherFactory::getInstance();
 	{
-		const auto launcher = factory->getLauncher(common::GothicVersion::GOTHIC);
+		const auto launcher = factory->getLauncher(common::GameType::Gothic);
 		auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
 		gothicLauncher->setHideIncompatible(enabled);
 	}
 	{
-		const auto launcher = factory->getLauncher(common::GothicVersion::GOTHIC2);
+		const auto launcher = factory->getLauncher(common::GameType::Gothic2);
 		auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
 		gothicLauncher->setHideIncompatible(enabled);
 	}

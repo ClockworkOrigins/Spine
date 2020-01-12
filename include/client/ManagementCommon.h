@@ -21,7 +21,7 @@
 #include <cstdint>
 #include <vector>
 
-#include "common/GothicVersion.h"
+#include "common/GameType.h"
 #include "common/ModType.h"
 
 #include <QDate>
@@ -73,7 +73,7 @@ namespace client {
 
 	typedef struct {
 		bool enabled = false;
-		common::GothicVersion gothicVersion;
+		common::GameType gothicVersion;
 		common::ModType modType;
 		int32_t duration = 0;
 		QDate releaseDate;

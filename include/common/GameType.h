@@ -16,21 +16,17 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_COMMON_GOTHICVERSION_H__
-#define __SPINE_COMMON_GOTHICVERSION_H__
+#pragma once
 
 namespace spine {
 namespace common {
 
-	enum class GothicVersion {
-		GOTHIC,
-		GOTHIC2,
-		GOTHICINGOTHIC2,
+	enum class GameType {
+		Gothic,
+		Gothic2,
+		GothicInGothic2, // never used
 		Gothic1And2
 	};
 
 } /* namespace common */
 } /* namespace spine */
-
-#endif /* __SPINE_COMMON_GOTHICVERSION_H__ */
-

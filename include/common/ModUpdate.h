@@ -22,7 +22,7 @@
 #include <cstdint>
 #include <string>
 
-#include "GothicVersion.h"
+#include "GameType.h"
 
 #include "boost/archive/text_oarchive.hpp"
 #include "boost/archive/text_iarchive.hpp"
@@ -40,9 +40,9 @@ namespace common {
 		std::vector<std::pair<std::string, std::string>> files;
 		std::vector<std::pair<int32_t, std::vector<std::pair<std::string, std::string>>>> packageFiles;
 		std::string fileserver;
-		GothicVersion gothicVersion;
+		GameType gothicVersion;
 
-		ModUpdate() : modID(0), majorVersion(0), minorVersion(0), patchVersion(0), gothicVersion(GothicVersion::GOTHIC) {
+		ModUpdate() : modID(0), majorVersion(0), minorVersion(0), patchVersion(0), gothicVersion(GameType::Gothic) {
 		}
 
 		template<class Archive>

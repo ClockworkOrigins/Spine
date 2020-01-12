@@ -20,7 +20,7 @@
 
 #include "DirValidator.h"
 
-#include "common/GothicVersion.h"
+#include "common/GameType.h"
 
 #include "utils/Config.h"
 
@@ -72,7 +72,7 @@ DeveloperSettingsWidget::DeveloperSettingsWidget(QWidget * par) : QWidget(par), 
 		QGridLayout * hl = new QGridLayout();
 
 		const QString path = Config::IniParser->value("DEVELOPER/Path_" + QString::number(i), "").toString();
-		const common::GothicVersion gv = common::GothicVersion(Config::IniParser->value("DEVELOPER/Gothic_" + QString::number(i), int(common::GothicVersion::GOTHIC2)).toInt());
+		const common::GameType gv = common::GameType(Config::IniParser->value("DEVELOPER/Gothic_" + QString::number(i), int(common::GameType::Gothic2)).toInt());
 
 		QLabel * gothicPathLabel = new QLabel(QApplication::tr("DevPath").arg(i), this);
 		UPDATELANGUAGESETTEXTARG(gothicPathLabel, "DevPath", i);
@@ -81,9 +81,9 @@ DeveloperSettingsWidget::DeveloperSettingsWidget(QWidget * par) : QWidget(par), 
 		gothicPathLineEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
 		QPushButton * gothicPathPushButton = new QPushButton("...", this);
 		QCheckBox * gothic1CheckBox = new QCheckBox(QApplication::tr("Gothic"), this);
-		gothic1CheckBox->setChecked(gv == common::GothicVersion::GOTHIC);
+		gothic1CheckBox->setChecked(gv == common::GameType::Gothic);
 		QCheckBox * gothic2CheckBox = new QCheckBox(QApplication::tr("Gothic2"), this);
-		gothic2CheckBox->setChecked(gv == common::GothicVersion::GOTHIC2);
+		gothic2CheckBox->setChecked(gv == common::GameType::Gothic2);
 		hl->addWidget(gothicPathLabel, 0, 0);
 		hl->addWidget(gothicPathLineEdit, 0, 1);
 		hl->addWidget(gothicPathPushButton, 0, 2);
@@ -116,7 +116,7 @@ void DeveloperSettingsWidget::saveSettings() {
 	Config::IniParser->setValue("DEVELOPER/ZSpy", _zSpyCheckbox->isChecked());
 	for (int i = 0; i < _devPaths.size(); i++) {
 		Config::IniParser->setValue("DEVELOPER/Path_" + QString::number(i), _devPaths[i].lineEdit->text());
-		Config::IniParser->setValue("DEVELOPER/Gothic_" + QString::number(i), _devPaths[i].g1Box->isChecked() ? int(common::GothicVersion::GOTHIC) : int(common::GothicVersion::GOTHIC2));
+		Config::IniParser->setValue("DEVELOPER/Gothic_" + QString::number(i), _devPaths[i].g1Box->isChecked() ? int(common::GameType::Gothic) : int(common::GameType::Gothic2));
 	}
 	emit developerModeChanged(_developerModeCheckbox->isChecked());
 	emit zSpyChanged(_zSpyCheckbox->isChecked());
@@ -133,11 +133,11 @@ void DeveloperSettingsWidget::rejectSettings() {
 	}
 	for (int i = 0; i < _devPaths.size(); i++) {
 		const QString path = Config::IniParser->value("DEVELOPER/Path_" + QString::number(i), "").toString();
-		const common::GothicVersion gv = common::GothicVersion(Config::IniParser->value("DEVELOPER/Gothic_" + QString::number(i), int(common::GothicVersion::GOTHIC2)).toInt());
+		const common::GameType gv = common::GameType(Config::IniParser->value("DEVELOPER/Gothic_" + QString::number(i), int(common::GameType::Gothic2)).toInt());
 
 		_devPaths[i].lineEdit->setText(path);
-		_devPaths[i].g1Box->setChecked(gv == common::GothicVersion::GOTHIC);
-		_devPaths[i].g2Box->setChecked(gv == common::GothicVersion::GOTHIC2);
+		_devPaths[i].g1Box->setChecked(gv == common::GameType::Gothic);
+		_devPaths[i].g2Box->setChecked(gv == common::GameType::Gothic2);
 	}
 }
 
@@ -153,8 +153,8 @@ QString DeveloperSettingsWidget::getPath(int id) const {
 	return _devPaths[id].lineEdit->text();
 }
 
-common::GothicVersion DeveloperSettingsWidget::getGothicVersion(int id) const {
-	return _devPaths[id].g1Box->isChecked() ? common::GothicVersion::GOTHIC : common::GothicVersion::GOTHIC2;
+common::GameType DeveloperSettingsWidget::getGothicVersion(int id) const {
+	return _devPaths[id].g1Box->isChecked() ? common::GameType::Gothic : common::GameType::Gothic2;
 }
 
 void DeveloperSettingsWidget::changedDeveloperMode() {

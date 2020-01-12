@@ -41,7 +41,7 @@ namespace launcher {
 	public:
 		void init() override;
 
-		bool supportsGame(common::GothicVersion gothic) const override = 0;
+		bool supportsGame(common::GameType gothic) const override = 0;
 		bool supportsModAndIni(int32_t modID, const QString & iniFile) const override;
 
 		virtual void setDirectory(const QString & directory);
@@ -67,7 +67,7 @@ namespace launcher {
 		QString _directory;
 
 		void createWidget() override;
-		virtual common::GothicVersion getGothicVersion() const = 0;
+		virtual common::GameType getGothicVersion() const = 0;
 
 		virtual QString getExecutable() const = 0;
 

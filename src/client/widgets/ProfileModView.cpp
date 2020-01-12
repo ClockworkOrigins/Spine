@@ -20,7 +20,7 @@
 
 #include "SpineConfig.h"
 
-#include "common/GothicVersion.h"
+#include "common/GameType.h"
 
 #include "utils/Config.h"
 #include "utils/Conversion.h"
@@ -75,18 +75,18 @@ ProfileModView::ProfileModView(common::ModStats ms, QString gothicDirectory, QSt
 		modID.replace(md.absolutePath(), "");
 		modID = modID.split("/", QString::SplitBehavior::SkipEmptyParts).front();
 		Database::DBError err;
-		common::GothicVersion mid = common::GothicVersion::GOTHIC2;
+		common::GameType mid = common::GameType::Gothic2;
 		bool found = false;
 		if (Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + modID.toStdString() + " LIMIT 1;", err) > 0) {
-			mid = common::GothicVersion(Database::queryNth<std::vector<int>, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + modID.toStdString() + " LIMIT 1;", err, 0).front());
+			mid = common::GameType(Database::queryNth<std::vector<int>, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + modID.toStdString() + " LIMIT 1;", err, 0).front());
 			found = true;
 		}
 		if (pixmap.isNull()) {
 			if (found) {
 				QString exeFileName;
-				if (mid == common::GothicVersion::GOTHIC && QFile(gothicDirectory + "/System/Gothic.exe").exists()) {
+				if (mid == common::GameType::Gothic && QFile(gothicDirectory + "/System/Gothic.exe").exists()) {
 					exeFileName = gothicDirectory + "/System/Gothic.exe";
-				} else if (mid == common::GothicVersion::GOTHIC2 && QFile(gothic2Directory + "/System/Gothic2.exe").exists()) {
+				} else if (mid == common::GameType::Gothic2 && QFile(gothic2Directory + "/System/Gothic2.exe").exists()) {
 					exeFileName = gothic2Directory + "/System/Gothic2.exe";
 				}
 #ifdef Q_OS_WIN

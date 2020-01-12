@@ -181,7 +181,7 @@ void GeneralConfigurationWidget::updateMod() {
 
 	ManagementGeneralData mgd;
 	mgd.enabled = _enabledBox->isChecked();
-	mgd.gothicVersion = static_cast<common::GothicVersion>(_gothicVersionBox->currentIndex());
+	mgd.gothicVersion = static_cast<common::GameType>(_gothicVersionBox->currentIndex());
 	mgd.modType = static_cast<common::ModType>(_typeBox->currentIndex());
 	mgd.duration = _devDurationBox->value();
 	mgd.releaseDate = _releaseDateEdit->date();

@@ -54,8 +54,8 @@ Gothic1Launcher::Gothic1Launcher() {
 	connect(this, &Gothic1Launcher::updatedPath, this, &Gothic1Launcher::patchCheck, Qt::QueuedConnection);
 }
 
-bool Gothic1Launcher::supportsGame(common::GothicVersion gothic) const {
-	return gothic == common::GothicVersion::GOTHIC;
+bool Gothic1Launcher::supportsGame(common::GameType gothic) const {
+	return gothic == common::GameType::Gothic;
 }
 
 void Gothic1Launcher::setDirectory(const QString & directory) {

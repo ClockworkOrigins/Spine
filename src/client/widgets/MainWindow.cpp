@@ -961,15 +961,15 @@ void MainWindow::setDevPath() {
 	QAction * action = qobject_cast<QAction *>(sender());
 	const int id = action->property("id").toInt();
 	const QString path = _settingsDialog->getDeveloperSettingsWidget()->getPath(id);
-	const common::GothicVersion gv = _settingsDialog->getDeveloperSettingsWidget()->getGothicVersion(id);
+	const common::GameType gv = _settingsDialog->getDeveloperSettingsWidget()->getGothicVersion(id);
 	if (path.isEmpty()) {
 		return;
 	}
 	if (!_developerModeActive) {
 		_devModeAction->trigger();
 	}
-	_gothicDirectory = (gv == common::GothicVersion::GOTHIC) ? path : "";
-	_gothic2Directory = (gv == common::GothicVersion::GOTHIC2) ? path : "";
+	_gothicDirectory = (gv == common::GameType::Gothic) ? path : "";
+	_gothic2Directory = (gv == common::GameType::Gothic2) ? path : "";
 	_modInfoView->setGothicDirectory(_gothicDirectory);
 	_modInfoView->setGothic2Directory(_gothic2Directory);
 	if (Config::OnlineMode) {
@@ -1073,8 +1073,8 @@ void MainWindow::uninstallMod() {
 	}
 	const QModelIndex idx = idxList.constFirst();
 	const int modId = idx.data(LibraryFilterModel::ModIDRole).toInt();
-	const common::GothicVersion gothicVersion = common::GothicVersion(idx.data(LibraryFilterModel::GothicRole).toInt());
-	const QString directory = gothicVersion == common::GothicVersion::GOTHIC ? _gothicDirectory : _gothic2Directory;
+	const common::GameType gothicVersion = common::GameType(idx.data(LibraryFilterModel::GothicRole).toInt());
+	const QString directory = gothicVersion == common::GameType::Gothic ? _gothicDirectory : _gothic2Directory;
 	_modListView->clearSelection();
 
 	const bool uninstalled = client::Uninstaller::uninstall(modId, idx.data(Qt::DisplayRole).toString(), directory);
@@ -1308,9 +1308,9 @@ void MainWindow::parseMods(QString baseDir) {
 		item->setData(false, LibraryFilterModel::HiddenRole);
 		item->setEditable(false);
 		if (QFileInfo::exists(baseDir + "/System/Gothic.exe")) {
-			item->setData(int(common::GothicVersion::GOTHIC), LibraryFilterModel::GothicRole);
+			item->setData(int(common::GameType::Gothic), LibraryFilterModel::GothicRole);
 		} else if (QFileInfo::exists(baseDir + "/System/Gothic2.exe")) {
-			item->setData(int(common::GothicVersion::GOTHIC2), LibraryFilterModel::GothicRole);
+			item->setData(int(common::GameType::Gothic2), LibraryFilterModel::GothicRole);
 		}
 		_modListModel->appendRow(item);
 	}
@@ -1347,10 +1347,10 @@ void MainWindow::parseInstalledMods() {
 		modID.replace(md.absolutePath(), "");
 		modID = modID.split("/", QString::SplitBehavior::SkipEmptyParts).front();
 		Database::DBError err;
-		common::GothicVersion mid;
+		common::GameType mid;
 		bool found;
 		if (!Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + modID.toStdString() + " LIMIT 1;", err).empty()) {
-			mid = common::GothicVersion(Database::queryNth<std::vector<int>, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + modID.toStdString() + " LIMIT 1;", err, 0).front());
+			mid = common::GameType(Database::queryNth<std::vector<int>, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + modID.toStdString() + " LIMIT 1;", err, 0).front());
 			found = true;
 		} else {
 			if (Config::extendedLogging) {
@@ -1360,10 +1360,10 @@ void MainWindow::parseInstalledMods() {
 		}
 		if (pixmap.isNull()) {
 			if (found) {
-				if (mid == common::GothicVersion::GOTHIC && QFileInfo::exists(_gothicDirectory + "/System/Gothic.exe")) {
+				if (mid == common::GameType::Gothic && QFileInfo::exists(_gothicDirectory + "/System/Gothic.exe")) {
 					static QPixmap p1 = QPixmap::fromImage(QImage(":Gothic.ico"));
 					pixmap = p1;
-				} else if (mid == common::GothicVersion::GOTHIC2 && QFileInfo::exists(_gothic2Directory + "/System/Gothic2.exe")) {
+				} else if (mid == common::GameType::Gothic2 && QFileInfo::exists(_gothic2Directory + "/System/Gothic2.exe")) {
 					static QPixmap p2 = QPixmap::fromImage(QImage(":Gothic2.ico"));
 					pixmap = p2;
 				}

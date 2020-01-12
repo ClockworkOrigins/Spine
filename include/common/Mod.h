@@ -22,7 +22,7 @@
 #include <cstdint>
 #include <string>
 
-#include "common/GothicVersion.h"
+#include "common/GameType.h"
 #include "common/ModType.h"
 
 #include "boost/archive/text_oarchive.hpp"
@@ -37,7 +37,7 @@ namespace common {
 		std::string name;
 		int32_t teamID;
 		std::string teamName;
-		GothicVersion gothic;
+		GameType gothic;
 		uint32_t releaseDate;
 		ModType type;
 		int8_t majorVersion;

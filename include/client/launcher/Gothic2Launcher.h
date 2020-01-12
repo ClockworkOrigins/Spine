@@ -29,7 +29,7 @@ namespace launcher {
 	public:
 		Gothic2Launcher();
 		
-		bool supportsGame(common::GothicVersion gothic) const override;
+		bool supportsGame(common::GameType gothic) const override;
 		
 		void setDirectory(const QString & directory) override;
 
@@ -40,8 +40,8 @@ namespace launcher {
 		void patchCheck();
 
 	private:
-		common::GothicVersion getGothicVersion() const override {
-			return common::GothicVersion::GOTHIC2;
+		common::GameType getGothicVersion() const override {
+			return common::GameType::Gothic2;
 		};
 
 		QString getExecutable() const override;

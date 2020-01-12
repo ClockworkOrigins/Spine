@@ -496,7 +496,7 @@ namespace server {
 			if (it != teamMembers.end()) {
 				mod.teamName = it->second;
 			}
-			mod.gothic = common::GothicVersion(std::stoi(vec[2]));
+			mod.gothic = common::GameType(std::stoi(vec[2]));
 			mod.releaseDate = std::stoi(vec[3]);
 			mod.type = common::ModType(std::stoi(vec[4]));
 			mod.majorVersion = int8_t(std::stoi(vec[5]));
@@ -1161,7 +1161,7 @@ namespace server {
 					mu.majorVersion = majorVersion;
 					mu.minorVersion = minorVersion;
 					mu.patchVersion = patchVersion;
-					mu.gothicVersion = common::GothicVersion(gothicVersion);
+					mu.gothicVersion = common::GameType(gothicVersion);
 
 					if (!database.query("EXECUTE selectFilesStmt USING @paramModID, @paramLanguage;")) {
 						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;

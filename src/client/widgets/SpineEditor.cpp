@@ -473,7 +473,7 @@ void SpineEditor::installIkarusScripts() {
 					QString line = ts.readLine();
 					if (line.contains("_intern\\Classes.d", Qt::CaseInsensitive)) {
 						outStream << line << "\n\n";
-						if (_model->getGothicVersion() == common::GothicVersion::GOTHIC) {
+						if (_model->getGothicVersion() == common::GameType::Gothic) {
 							outStream << "Ikarus\\ENGINECLASSES_G1\\*.d\n";
 							outStream << "Ikarus\\IKARUS_CONST_G1.d\n";
 						} else {
@@ -540,7 +540,7 @@ void SpineEditor::updateIkarusScripts() {
 	};
 
 	QList<QPair<QString, QString>> realFiles;
-	const QString forbiddenSuffix = _model->getGothicVersion() == common::GothicVersion::GOTHIC ? "_G2" : "_G1";
+	const QString forbiddenSuffix = _model->getGothicVersion() == common::GameType::Gothic ? "_G2" : "_G1";
 	
 	for (const auto & p : ikarusFiles) {
 		if (!p.first.contains(forbiddenSuffix)) {

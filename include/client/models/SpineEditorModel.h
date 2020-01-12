@@ -27,7 +27,7 @@
 
 namespace spine {
 namespace common {
-	enum class GothicVersion;
+	enum class GameType;
 } /* namespace common */
 namespace models {
 
@@ -96,8 +96,8 @@ namespace models {
 		void setPath(QString path);
 		QString getPath() const;
 
-		void setGothicVersion(common::GothicVersion gothicVersion);
-		common::GothicVersion getGothicVersion() const;
+		void setGothicVersion(common::GameType gothicVersion);
+		common::GameType getGothicVersion() const;
 
 		void load();
 		void save();
@@ -136,7 +136,7 @@ namespace models {
 		int _achievementDisplayDuration;
 		QList<AchievementModel> _achievements;
 		QList<ScoreModel> _scores;
-		common::GothicVersion _gothicVersion;
+		common::GameType _gothicVersion;
 		bool _earthquakeVibration;
 		int32_t _legoModules;
 		QString _modName;

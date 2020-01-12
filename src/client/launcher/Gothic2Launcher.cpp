@@ -54,8 +54,8 @@ Gothic2Launcher::Gothic2Launcher() {
 	connect(this, &Gothic2Launcher::updatedPath, this, &Gothic2Launcher::patchCheck, Qt::QueuedConnection);
 }
 
-bool Gothic2Launcher::supportsGame(common::GothicVersion gothic) const {
-	return gothic == common::GothicVersion::GOTHIC2;
+bool Gothic2Launcher::supportsGame(common::GameType gothic) const {
+	return gothic == common::GameType::Gothic2;
 }
 
 void Gothic2Launcher::setDirectory(const QString & directory) {

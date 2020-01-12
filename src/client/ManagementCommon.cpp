@@ -161,7 +161,7 @@ namespace client {
 		if (!json.contains("Duration")) return;
 
 		enabled = json["Enabled"].toString() == "true";
-		gothicVersion = static_cast<common::GothicVersion>(json["GothicVersion"].toString().toInt());
+		gothicVersion = static_cast<common::GameType>(json["GothicVersion"].toString().toInt());
 		modType = static_cast<common::ModType>(json["ModType"].toString().toInt());
 		duration = json["Duration"].toString().toInt();
 		const int dateOffset = json["ReleaseDate"].toString().toInt();

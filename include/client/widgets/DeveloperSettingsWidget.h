@@ -26,7 +26,7 @@ class QPushButton;
 
 namespace spine {
 namespace common {
-	enum class GothicVersion;
+	enum class GameType;
 } /* namespace common */
 namespace widgets {
 
@@ -44,7 +44,7 @@ namespace widgets {
 		bool isZSpyActive() const;
 
 		QString getPath(int id) const;
-		common::GothicVersion getGothicVersion(int id) const;
+		common::GameType getGothicVersion(int id) const;
 
 	signals:
 		void developerModeChanged(bool);

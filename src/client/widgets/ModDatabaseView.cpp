@@ -72,11 +72,11 @@ namespace spine {
 namespace widgets {
 	
 	struct InstalledMod {
-		InstalledMod(const int i1, const int i2, const int i3, const int i4, const int i5) : id(i1), gothicVersion(common::GothicVersion(i2)), majorVersion(i3), minorVersion(i4), patchVersion(i5) {
+		InstalledMod(const int i1, const int i2, const int i3, const int i4, const int i5) : id(i1), gothicVersion(common::GameType(i2)), majorVersion(i3), minorVersion(i4), patchVersion(i5) {
 		}
 
 		int32_t id;
-		common::GothicVersion gothicVersion;
+		common::GameType gothicVersion;
 		int8_t majorVersion;
 		int8_t minorVersion;
 		int8_t patchVersion;
@@ -541,19 +541,19 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 		typeItem->setEditable(false);
 		QString gameName;
 		switch (mod.gothic) {
-		case common::GothicVersion::GOTHIC: {
+		case common::GameType::Gothic: {
 			gameName = QApplication::tr("Gothic");
 			break;
 		}
-		case common::GothicVersion::GOTHIC2: {
+		case common::GameType::Gothic2: {
 			gameName = QApplication::tr("Gothic2");
 			break;
 		}
-		case common::GothicVersion::GOTHICINGOTHIC2: {
+		case common::GameType::GothicInGothic2: {
 			gameName = QApplication::tr("GothicInGothic2");
 			break;
 		}
-		case common::GothicVersion::Gothic1And2: {
+		case common::GameType::Gothic1And2: {
 			gameName = QApplication::tr("GothicAndGothic2");
 			break;
 		}
@@ -598,7 +598,7 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 		for (int i = 0; i < _sourceModel->columnCount(); i++) {
 			_sourceModel->setData(_sourceModel->index(row, i), Qt::AlignCenter, Qt::TextAlignmentRole);
 		}
-		if ((mod.gothic == common::GothicVersion::GOTHIC && !_gothicValid) || (mod.gothic == common::GothicVersion::GOTHIC2 && !_gothic2Valid) || (mod.gothic == common::GothicVersion::GOTHICINGOTHIC2 && (!_gothicValid || !_gothic2Valid)) || (mod.gothic == common::GothicVersion::Gothic1And2 && !_gothicValid && !_gothic2Valid) || Config::MODDIR.isEmpty() || !QDir(Config::MODDIR).exists()) {
+		if ((mod.gothic == common::GameType::Gothic && !_gothicValid) || (mod.gothic == common::GameType::Gothic2 && !_gothic2Valid) || (mod.gothic == common::GameType::GothicInGothic2 && (!_gothicValid || !_gothic2Valid)) || (mod.gothic == common::GameType::Gothic1And2 && !_gothicValid && !_gothic2Valid) || Config::MODDIR.isEmpty() || !QDir(Config::MODDIR).exists()) {
 			idItem->setEnabled(false);
 			nameItem->setEnabled(false);
 			teamItem->setEnabled(false);
@@ -696,7 +696,7 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, std::vector<std::pair<st
 
 			// enable systempack by default
 			if (mod.type != common::ModType::PATCH && mod.type != common::ModType::TOOL) {
-				Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "INSERT INTO patchConfigs (ModID, PatchID, Enabled) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(mod.gothic == common::GothicVersion::GOTHIC ? 57 : 40) + ", 1);", err);
+				Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "INSERT INTO patchConfigs (ModID, PatchID, Enabled) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(mod.gothic == common::GameType::Gothic ? 57 : 40) + ", 1);", err);
 			}
 
 			// notify server download was successful
@@ -1010,7 +1010,7 @@ void ModDatabaseView::selectedModIndex(const QModelIndex & index) {
 	} else {
 		mod = _mods[index.row()];
 	}
-	if ((mod.gothic == common::GothicVersion::GOTHIC && !_gothicValid) || (mod.gothic == common::GothicVersion::GOTHIC2 && !_gothic2Valid) || (mod.gothic == common::GothicVersion::Gothic1And2 && !_gothic2Valid && !_gothicValid)) {
+	if ((mod.gothic == common::GameType::Gothic && !_gothicValid) || (mod.gothic == common::GameType::Gothic2 && !_gothic2Valid) || (mod.gothic == common::GameType::Gothic1And2 && !_gothic2Valid && !_gothicValid)) {
 		finishedInstallation(mod.id, -1, false);
 		return;
 	}
@@ -1051,7 +1051,7 @@ void ModDatabaseView::selectedModIndex(const QModelIndex & index) {
 			});
 		}
 	} else {
-		const bool uninstalled = client::Uninstaller::uninstall(mod.id, s2q(mod.name), mod.gothic == common::GothicVersion::GOTHIC ? _gothicDirectory : _gothic2Directory);
+		const bool uninstalled = client::Uninstaller::uninstall(mod.id, s2q(mod.name), mod.gothic == common::GameType::Gothic ? _gothicDirectory : _gothic2Directory);
 		if (uninstalled) {
 			int row = 0;
 			for (; row < int(_mods.size()); row++) {
@@ -1070,7 +1070,7 @@ void ModDatabaseView::selectedPackageIndex(const QModelIndex & index) {
 	if (!index.isValid()) return;
 
 	common::Mod mod = _mods[(index.model() == _sortModel) ? _sortModel->mapToSource(index.parent()).row() : index.parent().row()];
-	if ((mod.gothic == common::GothicVersion::GOTHIC && !_gothicValid) || (mod.gothic == common::GothicVersion::GOTHIC2 && !_gothic2Valid) || (mod.gothic == common::GothicVersion::Gothic1And2 && !_gothicValid && !_gothic2Valid)) {
+	if ((mod.gothic == common::GameType::Gothic && !_gothicValid) || (mod.gothic == common::GameType::Gothic2 && !_gothic2Valid) || (mod.gothic == common::GameType::Gothic1And2 && !_gothicValid && !_gothic2Valid)) {
 		finishedInstallation(mod.id, -1, false);
 		return;
 	}

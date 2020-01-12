@@ -35,7 +35,7 @@ namespace widgets {
 
 	public:
 		SubmitCompatibilityDialog();
-		SubmitCompatibilityDialog(int32_t modID, int32_t patchID, common::GothicVersion gothicVersion);
+		SubmitCompatibilityDialog(int32_t modID, int32_t patchID, common::GameType gothicVersion);
 		~SubmitCompatibilityDialog();
 
 	signals:
@@ -71,7 +71,7 @@ namespace widgets {
 
 		int32_t _modID;
 		int32_t _patchID;
-		common::GothicVersion _gothicVersion;
+		common::GameType _gothicVersion;
 	};
 
 } /* namespace widgets */

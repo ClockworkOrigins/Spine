@@ -18,7 +18,7 @@
 
 #include "models/SpineEditorModel.h"
 
-#include "common/GothicVersion.h"
+#include "common/GameType.h"
 #include "common/SpineModules.h"
 
 #include <QDebug>
@@ -29,7 +29,7 @@
 namespace spine {
 namespace models {
 
-	SpineEditorModel::SpineEditorModel(QObject * par) : QObject(par), _path(), _modules(0), _achievementOrientation(AchievementOrientation::BottomRight), _achievementDisplayDuration(5000), _achievements(), _scores(), _gothicVersion(common::GothicVersion::GOTHIC2), _earthquakeVibration(true), _legoModules(0), _modName("MODNAME") {
+	SpineEditorModel::SpineEditorModel(QObject * par) : QObject(par), _path(), _modules(0), _achievementOrientation(AchievementOrientation::BottomRight), _achievementDisplayDuration(5000), _achievements(), _scores(), _gothicVersion(common::GameType::Gothic2), _earthquakeVibration(true), _legoModules(0), _modName("MODNAME") {
 	}
 
 	void SpineEditorModel::setPath(QString path) {
@@ -40,11 +40,11 @@ namespace models {
 		return _path;
 	}
 
-	void SpineEditorModel::setGothicVersion(common::GothicVersion gothicVersion) {
+	void SpineEditorModel::setGothicVersion(common::GameType gothicVersion) {
 		_gothicVersion = gothicVersion;
 	}
 
-	common::GothicVersion SpineEditorModel::getGothicVersion() const {
+	common::GameType SpineEditorModel::getGothicVersion() const {
 		return _gothicVersion;
 	}
 
