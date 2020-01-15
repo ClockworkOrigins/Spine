@@ -147,7 +147,7 @@ void FileDownloader::fileDownloaded() {
 				utils::Compression::uncompress(_targetDirectory + "/" + _fileName, true); // remove compressed download now
 			} catch (boost::iostreams::zlib_error & e) {
 				LOGERROR("Exception: " << e.what());
-				utils::ErrorReporting::report(QString("Uncompressing of %1 failed: %2").arg(_fileName).arg(e.what()));
+				utils::ErrorReporting::report(QString("Uncompressing of %1 failed: %2 (%3)").arg(_fileName).arg(e.what()).arg(_url.toString()));
 			}
 			_fileName.chop(2);
 		}
@@ -272,14 +272,14 @@ void FileDownloader::fileDownloaded() {
 		} else {
 			LOGERROR("Hash invalid: " << _fileName.toStdString());
 			emit downloadFailed(DownloadError::HashError);
-			utils::ErrorReporting::report(QString("Hash invalid: %1").arg(_fileName));
+			utils::ErrorReporting::report(QString("Hash invalid: %1 (%2)").arg(_fileName).arg(_url.toString()));
 		}
 	} else {
 		_outputFile->close();
 		_outputFile->remove();
 		LOGERROR("Unknown Error: " << reply->error() << ", " << q2s(reply->errorString()));
 		if (reply->error() != QNetworkReply::OperationCanceledError) {
-			utils::ErrorReporting::report(QString("Unknown Error during download: %1, %2").arg(reply->error()).arg(reply->errorString()));
+			utils::ErrorReporting::report(QString("Unknown Error during download: %1, %2 (%3)").arg(reply->error()).arg(reply->errorString()).arg(_url.toString()));
 		}
 		emit downloadFailed(DownloadError::UnknownError);
 	}
