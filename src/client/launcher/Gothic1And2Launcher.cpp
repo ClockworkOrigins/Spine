@@ -780,6 +780,25 @@ void Gothic1And2Launcher::start() {
 	if (newGMP) {
 		usedExecutable = "gml.exe";
 	}
+	QtConcurrent::run([usedExecutable]() {
+		QString tmp = usedExecutable;
+		HANDLE hProcess = GetProcHandle(q2s(tmp).c_str());
+		while (hProcess == INVALID_HANDLE_VALUE) {
+			hProcess = GetProcHandle(q2s(tmp).c_str());
+		}
+
+		HMODULE hKernel32 = GetModuleHandle("kernel32");
+		// Procedures in kernel32.dll are loaded at the same address in all processes
+		// so find the address in our own process, then use it in the target process
+		FARPROC pSetProcessDEPPolicy = GetProcAddress(hKernel32, "SetProcessDEPPolicy");
+		HANDLE hThread = CreateRemoteThread(hProcess, nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(pSetProcessDEPPolicy), nullptr /* disable DEP */, 0, nullptr);
+		if (hThread == nullptr) {
+		  // handle/report error
+		}
+		WaitForSingleObject(hThread, 10000);
+		CloseHandle(hThread);
+		CloseHandle(hProcess);
+	});
 #endif
 
 	if (newGMP) {
