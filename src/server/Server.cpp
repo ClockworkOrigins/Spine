@@ -333,18 +333,22 @@ namespace server {
 		std::map<uint32_t, std::vector<std::pair<std::string, std::string>>> versions;
 		versions.insert(std::make_pair(lastVersion, std::vector<std::pair<std::string, std::string>>()));
 
-		for (tinyxml2::XMLElement * node = doc.FirstChildElement("Version"); node != nullptr; node = node->NextSiblingElement("Version")) {
-			const uint8_t majorVersion = uint8_t(std::stoi(node->Attribute("majorVersion")));
-			const uint8_t minorVersion = uint8_t(std::stoi(node->Attribute("minorVersion")));
-			const uint8_t patchVersion = uint8_t(std::stoi(node->Attribute("patchVersion")));
-			uint32_t version = (majorVersion << 16) + (minorVersion << 8) + patchVersion;
+		auto rootNode = doc.FirstChildElement("Versions");
 
-			versions.insert(std::make_pair(version, std::vector<std::pair<std::string, std::string>>()));
+		if (rootNode != nullptr) {
+			for (tinyxml2::XMLElement * node = rootNode->FirstChildElement("Version"); node != nullptr; node = node->NextSiblingElement("Version")) {
+				const uint8_t majorVersion = uint8_t(std::stoi(node->Attribute("majorVersion")));
+				const uint8_t minorVersion = uint8_t(std::stoi(node->Attribute("minorVersion")));
+				const uint8_t patchVersion = uint8_t(std::stoi(node->Attribute("patchVersion")));
+				uint32_t version = (majorVersion << 16) + (minorVersion << 8) + patchVersion;
 
-			auto it = versions.find(version);
+				versions.insert(std::make_pair(version, std::vector<std::pair<std::string, std::string>>()));
 
-			for (tinyxml2::XMLElement * file = node->FirstChildElement("File"); file != nullptr; file = file->NextSiblingElement("File")) {
-				it->second.emplace_back(file->GetText(), file->Attribute("Hash"));
+				auto it = versions.find(version);
+
+				for (tinyxml2::XMLElement * file = node->FirstChildElement("File"); file != nullptr; file = file->NextSiblingElement("File")) {
+					it->second.emplace_back(file->GetText(), file->Attribute("Hash"));
+				}
 			}
 		}
 
