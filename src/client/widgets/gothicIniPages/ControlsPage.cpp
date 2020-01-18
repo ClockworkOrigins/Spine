@@ -26,74 +26,74 @@
 #include <QSpinBox>
 #include <QVBoxLayout>
 
-namespace spine {
-namespace widgets {
-namespace g1 {
+using namespace spine::widgets::g1;
 
-	ControlsPage::ControlsPage(QSettings * iniParser, QWidget * par) : QWidget(par), _iniParser(iniParser) {
-		QVBoxLayout * l = new QVBoxLayout();
+ControlsPage::ControlsPage(QSettings * iniParser, QWidget * par) : QWidget(par), _iniParser(iniParser) {
+	QVBoxLayout * l = new QVBoxLayout();
+
+	{
+		QHBoxLayout * hl = new QHBoxLayout();
 
 		{
-			QHBoxLayout * hl = new QHBoxLayout();
+			QGroupBox * mouseBox = new QGroupBox(QApplication::tr("Mouse"), this);
 
-			{
-				QGroupBox * mouseBox = new QGroupBox(QApplication::tr("Mouse"), this);
+			QGridLayout * gl = new QGridLayout();
+			gl->setAlignment(Qt::AlignTop);
 
-				QGridLayout * gl = new QGridLayout();
-				gl->setAlignment(Qt::AlignTop);
+			QLabel * lbl = new QLabel("enableMouse", mouseBox);
+			lbl->setToolTip(QApplication::tr("enableMouseTooltip"));
+			_enableMouse = new QComboBox(mouseBox);
+			_enableMouse->addItems(QStringList() << QApplication::tr("Off") << QApplication::tr("On"));
+			gl->addWidget(lbl, 0, 0);
+			gl->addWidget(_enableMouse, 0, 1);
 
-				QLabel * lbl = new QLabel("enableMouse", mouseBox);
-				lbl->setToolTip(QApplication::tr("enableMouseTooltip"));
-				_enableMouse = new QComboBox(mouseBox);
-				_enableMouse->addItems(QStringList() << QApplication::tr("Off") << QApplication::tr("On"));
-				gl->addWidget(lbl, 0, 0);
-				gl->addWidget(_enableMouse, 0, 1);
+			lbl = new QLabel("mouseSensitivity", mouseBox);
+			lbl->setToolTip(QApplication::tr("mouseSensitivityTooltip"));
+			_mouseSensitivity = new QDoubleSpinBox(mouseBox);
+			_mouseSensitivity->setMinimum(0.0);
+			_mouseSensitivity->setMaximum(1.0);
+			gl->addWidget(lbl, 1, 0);
+			gl->addWidget(_mouseSensitivity, 1, 1);
 
-				lbl = new QLabel("mouseSensitivity", mouseBox);
-				lbl->setToolTip(QApplication::tr("mouseSensitivityTooltip"));
-				_mouseSensitivity = new QDoubleSpinBox(mouseBox);
-				_mouseSensitivity->setMinimum(0.0);
-				_mouseSensitivity->setMaximum(1.0);
-				gl->addWidget(lbl, 1, 0);
-				gl->addWidget(_mouseSensitivity, 1, 1);
+			mouseBox->setLayout(gl);
 
-				mouseBox->setLayout(gl);
-
-				hl->addWidget(mouseBox);
-			}
-
-			l->addLayout(hl);
+			hl->addWidget(mouseBox);
 		}
 
-		setLayout(l);
-
-		reject();
+		l->addLayout(hl);
 	}
 
-	ControlsPage::~ControlsPage() {
-	}
+	setLayout(l);
 
-	void ControlsPage::reject() {
-		int idx;
-		double d;
+	reject();
+}
 
-		// Mouse
-		_iniParser->beginGroup("GAME");
-		idx = _iniParser->value("enableMouse", 0).toInt();
-		_enableMouse->setCurrentIndex(idx);
-		d = _iniParser->value("mouseSensitivity", 0.5).toDouble();
-		_mouseSensitivity->setValue(d);
-		_iniParser->endGroup();
-	}
+ControlsPage::~ControlsPage() {
+}
 
-	void ControlsPage::accept() {
-		// Mouse
-		_iniParser->beginGroup("GAME");
-		_iniParser->setValue("enableMouse", _enableMouse->currentIndex());
-		_iniParser->setValue("mouseSensitivity", _mouseSensitivity->value());
-		_iniParser->endGroup();
-	}
+void ControlsPage::reject() {
+	int idx;
+	double d;
 
-} /* namespace g1 */
-} /* namespace widgets */
-} /* namespace spine */
+	// Mouse
+	_iniParser->beginGroup("GAME");
+	idx = _iniParser->value("enableMouse", 0).toInt();
+	_enableMouse->setCurrentIndex(idx);
+	d = _iniParser->value("mouseSensitivity", 0.5).toDouble();
+	_mouseSensitivity->setValue(d);
+	_iniParser->endGroup();
+}
+
+void ControlsPage::accept() {
+	// Mouse
+	_iniParser->beginGroup("GAME");
+	_iniParser->setValue("enableMouse", _enableMouse->currentIndex());
+	_iniParser->setValue("mouseSensitivity", _mouseSensitivity->value());
+	_iniParser->endGroup();
+}
+
+void ControlsPage::updateSettings(QSettings * iniParser) {
+	_iniParser = iniParser;
+
+	reject();
+}

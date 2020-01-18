@@ -26,134 +26,134 @@
 #include <QSpinBox>
 #include <QVBoxLayout>
 
-namespace spine {
-namespace widgets {
-namespace g1 {
+using namespace spine::widgets::g1;
 
-	GamePage::GamePage(QSettings * iniParser, QWidget * par) : QWidget(par), _iniParser(iniParser) {
-		QVBoxLayout * l = new QVBoxLayout();
+GamePage::GamePage(QSettings * iniParser, QWidget * par) : QWidget(par), _iniParser(iniParser) {
+	QVBoxLayout * l = new QVBoxLayout();
+
+	{
+		QHBoxLayout * hl = new QHBoxLayout();
 
 		{
-			QHBoxLayout * hl = new QHBoxLayout();
+			QGroupBox * subtitleBox = new QGroupBox(QApplication::tr("Subtitles"), this);
 
-			{
-				QGroupBox * subtitleBox = new QGroupBox(QApplication::tr("Subtitles"), this);
+			QGridLayout * gl = new QGridLayout();
+			gl->setAlignment(Qt::AlignTop);
 
-				QGridLayout * gl = new QGridLayout();
-				gl->setAlignment(Qt::AlignTop);
+			QLabel * lbl = new QLabel("subTitles", subtitleBox);
+			lbl->setToolTip(QApplication::tr("subTitlesTooltip"));
+			_subtitleComboBox = new QComboBox(subtitleBox);
+			_subtitleComboBox->addItems(QStringList() << QApplication::tr("Off") << QApplication::tr("On"));
+			gl->addWidget(lbl, 0, 0);
+			gl->addWidget(_subtitleComboBox, 0, 1);
 
-				QLabel * lbl = new QLabel("subTitles", subtitleBox);
-				lbl->setToolTip(QApplication::tr("subTitlesTooltip"));
-				_subtitleComboBox = new QComboBox(subtitleBox);
-				_subtitleComboBox->addItems(QStringList() << QApplication::tr("Off") << QApplication::tr("On"));
-				gl->addWidget(lbl, 0, 0);
-				gl->addWidget(_subtitleComboBox, 0, 1);
+			subtitleBox->setLayout(gl);
 
-				subtitleBox->setLayout(gl);
-
-				hl->addWidget(subtitleBox);
-			}
-
-			{
-				QGroupBox * cameraAndFocusBox = new QGroupBox(QApplication::tr("CameraAndFocus"), this);
-
-				QGridLayout * gl = new QGridLayout();
-				gl->setAlignment(Qt::AlignTop);
-
-				QLabel * lbl = new QLabel("camLookaroundInverse", cameraAndFocusBox);
-				lbl->setToolTip(QApplication::tr("camLookaroundInverseTooltip"));
-				_camLookaroundInverse = new QComboBox(cameraAndFocusBox);
-				_camLookaroundInverse->addItems(QStringList() << QApplication::tr("Off") << QApplication::tr("On"));
-				gl->addWidget(lbl, 0, 0);
-				gl->addWidget(_camLookaroundInverse, 0, 1);
-
-				lbl = new QLabel("cameraLightRange", cameraAndFocusBox);
-				lbl->setToolTip(QApplication::tr("cameraLightRangeTooltip"));
-				_cameraLightRange = new QSpinBox(cameraAndFocusBox);
-				_cameraLightRange->setMinimum(0);
-				_cameraLightRange->setMaximum(100000);
-				_cameraLightRange->setSuffix(" " + QApplication::tr("cm"));
-				gl->addWidget(lbl, 1, 0);
-				gl->addWidget(_cameraLightRange, 1, 1);
-
-				cameraAndFocusBox->setLayout(gl);
-
-				hl->addWidget(cameraAndFocusBox);
-			}
-
-			{
-				QGroupBox * inventoryBox = new QGroupBox(QApplication::tr("Inventory"), this);
-
-				QGridLayout * gl = new QGridLayout();
-				gl->setAlignment(Qt::AlignTop);
-
-				QLabel * lbl = new QLabel("invShowArrows", inventoryBox);
-				lbl->setToolTip(QApplication::tr("invShowArrowsTooltip"));
-				_invShowArrows = new QComboBox(inventoryBox);
-				_invShowArrows->addItems(QStringList() << QApplication::tr("Off") << QApplication::tr("On"));
-				gl->addWidget(lbl, 0, 0);
-				gl->addWidget(_invShowArrows, 0, 1);
-
-				lbl = new QLabel("invSwitchToFirstCategory", inventoryBox);
-				lbl->setToolTip(QApplication::tr("invSwitchToFirstCategoryTooltip"));
-				_invSwitchToFirstCategory = new QComboBox(inventoryBox);
-				_invSwitchToFirstCategory->addItems(QStringList() << QApplication::tr("Off") << QApplication::tr("On"));
-				gl->addWidget(lbl, 1, 0);
-				gl->addWidget(_invSwitchToFirstCategory, 1, 1);
-
-				inventoryBox->setLayout(gl);
-
-				hl->addWidget(inventoryBox);
-			}
-
-			l->addLayout(hl);
+			hl->addWidget(subtitleBox);
 		}
 
-		setLayout(l);
+		{
+			QGroupBox * cameraAndFocusBox = new QGroupBox(QApplication::tr("CameraAndFocus"), this);
 
-		reject();
+			QGridLayout * gl = new QGridLayout();
+			gl->setAlignment(Qt::AlignTop);
+
+			QLabel * lbl = new QLabel("camLookaroundInverse", cameraAndFocusBox);
+			lbl->setToolTip(QApplication::tr("camLookaroundInverseTooltip"));
+			_camLookaroundInverse = new QComboBox(cameraAndFocusBox);
+			_camLookaroundInverse->addItems(QStringList() << QApplication::tr("Off") << QApplication::tr("On"));
+			gl->addWidget(lbl, 0, 0);
+			gl->addWidget(_camLookaroundInverse, 0, 1);
+
+			lbl = new QLabel("cameraLightRange", cameraAndFocusBox);
+			lbl->setToolTip(QApplication::tr("cameraLightRangeTooltip"));
+			_cameraLightRange = new QSpinBox(cameraAndFocusBox);
+			_cameraLightRange->setMinimum(0);
+			_cameraLightRange->setMaximum(100000);
+			_cameraLightRange->setSuffix(" " + QApplication::tr("cm"));
+			gl->addWidget(lbl, 1, 0);
+			gl->addWidget(_cameraLightRange, 1, 1);
+
+			cameraAndFocusBox->setLayout(gl);
+
+			hl->addWidget(cameraAndFocusBox);
+		}
+
+		{
+			QGroupBox * inventoryBox = new QGroupBox(QApplication::tr("Inventory"), this);
+
+			QGridLayout * gl = new QGridLayout();
+			gl->setAlignment(Qt::AlignTop);
+
+			QLabel * lbl = new QLabel("invShowArrows", inventoryBox);
+			lbl->setToolTip(QApplication::tr("invShowArrowsTooltip"));
+			_invShowArrows = new QComboBox(inventoryBox);
+			_invShowArrows->addItems(QStringList() << QApplication::tr("Off") << QApplication::tr("On"));
+			gl->addWidget(lbl, 0, 0);
+			gl->addWidget(_invShowArrows, 0, 1);
+
+			lbl = new QLabel("invSwitchToFirstCategory", inventoryBox);
+			lbl->setToolTip(QApplication::tr("invSwitchToFirstCategoryTooltip"));
+			_invSwitchToFirstCategory = new QComboBox(inventoryBox);
+			_invSwitchToFirstCategory->addItems(QStringList() << QApplication::tr("Off") << QApplication::tr("On"));
+			gl->addWidget(lbl, 1, 0);
+			gl->addWidget(_invSwitchToFirstCategory, 1, 1);
+
+			inventoryBox->setLayout(gl);
+
+			hl->addWidget(inventoryBox);
+		}
+
+		l->addLayout(hl);
 	}
 
-	GamePage::~GamePage() {
-	}
+	setLayout(l);
 
-	void GamePage::reject() {
-		// Subtitles
-		int idx;
-		int value;
-		_iniParser->beginGroup("GAME");
-		idx = _iniParser->value("subTitles", 0).toInt();
-		_subtitleComboBox->setCurrentIndex(idx);
+	reject();
+}
 
-		// Camera and Focus
-		idx = _iniParser->value("camLookaroundInverse", 0).toInt();
-		_camLookaroundInverse->setCurrentIndex(idx);
-		value = _iniParser->value("cameraLightRange", 0).toInt();
-		_cameraLightRange->setValue(value);
+GamePage::~GamePage() {
+}
 
-		// Inventory
-		idx = _iniParser->value("invShowArrows", 0).toInt();
-		_invShowArrows->setCurrentIndex(idx);
-		idx = _iniParser->value("invSwitchToFirstCategory", 0).toInt();
-		_invSwitchToFirstCategory->setCurrentIndex(idx);
-		_iniParser->endGroup();
-	}
+void GamePage::reject() {
+	// Subtitles
+	int idx;
+	int value;
+	_iniParser->beginGroup("GAME");
+	idx = _iniParser->value("subTitles", 0).toInt();
+	_subtitleComboBox->setCurrentIndex(idx);
 
-	void GamePage::accept() {
-		_iniParser->beginGroup("GAME");
-		// Subtitles
-		_iniParser->setValue("subTitles", _subtitleComboBox->currentIndex());
+	// Camera and Focus
+	idx = _iniParser->value("camLookaroundInverse", 0).toInt();
+	_camLookaroundInverse->setCurrentIndex(idx);
+	value = _iniParser->value("cameraLightRange", 0).toInt();
+	_cameraLightRange->setValue(value);
 
-		// Camera and Focus
-		_iniParser->setValue("camLookaroundInverse", _camLookaroundInverse->currentIndex());
-		_iniParser->setValue("cameraLightRange", _cameraLightRange->value());
+	// Inventory
+	idx = _iniParser->value("invShowArrows", 0).toInt();
+	_invShowArrows->setCurrentIndex(idx);
+	idx = _iniParser->value("invSwitchToFirstCategory", 0).toInt();
+	_invSwitchToFirstCategory->setCurrentIndex(idx);
+	_iniParser->endGroup();
+}
 
-		// Inventory
-		_iniParser->setValue("invShowArrows", _invShowArrows->currentIndex());
-		_iniParser->setValue("invSwitchToFirstCategory", _invSwitchToFirstCategory->currentIndex());
-		_iniParser->endGroup();
-	}
+void GamePage::accept() {
+	_iniParser->beginGroup("GAME");
+	// Subtitles
+	_iniParser->setValue("subTitles", _subtitleComboBox->currentIndex());
 
-} /* namespace g1 */
-} /* namespace widgets */
-} /* namespace spine */
+	// Camera and Focus
+	_iniParser->setValue("camLookaroundInverse", _camLookaroundInverse->currentIndex());
+	_iniParser->setValue("cameraLightRange", _cameraLightRange->value());
+
+	// Inventory
+	_iniParser->setValue("invShowArrows", _invShowArrows->currentIndex());
+	_iniParser->setValue("invSwitchToFirstCategory", _invSwitchToFirstCategory->currentIndex());
+	_iniParser->endGroup();
+}
+
+void GamePage::updateSettings(QSettings * iniParser) {
+	_iniParser = iniParser;
+
+	reject();
+}

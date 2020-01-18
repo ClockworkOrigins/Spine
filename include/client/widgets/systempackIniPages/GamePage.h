@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_SYSTEMPACKINIPAGES_GAMEPAGE_H__
-#define __SPINE_WIDGETS_SYSTEMPACKINIPAGES_GAMEPAGE_H__
+#pragma once
 
 #include <QWidget>
 
@@ -39,6 +38,8 @@ namespace sp {
 
 		void reject();
 		void accept();
+
+		void updateSettings(QSettings * iniParser);
 
 	private:
 		QSettings * _iniParser;
@@ -75,5 +76,3 @@ namespace sp {
 } /* namespace sp */
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_SYSTEMPACKINIPAGES_GAMEPAGE_H__ */

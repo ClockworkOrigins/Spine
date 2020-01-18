@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_GOTHIC2INIPAGES_ENGINEPAGE_H__
-#define __SPINE_WIDGETS_GOTHIC2INIPAGES_ENGINEPAGE_H__
+#pragma once
 
 #include <QWidget>
 
@@ -41,6 +40,8 @@ namespace g2 {
 		void reject();
 		void accept();
 
+		void updateSettings(QSettings * iniParser);
+
 	private:
 		QSettings * _iniParser;
 		QSpinBox * _ZMAXFPS;
@@ -58,5 +59,3 @@ namespace g2 {
 } /* namespace g2 */
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_GOTHIC2INIPAGES_ENGINEPAGE_H__ */

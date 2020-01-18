@@ -28,65 +28,72 @@
 #include <QTabWidget>
 #include <QVBoxLayout>
 
-namespace spine {
-namespace widgets {
+using namespace spine::widgets;
 
-	SystempackIniWidget::SystempackIniWidget(QString directory, QWidget * par) : QWidget(par), _iniParser(new QSettings(directory + "/System/Systempack.ini", QSettings::IniFormat)), _directory(directory), _tabWidget(nullptr), _gamePage(nullptr), _systemPage(nullptr) {
-		QVBoxLayout * l = new QVBoxLayout();
+SystempackIniWidget::SystempackIniWidget(QString directory, QWidget * par) : QWidget(par), _iniParser(new QSettings(directory + "/System/Systempack.ini", QSettings::IniFormat)), _directory(directory), _tabWidget(nullptr), _gamePage(nullptr), _systemPage(nullptr) {
+	QVBoxLayout * l = new QVBoxLayout();
 
-		_tabWidget = new QTabWidget(this);
+	_tabWidget = new QTabWidget(this);
 
-		_gamePage = new sp::GamePage(_iniParser, _tabWidget);
-		_systemPage = new sp::SystemPage(_iniParser, _tabWidget);
+	_gamePage = new sp::GamePage(_iniParser, _tabWidget);
+	_systemPage = new sp::SystemPage(_iniParser, _tabWidget);
 
-		_tabWidget->addTab(_gamePage, QApplication::tr("Game"));
-		_tabWidget->addTab(_systemPage, QApplication::tr("System"));
+	_tabWidget->addTab(_gamePage, QApplication::tr("Game"));
+	_tabWidget->addTab(_systemPage, QApplication::tr("System"));
 
-		l->addWidget(_tabWidget);
+	l->addWidget(_tabWidget);
 
-		{
-			QHBoxLayout * hl = new QHBoxLayout();
-			QPushButton * backupButton = new QPushButton(QApplication::tr("Backup"), this);
-			QPushButton * restoreButton = new QPushButton(QApplication::tr("Restore"), this);
-			hl->addWidget(backupButton);
-			hl->addWidget(restoreButton);
-			hl->addStretch(1);
-			l->addLayout(hl);
+	{
+		QHBoxLayout * hl = new QHBoxLayout();
+		QPushButton * backupButton = new QPushButton(QApplication::tr("Backup"), this);
+		QPushButton * restoreButton = new QPushButton(QApplication::tr("Restore"), this);
+		hl->addWidget(backupButton);
+		hl->addWidget(restoreButton);
+		hl->addStretch(1);
+		l->addLayout(hl);
 
-			connect(backupButton, SIGNAL(released()), this, SLOT(backup()));
-			connect(restoreButton, SIGNAL(released()), this, SLOT(restore()));
-		}
-
-		setLayout(l);
+		connect(backupButton, SIGNAL(released()), this, SLOT(backup()));
+		connect(restoreButton, SIGNAL(released()), this, SLOT(restore()));
 	}
 
-	SystempackIniWidget::~SystempackIniWidget() {
+	setLayout(l);
+}
+
+SystempackIniWidget::~SystempackIniWidget() {
+	delete _iniParser;
+}
+
+void SystempackIniWidget::accept() {
+	_gamePage->accept();
+	_systemPage->accept();
+}
+
+void SystempackIniWidget::reject() {
+	_gamePage->reject();
+	_systemPage->reject();
+}
+
+void SystempackIniWidget::backup() {
+	const QString folder = QFileDialog::getExistingDirectory(this, QApplication::tr("SelectBackupFolder"));
+	if (!folder.isEmpty()) {
+		QFile::copy(_directory + "/System/Systempack.ini", folder + "/Systempack.ini");
+	}
+}
+
+void SystempackIniWidget::restore() {
+	const QString backupFile = QFileDialog::getOpenFileName(this, QApplication::tr("SelectBackupFile"), QString(), "Systempack.ini");
+	if (!backupFile.isEmpty()) {
 		delete _iniParser;
-	}
 
-	void SystempackIniWidget::accept() {
-		_gamePage->accept();
-		_systemPage->accept();
-	}
-
-	void SystempackIniWidget::reject() {
-		_gamePage->reject();
-		_systemPage->reject();
-	}
-
-	void SystempackIniWidget::backup() {
-		const QString folder = QFileDialog::getExistingDirectory(this, QApplication::tr("SelectBackupFolder"));
-		if (!folder.isEmpty()) {
-			QFile::copy(_directory + "/System/Systempack.ini", folder + "/Systempack.ini");
+		if (QFileInfo::exists(_directory + "/System/Systempack.ini")) {
+			QFile::remove(_directory + "/System/Systempack.ini");
 		}
-	}
+		
+		QFile::copy(backupFile, _directory + "/System/Systempack.ini");
+		
+		_iniParser = new QSettings(_directory + "/System/Systempack.ini", QSettings::IniFormat);
 
-	void SystempackIniWidget::restore() {
-		const QString backupFile = QFileDialog::getOpenFileName(this, QApplication::tr("SelectBackupFile"), QString(), "Systempack.ini");
-		if (!backupFile.isEmpty()) {
-			QFile::copy(backupFile, _directory + "/System/Systempack.ini");
-		}
+		_gamePage->updateSettings(_iniParser);
+		_systemPage->updateSettings(_iniParser);
 	}
-
-} /* namespace widgets */
-} /* namespace spine */
+}

@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_GOTHIC1INIPAGES_GAMEPAGE_H__
-#define __SPINE_WIDGETS_GOTHIC1INIPAGES_GAMEPAGE_H__
+#pragma once
 
 #include <QWidget>
 
@@ -40,6 +39,8 @@ namespace g1 {
 		void reject();
 		void accept();
 
+		void updateSettings(QSettings * iniParser);
+
 	private:
 		QSettings * _iniParser;
 		QComboBox * _subtitleComboBox;
@@ -54,5 +55,3 @@ namespace g1 {
 } /* namespace g1 */
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_GOTHIC1INIPAGES_GAMEPAGE_H__ */
