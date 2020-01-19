@@ -131,8 +131,8 @@ void Gothic2Launcher::patchCheck() {
 	fileList.insert("_work/data/Video/Portal_Raven.bik", "9d4f6dc897ce5db1737bfcdf10d792dc324130ff5c9e42fa1d4d36d1909b3f15822b0595607add4fccc48cf3edebf9fcb7ac8278fb0a08cc27a3aa6db0b4a17e");
 
 	MultiFileDownloader * mfd = new MultiFileDownloader(this);
-	connect(mfd, SIGNAL(downloadFailed(DownloadError)), mfd, SLOT(deleteLater()));
-	connect(mfd, SIGNAL(downloadSucceeded()), mfd, SLOT(deleteLater()));
+	connect(mfd, &MultiFileDownloader::downloadFailed, mfd, &MultiFileDownloader::deleteLater);
+	connect(mfd, &MultiFileDownloader::downloadSucceeded, mfd, &MultiFileDownloader::deleteLater);
 
 	bool start = false;
 

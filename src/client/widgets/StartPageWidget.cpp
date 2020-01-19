@@ -188,15 +188,15 @@ void StartPageWidget::updateNews() {
 	LOGINFO("Memory Usage updateNews #2: " << getPRAMValue());
 #endif
 	if (Config::OnlineMode) {
-		std::vector<std::pair<std::string, std::string>> images = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT DISTINCT File, Hash FROM newsImageReferences;", err);
+		const auto images = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT DISTINCT File, Hash FROM newsImageReferences;", err);
 		MultiFileDownloader * mfd = new MultiFileDownloader(this);
-		connect(mfd, SIGNAL(downloadFailed(DownloadError)), mfd, SLOT(deleteLater()));
-		connect(mfd, SIGNAL(downloadSucceeded()), mfd, SLOT(deleteLater()));
+		connect(mfd, &MultiFileDownloader::downloadFailed, mfd, &MultiFileDownloader::deleteLater);
+		connect(mfd, &MultiFileDownloader::downloadSucceeded, mfd, &MultiFileDownloader::deleteLater);
 		bool download = false;
 		for (const auto & p : images) {
 			QString filename = QString::fromStdString(p.first);
 			filename.chop(2); // every image is compressed, so it has a .z at the end
-			if (!QFile(Config::NEWSIMAGEDIR + "/" + filename).exists()) {
+			if (!QFileInfo::exists(Config::NEWSIMAGEDIR + "/" + filename)) {
 				QFileInfo fi(QString::fromStdString(p.first));
 				FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/news/images/" + QString::fromStdString(p.first)), Config::NEWSIMAGEDIR + "/" + fi.path(), fi.fileName(), QString::fromStdString(p.second), mfd);
 				mfd->addFileDownloader(fd);
@@ -220,8 +220,8 @@ void StartPageWidget::updateNews() {
 #ifdef Q_OS_WIN
 	LOGINFO("Memory Usage updateNews #4.1: " << getPRAMValue());
 #endif
-		std::vector<std::pair<std::string, std::string>> mods = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT DISTINCT ModID, Name FROM newsModReferences WHERE NewsID = " + std::to_string(n.id) + " AND Language = '" + Config::Language.toStdString() + "';", err);
-		for (auto p : mods) {
+		const auto mods = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT DISTINCT ModID, Name FROM newsModReferences WHERE NewsID = " + std::to_string(n.id) + " AND Language = '" + Config::Language.toStdString() + "';", err);
+		for (const auto & p : mods) {
 			n.referencedMods.emplace_back(std::stoi(p.first), p.second);
 		}
 		NewsWidget * newsWidget = new NewsWidget(n, Config::OnlineMode, _newsContainer);

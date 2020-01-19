@@ -52,8 +52,8 @@ SystempackIniWidget::SystempackIniWidget(QString directory, QWidget * par) : QWi
 		hl->addStretch(1);
 		l->addLayout(hl);
 
-		connect(backupButton, SIGNAL(released()), this, SLOT(backup()));
-		connect(restoreButton, SIGNAL(released()), this, SLOT(restore()));
+		connect(backupButton, &QPushButton::released, this, &SystempackIniWidget::backup);
+		connect(restoreButton, &QPushButton::released, this, &SystempackIniWidget::restore);
 	}
 
 	setLayout(l);

@@ -133,7 +133,7 @@ TranslatorDialog::TranslatorDialog(QWidget * par) : QDialog(par), _projectsCombo
 	connect(this, &TranslatorDialog::receivedProjects, this, &TranslatorDialog::updateProjects);
 	connect(this, &TranslatorDialog::receivedTextToTranslate, this, &TranslatorDialog::updateTextToTranslate);
 	connect(this, &TranslatorDialog::receivedTextToReview, this, &TranslatorDialog::updateTextToReview);
-	connect(_projectsComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changedProject()));
+	connect(_projectsComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &TranslatorDialog::changedProject);
 	connect(this, &TranslatorDialog::receivedProgress, this, &TranslatorDialog::updateProgress);
 	connect(_hintsBox, &QComboBox::currentTextChanged, _hintPreview, &QTextBrowser::setText);
 

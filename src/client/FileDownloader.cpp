@@ -59,8 +59,8 @@ void FileDownloader::requestFileSize() {
 	const QNetworkRequest request(_url);
 	QNetworkReply * reply = _webAccessManager->head(request);
 	reply->setReadBufferSize(Config::downloadRate * 8);
-	connect(reply, SIGNAL(finished()), this, SLOT(determineFileSize()));
-	connect(this, SIGNAL(abort()), reply, SLOT(abort()));
+	connect(reply, &QNetworkReply::finished, this, &FileDownloader::determineFileSize);
+	connect(this, &FileDownloader::abort, reply, &QNetworkReply::abort);
 }
 
 QString FileDownloader::getFileName() const {
@@ -91,7 +91,7 @@ void FileDownloader::startDownload() {
 			}
 			if (_filesize == -1) {
 				QEventLoop loop;
-				connect(this, SIGNAL(totalBytes(qint64)), &loop, SLOT(quit()));
+				connect(this, &FileDownloader::totalBytes, &loop, &QEventLoop::quit);
 				requestFileSize();
 				loop.exec();
 			}
@@ -117,11 +117,11 @@ void FileDownloader::startDownload() {
 	const QNetworkRequest request(_url);
 	QNetworkReply * reply = _webAccessManager->get(request);
 	reply->setReadBufferSize(Config::downloadRate * 8);
-	connect(reply, SIGNAL(downloadProgress(qint64, qint64)), this, SLOT(updateDownloadProgress(qint64, qint64)));
-	connect(reply, SIGNAL(readyRead()), this, SLOT(writeToFile()));
-	connect(reply, SIGNAL(finished()), this, SLOT(fileDownloaded()));
-	connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(networkError(QNetworkReply::NetworkError)));
-	connect(this, SIGNAL(abort()), reply, SLOT(abort()));
+	connect(reply, &QNetworkReply::downloadProgress, this, &FileDownloader::updateDownloadProgress);
+	connect(reply, &QNetworkReply::readyRead, this, &FileDownloader::writeToFile);
+	connect(reply, &QNetworkReply::finished, this, &FileDownloader::fileDownloaded);
+	connect(reply, static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error), this, &FileDownloader::networkError);
+	connect(this, &FileDownloader::abort, reply, &QNetworkReply::abort);
 	emit startedDownload(_fileName);
 }
 

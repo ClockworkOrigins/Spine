@@ -59,7 +59,7 @@ AccessRightsDialog::AccessRightsDialog(uint32_t requestID, QString title, QWidge
 		_sortModel->setSourceModel(_userListModel);
 		_sortModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 		_userListView->setModel(_sortModel);
-		connect(_userListView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectedUser(QModelIndex)));
+		connect(_userListView, &QListView::clicked, this, &AccessRightsDialog::selectedUser);
 		hl->addWidget(_userListView);
 
 		{
@@ -86,7 +86,7 @@ AccessRightsDialog::AccessRightsDialog(uint32_t requestID, QString title, QWidge
 		_unlockedListView->setToolTip(QApplication::tr("UnlockedTranslatorsTooltip"));
 		_unlockedListModel = new QStandardItemModel(_unlockedListView);
 		_unlockedListView->setModel(_unlockedListModel);
-		connect(_unlockedListView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectedUnlockedUser(QModelIndex)));
+		connect(_unlockedListView, &QListView::clicked, this, &AccessRightsDialog::selectedUnlockedUser);
 		hl->addWidget(_unlockedListView);
 
 		l->addLayout(hl);

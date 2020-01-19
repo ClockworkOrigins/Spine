@@ -40,7 +40,7 @@ namespace spine {
 				connect(downloadStat.first, &FileDownloader::downloadFailed, this, &MultiFileDownloader::downloadFailed, Qt::UniqueConnection);
 				connect(downloadStat.first, &FileDownloader::downloadSucceeded, this, &MultiFileDownloader::finishedFile, Qt::UniqueConnection);
 				connect(downloadStat.first, &FileDownloader::downloadSucceeded, this, &MultiFileDownloader::startDownload, Qt::UniqueConnection);
-				connect(this, SIGNAL(abort()), downloadStat.first, SIGNAL(abort()), Qt::UniqueConnection);
+				connect(this, &MultiFileDownloader::abort, downloadStat.first, &FileDownloader::abort, Qt::UniqueConnection);
 				connect(downloadStat.first, &FileDownloader::startedDownload, this, &MultiFileDownloader::startedDownload, Qt::UniqueConnection);
 			}
 			startDownload();
@@ -55,7 +55,7 @@ namespace spine {
 				connect(_currentIndex->first, &FileDownloader::downloadSucceeded, this, &MultiFileDownloader::startDownload, Qt::UniqueConnection);
 				connect(_currentIndex->first, &FileDownloader::startedDownload, this, &MultiFileDownloader::startedDownload, Qt::UniqueConnection);
 				_currentIndex->first->requestFileSize();
-				connect(this, SIGNAL(abort()), _currentIndex->first, SIGNAL(abort()), Qt::UniqueConnection);
+				connect(this, &MultiFileDownloader::abort, _currentIndex->first, &FileDownloader::abort, Qt::UniqueConnection);
 			}
 		}
 	}

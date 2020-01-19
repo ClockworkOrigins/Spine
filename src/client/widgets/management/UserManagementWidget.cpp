@@ -65,7 +65,7 @@ UserManagementWidget::UserManagementWidget(QWidget * par) : QWidget(par), _mods(
 		_sortModel->setSourceModel(_userListModel);
 		_sortModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 		_userListView->setModel(_sortModel);
-		connect(_userListView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectedUser(QModelIndex)));
+		connect(_userListView, &QListView::clicked, this, &UserManagementWidget::selectedUser);
 		hl->addWidget(_userListView);
 
 		{
@@ -92,7 +92,7 @@ UserManagementWidget::UserManagementWidget(QWidget * par) : QWidget(par), _mods(
 		_unlockedListView->setToolTip(QApplication::tr("UnlockedUserlistTooltip"));
 		_unlockedListModel = new QStandardItemModel(_unlockedListView);
 		_unlockedListView->setModel(_unlockedListModel);
-		connect(_unlockedListView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectedUnlockedUser(QModelIndex)));
+		connect(_unlockedListView, &QListView::clicked, this, &UserManagementWidget::selectedUnlockedUser);
 		hl->addWidget(_unlockedListView);
 
 		l->addLayout(hl);

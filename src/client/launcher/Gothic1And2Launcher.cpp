@@ -367,7 +367,7 @@ void Gothic1And2Launcher::updateCompatibilityList(int modID, std::vector<int32_t
 			const int count = Database::queryCount(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT Enabled FROM patchConfigs WHERE ModID = " + std::to_string(_modID) + " AND PatchID = " + std::to_string(p.modID) + " LIMIT 1;", err);
 			cb->setChecked(count);
 			_checkboxPatchIDMapping.insert(cb, p.modID);
-			connect(cb, SIGNAL(stateChanged(int)), this, SLOT(changedPatchState()));
+			connect(cb, &QCheckBox::stateChanged, this, &Gothic1And2Launcher::changedPatchState);
 			cb->setProperty("patchID", p.modID);
 		} else if (contains(forbiddenPatches, p.modID)) {
 			Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "DELETE FROM patchConfigs WHERE ModID = " + std::to_string(_modID) + " AND PatchID = " + std::to_string(p.modID) + ";", err);
@@ -432,8 +432,8 @@ void Gothic1And2Launcher::startSpacer() {
 		iniParser.endGroup();
 	}
 	QProcess * process = new QProcess(this);
-	connect(process, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(finishedSpacer()));
-	connect(process, SIGNAL(finished(int, QProcess::ExitStatus)), process, SLOT(deleteLater()));
+	connect(process, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), this, &Gothic1And2Launcher::finishedSpacer);
+	connect(process, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), process, &Gothic1And2Launcher::deleteLater);
 	process->setWorkingDirectory(_directory + "/System/");
 	QStringList args;
 	args << "-zmaxframerate:50";
@@ -639,7 +639,7 @@ void Gothic1And2Launcher::updateView(int modID, const QString & iniFile) {
 				const int count = Database::queryCount(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT Enabled FROM patchConfigs WHERE ModID = " + std::to_string(_modID) + " AND PatchID = " + std::to_string(p.modID) + " LIMIT 1;", err);
 				cb->setChecked(count);
 				_checkboxPatchIDMapping.insert(cb, p.modID);
-				connect(cb, SIGNAL(stateChanged(int)), this, SLOT(changedPatchState()));
+				connect(cb, &QCheckBox::stateChanged, this, &Gothic1And2Launcher::changedPatchState);
 				_patchGroup->show();
 				_patchGroup->setToolTip(QApplication::tr("PatchesAndToolsTooltip").arg(_nameLabel->text()));
 				_pdfGroup->hide();
@@ -679,7 +679,7 @@ void Gothic1And2Launcher::start() {
 	connect(this, &Gothic1And2Launcher::changeSplashMessage, &splash, &QSplashScreen::showMessage);
 	QFutureWatcher<bool> watcher(this);
 	QEventLoop loop;
-	connect(&watcher, SIGNAL(finished()), &loop, SLOT(quit()));
+	connect(&watcher, &QFutureWatcher<void>::finished, &loop, &QEventLoop::quit);
 	QStringList backgroundExecutables;
 	QSet<QString> dependencies;
 	QString usedExecutable;
@@ -718,7 +718,7 @@ void Gothic1And2Launcher::start() {
 	QProcess * process = new QProcess(this);
 	for (const QString & backgroundProcess : backgroundExecutables) {
 		QProcess * bp = new QProcess(process);
-		connect(process, SIGNAL(finished(int, QProcess::ExitStatus)), bp, SLOT(terminate()));
+		connect(process, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), bp, &QProcess::terminate);
 		bp->setWorkingDirectory(_directory + "/" + QFileInfo(backgroundProcess).path());
 		bp->start("\"" + _directory + "/" + backgroundProcess + "\"");
 	}

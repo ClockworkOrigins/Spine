@@ -55,16 +55,16 @@ UninstallDialog::UninstallDialog(QString title, QString text, QString path) : QD
 	QPushButton * b = dbb->button(QDialogButtonBox::StandardButton::Ok);
 	b->setText(QApplication::tr("Ok"));
 
-	connect(b, SIGNAL(clicked()), this, SIGNAL(accepted()));
-	connect(b, SIGNAL(clicked()), this, SLOT(accept()));
-	connect(b, SIGNAL(clicked()), this, SLOT(hide()));
+	connect(b, &QPushButton::clicked, this, &UninstallDialog::accepted);
+	connect(b, &QPushButton::clicked, this, &UninstallDialog::accept);
+	connect(b, &QPushButton::clicked, this, &UninstallDialog::hide);
 
 	b = dbb->button(QDialogButtonBox::StandardButton::Cancel);
 	b->setText(QApplication::tr("Cancel"));
 
-	connect(b, SIGNAL(clicked()), this, SIGNAL(rejected()));
-	connect(b, SIGNAL(clicked()), this, SLOT(reject()));
-	connect(b, SIGNAL(clicked()), this, SLOT(hide()));
+	connect(b, &QPushButton::clicked, this, &UninstallDialog::rejected);
+	connect(b, &QPushButton::clicked, this, &UninstallDialog::reject);
+	connect(b, &QPushButton::clicked, this, &UninstallDialog::hide);
 
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 	setWindowTitle(title);
