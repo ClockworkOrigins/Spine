@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_SMTP_H__
-#define __SPINE_SMTP_H__
+#pragma once
 
 #include <string>
 
@@ -49,5 +48,3 @@ namespace spine {
 	};
 
 } /* namespace spine */
-
-#endif /* __SPINE_SMTP_H__ */

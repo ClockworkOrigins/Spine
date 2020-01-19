@@ -16,11 +16,9 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_COMMON_MODVERSION_H__
-#define __SPINE_COMMON_MODVERSION_H__
+#pragma once
 
 #include <cstdint>
-#include <string>
 
 #include "boost/archive/text_oarchive.hpp"
 #include "boost/archive/text_iarchive.hpp"
@@ -52,6 +50,3 @@ namespace common {
 
 } /* namespace common */
 } /* namespace spine */
-
-#endif /* __SPINE_COMMON_MODVERSION_H__ */
-

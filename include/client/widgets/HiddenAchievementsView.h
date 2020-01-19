@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_HIDDENACHIEVEMENTSVIEW_H__
-#define __SPINE_WIDGETS_HIDDENACHIEVEMENTSVIEW_H__
+#pragma once
 
 #include <cstdint>
 
@@ -38,5 +37,3 @@ namespace widgets {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_HIDDENACHIEVEMENTSVIEW_H__ */

@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_GMPSERVER_H__
-#define __SPINE_GMPSERVER_H__
+#pragma once
 
 namespace clockUtils {
 	enum class ClockError;
@@ -43,5 +42,3 @@ namespace spine {
 	};
 
 } /* namespace spine */
-
-#endif /* __SPINE_GMPSERVER_H__ */

@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_MARIADBWRAPPER_H__
-#define __SPINE_MARIADBWRAPPER_H__
+#pragma once
 
 #include <cstdint>
 #include <string>
@@ -74,5 +73,3 @@ namespace spine {
 	};
 
 } /* namespace spine */
-
-#endif /* __SPINE_MARIADBWRAPPER_H__ */

@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_LEGOSPINESETTINGSWIDGET_H__
-#define __SPINE_WIDGETS_LEGOSPINESETTINGSWIDGET_H__
+#pragma once
 
 #include "models/SpineEditorModel.h"
 
@@ -54,5 +53,3 @@ namespace widgets {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_LEGOSPINESETTINGSWIDGET_H__ */

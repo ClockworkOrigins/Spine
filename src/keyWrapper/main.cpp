@@ -22,8 +22,7 @@
 int main(int, char ** argv) {
 	std::ofstream out("RSAKey.h");
 	std::ifstream in(argv[1]);
-	out << "#ifndef __SPINE_COMMON_RSAKEY_H__\n";
-	out << "#define __SPINE_COMMON_RSAKEY_H__\n";
+	out << "#pragma once\n";
 	out << "\n";
 	out << "namespace spine {\n";
 	out << "namespace common {\n";
@@ -42,6 +41,5 @@ int main(int, char ** argv) {
 	out << "} /* namespace common */\n";
 	out << "} /* namespace spine */\n";
 	out << "\n";
-	out << "#endif /* __SPINE_COMMON_RSAKEY_H__ */\n";
 	return 0;
 }

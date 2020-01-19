@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_RTFTOHTMLCONVERTER_H__
-#define __SPINE_RTFTOHTMLCONVERTER_H__
+#pragma once
 
 #include <QString>
 
@@ -29,5 +28,3 @@ namespace spine {
 	};
 
 } /* namespace spine */
-
-#endif /* __SPINE_RTFTOHTMLCONVERTER_H__ */

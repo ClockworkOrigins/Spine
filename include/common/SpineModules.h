@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_COMMON_SPINEMODULES_H__
-#define __SPINE_COMMON_SPINEMODULES_H__
+#pragma once
 
 namespace spine {
 namespace common {
@@ -37,6 +36,3 @@ namespace common {
 
 } /* namespace common */
 } /* namespace spine */
-
-#endif /* __SPINE_COMMON_SPINEMODULES_H__ */
-

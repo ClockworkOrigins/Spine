@@ -16,10 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_SAVEGAMEMANAGER_H__
-#define __SPINE_SAVEGAMEMANAGER_H__
-
-#include <cstdint>
+#pragma once
 
 #include <QObject>
 #include <QString>
@@ -57,5 +54,3 @@ namespace spine {
 	};
 
 } /* namespace spine */
-
-#endif /* __SPINE_SAVEGAMEMANAGER_H__ */

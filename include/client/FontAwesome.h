@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_FONTAWESOME_H__
-#define __SPINE_FONTAWESOME_H__
+#pragma once
 
 namespace spine {
 
@@ -27,5 +26,3 @@ namespace spine {
 	};
 
 } /* namespace spine */
-
-#endif /* __SPINE_FONTAWESOME_H__ */

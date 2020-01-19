@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_COMMON_MODUPDATE_H__
-#define __SPINE_COMMON_MODUPDATE_H__
+#pragma once
 
 #include <cstdint>
 #include <string>
@@ -61,6 +60,3 @@ namespace common {
 
 } /* namespace common */
 } /* namespace spine */
-
-#endif /* __SPINE_COMMON_MODUPDATE_H__ */
-

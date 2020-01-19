@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_MULTIFILEDOWNLOADER_H__
-#define __SPINE_MULTIFILEDOWNLOADER_H__
+#pragma once
 
 #include <queue>
 
@@ -65,5 +64,3 @@ namespace spine {
 	};
 
 } /* namespace spine */
-
-#endif /* __SPINE_MULTIFILEDOWNLOADER_H__ */

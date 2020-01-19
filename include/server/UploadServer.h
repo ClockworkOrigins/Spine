@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_UPLOADSERVER_H__
-#define __SPINE_UPLOADSERVER_H__
+#pragma once
 
 namespace clockUtils {
 	enum class ClockError;
@@ -38,10 +37,7 @@ namespace spine {
 	private:
 		clockUtils::sockets::TcpSocket * _listenUploadServer;
 
-		// MP stuff, communication with external server
 		void handleUploadFiles(clockUtils::sockets::TcpSocket * sock) const;
 	};
 
 } /* namespace spine */
-
-#endif /* __SPINE_UPLOADSERVER_H__ */

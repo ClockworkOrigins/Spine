@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_DATABASE_H__
-#define __SPINE_DATABASE_H__
+#pragma once
 
 #include <map>
 #include <mutex>
@@ -324,5 +323,3 @@ int Database::queryColumn<int>(int column, sqlite3_stmt * stmt);
 
 template<>
 std::string Database::queryColumn<std::string>(int column, sqlite3_stmt * stmt);
-
-#endif /* __SPINE_DATABASE_H__ */

@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_COMMON_MESSAGESTRUCTS_H__
-#define __SPINE_COMMON_MESSAGESTRUCTS_H__
+#pragma once
 
 #include "common/MessageTypes.h"
 #include "common/Mod.h"
@@ -1778,5 +1777,3 @@ namespace common {
 
 } /* namespace common */
 } /* namespace spine */
-
-#endif /* __SPINE_COMMON_MESSAGESTRUCTS_H__ */

@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_DOWNLOADSIZECHECKER_H__
-#define __SPINE_DOWNLOADSIZECHECKER_H__
+#pragma once
 
 #include <cstdint>
 #include <map>
@@ -40,5 +39,3 @@ namespace spine {
 	};
 
 } /* namespace spine */
-
-#endif /* __SPINE_DOWNLOADSIZECHECKER_H__ */

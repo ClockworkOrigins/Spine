@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_API_APIMESSAGE_H__
-#define __SPINE_API_APIMESSAGE_H__
+#pragma once
 
 #include <cstdint>
 
@@ -128,6 +127,3 @@ namespace api {
 
 } /* namespace api */
 } /* namespace spine */
-
-#endif /* __SPINE_API_APIMESSAGE_H__ */
-

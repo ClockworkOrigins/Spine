@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_DIRVALIDATOR_H__
-#define __SPINE_DIRVALIDATOR_H__
+#pragma once
 
 #include <QValidator>
 
@@ -36,5 +35,3 @@ namespace spine {
 	};
 
 } /* namespace spine */
-
-#endif /* __SPINE_DIRVALIDATOR_H__ */

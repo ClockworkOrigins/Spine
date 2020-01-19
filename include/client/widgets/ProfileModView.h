@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_PROFILEMODVIEW_H__
-#define __SPINE_WIDGETS_PROFILEMODVIEW_H__
+#pragma once
 
 #include "common/ModStats.h"
 
@@ -58,5 +57,3 @@ namespace widgets {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_PROFILEMODVIEW_H__ */

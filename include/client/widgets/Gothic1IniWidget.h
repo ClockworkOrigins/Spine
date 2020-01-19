@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_GOTHIC1INIWIDGET_H__
-#define __SPINE_WIDGETS_GOTHIC1INIWIDGET_H__
+#pragma once
 
 #include <QWidget>
 
@@ -65,5 +64,3 @@ namespace g1 {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_GOTHIC1INIWIDGET_H__ */

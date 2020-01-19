@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_MODUPDATEDIALOG_H__
-#define __SPINE_WIDGETS_MODUPDATEDIALOG_H__
+#pragma once
 
 #include "common/ModUpdate.h"
 
@@ -83,5 +82,3 @@ namespace widgets {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_MODUPDATEDIALOG_H__ */

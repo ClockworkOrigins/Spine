@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_GAMEPAD_KEYMAPPING_H__
-#define __SPINE_GAMEPAD_KEYMAPPING_H__
+#pragma once
 
 #include <map>
 
@@ -350,5 +349,3 @@ namespace gamepad {
 
 } /* namespace gamepad */
 } /* namespace spine */
-
-#endif /* __SPINE_GAMEPAD_XBOXCONTROLLER_H__ */

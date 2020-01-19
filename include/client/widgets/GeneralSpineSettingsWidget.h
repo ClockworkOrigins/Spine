@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_GENERALSPINESETTINGSWIDGET_H__
-#define __SPINE_WIDGETS_GENERALSPINESETTINGSWIDGET_H__
+#pragma once
 
 #include "common/SpineModules.h"
 
@@ -58,5 +57,3 @@ namespace widgets {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_GENERALSPINESETTINGSWIDGET_H__ */

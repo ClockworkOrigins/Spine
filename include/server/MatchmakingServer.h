@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_MATCHMAKINGSERVER_H__
-#define __SPINE_MATCHMAKINGSERVER_H__
+#pragma once
 
 #include <cstdint>
 #include <map>
@@ -77,5 +76,3 @@ namespace common {
 	};
 
 } /* namespace spine */
-
-#endif /* __SPINE_MATCHMAKINGSERVER_H__ */

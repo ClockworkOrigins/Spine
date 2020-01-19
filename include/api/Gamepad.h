@@ -16,11 +16,9 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_API_GAMEPAD_H__
-#define __SPINE_API_GAMEPAD_H__
+#pragma once
 
 #include <cstdint>
-#include <string>
 
 #include "api/API.h"
 
@@ -66,6 +64,3 @@ namespace api {
 
 } /* namespace api */
 } /* namespace spine */
-
-#endif /* __SPINE_API_GAMEPAD_H__ */
-

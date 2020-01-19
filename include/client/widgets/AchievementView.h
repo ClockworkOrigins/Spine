@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_ACHIEVEMENTVIEW_H__
-#define __SPINE_WIDGETS_ACHIEVEMENTVIEW_H__
+#pragma once
 
 #include "common/MessageStructs.h"
 
@@ -40,5 +39,3 @@ namespace widgets {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_ACHIEVEMENTVIEW_H__ */

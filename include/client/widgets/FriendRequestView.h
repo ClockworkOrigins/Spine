@@ -16,10 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_FRIENDREQUESTVIEW_H__
-#define __SPINE_WIDGETS_FRIENDREQUESTVIEW_H__
-
-#include "common/MessageStructs.h"
+#pragma once
 
 #include <QWidget>
 
@@ -47,5 +44,3 @@ namespace widgets {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_FRIENDREQUESTVIEW_H__ */

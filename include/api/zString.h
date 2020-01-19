@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_API_ZSTRING_H__
-#define __SPINE_API_ZSTRING_H__
+#pragma once
 
 #include <cstdint>
 #include <cstring>
@@ -63,6 +62,3 @@ namespace api {
 
 } /* namespace api */
 } /* namespace spine */
-
-#endif /* __SPINE_API_ZSTRING_H__ */
-

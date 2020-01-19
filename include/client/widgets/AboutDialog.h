@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_WIDGETS_ABOUTDIALOG_H__
-#define __SPINE_WIDGETS_ABOUTDIALOG_H__
+#pragma once
 
 #include <QDialog>
 
@@ -33,5 +32,3 @@ namespace widgets {
 
 } /* namespace widgets */
 } /* namespace spine */
-
-#endif /* __SPINE_WIDGETS_ABOUTDIALOG_H__ */

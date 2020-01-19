@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_REPORTGENERATOR_H__
-#define __SPINE_REPORTGENERATOR_H__
+#pragma once
 
 #include <QObject>
 #include <QString>
@@ -35,5 +34,3 @@ namespace spine {
 	};
 
 } /* namespace spine */
-
-#endif /* __SPINE_WINDOWSEXTENSIONS_H__ */

@@ -16,8 +16,7 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifndef __SPINE_MODELS_SPINEEDITORMODEL_H__
-#define __SPINE_MODELS_SPINEEDITORMODEL_H__
+#pragma once
 
 #include <cstdint>
 
@@ -148,5 +147,3 @@ namespace models {
 
 } /* namespace models */
 } /* namespace spine */
-
-#endif /* __SPINE_MODELS_SPINEEDITORMODEL_H__ */
