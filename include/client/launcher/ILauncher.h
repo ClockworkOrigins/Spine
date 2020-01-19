@@ -27,6 +27,7 @@
 class QHBoxLayout;
 class QLabel;
 class QPushButton;
+class QStandardItemModel;
 class QTimer;
 class QVBoxLayout;
 
@@ -77,6 +78,8 @@ namespace launcher {
 
 		void refresh(int modID);
 
+		virtual void updateModel(QStandardItemModel * model) = 0;
+
 	signals:
 		void restartAsAdmin();
 		void receivedModStats(common::ModStats);
@@ -84,18 +87,23 @@ namespace launcher {
 		void openAchievementView(int32_t, QString);
 		void openScoreView(int32_t, QString);
 
+	public slots:
+		virtual void finishedInstallation(int modID, int packageID, bool success) = 0;
+
 	protected:
 		QWidget * _widget = nullptr;
 		QVBoxLayout * _layout = nullptr;
 		QHBoxLayout * _upperLayout = nullptr;
-		QPushButton * _startButton;
+		QPushButton * _startButton = nullptr;
 
 		QString _name;
-		int32_t _modID;
+		int32_t _modID = -1;
 
 		QString _iniFile;
 
-		QTime * _timer;
+		QTime * _timer = nullptr;
+
+		QStandardItemModel * _model = nullptr;
 
 		virtual void createWidget();
 

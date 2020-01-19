@@ -42,11 +42,14 @@ namespace launcher {
 		void restoreSettings();
 		void saveSettings();
 
+		void updateModel(QStandardItemModel * model);
+
 	signals:
 		void restartAsAdmin();
 		void errorMessage(QString);
 		void openAchievementView(int32_t, QString);
 		void openScoreView(int32_t, QString);
+		void finishedInstallation(int, int, bool);
 
 	private:
 		QList<ILauncherPtr> _launchers;

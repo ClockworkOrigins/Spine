@@ -18,6 +18,7 @@
 
 #include "launcher/Gothic1And2Launcher.h"
 
+#include "LibraryFilterModel.h"
 #include "SpineConfig.h"
 
 #include "client/widgets/UpdateLanguage.h"
@@ -60,6 +61,7 @@
 #include <QSettings>
 #include <QSlider>
 #include <QSplashScreen>
+#include <QStandardItemModel>
 #include <QtConcurrentRun>
 
 using namespace spine;
@@ -1977,4 +1979,215 @@ void Gothic1And2Launcher::syncAdditionalTimes(int duration) {
 
 void Gothic1And2Launcher::setZSpyActivated(bool enabled) {
 	_zSpyActivated = enabled;
+}
+
+void Gothic1And2Launcher::parseMods() {
+	if (Config::extendedLogging) {
+		LOGINFO("Parsing Mods");
+	}
+
+#ifdef Q_OS_WIN
+	LOGINFO("Memory Usage parseMods #1: " << getPRAMValue());
+#endif
+	_parsedInis.clear();
+	if (!_developerModeActive) {
+		if (Config::extendedLogging) {
+			LOGINFO("Parsing Installed Mods");
+		}
+		parseInstalledMods();
+	}
+
+#ifdef Q_OS_WIN
+	LOGINFO("Memory Usage parseMods #2: " << getPRAMValue());
+#endif
+	if (Config::extendedLogging) {
+		LOGINFO("Parsing Mods in Gothic 1 Folder");
+	}
+	parseMods(_directory);
+
+#ifdef Q_OS_WIN
+	LOGINFO("Memory Usage parseMods #3: " << getPRAMValue());
+#endif
+}
+
+void Gothic1And2Launcher::parseMods(QString baseDir) {
+	QStringList files;
+	{
+		QDirIterator it(baseDir + "/System", QStringList() << "*.ini", QDir::Files);
+		while (it.hasNext()) {
+			it.next();
+			QString fileName = it.filePath();
+			if (!fileName.isEmpty()) {
+				files.append(fileName);
+			}
+		}
+	}
+	for (const QString & s : files) {
+		auto it = _parsedInis.find(QFileInfo(s).fileName());
+		if (it != _parsedInis.end()) {
+			const bool b = utils::Hashing::checkHash(s, std::get<0>(it.value()));
+			if (b) {
+				// remove all files belonging to this mod AND skip it
+				// this can happen in two cases:
+				// 1. the mod is installed via Spine and manually (don't do such things, that's stupid)
+				// 2. an error occurred and Spine couldn't remove mod files for some reason
+				Database::DBError err;
+				const auto fs = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT File FROM modfiles WHERE ModID = " + std::to_string(std::get<1>(it.value())) + ";", err);
+				for (const std::string & file : fs) {
+					QFile tmpF(baseDir + "/" + QString::fromStdString(file));
+					tmpF.remove();
+				}
+
+				QDirIterator itBackup(baseDir, QStringList() << "*.spbak", QDir::Files, QDirIterator::Subdirectories);
+				QStringList backupFiles;
+				while (itBackup.hasNext()) {
+					itBackup.next();
+					QString backupFileName = itBackup.filePath();
+					if (!backupFileName.isEmpty()) {
+						backupFiles.append(backupFileName);
+					}
+				}
+				for (QString backupFile : backupFiles) {
+					QFile f2(backupFile);
+					backupFile.chop(6);
+					f2.rename(backupFile);
+				}
+				QDirIterator dirIt(baseDir + "/Data", QStringList() << "*mod", QDir::Files);
+				while (dirIt.hasNext()) {
+					dirIt.next();
+					QString fileName = dirIt.filePath();
+					if (!fileName.isEmpty()) {
+						QFile tmpF(fileName);
+						tmpF.remove();
+					}
+				}
+				continue;
+			}
+		}
+
+		QSettings iniParser(s, QSettings::IniFormat);
+		QString title = iniParser.value("INFO/Title", "").toString();
+
+		if (title.isEmpty()) continue;
+
+		const QString icon = iniParser.value("INFO/Icon", "").toString();
+		QPixmap pixmap(baseDir + "/System/" + icon);
+		if (pixmap.isNull()) {
+			pixmap = getDefaultIcon();
+		}
+		pixmap = pixmap.scaled(QSize(32, 32), Qt::AspectRatioMode::KeepAspectRatio, Qt::SmoothTransformation);
+		while (title.startsWith(' ') || title.startsWith('\t')) {
+			title = title.remove(0, 1);
+		}
+		QStandardItem * item = new QStandardItem(QIcon(pixmap), title);
+		item->setData(s, LibraryFilterModel::IniFileRole);
+		item->setData(false, LibraryFilterModel::InstalledRole);
+		item->setData(false, LibraryFilterModel::HiddenRole);
+		item->setData(-1, LibraryFilterModel::ModIDRole);
+		item->setEditable(false);
+		item->setData(int(getGothicVersion()), LibraryFilterModel::GothicRole);
+		
+		_model->appendRow(item);
+	}
+}
+
+void Gothic1And2Launcher::parseInstalledMods() {
+	if (Config::extendedLogging) {
+		LOGINFO("Checking Files in " << Config::MODDIR.toStdString());
+	}
+	QDirIterator it(Config::MODDIR + "/mods", QStringList() << "*.ini", QDir::Files, QDirIterator::Subdirectories);
+	while (it.hasNext()) {
+		it.next();
+		QString fileName = it.filePath();
+		if (!fileName.isEmpty()) {
+			parseIni(fileName);
+		}
+	}
+}
+
+void Gothic1And2Launcher::parseMod(QString folder) {
+	QDirIterator it(folder, { "*.ini" }, QDir::Files, QDirIterator::Subdirectories);
+	QStringList files;
+	while (it.hasNext()) {
+		it.next();
+		QString fileName = it.filePath();
+		if (!fileName.isEmpty()) {
+			parseIni(fileName);
+		}
+	}
+}
+
+void Gothic1And2Launcher::parseIni(QString file) {
+	QSettings iniParser(file, QSettings::IniFormat);
+	QString title = iniParser.value("INFO/Title", "").toString();
+	if (title.isEmpty()) {
+		if (Config::extendedLogging) {
+			LOGINFO("No title set in " << file.toStdString());
+		}
+		return;
+	}
+	const QString icon = iniParser.value("INFO/Icon", "").toString();
+	QFileInfo fi(file);
+	const QString iconPath = fi.absolutePath() + "/" + icon;
+	QPixmap pixmap(iconPath);
+	QString modID = fi.absolutePath();
+	QDir md(Config::MODDIR + "/mods");
+	modID.replace(md.absolutePath(), "");
+	modID = modID.split("/", QString::SplitBehavior::SkipEmptyParts).front();
+	Database::DBError err;
+	common::GameType mid;
+	bool found;
+	if (!Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + modID.toStdString() + " LIMIT 1;", err).empty()) {
+		mid = static_cast<common::GameType>(Database::queryNth<std::vector<int>, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + modID.toStdString() + " LIMIT 1;", err, 0).front());
+
+		if (mid != getGothicVersion()) return;
+		
+		found = true;
+	} else {
+		return;
+	}
+	if (pixmap.isNull()) {
+		if (found) {
+			pixmap = getDefaultIcon();
+		}
+	}
+	pixmap = pixmap.scaled(QSize(32, 32), Qt::AspectRatioMode::KeepAspectRatio, Qt::SmoothTransformation);
+	while (title.startsWith(' ') || title.startsWith('\t')) {
+		title = title.remove(0, 1);
+	}
+	QStandardItem * item = new QStandardItem(QIcon(pixmap), title);
+	item->setData(file, LibraryFilterModel::IniFileRole);
+	item->setData(true, LibraryFilterModel::InstalledRole);
+	item->setData(modID.toInt(), LibraryFilterModel::ModIDRole);
+	item->setData(int(mid), LibraryFilterModel::GothicRole);
+	if (!Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID FROM hiddenMods WHERE ModID = " + modID.toStdString() + " LIMIT 1;", err).empty()) {
+		item->setData(true, LibraryFilterModel::HiddenRole);
+	} else {
+		item->setData(false, LibraryFilterModel::HiddenRole);
+	}
+	item->setEditable(false);
+	_model->appendRow(item);
+
+	QString hashSum;
+	const bool b = utils::Hashing::hash(file, hashSum);
+	if (b) {
+		_parsedInis.insert(fi.fileName(), std::make_tuple(hashSum, modID.toInt()));
+	}
+	if (Config::extendedLogging) {
+		LOGINFO("Listing Mod: " << title.toStdString());
+	}
+}
+
+void Gothic1And2Launcher::updateModel(QStandardItemModel * model) {
+	_model = model;
+	
+	parseMods();
+}
+
+void Gothic1And2Launcher::finishedInstallation(int modID, int packageID, bool success) {
+	if (!success) return;
+
+	if (packageID != -1) return;
+
+	parseMod(QString("%1/mods/%2").arg(Config::MODDIR).arg(modID));
 }

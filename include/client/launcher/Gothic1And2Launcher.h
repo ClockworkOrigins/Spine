@@ -20,8 +20,8 @@
 
 #include "launcher/ILauncher.h"
 
-#include <QColor>
 #include <QMap>
+#include <QPixmap>
 #include <QProcess>
 #include <QString>
 
@@ -75,32 +75,34 @@ namespace launcher {
 
 		virtual bool canBeStartedWithSteam() const = 0;
 
-	private:
-		QPushButton * _startSpacerButton;
-		QLabel * _adminInfoLabel;
-		QLabel * _nameLabel;
-		QLabel * _versionLabel;
-		QLabel * _teamLabel;
-		QLabel * _contactLabel;
-		QLabel * _homepageLabel;
-		QGroupBox * _patchGroup;
-		QGridLayout * _patchLayout;
-		QGroupBox * _pdfGroup;
-		QVBoxLayout * _pdfLayout;
+		virtual QPixmap getDefaultIcon() const = 0;
 
-		QCheckBox * _compileScripts;
-		QCheckBox * _startupWindowed;
-		QCheckBox * _convertTextures;
-		QCheckBox *_noSound;
-		QCheckBox * _noMusic;
-		QLabel * _zSpyLabel;
-		QSlider * _zSpyLevel;
+	private:
+		QPushButton * _startSpacerButton = nullptr;
+		QLabel * _adminInfoLabel = nullptr;
+		QLabel * _nameLabel = nullptr;
+		QLabel * _versionLabel = nullptr;
+		QLabel * _teamLabel = nullptr;
+		QLabel * _contactLabel = nullptr;
+		QLabel * _homepageLabel = nullptr;
+		QGroupBox * _patchGroup = nullptr;
+		QGridLayout * _patchLayout = nullptr;
+		QGroupBox * _pdfGroup = nullptr;
+		QVBoxLayout * _pdfLayout = nullptr;
+
+		QCheckBox * _compileScripts = nullptr;
+		QCheckBox * _startupWindowed = nullptr;
+		QCheckBox * _convertTextures = nullptr;
+		QCheckBox *_noSound = nullptr;
+		QCheckBox * _noMusic = nullptr;
+		QLabel * _zSpyLabel = nullptr;
+		QSlider * _zSpyLevel = nullptr;
 		
 		QStringList _copiedFiles;
 		QStringList _skippedFiles;
 		QString _lastBaseDir;
 
-		bool _developerModeActive;
+		bool _developerModeActive = false;
 
 		QList<QCheckBox *> _patchList;
 		QList<QLabel *> _pdfList;
@@ -110,22 +112,24 @@ namespace launcher {
 		QList<std::tuple<QString, QString, QString>> _gothicIniBackup;
 		QList<std::tuple<QString, QString, QString>> _systempackIniBackup;
 
-		int _patchCounter;
+		int _patchCounter = 0;
 
-		bool _hideIncompatible;
+		bool _hideIncompatible = true;
 
-		QNetworkAccessManager * _networkAccessManager;
+		QNetworkAccessManager * _networkAccessManager = nullptr;
 
 		Qt::WindowStates _oldWindowState;
 
 		QColor _splashTextColor;
 
-		int _gmpCounterBackup;
+		int _gmpCounterBackup = 0;
 
 		QStringList _systempackPreLoads;
 		QStringList _unionPlugins;
 
-		bool _zSpyActivated;
+		bool _zSpyActivated = false;
+		
+		QMap<QString, std::tuple<QString, int32_t>> _parsedInis;
 
 		void start() override;
 		
@@ -161,6 +165,16 @@ namespace launcher {
 		void syncAdditionalTimes(int duration) override;
 
 		void setZSpyActivated(bool enabled) override;
+		
+		void parseMods();
+		void parseMods(QString baseDir);
+		void parseInstalledMods();
+		void parseMod(QString folder);
+		void parseIni(QString file);
+
+		void updateModel(QStandardItemModel * model) override;
+
+		void finishedInstallation(int modID, int packageID, bool success) override;
 	};
 
 } /* namespace launcher */

@@ -52,6 +52,8 @@ using namespace spine::client;
 
 Gothic1Launcher::Gothic1Launcher() {
 	connect(this, &Gothic1Launcher::updatedPath, this, &Gothic1Launcher::patchCheck, Qt::QueuedConnection);
+
+	_defaultIcon = QPixmap::fromImage(QImage(":Gothic.ico"));
 }
 
 bool Gothic1Launcher::supportsGame(common::GameType gothic) const {
@@ -222,4 +224,8 @@ void Gothic1Launcher::startViaSteam(QStringList arguments) {
 	connect(sp, &SteamProcess::finished, sp, &SteamProcess::deleteLater);
 	sp->start(5);
 #endif
+}
+
+QPixmap Gothic1Launcher::getDefaultIcon() const {
+	return _defaultIcon;
 }

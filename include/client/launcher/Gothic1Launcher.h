@@ -40,6 +40,8 @@ namespace launcher {
 		void patchCheck();
 
 	private:
+		QPixmap _defaultIcon;
+		
 		common::GameType getGothicVersion() const override {
 			return common::GameType::Gothic;
 		};
@@ -47,6 +49,7 @@ namespace launcher {
 		QString getExecutable() const override;
 		bool canBeStartedWithSteam() const override;
 		void startViaSteam(QStringList arguments) override;
+		QPixmap getDefaultIcon() const override;
 	};
 
 } /* namespace launcher */

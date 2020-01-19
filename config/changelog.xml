@@ -1683,9 +1683,11 @@
 		<Bug language="English">Mods that haven't been downloaded via Spine can be started again</Bug>
 	</Version>
 	<Version majorVersion="1" minorVersion="16" patchVersion="0">
+		<Enhancement language="Deutsch">Wechsel in Bibliothek sowie Installation und Deinstallation sind jetzt deutlich schneller</Enhancement>
 		<Bug language="Deutsch">Hack für Datenausführungsverhinderung wieder eingebaut, weil er scheinbar doch ab und an funktioniert hat</Bug>
 		<Bug language="Deutsch">Wiederherstellen von ini Dateien funktioniert jetzt</Bug>
 		
+		<Enhancement language="English">Switching to library as well as installation and uninstallation are a lot faster now</Enhancement>
 		<Bug language="English">Restored hack for DEP again as it seems like it worked under some circumstances</Bug>
 		<Bug language="English">Fixed restoring of ini files</Bug>
 	</Version>

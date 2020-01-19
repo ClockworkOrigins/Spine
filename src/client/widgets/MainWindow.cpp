@@ -27,6 +27,8 @@
 
 #include "common/MessageStructs.h"
 
+#include "launcher/LauncherFactory.h"
+
 #include "models/SpineEditorModel.h"
 
 #include "utils/Config.h"
@@ -105,6 +107,7 @@
 #endif
 
 using namespace spine;
+using namespace spine::launcher;
 using namespace spine::translator;
 using namespace spine::utils;
 using namespace spine::widgets;
@@ -125,7 +128,7 @@ enum MainTabsOffline {
 
 MainWindow * MainWindow::instance = nullptr;
 
-MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par), _modListView(nullptr), _modInfoView(nullptr), _profileView(nullptr), _friendsView(nullptr), _gothicDirectory(), _gothic2Directory(), _settingsDialog(nullptr), _autoUpdateDialog(), _changelogDialog(nullptr), _modListModel(nullptr), _loginDialog(nullptr), _modUpdateDialog(nullptr), _installGothic2FromCDDialog(nullptr), _feedbackDialog(nullptr), _developerModeActive(false), _devModeAction(nullptr), _modDatabaseView(nullptr), _parsedInis(), _tabWidget(nullptr), _spineEditorAction(nullptr), _spineEditor(nullptr), _modInfoPage(nullptr) {
+MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par), _modListView(nullptr), _modInfoView(nullptr), _profileView(nullptr), _friendsView(nullptr), _gothicDirectory(), _gothic2Directory(), _settingsDialog(nullptr), _autoUpdateDialog(), _changelogDialog(nullptr), _modListModel(nullptr), _loginDialog(nullptr), _modUpdateDialog(nullptr), _installGothic2FromCDDialog(nullptr), _feedbackDialog(nullptr), _developerModeActive(false), _devModeAction(nullptr), _modDatabaseView(nullptr), _tabWidget(nullptr), _spineEditorAction(nullptr), _spineEditor(nullptr), _modInfoPage(nullptr) {
 	instance = this;
 
 #ifdef Q_OS_WIN
@@ -246,6 +249,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 
 		connect(_modDatabaseView, &ModDatabaseView::finishedInstallation, startPage, &StartPageWidget::finishedInstallation);
 		connect(_modDatabaseView, &ModDatabaseView::finishedInstallation, _modInfoPage, &ModInfoPage::finishedInstallation);
+		connect(_modDatabaseView, &ModDatabaseView::finishedInstallation, LauncherFactory::getInstance(), &LauncherFactory::finishedInstallation);
 
 		connect(_modInfoPage, &ModInfoPage::triggerModStart, this, &MainWindow::triggerModStart);
 	}
@@ -478,7 +482,25 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	LOGINFO("Memory Usage MainWindow c'tor #13: " << getPRAMValue());
 #endif
 
-	parseMods();
+	LauncherFactory::getInstance()->updateModel(_modListModel);
+	
+	_sortModel->sort(0);
+
+	const auto vec = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + LASTPLAYED_DATABASE, "SELECT ModID, Ini FROM lastPlayed LIMIT 1;", err);
+	
+	if (!vec.empty()) {
+		for (int i = 0; i < _sortModel->rowCount(); i++) {
+			QModelIndex idx = _sortModel->index(i, 0);
+			const QString modID = QString::fromStdString(vec[0][0]);
+			const QString iniFile = QString::fromStdString(vec[0][1]);
+			if (idx.data(LibraryFilterModel::ModIDRole).toInt() == std::stoi(vec[0][0]) && idx.data(LibraryFilterModel::IniFileRole).toString().contains(iniFile)) {
+				_modListView->selectionModel()->select(idx, QItemSelectionModel::SelectionFlag::SelectCurrent);
+				_modInfoView->selectMod(modID, iniFile);
+				_modListView->scrollTo(idx);
+				break;
+			}
+		}
+	}
 
 #ifdef Q_OS_WIN
 	LOGINFO("Memory Usage MainWindow c'tor #14: " << getPRAMValue());
@@ -803,7 +825,7 @@ void MainWindow::pathChanged() {
 	}
 
 	_modListModel->clear();
-	parseMods();
+	LauncherFactory::getInstance()->updateModel(_modListModel);
 }
 
 void MainWindow::tabChanged(int index) {
@@ -814,18 +836,11 @@ void MainWindow::tabChanged(int index) {
 		} else if (index == MainTabsOnline::Profile) {
 			_profileView->updateList();
 		} else if (index == MainTabsOnline::LibraryOnline) {
-			_modListModel->clear();
-			parseMods();
 			_profileView->reset();
 		} else if (index == MainTabsOnline::Friends) {
 			_friendsView->updateFriendList();
 		} else {
 			_profileView->reset();
-		}
-	} else {
-		if (index == MainTabsOffline::LibraryOffline) {
-			_modListModel->clear();
-			parseMods();
 		}
 	}
 }
@@ -983,7 +998,7 @@ void MainWindow::setDevPath() {
 	_spineEditor->getModel()->setGothicVersion(gv);
 
 	_modListModel->clear();
-	parseMods();
+	LauncherFactory::getInstance()->updateModel(_modListModel);
 }
 
 void MainWindow::submitCompatibility() {
@@ -1079,8 +1094,11 @@ void MainWindow::uninstallMod() {
 
 	const bool uninstalled = client::Uninstaller::uninstall(modId, idx.data(Qt::DisplayRole).toString(), directory);
 	if (uninstalled) {
-		_modListModel->clear();
-		parseMods();
+		const auto match = _modListModel->match(_modListModel->index(0, 0), LibraryFilterModel::ModIDRole, modId);
+		
+		if (!match.isEmpty()) {
+			_modListModel->removeRows(match[0].row(), match.count());
+		}
 	}
 }
 
@@ -1158,243 +1176,6 @@ void MainWindow::findGothic() {
 		_settingsDialog->getLocationSettingsWidget()->setGothicDirectory(_gothicDirectory);
 		_settingsDialog->getLocationSettingsWidget()->setGothic2Directory(_gothic2Directory);
 		return;
-	}
-}
-
-void MainWindow::parseMods() {
-	if (Config::extendedLogging) {
-		LOGINFO("Parsing Mods");
-	}
-
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage parseMods #1: " << getPRAMValue());
-#endif
-	_parsedInis.clear();
-	if (!_developerModeActive) {
-		if (Config::extendedLogging) {
-			LOGINFO("Parsing Installed Mods");
-		}
-		parseInstalledMods();
-	}
-
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage parseMods #2: " << getPRAMValue());
-#endif
-	if (!_gothicDirectory.isEmpty()) {
-		if (Config::extendedLogging) {
-			LOGINFO("Parsing Mods in Gothic 1 Folder");
-		}
-		parseMods(_gothicDirectory);
-	}
-
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage parseMods #3: " << getPRAMValue());
-#endif
-	if (!_gothic2Directory.isEmpty()) {
-		if (Config::extendedLogging) {
-			LOGINFO("Parsing Mods in Gothic 2 Folder");
-		}
-		parseMods(_gothic2Directory);
-	}
-
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage parseMods #4: " << getPRAMValue());
-#endif
-	_sortModel->sort(0);
-
-	Database::DBError err;
-	std::vector<std::vector<std::string>> vec = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + LASTPLAYED_DATABASE, "SELECT ModID, Ini FROM lastPlayed LIMIT 1;", err);
-	
-	if (!vec.empty()) {
-		for (int i = 0; i < _sortModel->rowCount(); i++) {
-			QModelIndex idx = _sortModel->index(i, 0);
-			const QString modID = QString::fromStdString(vec[0][0]);
-			const QString iniFile = QString::fromStdString(vec[0][1]);
-			if (idx.data(LibraryFilterModel::ModIDRole).toInt() == std::stoi(vec[0][0]) && idx.data(LibraryFilterModel::IniFileRole).toString().contains(iniFile)) {
-				_modListView->selectionModel()->select(idx, QItemSelectionModel::SelectionFlag::SelectCurrent);
-				_modInfoView->selectMod(modID, iniFile);
-				_modListView->scrollTo(idx);
-				break;
-			}
-		}
-	}
-
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage parseMods #5: " << getPRAMValue());
-#endif
-}
-
-void MainWindow::parseMods(QString baseDir) {
-	QStringList files;
-	{
-		QDirIterator it(baseDir + "/System", QStringList() << "*.ini", QDir::Files);
-		while (it.hasNext()) {
-			it.next();
-			QString fileName = it.filePath();
-			if (!fileName.isEmpty()) {
-				files.append(fileName);
-			}
-		}
-	}
-	for (const QString & s : files) {
-		auto it = _parsedInis.find(QFileInfo(s).fileName());
-		if (it != _parsedInis.end()) {
-			const bool b = utils::Hashing::checkHash(s, std::get<0>(it.value()));
-			if (b) {
-				// remove all files belonging to this mod AND skip it
-				// this can happen in two cases:
-				// 1. the mod is installed via Spine and manually (don't do such things, that's stupid)
-				// 2. an error occurred and Spine couldn't remove mod files for some reason
-				Database::DBError err;
-				const auto fs = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT File FROM modfiles WHERE ModID = " + std::to_string(std::get<1>(it.value())) + ";", err);
-				for (const std::string & file : fs) {
-					QFile tmpF(baseDir + "/" + QString::fromStdString(file));
-					tmpF.remove();
-				}
-
-				QDirIterator itBackup(baseDir, QStringList() << "*.spbak", QDir::Files, QDirIterator::Subdirectories);
-				QStringList backupFiles;
-				while (itBackup.hasNext()) {
-					itBackup.next();
-					QString backupFileName = itBackup.filePath();
-					if (!backupFileName.isEmpty()) {
-						backupFiles.append(backupFileName);
-					}
-				}
-				for (QString backupFile : backupFiles) {
-					QFile f2(backupFile);
-					backupFile.chop(6);
-					f2.rename(backupFile);
-				}
-				QDirIterator dirIt(baseDir + "/Data", QStringList() << "*mod", QDir::Files);
-				while (dirIt.hasNext()) {
-					dirIt.next();
-					QString fileName = dirIt.filePath();
-					if (!fileName.isEmpty()) {
-						QFile tmpF(fileName);
-						tmpF.remove();
-					}
-				}
-				QFile(baseDir + "/System/SpineAPI.dll").remove();
-				QFile(baseDir + "/System/m2etis.dll").remove();
-				QFile(baseDir + "/Data/Spine.vdf").remove();
-				continue;
-			}
-		}
-
-		QSettings iniParser(s, QSettings::IniFormat);
-		QString title = iniParser.value("INFO/Title", "").toString();
-
-		if (title.isEmpty()) continue;
-
-		const QString icon = iniParser.value("INFO/Icon", "").toString();
-		QPixmap pixmap(baseDir + "/System/" + icon);
-		if (pixmap.isNull()) {
-			if (QFileInfo::exists(baseDir + "/System/Gothic.exe")) {
-				static QPixmap p1 = QPixmap::fromImage(QImage(":Gothic.ico"));
-				pixmap = p1;
-			} else if (QFileInfo::exists(baseDir + "/System/Gothic2.exe")) {					
-				static QPixmap p2 = QPixmap::fromImage(QImage(":Gothic2.ico"));
-				pixmap = p2;
-			}
-		}
-		pixmap = pixmap.scaled(QSize(32, 32), Qt::AspectRatioMode::KeepAspectRatio, Qt::SmoothTransformation);
-		while (title.startsWith(' ') || title.startsWith('\t')) {
-			title = title.remove(0, 1);
-		}
-		QStandardItem * item = new QStandardItem(QIcon(pixmap), title);
-		item->setData(s, LibraryFilterModel::IniFileRole);
-		item->setData(false, LibraryFilterModel::InstalledRole);
-		item->setData(false, LibraryFilterModel::HiddenRole);
-		item->setData(-1, LibraryFilterModel::ModIDRole);
-		item->setEditable(false);
-		if (QFileInfo::exists(baseDir + "/System/Gothic.exe")) {
-			item->setData(int(common::GameType::Gothic), LibraryFilterModel::GothicRole);
-		} else if (QFileInfo::exists(baseDir + "/System/Gothic2.exe")) {
-			item->setData(int(common::GameType::Gothic2), LibraryFilterModel::GothicRole);
-		}
-		_modListModel->appendRow(item);
-	}
-}
-
-void MainWindow::parseInstalledMods() {
-	if (Config::extendedLogging) {
-		LOGINFO("Checking Files in " << Config::MODDIR.toStdString());
-	}
-	QDirIterator it(Config::MODDIR + "/mods", QStringList() << "*.ini", QDir::Files, QDirIterator::Subdirectories);
-	QStringList files;
-	while (it.hasNext()) {
-		it.next();
-		QString fileName = it.filePath();
-		if (!fileName.isEmpty()) {
-			files.append(fileName);
-		}
-	}
-	for (const QString & s : files) {
-		QSettings iniParser(s, QSettings::IniFormat);
-		QString title = iniParser.value("INFO/Title", "").toString();
-		if (title.isEmpty()) {
-			if (Config::extendedLogging) {
-				LOGINFO("No title set in " << s.toStdString());
-			}
-			continue;
-		}
-		const QString icon = iniParser.value("INFO/Icon", "").toString();
-		QFileInfo fi(s);
-		const QString iconPath = fi.absolutePath() + "/" + icon;
-		QPixmap pixmap(iconPath);
-		QString modID = fi.absolutePath();
-		QDir md(Config::MODDIR + "/mods");
-		modID.replace(md.absolutePath(), "");
-		modID = modID.split("/", QString::SplitBehavior::SkipEmptyParts).front();
-		Database::DBError err;
-		common::GameType mid;
-		bool found;
-		if (!Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + modID.toStdString() + " LIMIT 1;", err).empty()) {
-			mid = common::GameType(Database::queryNth<std::vector<int>, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + modID.toStdString() + " LIMIT 1;", err, 0).front());
-			found = true;
-		} else {
-			if (Config::extendedLogging) {
-				LOGINFO("Mod installed, but not in database");
-			}
-			continue;
-		}
-		if (pixmap.isNull()) {
-			if (found) {
-				if (mid == common::GameType::Gothic && QFileInfo::exists(_gothicDirectory + "/System/Gothic.exe")) {
-					static QPixmap p1 = QPixmap::fromImage(QImage(":Gothic.ico"));
-					pixmap = p1;
-				} else if (mid == common::GameType::Gothic2 && QFileInfo::exists(_gothic2Directory + "/System/Gothic2.exe")) {
-					static QPixmap p2 = QPixmap::fromImage(QImage(":Gothic2.ico"));
-					pixmap = p2;
-				}
-			}
-		}
-		pixmap = pixmap.scaled(QSize(32, 32), Qt::AspectRatioMode::KeepAspectRatio, Qt::SmoothTransformation);
-		while (title.startsWith(' ') || title.startsWith('\t')) {
-			title = title.remove(0, 1);
-		}
-		QStandardItem * item = new QStandardItem(QIcon(pixmap), title);
-		item->setData(s, LibraryFilterModel::IniFileRole);
-		item->setData(true, LibraryFilterModel::InstalledRole);
-		item->setData(modID.toInt(), LibraryFilterModel::ModIDRole);
-		item->setData(int(mid), LibraryFilterModel::GothicRole);
-		if (!Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID FROM hiddenMods WHERE ModID = " + modID.toStdString() + " LIMIT 1;", err).empty()) {
-			item->setData(true, LibraryFilterModel::HiddenRole);
-		} else {
-			item->setData(false, LibraryFilterModel::HiddenRole);
-		}
-		item->setEditable(false);
-		_modListModel->appendRow(item);
-
-		QString hashSum;
-		const bool b = utils::Hashing::hash(s, hashSum);
-		if (b) {
-			_parsedInis.insert(QFileInfo(s).fileName(), std::make_tuple(hashSum, modID.toInt()));
-		}
-		if (Config::extendedLogging) {
-			LOGINFO("Listing Mod: " << title.toStdString());
-		}
 	}
 }
 

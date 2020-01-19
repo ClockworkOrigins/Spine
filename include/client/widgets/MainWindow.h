@@ -105,7 +105,6 @@ namespace widgets {
 		bool _developerModeActive;
 		QAction * _devModeAction;
 		ModDatabaseView * _modDatabaseView;
-		QMap<QString, std::tuple<QString, int32_t>> _parsedInis;
 		QTabWidget * _tabWidget;
 		QAction * _spineEditorAction;
 		SpineEditor * _spineEditor;
@@ -114,9 +113,6 @@ namespace widgets {
 		static MainWindow * instance;
 
 		void findGothic();
-		void parseMods();
-		void parseMods(QString baseDir);
-		void parseInstalledMods();
 		void restoreSettings();
 		void saveSettings();
 
