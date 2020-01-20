@@ -66,6 +66,8 @@ namespace launcher {
 	protected:
 		QString _directory;
 
+		bool _developerModeActive = false;
+
 		void createWidget() override;
 		virtual common::GameType getGothicVersion() const = 0;
 
@@ -101,8 +103,6 @@ namespace launcher {
 		QStringList _copiedFiles;
 		QStringList _skippedFiles;
 		QString _lastBaseDir;
-
-		bool _developerModeActive = false;
 
 		QList<QCheckBox *> _patchList;
 		QList<QLabel *> _pdfList;

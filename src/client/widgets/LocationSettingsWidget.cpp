@@ -25,7 +25,7 @@
 #include "widgets/UpdateLanguage.h"
 
 #include <QApplication>
-#include <QtConcurrentRun>
+#include <QCheckBox>
 #include <QDirIterator>
 #include <QFile>
 #include <QFileDialog>
@@ -38,6 +38,7 @@
 #include <QProgressDialog>
 #include <QPushButton>
 #include <QSettings>
+#include <QtConcurrentRun>
 #include <QVBoxLayout>
 
 using namespace spine;
@@ -46,7 +47,7 @@ using namespace spine::widgets;
 
 LocationSettingsWidget * LocationSettingsWidget::instance = nullptr;
 
-LocationSettingsWidget::LocationSettingsWidget(bool temporary, QWidget * par) : QWidget(par), _gothicPathLineEdit(nullptr), _gothic2PathLineEdit(nullptr), _downloadPathLineEdit(nullptr), _screenshotPathLineEdit(nullptr), _futureCounter(0), _cancelSearch(false) {
+LocationSettingsWidget::LocationSettingsWidget(bool temporary, QWidget * par) : QWidget(par), _gothicPathLineEdit(nullptr), _gothic2PathLineEdit(nullptr), _downloadPathLineEdit(nullptr), _screenshotPathLineEdit(nullptr), _futureCounter(0), _cancelSearch(false), _gothicSteam(nullptr), _gothic2Steam(nullptr) {
 	instance = this;
 	
 	QVBoxLayout * l = new QVBoxLayout();
@@ -76,10 +77,15 @@ LocationSettingsWidget::LocationSettingsWidget(bool temporary, QWidget * par) : 
 		_gothicPathLineEdit->setValidator(new DirValidator());
 		_gothicPathLineEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
 		QPushButton * gothicPathPushButton = new QPushButton("...", this);
+		_gothicSteam = new QCheckBox(QApplication::tr("StartWithSteam"), this);
+		UPDATELANGUAGESETTEXT(_gothicSteam, "StartWithSteam");
 		hl->addWidget(gothicPathLabel, 0, 0);
 		hl->addWidget(_gothicPathLineEdit, 0, 1);
 		hl->addWidget(gothicPathPushButton, 0, 2);
+		hl->addWidget(_gothicSteam, 0, 3);
 		connect(gothicPathPushButton, &QPushButton::released, this, &LocationSettingsWidget::openGothicFileDialog);
+
+		_gothicSteam->setChecked(Config::IniParser->value("PATH/GothicWithSteam", false).toBool());
 
 		hl->setAlignment(Qt::AlignLeft);
 
@@ -93,10 +99,15 @@ LocationSettingsWidget::LocationSettingsWidget(bool temporary, QWidget * par) : 
 		_gothic2PathLineEdit->setValidator(new DirValidator());
 		_gothic2PathLineEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
 		gothicPathPushButton = new QPushButton("...", this);
+		_gothic2Steam = new QCheckBox(QApplication::tr("StartWithSteam"), this);
+		UPDATELANGUAGESETTEXT(_gothic2Steam, "StartWithSteam");
 		hl->addWidget(gothicPathLabel, 1, 0);
 		hl->addWidget(_gothic2PathLineEdit, 1, 1);
 		hl->addWidget(gothicPathPushButton, 1, 2);
+		hl->addWidget(_gothic2Steam, 1, 3);
 		connect(gothicPathPushButton, &QPushButton::released, this, &LocationSettingsWidget::openGothic2FileDialog);
+
+		_gothicSteam->setChecked(Config::IniParser->value("PATH/Gothic2WithSteam", false).toBool());
 
 		hl->setAlignment(Qt::AlignLeft);
 
@@ -191,6 +202,7 @@ void LocationSettingsWidget::saveSettings() {
 			if (dynamic_cast<const DirValidator *>(_gothicPathLineEdit->validator())->isValid(_gothicPathLineEdit->text()) && isGothicValid(false)) {
 				changedG1Path = true;
 				Config::IniParser->setValue("PATH/Gothic", _gothicPathLineEdit->text());
+				Config::IniParser->setValue("PATH/GothicWithSteam", _gothicSteam->isChecked());
 			} else {
 				if (!_gothicPathLineEdit->text().isEmpty()) {
 					QMessageBox resultMsg(QMessageBox::Icon::Warning, QApplication::tr("InvalidPath"), QApplication::tr("InvalidGothicPath"), QMessageBox::StandardButton::Ok);
@@ -208,6 +220,7 @@ void LocationSettingsWidget::saveSettings() {
 			if (dynamic_cast<const DirValidator *>(_gothic2PathLineEdit->validator())->isValid(_gothic2PathLineEdit->text()) && isGothic2Valid(false)) {
 				changedG2Path = true;
 				Config::IniParser->setValue("PATH/Gothic2", _gothic2PathLineEdit->text());
+				Config::IniParser->setValue("PATH/Gothic2WithSteam", _gothic2Steam->isChecked());
 			} else {
 				if (!_gothic2PathLineEdit->text().isEmpty()) {
 					QMessageBox resultMsg(QMessageBox::Icon::Warning, QApplication::tr("InvalidPath"), QApplication::tr("InvalidGothic2Path"), QMessageBox::StandardButton::Ok);
@@ -490,4 +503,12 @@ void LocationSettingsWidget::checkPartition(QString partition, QString filter, b
 	if (!recursive) {
 		--_futureCounter;
 	}
+}
+
+bool LocationSettingsWidget::startGothicWithSteam() const {
+	return _gothicSteam->isChecked();
+}
+
+bool LocationSettingsWidget::startGothic2WithSteam() const {
+	return _gothic2Steam->isChecked();
 }

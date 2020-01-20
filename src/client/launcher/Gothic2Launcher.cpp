@@ -30,6 +30,7 @@
 
 #include "widgets/DownloadProgressDialog.h"
 #include "widgets/GeneralSettingsWidget.h"
+#include "widgets/LocationSettingsWidget.h"
 #include "widgets/MainWindow.h"
 
 #include "clockUtils/log/Log.h"
@@ -45,6 +46,7 @@
 using namespace spine;
 using namespace spine::launcher;
 using namespace spine::utils;
+using namespace spine::widgets;
 
 #ifdef Q_OS_WIN
 using namespace spine::client;
@@ -191,7 +193,7 @@ QString Gothic2Launcher::getExecutable() const {
 
 bool Gothic2Launcher::canBeStartedWithSteam() const {
 #ifdef Q_OS_WIN
-	return _directory.contains("Steam", Qt::CaseInsensitive) && Config::IniParser->value("BETA/StartViaSteam", false).toBool();
+	return LocationSettingsWidget::getInstance()->startGothic2WithSteam() && !_developerModeActive;
 #else
 	return false;
 #endif

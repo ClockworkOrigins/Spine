@@ -3041,5 +3041,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>DependenciesMissing</source>
         <translation>To play the following patches/tools are required, but not installed:</translation>
     </message>
+    <message>
+        <source>StartWithSteam</source>
+        <translation>Start with Steam</translation>
+    </message>
 </context>
 </TS>

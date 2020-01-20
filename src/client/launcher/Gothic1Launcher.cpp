@@ -30,6 +30,7 @@
 
 #include "widgets/DownloadProgressDialog.h"
 #include "widgets/GeneralSettingsWidget.h"
+#include "widgets/LocationSettingsWidget.h"
 #include "widgets/MainWindow.h"
 
 #include "clockUtils/log/Log.h"
@@ -45,6 +46,7 @@
 using namespace spine;
 using namespace spine::launcher;
 using namespace spine::utils;
+using namespace spine::widgets;
 
 #ifdef Q_OS_WIN
 using namespace spine::client;
@@ -214,7 +216,7 @@ QString Gothic1Launcher::getExecutable() const {
 }
 
 bool Gothic1Launcher::canBeStartedWithSteam() const {
-	return false;
+	return false && LocationSettingsWidget::getInstance()->startGothicWithSteam() && !_developerModeActive; // can't start Gothic with Steam yet
 }
 
 void Gothic1Launcher::startViaSteam(QStringList arguments) {

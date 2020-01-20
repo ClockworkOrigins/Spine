@@ -3036,5 +3036,9 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>DependenciesMissing</source>
         <translation>Zum Spielen sind die folgenden nicht installierten Patches/Tools erforderlich:</translation>
     </message>
+    <message>
+        <source>StartWithSteam</source>
+        <translation>Mit Steam starten</translation>
+    </message>
 </context>
 </TS>

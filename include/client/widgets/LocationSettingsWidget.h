@@ -22,6 +22,7 @@
 
 #include <QWidget>
 
+class QCheckBox;
 class QLineEdit;
 class QSettings;
 
@@ -47,6 +48,9 @@ namespace widgets {
 
 		bool isGothicValid(bool restored) const;
 		bool isGothic2Valid(bool restored) const;
+
+		bool startGothicWithSteam() const;
+		bool startGothic2WithSteam() const;
 
 	signals:
 		void pathChanged();
@@ -77,6 +81,9 @@ namespace widgets {
 		QLineEdit * _screenshotPathLineEdit;
 		std::atomic<int> _futureCounter;
 		bool _cancelSearch;
+
+		QCheckBox * _gothicSteam;
+		QCheckBox * _gothic2Steam;
 
 		static LocationSettingsWidget * instance;
 

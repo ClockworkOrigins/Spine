@@ -167,7 +167,6 @@ void SteamProcess::checkIfProcessRunning(int timeoutInSecs) {
 	}
 
 	if (!_arguments.isEmpty()) {
-		std::cout << "ProcID #1: " << procID << std::endl;
 		HANDLE handle;
 	
 		do {
@@ -185,7 +184,7 @@ void SteamProcess::checkIfProcessRunning(int timeoutInSecs) {
 			}
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 			findWindowFromProcessId(procID, popupCount);
-		} while (!popupAppeared || popupCount > 0);
+		} while ((!popupAppeared || popupCount > 0) && startTime.secsTo(QTime::currentTime()) < timeoutInSecs);
 
 		CloseHandle(handle);
 	}

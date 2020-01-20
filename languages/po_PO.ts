@@ -3036,5 +3036,9 @@ Zgodę można odwołać w każdej chwili. Wszystkie niezbędne informacje można
         <source>DependenciesMissing</source>
         <translation>Zum Spielen sind die folgenden nicht installierten Patches/Tools erforderlich:</translation>
     </message>
+    <message>
+        <source>StartWithSteam</source>
+        <translation>Mit Steam starten</translation>
+    </message>
 </context>
 </TS>
