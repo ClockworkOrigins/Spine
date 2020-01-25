@@ -102,6 +102,8 @@ void Gothic1And2Launcher::init() {
 	_gmpCounterBackup = -1;
 	_zSpyActivated = false;
 
+	_running = false;
+
 	_networkAccessManager = new QNetworkAccessManager(this);
 
 	qRegisterMetaType<std::vector<int32_t>>("std::vector<int32_t>");
@@ -782,11 +784,21 @@ void Gothic1And2Launcher::start() {
 	if (newGMP) {
 		usedExecutable = "gml.exe";
 	}
-	QtConcurrent::run([usedExecutable]() {
+
+	_running = true;
+	
+	QtConcurrent::run([this, usedExecutable]() {
 		QString tmp = usedExecutable;
 		HANDLE hProcess = GetProcHandle(q2s(tmp).c_str());
-		while (hProcess == INVALID_HANDLE_VALUE) {
+		while (hProcess == INVALID_HANDLE_VALUE && _running) {
 			hProcess = GetProcHandle(q2s(tmp).c_str());
+		}
+
+		if (!_running) {
+			if (hProcess != INVALID_HANDLE_VALUE) {
+				CloseHandle(hProcess);
+			}
+			return;
 		}
 
 		HMODULE hKernel32 = GetModuleHandle("kernel32");
@@ -818,6 +830,8 @@ void Gothic1And2Launcher::start() {
 }
 
 void Gothic1And2Launcher::finishedMod(int, QProcess::ExitStatus status) {
+	_running = false;
+	
 	LOGINFO("Finished Mod");
 	if (Config::extendedLogging) {
 		LOGINFO("Resetting ini files");
@@ -938,6 +952,9 @@ void Gothic1And2Launcher::finishedMod(int, QProcess::ExitStatus status) {
 			}
 		}
 	}
+
+	modFinished();
+	
 	removeModFiles();
 
 	if (QFileInfo::exists(_directory + "/System/BugslayerUtilG.dll")) {

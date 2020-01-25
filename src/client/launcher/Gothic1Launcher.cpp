@@ -52,7 +52,7 @@ using namespace spine::widgets;
 using namespace spine::client;
 #endif
 
-Gothic1Launcher::Gothic1Launcher() {
+Gothic1Launcher::Gothic1Launcher() : _startedWithSteam(false) {
 	connect(this, &Gothic1Launcher::updatedPath, this, &Gothic1Launcher::patchCheck, Qt::QueuedConnection);
 
 	_defaultIcon = QPixmap::fromImage(QImage(":Gothic.ico"));
@@ -216,12 +216,18 @@ QString Gothic1Launcher::getExecutable() const {
 }
 
 bool Gothic1Launcher::canBeStartedWithSteam() const {
-	return false && LocationSettingsWidget::getInstance()->startGothicWithSteam() && !_developerModeActive; // can't start Gothic with Steam yet
+	return LocationSettingsWidget::getInstance()->startGothicWithSteam() && !_developerModeActive; // can't start Gothic with Steam yet
 }
 
 void Gothic1Launcher::startViaSteam(QStringList arguments) {
 #ifdef Q_OS_WIN
-	SteamProcess * sp = new SteamProcess(65540, getExecutable(), arguments);
+	QFile::remove(_directory + "/System/Gothic.exe.bak");
+	QFile::rename(_directory + "/System/Gothic.exe", _directory + "/System/Gothic.exe.bak");
+	QFile::rename(_directory + "/System/GothicMod.exe", _directory + "/System/Gothic.exe");
+
+	_startedWithSteam = true;
+	
+	SteamProcess * sp = new SteamProcess(65540, "Gothic.exe", arguments);
 	connect(sp, &SteamProcess::finished, this, &Gothic1Launcher::finishedMod);
 	connect(sp, &SteamProcess::finished, sp, &SteamProcess::deleteLater);
 	sp->start(5);
@@ -230,4 +236,13 @@ void Gothic1Launcher::startViaSteam(QStringList arguments) {
 
 QPixmap Gothic1Launcher::getDefaultIcon() const {
 	return _defaultIcon;
+}
+
+void Gothic1Launcher::modFinished() {
+	if (!_startedWithSteam) return;
+
+	_startedWithSteam = false;
+
+	QFile::rename(_directory + "/System/Gothic.exe", _directory + "/System/GothicMod.exe");
+	QFile::rename(_directory + "/System/Gothic.exe.bak", _directory + "/System/Gothic.exe");
 }

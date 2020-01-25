@@ -107,7 +107,7 @@ LocationSettingsWidget::LocationSettingsWidget(bool temporary, QWidget * par) : 
 		hl->addWidget(_gothic2Steam, 1, 3);
 		connect(gothicPathPushButton, &QPushButton::released, this, &LocationSettingsWidget::openGothic2FileDialog);
 
-		_gothicSteam->setChecked(Config::IniParser->value("PATH/Gothic2WithSteam", false).toBool());
+		_gothic2Steam->setChecked(Config::IniParser->value("PATH/Gothic2WithSteam", false).toBool());
 
 		hl->setAlignment(Qt::AlignLeft);
 
@@ -202,7 +202,6 @@ void LocationSettingsWidget::saveSettings() {
 			if (dynamic_cast<const DirValidator *>(_gothicPathLineEdit->validator())->isValid(_gothicPathLineEdit->text()) && isGothicValid(false)) {
 				changedG1Path = true;
 				Config::IniParser->setValue("PATH/Gothic", _gothicPathLineEdit->text());
-				Config::IniParser->setValue("PATH/GothicWithSteam", _gothicSteam->isChecked());
 			} else {
 				if (!_gothicPathLineEdit->text().isEmpty()) {
 					QMessageBox resultMsg(QMessageBox::Icon::Warning, QApplication::tr("InvalidPath"), QApplication::tr("InvalidGothicPath"), QMessageBox::StandardButton::Ok);
@@ -213,6 +212,7 @@ void LocationSettingsWidget::saveSettings() {
 				_gothicPathLineEdit->setText("");
 			}
 		}
+		Config::IniParser->setValue("PATH/GothicWithSteam", _gothicSteam->isChecked());
 	}
 	{
 		const QString path = Config::IniParser->value("PATH/Gothic2", "").toString();
@@ -220,7 +220,6 @@ void LocationSettingsWidget::saveSettings() {
 			if (dynamic_cast<const DirValidator *>(_gothic2PathLineEdit->validator())->isValid(_gothic2PathLineEdit->text()) && isGothic2Valid(false)) {
 				changedG2Path = true;
 				Config::IniParser->setValue("PATH/Gothic2", _gothic2PathLineEdit->text());
-				Config::IniParser->setValue("PATH/Gothic2WithSteam", _gothic2Steam->isChecked());
 			} else {
 				if (!_gothic2PathLineEdit->text().isEmpty()) {
 					QMessageBox resultMsg(QMessageBox::Icon::Warning, QApplication::tr("InvalidPath"), QApplication::tr("InvalidGothic2Path"), QMessageBox::StandardButton::Ok);
@@ -231,6 +230,7 @@ void LocationSettingsWidget::saveSettings() {
 				_gothic2PathLineEdit->setText("");
 			}
 		}
+		Config::IniParser->setValue("PATH/Gothic2WithSteam", _gothic2Steam->isChecked());
 	}
 	if (changedG1Path || changedG2Path) {
 		emit pathChanged();
@@ -292,8 +292,14 @@ void LocationSettingsWidget::rejectSettings() {
 		_gothicPathLineEdit->setText(path);
 	}
 	{
+		_gothicSteam->setChecked(Config::IniParser->value("PATH/GothicWithSteam", false).toBool());
+	}
+	{
 		const QString path = Config::IniParser->value("PATH/Gothic2", "").toString();
 		_gothic2PathLineEdit->setText(path);
+	}
+	{
+		_gothic2Steam->setChecked(Config::IniParser->value("PATH/Gothic2WithSteam", false).toBool());
 	}
 	{
 		const QString path = Config::IniParser->value("PATH/Downloads", "").toString();

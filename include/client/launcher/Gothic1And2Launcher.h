@@ -79,6 +79,8 @@ namespace launcher {
 
 		virtual QPixmap getDefaultIcon() const = 0;
 
+		virtual void modFinished() {}
+
 	private:
 		QPushButton * _startSpacerButton = nullptr;
 		QLabel * _adminInfoLabel = nullptr;
@@ -130,6 +132,8 @@ namespace launcher {
 		bool _zSpyActivated = false;
 		
 		QMap<QString, std::tuple<QString, int32_t>> _parsedInis;
+
+		bool _running;
 
 		void start() override;
 		
