@@ -18,20 +18,18 @@
 
 #include "launcher/Gothic1Launcher.h"
 
-#include "FileDownloader.h"
-#include "MultiFileDownloader.h"
 #include "SpineConfig.h"
 #include "SteamProcess.h"
 
 #include "utils/Config.h"
 #include "utils/Database.h"
+#include "utils/DownloadQueue.h"
+#include "utils/FileDownloader.h"
 #include "utils/Hashing.h"
+#include "utils/MultiFileDownloader.h"
 #include "utils/WindowsExtensions.h"
 
-#include "widgets/DownloadProgressDialog.h"
-#include "widgets/GeneralSettingsWidget.h"
 #include "widgets/LocationSettingsWidget.h"
-#include "widgets/MainWindow.h"
 
 #include "clockUtils/log/Log.h"
 
@@ -163,10 +161,6 @@ void Gothic1Launcher::patchCheck() {
 	fileList.insert("system/paths.d", "4e239ae79b6039f55ba4fec21a66becc36a2a53148a8d78ebb0232af01ec22db63645c6d717c4165f591dd76d18ebb1a5f27d9789ffae2632f644d420c810252");
 
 	MultiFileDownloader * mfd = new MultiFileDownloader(this);
-	connect(mfd, &MultiFileDownloader::downloadFailed, mfd, &MultiFileDownloader::deleteLater);
-	connect(mfd, &MultiFileDownloader::downloadSucceeded, mfd, &MultiFileDownloader::deleteLater);
-
-	bool start = false;
 
 	for (auto it = fileList.begin(); it != fileList.end(); ++it) {
 		QFile f(_directory + "/" + it.key());
@@ -175,7 +169,6 @@ void Gothic1Launcher::patchCheck() {
 		}
 		const bool b = utils::Hashing::checkHash(_directory + "/" + it.key(), it.value()); // TODO: hash check is performed twice, here and in FileDownloader
 		if (!b) {
-			start = true;
 			QFileInfo fi(it.key());
 			FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/g1/" + it.key()), _directory + "/" + fi.path(), fi.fileName(), it.value(), mfd);
 			mfd->addFileDownloader(fd);
@@ -184,14 +177,8 @@ void Gothic1Launcher::patchCheck() {
 			}
 		}
 	}
-	if (start) {
-		widgets::DownloadProgressDialog progressDlg(mfd, "PatchingG1", 0, 100, 0, widgets::MainWindow::getInstance());
-		progressDlg.setCancelButton(nullptr);
-		progressDlg.setWindowFlags(progressDlg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-		progressDlg.exec();
-	} else {
-		mfd->deleteLater();
-	}
+
+	DownloadQueue::getInstance()->add(mfd);
 
 	Database::DBError err;
 	const auto ids = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID FROM mods WHERE ModID = 57 OR ModID = 37;", err);

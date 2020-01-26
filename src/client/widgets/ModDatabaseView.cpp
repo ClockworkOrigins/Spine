@@ -22,9 +22,7 @@
 
 #include "DatabaseFilterModel.h"
 #include "DirectXVersionCheck.h"
-#include "FileDownloader.h"
 #include "FontAwesome.h"
-#include "MultiFileDownloader.h"
 #include "SpineConfig.h"
 #include "Uninstaller.h"
 
@@ -35,6 +33,8 @@
 #include "utils/Config.h"
 #include "utils/Conversion.h"
 #include "utils/Database.h"
+#include "utils/FileDownloader.h"
+#include "utils/MultiFileDownloader.h"
 #include "utils/WindowsExtensions.h"
 
 #include "widgets/DownloadProgressDialog.h"

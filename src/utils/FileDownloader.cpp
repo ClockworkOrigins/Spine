@@ -25,8 +25,6 @@
 
 #include "utils/ErrorReporting.h"
 
-#include "widgets/GeneralSettingsWidget.h"
-
 #include "boost/iostreams/filter/zlib.hpp"
 
 #include "clockUtils/log/Log.h"

@@ -18,7 +18,6 @@
 
 #include "widgets/SubmitCompatibilityDialog.h"
 
-#include "FileDownloader.h"
 #include "SpineConfig.h"
 
 #include "common/MessageStructs.h"
@@ -26,6 +25,7 @@
 #include "utils/Config.h"
 #include "utils/Conversion.h"
 #include "utils/Database.h"
+#include "utils/FileDownloader.h"
 
 #include "clockUtils/sockets/TcpSocket.h"
 

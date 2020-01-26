@@ -31,6 +31,9 @@ class QTextEdit;
 namespace spine {
 	class AutoUpdate;
 	class LibraryFilterModel;
+namespace utils {
+	class DownloadQueue;
+}
 namespace widgets {
 
 	class AutoUpdateDialog;
@@ -109,6 +112,7 @@ namespace widgets {
 		QAction * _spineEditorAction;
 		SpineEditor * _spineEditor;
 		ModInfoPage * _modInfoPage;
+		utils::DownloadQueue * _downloadQueue;
 
 		static MainWindow * instance;
 

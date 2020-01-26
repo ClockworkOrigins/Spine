@@ -18,12 +18,12 @@
 
 #include "widgets/AutoUpdateDialog.h"
 
-#include "FileDownloader.h"
-#include "MultiFileDownloader.h"
 #include "SpineConfig.h"
 
 #include "common/MessageStructs.h"
 
+#include "utils/FileDownloader.h"
+#include "utils/MultiFileDownloader.h"
 #include "utils/WindowsExtensions.h"
 
 #include "widgets/DownloadProgressDialog.h"
@@ -45,11 +45,8 @@
 #endif
 
 using namespace spine;
-using namespace spine::widgets;
-
-#ifdef Q_OS_WIN
 using namespace spine::utils;
-#endif
+using namespace spine::widgets;
 
 AutoUpdateDialog::AutoUpdateDialog(QMainWindow * mainWindow) : QDialog(), _mainWindow(mainWindow), _manuallyChecking(false) {
 	QVBoxLayout * l = new QVBoxLayout();

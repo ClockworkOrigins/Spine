@@ -18,34 +18,30 @@
 
 #pragma once
 
-#include <QNetworkReply>
+#include <QMap>
+#include <QQueue>
 #include <QObject>
 #include <QUrl>
 
-class QFile;
 class QNetworkAccessManager;
+class QNetworkReply;
 
 namespace spine {
+namespace utils {
 
-	enum class DownloadError {
-		NoError,
-		UnknownError,
-		DiskSpaceError,
-		HashError,
-		NetworkError,
-		CanceledError
-	};
+	class FileDownloader;
+	enum class DownloadError;
 
-	class FileDownloader : public QObject {
+	class MultiFileDownloader : public QObject {
 		Q_OBJECT
 
 	public:
-		FileDownloader(QUrl url, QString targetDirectory, QString fileName, QString hash, QObject * par);
-		~FileDownloader();
+		MultiFileDownloader(QObject * par);
 
+		void addFileDownloader(FileDownloader * fileDownloader);
+		void startDownloads(qint64 maxSize); // deprecated
 		void startDownload();
-		void requestFileSize();
-		QString getFileName() const;
+		void querySize();
 
 	signals:
 		void downloadProgress(qint64);
@@ -55,21 +51,19 @@ namespace spine {
 		void abort();
 		void startedDownload(QString);
 
-	private slots:
-		void updateDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
-		void fileDownloaded();
-		void determineFileSize();
-		void writeToFile();
-		void networkError(QNetworkReply::NetworkError err);
+	private slots :
+		void updateDownloadProgress(qint64 bytesReceived);
+		void updateDownloadMax(qint64 bytesTotal);
+		void finishedFile();
 
 	private:
-		QNetworkAccessManager * _webAccessManager;
-		QUrl _url;
-		QString _targetDirectory;
-		QString _fileName;
-		QString _hash;
-		qint64 _filesize;
-		QFile * _outputFile;
+		QMap<FileDownloader *, QPair<qint64, qint64>> _downloadStats;
+		QQueue<FileDownloader *> _downloadQueue;
+		QMap<FileDownloader *, QPair<qint64, qint64>>::iterator _currentIndex;
+		int _counter;
+		qint64 _maxSize;
+		int _downloadFilesCount;
 	};
 
+} /* namespace utils */
 } /* namespace spine */

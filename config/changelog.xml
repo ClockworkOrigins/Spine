@@ -1686,12 +1686,14 @@
 		<Enhancement language="Deutsch">Wechsel in Bibliothek sowie Installation und Deinstallation sind jetzt deutlich schneller</Enhancement>
 		<Enhancement language="Deutsch">Steam-Support für Gothic 2 jetzt aus der Beta</Enhancement>
 		<Enhancement language="Deutsch">Steam-Support für Gothic 1 eingebaut</Enhancement>
+		<Enhancement language="Deutsch">Download-Warteschlange eingebaut, um Dateien im Hintergrund laden zu können</Enhancement>
 		<Bug language="Deutsch">Hack für Datenausführungsverhinderung wieder eingebaut, weil er scheinbar doch ab und an funktioniert hat</Bug>
 		<Bug language="Deutsch">Wiederherstellen von ini Dateien funktioniert jetzt</Bug>
 		
 		<Enhancement language="English">Switching to library as well as installation and uninstallation are a lot faster now</Enhancement>
 		<Enhancement language="English">Steam support for Gothic 2 now out of beta</Enhancement>
 		<Enhancement language="English">Added Steam support for Gothic 1</Enhancement>
+		<Enhancement language="English">Added download queue to download files in background</Enhancement>
 		<Bug language="English">Restored hack for DEP again as it seems like it worked under some circumstances</Bug>
 		<Bug language="English">Fixed restoring of ini files</Bug>
 	</Version>

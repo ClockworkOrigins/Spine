@@ -24,8 +24,10 @@ class QMainWindow;
 class QWinTaskbarProgress;
 
 namespace spine {
+namespace utils {
 	class MultiFileDownloader;
 	enum class DownloadError;
+}
 namespace widgets {
 
 	class GeneralSettingsWidget;
@@ -34,10 +36,10 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		DownloadProgressDialog(MultiFileDownloader * downloader, QString labelText, qint64 min, qint64 max, qint64 maxSize, QMainWindow * mainWindow);
+		DownloadProgressDialog(utils::MultiFileDownloader * downloader, QString labelText, qint64 min, qint64 max, qint64 maxSize, QMainWindow * mainWindow);
 
 		bool hasDownloadSucceeded() const;
-		DownloadError getLastError() const;
+		utils::DownloadError getLastError() const;
 
 	public slots:
 		int exec() override;
@@ -46,20 +48,20 @@ namespace widgets {
 		void setValue(qint64 value);
 		void setMaximum(qint64 max);
 		void downloadSucceeded();
-		void downloadFailed(DownloadError err);
+		void downloadFailed(utils::DownloadError err);
 		void downloadFile(QString fileName);
 
 	private:
 		bool _downloadSuccessful;
 		bool _finished;
-		MultiFileDownloader * _downloader;
+		utils::MultiFileDownloader * _downloader;
 		QWinTaskbarProgress * _taskbarProgress;
 		QString _labelText;
 		QString _currentValue;
 		QString _maximumValue;
 		qint64 _maxSize;
 		QString _currentFileName;
-		DownloadError _lastError;
+		utils::DownloadError _lastError;
 
 		void closeEvent(QCloseEvent * evt) override;
 	};

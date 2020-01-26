@@ -18,13 +18,13 @@
 
 #include "widgets/StartPageWidget.h"
 
-#include "FileDownloader.h"
-#include "MultiFileDownloader.h"
 #include "SpineConfig.h"
 
 #include "utils/Config.h"
 #include "utils/Conversion.h"
 #include "utils/Database.h"
+#include "utils/FileDownloader.h"
+#include "utils/MultiFileDownloader.h"
 #include "utils/WindowsExtensions.h"
 
 #include "widgets/DownloadProgressDialog.h"

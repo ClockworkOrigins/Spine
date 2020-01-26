@@ -18,10 +18,9 @@
 
 #include "widgets/management/AchievementWidget.h"
 
-#include "FileDownloader.h"
-
 #include "utils/Compression.h"
 #include "utils/Config.h"
+#include "utils/FileDownloader.h"
 #include "utils/Hashing.h"
 
 #include <QApplication>

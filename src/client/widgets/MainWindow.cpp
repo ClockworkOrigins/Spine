@@ -18,9 +18,7 @@
 
 #include "widgets/MainWindow.h"
 
-#include "FileDownloader.h"
 #include "LibraryFilterModel.h"
-#include "MultiFileDownloader.h"
 #include "ReportGenerator.h"
 #include "SpineConfig.h"
 #include "Uninstaller.h"
@@ -34,7 +32,10 @@
 #include "utils/Config.h"
 #include "utils/Conversion.h"
 #include "utils/Database.h"
+#include "utils/DownloadQueue.h"
+#include "utils/FileDownloader.h"
 #include "utils/Hashing.h"
+#include "utils/MultiFileDownloader.h"
 #include "utils/WindowsExtensions.h"
 
 #include "widgets/AboutDialog.h"
@@ -130,6 +131,8 @@ MainWindow * MainWindow::instance = nullptr;
 
 MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par), _modListView(nullptr), _modInfoView(nullptr), _profileView(nullptr), _friendsView(nullptr), _gothicDirectory(), _gothic2Directory(), _settingsDialog(nullptr), _autoUpdateDialog(), _changelogDialog(nullptr), _modListModel(nullptr), _loginDialog(nullptr), _modUpdateDialog(nullptr), _installGothic2FromCDDialog(nullptr), _feedbackDialog(nullptr), _developerModeActive(false), _devModeAction(nullptr), _modDatabaseView(nullptr), _tabWidget(nullptr), _spineEditorAction(nullptr), _spineEditor(nullptr), _modInfoPage(nullptr) {
 	instance = this;
+
+	_downloadQueue = new DownloadQueue(this);
 
 #ifdef Q_OS_WIN
 	LOGINFO("Memory Usage MainWindow c'tor #1: " << getPRAMValue());
@@ -786,6 +789,7 @@ MainWindow::~MainWindow() {
 	delete _installGothic2FromCDDialog;
 #endif
 	delete _feedbackDialog;
+	delete _downloadQueue;
 }
 
 void MainWindow::selectedMod(const QModelIndex & index) {
@@ -887,8 +891,6 @@ void MainWindow::checkIntegrity() {
 			msg.setWindowFlags(msg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
 			if (QMessageBox::StandardButton::Ok == msg.exec()) {
 				MultiFileDownloader * mfd = new MultiFileDownloader(this);
-				connect(mfd, SIGNAL(downloadFailed(DownloadError)), mfd, SLOT(deleteLater()));
-				connect(mfd, SIGNAL(downloadSucceeded()), mfd, SLOT(deleteLater()));
 				common::RequestOriginalFilesMessage rofm;
 				for (const IntegrityCheckDialog::ModFile & file : corruptFiles) {
 					rofm.files.emplace_back(file.modID, file.file.toStdString());
@@ -929,11 +931,8 @@ void MainWindow::checkIntegrity() {
 					FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/g2/" + file.file), _gothic2Directory + "/" + fi.path(), fi.fileName(), file.hash, mfd);
 					mfd->addFileDownloader(fd);
 				}
-				DownloadProgressDialog progressDlg(mfd, "DownloadingFile", 0, 100, 0, this);
-				progressDlg.setCancelButton(nullptr);
-				progressDlg.setWindowFlags(progressDlg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-				progressDlg.exec();
-				if (progressDlg.hasDownloadSucceeded()) {
+
+				connect(mfd, &MultiFileDownloader::downloadSucceeded, [corruptFiles]() {
 					Database::DBError err;
 					Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "BEGIN TRANSACTION;", err);
 					for (IntegrityCheckDialog::ModFile file : corruptFiles) {
@@ -946,14 +945,18 @@ void MainWindow::checkIntegrity() {
 					Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "END TRANSACTION;", err);
 					QMessageBox resultMsg(QMessageBox::Icon::Information, QApplication::tr("CheckIntegrity"), QApplication::tr("IntegrityRepairSuccess"), QMessageBox::StandardButton::Ok);
 					resultMsg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
-					resultMsg.setWindowFlags(msg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+					resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
 					resultMsg.exec();
-				} else {
+				});
+
+				connect(mfd, &MultiFileDownloader::downloadFailed, []() {
 					QMessageBox resultMsg(QMessageBox::Icon::Critical, QApplication::tr("CheckIntegrity"), QApplication::tr("IntegrityRepairFailure"), QMessageBox::StandardButton::Ok);
 					resultMsg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
-					resultMsg.setWindowFlags(msg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+					resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
 					resultMsg.exec();
-				}
+				});
+				
+				_downloadQueue->add(mfd);
 			}
 		}
 	}

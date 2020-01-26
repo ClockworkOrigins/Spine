@@ -18,8 +18,6 @@
 
 #include "widgets/ModInfoPage.h"
 
-#include "FileDownloader.h"
-#include "MultiFileDownloader.h"
 #include "SpineConfig.h"
 
 #include "common/SpineModules.h"
@@ -31,9 +29,11 @@
 #include "utils/Config.h"
 #include "utils/Conversion.h"
 #include "utils/Database.h"
+#include "utils/DownloadQueue.h"
+#include "utils/FileDownloader.h"
 #include "utils/Hashing.h"
+#include "utils/MultiFileDownloader.h"
 
-#include "widgets/DownloadProgressDialog.h"
 #include "widgets/NewsWidget.h"
 #include "widgets/RatingWidget.h"
 #include "widgets/UpdateLanguage.h"
@@ -347,59 +347,62 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 
 	_thumbnailModel->clear();
 	_screens.clear();
-	int minWidth = INT_MAX;
-	int maxWidth = 0;
-	if (!sipm->screenshots.empty()) {
+	
+	_screens = sipm->screenshots;
+	
+	_previewImageLabel->setVisible(false);
+	_thumbnailView->setVisible(false);
+	
+	if (!_screens.empty()) {
 		QList<QPair<QString, QString>> images;
-		for (const auto & p : sipm->screenshots) {
+		for (const auto & p : _screens) {
 			QString filename = QString::fromStdString(p.first);
 			filename.chop(2); // .z
-			if (!QFile(Config::MODDIR + "/mods/" + QString::number(_modID) + "/screens/" + filename).exists()) {
-				images.append(QPair<QString, QString>(QString::fromStdString(p.first), QString::fromStdString(p.second)));
-			}
+			images.append(qMakePair(QString::fromStdString(p.first), QString::fromStdString(p.second)));
 		}
 		if (!images.empty()) {
 			MultiFileDownloader * mfd = new MultiFileDownloader(this);
-			connect(mfd, SIGNAL(downloadFailed(DownloadError)), mfd, SLOT(deleteLater()));
-			connect(mfd, SIGNAL(downloadSucceeded()), mfd, SLOT(deleteLater()));
 			for (const auto & p : images) {
 				QString filename = p.first;
 				filename.chop(2); // every image is compressed, so it has a .z at the end
-				if (!QFile(Config::MODDIR + "/mods/" + QString::number(_modID) + "/screens/" + filename).exists()) {
+				if (!QFileInfo::exists(Config::MODDIR + "/mods/" + QString::number(_modID) + "/screens/" + filename)) {
 					QFileInfo fi(p.first);
 					FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(_modID) + "/screens/" + p.first), Config::MODDIR + "/mods/" + QString::number(_modID) + "/screens/" + fi.path(), fi.fileName(), p.second, mfd);
 					mfd->addFileDownloader(fd);
 				}
 			}
-			DownloadProgressDialog progressDlg(mfd, "DownloadingFile", 0, 100, 0, _mainWindow);
-			progressDlg.setCancelButton(nullptr);
-			progressDlg.setWindowFlags(progressDlg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-			progressDlg.exec();
+
+			connect(mfd, &MultiFileDownloader::downloadSucceeded, [this]() {
+				int minWidth = std::numeric_limits<int>::max();
+				int maxWidth = 0;
+				
+				QString filename = QString::fromStdString(_screens[0].first);
+				filename.chop(2);
+				const QPixmap preview(Config::MODDIR + "/mods/" + QString::number(_modID) + "/screens/" + filename);
+				_previewImageLabel->setPixmap(preview.scaled(QSize(640, 480), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+				for (const auto & p : _screens) {
+					QString fn = QString::fromStdString(p.first);
+					fn.chop(2); // .z
+					QStandardItem * itm = new QStandardItem();
+					QPixmap thumb(Config::MODDIR + "/mods/" + QString::number(_modID) + "/screens/" + fn);
+					QPixmap scaledThumb = thumb.scaled(QSize(300, 100), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+					itm->setIcon(scaledThumb);
+					minWidth = std::min(minWidth, scaledThumb.width());
+					maxWidth = std::max(maxWidth, scaledThumb.width());
+					_thumbnailModel->appendRow(itm);
+				}
+				_previewImageLabel->setVisible(!_screens.empty());
+				if (minWidth != std::numeric_limits<int>::max()) {
+					_thumbnailView->setFixedWidth(std::min(width() - 50, static_cast<int>(_screens.size()) * (maxWidth + 15)));
+				}
+				_thumbnailView->setVisible(!_screens.empty());
+			});
+			
+			DownloadQueue::getInstance()->add(mfd);
 		}
-		QString filename = QString::fromStdString(sipm->screenshots[0].first);
-		filename.chop(2);
-		const QPixmap preview(Config::MODDIR + "/mods/" + QString::number(_modID) + "/screens/" + filename);
-		_previewImageLabel->setPixmap(preview.scaled(QSize(640, 480), Qt::KeepAspectRatio, Qt::SmoothTransformation));
-		for (const auto & p : sipm->screenshots) {
-			QString fn = QString::fromStdString(p.first);
-			fn.chop(2); // .z
-			QStandardItem * itm = new QStandardItem();
-			QPixmap thumb(Config::MODDIR + "/mods/" + QString::number(_modID) + "/screens/" + fn);
-			QPixmap scaledThumb = thumb.scaled(QSize(300, 100), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-			itm->setIcon(scaledThumb);
-			minWidth = std::min(minWidth, scaledThumb.width());
-			maxWidth = std::max(maxWidth, scaledThumb.width());
-			_thumbnailModel->appendRow(itm);
-		}
-		_screens = sipm->screenshots;
 	} else {
 		_previewImageLabel->setPixmap(QPixmap());
 	}
-	_previewImageLabel->setVisible(!sipm->screenshots.empty());
-	if (minWidth != INT_MAX) {
-		_thumbnailView->setFixedWidth(std::min(width() - 50, int(sipm->screenshots.size()) * (maxWidth + 15)));
-	}
-	_thumbnailView->setVisible(!sipm->screenshots.empty());
 
 	QString infoText = s2q(sipm->description);
 

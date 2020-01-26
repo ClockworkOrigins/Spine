@@ -18,8 +18,6 @@
 
 #include "widgets/SpineEditor.h"
 
-#include "FileDownloader.h"
-#include "MultiFileDownloader.h"
 #include "SpineConfig.h"
 
 #include "common/MessageStructs.h"
@@ -32,7 +30,9 @@
 #include "utils/Compression.h"
 #include "utils/Config.h"
 #include "utils/Conversion.h"
+#include "utils/FileDownloader.h"
 #include "utils/Hashing.h"
+#include "utils/MultiFileDownloader.h"
 
 #include "widgets/AchievementSpineSettingsWidget.h"
 #include "widgets/DownloadProgressDialog.h"
