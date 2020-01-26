@@ -71,6 +71,7 @@ namespace widgets {
 		void updateAchievements(int32_t modID, std::vector<common::SendAllAchievementStatsMessage::AchievementStats> achievementStats);
 		void updateScores(std::vector<common::SendAllScoreStatsMessage::ScoreStats> scoreStats);
 		void toggledHidePatchesAndTools();
+		void updateAchievementIcons();
 
 	private:
 		QLabel * _nameLabel;

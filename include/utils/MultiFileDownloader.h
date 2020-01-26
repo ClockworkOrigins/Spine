@@ -52,6 +52,7 @@ namespace utils {
 		void startedDownload(QString);
 
 	private slots :
+		void startDownloadInternal();
 		void updateDownloadProgress(qint64 bytesReceived);
 		void updateDownloadMax(qint64 bytesTotal);
 		void finishedFile();

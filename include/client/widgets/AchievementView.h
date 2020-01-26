@@ -22,6 +22,8 @@
 
 #include <QWidget>
 
+class QLabel;
+
 namespace spine {
 namespace widgets {
 
@@ -32,7 +34,14 @@ namespace widgets {
 		AchievementView(int32_t modID, common::SendAllAchievementStatsMessage::AchievementStats as, QWidget * par);
 		~AchievementView();
 
+		void updateIcons();
+
 	private:
+		int32_t _modID;
+		common::SendAllAchievementStatsMessage::AchievementStats _achievement;
+		QLabel * _lockedIcon;
+		QLabel * _unlockedIcon;
+		
 		QSize sizeHint() const override;
 		void paintEvent(QPaintEvent * evt) override;
 	};

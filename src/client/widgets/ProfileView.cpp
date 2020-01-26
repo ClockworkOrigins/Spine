@@ -26,11 +26,11 @@
 
 #include "utils/Config.h"
 #include "utils/Conversion.h"
+#include "utils/DownloadQueue.h"
 #include "utils/FileDownloader.h"
 #include "utils/MultiFileDownloader.h"
 
 #include "widgets/AchievementView.h"
-#include "widgets/DownloadProgressDialog.h"
 #include "widgets/HiddenAchievementsView.h"
 #include "widgets/ProfileModView.h"
 #include "widgets/UpdateLanguage.h"
@@ -413,17 +413,15 @@ void ProfileView::updateAchievements(int32_t modID, std::vector<common::SendAllA
 	}
 	if (!images.isEmpty()) {
 		MultiFileDownloader * mfd = new MultiFileDownloader(this);
-		connect(mfd, SIGNAL(downloadFailed(DownloadError)), mfd, SLOT(deleteLater()));
-		connect(mfd, SIGNAL(downloadSucceeded()), mfd, SLOT(deleteLater()));
 		for (const auto & p : images) {
 			QFileInfo fi(p.first);
 			FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(modID) + "/achievements/" + p.first), Config::MODDIR + "/mods/" + QString::number(modID) + "/achievements/" + fi.path(), fi.fileName(), p.second, mfd);
 			mfd->addFileDownloader(fd);
 		}
-		DownloadProgressDialog progressDlg(mfd, "DownloadingFile", 0, 100, 0, _mainWindow);
-		progressDlg.setCancelButton(nullptr);
-		progressDlg.setWindowFlags(progressDlg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-		progressDlg.exec();
+
+		connect(mfd, &MultiFileDownloader::downloadSucceeded, this, &ProfileView::updateAchievementIcons);
+
+		DownloadQueue::getInstance()->add(mfd);
 	}
 	int32_t counter = 0;
 	for (const auto & as : achievementStats) {
@@ -447,7 +445,7 @@ void ProfileView::updateScores(std::vector<common::SendAllScoreStatsMessage::Sco
 		_scoresWidget->removeTab(0);
 	}
 	_scoresWidget->show();
-	for (auto score : scoreStats) {
+	for (const auto & score : scoreStats) {
 		QTableView * scoreWidget = new QTableView(_scoresWidget);
 		QStandardItemModel * m = new QStandardItemModel(scoreWidget);
 		m->setHorizontalHeaderLabels(QStringList() << QApplication::tr("Rank") << QApplication::tr("Name") << QApplication::tr("Score"));
@@ -488,5 +486,11 @@ void ProfileView::toggledHidePatchesAndTools() {
 		if (pmv->isPatchOrTool()) {
 			pmv->setVisible(_hidePatchesAndToolsBox->checkState() == Qt::Unchecked);
 		}
+	}
+}
+
+void ProfileView::updateAchievementIcons() {
+	for (const auto & av : _achievements) {
+		av->updateIcons();
 	}
 }

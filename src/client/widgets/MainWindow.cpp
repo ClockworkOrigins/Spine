@@ -30,11 +30,9 @@
 #include "models/SpineEditorModel.h"
 
 #include "utils/Config.h"
-#include "utils/Conversion.h"
 #include "utils/Database.h"
 #include "utils/DownloadQueue.h"
 #include "utils/FileDownloader.h"
-#include "utils/Hashing.h"
 #include "utils/MultiFileDownloader.h"
 #include "utils/WindowsExtensions.h"
 
@@ -42,7 +40,6 @@
 #include "widgets/AutoUpdateDialog.h"
 #include "widgets/ChangelogDialog.h"
 #include "widgets/DeveloperSettingsWidget.h"
-#include "widgets/DownloadProgressDialog.h"
 #include "widgets/ExportDialog.h"
 #include "widgets/FAQDialog.h"
 #include "widgets/FeedbackDialog.h"
@@ -85,7 +82,6 @@
 #include <QCloseEvent>
 #include <QDesktopServices>
 #include <QDialogButtonBox>
-#include <QDirIterator>
 #include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
@@ -132,7 +128,7 @@ MainWindow * MainWindow::instance = nullptr;
 MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par), _modListView(nullptr), _modInfoView(nullptr), _profileView(nullptr), _friendsView(nullptr), _gothicDirectory(), _gothic2Directory(), _settingsDialog(nullptr), _autoUpdateDialog(), _changelogDialog(nullptr), _modListModel(nullptr), _loginDialog(nullptr), _modUpdateDialog(nullptr), _installGothic2FromCDDialog(nullptr), _feedbackDialog(nullptr), _developerModeActive(false), _devModeAction(nullptr), _modDatabaseView(nullptr), _tabWidget(nullptr), _spineEditorAction(nullptr), _spineEditor(nullptr), _modInfoPage(nullptr) {
 	instance = this;
 
-	_downloadQueue = new DownloadQueue(this);
+	_downloadQueue = new DownloadQueue();
 
 #ifdef Q_OS_WIN
 	LOGINFO("Memory Usage MainWindow c'tor #1: " << getPRAMValue());
@@ -225,7 +221,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	_tabWidget = new QTabWidget(this);
 	_tabWidget->setProperty("library", true);
 
-	StartPageWidget * startPage = new StartPageWidget(this, _settingsDialog->getGeneralSettingsWidget(), _tabWidget);
+	StartPageWidget * startPage = new StartPageWidget(_tabWidget);
 	connect(_settingsDialog->getGeneralSettingsWidget(), &GeneralSettingsWidget::languageChanged, startPage, &StartPageWidget::setLanguage);
 
 	_tabWidget->addTab(startPage, QApplication::tr("Startpage"));
@@ -1211,6 +1207,12 @@ void MainWindow::changedOnlineMode() {
 		qApp->quit();
 	}
 #endif
+}
+
+void MainWindow::showEvent(QShowEvent * event) {
+	QMainWindow::showEvent(event);
+	
+	_downloadQueue->setWindow(this);
 }
 
 void MainWindow::closeEvent(QCloseEvent * evt) {

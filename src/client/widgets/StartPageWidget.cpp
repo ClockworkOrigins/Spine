@@ -23,11 +23,11 @@
 #include "utils/Config.h"
 #include "utils/Conversion.h"
 #include "utils/Database.h"
+#include "utils/DownloadQueue.h"
 #include "utils/FileDownloader.h"
 #include "utils/MultiFileDownloader.h"
 #include "utils/WindowsExtensions.h"
 
-#include "widgets/DownloadProgressDialog.h"
 #include "widgets/NewsWidget.h"
 #include "widgets/NewsWriterDialog.h"
 #include "widgets/UpdateLanguage.h"
@@ -51,7 +51,7 @@ using namespace spine;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-StartPageWidget::StartPageWidget(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _news(), _mainWindow(mainWindow), _newsTicker(nullptr), _newsTickerModel(nullptr), _generalSettingsWidget(generalSettingsWidget) {
+StartPageWidget::StartPageWidget(QWidget * par) : QWidget(par), _news(), _newsTicker(nullptr), _newsTickerModel(nullptr) {
 	QVBoxLayout * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
@@ -190,8 +190,6 @@ void StartPageWidget::updateNews() {
 	if (Config::OnlineMode) {
 		const auto images = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT DISTINCT File, Hash FROM newsImageReferences;", err);
 		MultiFileDownloader * mfd = new MultiFileDownloader(this);
-		connect(mfd, &MultiFileDownloader::downloadFailed, mfd, &MultiFileDownloader::deleteLater);
-		connect(mfd, &MultiFileDownloader::downloadSucceeded, mfd, &MultiFileDownloader::deleteLater);
 		bool download = false;
 		for (const auto & p : images) {
 			QString filename = QString::fromStdString(p.first);
@@ -203,12 +201,12 @@ void StartPageWidget::updateNews() {
 				download = true;
 			}
 		}
+
 		if (download) {
-			DownloadProgressDialog progressDlg(mfd, "DownloadingFile", 0, 100, 0, _mainWindow);
-			progressDlg.setCancelButton(nullptr);
-			progressDlg.setWindowFlags(progressDlg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-			progressDlg.exec();
+			connect(mfd, &MultiFileDownloader::downloadSucceeded, this, &StartPageWidget::updateNews);
 		}
+		
+		DownloadQueue::getInstance()->add(mfd);
 #ifdef Q_OS_WIN
 	LOGINFO("Memory Usage updateNews #3: " << getPRAMValue());
 #endif
@@ -216,7 +214,7 @@ void StartPageWidget::updateNews() {
 #ifdef Q_OS_WIN
 	LOGINFO("Memory Usage updateNews #4: " << getPRAMValue());
 #endif
-	for (common::SendAllNewsMessage::News n : news) {			
+	for (common::SendAllNewsMessage::News n : news) {
 #ifdef Q_OS_WIN
 	LOGINFO("Memory Usage updateNews #4.1: " << getPRAMValue());
 #endif
@@ -283,7 +281,7 @@ void StartPageWidget::startMod() {
 
 void StartPageWidget::showEvent(QShowEvent *) {
 	Database::DBError err;
-	std::vector<std::vector<std::string>> vec = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + LASTPLAYED_DATABASE, "SELECT ModID, Ini FROM lastPlayed LIMIT 1;", err);
+	auto vec = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + LASTPLAYED_DATABASE, "SELECT ModID, Ini FROM lastPlayed LIMIT 1;", err);
 
 	if (!vec.empty()) {
 		const QString ini = s2q(vec[0][1]);

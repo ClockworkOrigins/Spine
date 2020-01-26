@@ -33,11 +33,11 @@
 #include "utils/Config.h"
 #include "utils/Conversion.h"
 #include "utils/Database.h"
+#include "utils/DownloadQueue.h"
 #include "utils/FileDownloader.h"
 #include "utils/MultiFileDownloader.h"
 #include "utils/WindowsExtensions.h"
 
-#include "widgets/DownloadProgressDialog.h"
 #include "widgets/UninstallDialog.h"
 #include "widgets/UpdateLanguage.h"
 
@@ -647,123 +647,123 @@ void ModDatabaseView::doubleClickedIndex(const QModelIndex & index) {
 }
 
 void ModDatabaseView::downloadModFiles(common::Mod mod, std::vector<std::pair<std::string, std::string>> fileList, QString fileserver) {
-	QDir dir(Config::MODDIR + "/mods/" + QString::number(mod.id));
+	const QDir dir(Config::MODDIR + "/mods/" + QString::number(mod.id));
 	if (!dir.exists()) {
 		bool b = dir.mkpath(dir.absolutePath());
 		Q_UNUSED(b);
 	}
 	MultiFileDownloader * mfd = new MultiFileDownloader(this);
-	connect(mfd, SIGNAL(downloadFailed(DownloadError)), mfd, SLOT(deleteLater()));
-	connect(mfd, SIGNAL(downloadSucceeded()), mfd, SLOT(deleteLater()));
 	for (const auto & p : fileList) {
 		QFileInfo fi(QString::fromStdString(p.first));
 		FileDownloader * fd = new FileDownloader(QUrl(fileserver + QString::number(mod.id) + "/" + QString::fromStdString(p.first)), dir.absolutePath() + "/" + fi.path(), fi.fileName(), QString::fromStdString(p.second), mfd);
 		mfd->addFileDownloader(fd);
 	}
-	if (!fileList.empty()) {
-		DownloadProgressDialog progressDlg(mfd, "DownloadingFile", 0, qint64(getDownloadSize(mod) / 1024), getDownloadSize(mod), _mainWindow);
-		progressDlg.setWindowFlags(progressDlg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-		progressDlg.exec();
-		if (progressDlg.hasDownloadSucceeded()) {
-			int row = 0;
-			for (; row < int(_mods.size()); row++) {
-				if (_mods[row].id == mod.id) {
-					break;
-				}
-			}
-			TextItem * buttonItem = dynamic_cast<TextItem *>(_sourceModel->item(row, DatabaseColumn::Install));
-			buttonItem->setText(QChar(int(FontAwesome::trasho)));
-			buttonItem->setToolTip(QApplication::tr("Uninstall"));
-			Database::DBError err;
-			Database::open(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, err);
-			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "BEGIN TRANSACTION;", err);
-			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO mods (ModID, GothicVersion, MajorVersion, MinorVersion, PatchVersion) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(int(mod.gothic)) + ", " + std::to_string(int(_mods[row].majorVersion)) + ", " + std::to_string(int(_mods[row].minorVersion)) + ", " + std::to_string(int(_mods[row].patchVersion)) + ");", err);
-			for (const auto p : fileList) {
-				QString fileName = QString::fromStdString(p.first);
-				QFileInfo fi(fileName);
-				if (fi.suffix() == "z") {
-					fileName = fileName.mid(0, fileName.size() - 2);
-				}
-				Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO modfiles (ModID, File, Hash) VALUES (" + std::to_string(mod.id) + ", '" + fileName.toStdString() + "', '" + p.second + "');", err);
-			}
-			if (mod.type == common::ModType::PATCH || mod.type == common::ModType::TOOL) {
-				Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO patches (ModID, Name) VALUES (" + std::to_string(mod.id) + ", '" + mod.name + "');", err);
-			}
-			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "END TRANSACTION;", err);
-			Database::close(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, err);
-			const int currentDate = std::chrono::duration_cast<std::chrono::hours>(std::chrono::system_clock::now() - std::chrono::system_clock::time_point()).count();
-			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO installDates (ModID, InstallDate) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(currentDate) + ";", err);
 
-			// enable systempack by default
-			if (mod.type != common::ModType::PATCH && mod.type != common::ModType::TOOL) {
-				Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "INSERT INTO patchConfigs (ModID, PatchID, Enabled) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(mod.gothic == common::GameType::Gothic ? 57 : 40) + ", 1);", err);
-			}
-
-			// notify server download was successful
-			QtConcurrent::run([mod]() {
-				common::DownloadSucceededMessage dsm;
-				dsm.modID = mod.id;
-				const std::string serialized = dsm.SerializePublic();
-				clockUtils::sockets::TcpSocket sock;
-				if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-					sock.writePacket(serialized);
-				}
-			});
-			QMessageBox msg(QMessageBox::Icon::Information, QApplication::tr("InstallationSuccessful"), QApplication::tr("InstallationSuccessfulText").arg(s2q(mod.name)), QMessageBox::StandardButton::Ok);
-			msg.setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-			msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
-			msg.exec();
-			finishedInstallation(mod.id, -1, true);
-
-			if (mod.type == common::ModType::GMP) {
-				const bool gmpInstalled = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT  * FROM mods WHERE ModID = 228 LIMIT 1;", err) > 0;
-
-				Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "INSERT INTO patchConfigs (ModID, PatchID, Enabled) VALUES (" + std::to_string(mod.id) + ", 228, 1);", err);
-
-				if (!gmpInstalled) {
-					emit triggerInstallMod(228);
-				}
-			}
-		} else {
-			bool paused = false;
-			if (progressDlg.getLastError() == DownloadError::CanceledError) {
-				QMessageBox msg(QMessageBox::Icon::Information, QApplication::tr("PauseDownload"), QApplication::tr("PauseDownloadDescription"), QMessageBox::StandardButton::Ok | QMessageBox::StandardButton::Cancel);
-				msg.setWindowFlags(msg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-				msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("PauseDownload"));
-				msg.button(QMessageBox::StandardButton::Cancel)->setText(QApplication::tr("Cancel"));
-				paused = QMessageBox::StandardButton::Ok == msg.exec();
-			}
-			if (!paused) {
-				QString errorText = QApplication::tr("InstallationUnsuccessfulText").arg(s2q(mod.name));
-				if (progressDlg.getLastError() == DownloadError::DiskSpaceError) {
-					errorText += "\n\n" + QApplication::tr("NotEnoughDiskSpace");
-				} else if (progressDlg.getLastError() == DownloadError::NetworkError) {
-					errorText += "\n\n" + QApplication::tr("NetworkError");
-				} else if (progressDlg.getLastError() == DownloadError::HashError) {
-					errorText += "\n\n" + QApplication::tr("HashError");
-				}
-				if (progressDlg.getLastError() == DownloadError::NetworkError) {
-					QMessageBox msg(QMessageBox::Icon::Warning, QApplication::tr("InstallationUnsuccessful"), errorText, QMessageBox::StandardButton::Ok | QMessageBox::StandardButton::Cancel);
-					msg.setWindowFlags(msg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-					msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Retry"));
-					msg.button(QMessageBox::StandardButton::Cancel)->setText(QApplication::tr("Cancel"));
-					if (QMessageBox::StandardButton::Ok == msg.exec()) {
-						downloadModFiles(mod, fileList, std::move(fileserver));
-					} else {
-						dir.removeRecursively();
-						finishedInstallation(mod.id, -1, false);
-					}
-				} else {
-					QMessageBox msg(QMessageBox::Icon::Warning, QApplication::tr("InstallationUnsuccessful"), errorText, QMessageBox::StandardButton::Ok);
-					msg.setWindowFlags(msg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-					msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
-					msg.exec();
-					dir.removeRecursively();
-					finishedInstallation(mod.id, -1, false);
-				}
+	connect(mfd, &MultiFileDownloader::downloadSucceeded, [this, mod, fileList]() {
+		int row = 0;
+		for (; row < int(_mods.size()); row++) {
+			if (_mods[row].id == mod.id) {
+				break;
 			}
 		}
-	}
+		TextItem * buttonItem = dynamic_cast<TextItem *>(_sourceModel->item(row, DatabaseColumn::Install));
+		buttonItem->setText(QChar(int(FontAwesome::trasho)));
+		buttonItem->setToolTip(QApplication::tr("Uninstall"));
+		Database::DBError err;
+		Database::open(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, err);
+		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "BEGIN TRANSACTION;", err);
+		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO mods (ModID, GothicVersion, MajorVersion, MinorVersion, PatchVersion) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(int(mod.gothic)) + ", " + std::to_string(int(_mods[row].majorVersion)) + ", " + std::to_string(int(_mods[row].minorVersion)) + ", " + std::to_string(int(_mods[row].patchVersion)) + ");", err);
+		for (const auto p : fileList) {
+			QString fileName = QString::fromStdString(p.first);
+			QFileInfo fi(fileName);
+			if (fi.suffix() == "z") {
+				fileName = fileName.mid(0, fileName.size() - 2);
+			}
+			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO modfiles (ModID, File, Hash) VALUES (" + std::to_string(mod.id) + ", '" + fileName.toStdString() + "', '" + p.second + "');", err);
+		}
+		if (mod.type == common::ModType::PATCH || mod.type == common::ModType::TOOL) {
+			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO patches (ModID, Name) VALUES (" + std::to_string(mod.id) + ", '" + mod.name + "');", err);
+		}
+		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "END TRANSACTION;", err);
+		Database::close(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, err);
+		const int currentDate = std::chrono::duration_cast<std::chrono::hours>(std::chrono::system_clock::now() - std::chrono::system_clock::time_point()).count();
+		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO installDates (ModID, InstallDate) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(currentDate) + ";", err);
+
+		// enable systempack by default
+		if (mod.type != common::ModType::PATCH && mod.type != common::ModType::TOOL) {
+			Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "INSERT INTO patchConfigs (ModID, PatchID, Enabled) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(mod.gothic == common::GameType::Gothic ? 57 : 40) + ", 1);", err);
+		}
+
+		// notify server download was successful
+		QtConcurrent::run([mod]() {
+			common::DownloadSucceededMessage dsm;
+			dsm.modID = mod.id;
+			const std::string serialized = dsm.SerializePublic();
+			clockUtils::sockets::TcpSocket sock;
+			if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
+				sock.writePacket(serialized);
+			}
+		});
+		QMessageBox msg(QMessageBox::Icon::Information, QApplication::tr("InstallationSuccessful"), QApplication::tr("InstallationSuccessfulText").arg(s2q(mod.name)), QMessageBox::StandardButton::Ok);
+		msg.setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+		msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
+		msg.exec();
+		finishedInstallation(mod.id, -1, true);
+
+		if (mod.type == common::ModType::GMP) {
+			const bool gmpInstalled = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT  * FROM mods WHERE ModID = 228 LIMIT 1;", err) > 0;
+
+			Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "INSERT INTO patchConfigs (ModID, PatchID, Enabled) VALUES (" + std::to_string(mod.id) + ", 228, 1);", err);
+
+			if (!gmpInstalled) {
+				emit triggerInstallMod(228);
+			}
+		}
+	});
+	connect(mfd, &MultiFileDownloader::downloadFailed, [this, mod, fileList, fileserver](DownloadError error) {
+		bool paused = false;
+		if (error == DownloadError::CanceledError) {
+			QMessageBox msg(QMessageBox::Icon::Information, QApplication::tr("PauseDownload"), QApplication::tr("PauseDownloadDescription"), QMessageBox::StandardButton::Ok | QMessageBox::StandardButton::Cancel);
+			msg.setWindowFlags(msg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+			msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("PauseDownload"));
+			msg.button(QMessageBox::StandardButton::Cancel)->setText(QApplication::tr("Cancel"));
+			paused = QMessageBox::StandardButton::Ok == msg.exec();
+		}
+		if (!paused) {
+			QDir dir2(Config::MODDIR + "/mods/" + QString::number(mod.id));
+			
+			QString errorText = QApplication::tr("InstallationUnsuccessfulText").arg(s2q(mod.name));
+			if (error == DownloadError::DiskSpaceError) {
+				errorText += "\n\n" + QApplication::tr("NotEnoughDiskSpace");
+			} else if (error == DownloadError::NetworkError) {
+				errorText += "\n\n" + QApplication::tr("NetworkError");
+			} else if (error == DownloadError::HashError) {
+				errorText += "\n\n" + QApplication::tr("HashError");
+			}
+			
+			if (error == DownloadError::NetworkError) {
+				QMessageBox msg(QMessageBox::Icon::Warning, QApplication::tr("InstallationUnsuccessful"), errorText, QMessageBox::StandardButton::Ok | QMessageBox::StandardButton::Cancel);
+				msg.setWindowFlags(msg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+				msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Retry"));
+				msg.button(QMessageBox::StandardButton::Cancel)->setText(QApplication::tr("Cancel"));
+				if (QMessageBox::StandardButton::Ok == msg.exec()) {
+					downloadModFiles(mod, fileList, fileserver);
+				} else {
+					dir2.removeRecursively();
+					finishedInstallation(mod.id, -1, false);
+				}
+			} else {
+				QMessageBox msg(QMessageBox::Icon::Warning, QApplication::tr("InstallationUnsuccessful"), errorText, QMessageBox::StandardButton::Ok);
+				msg.setWindowFlags(msg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+				msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
+				msg.exec();
+				dir2.removeRecursively();
+				finishedInstallation(mod.id, -1, false);
+			}
+		}
+	});
+
+	DownloadQueue::getInstance()->add(mfd);
 }
 
 void ModDatabaseView::sortByColumn(int column) {
@@ -877,53 +877,50 @@ void ModDatabaseView::downloadPackageFiles(common::Mod mod, common::UpdatePackag
 		Q_UNUSED(b);
 	}
 	MultiFileDownloader * mfd = new MultiFileDownloader(this);
-	connect(mfd, SIGNAL(downloadFailed(DownloadError)), mfd, SLOT(deleteLater()));
-	connect(mfd, SIGNAL(downloadSucceeded()), mfd, SLOT(deleteLater()));
 	for (const auto & p : fileList) {
 		QFileInfo fi(QString::fromStdString(p.first));
 		FileDownloader * fd = new FileDownloader(QUrl(fileserver + QString::number(mod.id) + "/" + QString::fromStdString(p.first)), dir.absolutePath() + "/" + fi.path(), fi.fileName(), QString::fromStdString(p.second), mfd);
 		mfd->addFileDownloader(fd);
 	}
-	if (!fileList.empty()) {
-		DownloadProgressDialog progressDlg(mfd, "DownloadingFile", 0, qint64(package.downloadSize), package.downloadSize, _mainWindow);
-		progressDlg.setWindowFlags(progressDlg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-		progressDlg.exec();
-		if (progressDlg.hasDownloadSucceeded()) {
-			TextItem * buttonItem = _packageIDIconMapping[package.packageID];
-			buttonItem->setText(QChar(int(FontAwesome::trasho)));
-			buttonItem->setToolTip(QApplication::tr("Uninstall"));
-			Database::DBError err;
-			Database::open(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, err);
-			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "BEGIN TRANSACTION;", err);
-			for (const auto & p : fileList) {
-				QString fileName = QString::fromStdString(p.first);
-				QFileInfo fi(fileName);
-				if (fi.suffix() == "z") {
-					fileName = fileName.mid(0, fileName.size() - 2);
-				}
-				Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO modfiles (ModID, File, Hash) VALUES (" + std::to_string(mod.id) + ", '" + fileName.toStdString() + "', '" + p.second + "');", err);
-				Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO packages (ModID, PackageID, File) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(package.packageID) + ", '" + fileName.toStdString() + "');", err);
+
+	connect(mfd, &MultiFileDownloader::downloadSucceeded, [this, package, fileList, mod]() {
+		TextItem * buttonItem = _packageIDIconMapping[package.packageID];
+		buttonItem->setText(QChar(int(FontAwesome::trasho)));
+		buttonItem->setToolTip(QApplication::tr("Uninstall"));
+		Database::DBError err;
+		Database::open(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, err);
+		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "BEGIN TRANSACTION;", err);
+		for (const auto & p : fileList) {
+			QString fileName = QString::fromStdString(p.first);
+			QFileInfo fi(fileName);
+			if (fi.suffix() == "z") {
+				fileName = fileName.mid(0, fileName.size() - 2);
 			}
-			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "END TRANSACTION;", err);
-			Database::close(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, err);
-			// notify server download was successful
-			QtConcurrent::run([package]() {
-				common::PackageDownloadSucceededMessage pdsm;
-				pdsm.packageID = package.packageID;
-				const std::string serialized = pdsm.SerializePublic();
-				clockUtils::sockets::TcpSocket sock;
-				if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-					sock.writePacket(serialized);
-				}
-			});
-			QMessageBox msg(QMessageBox::Icon::Information, QApplication::tr("InstallationSuccessful"), QApplication::tr("InstallationSuccessfulText").arg(s2q(package.name)), QMessageBox::StandardButton::Ok);
-			msg.setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-			msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
-			msg.exec();
-			finishedInstallation(mod.id, package.packageID, true);
-		} else {
-			QString errorText = QApplication::tr("InstallationUnsuccessfulText").arg(s2q(package.name));
-			if (progressDlg.getLastError() == DownloadError::DiskSpaceError) {
+			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO modfiles (ModID, File, Hash) VALUES (" + std::to_string(mod.id) + ", '" + fileName.toStdString() + "', '" + p.second + "');", err);
+			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO packages (ModID, PackageID, File) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(package.packageID) + ", '" + fileName.toStdString() + "');", err);
+		}
+		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "END TRANSACTION;", err);
+		Database::close(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, err);
+		// notify server download was successful
+		QtConcurrent::run([package]() {
+			common::PackageDownloadSucceededMessage pdsm;
+			pdsm.packageID = package.packageID;
+			const std::string serialized = pdsm.SerializePublic();
+			clockUtils::sockets::TcpSocket sock;
+			if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
+				sock.writePacket(serialized);
+			}
+		});
+		QMessageBox msg(QMessageBox::Icon::Information, QApplication::tr("InstallationSuccessful"), QApplication::tr("InstallationSuccessfulText").arg(s2q(package.name)), QMessageBox::StandardButton::Ok);
+		msg.setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+		msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
+		msg.exec();
+		finishedInstallation(mod.id, package.packageID, true);
+	});
+
+	connect(mfd, &MultiFileDownloader::downloadFailed, [this, package, mod](DownloadError error) {
+		QString errorText = QApplication::tr("InstallationUnsuccessfulText").arg(s2q(package.name));
+			if (error == DownloadError::DiskSpaceError) {
 				errorText += "\n\n" + QApplication::tr("NotEnoughDiskSpace");
 			}
 			QMessageBox msg(QMessageBox::Icon::Warning, QApplication::tr("InstallationUnsuccessful"), errorText, QMessageBox::StandardButton::Ok);
@@ -931,8 +928,9 @@ void ModDatabaseView::downloadPackageFiles(common::Mod mod, common::UpdatePackag
 			msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
 			msg.exec();
 			finishedInstallation(mod.id, package.packageID, false);
-		}
-	}
+	});
+
+	DownloadQueue::getInstance()->add(mfd);
 }
 
 void ModDatabaseView::installMod(int modID) {

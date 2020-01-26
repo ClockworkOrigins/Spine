@@ -23,6 +23,7 @@
 #include <QQueue>
 
 class QMainWindow;
+class QWinTaskbarButton;
 class QWinTaskbarProgress;
 
 namespace spine {
@@ -34,11 +35,13 @@ namespace utils {
 		Q_OBJECT
 		
 	public:
-		DownloadQueue(QMainWindow * mainWindow);
+		DownloadQueue();
 
 		static DownloadQueue * getInstance();
 
 		void add(MultiFileDownloader * downloader);
+
+		void setWindow(QMainWindow * mainWindow);
 
 	private slots:
 		void updateTotalBytes(qint64 bytes);
@@ -49,13 +52,11 @@ namespace utils {
 		static DownloadQueue * instance;
 		
 		QQueue<MultiFileDownloader *> _queue;
+		QWinTaskbarButton * _taskbarButton;
 		QWinTaskbarProgress * _taskbarProgress;
 		bool _running;
 		QMap<const MultiFileDownloader *, qint64> _totalBytesMap;
 		QMap<const MultiFileDownloader *, qint64> _downloadedBytesMap;
-
-		qint64 _totalBytes;
-		qint64 _downloadedBytes;
 
 		void checkQueue();
 	};

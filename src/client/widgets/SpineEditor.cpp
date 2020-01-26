@@ -30,12 +30,12 @@
 #include "utils/Compression.h"
 #include "utils/Config.h"
 #include "utils/Conversion.h"
+#include "utils/DownloadQueue.h"
 #include "utils/FileDownloader.h"
 #include "utils/Hashing.h"
 #include "utils/MultiFileDownloader.h"
 
 #include "widgets/AchievementSpineSettingsWidget.h"
-#include "widgets/DownloadProgressDialog.h"
 #include "widgets/GamepadSpineSettingsWidget.h"
 #include "widgets/GeneralSpineSettingsWidget.h"
 #include "widgets/LeGoSpineSettingsWidget.h"
@@ -395,11 +395,8 @@ void SpineEditor::installSpineScripts() {
 		FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/scripts/Spine/" + p.first), _model->getPath() + "/_work/data/Scripts/Content/Spine/" + fi.path(), fi.fileName(), p.second, mfd);
 		mfd->addFileDownloader(fd);
 	}
-	DownloadProgressDialog progressDlg(mfd, "DownloadingFile", 0, 100, 0, _mainWindow);
-	progressDlg.setCancelButton(nullptr);
-	progressDlg.setWindowFlags(progressDlg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-	progressDlg.exec();
-	if (progressDlg.hasDownloadSucceeded()) {
+
+	connect(mfd, &MultiFileDownloader::downloadSucceeded, [this]() {
 		QDirIterator it(_model->getPath() + "/_work/data/Scripts/Content/", QStringList() << "Gothic.src", QDir::Files, QDirIterator::Subdirectories);
 		if (it.hasNext()) {
 			it.next();
@@ -424,7 +421,9 @@ void SpineEditor::installSpineScripts() {
 			QFile(it.filePath()).remove();
 			QFile(QProcessEnvironment::systemEnvironment().value("TMP", ".") + "/Gothic.src").rename(it.filePath());
 		}
-	}
+	});
+
+	DownloadQueue::getInstance()->add(mfd);
 }
 
 void SpineEditor::updateSpineScripts() {
@@ -445,17 +444,13 @@ void SpineEditor::updateSpineScripts() {
 		{ "Spine_Utils.d.z", "84df11c2081401c7accbf3a27555095db4fc391808099d42c627f1241d7ac089c3d4f3bb200f2bb880df0f2ad75bfffef8960c6aad80b6e946fa7ac1e0248f4d" }
 	};
 	MultiFileDownloader * mfd = new MultiFileDownloader(this);
-	connect(mfd, SIGNAL(downloadFailed(DownloadError)), mfd, SLOT(deleteLater()));
-	connect(mfd, SIGNAL(downloadSucceeded()), mfd, SLOT(deleteLater()));
 	for (const QPair<QString, QString> & p : spineFiles) {
 		QFileInfo fi(p.first);
 		FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/scripts/Spine/" + p.first), _model->getPath() + "/_work/data/Scripts/Content/Spine/" + fi.path(), fi.fileName(), p.second, mfd);
 		mfd->addFileDownloader(fd);
 	}
-	DownloadProgressDialog progressDlg(mfd, "DownloadingFile", 0, 100, 0, _mainWindow);
-	progressDlg.setCancelButton(nullptr);
-	progressDlg.setWindowFlags(progressDlg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-	progressDlg.exec();
+	
+	DownloadQueue::getInstance()->add(mfd);
 }
 
 void SpineEditor::installIkarusScripts() {
@@ -549,17 +544,13 @@ void SpineEditor::updateIkarusScripts() {
 	}
 
 	MultiFileDownloader * mfd = new MultiFileDownloader(this);
-	connect(mfd, SIGNAL(downloadFailed(DownloadError)), mfd, SLOT(deleteLater()));
-	connect(mfd, SIGNAL(downloadSucceeded()), mfd, SLOT(deleteLater()));
 	for (const QPair<QString, QString> & p : realFiles) {
 		QFileInfo fi(p.first);
 		FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/scripts/Ikarus/" + p.first), _model->getPath() + "/_work/data/Scripts/Content/Ikarus/" + fi.path(), fi.fileName(), p.second, mfd);
 		mfd->addFileDownloader(fd);
 	}
-	DownloadProgressDialog progressDlg(mfd, "DownloadingFile", 0, 100, 0, _mainWindow);
-	progressDlg.setCancelButton(nullptr);
-	progressDlg.setWindowFlags(progressDlg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-	progressDlg.exec();
+	
+	DownloadQueue::getInstance()->add(mfd);
 }
 
 void SpineEditor::installLeGoScripts() {
@@ -609,18 +600,12 @@ void SpineEditor::installLeGoScripts() {
 		{ "_Hashtable.d.z", "1ba581f38d3689c01c1805d7f98ffa5a8d593a35ffb0c82f39e097998ec92496f2ff7b1f2bf2ab1b2dbba91a0afae1f58cf217323add91ee6dbf86aab0cb16f6" }
 	};
 	MultiFileDownloader * mfd = new MultiFileDownloader(this);
-	connect(mfd, SIGNAL(downloadFailed(DownloadError)), mfd, SLOT(deleteLater()));
-	connect(mfd, SIGNAL(downloadSucceeded()), mfd, SLOT(deleteLater()));
 	for (const QPair<QString, QString> & p : legoFiles) {
 		QFileInfo fi(p.first);
 		FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/scripts/LeGo/" + p.first), _model->getPath() + "/_work/data/Scripts/Content/LeGo/" + fi.path(), fi.fileName(), p.second, mfd);
 		mfd->addFileDownloader(fd);
 	}
-	DownloadProgressDialog progressDlg(mfd, "DownloadingFile", 0, 100, 0, _mainWindow);
-	progressDlg.setCancelButton(nullptr);
-	progressDlg.setWindowFlags(progressDlg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-	progressDlg.exec();
-	if (progressDlg.hasDownloadSucceeded()) {
+	connect(mfd, &MultiFileDownloader::downloadSucceeded, [this]() {
 		QDirIterator it(_model->getPath() + "/_work/data/Scripts/Content/", QStringList() << "Gothic.src", QDir::Files, QDirIterator::Subdirectories);
 		if (it.hasNext()) {
 			it.next();
@@ -645,7 +630,9 @@ void SpineEditor::installLeGoScripts() {
 			QFile(it.filePath()).remove();
 			QFile(QProcessEnvironment::systemEnvironment().value("TMP", ".") + "/Gothic.src").rename(it.filePath());
 		}
-	}
+	});
+	
+	DownloadQueue::getInstance()->add(mfd);
 }
 
 void SpineEditor::updateLeGoScripts() {
@@ -695,17 +682,13 @@ void SpineEditor::updateLeGoScripts() {
 		{ "_Hashtable.d.z", "1ba581f38d3689c01c1805d7f98ffa5a8d593a35ffb0c82f39e097998ec92496f2ff7b1f2bf2ab1b2dbba91a0afae1f58cf217323add91ee6dbf86aab0cb16f6" }
 	};
 	MultiFileDownloader * mfd = new MultiFileDownloader(this);
-	connect(mfd, SIGNAL(downloadFailed(DownloadError)), mfd, SLOT(deleteLater()));
-	connect(mfd, SIGNAL(downloadSucceeded()), mfd, SLOT(deleteLater()));
 	for (const QPair<QString, QString> & p : legoFiles) {
 		QFileInfo fi(p.first);
 		FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/scripts/LeGo/" + p.first), _model->getPath() + "/_work/data/Scripts/Content/LeGo/" + fi.path(), fi.fileName(), p.second, mfd);
 		mfd->addFileDownloader(fd);
 	}
-	DownloadProgressDialog progressDlg(mfd, "DownloadingFile", 0, 100, 0, _mainWindow);
-	progressDlg.setCancelButton(nullptr);
-	progressDlg.setWindowFlags(progressDlg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-	progressDlg.exec();
+	
+	DownloadQueue::getInstance()->add(mfd);
 }
 
 void SpineEditor::closeEvent(QCloseEvent * evt) {

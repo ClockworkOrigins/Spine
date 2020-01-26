@@ -22,7 +22,6 @@
 
 #include <QWidget>
 
-class QMainWindow;
 class QPushButton;
 class QScrollArea;
 class QStandardItemModel;
@@ -32,14 +31,13 @@ class QVBoxLayout;
 namespace spine {
 namespace widgets {
 
-	class GeneralSettingsWidget;
 	class NewsWidget;
 
 	class StartPageWidget : public QWidget {
 		Q_OBJECT
 
 	public:
-		StartPageWidget(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QWidget * par);
+		StartPageWidget(QWidget * par);
 
 		void requestNewsUpdate();
 
@@ -64,12 +62,10 @@ namespace widgets {
 		QScrollArea * _scrollArea;
 		QWidget * _newsContainer;
 		QVBoxLayout * _newsLayout;
-		std::vector<NewsWidget *> _news;
-		QMainWindow * _mainWindow;
+		QList<NewsWidget *> _news;
 		QPushButton * _writeNewsButton;
 		QTableView * _newsTicker;
 		QStandardItemModel * _newsTickerModel;
-		GeneralSettingsWidget * _generalSettingsWidget;
 		QPushButton * _startModButton;
 
 		void showEvent(QShowEvent* evt) override;

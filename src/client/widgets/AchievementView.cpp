@@ -31,47 +31,83 @@ using namespace spine;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-AchievementView::AchievementView(int32_t modID, common::SendAllAchievementStatsMessage::AchievementStats as, QWidget * par) : QWidget(par) {
+AchievementView::AchievementView(int32_t modID, common::SendAllAchievementStatsMessage::AchievementStats as, QWidget * par) : QWidget(par), _modID(modID), _achievement(as) {
 	QHBoxLayout * l = new QHBoxLayout();
 
 	setObjectName("AchievementView");
-
-	QString iconUnlocked = ":/Achievement_Unlocked.png";
-	QString iconLocked = ":/Achievement_Locked.png";
-	if (!as.iconUnlocked.empty()) {
-		QString filename = QString::fromStdString(as.iconUnlocked);
-		filename.chop(2);
-		iconUnlocked = Config::MODDIR + "/mods/" + QString::number(modID) + "/achievements/" + filename;
-	}
-	if (!as.iconLocked.empty()) {
-		QString filename = QString::fromStdString(as.iconLocked);
-		filename.chop(2);
-		iconLocked = Config::MODDIR + "/mods/" + QString::number(modID) + "/achievements/" + filename;
-	}
-
+	
 	{
-		QLabel * lbl = new QLabel(this);
-		QPixmap achievementPixmap(iconUnlocked);
-		if (achievementPixmap.isNull()) {
-			achievementPixmap = QPixmap(":/Achievement_Unlocked.png");
-		}
+		_unlockedIcon = new QLabel(this);
+		const QPixmap achievementPixmap(":/Achievement_Unlocked.png");
 		const QPixmap pixmap = achievementPixmap.scaled(64, 64, Qt::KeepAspectRatio, Qt::TransformationMode::SmoothTransformation);
-		lbl->setFixedSize(64, 64);
-		lbl->setPixmap(pixmap);
+		_unlockedIcon->setFixedSize(64, 64);
+		_unlockedIcon->setPixmap(pixmap);
 
-		lbl->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-		lbl->setProperty("score", true);
+		_unlockedIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+		_unlockedIcon->setProperty("score", true);
 
-		l->addWidget(lbl, Qt::AlignLeft);
+		l->addWidget(_unlockedIcon, Qt::AlignLeft);
 	}
 	{
 		AchievementInfoView * aiv = new AchievementInfoView(as, this);
 		l->addWidget(aiv);
 	}
 	{
-		QLabel * lbl = new QLabel(this);
-		QPixmap achievementPixmap(as.unlocked ? iconUnlocked : iconLocked);
-		if (!as.iconUnlocked.empty() && as.iconLocked.empty() && !as.unlocked) {
+		_lockedIcon = new QLabel(this);
+		const QPixmap achievementPixmap = QPixmap(as.unlocked ? ":/Achievement_Unlocked.png" : ":/Achievement_Locked.png");
+		const QPixmap pixmap = achievementPixmap.scaled(64, 64, Qt::KeepAspectRatio, Qt::TransformationMode::SmoothTransformation);
+		_lockedIcon->setFixedSize(64, 64);
+		_lockedIcon->setPixmap(pixmap);
+
+		_lockedIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+		_lockedIcon->setProperty("score", true);
+
+		l->addWidget(_lockedIcon, Qt::AlignRight);
+	}
+
+	setLayout(l);
+
+	setFixedSize(800, 70);
+	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
+	l->setSizeConstraint(QLayout::SizeConstraint::SetFixedSize);
+
+	setProperty("score", true);
+
+	updateIcons();
+}
+
+AchievementView::~AchievementView() {
+}
+
+void AchievementView::updateIcons() {
+	if (_achievement.iconUnlocked.empty() && _achievement.iconLocked.empty()) return;
+	
+	QString iconUnlocked = ":/Achievement_Unlocked.png";
+	QString iconLocked = ":/Achievement_Locked.png";
+	
+	if (!_achievement.iconUnlocked.empty()) {
+		QString filename = QString::fromStdString(_achievement.iconUnlocked);
+		filename.chop(2);
+		iconUnlocked = Config::MODDIR + "/mods/" + QString::number(_modID) + "/achievements/" + filename;
+	}
+	if (!_achievement.iconLocked.empty()) {
+		QString filename = QString::fromStdString(_achievement.iconLocked);
+		filename.chop(2);
+		iconLocked = Config::MODDIR + "/mods/" + QString::number(_modID) + "/achievements/" + filename;
+	}
+
+	{
+		QPixmap achievementPixmap(iconUnlocked);
+		if (achievementPixmap.isNull()) {
+			achievementPixmap = QPixmap(":/Achievement_Unlocked.png");
+		}
+		const QPixmap pixmap = achievementPixmap.scaled(64, 64, Qt::KeepAspectRatio, Qt::TransformationMode::SmoothTransformation);
+		_unlockedIcon->setPixmap(pixmap);
+	}
+	{
+		QPixmap achievementPixmap(_achievement.unlocked ? iconUnlocked : iconLocked);
+		if (!_achievement.iconUnlocked.empty() && _achievement.iconLocked.empty() && !_achievement.unlocked) {
 			const QPixmap achievementPixmapUnlocked(iconUnlocked);
 			if (!achievementPixmapUnlocked.isNull()) {
 				QImage img = achievementPixmapUnlocked.toImage();
@@ -88,29 +124,11 @@ AchievementView::AchievementView(int32_t modID, common::SendAllAchievementStatsM
 			}
 		}
 		if (achievementPixmap.isNull()) {
-			achievementPixmap = QPixmap(as.unlocked ? ":/Achievement_Unlocked.png" : ":/Achievement_Locked.png");
+			achievementPixmap = QPixmap(_achievement.unlocked ? ":/Achievement_Unlocked.png" : ":/Achievement_Locked.png");
 		}
 		const QPixmap pixmap = achievementPixmap.scaled(64, 64, Qt::KeepAspectRatio, Qt::TransformationMode::SmoothTransformation);
-		lbl->setFixedSize(64, 64);
-		lbl->setPixmap(pixmap);
-
-		lbl->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-		lbl->setProperty("score", true);
-
-		l->addWidget(lbl, Qt::AlignRight);
+		_lockedIcon->setPixmap(pixmap);
 	}
-
-	setLayout(l);
-
-	setFixedSize(800, 70);
-	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-
-	l->setSizeConstraint(QLayout::SizeConstraint::SetFixedSize);
-
-	setProperty("score", true);
-}
-
-AchievementView::~AchievementView() {
 }
 
 QSize AchievementView::sizeHint() const {

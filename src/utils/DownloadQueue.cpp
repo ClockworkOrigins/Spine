@@ -21,26 +21,27 @@
 #include "utils/MultiFileDownloader.h"
 
 #include <QMainWindow>
+
+#ifdef Q_OS_WIN
 #include <QWinTaskbarButton>
 #include <QWinTaskbarProgress>
+#endif
 
 using namespace spine;
 using namespace spine::utils;
 
 DownloadQueue * DownloadQueue::instance = nullptr;
 
-DownloadQueue::DownloadQueue(QMainWindow * mainWindow) : _running(false), _totalBytes(0), _downloadedBytes(0) {
+DownloadQueue::DownloadQueue() : _taskbarButton(nullptr), _taskbarProgress(nullptr), _running(false) {
 	instance = this;
 	
 #ifdef Q_OS_WIN
-	QWinTaskbarButton * button = new QWinTaskbarButton(this);
-	button->setWindow(mainWindow->windowHandle());
+	_taskbarButton = new QWinTaskbarButton(this);
 
-	_taskbarProgress = button->progress();
+	_taskbarProgress = _taskbarButton->progress();
 	_taskbarProgress->setMinimum(0);
-	_taskbarProgress->setMaximum(0);
+	_taskbarProgress->setMaximum(100);
 	_taskbarProgress->setValue(0);
-
 	_taskbarProgress->hide();
 #endif
 }
@@ -61,6 +62,12 @@ void DownloadQueue::add(MultiFileDownloader * downloader) {
 	downloader->querySize();
 }
 
+void DownloadQueue::setWindow(QMainWindow * mainWindow) {
+#ifdef Q_OS_WIN
+	_taskbarButton->setWindow(mainWindow->windowHandle());
+#endif
+}
+
 void DownloadQueue::checkQueue() {
 	if (_queue.isEmpty()) return;
 
@@ -69,18 +76,19 @@ void DownloadQueue::checkQueue() {
 	auto downloader = _queue.dequeue();
 
 	_running = true;
+	
+#ifdef Q_OS_WIN
+	_taskbarProgress->setMaximum(static_cast<int>(_totalBytesMap[downloader] / 1024 + 1));
+	_taskbarProgress->show();
+#endif
+	
 	downloader->startDownload();
 }
 
 void DownloadQueue::updateTotalBytes(qint64 bytes) {
 	MultiFileDownloader * downloader = dynamic_cast<MultiFileDownloader *>(sender());
 
-	_totalBytes -= _totalBytesMap[downloader];
-	_totalBytes += bytes;
-	
 	_totalBytesMap[downloader] = bytes;
-
-	_taskbarProgress->setMaximum(static_cast<int>(_totalBytes / 1024 + 1));
 	
 	_queue.enqueue(downloader);
 
@@ -90,21 +98,26 @@ void DownloadQueue::updateTotalBytes(qint64 bytes) {
 void DownloadQueue::downloadedBytes(qint64 bytes) {
 	const MultiFileDownloader * downloader = dynamic_cast<const MultiFileDownloader *>(sender());
 
-	_downloadedBytes -= _downloadedBytesMap[downloader];
-	_downloadedBytes += bytes;
-	
 	_downloadedBytesMap[downloader] = bytes;
-
-	_taskbarProgress->setValue(static_cast<int>(_downloadedBytes / 1024 + 1));
+	
+#ifdef Q_OS_WIN
+	_taskbarProgress->setValue(static_cast<int>(bytes / 1024));
+#endif
 }
 
 void DownloadQueue::finishedDownload() {
-	_totalBytesMap.clear();
-	_downloadedBytesMap.clear();
+	const MultiFileDownloader * downloader = dynamic_cast<const MultiFileDownloader *>(sender());
+
+	_totalBytesMap.remove(downloader);
+	_downloadedBytesMap.remove(downloader);
 
 	_running = false;
 
 	sender()->deleteLater();
+	
+#ifdef Q_OS_WIN
+	_taskbarProgress->hide();
+#endif
 
 	checkQueue();
 }

@@ -122,6 +122,7 @@ namespace widgets {
 
 		void changedOnlineMode();
 
+		void showEvent(QShowEvent * event) override;
 		void closeEvent(QCloseEvent * evt) override;
 	};
 
