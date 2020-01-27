@@ -3040,5 +3040,9 @@ Zgodę można odwołać w każdej chwili. Wszystkie niezbędne informacje można
         <source>StartWithSteam</source>
         <translation>Mit Steam starten</translation>
     </message>
+    <message>
+        <source>Downloading</source>
+        <translation>Downloading</translation>
+    </message>
 </context>
 </TS>

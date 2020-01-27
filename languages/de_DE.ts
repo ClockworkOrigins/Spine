@@ -3040,5 +3040,9 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>StartWithSteam</source>
         <translation>Mit Steam starten</translation>
     </message>
+    <message>
+        <source>Downloading</source>
+        <translation>Downloading</translation>
+    </message>
 </context>
 </TS>

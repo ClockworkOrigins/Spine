@@ -578,7 +578,10 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 		SizeItem * sizeItem = new SizeItem(mod.downloadSize);
 		sizeItem->setEditable(false);
 		QStandardItem * buttonItem = nullptr;
-		if (installedMods.find(mod.id) == installedMods.end()) {
+		if (_downloadingList.contains(mod.id)) {
+			buttonItem = new TextItem(QChar(int(FontAwesome::angledoubledown)));
+			buttonItem->setToolTip(QApplication::tr("Downloading"));
+		} else if (installedMods.find(mod.id) == installedMods.end()) {
 			buttonItem = new TextItem(QChar(int(FontAwesome::downloado)));
 			buttonItem->setToolTip(QApplication::tr("Install"));
 		} else {
@@ -659,7 +662,21 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, std::vector<std::pair<st
 		mfd->addFileDownloader(fd);
 	}
 
+	{
+		int row = 0;
+		for (; row < int(_mods.size()); row++) {
+			if (_mods[row].id == mod.id) {
+				break;
+			}
+		}
+		TextItem * buttonItem = dynamic_cast<TextItem *>(_sourceModel->item(row, DatabaseColumn::Install));
+		buttonItem->setText(QChar(int(FontAwesome::angledoubledown)));
+		buttonItem->setToolTip(QApplication::tr("Downloading"));
+	}
+
 	connect(mfd, &MultiFileDownloader::downloadSucceeded, [this, mod, fileList]() {
+		_downloadingList.removeAll(mod.id);
+		
 		int row = 0;
 		for (; row < int(_mods.size()); row++) {
 			if (_mods[row].id == mod.id) {
@@ -673,7 +690,7 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, std::vector<std::pair<st
 		Database::open(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, err);
 		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "BEGIN TRANSACTION;", err);
 		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO mods (ModID, GothicVersion, MajorVersion, MinorVersion, PatchVersion) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(int(mod.gothic)) + ", " + std::to_string(int(_mods[row].majorVersion)) + ", " + std::to_string(int(_mods[row].minorVersion)) + ", " + std::to_string(int(_mods[row].patchVersion)) + ");", err);
-		for (const auto p : fileList) {
+		for (const auto & p : fileList) {
 			QString fileName = QString::fromStdString(p.first);
 			QFileInfo fi(fileName);
 			if (fi.suffix() == "z") {
@@ -708,7 +725,7 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, std::vector<std::pair<st
 		msg.setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 		msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
 		msg.exec();
-		finishedInstallation(mod.id, -1, true);
+		emit finishedInstallation(mod.id, -1, true);
 
 		if (mod.type == common::ModType::GMP) {
 			const bool gmpInstalled = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT  * FROM mods WHERE ModID = 228 LIMIT 1;", err) > 0;
@@ -720,6 +737,7 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, std::vector<std::pair<st
 			}
 		}
 	});
+	
 	connect(mfd, &MultiFileDownloader::downloadFailed, [this, mod, fileList, fileserver](DownloadError error) {
 		bool paused = false;
 		if (error == DownloadError::CanceledError) {
@@ -750,7 +768,7 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, std::vector<std::pair<st
 					downloadModFiles(mod, fileList, fileserver);
 				} else {
 					dir2.removeRecursively();
-					finishedInstallation(mod.id, -1, false);
+					emit finishedInstallation(mod.id, -1, false);
 				}
 			} else {
 				QMessageBox msg(QMessageBox::Icon::Warning, QApplication::tr("InstallationUnsuccessful"), errorText, QMessageBox::StandardButton::Ok);
@@ -758,7 +776,7 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, std::vector<std::pair<st
 				msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
 				msg.exec();
 				dir2.removeRecursively();
-				finishedInstallation(mod.id, -1, false);
+				emit finishedInstallation(mod.id, -1, false);
 			}
 		}
 	});
@@ -799,7 +817,10 @@ void ModDatabaseView::updatePackageList(std::vector<common::UpdatePackageListMes
 		}
 		SizeItem * sizeItem = new SizeItem(package.downloadSize);
 		TextItem * buttonItem = nullptr;
-		if (installedPackages.find(package.packageID) == installedPackages.end()) {
+		if (_downloadingPackageList.contains(package.packageID)) {
+			buttonItem = new TextItem(QChar(int(FontAwesome::angledoubledown)));
+			buttonItem->setToolTip(QApplication::tr("Downloading"));
+		} else if (installedPackages.find(package.packageID) == installedPackages.end()) {
 			buttonItem = new TextItem(QChar(int(FontAwesome::downloado)));
 			buttonItem->setToolTip(QApplication::tr("Install"));
 		} else {
@@ -808,6 +829,7 @@ void ModDatabaseView::updatePackageList(std::vector<common::UpdatePackageListMes
 		}
 		_packageIDIconMapping.insert(package.packageID, buttonItem);
 		QFont f = buttonItem->font();
+		f.setFamily("FontAwesome");
 		f.setPointSize(13);
 		buttonItem->setFont(f);
 		buttonItem->setEditable(false);
@@ -871,7 +893,7 @@ void ModDatabaseView::updatePackageList(std::vector<common::UpdatePackageListMes
 }
 
 void ModDatabaseView::downloadPackageFiles(common::Mod mod, common::UpdatePackageListMessage::Package package, std::vector<std::pair<std::string, std::string>> fileList, QString fileserver) {
-	QDir dir(Config::MODDIR + "/mods/" + QString::number(mod.id));
+	const QDir dir(Config::MODDIR + "/mods/" + QString::number(mod.id));
 	if (!dir.exists()) {
 		bool b = dir.mkpath(dir.absolutePath());
 		Q_UNUSED(b);
@@ -883,7 +905,15 @@ void ModDatabaseView::downloadPackageFiles(common::Mod mod, common::UpdatePackag
 		mfd->addFileDownloader(fd);
 	}
 
+	{
+		TextItem * buttonItem = _packageIDIconMapping[package.packageID];
+		buttonItem->setText(QChar(int(FontAwesome::angledoubledown)));
+		buttonItem->setToolTip(QApplication::tr("Downloading"));
+	}
+
 	connect(mfd, &MultiFileDownloader::downloadSucceeded, [this, package, fileList, mod]() {
+		_downloadingPackageList.removeAll(package.packageID);
+		
 		TextItem * buttonItem = _packageIDIconMapping[package.packageID];
 		buttonItem->setText(QChar(int(FontAwesome::trasho)));
 		buttonItem->setToolTip(QApplication::tr("Uninstall"));
@@ -915,19 +945,19 @@ void ModDatabaseView::downloadPackageFiles(common::Mod mod, common::UpdatePackag
 		msg.setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 		msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
 		msg.exec();
-		finishedInstallation(mod.id, package.packageID, true);
+		emit finishedInstallation(mod.id, package.packageID, true);
 	});
 
 	connect(mfd, &MultiFileDownloader::downloadFailed, [this, package, mod](DownloadError error) {
 		QString errorText = QApplication::tr("InstallationUnsuccessfulText").arg(s2q(package.name));
-			if (error == DownloadError::DiskSpaceError) {
-				errorText += "\n\n" + QApplication::tr("NotEnoughDiskSpace");
-			}
-			QMessageBox msg(QMessageBox::Icon::Warning, QApplication::tr("InstallationUnsuccessful"), errorText, QMessageBox::StandardButton::Ok);
-			msg.setWindowFlags(msg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-			msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
-			msg.exec();
-			finishedInstallation(mod.id, package.packageID, false);
+		if (error == DownloadError::DiskSpaceError) {
+			errorText += "\n\n" + QApplication::tr("NotEnoughDiskSpace");
+		}
+		QMessageBox msg(QMessageBox::Icon::Warning, QApplication::tr("InstallationUnsuccessful"), errorText, QMessageBox::StandardButton::Ok);
+		msg.setWindowFlags(msg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+		msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
+		msg.exec();
+		emit finishedInstallation(mod.id, package.packageID, false);
 	});
 
 	DownloadQueue::getInstance()->add(mfd);
@@ -1009,9 +1039,12 @@ void ModDatabaseView::selectedModIndex(const QModelIndex & index) {
 		mod = _mods[index.row()];
 	}
 	if ((mod.gothic == common::GameType::Gothic && !_gothicValid) || (mod.gothic == common::GameType::Gothic2 && !_gothic2Valid) || (mod.gothic == common::GameType::Gothic1And2 && !_gothic2Valid && !_gothicValid)) {
-		finishedInstallation(mod.id, -1, false);
+		emit finishedInstallation(mod.id, -1, false);
 		return;
 	}
+	
+	if (_downloadingList.contains(mod.id)) return;
+
 	Database::DBError err;
 	std::vector<InstalledMod> ims = Database::queryAll<InstalledMod, int, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM mods;", err);
 	QSet<int32_t> installedMods;
@@ -1024,6 +1057,8 @@ void ModDatabaseView::selectedModIndex(const QModelIndex & index) {
 		msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
 		msg.button(QMessageBox::StandardButton::Cancel)->setText(QApplication::tr("Cancel"));
 		if (mod.id == 40 || mod.id == 57 || mod.id == 37 || mod.id == 116 || mod.id == 36 || QMessageBox::StandardButton::Ok == msg.exec()) {
+			_downloadingList.append(mod.id);
+			
 			// step 1: request all necessary files from server
 			QtConcurrent::run([this, mod]() {
 				common::RequestModFilesMessage rmfm;
@@ -1067,9 +1102,9 @@ void ModDatabaseView::selectedModIndex(const QModelIndex & index) {
 void ModDatabaseView::selectedPackageIndex(const QModelIndex & index) {
 	if (!index.isValid()) return;
 
-	common::Mod mod = _mods[(index.model() == _sortModel) ? _sortModel->mapToSource(index.parent()).row() : index.parent().row()];
+	common::Mod mod = _mods[index.model() == _sortModel ? _sortModel->mapToSource(index.parent()).row() : index.parent().row()];
 	if ((mod.gothic == common::GameType::Gothic && !_gothicValid) || (mod.gothic == common::GameType::Gothic2 && !_gothic2Valid) || (mod.gothic == common::GameType::Gothic1And2 && !_gothicValid && !_gothic2Valid)) {
-		finishedInstallation(mod.id, -1, false);
+		emit finishedInstallation(mod.id, -1, false);
 		return;
 	}
 	Database::DBError err;
@@ -1084,17 +1119,21 @@ void ModDatabaseView::selectedPackageIndex(const QModelIndex & index) {
 		installedPackages.insert(ip.packageID);
 	}
 	if (installedMods.find(mod.id) == installedMods.end()) {
-		finishedInstallation(mod.id, -1, false);
+		emit finishedInstallation(mod.id, -1, false);
 		return;
 	}
 	common::UpdatePackageListMessage::Package package = _packages[mod.id][(index.model() == _sortModel) ? _sortModel->mapToSource(index).row() : index.row()];
+
+	if (_downloadingPackageList.contains(package.packageID)) return;
+	
 	if (installedPackages.find(package.packageID) == installedPackages.end()) {
-		qDebug() << "Install pressed";
 		QMessageBox msg(QMessageBox::Icon::Information, QApplication::tr("ReallyWantToInstall"), QApplication::tr("ReallyWantToInstallText").arg(s2q(package.name)), QMessageBox::StandardButton::Ok | QMessageBox::StandardButton::Cancel);
 		msg.setWindowFlags(msg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
 		msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
 		msg.button(QMessageBox::StandardButton::Cancel)->setText(QApplication::tr("Cancel"));
 		if (QMessageBox::StandardButton::Ok == msg.exec()) {
+			_downloadingPackageList.append(package.packageID);
+			
 			// step 1: request all necessary files from server
 			QtConcurrent::run([this, mod, package]() {
 				common::RequestPackageFilesMessage rpfm;
@@ -1120,7 +1159,6 @@ void ModDatabaseView::selectedPackageIndex(const QModelIndex & index) {
 			});
 		}
 	} else {
-		qDebug() << "Uninstall pressed";
 		QMessageBox msg(QMessageBox::Icon::Information, QApplication::tr("ReallyWantToUninstall"), QApplication::tr("ReallyWantToUninstallText").arg(s2q(package.name)), QMessageBox::StandardButton::Ok | QMessageBox::StandardButton::Cancel);
 		msg.setWindowFlags(msg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
 		msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));

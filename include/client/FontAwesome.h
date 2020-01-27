@@ -22,7 +22,8 @@ namespace spine {
 
 	enum class FontAwesome {
 		trasho = 0xf014,
-		downloado = 0xf019
+		downloado = 0xf019,
+		angledoubledown = 0xf103
 	};
 
 } /* namespace spine */

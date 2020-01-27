@@ -96,6 +96,8 @@ namespace widgets {
 		QMap<int32_t, TextItem *> _packageIDIconMapping;
 		gui::WaitSpinner * _waitSpinner;
 		bool _allowRenderer;
+		QList<int32_t> _downloadingList;
+		QList<int32_t> _downloadingPackageList;
 
 		void resizeEvent(QResizeEvent * evt) override;
 		qint64 getDownloadSize(common::Mod mod) const;

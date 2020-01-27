@@ -3048,5 +3048,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>StartWithSteam</source>
         <translation>Start with Steam</translation>
     </message>
+    <message>
+        <source>Downloading</source>
+        <translation>Downloading</translation>
+    </message>
 </context>
 </TS>
