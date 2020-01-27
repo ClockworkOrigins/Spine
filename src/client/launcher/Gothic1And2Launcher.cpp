@@ -521,13 +521,13 @@ void Gothic1And2Launcher::updateView(int modID, const QString & iniFile) {
 
 	QSettings iniParser(_iniFile, QSettings::IniFormat);
 	iniParser.beginGroup("INFO");
-	const QString title = iniParser.value("Title", "").toString();
-	const QString version = iniParser.value("Version", "").toString();
-	const QString team = iniParser.value("Authors", "").toString();
-	QString homepage = iniParser.value("Webpage", "").toString();
-	const QString contact = iniParser.value("Contact", "").toString();
-	const QString description = iniParser.value("Description", "").toString();
-	const bool requiresAdmin = iniParser.value("RequiresAdmin", false).toBool();
+		const QString title = iniParser.value("Title", "").toString();
+		const QString version = iniParser.value("Version", "").toString();
+		const QString team = iniParser.value("Authors", "").toString();
+		QString homepage = iniParser.value("Webpage", "").toString();
+		const QString contact = iniParser.value("Contact", "").toString();
+		const QString description = iniParser.value("Description", "").toString();
+		const bool requiresAdmin = iniParser.value("RequiresAdmin", false).toBool();
 	iniParser.endGroup();
 
 	updateCommonView(modID, title);
@@ -573,15 +573,15 @@ void Gothic1And2Launcher::updateView(int modID, const QString & iniFile) {
 	programFilesx86 = programFilesx86.replace("\\", "/");
 	if (_iniFile.contains(programFiles, Qt::CaseInsensitive) || _iniFile.contains(programFilesx86, Qt::CaseInsensitive) || requiresAdmin) {
 #ifdef Q_OS_WIN
-		_startButton->setEnabled(IsRunAsAdmin());
+		_startButton->setEnabled(IsRunAsAdmin() && !_runningUpdates.contains(_modID));
 		_adminInfoLabel->setVisible(!IsRunAsAdmin());
 #else
-		_startButton->setEnabled(true);
+		_startButton->setEnabled(!_runningUpdates.contains(_modID));
 		_adminInfoLabel->setVisible(false);
 #endif
 		_adminInfoLabel->setText(requiresAdmin ? QApplication::tr("GothicAdminInfoRequiresAdmin").arg(title) : QApplication::tr("GothicAdminInfo").arg(title));
 	} else {
-		_startButton->setEnabled(true);
+		_startButton->setEnabled(!_runningUpdates.contains(_modID));
 		_adminInfoLabel->hide();
 	}
 
@@ -648,6 +648,8 @@ void Gothic1And2Launcher::updateView(int modID, const QString & iniFile) {
 			}
 		}
 	}
+
+	_startButton->setEnabled(!_runningUpdates.contains(_modID));
 }
 
 void Gothic1And2Launcher::start() {

@@ -89,6 +89,8 @@ namespace launcher {
 
 	public slots:
 		virtual void finishedInstallation(int modID, int packageID, bool success) = 0;
+		void updateStarted(int modID);
+		void updateFinished(int modID);
 
 	protected:
 		QWidget * _widget = nullptr;
@@ -104,6 +106,8 @@ namespace launcher {
 		QTime * _timer = nullptr;
 
 		QStandardItemModel * _model = nullptr;
+
+		QList<int> _runningUpdates;
 
 		virtual void createWidget();
 
@@ -124,19 +128,19 @@ namespace launcher {
 		virtual void updateModStats() {}
 
 	private:
-		QLabel * _playTimeLabel;
-		widgets::RatingWidget * _ratingWidget;
-		QLabel * _installDate;
-		QLabel * _lastPlayedDate;
-		QLabel * _achievementLabel;
-		QLabel * _scoresLabel;
+		QLabel * _playTimeLabel = nullptr;
+		widgets::RatingWidget * _ratingWidget = nullptr;
+		QLabel * _installDate = nullptr;
+		QLabel * _lastPlayedDate = nullptr;
+		QLabel * _achievementLabel = nullptr;
+		QLabel * _scoresLabel = nullptr;
 
-		ScreenshotManager * _screenshotManager;
+		ScreenshotManager * _screenshotManager = nullptr;
 
-		clockUtils::sockets::TcpSocket * _listenSocket;
-		clockUtils::sockets::TcpSocket * _socket;
+		clockUtils::sockets::TcpSocket * _listenSocket = nullptr;
+		clockUtils::sockets::TcpSocket * _socket = nullptr;
 
-		bool _showAchievements;
+		bool _showAchievements = true;
 
 		void prepareAchievementView();
 		void prepareScoreView();

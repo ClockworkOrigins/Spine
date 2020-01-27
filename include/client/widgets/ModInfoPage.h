@@ -69,6 +69,8 @@ namespace widgets {
 		void finishedInstallation(int modID, int packageID, bool success);
 		void switchToEdit();
 		void forceEditPage();
+		void updateStarted(int modID);
+		void updateFinished(int modID);
 
 	private slots:
 		void updatePage(common::SendInfoPageMessage * sipm);
@@ -112,6 +114,7 @@ namespace widgets {
 		gui::WaitSpinner * _waitSpinner;
 		QList<QPushButton *> _optionalPackageButtons;
 		bool _forceEdit;
+		QList<int> _runningUpdates;
 
 		void mouseDoubleClickEvent(QMouseEvent * evt) override;
 		void showEvent(QShowEvent * evt) override;

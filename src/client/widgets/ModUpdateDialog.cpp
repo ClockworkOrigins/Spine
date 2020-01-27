@@ -270,6 +270,12 @@ void ModUpdateDialog::accept() {
 		mfd->addFileDownloader(fd);
 	}
 
+	for (size_t i = 0; i < _updates.size(); i++) {
+		if (!_checkBoxes[i]->isChecked()) continue;
+
+		emit updateStarted(_updates[i].modID);
+	}
+
 	connect(mfd, &MultiFileDownloader::downloadSucceeded, [this, installFiles, newFiles, removeFiles, hides]() {
 		bool success = true;
 		Database::DBError err;

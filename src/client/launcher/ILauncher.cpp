@@ -174,6 +174,18 @@ void ILauncher::refresh(int modID) {
 	updateView(_modID, _iniFile);
 }
 
+void ILauncher::updateStarted(int modID) {
+	_runningUpdates.append(modID);
+
+	refresh(modID);
+}
+
+void ILauncher::updateFinished(int modID) {
+	_runningUpdates.removeAll(modID);
+
+	refresh(modID);
+}
+
 void ILauncher::updateCommonView(int modID, const QString & name) {
 	_modID = modID;
 	

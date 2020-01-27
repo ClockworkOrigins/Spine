@@ -50,6 +50,8 @@ namespace launcher {
 		void openAchievementView(int32_t, QString);
 		void openScoreView(int32_t, QString);
 		void finishedInstallation(int, int, bool);
+		void updateStarted(int);
+		void updateFinished(int);
 
 	private:
 		QList<ILauncherPtr> _launchers;

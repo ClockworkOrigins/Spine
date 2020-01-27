@@ -319,7 +319,7 @@ void ModInfoPage::finishedInstallation(int modID, int, bool success) {
 	Database::DBError err;
 	const bool installed = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM mods WHERE ModID = " + std::to_string(_modID) + " LIMIT 1;", err) > 0;
 	_installButton->setVisible(!installed);
-	_startButton->setVisible(installed);
+	_startButton->setVisible(installed && !_runningUpdates.contains(_modID));
 
 	for (QPushButton * pb : _optionalPackageButtons) {
 		const bool packageInstalled = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT PackageID FROM packages WHERE ModID = " + std::to_string(_modID) + " AND PackageID = " + std::to_string(pb->property("packageid").toInt()) + " LIMIT 1;", err) > 0;
@@ -485,7 +485,7 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 	_installButton->setProperty("modid", int(_modID));
 
 	const QDirIterator it(Config::MODDIR + "/mods/" + QString::number(_modID) + "/System", QStringList() << "*.ini", QDir::Files, QDirIterator::Subdirectories);
-	_startButton->setVisible(installed && it.hasNext());
+	_startButton->setVisible(installed && it.hasNext() && !_runningUpdates.contains(_modID));
 
 	for (const auto & p : sipm->optionalPackages) {
 		const bool packageInstalled = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT PackageID FROM packages WHERE ModID = " + std::to_string(_modID) + " AND PackageID = " + std::to_string(p.first) + " LIMIT 1;", err) > 0;
@@ -548,6 +548,14 @@ void ModInfoPage::switchToEdit() {
 
 void ModInfoPage::forceEditPage() {
 	_forceEdit = true;
+}
+
+void ModInfoPage::updateStarted(int modID) {
+	_runningUpdates.append(modID);
+}
+
+void ModInfoPage::updateFinished(int modID) {
+	_runningUpdates.removeAll(modID);
 }
 
 void ModInfoPage::addImage() {

@@ -40,6 +40,7 @@ namespace widgets {
 
 	signals:
 		void receivedMods(std::vector<common::ModUpdate>);
+		void updateStarted(int);
 		void updatedMod(int);
 
 	public slots:

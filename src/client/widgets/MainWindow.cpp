@@ -766,9 +766,15 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 
 		_modUpdateDialog->loginChanged();
 
-		connect(_settingsDialog->getGeneralSettingsWidget(), SIGNAL(resetModUpdates()), _modUpdateDialog, SLOT(checkForUpdate()));
+		connect(_settingsDialog->getGeneralSettingsWidget(), &GeneralSettingsWidget::resetModUpdates, _modUpdateDialog, static_cast<void(ModUpdateDialog::*)()>(&ModUpdateDialog::checkForUpdate));
 
 		connect(_modUpdateDialog, &ModUpdateDialog::updatedMod, _modInfoView, &ModInfoView::updatedMod);
+
+		connect(_modUpdateDialog, &ModUpdateDialog::updateStarted, LauncherFactory::getInstance(), &LauncherFactory::updateStarted);
+		connect(_modUpdateDialog, &ModUpdateDialog::updateStarted, _modInfoPage, &ModInfoPage::updateStarted);
+
+		connect(_modUpdateDialog, &ModUpdateDialog::updatedMod, LauncherFactory::getInstance(), &LauncherFactory::updateFinished);
+		connect(_modUpdateDialog, &ModUpdateDialog::updatedMod, _modInfoPage, &ModInfoPage::updateFinished);
 	}
 
 #ifdef Q_OS_WIN
