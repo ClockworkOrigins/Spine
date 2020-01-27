@@ -2206,7 +2206,9 @@ void Gothic1And2Launcher::updateModel(QStandardItemModel * model) {
 void Gothic1And2Launcher::finishedInstallation(int modID, int packageID, bool success) {
 	if (!success) return;
 
-	if (packageID != -1) return;
-
-	parseMod(QString("%1/mods/%2").arg(Config::MODDIR).arg(modID));
+	if (packageID == -1) {
+		parseMod(QString("%1/mods/%2").arg(Config::MODDIR).arg(modID));
+	} else {
+		updateModStats();
+	}
 }
