@@ -18,3 +18,7 @@ IF(WIN32)
 	target_link_libraries(SpineServer ws2_32)
 	add_custom_command(TARGET SpineServer POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_BINARY_DIR}/bin/$<CONFIGURATION>/SpineServer.exe ${CMAKE_BINARY_DIR}/bin)
 ENDIF(WIN32)
+
+set_target_properties(
+	SpineServer PROPERTIES FOLDER Server
+)

@@ -9,3 +9,7 @@ FILE(GLOB SpineGamepadHeader ${includedir}/*.h)
 ADD_LIBRARY(SpineGamepad STATIC ${SpineGamepadSrc} ${SpineGamepadHeader})
 
 #target_link_libraries(SpineGamepad ${BOOST_LIBRARIES})
+
+set_target_properties(
+	SpineGamepad PROPERTIES FOLDER Libraries
+)

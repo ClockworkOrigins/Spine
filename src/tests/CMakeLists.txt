@@ -46,3 +46,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/resources/test5/test.d ${CMAKE_BINARY
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/resources/test5/names.txt ${CMAKE_BINARY_DIR}/bin/tests/test5/names.txt COPYONLY)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/resources/test5/texts.txt ${CMAKE_BINARY_DIR}/bin/tests/test5/texts.txt COPYONLY)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/resources/test5/dialogs.txt ${CMAKE_BINARY_DIR}/bin/tests/test5/dialogs.txt COPYONLY)
+
+set_target_properties(
+	UnitTester PROPERTIES FOLDER Tests
+)

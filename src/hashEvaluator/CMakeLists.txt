@@ -15,3 +15,7 @@ ENDIF(UNIX)
 IF(WIN32)
 	add_custom_command(TARGET HashEvaluator POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_BINARY_DIR}/bin/$<CONFIGURATION>/HashEvaluator.exe ${CMAKE_BINARY_DIR}/bin)
 ENDIF(WIN32)
+
+set_target_properties(
+	HashEvaluator PROPERTIES FOLDER Tools
+)

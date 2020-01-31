@@ -13,3 +13,7 @@ FILE(GLOB CommonHeader ${includedir}/*.h)
 ADD_LIBRARY(SpineCommon STATIC ${CommonSrc} ${CommonHeader})
 
 target_link_libraries(SpineCommon ${BOOST_LIBRARIES} ${CLOCKUTILS_LIBRARIES} ${OPENSSL_LIBRARIES} ${TINYXML_LIBRARIES})
+
+set_target_properties(
+	SpineCommon PROPERTIES FOLDER Libraries
+)

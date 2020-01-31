@@ -7,3 +7,7 @@ FILE(GLOB SpineSecuritySrc ${srcdir}/*.cpp)
 FILE(GLOB SpineSecurityHeader ${includedir}/*.h)
 
 ADD_LIBRARY(SpineSecurity STATIC ${SpineSecuritySrc} ${SpineSecurityHeader})
+
+set_target_properties(
+	SpineSecurity PROPERTIES FOLDER Libraries
+)
