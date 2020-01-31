@@ -23,6 +23,7 @@
 #include "DatabaseFilterModel.h"
 #include "DirectXVersionCheck.h"
 #include "FontAwesome.h"
+#include "InstallMode.h"
 #include "SpineConfig.h"
 #include "Uninstaller.h"
 
@@ -64,6 +65,7 @@
 #include <QVBoxLayout>
 
 using namespace spine;
+using namespace spine::client;
 using namespace spine::gui;
 using namespace spine::utils;
 using namespace spine::widgets;
@@ -370,10 +372,13 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 }
 
 void ModDatabaseView::changeLanguage(QString language) {
-	updateModList(-1);
+	updateModList(-1, -1, InstallMode::None);
 }
 
-void ModDatabaseView::updateModList(int modID, int packageID) {
+void ModDatabaseView::updateModList(int modID, int packageID, InstallMode mode) {
+	if (mode == InstallMode::Silent && modID != -1) {
+		_installSilently.insert(modID);
+	}
 #ifdef Q_OS_WIN
 	LOGINFO("Memory Usage updateModList #1: " << getPRAMValue());
 #endif
@@ -459,14 +464,14 @@ void ModDatabaseView::loginChanged() {
 	const bool gmpInstalled = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM mods WHERE ModID = 228 LIMIT 1;", dbErr) > 0;
 
 	if (!gmpModInstalled.empty() && !gmpInstalled) {
-		updateModList(228);
+		updateModList(228, -1, InstallMode::Silent);
 			
 		for (int modID : gmpModInstalled) {
 			Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "DELETE FROM patchConfigs WHERE ModID = " + std::to_string(modID) + " AND PatchID = 228;", dbErr);
 			Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "INSERT INTO patchConfigs (ModID, PatchID, Enabled) VALUES (" + std::to_string(modID) + ", 228, 1);", dbErr);
 		}
 	} else if (isVisible()) {
-		updateModList(-1);
+		updateModList(-1, -1, InstallMode::None);
 	}
 #ifdef Q_OS_WIN
 	LOGINFO("Memory Usage ModDatabaseView::setUsername #2: " << getPRAMValue());
@@ -1056,7 +1061,7 @@ void ModDatabaseView::selectedModIndex(const QModelIndex & index) {
 		msg.setWindowFlags(msg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
 		msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
 		msg.button(QMessageBox::StandardButton::Cancel)->setText(QApplication::tr("Cancel"));
-		if (mod.id == 40 || mod.id == 57 || mod.id == 37 || mod.id == 116 || mod.id == 36 || QMessageBox::StandardButton::Ok == msg.exec()) {
+		if (_installSilently.contains(mod.id) || QMessageBox::StandardButton::Ok == msg.exec()) {
 			_downloadingList.append(mod.id);
 			
 			// step 1: request all necessary files from server

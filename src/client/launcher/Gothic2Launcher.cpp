@@ -18,6 +18,7 @@
 
 #include "launcher/Gothic2Launcher.h"
 
+#include "InstallMode.h"
 #include "SpineConfig.h"
 #include "SteamProcess.h"
 
@@ -41,6 +42,7 @@
 #include <QTextStream>
 
 using namespace spine;
+using namespace spine::client;
 using namespace spine::launcher;
 using namespace spine::utils;
 using namespace spine::widgets;
@@ -151,16 +153,16 @@ void Gothic2Launcher::patchCheck() {
 	const auto ids = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID FROM mods WHERE ModID = 40 OR ModID = 36 OR ModID = 116 OR ModID = 314;", err);
 	
 	if (std::find_if(ids.begin(), ids.end(), [](const std::string & s) { return s == "40"; }) == ids.end()) {
-		emit installMod(40);
+		emit installMod(40, -1, InstallMode::Silent);
 	}
 	if (std::find_if(ids.begin(), ids.end(), [](const std::string & s) { return s == "36"; }) == ids.end()) {
-		emit installMod(36);
+		emit installMod(36, -1, InstallMode::Silent);
 	}
 	if (std::find_if(ids.begin(), ids.end(), [](const std::string & s) { return s == "116"; }) == ids.end()) {
-		emit installMod(116);
+		emit installMod(116, -1, InstallMode::Silent);
 	}
 	if (std::find_if(ids.begin(), ids.end(), [](const std::string & s) { return s == "314"; }) == ids.end()) {
-		emit installMod(314);
+		emit installMod(314, -1, InstallMode::Silent);
 	}
 
 	if (QFileInfo::exists(_directory + "/System/ddraw.dll")) {

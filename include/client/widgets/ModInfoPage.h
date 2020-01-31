@@ -38,6 +38,9 @@ class QTextEdit;
 class QVBoxLayout;
 
 namespace spine {
+namespace client {
+	enum class InstallMode;
+}
 namespace gui {
 	class WaitSpinner;
 }
@@ -48,6 +51,7 @@ namespace widgets {
 	class NewsWriterDialog;
 	class RatingWidget;
 
+
 	class ModInfoPage : public QWidget {
 		Q_OBJECT
 
@@ -56,8 +60,8 @@ namespace widgets {
 
 	signals:
 		void receivedPage(common::SendInfoPageMessage *);
-		void tryInstallMod(int, int);
-		void tryInstallPackage(int, int);
+		void tryInstallMod(int, int, client::InstallMode);
+		void tryInstallPackage(int, int, client::InstallMode);
 		void gotRandomMod(int32_t);
 		void triggerModStart(int, QString);
 		void openAchievementView(int32_t, QString);

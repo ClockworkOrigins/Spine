@@ -18,6 +18,7 @@
 
 #include "widgets/ModInfoPage.h"
 
+#include "InstallMode.h"
 #include "SpineConfig.h"
 
 #include "common/SpineModules.h"
@@ -61,6 +62,7 @@
 #include <QVBoxLayout>
 
 using namespace spine;
+using namespace spine::client;
 using namespace spine::gui;
 using namespace spine::utils;
 using namespace spine::widgets;
@@ -506,12 +508,12 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 
 void ModInfoPage::installMod() {
 	const int32_t modID = sender()->property("modid").toInt();
-	emit tryInstallMod(modID, -1);
+	emit tryInstallMod(modID, -1, InstallMode::UI);
 }
 
 void ModInfoPage::installPackage() {
 	const int32_t packageID = sender()->property("packageid").toInt();
-	emit tryInstallPackage(_modID, packageID);
+	emit tryInstallPackage(_modID, packageID, InstallMode::UI);
 }
 
 void ModInfoPage::changePreviewImage(const QModelIndex & idx) {

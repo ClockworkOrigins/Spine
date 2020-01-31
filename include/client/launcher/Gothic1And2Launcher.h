@@ -32,6 +32,9 @@ class QNetworkAccessManager;
 class QSlider;
 
 namespace spine {
+namespace client {
+	enum class InstallMode;
+}
 namespace launcher {
 
 	class Gothic1And2Launcher : public ILauncher {
@@ -49,7 +52,7 @@ namespace launcher {
 		void setHideIncompatible(bool enabled);
 
 	signals:
-		void installMod(int);
+		void installMod(int, int, client::InstallMode);
 		void receivedCompatibilityList(int, std::vector<int32_t>, std::vector<int32_t>);
 		void changeSplashMessage(QString, int, QColor);
 

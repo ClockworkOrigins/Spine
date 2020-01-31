@@ -18,6 +18,7 @@
 
 #include "widgets/NewsWidget.h"
 
+#include "InstallMode.h"
 #include "SpineConfig.h"
 
 #include "common/MessageStructs.h"
@@ -49,6 +50,7 @@
 #endif
 
 using namespace spine;
+using namespace spine::client;
 using namespace spine::utils;
 using namespace spine::widgets;
 
@@ -185,7 +187,7 @@ void NewsWidget::urlClicked(const QUrl & url) {
 
 void NewsWidget::installMod() {
 	const int32_t modID = sender()->property("modid").toInt();
-	emit tryInstallMod(modID, -1);
+	emit tryInstallMod(modID, -1, InstallMode::UI);
 }
 
 void NewsWidget::paintEvent(QPaintEvent *) {

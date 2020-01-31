@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "common/MessageStructs.h"
-
 #include <QWidget>
 
 class QPushButton;
@@ -29,6 +27,9 @@ class QTableView;
 class QVBoxLayout;
 
 namespace spine {
+namespace client {
+	enum class InstallMode;
+}
 namespace widgets {
 
 	class NewsWidget;
@@ -43,7 +44,7 @@ namespace widgets {
 
 	signals:
 		void receivedNews();
-		void tryInstallMod(int, int);
+		void tryInstallMod(int, int, client::InstallMode);
 		void finishedInstallation(int, int, bool);
 		void triggerModStart(int, QString);
 

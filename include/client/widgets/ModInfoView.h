@@ -27,6 +27,9 @@
 class QVBoxLayout;
 
 namespace spine {
+namespace client {
+	enum class InstallMode;
+}
 namespace widgets {
 
 	class GeneralSettingsWidget;
@@ -49,7 +52,7 @@ namespace widgets {
 		void openScoreView(int32_t, QString);
 		void updatedG2Path();
 		void errorMessage(QString);
-		void installMod(int);
+		void installMod(int, int, client::InstallMode);
 
 	public slots:
 		void loginChanged();

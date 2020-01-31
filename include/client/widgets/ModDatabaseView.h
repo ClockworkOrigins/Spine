@@ -20,6 +20,7 @@
 
 #include <QMap>
 #include <QModelIndex>
+#include <QSet>
 #include <QWidget>
 
 #include "common/MessageStructs.h"
@@ -30,9 +31,11 @@ class QStandardItemModel;
 class QTableView;
 class QTreeView;
 
-
 namespace spine {
 	class DatabaseFilterModel;
+namespace client {
+	enum class InstallMode;
+}
 namespace gui {
 	class WaitSpinner;
 }
@@ -62,7 +65,7 @@ namespace widgets {
 
 	public slots:
 		void changeLanguage(QString language);
-		void updateModList(int modID, int packageID = -1);
+		void updateModList(int modID, int packageID, client::InstallMode mode);
 		void gothicValidationChanged(bool valid);
 		void gothic2ValidationChanged(bool valid);
 		void loginChanged();
@@ -98,6 +101,7 @@ namespace widgets {
 		bool _allowRenderer;
 		QList<int32_t> _downloadingList;
 		QList<int32_t> _downloadingPackageList;
+		QSet<int32_t> _installSilently;
 
 		void resizeEvent(QResizeEvent * evt) override;
 		qint64 getDownloadSize(common::Mod mod) const;

@@ -18,6 +18,7 @@
 
 #include "launcher/Gothic1Launcher.h"
 
+#include "InstallMode.h"
 #include "SpineConfig.h"
 #include "SteamProcess.h"
 
@@ -42,13 +43,10 @@
 #include <QTextStream>
 
 using namespace spine;
+using namespace spine::client;
 using namespace spine::launcher;
 using namespace spine::utils;
 using namespace spine::widgets;
-
-#ifdef Q_OS_WIN
-using namespace spine::client;
-#endif
 
 Gothic1Launcher::Gothic1Launcher() : _startedWithSteam(false) {
 	connect(this, &Gothic1Launcher::updatedPath, this, &Gothic1Launcher::patchCheck, Qt::QueuedConnection);
@@ -183,10 +181,10 @@ void Gothic1Launcher::patchCheck() {
 	Database::DBError err;
 	const auto ids = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID FROM mods WHERE ModID = 57 OR ModID = 37;", err);
 	if (std::find_if(ids.begin(), ids.end(), [](const std::string & s) { return s == "57"; }) == ids.end()) {
-		emit installMod(57);
+		emit installMod(57, -1, InstallMode::Silent);
 	}
 	if (std::find_if(ids.begin(), ids.end(), [](const std::string & s) { return s == "37"; }) == ids.end()) {
-		emit installMod(37);
+		emit installMod(37, -1, InstallMode::Silent);
 	}
 
 	if (QFileInfo::exists(_directory + "/System/ddraw.dll")) {

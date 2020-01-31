@@ -27,6 +27,9 @@ class QPushButton;
 class QTextBrowser;
 
 namespace spine {
+namespace client {
+	enum class InstallMode;
+}
 namespace widgets {
 
 	class NewsWriterDialog;
@@ -38,7 +41,7 @@ namespace widgets {
 		NewsWidget(common::SendAllNewsMessage::News news, bool onlineMode, QWidget * par);
 
 	signals:
-		void tryInstallMod(int, int);
+		void tryInstallMod(int, int, client::InstallMode);
 
 	public slots:
 		void finishedInstallation(int modID, int packageID, bool success);

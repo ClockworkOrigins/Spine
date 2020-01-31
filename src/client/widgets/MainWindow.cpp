@@ -18,6 +18,7 @@
 
 #include "widgets/MainWindow.h"
 
+#include "InstallMode.h"
 #include "LibraryFilterModel.h"
 #include "ReportGenerator.h"
 #include "SpineConfig.h"
@@ -104,6 +105,7 @@
 #endif
 
 using namespace spine;
+using namespace spine::client;
 using namespace spine::launcher;
 using namespace spine::translator;
 using namespace spine::utils;
@@ -240,9 +242,9 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	}
 
 	if (Config::OnlineMode) {
-		connect(startPage, &StartPageWidget::tryInstallMod, _modDatabaseView, static_cast<void(ModDatabaseView::*)(int, int)>(&ModDatabaseView::updateModList));
-		connect(_modInfoPage, &ModInfoPage::tryInstallMod, _modDatabaseView, static_cast<void(ModDatabaseView::*)(int, int)>(&ModDatabaseView::updateModList));
-		connect(_modInfoPage, &ModInfoPage::tryInstallPackage, _modDatabaseView, static_cast<void(ModDatabaseView::*)(int, int)>(&ModDatabaseView::updateModList));
+		connect(startPage, &StartPageWidget::tryInstallMod, _modDatabaseView, static_cast<void(ModDatabaseView::*)(int, int, InstallMode)>(&ModDatabaseView::updateModList));
+		connect(_modInfoPage, &ModInfoPage::tryInstallMod, _modDatabaseView, static_cast<void(ModDatabaseView::*)(int, int, InstallMode)>(&ModDatabaseView::updateModList));
+		connect(_modInfoPage, &ModInfoPage::tryInstallPackage, _modDatabaseView, static_cast<void(ModDatabaseView::*)(int, int, InstallMode)>(&ModDatabaseView::updateModList));
 		connect(_modDatabaseView, &ModDatabaseView::loadPage, _modInfoPage, &ModInfoPage::loadPage);
 		connect(_modDatabaseView, &ModDatabaseView::loadPage, this, &MainWindow::changeToInfoTab);
 
@@ -417,7 +419,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		_tabWidget->addTab(_friendsView, QApplication::tr("Friends"));
 		UPDATELANGUAGESETTABTEXT(_tabWidget, MainTabsOnline::Friends, "Friends");
 
-		connect(_modInfoView, SIGNAL(installMod(int)), _modDatabaseView, SLOT(updateModList(int)));
+		connect(_modInfoView, &ModInfoView::installMod, _modDatabaseView, static_cast<void(ModDatabaseView::*)(int, int, InstallMode)>(&ModDatabaseView::updateModList));
 	}
 
 #ifdef Q_OS_WIN
@@ -837,7 +839,7 @@ void MainWindow::pathChanged() {
 void MainWindow::tabChanged(int index) {
 	if (Config::OnlineMode) {
 		if (index == MainTabsOnline::Database) {
-			_modDatabaseView->updateModList(-1);
+			_modDatabaseView->updateModList(-1, -1, InstallMode::None);
 			_profileView->reset();
 		} else if (index == MainTabsOnline::Profile) {
 			_profileView->updateList();
