@@ -46,7 +46,13 @@ namespace {
 	std::map<int, std::vector<std::pair<std::string, int>>> scores;
 	std::set<int32_t> achievements;
 	std::map<int32_t, std::pair<int32_t, int32_t>> achievementProgress;
+
+#ifdef WIN32
+	std::wstring overallSaveName;
+#else
 	std::string overallSaveName;
+#endif
+	
 	std::map<std::string, std::string> overallSaveEntries;
 	bool showAchievements = true;
 	std::mutex overallSaveMutex;

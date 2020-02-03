@@ -20,6 +20,8 @@
 
 #include <fstream>
 
+#include "utils/Conversion.h"
+
 #include "boost/iostreams/copy.hpp"
 #include "boost/iostreams/filtering_streambuf.hpp"
 #include "boost/iostreams/filter/zlib.hpp"
@@ -34,14 +36,25 @@ namespace utils {
 	}
 
 	bool Compression::compress(const QString & file, const QString & targetFile, bool deleteSourceAfterCompression) {
-		const auto sfile = file.toStdString();
+#ifdef Q_OS_WIN
+		const auto sfile = q2ws(file);
+#else
+		const auto sfile = q2s(file);
+#endif
 
 		{
 			std::ifstream uncompressedFile(sfile, std::ios_base::in | std::ios_base::binary);
 			boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
 			in.push(boost::iostreams::zlib_compressor(boost::iostreams::zlib::best_compression));
 			in.push(uncompressedFile);
-			std::ofstream compressedFile(targetFile.toStdString(), std::ios_base::out | std::ios_base::binary);
+						
+#ifdef Q_OS_WIN
+		const auto sTargetFile = q2ws(targetFile);
+#else
+		const auto sTargetFile = q2s(targetFile);
+#endif
+			
+			std::ofstream compressedFile(sTargetFile, std::ios_base::out | std::ios_base::binary);
 			boost::iostreams::copy(in, compressedFile);
 		}
 
@@ -60,11 +73,24 @@ namespace utils {
 		if (QFileInfo(file).suffix() != "z") return false;
 
 		{
-			std::ifstream compressedFile(file.toStdString(), std::ios_base::in | std::ios_base::binary);
+#ifdef Q_OS_WIN
+		const auto sfile = q2ws(file);
+#else
+		const auto sfile = q2s(file);
+#endif
+			
+			std::ifstream compressedFile(sfile, std::ios_base::in | std::ios_base::binary);
 			boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
 			in.push(boost::iostreams::zlib_decompressor());
 			in.push(compressedFile);
-			std::ofstream uncompressedFile(targetFile.toStdString(), std::ios_base::out | std::ios_base::binary);
+						
+#ifdef Q_OS_WIN
+		const auto sTargetFile = q2ws(targetFile);
+#else
+		const auto sTargetFile = q2s(targetFile);
+#endif
+			
+			std::ofstream uncompressedFile(sTargetFile, std::ios_base::out | std::ios_base::binary);
 			boost::iostreams::copy(in, uncompressedFile);
 		}
 		

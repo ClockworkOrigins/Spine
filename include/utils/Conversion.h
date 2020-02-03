@@ -30,6 +30,7 @@ namespace utils {
 
 #define s2q(str) QString::fromUtf8(std::string(str).c_str()).replace("&apos;", "'")
 #define q2s(str) QString(str).replace("'", "&apos;").trimmed().toUtf8().toStdString()
+#define q2ws(str) QString(str).replace("'", "&apos;").trimmed().toStdWString()
 
 	inline QString byteToString(qint64 value) {
 		QString unit = "B";

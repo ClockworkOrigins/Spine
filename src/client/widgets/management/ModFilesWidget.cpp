@@ -303,7 +303,12 @@ void ModFilesWidget::uploadCurrentMod() {
 						} else {
 							utils::Compression::compress(it.value(), false);
 
-							std::ifstream in(q2s(it.value()) + ".z", std::ifstream::ate | std::ifstream::binary);
+#ifdef Q_OS_WIN
+							const auto path = q2ws(it.value() + ".z");
+#else
+							const auto path = q2s(it.value() + ".z");
+#endif
+							std::ifstream in(path, std::ifstream::ate | std::ifstream::binary);
 							const auto size = in.tellg();
 							maxBytes += size;
 
@@ -334,7 +339,13 @@ void ModFilesWidget::uploadCurrentMod() {
 			sock.write(&size, 4);
 			sock.write(serialized);
 			for (const QString & file : uploadFiles) {
-				std::ifstream in(q2s(file), std::ios_base::in | std::ios_base::binary);
+#ifdef Q_OS_WIN
+				const auto path = q2ws(file);
+#else
+				const auto path = q2s(file);
+#endif
+				
+				std::ifstream in(path, std::ios_base::in | std::ios_base::binary);
 				while (in.good()) {
 					char buffer[1024];
 					in.read(buffer, 1024);

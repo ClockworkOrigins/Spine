@@ -766,7 +766,12 @@ namespace common {
 	};
 
 	struct SendOverallSavePathMessage : public Message {
+#ifdef WIN32
+		std::wstring path;
+#else
 		std::string path;
+#endif
+		
 		SendOverallSavePathMessage() : Message(), path() {
 			type = MessageType::SENDOVERALLSAVEPATH;
 		}

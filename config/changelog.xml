@@ -1690,6 +1690,7 @@
 		<Bug language="Deutsch">Hack für Datenausführungsverhinderung wieder eingebaut, weil er scheinbar doch ab und an funktioniert hat</Bug>
 		<Bug language="Deutsch">Wiederherstellen von ini Dateien funktioniert jetzt</Bug>
 		<Bug language="Deutsch">Neu geladene Patches werden jetzt für die in der Bibliothek ausgewählte Mod direkt angezeigt</Bug>
+		<Bug language="Deutsch">Unicode-Pfade sollten jetzt funktionieren</Bug>
 		
 		<Enhancement language="English">Switching to library as well as installation and uninstallation are a lot faster now</Enhancement>
 		<Enhancement language="English">Steam support for Gothic 2 now out of beta</Enhancement>
@@ -1698,5 +1699,6 @@
 		<Bug language="English">Restored hack for DEP again as it seems like it worked under some circumstances</Bug>
 		<Bug language="English">Fixed restoring of ini files</Bug>
 		<Bug language="English">Newly loaded patches now are directly shown for selected mod in library</Bug>
+		<Bug language="English">Unicode paths should work now</Bug>
 	</Version>
 </Versions>
