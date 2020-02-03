@@ -19,12 +19,12 @@
 #include "widgets/MainWindow.h"
 
 #include <iostream>
-#include <fstream>
 #include <thread>
 
 #include "SpineConfig.h"
 
 #include "utils/Config.h"
+#include "utils/FileLogger.h"
 #include "utils/WindowsExtensions.h"
 
 #include "clockUtils/compression/Compression.h"
@@ -135,12 +135,8 @@ int main(int argc, char ** argv) {
 		QFile(fil[0].absoluteFilePath()).remove();
 		fil.pop_front();
 	}
-	std::ofstream out(Config::BASEDIR.toStdString() + "/logs/log_" + std::to_string(time(nullptr)) + ".log");
-	clockUtils::log::Logger::addSink(&out);
-
-#ifndef SPINE_RELEASE
-	//clockUtils::log::Logger::addSink(&std::cout);
-#endif
+	FileLogger logFile(Config::BASEDIR.toStdString() + "/logs/log_" + std::to_string(time(nullptr)) + ".log");
+	clockUtils::log::Logger::addSink(&logFile);
 
 	LOGINFO("Start logging");
 
