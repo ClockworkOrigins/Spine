@@ -37,6 +37,7 @@
 #include <QNetworkReply>
 #include <QProcess>
 #include <QSettings>
+#include <QtConcurrentRun>
 
 #ifdef Q_OS_WIN
 	#include <Windows.h>
@@ -47,6 +48,8 @@ using namespace spine;
 using namespace spine::utils;
 
 FileDownloader::FileDownloader(QUrl url, QString targetDirectory, QString fileName, QString hash, QObject * par) : QObject(par), _webAccessManager(new QNetworkAccessManager(this)), _url(url), _targetDirectory(targetDirectory), _fileName(fileName), _hash(hash), _filesize(-1), _outputFile(nullptr) {
+	connect(this, &FileDownloader::fileFailed, this, &FileDownloader::deleteLater);
+	connect(this, &FileDownloader::fileSucceeded, this, &FileDownloader::deleteLater);
 }
 
 FileDownloader::~FileDownloader() {
@@ -73,7 +76,8 @@ void FileDownloader::startDownload() {
 	if (!dir.exists()) {
 		bool b = dir.mkpath(dir.absolutePath());
 		if (!b) {
-			emit downloadFailed(DownloadError::UnknownError);
+			emit downloadFinished();
+			emit fileFailed(DownloadError::UnknownError);
 			return;
 		}
 	}
@@ -94,14 +98,18 @@ void FileDownloader::startDownload() {
 				loop.exec();
 			}
 			emit downloadProgress(_filesize);
-			emit downloadSucceeded();
+
+			emit downloadFinished();
+			emit fileSucceeded();
 			return;
 		}
 	}
 
 	if (_fileName.contains("directx_Jun2010_redist.exe", Qt::CaseInsensitive) && Config::IniParser->value("INSTALLATION/DirectX", true).toBool()) {
 		emit downloadProgress(_filesize);
-		emit downloadSucceeded();
+
+		emit downloadFinished();
+		emit fileSucceeded();
 		return;
 	}
 	_outputFile = new QFile(_targetDirectory + "/" + _fileName);
@@ -109,7 +117,9 @@ void FileDownloader::startDownload() {
 		if (Config::extendedLogging) {
 			LOGINFO("Can't open file for output");
 		}
-		emit downloadFailed(DownloadError::UnknownError);
+
+		emit downloadFinished();
+		emit fileFailed(DownloadError::UnknownError);
 		return;
 	}
 	const QNetworkRequest request(_url);
@@ -129,6 +139,9 @@ void FileDownloader::updateDownloadProgress(qint64 bytesReceived, qint64) {
 
 void FileDownloader::fileDownloaded() {
 	QNetworkReply * reply = dynamic_cast<QNetworkReply *>(sender());
+
+	emit downloadFinished();
+	
 	if (reply->error() == QNetworkReply::NetworkError::NoError) {
 		if (Config::extendedLogging) {
 			LOGINFO("Uncompressing file");
@@ -136,6 +149,51 @@ void FileDownloader::fileDownloaded() {
 		const QByteArray data = reply->readAll(); // the rest
 		_outputFile->write(data);
 		_outputFile->close();
+
+		uncompressAndHash();		
+	} else {
+		_outputFile->close();
+		_outputFile->remove();
+		LOGERROR("Unknown Error: " << reply->error() << ", " << q2s(reply->errorString()));
+		if (reply->error() != QNetworkReply::OperationCanceledError) {
+			utils::ErrorReporting::report(QString("Unknown Error during download: %1, %2 (%3)").arg(reply->error()).arg(reply->errorString()).arg(_url.toString()));
+		}
+		emit fileFailed(DownloadError::UnknownError);
+	}
+	reply->deleteLater();
+}
+
+void FileDownloader::determineFileSize() {
+	const qlonglong filesize = dynamic_cast<QNetworkReply *>(sender())->header(QNetworkRequest::ContentLengthHeader).toLongLong();
+	sender()->deleteLater();
+	_filesize = filesize;
+	emit totalBytes(_filesize);
+}
+
+void FileDownloader::writeToFile() {
+	QNetworkReply * reply = dynamic_cast<QNetworkReply *>(sender());
+	const QByteArray data = reply->readAll();
+	_outputFile->write(data);
+	const QFileDevice::FileError err = _outputFile->error();
+	if (err != QFileDevice::NoError) {
+		reply->abort();
+		emit downloadFinished();
+		emit fileFailed((err == QFileDevice::ResizeError || err == QFileDevice::ResourceError) ? DownloadError::DiskSpaceError : DownloadError::UnknownError);
+	}
+}
+
+void FileDownloader::networkError(QNetworkReply::NetworkError err) {
+	emit downloadFinished();
+	
+	if (err == QNetworkReply::NetworkError::OperationCanceledError) {
+		emit fileFailed(DownloadError::CanceledError);
+	} else {
+		emit fileFailed(DownloadError::NetworkError);
+	}
+}
+
+void FileDownloader::uncompressAndHash() {
+	QtConcurrent::run([this]() {
 		QFileInfo fi(_fileName);
 		const QString fileNameBackup = _fileName;
 		// compressed files always end with .z
@@ -182,12 +240,12 @@ void FileDownloader::fileDownloaded() {
 				const int result = WaitForSingleObject(shExecInfo.hProcess, INFINITE);
 				if (result != 0) {
 					LOGERROR("Execute failed: " << _fileName.toStdString());
-					emit downloadFailed(DownloadError::UnknownError);
+					emit fileFailed(DownloadError::UnknownError);
 				} else {
 					if (Config::extendedLogging) {
 						LOGINFO("Download succeeded");
 					}
-					emit downloadSucceeded();
+					emit fileSucceeded();
 				}
 #endif
 			} else if (_fileName == "directx_Jun2010_redist.exe") {
@@ -222,7 +280,7 @@ void FileDownloader::fileDownloaded() {
 					if (result != 0) {
 						dxSuccess = false;
 						LOGERROR("Execute failed: " << _fileName.toStdString());
-						emit downloadFailed(DownloadError::UnknownError);
+						emit fileFailed(DownloadError::UnknownError);
 					}
 				}
 				if (dxSuccess) {
@@ -249,14 +307,14 @@ void FileDownloader::fileDownloaded() {
 					if (result != 0) {
 						dxSuccess = false;
 						LOGERROR("Execute failed: " << _fileName.toStdString());
-						emit downloadFailed(DownloadError::UnknownError);
+						emit fileFailed(DownloadError::UnknownError);
 					}
 				}
 				if (dxSuccess) {
 					if (Config::extendedLogging) {
 						LOGINFO("Download succeeded");
 					}
-					emit downloadSucceeded();
+					emit fileSucceeded();
 				}
 				QDir(_targetDirectory + "/directX/").removeRecursively();
 				Config::IniParser->setValue("INSTALLATION/DirectX", true);
@@ -265,48 +323,12 @@ void FileDownloader::fileDownloaded() {
 				if (Config::extendedLogging) {
 					LOGINFO("Download succeeded");
 				}
-				emit downloadSucceeded();
+				emit fileSucceeded();
 			}
 		} else {
 			LOGERROR("Hash invalid: " << _fileName.toStdString());
-			emit downloadFailed(DownloadError::HashError);
+			emit fileFailed(DownloadError::HashError);
 			utils::ErrorReporting::report(QString("Hash invalid: %1 (%2)").arg(_fileName).arg(_url.toString()));
 		}
-	} else {
-		_outputFile->close();
-		_outputFile->remove();
-		LOGERROR("Unknown Error: " << reply->error() << ", " << q2s(reply->errorString()));
-		if (reply->error() != QNetworkReply::OperationCanceledError) {
-			utils::ErrorReporting::report(QString("Unknown Error during download: %1, %2 (%3)").arg(reply->error()).arg(reply->errorString()).arg(_url.toString()));
-		}
-		emit downloadFailed(DownloadError::UnknownError);
-	}
-	reply->deleteLater();
-	deleteLater();
-}
-
-void FileDownloader::determineFileSize() {
-	const qlonglong filesize = dynamic_cast<QNetworkReply *>(sender())->header(QNetworkRequest::ContentLengthHeader).toLongLong();
-	sender()->deleteLater();
-	_filesize = filesize;
-	emit totalBytes(_filesize);
-}
-
-void FileDownloader::writeToFile() {
-	QNetworkReply * reply = dynamic_cast<QNetworkReply *>(sender());
-	const QByteArray data = reply->readAll();
-	_outputFile->write(data);
-	const QFileDevice::FileError err = _outputFile->error();
-	if (err != QFileDevice::NoError) {
-		reply->abort();
-		emit downloadFailed((err == QFileDevice::ResizeError || err == QFileDevice::ResourceError) ? DownloadError::DiskSpaceError : DownloadError::UnknownError);
-	}
-}
-
-void FileDownloader::networkError(QNetworkReply::NetworkError err) {
-	if (err == QNetworkReply::NetworkError::OperationCanceledError) {
-		emit downloadFailed(DownloadError::CanceledError);
-	} else {
-		emit downloadFailed(DownloadError::NetworkError);
-	}
+	});
 }

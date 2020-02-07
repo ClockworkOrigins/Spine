@@ -51,10 +51,11 @@ namespace utils {
 	signals:
 		void downloadProgress(qint64);
 		void totalBytes(qint64);
-		void downloadSucceeded();
-		void downloadFailed(DownloadError);
+		void downloadFinished();
 		void abort();
 		void startedDownload(QString);
+		void fileSucceeded();
+		void fileFailed(DownloadError);
 
 	private slots:
 		void updateDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
@@ -71,6 +72,8 @@ namespace utils {
 		QString _hash;
 		qint64 _filesize;
 		QFile * _outputFile;
+
+		void uncompressAndHash();
 	};
 
 } /* namespace utils */
