@@ -645,6 +645,16 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	}
 
 	helpMenu->addSeparator();
+
+	QAction * tutorialsAction = helpMenu->addAction(QApplication::tr("Tutorials"));
+	UPDATELANGUAGESETTEXT(tutorialsAction, "Tutorials");
+	connect(tutorialsAction, &QAction::triggered, this, &MainWindow::openTutorials);
+	
+	QAction * publishingAction = helpMenu->addAction(QApplication::tr("PublishingOnSpine"));
+	UPDATELANGUAGESETTEXT(publishingAction, "PublishingOnSpine");
+	connect(publishingAction, &QAction::triggered, this, &MainWindow::openPublishingTutorial);
+
+	helpMenu->addSeparator();
 	
 	QAction * discordAction = helpMenu->addAction(QApplication::tr("Discord"));
 	UPDATELANGUAGESETTEXT(discordAction, "Discord");
@@ -1144,6 +1154,22 @@ bool MainWindow::onQuit() {
 		return true;
 	}
 	return false;
+}
+
+void MainWindow::openTutorials() {
+	if (GeneralSettingsWidget::getInstance()->getLanguage() == "Deutsch") {
+		QDesktopServices::openUrl(QUrl("https://clockwork-origins.com/de/spine-tutorials/"));
+	} else {
+		QDesktopServices::openUrl(QUrl("https://clockwork-origins.com/spine-tutorials/"));		
+	}
+}
+
+void MainWindow::openPublishingTutorial() {
+	if (GeneralSettingsWidget::getInstance()->getLanguage() == "Deutsch") {
+		QDesktopServices::openUrl(QUrl("https://clockwork-origins.com/de/spine-tutorial-publishing-on-spine/"));
+	} else {
+		QDesktopServices::openUrl(QUrl("https://clockwork-origins.com/spine-tutorial-publishing-on-spine/"));		
+	}
 }
 
 void MainWindow::findGothic() {

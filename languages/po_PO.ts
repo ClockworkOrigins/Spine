@@ -3044,5 +3044,13 @@ Zgodę można odwołać w każdej chwili. Wszystkie niezbędne informacje można
         <source>Downloading</source>
         <translation>Downloading</translation>
     </message>
+    <message>
+        <source>Tutorials</source>
+        <translation>Tutorials</translation>
+    </message>
+    <message>
+        <source>PublishingOnSpine</source>
+        <translation>Publishen auf Spine</translation>
+    </message>
 </context>
 </TS>

@@ -89,6 +89,9 @@ namespace widgets {
 		void generateReports();
 		bool onQuit();
 
+		void openTutorials();
+		void openPublishingTutorial();
+
 	private:
 		LibraryListView * _modListView;
 		ModInfoView * _modInfoView;

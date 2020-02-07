@@ -3049,5 +3049,13 @@ You can revoke your permission at every point in time. All necessary information
         <source>Downloading</source>
         <translation>Downloading</translation>
     </message>
+    <message>
+        <source>Tutorials</source>
+        <translation>Tutorials</translation>
+    </message>
+    <message>
+        <source>PublishingOnSpine</source>
+        <translation>Publishing on Spine</translation>
+    </message>
 </context>
 </TS>

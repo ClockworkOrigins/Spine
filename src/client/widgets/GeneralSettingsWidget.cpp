@@ -288,6 +288,10 @@ bool GeneralSettingsWidget::getHideIncompatible() const {
 	return _hideIncompatibleCheckBox->isChecked();
 }
 
+QString GeneralSettingsWidget::getLanguage() const {
+	return _languageComboBox->currentText();
+}
+
 void GeneralSettingsWidget::changedStyle(QString styleName) {
 	if (styleName == "...") {
 		const QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectStyle"), Config::STYLESDIR, "*.css");

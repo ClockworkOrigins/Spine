@@ -43,6 +43,8 @@ namespace widgets {
 
 		bool getHideIncompatible() const;
 
+		QString getLanguage() const;
+
 	signals:
 		void languageChanged(QString);
 		void changedHideIncompatible(bool);

@@ -1687,6 +1687,7 @@
 		<Enhancement language="Deutsch">Steam-Support für Gothic 2 jetzt aus der Beta</Enhancement>
 		<Enhancement language="Deutsch">Steam-Support für Gothic 1 eingebaut</Enhancement>
 		<Enhancement language="Deutsch">Download-Warteschlange eingebaut, um Dateien im Hintergrund laden zu können</Enhancement>
+		<Enhancement language="Deutsch">Link zu den Spine-Tutorials im Hilfemenü eingefügt</Enhancement>
 		<Bug language="Deutsch">Hack für Datenausführungsverhinderung wieder eingebaut, weil er scheinbar doch ab und an funktioniert hat</Bug>
 		<Bug language="Deutsch">Wiederherstellen von ini Dateien funktioniert jetzt</Bug>
 		<Bug language="Deutsch">Neu geladene Patches werden jetzt für die in der Bibliothek ausgewählte Mod direkt angezeigt</Bug>
@@ -1697,6 +1698,7 @@
 		<Enhancement language="English">Steam support for Gothic 2 now out of beta</Enhancement>
 		<Enhancement language="English">Added Steam support for Gothic 1</Enhancement>
 		<Enhancement language="English">Added download queue to download files in background</Enhancement>
+		<Enhancement language="English">Added link to tutorials in help menu</Enhancement>
 		<Bug language="English">Restored hack for DEP again as it seems like it worked under some circumstances</Bug>
 		<Bug language="English">Fixed restoring of ini files</Bug>
 		<Bug language="English">Newly loaded patches now are directly shown for selected mod in library</Bug>

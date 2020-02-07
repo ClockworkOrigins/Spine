@@ -3044,5 +3044,13 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>Downloading</source>
         <translation>Downloading</translation>
     </message>
+    <message>
+        <source>Tutorials</source>
+        <translation>Tutorials</translation>
+    </message>
+    <message>
+        <source>PublishingOnSpine</source>
+        <translation>Publishen auf Spine</translation>
+    </message>
 </context>
 </TS>
