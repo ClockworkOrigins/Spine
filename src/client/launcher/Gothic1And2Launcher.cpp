@@ -625,6 +625,8 @@ void Gothic1And2Launcher::updateView(int modID, const QString & iniFile) {
 			_pdfGroup->show();
 		}
 		_versionLabel->setText(QString("%1.%2.%3").arg(modGv.majorVersion).arg(modGv.minorVersion).arg(modGv.patchVersion));
+
+		updateCompatibilityList(_modID, {}, {});
 	} else {
 		Database::DBError err;
 		const auto patches = Database::queryAll<Patch, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, Name FROM patches;", err);
