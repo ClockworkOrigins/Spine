@@ -81,7 +81,7 @@ void FileDownloader::startDownload() {
 	if (QFileInfo(realName).suffix() == "z") {
 		realName.chop(2);
 	}
-	if (QFileInfo(_targetDirectory + "/" + realName).exists()) {
+	if (QFileInfo::exists(_targetDirectory + "/" + realName)) {
 		const bool b = utils::Hashing::checkHash(_targetDirectory + "/" + realName, _hash);
 		if (b) {
 			if (Config::extendedLogging) {

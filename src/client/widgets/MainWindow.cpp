@@ -888,17 +888,8 @@ void MainWindow::checkIntegrity() {
 			if (QMessageBox::StandardButton::Ok == msg.exec()) {
 			}
 		} else {
-			QString text = QApplication::tr("CheckIntegrityFailed") + "\n" + QApplication::tr("CorruptedFiles") + ":\n\n";
-			for (const auto & mf : corruptFiles) {
-				text += QFileInfo(mf.file).fileName() + "\n";
-			}
-			for (const auto & mf : corruptGothicFiles) {
-				text += QFileInfo(mf.file).fileName() + "\n";
-			}
-			for (const auto & mf : corruptGothic2Files) {
-				text += QFileInfo(mf.file).fileName() + "\n";
-			}
-			text.resize(text.size() - 1);
+			QString text = QApplication::tr("CheckIntegrityFailed") + "\n" + QApplication::tr("CorruptedFiles") + ": " + QString::number(corruptFiles.count() + corruptGothicFiles.count() + corruptGothic2Files.count());
+			
 			QMessageBox msg(QMessageBox::Icon::Critical, QApplication::tr("CheckIntegrity"), text, QMessageBox::StandardButton::Ok | QMessageBox::StandardButton::Cancel);
 			msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
 			msg.button(QMessageBox::StandardButton::Cancel)->setText(QApplication::tr("Cancel"));

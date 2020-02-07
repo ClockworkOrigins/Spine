@@ -1693,6 +1693,7 @@
 		<Bug language="Deutsch">Neu geladene Patches werden jetzt für die in der Bibliothek ausgewählte Mod direkt angezeigt</Bug>
 		<Bug language="Deutsch">Unicode-Pfade sollten jetzt funktionieren</Bug>
 		<Bug language="Deutsch">Patches and Tools wieder auswählbar, wenn offline</Bug>
+		<Bug language="Deutsch">Kaputte Dateien aus Integritätsprüfung entfernt und dafür Gesamtzahl eingefügt</Bug>
 		
 		<Enhancement language="English">Switching to library as well as installation and uninstallation are a lot faster now</Enhancement>
 		<Enhancement language="English">Steam support for Gothic 2 now out of beta</Enhancement>
@@ -1704,5 +1705,6 @@
 		<Bug language="English">Newly loaded patches now are directly shown for selected mod in library</Bug>
 		<Bug language="English">Unicode paths should work now</Bug>
 		<Bug language="English">Patches and tools can be selected again when offline</Bug>
+		<Bug language="English">Removed corrupted files from integrity check and showing count instead</Bug>
 	</Version>
 </Versions>
