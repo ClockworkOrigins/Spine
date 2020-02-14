@@ -59,7 +59,7 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="16" patchVersion="2">
 		<File Hash="1bd1a659161ad0a173b2e14d5d57cf450d202653d5d53878dd6206c844a5c16a7b887e46a6b40e6460616716c912b32a1b844ec14cda4ed82bad3461f0d600ad">bin/changelog.xml.z</File>
-		<File Hash="11be438037796f485af0f15582bbb97e1eb6d623ff929c265e1686da2394df61ab9d3a49eac7fec43af623e5dfc951e90fdae57e00d66da7beb5702f8145ce6a">bin/Spine.exe.z</File>
+		<File Hash="6415bc227ee9c234846d251c988cb2ec7723084bb126974ef6042d98e7891cd3869ef85b85c457ea1b2616e5e7fcb1d8eba075a607a3a3a7876f164c0210bfea">bin/Spine.exe.z</File>
 		<File Hash="2c860526ac708e26d69b919196cfe868c44eaaa6352340072d790b7ee31c7f6a0d8b47f8a2560d5d4a0f66a9cfabd868eb1437523f749a969f892d34793b8fb6">bin/SpineAPI.dll.z</File>
 	</Version>
 </Versions>
