@@ -20,7 +20,8 @@
 
 #include <QFile>
 
-namespace spine {
+using namespace spine;
+
 namespace {
 	
 	bool dialogMode;
@@ -83,99 +84,97 @@ namespace {
 	}
 }
 
-	SavegameManager::SavegameManager(QObject * par) : QObject(par), _variables() {
-	}
+SavegameManager::SavegameManager(QObject * par) : QObject(par), _variables() {
+}
 
-	SavegameManager::~SavegameManager() {
-	}
+SavegameManager::~SavegameManager() {
+}
 
-	void SavegameManager::load(QString saveFile) {
-		QFile f(saveFile);
-		if (f.open(QIODevice::ReadOnly)) {
-			QByteArray bytes = f.readAll();
-			_variables.clear(); //_variables resetten
-			dialogMode = true;
-			dialogBegin = false;
-
-			int position = 0;
-			std::string varname;
-			int value = 0;
-			bool readmode = false;
-			int i = 0;
-			//Eintrittspunkt
-			int count0A = 0;
-			int maxByte = 0;
-			while (i < bytes.length()) { //Überspringt den Einleutungskram und sucht einen guten Einstiegspunkt
-				if (bytes.at(i) == 0x0A) {
-					count0A++;
-					if (count0A > 6) { // Die Anzahl der Absätze 0A sollte fest sein.
-						i++;
-					}
-				}
-				if (bytes.at(i) == 0x02	&& bytes.at(i + 1) == 0x00 && bytes.at(i + 2) == 0x00 && bytes.at(i + 3) == 0x00 && bytes.at(i + 4) == 0x01 && bytes.at(i + 5) == 0x00 && bytes.at(i + 6) == 0x00 && bytes.at(i + 7) == 0x00) {
-					break;
-				}
-				i++;
-			}
-
-			i += 8; // 02 00 00 00 01 00 00 00 Dann kommt die Maxanzahl;
-			memcpy(&maxByte, bytes.constData() + i, 4);
-			i += 3;
-
-			while (i < maxByte) { // wir gehen die Bytes durch
-				if (bytes.at(i) == 0x12) { // 12er sind ein guter Anker
-					if (dialogMode) { // Beim Dialogmode muss erst der Wert und dann der _variablesstring gelesen werden, Dialoge sind leider Extrawürste
-						value = jumpNr(bytes, i, position); // alles per Referenz
-					} else {
-						if (readmode && QString::fromStdString(varname).trimmed().length() > 0) { // readmode gibt an, ob schon ein string eingelesen worden ist, da bei normalen _variables nach dem _variablesstring der Wert kommt.
-							value = jumpNr(bytes, i, position); // Wert auslesen.
-
-							if (dialogEnd) { // Wenn Das ende erreicht ist, soll keine Variableiable gespeichert werden, da der Letzte Dia dann einen falschen Wert bekommt
-								dialogEnd = false;
-							} else {
-								_variables.push_back(Variable(varname, value, position)); // Variableiable erzeugen
-							}
-							i--; // eins zurück wegen unten dem whilebedingten i++
-							readmode = false; // es soll ein neuer _variablesstring eingelesen werden, bis ein wert eingelesen wird
-						}
-					}
-				} else if (bytes.at(i) == 0x01) { // Wenn wir stattdessen auf eine 1 stoßen, gehts um einen String
-					const int strlength = readLength(bytes, i); // Länge des _variablesstrings bestimmen
-					if (strlength > 0) { // Gültig?
-						varname = readName(bytes, i, strlength); // Name Lesen
-					}
-
-					if (QString::fromStdString(varname).trimmed().length() > 0) { // gültig?
-						if (dialogMode && dialogBegin) { // Im dialogmodus kommt der _variablestring zum Schluss, daher wird hier die Variableiable erzeugt
-							_variables.push_back(Variable(varname, value, position));
-						} else {
-							readmode = true; // Name wurde eingelesen, jetzt kann der Wert eingelesen werden
-						}
-					}
-				}
-				i++;
-			}
-			std::sort(_variables.begin(), _variables.end(), [](const Variable & a, const Variable & b) {
-				return a.name < b.name;
-			});
-		}
-	}
-
-	void SavegameManager::save(QString saveFile, QList<Variable> variables) {
-		QFile f(saveFile);
-		if (!f.open(QIODevice::ReadOnly)) {
-			return;
-		}
+void SavegameManager::load(QString saveFile) {
+	QFile f(saveFile);
+	if (f.open(QIODevice::ReadOnly)) {
 		QByteArray bytes = f.readAll();
-		for (Variable v : variables) {
-			if (v.changed) {
-				memcpy(const_cast<char *>(bytes.constData()) + v.pos, &v.value, 4);
+		_variables.clear(); //_variables resetten
+		dialogMode = true;
+		dialogBegin = false;
+
+		int position = 0;
+		std::string varname;
+		int value = 0;
+		bool readmode = false;
+		int i = 0;
+		//Eintrittspunkt
+		int count0A = 0;
+		int maxByte = 0;
+		while (i < bytes.length()) { //Überspringt den Einleutungskram und sucht einen guten Einstiegspunkt
+			if (bytes.at(i) == 0x0A) {
+				count0A++;
+				if (count0A > 6) { // Die Anzahl der Absätze 0A sollte fest sein.
+					i++;
+				}
 			}
+			if (bytes.at(i) == 0x02	&& bytes.at(i + 1) == 0x00 && bytes.at(i + 2) == 0x00 && bytes.at(i + 3) == 0x00 && bytes.at(i + 4) == 0x01 && bytes.at(i + 5) == 0x00 && bytes.at(i + 6) == 0x00 && bytes.at(i + 7) == 0x00) {
+				break;
+			}
+			i++;
 		}
-		QFile outFile(saveFile);
-		if (outFile.open(QIODevice::WriteOnly)) {
-			outFile.write(bytes);
+
+		i += 8; // 02 00 00 00 01 00 00 00 Dann kommt die Maxanzahl;
+		memcpy(&maxByte, bytes.constData() + i, 4);
+		i += 3;
+
+		while (i < maxByte) { // wir gehen die Bytes durch
+			if (bytes.at(i) == 0x12) { // 12er sind ein guter Anker
+				if (dialogMode) { // Beim Dialogmode muss erst der Wert und dann der _variablesstring gelesen werden, Dialoge sind leider Extrawürste
+					value = jumpNr(bytes, i, position); // alles per Referenz
+				} else {
+					if (readmode && QString::fromStdString(varname).trimmed().length() > 0) { // readmode gibt an, ob schon ein string eingelesen worden ist, da bei normalen _variables nach dem _variablesstring der Wert kommt.
+						value = jumpNr(bytes, i, position); // Wert auslesen.
+
+						if (dialogEnd) { // Wenn Das ende erreicht ist, soll keine Variableiable gespeichert werden, da der Letzte Dia dann einen falschen Wert bekommt
+							dialogEnd = false;
+						} else {
+							_variables.push_back(Variable(varname, value, position)); // Variableiable erzeugen
+						}
+						i--; // eins zurück wegen unten dem whilebedingten i++
+						readmode = false; // es soll ein neuer _variablesstring eingelesen werden, bis ein wert eingelesen wird
+					}
+				}
+			} else if (bytes.at(i) == 0x01) { // Wenn wir stattdessen auf eine 1 stoßen, gehts um einen String
+				const int strlength = readLength(bytes, i); // Länge des _variablesstrings bestimmen
+				if (strlength > 0) { // Gültig?
+					varname = readName(bytes, i, strlength); // Name Lesen
+				}
+
+				if (QString::fromStdString(varname).trimmed().length() > 0) { // gültig?
+					if (dialogMode && dialogBegin) { // Im dialogmodus kommt der _variablestring zum Schluss, daher wird hier die Variableiable erzeugt
+						_variables.push_back(Variable(varname, value, position));
+					} else {
+						readmode = true; // Name wurde eingelesen, jetzt kann der Wert eingelesen werden
+					}
+				}
+			}
+			i++;
+		}
+		std::sort(_variables.begin(), _variables.end(), [](const Variable & a, const Variable & b) {
+			return a.name < b.name;
+		});
+	}
+}
+
+void SavegameManager::save(QString saveFile, QList<Variable> variables) {
+	QFile f(saveFile);
+	if (!f.open(QIODevice::ReadOnly)) {
+		return;
+	}
+	QByteArray bytes = f.readAll();
+	for (Variable v : variables) {
+		if (v.changed) {
+			memcpy(const_cast<char *>(bytes.constData()) + v.pos, &v.value, 4);
 		}
 	}
-
-} /* namespace spine */
+	QFile outFile(saveFile);
+	if (outFile.open(QIODevice::WriteOnly)) {
+		outFile.write(bytes);
+	}
+}

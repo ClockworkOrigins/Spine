@@ -44,7 +44,6 @@
 	#include <shellapi.h>
 #endif
 
-using namespace spine;
 using namespace spine::utils;
 
 FileDownloader::FileDownloader(QUrl url, QString targetDirectory, QString fileName, QString hash, QObject * par) : QObject(par), _webAccessManager(new QNetworkAccessManager(this)), _url(url), _targetDirectory(targetDirectory), _fileName(fileName), _hash(hash), _filesize(-1), _outputFile(nullptr) {

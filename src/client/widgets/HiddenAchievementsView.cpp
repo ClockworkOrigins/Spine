@@ -24,68 +24,65 @@
 #include <QPainter>
 #include <QStyleOption>
 
-namespace spine {
-namespace widgets {
+using namespace spine;
+using namespace spine::widgets;
 
-	HiddenAchievementsView::HiddenAchievementsView(int32_t count, QWidget * par) : QWidget(par) {
-		QHBoxLayout * l = new QHBoxLayout();
+HiddenAchievementsView::HiddenAchievementsView(int32_t count, QWidget * par) : QWidget(par) {
+	QHBoxLayout * l = new QHBoxLayout();
 
-		setObjectName("AchievementView");
+	setObjectName("AchievementView");
 
-		const QString iconLocked = ":/Achievement_Locked.png";
+	const QString iconLocked = ":/Achievement_Locked.png";
 
-		{
-			QLabel * lbl = new QLabel("+" + QString::number(count), this);
-			lbl->setFixedSize(64, 64);
-			lbl->setAlignment(Qt::AlignCenter);
+	{
+		QLabel * lbl = new QLabel("+" + QString::number(count), this);
+		lbl->setFixedSize(64, 64);
+		lbl->setAlignment(Qt::AlignCenter);
 
-			lbl->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-			lbl->setProperty("hiddenAchievementCount", true);
+		lbl->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+		lbl->setProperty("hiddenAchievementCount", true);
 
-			l->addWidget(lbl, Qt::AlignLeft);
-		}
-		{
-			QLabel * lbl = new QLabel(QApplication::tr("HiddenAchievementsDescription"), this);
-			lbl->setFixedSize(QSize(800 - 2 * 70, 70));
-			lbl->setAlignment(Qt::AlignCenter);
-			l->addWidget(lbl);
-		}
-		{
-			QLabel * lbl = new QLabel(this);
-			QPixmap achievementPixmap(iconLocked);
-			const QPixmap pixmap = achievementPixmap.scaled(64, 64, Qt::KeepAspectRatio, Qt::TransformationMode::SmoothTransformation);
-			lbl->setFixedSize(64, 64);
-			lbl->setPixmap(pixmap);
+		l->addWidget(lbl, Qt::AlignLeft);
+	}
+	{
+		QLabel * lbl = new QLabel(QApplication::tr("HiddenAchievementsDescription"), this);
+		lbl->setFixedSize(QSize(800 - 2 * 70, 70));
+		lbl->setAlignment(Qt::AlignCenter);
+		l->addWidget(lbl);
+	}
+	{
+		QLabel * lbl = new QLabel(this);
+		QPixmap achievementPixmap(iconLocked);
+		const QPixmap pixmap = achievementPixmap.scaled(64, 64, Qt::KeepAspectRatio, Qt::TransformationMode::SmoothTransformation);
+		lbl->setFixedSize(64, 64);
+		lbl->setPixmap(pixmap);
 
-			lbl->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-			lbl->setProperty("score", true);
+		lbl->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+		lbl->setProperty("score", true);
 
-			l->addWidget(lbl, Qt::AlignRight);
-		}
-
-		setLayout(l);
-
-		setFixedSize(800, 70);
-		setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-
-		l->setSizeConstraint(QLayout::SizeConstraint::SetFixedSize);
-
-		setProperty("score", true);
+		l->addWidget(lbl, Qt::AlignRight);
 	}
 
-	HiddenAchievementsView::~HiddenAchievementsView() {
-	}
+	setLayout(l);
 
-	QSize HiddenAchievementsView::sizeHint() const {
-		return QSize(800, 80);
-	}
+	setFixedSize(800, 70);
+	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-	void HiddenAchievementsView::paintEvent(QPaintEvent *) {
-		QStyleOption opt;
-		opt.init(this);
-		QPainter p(this);
-		style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
-	}
+	l->setSizeConstraint(QLayout::SizeConstraint::SetFixedSize);
 
-} /* namespace widgets */
-} /* namespace spine */
+	setProperty("score", true);
+}
+
+HiddenAchievementsView::~HiddenAchievementsView() {
+}
+
+QSize HiddenAchievementsView::sizeHint() const {
+	return QSize(800, 80);
+}
+
+void HiddenAchievementsView::paintEvent(QPaintEvent *) {
+	QStyleOption opt;
+	opt.init(this);
+	QPainter p(this);
+	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+}

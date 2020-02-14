@@ -24,36 +24,33 @@
 #include <QContextMenuEvent>
 #include <QMenu>
 
-namespace spine {
-namespace widgets {
+using namespace spine;
+using namespace spine::widgets;
 
-	LibraryListView::LibraryListView(QWidget * par) : QListView(par) {
-	}
+LibraryListView::LibraryListView(QWidget * par) : QListView(par) {
+}
 
-	LibraryListView::~LibraryListView() {
-	}
+LibraryListView::~LibraryListView() {
+}
 
-	void LibraryListView::contextMenuEvent(QContextMenuEvent * evt) {
-		if (!selectedIndexes().empty()) {
-			QModelIndex idx = selectedIndexes().constFirst();
-			if (idx.data(LibraryFilterModel::InstalledRole).toBool()) {
-				QMenu * menu = new QMenu(this);
-				if (idx.data(LibraryFilterModel::HiddenRole).toBool()) {
-					QAction * showModAction = menu->addAction(QApplication::tr("Show"));
-					connect(showModAction, &QAction::triggered, this, &LibraryListView::showModTriggered);
-				} else {
-					QAction * hideModAction = menu->addAction(QApplication::tr("Hide"));
-					connect(hideModAction, &QAction::triggered, this, &LibraryListView::hideModTriggered);
-				}
-				QAction * uninstallModAction = menu->addAction(QApplication::tr("Uninstall"));
-				connect(uninstallModAction, &QAction::triggered, this, &LibraryListView::uninstallModTriggered);
-				menu->popup(viewport()->mapToGlobal(evt->pos()));
-				menu->exec();
-				delete menu;
+void LibraryListView::contextMenuEvent(QContextMenuEvent * evt) {
+	if (!selectedIndexes().empty()) {
+		const QModelIndex idx = selectedIndexes().constFirst();
+		if (idx.data(LibraryFilterModel::InstalledRole).toBool()) {
+			QMenu * menu = new QMenu(this);
+			if (idx.data(LibraryFilterModel::HiddenRole).toBool()) {
+				QAction * showModAction = menu->addAction(QApplication::tr("Show"));
+				connect(showModAction, &QAction::triggered, this, &LibraryListView::showModTriggered);
+			} else {
+				QAction * hideModAction = menu->addAction(QApplication::tr("Hide"));
+				connect(hideModAction, &QAction::triggered, this, &LibraryListView::hideModTriggered);
 			}
+			QAction * uninstallModAction = menu->addAction(QApplication::tr("Uninstall"));
+			connect(uninstallModAction, &QAction::triggered, this, &LibraryListView::uninstallModTriggered);
+			menu->popup(viewport()->mapToGlobal(evt->pos()));
+			menu->exec();
+			delete menu;
 		}
-		evt->accept();
 	}
-
-} /* namespace widgets */
-} /* namespace spine */
+	evt->accept();
+}

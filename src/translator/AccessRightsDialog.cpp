@@ -34,7 +34,6 @@
 #include "translator/api/TranslatorAPI.h"
 #include "translator/common/MessageStructs.h"
 
-using namespace spine;
 using namespace spine::translator;
 using namespace spine::utils;
 

@@ -21,29 +21,25 @@
 #include <QCryptographicHash>
 #include <QFile>
 
-namespace spine {
-namespace utils {
+using namespace spine::utils;
 
-	bool Hashing::hash(const QString & file, QString & hash) {
-		QFile f(file);
-		
-		if (!f.open(QFile::ReadOnly)) return false;
-		
-		QCryptographicHash cryptoHash(QCryptographicHash::Sha512);
-		if (cryptoHash.addData(&f)) {
-			hash = QString::fromLatin1(cryptoHash.result().toHex());
-			return true;
-		}
-		
-		return false;
-	}
-
-	bool Hashing::checkHash(const QString & file, const QString & referenceHash) {
-		QString h;
-		const bool b = hash(file, h);
-
-		return b && h == referenceHash;
+bool Hashing::hash(const QString & file, QString & hash) {
+	QFile f(file);
+	
+	if (!f.open(QFile::ReadOnly)) return false;
+	
+	QCryptographicHash cryptoHash(QCryptographicHash::Sha512);
+	if (cryptoHash.addData(&f)) {
+		hash = QString::fromLatin1(cryptoHash.result().toHex());
+		return true;
 	}
 	
-} /* namespace utils */
-} /* namespace spine */
+	return false;
+}
+
+bool Hashing::checkHash(const QString & file, const QString & referenceHash) {
+	QString h;
+	const bool b = hash(file, h);
+
+	return b && h == referenceHash;
+}

@@ -24,7 +24,6 @@
 #include <QMessageBox>
 #include <QTimer>
 
-using namespace spine;
 using namespace spine::utils;
 
 int main(int argc, char ** argv) {

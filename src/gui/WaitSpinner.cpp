@@ -27,44 +27,40 @@
 #include <QVariant>
 #include <QVBoxLayout>
 
-namespace spine {
-namespace gui {
+using namespace spine::gui;
 
-	WaitSpinner::WaitSpinner(QString text, QWidget * par) : QWidget(par) {
-		QHBoxLayout * l = new QHBoxLayout();
-		l->setAlignment(Qt::AlignCenter);
+WaitSpinner::WaitSpinner(QString text, QWidget * par) : QWidget(par) {
+	QHBoxLayout * l = new QHBoxLayout();
+	l->setAlignment(Qt::AlignCenter);
 
-		QSvgWidget * svgWidget = new QSvgWidget(":/svg/loading.svg", this);
-		svgWidget->setFixedSize(QSize(50, 50));
-		svgWidget->renderer()->setFramesPerSecond(24);
-		QLabel * lbl = new QLabel(text, this);
-		lbl->setProperty("waitSpinner", true);
-		connect(this, &WaitSpinner::setText, lbl, &QLabel::setText);
+	QSvgWidget * svgWidget = new QSvgWidget(":/svg/loading.svg", this);
+	svgWidget->setFixedSize(QSize(50, 50));
+	svgWidget->renderer()->setFramesPerSecond(24);
+	QLabel * lbl = new QLabel(text, this);
+	lbl->setProperty("waitSpinner", true);
+	connect(this, &WaitSpinner::setText, lbl, &QLabel::setText);
 
-		const QFontMetrics fm(lbl->font());
-		_textWidth = fm.width(text) * 2 + 10;
+	const QFontMetrics fm(lbl->font());
+	_textWidth = fm.width(text) * 2 + 10;
 
-		l->addWidget(svgWidget);
-		l->addWidget(lbl, 0, Qt::AlignCenter);
+	l->addWidget(svgWidget);
+	l->addWidget(lbl, 0, Qt::AlignCenter);
 
-		setLayout(l);
+	setLayout(l);
 
-		par->setDisabled(true);
+	par->setDisabled(true);
 
-		setFixedSize(WaitSpinner::sizeHint());
+	setFixedSize(WaitSpinner::sizeHint());
 
-		show();
-		setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
-		move(par->rect().center() - rect().center());
-	}
+	show();
+	setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+	move(par->rect().center() - rect().center());
+}
 
-	WaitSpinner::~WaitSpinner() {
-		qobject_cast<QWidget *>(parent())->setEnabled(true);
-	}
+WaitSpinner::~WaitSpinner() {
+	qobject_cast<QWidget *>(parent())->setEnabled(true);
+}
 
-	QSize WaitSpinner::sizeHint() const {
-		return QSize(55 + _textWidth, 55);
-	}
-
-} /* namespace gui */
-} /* namespace spine */
+QSize WaitSpinner::sizeHint() const {
+	return QSize(55 + _textWidth, 55);
+}

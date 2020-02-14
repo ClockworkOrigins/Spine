@@ -28,78 +28,74 @@
 
 #include <QFileInfo>
 
-namespace spine {
-namespace utils {
+using namespace spine::utils;
 
-	bool Compression::compress(const QString & file, bool deleteSourceAfterCompression) {
-		return compress(file, file + ".z", deleteSourceAfterCompression);
-	}
+bool Compression::compress(const QString & file, bool deleteSourceAfterCompression) {
+	return compress(file, file + ".z", deleteSourceAfterCompression);
+}
 
-	bool Compression::compress(const QString & file, const QString & targetFile, bool deleteSourceAfterCompression) {
+bool Compression::compress(const QString & file, const QString & targetFile, bool deleteSourceAfterCompression) {
 #ifdef Q_OS_WIN
-		const auto sfile = q2ws(file);
+	const auto sfile = q2ws(file);
 #else
-		const auto sfile = q2s(file);
+	const auto sfile = q2s(file);
 #endif
 
-		{
-			std::ifstream uncompressedFile(sfile, std::ios_base::in | std::ios_base::binary);
-			boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
-			in.push(boost::iostreams::zlib_compressor(boost::iostreams::zlib::best_compression));
-			in.push(uncompressedFile);
-						
+	{
+		std::ifstream uncompressedFile(sfile, std::ios_base::in | std::ios_base::binary);
+		boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
+		in.push(boost::iostreams::zlib_compressor(boost::iostreams::zlib::best_compression));
+		in.push(uncompressedFile);
+					
 #ifdef Q_OS_WIN
-		const auto sTargetFile = q2ws(targetFile);
+	const auto sTargetFile = q2ws(targetFile);
 #else
-		const auto sTargetFile = q2s(targetFile);
+	const auto sTargetFile = q2s(targetFile);
 #endif
-			
-			std::ofstream compressedFile(sTargetFile, std::ios_base::out | std::ios_base::binary);
-			boost::iostreams::copy(in, compressedFile);
-		}
-
-		if (deleteSourceAfterCompression) {
-			QFile::remove(file);
-		}
-
-		return true;
-	}
-
-	bool Compression::uncompress(const QString & file, bool deleteSourceAfterUncompression) {
-		return uncompress(file, file.mid(0, file.size() - 2), deleteSourceAfterUncompression);
-	}
-
-	bool Compression::uncompress(const QString & file, const QString & targetFile, bool deleteSourceAfterUncompression) {
-		if (QFileInfo(file).suffix() != "z") return false;
-
-		{
-#ifdef Q_OS_WIN
-		const auto sfile = q2ws(file);
-#else
-		const auto sfile = q2s(file);
-#endif
-			
-			std::ifstream compressedFile(sfile, std::ios_base::in | std::ios_base::binary);
-			boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
-			in.push(boost::iostreams::zlib_decompressor());
-			in.push(compressedFile);
-						
-#ifdef Q_OS_WIN
-		const auto sTargetFile = q2ws(targetFile);
-#else
-		const auto sTargetFile = q2s(targetFile);
-#endif
-			
-			std::ofstream uncompressedFile(sTargetFile, std::ios_base::out | std::ios_base::binary);
-			boost::iostreams::copy(in, uncompressedFile);
-		}
 		
-		if (deleteSourceAfterUncompression) {
-			QFile::remove(file);
-		}
-
-		return true;
+		std::ofstream compressedFile(sTargetFile, std::ios_base::out | std::ios_base::binary);
+		boost::iostreams::copy(in, compressedFile);
 	}
 
-} /* namespace utils */
-} /* namespace spine */
+	if (deleteSourceAfterCompression) {
+		QFile::remove(file);
+	}
+
+	return true;
+}
+
+bool Compression::uncompress(const QString & file, bool deleteSourceAfterUncompression) {
+	return uncompress(file, file.mid(0, file.size() - 2), deleteSourceAfterUncompression);
+}
+
+bool Compression::uncompress(const QString & file, const QString & targetFile, bool deleteSourceAfterUncompression) {
+	if (QFileInfo(file).suffix() != "z") return false;
+
+	{
+#ifdef Q_OS_WIN
+	const auto sfile = q2ws(file);
+#else
+	const auto sfile = q2s(file);
+#endif
+		
+		std::ifstream compressedFile(sfile, std::ios_base::in | std::ios_base::binary);
+		boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
+		in.push(boost::iostreams::zlib_decompressor());
+		in.push(compressedFile);
+					
+#ifdef Q_OS_WIN
+	const auto sTargetFile = q2ws(targetFile);
+#else
+	const auto sTargetFile = q2s(targetFile);
+#endif
+		
+		std::ofstream uncompressedFile(sTargetFile, std::ios_base::out | std::ios_base::binary);
+		boost::iostreams::copy(in, uncompressedFile);
+	}
+	
+	if (deleteSourceAfterUncompression) {
+		QFile::remove(file);
+	}
+
+	return true;
+}

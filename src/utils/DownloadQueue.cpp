@@ -27,7 +27,6 @@
 #include <QWinTaskbarProgress>
 #endif
 
-using namespace spine;
 using namespace spine::utils;
 
 DownloadQueue * DownloadQueue::instance = nullptr;

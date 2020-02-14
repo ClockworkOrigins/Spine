@@ -23,41 +23,37 @@
 #include <QPainter>
 #include <QPixmap>
 
-namespace spine {
-namespace gui {
+using namespace spine::gui;
 
-	FullscreenPreview::FullscreenPreview(QString imagePath, QWidget * parent) : QDialog(parent, Qt::Popup) {
-		imagePath.chop(2);
-		const QPixmap preview(imagePath);
-		QSize targetSize = preview.size();
-		if (targetSize.width() > QApplication::desktop()->screenGeometry().size().width() || targetSize.height() > QApplication::desktop()->screenGeometry().size().height()) {
-			targetSize = QApplication::desktop()->screenGeometry().size();
-		}
-		_pixmap = preview.scaled(targetSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-		setWindowState(windowState() | Qt::WindowState::WindowFullScreen);
+FullscreenPreview::FullscreenPreview(QString imagePath, QWidget * parent) : QDialog(parent, Qt::Popup) {
+	imagePath.chop(2);
+	const QPixmap preview(imagePath);
+	QSize targetSize = preview.size();
+	if (targetSize.width() > QApplication::desktop()->screenGeometry().size().width() || targetSize.height() > QApplication::desktop()->screenGeometry().size().height()) {
+		targetSize = QApplication::desktop()->screenGeometry().size();
 	}
+	_pixmap = preview.scaled(targetSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	setWindowState(windowState() | Qt::WindowState::WindowFullScreen);
+}
 
-	void FullscreenPreview::paintEvent(QPaintEvent *) {
-		QPainter p(this);
-		p.setRenderHints(QPainter::HighQualityAntialiasing);
-		QColor backgroundColor;
-		backgroundColor.setNamedColor("#000000");
-		{
-			QPainterPath path;
-			path.addRect(QApplication::desktop()->screenGeometry());
-			p.fillPath(path, QBrush(backgroundColor));
-			p.drawPath(path);
-		}
-		p.drawPixmap((QApplication::desktop()->screenGeometry().width() - _pixmap.width()) / 2, (QApplication::desktop()->screenGeometry().height() - _pixmap.height()) / 2, _pixmap);
+void FullscreenPreview::paintEvent(QPaintEvent *) {
+	QPainter p(this);
+	p.setRenderHints(QPainter::HighQualityAntialiasing);
+	QColor backgroundColor;
+	backgroundColor.setNamedColor("#000000");
+	{
+		QPainterPath path;
+		path.addRect(QApplication::desktop()->screenGeometry());
+		p.fillPath(path, QBrush(backgroundColor));
+		p.drawPath(path);
 	}
+	p.drawPixmap((QApplication::desktop()->screenGeometry().width() - _pixmap.width()) / 2, (QApplication::desktop()->screenGeometry().height() - _pixmap.height()) / 2, _pixmap);
+}
 
-	void FullscreenPreview::mouseDoubleClickEvent(QMouseEvent *) {
-		accept();
-	}
+void FullscreenPreview::mouseDoubleClickEvent(QMouseEvent *) {
+	accept();
+}
 
-	void FullscreenPreview::mousePressEvent(QMouseEvent *) {
-		accept();
-	}
-
-} /* namespace gui */
-} /* namespace spine */
+void FullscreenPreview::mousePressEvent(QMouseEvent *) {
+	accept();
+}

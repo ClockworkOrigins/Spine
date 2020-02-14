@@ -31,12 +31,12 @@
 #include <QDirIterator>
 #include <QMessageBox>
 
-using namespace spine;
 using namespace spine::client;
 using namespace spine::utils;
+using namespace spine::widgets;
 
 bool Uninstaller::uninstall(uint32_t modID, QString modName, QString directory) {
-	widgets::UninstallDialog dlg(QApplication::tr("ReallyWantToUninstall"), QApplication::tr("ReallyWantToUninstallText").arg(modName), Config::MODDIR + "/mods/" + QString::number(modID));
+	UninstallDialog dlg(QApplication::tr("ReallyWantToUninstall"), QApplication::tr("ReallyWantToUninstallText").arg(modName), Config::MODDIR + "/mods/" + QString::number(modID));
 	
 	if (QDialog::DialogCode::Accepted != dlg.exec()) return false;
 	

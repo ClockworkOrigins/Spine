@@ -41,7 +41,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-using namespace spine;
+using namespace spine::common;
 using namespace spine::launcher;
 using namespace spine::utils;
 
@@ -60,7 +60,7 @@ void ILauncher::init() {
 	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "CREATE TABLE IF NOT EXISTS installDates (ModID INT PRIMARY KEY, InstallDate INT NOT NULL);", err);
 	Database::execute(Config::BASEDIR.toStdString() + "/" + LASTPLAYED_DATABASE, "CREATE TABLE IF NOT EXISTS lastPlayed (ModID INT NOT NULL, Ini TEXT NOT NULL, PRIMARY KEY (ModID, Ini));", err);
 	
-	qRegisterMetaType<common::ModStats>("common::ModStats");
+	qRegisterMetaType<ModStats>("ModStats");
 
 	_screenshotManager = new ScreenshotManager(this);
 }
@@ -219,7 +219,7 @@ void ILauncher::updateCommonView(int modID, const QString & name) {
 	}
 }
 
-void ILauncher::updateModInfoView(common::ModStats ms) {
+void ILauncher::updateModInfoView(ModStats ms) {
 	const QString timeString = utils::timeToString(ms.duration);
 	_playTimeLabel->setText(timeString);
 
@@ -255,7 +255,7 @@ void ILauncher::startCommon() {
 		QtConcurrent::run([]() {
 			clockUtils::sockets::TcpSocket sock;
 			if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 5000)) {
-				common::UpdatePlayingTimeMessage uptm;
+				UpdatePlayingTimeMessage uptm;
 				uptm.dayOfTheWeek = QDate::currentDate().dayOfWeek();
 				uptm.hour = QTime::currentTime().hour();
 				const std::string serialized = uptm.SerializePublic();
@@ -277,7 +277,7 @@ void ILauncher::stopCommon() {
 	_socket = nullptr;
 
 	QtConcurrent::run([this, duration]() {
-		common::UpdatePlayTimeMessage uptm;
+		UpdatePlayTimeMessage uptm;
 		uptm.username = Config::Username.toStdString();
 		uptm.password = Config::Password.toStdString();
 		uptm.modID = _modID;
@@ -308,17 +308,17 @@ void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::socket
 	if (err == clockUtils::ClockError::SUCCESS) {
 		try {
 			std::string serialized(message.begin(), message.end());
-			common::Message * msg = common::Message::DeserializeBlank(serialized);
+			Message * msg = Message::DeserializeBlank(serialized);
 			if (msg) {
-				if (msg->type == common::MessageType::REQUESTUSERNAME) {
-					common::SendUsernameMessage sum;
+				if (msg->type == MessageType::REQUESTUSERNAME) {
+					SendUsernameMessage sum;
 					sum.username = Config::Username.toStdString();
 					sum.password = Config::Password.toStdString();
 					sum.modID = _modID;
 					serialized = sum.SerializeBlank();
 					socket->writePacket(serialized);
-				} else if (msg->type == common::MessageType::REQUESTSCORES) {
-					common::RequestScoresMessage * rsm = dynamic_cast<common::RequestScoresMessage *>(msg);
+				} else if (msg->type == MessageType::REQUESTSCORES) {
+					RequestScoresMessage * rsm = dynamic_cast<RequestScoresMessage *>(msg);
 					if (_modID != -1) {
 						if (rsm) {
 							rsm->modID = _modID;
@@ -328,7 +328,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::socket
 									serialized = rsm->SerializePublic();
 									if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
 										if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-											common::Message * newMsg = common::Message::DeserializePublic(serialized);
+											Message * newMsg = Message::DeserializePublic(serialized);
 											serialized = newMsg->SerializeBlank();
 											delete newMsg;
 											socket->writePacket(serialized);
@@ -344,7 +344,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::socket
 							} else {
 								Database::DBError dbErr;
 								std::vector<std::vector<std::string>> lastResults = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier, Username, Score FROM modScores WHERE ModID = " + std::to_string(_modID) + " ORDER BY Score DESC", dbErr);
-								common::SendScoresMessage ssm;
+								SendScoresMessage ssm;
 								std::map<int, std::vector<std::pair<std::string, int32_t>>> scores;
 								for (auto vec : lastResults) {
 									int32_t identifier = int32_t(std::stoi(vec[0]));
@@ -364,12 +364,12 @@ void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::socket
 							socket->writePacket("empty");
 						}
 					} else {
-						common::SendScoresMessage ssm;
+						SendScoresMessage ssm;
 						serialized = ssm.SerializeBlank();
 						socket->writePacket(serialized);
 					}
-				} else if (msg->type == common::MessageType::UPDATESCORE) {
-					common::UpdateScoreMessage * usm = dynamic_cast<common::UpdateScoreMessage *>(msg);
+				} else if (msg->type == MessageType::UPDATESCORE) {
+					UpdateScoreMessage * usm = dynamic_cast<UpdateScoreMessage *>(msg);
 					if (_modID != -1) {
 						if (usm) {
 							if (Config::OnlineMode) {
@@ -396,8 +396,8 @@ void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::socket
 							}
 						}
 					}
-				} else if (msg->type == common::MessageType::REQUESTACHIEVEMENTS) {
-					common::RequestAchievementsMessage * ram = dynamic_cast<common::RequestAchievementsMessage *>(msg);
+				} else if (msg->type == MessageType::REQUESTACHIEVEMENTS) {
+					RequestAchievementsMessage * ram = dynamic_cast<RequestAchievementsMessage *>(msg);
 					if (_modID != -1) {
 						if (ram && Config::OnlineMode && !Config::Username.isEmpty()) {
 							ram->modID = _modID;
@@ -408,7 +408,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::socket
 								serialized = ram->SerializePublic();
 								if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
 									if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-										common::SendAchievementsMessage * sam = dynamic_cast<common::SendAchievementsMessage *>(common::Message::DeserializePublic(serialized));
+										SendAchievementsMessage * sam = dynamic_cast<SendAchievementsMessage *>(Message::DeserializePublic(serialized));
 										sam->showAchievements = _showAchievements;
 										serialized = sam->SerializeBlank();
 										socket->writePacket(serialized);
@@ -426,7 +426,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::socket
 							Database::DBError dbErr;
 							std::vector<std::string> lastResults = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier FROM modAchievements WHERE ModID = " + std::to_string(_modID) + ";", dbErr);
 
-							common::SendAchievementsMessage sam;
+							SendAchievementsMessage sam;
 							for (const std::string & s : lastResults) {
 								int32_t identifier = int32_t(std::stoi(s));
 								sam.achievements.push_back(identifier);
@@ -444,13 +444,13 @@ void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::socket
 							socket->writePacket(serialized);
 						}
 					} else {
-						common::SendAchievementsMessage sam;
+						SendAchievementsMessage sam;
 						sam.showAchievements = _showAchievements;
 						serialized = sam.SerializeBlank();
 						socket->writePacket(serialized);
 					}
-				} else if (msg->type == common::MessageType::UNLOCKACHIEVEMENT) {
-					common::UnlockAchievementMessage * uam = dynamic_cast<common::UnlockAchievementMessage *>(msg);
+				} else if (msg->type == MessageType::UNLOCKACHIEVEMENT) {
+					UnlockAchievementMessage * uam = dynamic_cast<UnlockAchievementMessage *>(msg);
 					if (_modID != -1) {
 						if (uam) {
 							if (Config::OnlineMode) {
@@ -483,8 +483,8 @@ void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::socket
 							}
 						}
 					}
-				} else if (msg->type == common::MessageType::UPDATEACHIEVEMENTPROGRESS) {
-					common::UpdateAchievementProgressMessage * uapm = dynamic_cast<common::UpdateAchievementProgressMessage *>(msg);
+				} else if (msg->type == MessageType::UPDATEACHIEVEMENTPROGRESS) {
+					UpdateAchievementProgressMessage * uapm = dynamic_cast<UpdateAchievementProgressMessage *>(msg);
 					if (_modID != -1) {
 						if (uapm) {
 							if (Config::OnlineMode) {
@@ -511,9 +511,9 @@ void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::socket
 							}
 						}
 					}
-				} else if (msg->type == common::MessageType::SEARCHMATCH) {
+				} else if (msg->type == MessageType::SEARCHMATCH) {
 					if (_modID != -1 && Config::OnlineMode) {
-						common::SearchMatchMessage * smm = dynamic_cast<common::SearchMatchMessage *>(msg);
+						SearchMatchMessage * smm = dynamic_cast<SearchMatchMessage *>(msg);
 						if (smm) {
 							clockUtils::sockets::TcpSocket sock;
 							if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
@@ -523,7 +523,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::socket
 								serialized = smm->SerializePublic();
 								if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
 									if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-										common::Message * newMsg = common::Message::DeserializePublic(serialized);
+										Message * newMsg = Message::DeserializePublic(serialized);
 										serialized = newMsg->SerializeBlank();
 										delete newMsg;
 										socket->writePacket(serialized);
@@ -540,22 +540,22 @@ void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::socket
 							socket->writePacket("empty");
 						}
 					} else {
-						common::FoundMatchMessage fmm;
+						FoundMatchMessage fmm;
 						serialized = fmm.SerializeBlank();
 						socket->writePacket(serialized);
 					}
-				} else if (msg->type == common::MessageType::REQUESTOVERALLSAVEPATH) {
-					common::RequestOverallSavePathMessage * rospm = dynamic_cast<common::RequestOverallSavePathMessage *>(msg);
+				} else if (msg->type == MessageType::REQUESTOVERALLSAVEPATH) {
+					RequestOverallSavePathMessage * rospm = dynamic_cast<RequestOverallSavePathMessage *>(msg);
 					if (rospm) {
 						QString overallSavePath = getOverallSavePath();
-						common::SendOverallSavePathMessage sospm;
+						SendOverallSavePathMessage sospm;
 						sospm.path = q2ws(overallSavePath);
 						socket->writePacket(sospm.SerializeBlank());
 					} else {
 						socket->writePacket("empty");
 					}
-				} else if (msg->type == common::MessageType::REQUESTOVERALLSAVEDATA) {
-					common::RequestOverallSaveDataMessage * rom = dynamic_cast<common::RequestOverallSaveDataMessage *>(msg);
+				} else if (msg->type == MessageType::REQUESTOVERALLSAVEDATA) {
+					RequestOverallSaveDataMessage * rom = dynamic_cast<RequestOverallSaveDataMessage *>(msg);
 					if (_modID != -1) {
 						if (rom && !Config::Username.isEmpty()) {
 							if (Config::OnlineMode) {
@@ -567,7 +567,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::socket
 									serialized = rom->SerializePublic();
 									if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
 										if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-											serialized = common::Message::DeserializePublic(serialized)->SerializeBlank();
+											serialized = Message::DeserializePublic(serialized)->SerializeBlank();
 											socket->writePacket(serialized);
 										} else {
 											socket->writePacket("empty");
@@ -579,7 +579,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::socket
 									socket->writePacket("empty");
 								}
 							} else {
-								common::SendOverallSaveDataMessage som;
+								SendOverallSaveDataMessage som;
 								Database::DBError dbErr;
 								std::vector<std::vector<std::string>> lastResults = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Entry, Value FROM overallSaveData WHERE ModID = " + std::to_string(_modID) + " AND Username = '" = Config::Username.toStdString() + "';", dbErr);
 								for (auto vec : lastResults) {
@@ -594,12 +594,12 @@ void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::socket
 							socket->writePacket("empty");
 						}
 					} else {
-						common::SendOverallSaveDataMessage som;
+						SendOverallSaveDataMessage som;
 						serialized = som.SerializeBlank();
 						socket->writePacket(serialized);
 					}
-				} else if (msg->type == common::MessageType::UPDATEOVERALLSAVEDATA) {
-					common::UpdateOverallSaveDataMessage * uom = dynamic_cast<common::UpdateOverallSaveDataMessage *>(msg);
+				} else if (msg->type == MessageType::UPDATEOVERALLSAVEDATA) {
+					UpdateOverallSaveDataMessage * uom = dynamic_cast<UpdateOverallSaveDataMessage *>(msg);
 					if (_modID != -1) {
 						if (uom) {
 							if (Config::OnlineMode) {
@@ -626,8 +626,8 @@ void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::socket
 							}
 						}
 					}
-				} else if (msg->type == common::MessageType::REQUESTALLFRIENDS) {
-					common::RequestAllFriendsMessage * rafm = dynamic_cast<common::RequestAllFriendsMessage *>(msg);
+				} else if (msg->type == MessageType::REQUESTALLFRIENDS) {
+					RequestAllFriendsMessage * rafm = dynamic_cast<RequestAllFriendsMessage *>(msg);
 					if (Config::OnlineMode) {
 						if (rafm && !Config::Username.isEmpty()) {
 							rafm->username = Config::Username.toStdString();
@@ -637,7 +637,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::socket
 								serialized = rafm->SerializePublic();
 								if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
 									if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-										common::SendAllFriendsMessage * safm = dynamic_cast<common::SendAllFriendsMessage *>(common::Message::DeserializePublic(serialized));
+										SendAllFriendsMessage * safm = dynamic_cast<SendAllFriendsMessage *>(Message::DeserializePublic(serialized));
 										serialized = safm->SerializeBlank();
 										socket->writePacket(serialized);
 										delete safm;
@@ -654,12 +654,12 @@ void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::socket
 							socket->writePacket("empty");
 						}
 					} else {
-						common::SendAllFriendsMessage safm;
+						SendAllFriendsMessage safm;
 						serialized = safm.SerializeBlank();
 						socket->writePacket(serialized);
 					}
-				} else if (msg->type == common::MessageType::UPDATECHAPTERSTATS) {
-					common::UpdateChapterStatsMessage * ucsm = dynamic_cast<common::UpdateChapterStatsMessage *>(msg);
+				} else if (msg->type == MessageType::UPDATECHAPTERSTATS) {
+					UpdateChapterStatsMessage * ucsm = dynamic_cast<UpdateChapterStatsMessage *>(msg);
 					if (_modID != -1) {
 						if (ucsm) {
 							if (Config::OnlineMode) {
@@ -672,8 +672,8 @@ void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::socket
 							}
 						}
 					}
-				} else if (msg->type == common::MessageType::ISACHIEVEMENTUNLOCKED) {
-					common::IsAchievementUnlockedMessage * iaum = dynamic_cast<common::IsAchievementUnlockedMessage *>(msg);
+				} else if (msg->type == MessageType::ISACHIEVEMENTUNLOCKED) {
+					IsAchievementUnlockedMessage * iaum = dynamic_cast<IsAchievementUnlockedMessage *>(msg);
 					if (_modID != -1) {
 						if (iaum) {
 							iaum->username = q2s(Config::Username);
@@ -684,7 +684,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::socket
 									serialized = iaum->SerializePublic();
 									if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
 										if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-											common::Message * newMsg = common::Message::DeserializePublic(serialized);
+											Message * newMsg = Message::DeserializePublic(serialized);
 											serialized = newMsg->SerializeBlank();
 											delete newMsg;
 											socket->writePacket(serialized);
@@ -700,7 +700,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::socket
 							} else {
 								Database::DBError dbErr;
 								std::vector<std::vector<std::string>> lastResults = Database::queryAll<std::vector<std::string>, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier FROM modAchievements WHERE ModID = " + std::to_string(iaum->modID) + " AND Identifier = " + std::to_string(iaum->achievementID) + "", dbErr);
-								common::SendAchievementUnlockedMessage saum;
+								SendAchievementUnlockedMessage saum;
 								saum.unlocked = !lastResults.empty();
 								serialized = saum.SerializeBlank();
 								socket->writePacket(serialized);
@@ -709,7 +709,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::socket
 							socket->writePacket("empty");
 						}
 					} else {
-						common::SendScoresMessage ssm;
+						SendScoresMessage ssm;
 						serialized = ssm.SerializeBlank();
 						socket->writePacket(serialized);
 					}
@@ -732,7 +732,7 @@ void ILauncher::tryCleanCaches() {
 	if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
 		std::vector<std::vector<int>> scores = Database::queryAll<std::vector<int>, int, int, int>(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "SELECT * FROM scoreCache;", err);
 		for (auto t : scores) {
-			common::UpdateScoreMessage usm;
+			UpdateScoreMessage usm;
 			usm.modID = t[0];
 			usm.identifier = t[1];
 			usm.score = t[2];
@@ -745,7 +745,7 @@ void ILauncher::tryCleanCaches() {
 		}
 		std::vector<std::vector<int>> achievements = Database::queryAll<std::vector<int>, int, int>(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "SELECT * FROM achievementCache;", err);
 		for (auto t : achievements) {
-			common::UnlockAchievementMessage uam;
+			UnlockAchievementMessage uam;
 			uam.modID = t[0];
 			uam.identifier = t[1];
 			uam.username = Config::Username.toStdString();
@@ -757,7 +757,7 @@ void ILauncher::tryCleanCaches() {
 		}
 		std::vector<std::vector<int>> achievementProgresses = Database::queryAll<std::vector<int>, int, int, int>(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "SELECT * FROM achievementProgressCache;", err);
 		for (auto t : achievementProgresses) {
-			common::UpdateAchievementProgressMessage uapm;
+			UpdateAchievementProgressMessage uapm;
 			uapm.modID = t[0];
 			uapm.identifier = t[1];
 			uapm.progress = t[2];
@@ -770,7 +770,7 @@ void ILauncher::tryCleanCaches() {
 		}
 		std::vector<std::vector<std::string>> overallSaveDatas = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "SELECT * FROM overallSaveDataCache;", err);
 		for (auto t : overallSaveDatas) {
-			common::UpdateOverallSaveDataMessage uom;
+			UpdateOverallSaveDataMessage uom;
 			uom.modID = std::stoi(t[0]);
 			uom.entry = t[1];
 			uom.value = t[2];
@@ -784,7 +784,7 @@ void ILauncher::tryCleanCaches() {
 	}
 }
 
-void ILauncher::cacheScore(common::UpdateScoreMessage * usm) {
+void ILauncher::cacheScore(UpdateScoreMessage * usm) {
 	Database::DBError err;
 	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "INSERT INTO scoreCache (ModID, Identifier, Score) VALUES (" + std::to_string(usm->modID) + ", " + std::to_string(usm->identifier) + ", " + std::to_string(usm->score) + ");", err);
 	if (err.error) {
@@ -792,22 +792,22 @@ void ILauncher::cacheScore(common::UpdateScoreMessage * usm) {
 	}
 }
 
-void ILauncher::removeScore(common::UpdateScoreMessage * usm) {
+void ILauncher::removeScore(UpdateScoreMessage * usm) {
 	Database::DBError err;
 	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "DELETE FROM scoreCache WHERE ModID = " + std::to_string(usm->modID) + " AND Identifier = " + std::to_string(usm->identifier) + ";", err);
 }
 
-void ILauncher::cacheAchievement(common::UnlockAchievementMessage * uam) {
+void ILauncher::cacheAchievement(UnlockAchievementMessage * uam) {
 	Database::DBError err;
 	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "INSERT INTO achievementCache (ModID, Identifier) VALUES (" + std::to_string(uam->modID) + ", " + std::to_string(uam->identifier) + ");", err);
 }
 
-void ILauncher::removeAchievement(common::UnlockAchievementMessage * uam) {
+void ILauncher::removeAchievement(UnlockAchievementMessage * uam) {
 	Database::DBError err;
 	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "DELETE FROM achievementCache WHERE ModID = " + std::to_string(uam->modID) + " AND Identifier = " + std::to_string(uam->identifier) + ";", err);
 }
 
-void ILauncher::cacheAchievementProgress(common::UpdateAchievementProgressMessage * uapm) {
+void ILauncher::cacheAchievementProgress(UpdateAchievementProgressMessage * uapm) {
 	Database::DBError err;
 	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "INSERT INTO achievementProgressCache (ModID, Identifier, Progress) VALUES (" + std::to_string(uapm->modID) + ", " + std::to_string(uapm->identifier) + ", " + std::to_string(uapm->progress) + ");", err);
 	if (err.error) {
@@ -815,12 +815,12 @@ void ILauncher::cacheAchievementProgress(common::UpdateAchievementProgressMessag
 	}
 }
 
-void ILauncher::removeAchievementProgress(common::UpdateAchievementProgressMessage * uapm) {
+void ILauncher::removeAchievementProgress(UpdateAchievementProgressMessage * uapm) {
 	Database::DBError err;
 	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "DELETE FROM achievementProgressCache WHERE ModID = " + std::to_string(uapm->modID) + " AND Identifier = " + std::to_string(uapm->identifier) + ";", err);
 }
 
-void ILauncher::cacheOverallSaveData(common::UpdateOverallSaveDataMessage * uom) {
+void ILauncher::cacheOverallSaveData(UpdateOverallSaveDataMessage * uom) {
 	Database::DBError err;
 	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "INSERT INTO overallSaveDataCache (ModID, Entry, Value) VALUES (" + std::to_string(uom->modID) + ", '" + uom->entry + "', '" + uom->value + "');", err);
 	if (err.error) {
@@ -828,7 +828,7 @@ void ILauncher::cacheOverallSaveData(common::UpdateOverallSaveDataMessage * uom)
 	}
 }
 
-void ILauncher::removeOverallSaveData(common::UpdateOverallSaveDataMessage * uom) {
+void ILauncher::removeOverallSaveData(UpdateOverallSaveDataMessage * uom) {
 	Database::DBError err;
 	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "DELETE FROM overallSaveDataCache WHERE ModID = " + std::to_string(uom->modID) + " AND Entry = '" + uom->entry + "';", err);
 }
@@ -847,10 +847,10 @@ void ILauncher::synchronizeOfflineData() {
 						if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
 							Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM sync;", err);
 							Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO sync (Enabled) VALUES (0);", err);
-							common::UpdateOfflineDataMessage uodm;
+							UpdateOfflineDataMessage uodm;
 							const auto achievements = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Identifier FROM modAchievements;", err);
 							for (auto vec : achievements) {
-								common::UpdateOfflineDataMessage::AchievementData ad {};
+								UpdateOfflineDataMessage::AchievementData ad {};
 								ad.modID = std::stoi(vec[0]);
 								ad.identifier = std::stoi(vec[1]);
 								const auto progress = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Current FROM modAchievementProgress WHERE Username = '" + Config::Username.toStdString() + "' AND ModID = " + vec[0] + " AND Identifier = " + vec[1] + " LIMIT 1;", err);
@@ -861,7 +861,7 @@ void ILauncher::synchronizeOfflineData() {
 							}
 							const auto scores = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Identifier, Score FROM modScores;", err);
 							for (auto vec : scores) {
-								common::UpdateOfflineDataMessage::ScoreData sd {};
+								UpdateOfflineDataMessage::ScoreData sd {};
 								sd.modID = std::stoi(vec[0]);
 								sd.identifier = std::stoi(vec[1]);
 								sd.score = std::stoi(vec[2]);
@@ -869,7 +869,7 @@ void ILauncher::synchronizeOfflineData() {
 							}
 							const auto overallSaveData = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Entry, Value FROM overallSaveData;", err);
 							for (auto vec : overallSaveData) {
-								common::UpdateOfflineDataMessage::OverallSaveData od;
+								UpdateOfflineDataMessage::OverallSaveData od;
 								od.modID = std::stoi(vec[0]);
 								od.entry = vec[1];
 								od.value = vec[2];
@@ -888,15 +888,15 @@ void ILauncher::synchronizeOfflineData() {
 						// Load data from server
 						clockUtils::sockets::TcpSocket sock;
 						if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-							common::RequestOfflineDataMessage rodm;
+							RequestOfflineDataMessage rodm;
 							rodm.username = Config::Username.toStdString();
 							rodm.password = Config::Password.toStdString();
 							std::string serialized = rodm.SerializePublic();
 							sock.writePacket(serialized);
 							if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-								common::Message * msg = common::Message::DeserializePublic(serialized);
+								Message * msg = Message::DeserializePublic(serialized);
 								if (msg) {
-									common::SendOfflineDataMessage * sodm = dynamic_cast<common::SendOfflineDataMessage *>(msg);
+									SendOfflineDataMessage * sodm = dynamic_cast<SendOfflineDataMessage *>(msg);
 									if (sodm) {
 										Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM playTimes WHERE Username = '" + Config::Username.toStdString() + "';", err);
 										Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM modAchievementList;", err);

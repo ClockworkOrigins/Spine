@@ -20,13 +20,11 @@
 
 #include <QDir>
 
-namespace spine {
+using namespace spine;
 
-	DirValidator::DirValidator() {
-	}
+DirValidator::DirValidator() {
+}
 
-	QValidator::State DirValidator::validate(QString & input, int &) const {
-		return QDir(input).exists() ? QValidator::State::Acceptable : QValidator::State::Intermediate;
-	}
-
-} /* namespace spine */
+QValidator::State DirValidator::validate(QString & input, int &) const {
+	return QDir(input).exists() ? QValidator::State::Acceptable : QValidator::State::Intermediate;
+}

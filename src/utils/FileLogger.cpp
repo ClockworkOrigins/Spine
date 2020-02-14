@@ -18,21 +18,17 @@
 
 #include "FileLogger.h"
 
-namespace spine {
-namespace utils {
+using namespace spine::utils;
 
-	FileLogger::FileLogger(const std::string & path) : _fileStream(path) {
-	}
+FileLogger::FileLogger(const std::string & path) : _fileStream(path) {
+}
 
-	clockUtils::log::SinkWrapper & FileLogger::operator<<(const std::string & str) {
-		_fileStream << str;
-		_fileStream.flush();
-		return *this;
-	}
-	
-	bool FileLogger::isSame(void * sink) const {
-		return sink == this;
-	}
-	
-} /* namespace utils */
-} /* namespace spine */
+clockUtils::log::SinkWrapper & FileLogger::operator<<(const std::string & str) {
+	_fileStream << str;
+	_fileStream.flush();
+	return *this;
+}
+
+bool FileLogger::isSame(void * sink) const {
+	return sink == this;
+}

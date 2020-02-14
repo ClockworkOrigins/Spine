@@ -32,7 +32,6 @@
 #include <QSettings>
 #include <QVBoxLayout>
 
-using namespace spine;
 using namespace spine::translator;
 using namespace spine::utils;
 

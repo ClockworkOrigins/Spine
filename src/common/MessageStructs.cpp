@@ -22,89 +22,85 @@
 
 #include "common/Encryption.h"
 
-namespace spine {
-namespace common {
+using namespace spine::common;
 
-	int SendUserInfosMessage::id = 0;
+int SendUserInfosMessage::id = 0;
 
-	std::string Message::SerializeBlank() const {
-		std::stringstream ss;
-		boost::archive::text_oarchive arch(ss);
-		Message * m = const_cast<Message *>(this);
-		try {
-			arch << m;
-		} catch (...) {
-		}
-		return ss.str();
+std::string Message::SerializeBlank() const {
+	std::stringstream ss;
+	boost::archive::text_oarchive arch(ss);
+	Message * m = const_cast<Message *>(this);
+	try {
+		arch << m;
+	} catch (...) {
 	}
+	return ss.str();
+}
 
-	Message * Message::DeserializeBlank(const std::string & s) {
-		Message * m = nullptr;
-		std::stringstream ss(s);
+Message * Message::DeserializeBlank(const std::string & s) {
+	Message * m = nullptr;
+	std::stringstream ss(s);
+	try {
+		boost::archive::text_iarchive arch(ss);
+		arch >> m;
+	} catch (...) {
+	}
+	return m;
+}
+
+std::string Message::SerializePublic() const {
+	std::stringstream ss;
+	boost::archive::text_oarchive arch(ss);
+	Message * m = const_cast<Message *>(this);
+	try {
+		arch << m;
+	} catch (...) {
+	}
+	std::string encrypted;
+	Encryption::encryptPublic(ss.str(), encrypted);
+	return encrypted;
+}
+
+Message * Message::DeserializePublic(const std::string & s) {
+	Message * m = nullptr;
+	std::string decrypted;
+	if (Encryption::decryptPublic(s, decrypted)) {
+		std::stringstream ss(decrypted);
 		try {
 			boost::archive::text_iarchive arch(ss);
 			arch >> m;
 		} catch (...) {
 		}
-		return m;
 	}
+	return m;
+}
 
-	std::string Message::SerializePublic() const {
-		std::stringstream ss;
-		boost::archive::text_oarchive arch(ss);
-		Message * m = const_cast<Message *>(this);
+std::string Message::SerializePrivate() const {
+	std::stringstream ss;
+	boost::archive::text_oarchive arch(ss);
+	Message * m = const_cast<Message *>(this);
+	try {
+		arch << m;
+	} catch (...) {
+	}
+	std::string encrypted;
+	Encryption::encryptPrivate(ss.str(), encrypted);
+	return encrypted;
+}
+
+Message * Message::DeserializePrivate(const std::string & s) {
+	Message * m = nullptr;
+	std::string decrypted;
+	if (Encryption::decryptPrivate(s, decrypted)) {
+		std::stringstream ss(decrypted);
 		try {
-			arch << m;
+			boost::archive::text_iarchive arch(ss);
+			arch >> m;
 		} catch (...) {
 		}
-		std::string encrypted;
-		Encryption::encryptPublic(ss.str(), encrypted);
-		return encrypted;
 	}
-
-	Message * Message::DeserializePublic(const std::string & s) {
-		Message * m = nullptr;
-		std::string decrypted;
-		if (Encryption::decryptPublic(s, decrypted)) {
-			std::stringstream ss(decrypted);
-			try {
-				boost::archive::text_iarchive arch(ss);
-				arch >> m;
-			} catch (...) {
-			}
-		}
-		return m;
-	}
-
-	std::string Message::SerializePrivate() const {
-		std::stringstream ss;
-		boost::archive::text_oarchive arch(ss);
-		Message * m = const_cast<Message *>(this);
-		try {
-			arch << m;
-		} catch (...) {
-		}
-		std::string encrypted;
-		Encryption::encryptPrivate(ss.str(), encrypted);
-		return encrypted;
-	}
-
-	Message * Message::DeserializePrivate(const std::string & s) {
-		Message * m = nullptr;
-		std::string decrypted;
-		if (Encryption::decryptPrivate(s, decrypted)) {
-			std::stringstream ss(decrypted);
-			try {
-				boost::archive::text_iarchive arch(ss);
-				arch >> m;
-			} catch (...) {
-			}
-		}
-		return m;
-	}
-
-} /* namespace common */
-} /* namespace spine */
+	return m;
+}
 
 BOOST_CLASS_EXPORT_GUID(spine::common::Message, "0")
 BOOST_CLASS_IMPLEMENTATION(spine::common::Message, boost::serialization::object_serializable)

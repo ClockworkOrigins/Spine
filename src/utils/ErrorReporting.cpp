@@ -28,29 +28,25 @@
 #include <QJsonObject>
 #include <QSet>
 
-namespace spine {
-namespace utils {
+using namespace spine::utils;
 
-	QSet<QString> errorList;
+QSet<QString> errorList;
 
-	void ErrorReporting::report(const QString & message) {
-		QString errorMessage = message;
-        errorMessage = errorMessage.replace("\r\n", "<br>");
-        errorMessage = errorMessage.replace("\n", "<br>");
-        errorMessage = errorMessage.replace("\"", "&quot;");
-        errorMessage = errorMessage.replace("\'", "&apos;");
-		
-		if (errorList.contains(errorMessage)) return;
-
-		errorList.insert(errorMessage);
-
-		QJsonObject json;
-		json["project"] = 0;
-		json["version"] = s2q(VERSION_STRING);
-		json["report"] = errorMessage;
-
-		https::Https::postAsync(19101, "reportCrash", QJsonDocument(json).toJson(QJsonDocument::Compact), [](const QJsonObject &, int) {});
-	}
+void ErrorReporting::report(const QString & message) {
+	QString errorMessage = message;
+    errorMessage = errorMessage.replace("\r\n", "<br>");
+    errorMessage = errorMessage.replace("\n", "<br>");
+    errorMessage = errorMessage.replace("\"", "&quot;");
+    errorMessage = errorMessage.replace("\'", "&apos;");
 	
-} /* namespace utils */
-} /* namespace spine */
+	if (errorList.contains(errorMessage)) return;
+
+	errorList.insert(errorMessage);
+
+	QJsonObject json;
+	json["project"] = 0;
+	json["version"] = s2q(VERSION_STRING);
+	json["report"] = errorMessage;
+
+	https::Https::postAsync(19101, "reportCrash", QJsonDocument(json).toJson(QJsonDocument::Compact), [](const QJsonObject &, int) {});
+}

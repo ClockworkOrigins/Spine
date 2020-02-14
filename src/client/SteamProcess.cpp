@@ -20,7 +20,6 @@
 
 #ifdef Q_OS_WIN
 
-#include <iostream>
 #include <thread>
 
 #include "utils/Conversion.h"
@@ -34,7 +33,6 @@
 #include <Windows.h>
 #include <Psapi.h>
 
-using namespace spine;
 using namespace spine::client;
 using namespace spine::utils;
 

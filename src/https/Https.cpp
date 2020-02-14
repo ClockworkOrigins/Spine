@@ -28,33 +28,28 @@
 
 using HttpsClient = SimpleWeb::Client<SimpleWeb::HTTPS>;
 
-namespace spine {
-namespace https {
+using namespace spine::https;
 
-	void Https::post(uint16_t port, const QString & f, const QString & data, const std::function<void(const QJsonObject &, int statusCode)> & callback) {
-		HttpsClient client("clockwork-origins.com:" + std::to_string(port), false);
+void Https::post(uint16_t port, const QString & f, const QString & data, const std::function<void(const QJsonObject &, int statusCode)> & callback) {
+	HttpsClient client("clockwork-origins.com:" + std::to_string(port), false);
 
-		// Synchronous request... maybe make it asynchronous?
-		client.request("POST", "/" + q2s(f), data.toStdString(), [callback](std::shared_ptr<HttpsClient::Response> response, const SimpleWeb::error_code &) {
-			const QString code = s2q(response->status_code).split(" ")[0];
+	// Synchronous request... maybe make it asynchronous?
+	client.request("POST", "/" + q2s(f), data.toStdString(), [callback](std::shared_ptr<HttpsClient::Response> response, const SimpleWeb::error_code &) {
+		const QString code = s2q(response->status_code).split(" ")[0];
 
-			const int statusCode = code.toInt();
+		const int statusCode = code.toInt();
 
-			if (statusCode == 200) {
-				const std::string content = response->content.string();
-				const QJsonDocument doc(QJsonDocument::fromJson(s2q(content).toUtf8()));
-				callback(doc.object(), code.toInt());
-			} else {
-				callback(QJsonObject(), statusCode);
-			}
-		});
-		client.io_service->run();
-	}
+		if (statusCode == 200) {
+			const std::string content = response->content.string();
+			const QJsonDocument doc(QJsonDocument::fromJson(s2q(content).toUtf8()));
+			callback(doc.object(), code.toInt());
+		} else {
+			callback(QJsonObject(), statusCode);
+		}
+	});
+	client.io_service->run();
+}
 
-	void Https::postAsync(uint16_t port, const QString & f, const QString & data, const std::function<void(const QJsonObject &, int statusCode)> & callback) {
-		QtConcurrent::run(post, port, f, data, callback);
-	}
-
-
-} /* namespace https */
-} /* namespace spine */
+void Https::postAsync(uint16_t port, const QString & f, const QString & data, const std::function<void(const QJsonObject &, int statusCode)> & callback) {
+	QtConcurrent::run(post, port, f, data, callback);
+}

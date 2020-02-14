@@ -18,25 +18,23 @@
 
 #include "MariaDBWrapper.h"
 
-namespace spine {
+using namespace spine;
 
-	MariaDBWrapper::MariaDBWrapper() : _database(mysql_init(nullptr)) {
+MariaDBWrapper::MariaDBWrapper() : _database(mysql_init(nullptr)) {
+}
+
+bool MariaDBWrapper::connect(const std::string & host, const std::string & user, const std::string & password, const std::string & database, uint16_t port) {
+	_database = mysql_real_connect(_database, host.c_str(), user.c_str(), password.c_str(), database.c_str(), port, "/var/lib/mysql/mysql.sock", 0);
+	return _database != nullptr;
+}
+
+bool MariaDBWrapper::query(const std::string & q) const {
+	return _database && mysql_real_query(_database, q.c_str(), q.size()) == 0;
+}
+
+void MariaDBWrapper::close() {
+	if (_database) {
+		mysql_close(_database);
+		_database = nullptr;
 	}
-
-	bool MariaDBWrapper::connect(const std::string & host, const std::string & user, const std::string & password, const std::string & database, uint16_t port) {
-		_database = mysql_real_connect(_database, host.c_str(), user.c_str(), password.c_str(), database.c_str(), port, "/var/lib/mysql/mysql.sock", 0);
-		return _database != nullptr;
-	}
-
-	bool MariaDBWrapper::query(const std::string & q) const {
-		return _database && mysql_real_query(_database, q.c_str(), q.size()) == 0;
-	}
-
-	void MariaDBWrapper::close() {
-		if (_database) {
-			mysql_close(_database);
-			_database = nullptr;
-		}
-	}
-
-} /* namespace spine */
+}

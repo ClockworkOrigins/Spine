@@ -22,30 +22,27 @@
 #include <QVariant>
 #include <QVBoxLayout>
 
-namespace spine {
-namespace widgets {
+using namespace spine;
+using namespace spine::widgets;
 
-	FAQEntry::FAQEntry(QString question, QString answer, QWidget * par) : QWidget(par) {
-		QVBoxLayout * l = new QVBoxLayout();
-		l->setAlignment(Qt::AlignTop);
+FAQEntry::FAQEntry(QString question, QString answer, QWidget * par) : QWidget(par) {
+	QVBoxLayout * l = new QVBoxLayout();
+	l->setAlignment(Qt::AlignTop);
 
-		QLabel * questionLabel = new QLabel(question, this);
-		questionLabel->setWordWrap(true);
-		questionLabel->setProperty("FAQQuestion", true);
-		questionLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-		QLabel * answerLabel = new QLabel(answer, this);
-		answerLabel->setWordWrap(true);
+	QLabel * questionLabel = new QLabel(question, this);
+	questionLabel->setWordWrap(true);
+	questionLabel->setProperty("FAQQuestion", true);
+	questionLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	QLabel * answerLabel = new QLabel(answer, this);
+	answerLabel->setWordWrap(true);
 
-		l->addWidget(questionLabel);
-		l->addWidget(answerLabel);
+	l->addWidget(questionLabel);
+	l->addWidget(answerLabel);
 
-		setLayout(l);
+	setLayout(l);
 
-		setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	}
+	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+}
 
-	FAQEntry::~FAQEntry() {
-	}
-
-} /* namespace widgets */
-} /* namespace spine */
+FAQEntry::~FAQEntry() {
+}

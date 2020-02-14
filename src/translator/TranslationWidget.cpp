@@ -21,41 +21,37 @@
 #include <QHBoxLayout>
 #include <QLineEdit>
 
-namespace spine {
-namespace translator {
+using namespace spine::translator;
 
-	TranslationWidget::TranslationWidget(QString sourceText, QString targetText, QWidget * par) : QWidget(par), _sourceEdit(nullptr), _translationEdit(nullptr) {
-		QHBoxLayout * l = new QHBoxLayout();
-		
-		_sourceEdit = new QLineEdit(sourceText, this);
-		_sourceEdit->setReadOnly(true);
-		_translationEdit = new QLineEdit(targetText, this);
+TranslationWidget::TranslationWidget(QString sourceText, QString targetText, QWidget * par) : QWidget(par), _sourceEdit(nullptr), _translationEdit(nullptr) {
+	QHBoxLayout * l = new QHBoxLayout();
+	
+	_sourceEdit = new QLineEdit(sourceText, this);
+	_sourceEdit->setReadOnly(true);
+	_translationEdit = new QLineEdit(targetText, this);
 
-		l->addWidget(_sourceEdit);
-		l->addWidget(_translationEdit);
+	l->addWidget(_sourceEdit);
+	l->addWidget(_translationEdit);
 
-		setLayout(l);
+	setLayout(l);
 
-		connect(_translationEdit, &QLineEdit::cursorPositionChanged, this, &TranslationWidget::focusChanged);
-		connect(_translationEdit, &QLineEdit::textChanged, this, &TranslationWidget::focusChanged);
-	}
+	connect(_translationEdit, &QLineEdit::cursorPositionChanged, this, &TranslationWidget::focusChanged);
+	connect(_translationEdit, &QLineEdit::textChanged, this, &TranslationWidget::focusChanged);
+}
 
-	TranslationWidget::~TranslationWidget() {
-	}
+TranslationWidget::~TranslationWidget() {
+}
 
-	QString TranslationWidget::getTranslation() const {
-		return _translationEdit->text();
-	}
+QString TranslationWidget::getTranslation() const {
+	return _translationEdit->text();
+}
 
-	void TranslationWidget::setFocusToTranslation() {
-		_translationEdit->setFocus();
-		focusChanged();
-	}
+void TranslationWidget::setFocusToTranslation() {
+	_translationEdit->setFocus();
+	focusChanged();
+}
 
-	void TranslationWidget::focusChanged() {
-		emit selectedSource(_sourceEdit->text());
-		emit selectedDestination(_translationEdit->text());
-	}
-
-} /* namespace translator */
-} /* namespace spine */
+void TranslationWidget::focusChanged() {
+	emit selectedSource(_sourceEdit->text());
+	emit selectedDestination(_translationEdit->text());
+}

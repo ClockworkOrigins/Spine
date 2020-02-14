@@ -18,7 +18,9 @@
 
 #include "Server.h"
 
+using namespace spine::server;
+
 int main(int, char **) {
-	spine::server::Server server;
+	Server server;
 	return server.run();
 }

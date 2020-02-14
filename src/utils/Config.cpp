@@ -34,7 +34,6 @@
 	#include <Windows.h>
 #endif
 
-using namespace spine;
 using namespace spine::utils;
 
 QString Config::BASEDIR;

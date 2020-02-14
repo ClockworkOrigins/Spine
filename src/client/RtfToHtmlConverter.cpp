@@ -20,29 +20,27 @@
 
 #include <QDebug>
 
-namespace spine {
+using namespace spine;
 
-	QString RtfToHtmlConverter::convert(QString rtfText) {
-		if (!rtfText.isEmpty()) {
-			rtfText = rtfText.replace("\\b0", "</b>");
-			rtfText = rtfText.replace("\\b", "<b>");
-			rtfText = rtfText.replace("\\i0", "</i>");
-			rtfText = rtfText.replace("\\i", "<i>");
-			rtfText = rtfText.replace("\\par", "<br/>");
-			rtfText = rtfText.replace("\\fs", "<br/>");
-			rtfText = rtfText.replace("\\tab", "&#09;");
-			rtfText = rtfText.replace("d\\qc\\lang1031", "");
-			rtfText = rtfText.replace(R"(\rtf1\ansi\ansicpg1252)", "");
-			rtfText = rtfText.replace("\\ ", "");
-			rtfText = rtfText.replace("{", "");
-			rtfText = rtfText.replace("}", "");
-			if (rtfText.contains("\\")) {
-				rtfText.clear();
-			}
+QString RtfToHtmlConverter::convert(QString rtfText) {
+	if (!rtfText.isEmpty()) {
+		rtfText = rtfText.replace("\\b0", "</b>");
+		rtfText = rtfText.replace("\\b", "<b>");
+		rtfText = rtfText.replace("\\i0", "</i>");
+		rtfText = rtfText.replace("\\i", "<i>");
+		rtfText = rtfText.replace("\\par", "<br/>");
+		rtfText = rtfText.replace("\\fs", "<br/>");
+		rtfText = rtfText.replace("\\tab", "&#09;");
+		rtfText = rtfText.replace("d\\qc\\lang1031", "");
+		rtfText = rtfText.replace(R"(\rtf1\ansi\ansicpg1252)", "");
+		rtfText = rtfText.replace("\\ ", "");
+		rtfText = rtfText.replace("{", "");
+		rtfText = rtfText.replace("}", "");
+		if (rtfText.contains("\\")) {
+			rtfText.clear();
 		}
-		rtfText.insert(0, "<center>");
-		rtfText.append("</center>");
-		return rtfText;
 	}
-
-} /* namespace spine */
+	rtfText.insert(0, "<center>");
+	rtfText.append("</center>");
+	return rtfText;
+}

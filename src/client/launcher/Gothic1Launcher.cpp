@@ -42,8 +42,8 @@
 #include <QProcessEnvironment>
 #include <QTextStream>
 
-using namespace spine;
 using namespace spine::client;
+using namespace spine::common;
 using namespace spine::launcher;
 using namespace spine::utils;
 using namespace spine::widgets;
@@ -54,8 +54,8 @@ Gothic1Launcher::Gothic1Launcher() : _startedWithSteam(false) {
 	_defaultIcon = QPixmap::fromImage(QImage(":Gothic.ico"));
 }
 
-bool Gothic1Launcher::supportsGame(common::GameType gothic) const {
-	return gothic == common::GameType::Gothic;
+bool Gothic1Launcher::supportsGame(GameType gothic) const {
+	return gothic == GameType::Gothic;
 }
 
 void Gothic1Launcher::setDirectory(const QString & directory) {

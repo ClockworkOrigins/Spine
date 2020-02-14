@@ -39,7 +39,6 @@
 
 #include "translator/api/TranslatorAPI.h"
 
-using namespace spine;
 using namespace spine::translator;
 using namespace spine::utils;
 

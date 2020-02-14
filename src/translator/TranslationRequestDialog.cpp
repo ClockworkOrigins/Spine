@@ -44,7 +44,6 @@
 #include "translator/api/TranslatorAPI.h"
 #include "translator/common/TranslationModel.h"
 
-using namespace spine;
 using namespace spine::translator;
 using namespace spine::utils;
 

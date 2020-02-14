@@ -22,55 +22,52 @@
 #include <QDesktopWidget>
 #include <QPainter>
 
-namespace spine {
-namespace widgets {
+using namespace spine;
+using namespace spine::widgets;
 
-	AchievementOrientationPreview::AchievementOrientationPreview(int type, QWidget * parent) : QDialog(parent, Qt::Popup), _type(type) {
-		setWindowState(windowState() | Qt::WindowState::WindowFullScreen);
+AchievementOrientationPreview::AchievementOrientationPreview(int type, QWidget * parent) : QDialog(parent, Qt::Popup), _type(type) {
+	setWindowState(windowState() | Qt::WindowState::WindowFullScreen);
+}
+
+AchievementOrientationPreview::~AchievementOrientationPreview() {
+}
+
+void AchievementOrientationPreview::paintEvent(QPaintEvent *) {
+	QPainter p(this);
+	p.setRenderHints(QPainter::HighQualityAntialiasing);
+	QColor backgroundColor;
+	backgroundColor.setNamedColor("#000000");
+
+	{
+		QPainterPath path;
+		path.addRect(QApplication::desktop()->screenGeometry());
+		p.fillPath(path, QBrush(backgroundColor));
+		p.drawPath(path);
 	}
 
-	AchievementOrientationPreview::~AchievementOrientationPreview() {
-	}
-
-	void AchievementOrientationPreview::paintEvent(QPaintEvent *) {
-		QPainter p(this);
-		p.setRenderHints(QPainter::HighQualityAntialiasing);
-		QColor backgroundColor;
-		backgroundColor.setNamedColor("#000000");
-
-		{
-			QPainterPath path;
-			path.addRect(QApplication::desktop()->screenGeometry());
-			p.fillPath(path, QBrush(backgroundColor));
-			p.drawPath(path);
+	{
+		QRect area;
+		if (_type == 0) {
+			area = QRect(0, 0, 400, 80);
+		} else if (_type == 1) {
+			area = QRect(QApplication::desktop()->screenGeometry().width() - 400, 0, 400, 80);
+		} else if (_type == 2) {
+			area = QRect(0, QApplication::desktop()->screenGeometry().height() - 80, 400, 80);
+		} else if (_type == 3) {
+			area = QRect(QApplication::desktop()->screenGeometry().width() - 400, QApplication::desktop()->screenGeometry().height() - 80, 400, 80);
 		}
-
-		{
-			QRect area;
-			if (_type == 0) {
-				area = QRect(0, 0, 400, 80);
-			} else if (_type == 1) {
-				area = QRect(QApplication::desktop()->screenGeometry().width() - 400, 0, 400, 80);
-			} else if (_type == 2) {
-				area = QRect(0, QApplication::desktop()->screenGeometry().height() - 80, 400, 80);
-			} else if (_type == 3) {
-				area = QRect(QApplication::desktop()->screenGeometry().width() - 400, QApplication::desktop()->screenGeometry().height() - 80, 400, 80);
-			}
-			QPainterPath path;
-			path.addRect(area);
-			backgroundColor.setNamedColor("#800000");
-			p.fillPath(path, QBrush(backgroundColor));
-			p.drawPath(path);
-		}
+		QPainterPath path;
+		path.addRect(area);
+		backgroundColor.setNamedColor("#800000");
+		p.fillPath(path, QBrush(backgroundColor));
+		p.drawPath(path);
 	}
+}
 
-	void AchievementOrientationPreview::mouseDoubleClickEvent(QMouseEvent *) {
-		accept();
-	}
+void AchievementOrientationPreview::mouseDoubleClickEvent(QMouseEvent *) {
+	accept();
+}
 
-	void AchievementOrientationPreview::mousePressEvent(QMouseEvent *) {
-		accept();
-	}
-
-} /* namespace widgets */
-} /* namespace spine */
+void AchievementOrientationPreview::mousePressEvent(QMouseEvent *) {
+	accept();
+}

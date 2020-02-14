@@ -42,210 +42,206 @@ const QSet<QString> IGNORE_FUNCTIONS = {
 };
 const QList<QRegularExpression> IGNORE_REGEX = { QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*wp[ \t]*="), QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*visual[ \t]*="), QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*scemeName[ \t]*="), QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*visual_change[ \t]*="), QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*effect[ \t]*="), QRegularExpression("[ \t]*TA_[a-zA-Z_0-9]+[ \t]*\\([ \t]*[0-9]+[ \t]*,[ \t]*[0-9]+[ \t]*,[ \t]*[0-9]+[ \t]*,[ \t]*[0-9]+[ \t]*,[ \t]*\""), QRegularExpression("items\\[[0-9]+\\]"), QRegularExpression("musictheme[ \t]*="), QRegularExpression("backPic[ \t]*="), QRegularExpression("onChgSetOption[ \t]*="), QRegularExpression("onChgSetOptionSection[ \t]*="), QRegularExpression("hideIfOptionSectionSet[ \t]*="), QRegularExpression("hideIfOptionSet[ \t]*="), QRegularExpression("fontName[ \t]*="), QRegularExpression("BIP01 ") };
 
-namespace spine {
-namespace translator {
+using namespace spine::translator;
 
-	GothicParser::GothicParser(QObject * par) : QObject(par), _currentProgress(0), _maxProgress(0) {
+GothicParser::GothicParser(QObject * par) : QObject(par), _currentProgress(0), _maxProgress(0) {
+}
+
+void GothicParser::parseTexts(QString path, ::translator::common::TranslationModel * model) {
+	// 1. determine all files
+	_currentProgress = 0;
+	QStringList filesToParse;
+
+	QDirIterator it(path, QStringList() << "*.d", QDir::Filter::Files, QDirIterator::IteratorFlag::Subdirectories);
+	while (it.hasNext()) {
+		it.next();
+		QString filePath = it.filePath();
+		bool found = false;
+		for (const QString & s : IGNORE_FILES) {
+			if (filePath.contains(s, Qt::CaseInsensitive)) {
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			filesToParse.append(it.filePath());
+		}
 	}
+	_maxProgress = filesToParse.size();
 
-	void GothicParser::parseTexts(QString path, ::translator::common::TranslationModel * model) {
-		// 1. determine all files
-		_currentProgress = 0;
-		QStringList filesToParse;
+	// 2. Parse them asynchronously
+	QEventLoop loop;
+	QFutureWatcher<void> * watcher = new QFutureWatcher<void>();
+	connect(watcher, &QFutureWatcher<void>::finished, this, &GothicParser::finished);
+	connect(watcher, &QFutureWatcher<void>::finished, &loop, &QEventLoop::quit);
+	connect(watcher, &QFutureWatcher<void>::finished, watcher, &QFutureWatcher<void>::deleteLater);
+	const QFuture<void> future = QtConcurrent::map(filesToParse, [this, model](QString filePath) {
+		parseFile(filePath, model);
+		++_currentProgress;
+		emit updatedProgress(_currentProgress, _maxProgress);
+	});
+	watcher->setFuture(future);
+	loop.exec();
+	std::cout << model->getDialogTextCount() << " Dialog Texts" << std::endl;
 
-		QDirIterator it(path, QStringList() << "*.d", QDir::Filter::Files, QDirIterator::IteratorFlag::Subdirectories);
-		while (it.hasNext()) {
-			it.next();
-			QString filePath = it.filePath();
-			bool found = false;
-			for (const QString & s : IGNORE_FILES) {
-				if (filePath.contains(s, Qt::CaseInsensitive)) {
-					found = true;
+	int count = 0;
+	for (auto d : model->getDialogs()) {
+		for (const auto & d2 : d) {
+			count += s2q(d2).split(' ').count();
+		}
+	}
+	std::cout << "Words: " << count << std::endl;
+
+	model->postProcess();
+	std::cout << model->getNames().size() << " Names" << std::endl;
+	std::cout << model->getTexts().size() << " Texts" << std::endl;
+	std::cout << model->getDialogs().size() << " Dialogs" << std::endl;
+	std::cout << model->getDialogTextCount() << " Dialog Texts" << std::endl;
+	std::cout << (model->getNames().size() + model->getTexts().size() + model->getDialogTextCount()) << " Overall" << std::endl;
+}
+
+void GothicParser::parseFile(QString filePath, ::translator::common::TranslationModel * model) {
+	//static QMutex l;
+	//QMutexLocker lg(&l);
+	QFile f(filePath);
+	if (f.open(QIODevice::ReadOnly)) {
+		QTextStream ts(&f);
+		bool starComment = false;
+		bool svm = false;
+		bool inFunction = false;
+		int bracketCount = 0;
+		QStringList dialogsInFunction;
+		while (!ts.atEnd()) {
+			QString line = ts.readLine();
+			bool comment = false;
+			bracketCount += line.count("{");
+			bracketCount -= line.count("}");
+			// normal text
+			while (!comment && !line.isEmpty()) {
+				bool found = false;
+				for (const QString & s : IGNORE_FUNCTIONS) {
+					if (line.contains(s, Qt::CaseInsensitive)) {
+						found = true;
+						break;
+					}
+				}
+				if (found) {
 					break;
 				}
-			}
-			if (!found) {
-				filesToParse.append(it.filePath());
-			}
-		}
-		_maxProgress = filesToParse.size();
-
-		// 2. Parse them asynchronously
-		QEventLoop loop;
-		QFutureWatcher<void> * watcher = new QFutureWatcher<void>();
-		connect(watcher, &QFutureWatcher<void>::finished, this, &GothicParser::finished);
-		connect(watcher, &QFutureWatcher<void>::finished, &loop, &QEventLoop::quit);
-		connect(watcher, &QFutureWatcher<void>::finished, watcher, &QFutureWatcher<void>::deleteLater);
-		const QFuture<void> future = QtConcurrent::map(filesToParse, [this, model](QString filePath) {
-			parseFile(filePath, model);
-			++_currentProgress;
-			emit updatedProgress(_currentProgress, _maxProgress);
-		});
-		watcher->setFuture(future);
-		loop.exec();
-		std::cout << model->getDialogTextCount() << " Dialog Texts" << std::endl;
-
-		int count = 0;
-		for (auto d : model->getDialogs()) {
-			for (const auto & d2 : d) {
-				count += s2q(d2).split(' ').count();
-			}
-		}
-		std::cout << "Words: " << count << std::endl;
-
-		model->postProcess();
-		std::cout << model->getNames().size() << " Names" << std::endl;
-		std::cout << model->getTexts().size() << " Texts" << std::endl;
-		std::cout << model->getDialogs().size() << " Dialogs" << std::endl;
-		std::cout << model->getDialogTextCount() << " Dialog Texts" << std::endl;
-		std::cout << (model->getNames().size() + model->getTexts().size() + model->getDialogTextCount()) << " Overall" << std::endl;
-	}
-
-	void GothicParser::parseFile(QString filePath, ::translator::common::TranslationModel * model) {
-		//static QMutex l;
-		//QMutexLocker lg(&l);
-		QFile f(filePath);
-		if (f.open(QIODevice::ReadOnly)) {
-			QTextStream ts(&f);
-			bool starComment = false;
-			bool svm = false;
-			bool inFunction = false;
-			int bracketCount = 0;
-			QStringList dialogsInFunction;
-			while (!ts.atEnd()) {
-				QString line = ts.readLine();
-				bool comment = false;
-				bracketCount += line.count("{");
-				bracketCount -= line.count("}");
-				// normal text
-				while (!comment && !line.isEmpty()) {
-					bool found = false;
-					for (const QString & s : IGNORE_FUNCTIONS) {
-						if (line.contains(s, Qt::CaseInsensitive)) {
-							found = true;
-							break;
-						}
-					}
-					if (found) {
+				for (const QRegularExpression & re : IGNORE_REGEX) {
+					if (line.contains(re)) {
+						found = true;
 						break;
 					}
-					for (const QRegularExpression & re : IGNORE_REGEX) {
-						if (line.contains(re)) {
-							found = true;
-							break;
-						}
-					}
-					if (found) {
-						break;
-					}
-					if (!starComment && line.contains(QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*name[ \t]*=[ \t]*\"[^\"]+\"[ \t]*;"))) {
-						// Name
-						parseName(line, model);
-						break;
-					}
-					if (line.contains(QRegularExpression("instance[ \t]+SVM_[0-9]+[ \t]*\\(C_SVM\\)", QRegularExpression::PatternOption::CaseInsensitiveOption))) {
-						svm = true;
-					}
-					if (line.contains(QRegularExpression("func[ \t]+[A-Za-z]+[ \t]+[A-Za-z0-9_]+[ \t]*\\(", QRegularExpression::PatternOption::CaseInsensitiveOption))) {
-						inFunction = true;
-						QString currentFunction = QRegularExpression("func[ \t]+[A-Za-z]+[ \t]+([A-Za-z0-9_]+)[ \t]*\\(", QRegularExpression::PatternOption::CaseInsensitiveOption).match(line).captured(1);
-						dialogsInFunction.clear();
-					}
-					if (!starComment && inFunction && line.contains(QRegularExpression("[ \t]*AI_Output[ \t]*\\([ \t]*[^,]+[ \t]*,[ \t]*[^,]+[ \t]*,[ \t]*\"[^\"]+[ \t]*\"\\);[ \t]\\/\\/", QRegularExpression::PatternOption::CaseInsensitiveOption))) {
-						QString dialogText = QRegularExpression("[ \t]*AI_Output[ \t]*\\([ \t]*[^,]+[ \t]*,[ \t]*[^,]+[ \t]*,[ \t]*\"[^\"]+[ \t]*\"\\);[ \t]\\/\\/", QRegularExpression::PatternOption::CaseInsensitiveOption).match(line).captured(0);
-						dialogText = line.remove(dialogText);
-						dialogsInFunction.append(dialogText);
-					}
-					bool started = false;
-					bool atEnd = false;
-					bool jumpToCommentForSVM = false;
-					QString text;
-					for (int i = 0; i < line.size(); i++) {
-						if (line.at(i) == '\"' && !starComment) {
-							if (!started) {
-								if (svm && !jumpToCommentForSVM) {
-									jumpToCommentForSVM = true;
-								} else if (!svm) {
-									started = true;
-								}
-							} else if (!jumpToCommentForSVM) {
-								line = line.mid(i + 1);
-								break;
-							}
-						} else if (line.at(i) == '/' && i + 1 < line.size() && line.at(i + 1) == '/' && !started && !starComment) {
-							if (jumpToCommentForSVM) {
+				}
+				if (found) {
+					break;
+				}
+				if (!starComment && line.contains(QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*name[ \t]*=[ \t]*\"[^\"]+\"[ \t]*;"))) {
+					// Name
+					parseName(line, model);
+					break;
+				}
+				if (line.contains(QRegularExpression("instance[ \t]+SVM_[0-9]+[ \t]*\\(C_SVM\\)", QRegularExpression::PatternOption::CaseInsensitiveOption))) {
+					svm = true;
+				}
+				if (line.contains(QRegularExpression("func[ \t]+[A-Za-z]+[ \t]+[A-Za-z0-9_]+[ \t]*\\(", QRegularExpression::PatternOption::CaseInsensitiveOption))) {
+					inFunction = true;
+					QString currentFunction = QRegularExpression("func[ \t]+[A-Za-z]+[ \t]+([A-Za-z0-9_]+)[ \t]*\\(", QRegularExpression::PatternOption::CaseInsensitiveOption).match(line).captured(1);
+					dialogsInFunction.clear();
+				}
+				if (!starComment && inFunction && line.contains(QRegularExpression("[ \t]*AI_Output[ \t]*\\([ \t]*[^,]+[ \t]*,[ \t]*[^,]+[ \t]*,[ \t]*\"[^\"]+[ \t]*\"\\);[ \t]\\/\\/", QRegularExpression::PatternOption::CaseInsensitiveOption))) {
+					QString dialogText = QRegularExpression("[ \t]*AI_Output[ \t]*\\([ \t]*[^,]+[ \t]*,[ \t]*[^,]+[ \t]*,[ \t]*\"[^\"]+[ \t]*\"\\);[ \t]\\/\\/", QRegularExpression::PatternOption::CaseInsensitiveOption).match(line).captured(0);
+					dialogText = line.remove(dialogText);
+					dialogsInFunction.append(dialogText);
+				}
+				bool started = false;
+				bool atEnd = false;
+				bool jumpToCommentForSVM = false;
+				QString text;
+				for (int i = 0; i < line.size(); i++) {
+					if (line.at(i) == '\"' && !starComment) {
+						if (!started) {
+							if (svm && !jumpToCommentForSVM) {
+								jumpToCommentForSVM = true;
+							} else if (!svm) {
 								started = true;
-								i++;
-							} else {
-								comment = true;
-								break;
 							}
-						} else if (line.at(i) == '/' && i + 1 < line.size() && line.at(i + 1) == '*' && !started && !starComment) {
-							starComment = true;
+						} else if (!jumpToCommentForSVM) {
+							line = line.mid(i + 1);
+							break;
+						}
+					} else if (line.at(i) == '/' && i + 1 < line.size() && line.at(i + 1) == '/' && !started && !starComment) {
+						if (jumpToCommentForSVM) {
+							started = true;
 							i++;
-						} else if (line.at(i) == '*' && i + 1 < line.size() && line.at(i + 1) == '/' && !started && starComment) {
-							starComment = false;
-							line = line.mid(i + 1);
-							break;
-						} else if (line.at(i) == '}' && i + 1 < line.size() && line.at(i + 1) == ';' && svm && !starComment) {
-							svm = false;
-							line = line.mid(i + 1);
-							break;
-						} else if (line.at(i) == '}' && i + 1 < line.size() && line.at(i + 1) == ';' && inFunction && !starComment && bracketCount == 0) {
-							inFunction = false;
-							if (!dialogsInFunction.isEmpty()) {
-								std::vector<std::string> dialogs;
-								for (const QString & s : dialogsInFunction) {
-									dialogs.push_back(q2s(s));
-								}
-								model->addDialog(dialogs);
-							}
-							line = line.mid(i + 1);
-							break;
 						} else {
-							if (started) {
-								text += line.at(i);
-							}
+							comment = true;
+							break;
 						}
-						if (i == line.size() - 1) {
-							atEnd = true;
-						}
-					}
-					if (!text.isEmpty() && !text.trimmed().isEmpty() && text.contains(QRegularExpression("[a-zA-Z]+")) && !text.startsWith("$") && !text.endsWith(".TGA", Qt::CaseInsensitive) && !text.endsWith(".BIK", Qt::CaseInsensitive) && !text.endsWith(".ZEN", Qt::CaseInsensitive) && !text.endsWith(".3DS", Qt::CaseInsensitive) && !text.endsWith(".ASC", Qt::CaseInsensitive) && !text.endsWith(".WAV", Qt::CaseInsensitive) && (text.contains(" ") || text.count("_") < 2)) {
-						model->addText(q2s(text.trimmed()));
-					}
-					// if we parsed the whole line and didn't close /* start next line
-					if (atEnd) {
+					} else if (line.at(i) == '/' && i + 1 < line.size() && line.at(i + 1) == '*' && !started && !starComment) {
+						starComment = true;
+						i++;
+					} else if (line.at(i) == '*' && i + 1 < line.size() && line.at(i + 1) == '/' && !started && starComment) {
+						starComment = false;
+						line = line.mid(i + 1);
 						break;
+					} else if (line.at(i) == '}' && i + 1 < line.size() && line.at(i + 1) == ';' && svm && !starComment) {
+						svm = false;
+						line = line.mid(i + 1);
+						break;
+					} else if (line.at(i) == '}' && i + 1 < line.size() && line.at(i + 1) == ';' && inFunction && !starComment && bracketCount == 0) {
+						inFunction = false;
+						if (!dialogsInFunction.isEmpty()) {
+							std::vector<std::string> dialogs;
+							for (const QString & s : dialogsInFunction) {
+								dialogs.push_back(q2s(s));
+							}
+							model->addDialog(dialogs);
+						}
+						line = line.mid(i + 1);
+						break;
+					} else {
+						if (started) {
+							text += line.at(i);
+						}
+					}
+					if (i == line.size() - 1) {
+						atEnd = true;
 					}
 				}
-			}
-		}
-	}
-
-	void GothicParser::parseName(QString line, ::translator::common::TranslationModel * model) {
-		bool started = false;
-		QString name;
-		for (int i = 0; i < line.size(); i++) {
-			if (line.at(i) == '\"') {
-				if (!started) {
-					started = true;
-				} else {
-					line = line.mid(i + 1);
+				if (!text.isEmpty() && !text.trimmed().isEmpty() && text.contains(QRegularExpression("[a-zA-Z]+")) && !text.startsWith("$") && !text.endsWith(".TGA", Qt::CaseInsensitive) && !text.endsWith(".BIK", Qt::CaseInsensitive) && !text.endsWith(".ZEN", Qt::CaseInsensitive) && !text.endsWith(".3DS", Qt::CaseInsensitive) && !text.endsWith(".ASC", Qt::CaseInsensitive) && !text.endsWith(".WAV", Qt::CaseInsensitive) && (text.contains(" ") || text.count("_") < 2)) {
+					model->addText(q2s(text.trimmed()));
+				}
+				// if we parsed the whole line and didn't close /* start next line
+				if (atEnd) {
 					break;
 				}
-			} else {
-				if (started) {
-					name += line.at(i);
-				}
 			}
 		}
-		if (!name.isEmpty() && name.contains(QRegularExpression("[a-zA-Z]+")) && !name.startsWith("$") && !name.endsWith(".TGA", Qt::CaseInsensitive)) {
-			model->addName(q2s(name.trimmed()));
+	}
+}
+
+void GothicParser::parseName(QString line, ::translator::common::TranslationModel * model) {
+	bool started = false;
+	QString name;
+	for (int i = 0; i < line.size(); i++) {
+		if (line.at(i) == '\"') {
+			if (!started) {
+				started = true;
+			} else {
+				line = line.mid(i + 1);
+				break;
+			}
+		} else {
+			if (started) {
+				name += line.at(i);
+			}
 		}
 	}
-
-} /* namespace translator */
-} /* namespace spine */
+	if (!name.isEmpty() && name.contains(QRegularExpression("[a-zA-Z]+")) && !name.startsWith("$") && !name.endsWith(".TGA", Qt::CaseInsensitive)) {
+		model->addName(q2s(name.trimmed()));
+	}
+}
 
 #endif /* WITH_TRANSLATOR */

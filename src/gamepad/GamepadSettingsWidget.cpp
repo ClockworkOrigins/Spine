@@ -34,83 +34,82 @@
 #include <QSpinBox>
 #include <QVBoxLayout>
 
-using namespace spine;
 using namespace spine::gamepad;
 using namespace spine::utils;
 
 namespace {
-	QString buttonToString(gamepad::GamePadButton button) {
+	QString buttonToString(GamePadButton button) {
 		switch (button) {
-		case gamepad::GamePadButton::GamePad_Button_DPAD_UP: {
+		case GamePadButton::GamePad_Button_DPAD_UP: {
 			return "DPAD UP";
 		}
-		case gamepad::GamePadButton::GamePad_Button_DPAD_DOWN: {
+		case GamePadButton::GamePad_Button_DPAD_DOWN: {
 			return "DPAD DOWN";
 		}
-		case gamepad::GamePadButton::GamePad_Button_DPAD_LEFT: {
+		case GamePadButton::GamePad_Button_DPAD_LEFT: {
 			return "DPAD LEFT";
 		}
-		case gamepad::GamePadButton::GamePad_Button_DPAD_RIGHT: {
+		case GamePadButton::GamePad_Button_DPAD_RIGHT: {
 			return "DPAD RIGHT";
 		}
-		case gamepad::GamePadButton::GamePad_Button_START: {
+		case GamePadButton::GamePad_Button_START: {
 			return "START";
 		}
-		case gamepad::GamePadButton::GamePad_Button_BACK: {
+		case GamePadButton::GamePad_Button_BACK: {
 			return "BACK";
 		}
-		case gamepad::GamePadButton::GamePad_Button_LEFT_THUMB: {
+		case GamePadButton::GamePad_Button_LEFT_THUMB: {
 			return "LEFT THUMB";
 		}
-		case gamepad::GamePadButton::GamePad_Button_RIGHT_THUMB: {
+		case GamePadButton::GamePad_Button_RIGHT_THUMB: {
 			return "RIGHT THUMB";
 		}
-		case gamepad::GamePadButton::GamePad_Button_LEFT_SHOULDER: {
+		case GamePadButton::GamePad_Button_LEFT_SHOULDER: {
 			return "LB";
 		}
-		case gamepad::GamePadButton::GamePad_Button_RIGHT_SHOULDER: {
+		case GamePadButton::GamePad_Button_RIGHT_SHOULDER: {
 			return "RB";
 		}
-		case gamepad::GamePadButton::GamePad_Button_A: {
+		case GamePadButton::GamePad_Button_A: {
 			return "A";
 		}
-		case gamepad::GamePadButton::GamePad_Button_B: {
+		case GamePadButton::GamePad_Button_B: {
 			return "B";
 		}
-		case gamepad::GamePadButton::GamePad_Button_X: {
+		case GamePadButton::GamePad_Button_X: {
 			return "X";
 		}
-		case gamepad::GamePadButton::GamePad_Button_Y: {
+		case GamePadButton::GamePad_Button_Y: {
 			return "Y";
 		}
-		case gamepad::GamePadButton::GamePad_LTrigger: {
+		case GamePadButton::GamePad_LTrigger: {
 			return "LT";
 		}
-		case gamepad::GamePadButton::GamePad_RTrigger: {
+		case GamePadButton::GamePad_RTrigger: {
 			return "RT";
 		}
-		case gamepad::GamePadButton::GamePad_LStick_X_Pos: {
+		case GamePadButton::GamePad_LStick_X_Pos: {
 			return "LSTICK RIGHT";
 		}
-		case gamepad::GamePadButton::GamePad_LStick_X_Neg: {
+		case GamePadButton::GamePad_LStick_X_Neg: {
 			return "LSTICK LEFT";
 		}
-		case gamepad::GamePadButton::GamePad_LStick_Y_Pos: {
+		case GamePadButton::GamePad_LStick_Y_Pos: {
 			return "LSTICK UP";
 		}
-		case gamepad::GamePadButton::GamePad_LStick_Y_Neg: {
+		case GamePadButton::GamePad_LStick_Y_Neg: {
 			return "LSTICK DOWN";
 		}
-		case gamepad::GamePadButton::GamePad_RStick_X_Pos: {
+		case GamePadButton::GamePad_RStick_X_Pos: {
 			return "RSTICK RIGHT";
 		}
-		case gamepad::GamePadButton::GamePad_RStick_X_Neg: {
+		case GamePadButton::GamePad_RStick_X_Neg: {
 			return "RSTICK LEFT";
 		}
-		case gamepad::GamePadButton::GamePad_RStick_Y_Pos: {
+		case GamePadButton::GamePad_RStick_Y_Pos: {
 			return "RSTICK UP";
 		}
-		case gamepad::GamePadButton::GamePad_RStick_Y_Neg: {
+		case GamePadButton::GamePad_RStick_Y_Neg: {
 			return "RSTICK DOWN";
 		}
 		default: {
@@ -136,8 +135,8 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 		hl->addWidget(lbl);
 
 		_controllerList = new QComboBox(this);
-		for (int idx = gamepad::GamePadIndex::GamePadIndex_One; idx < gamepad::GamePadIndex::COUNT; idx++) {
-			if (gamepad::GamePadXbox::isConnected(gamepad::GamePadIndex(idx))) {
+		for (int idx = GamePadIndex::GamePadIndex_One; idx < GamePadIndex::COUNT; idx++) {
+			if (GamePadXbox::isConnected(GamePadIndex(idx))) {
 				_controllerList->addItem(QApplication::tr("Controller").arg(idx + 1));
 				_controllerList->setItemData(_controllerList->count() - 1, idx, Qt::UserRole);
 			}
@@ -646,35 +645,35 @@ void GamepadSettingsWidget::rejectSettings() {
 	_keyDelayBox->setValue(i);
 
 	if (firstStartup) {
-		_gamepadButtonToButtonMap.insert(gamepad::GamePadButton::GamePad_LStick_Y_Pos, _actionToButtonMap["keyUp"]);
-		_gamepadButtonToButtonMap.insert(gamepad::GamePadButton::GamePad_LStick_Y_Neg, _actionToButtonMap["keyDown"]);
-		_gamepadButtonToButtonMap.insert(gamepad::GamePadButton::GamePad_LStick_X_Pos, _actionToButtonMap["keyRight"]);
-		_gamepadButtonToButtonMap.insert(gamepad::GamePadButton::GamePad_LStick_X_Neg, _actionToButtonMap["keyLeft"]);
-		_gamepadButtonToButtonMap.insert(gamepad::GamePadButton::GamePad_Button_LEFT_THUMB, _actionToButtonMap["keySneak"]);
-		_gamepadButtonToButtonMap.insert(gamepad::GamePadButton::GamePad_Button_RIGHT_THUMB, _actionToButtonMap["keySlow"]);
-		_gamepadButtonToButtonMap.insert(gamepad::GamePadButton::GamePad_Button_START, _actionToButtonMap["keyShowStatus"]);
-		_gamepadButtonToButtonMap.insert(gamepad::GamePadButton::GamePad_Button_A, _actionToButtonMap["keyEnter"]);
-		_gamepadButtonToButtonMap.insert(gamepad::GamePadButton::GamePad_Button_X, _actionToButtonMap["keyDrawMeleeWeapon"]);
-		_gamepadButtonToButtonMap.insert(gamepad::GamePadButton::GamePad_Button_B, _actionToButtonMap["keyDrawRangedWeapon"]);
-		_gamepadButtonToButtonMap.insert(gamepad::GamePadButton::GamePad_Button_Y, _actionToButtonMap["keyShowLog"]);
-		_gamepadButtonToButtonMap.insert(gamepad::GamePadButton::GamePad_Button_LEFT_SHOULDER, _actionToButtonMap["keyInventory"]);
-		_gamepadButtonToButtonMap.insert(gamepad::GamePadButton::GamePad_Button_RIGHT_SHOULDER, _actionToButtonMap["keyWeapon"]);
-		_gamepadButtonToButtonMap.insert(gamepad::GamePadButton::GamePad_RTrigger, _actionToButtonMap["keyAction"]);
-		_gamepadButtonToButtonMap.insert(gamepad::GamePadButton::GamePad_LTrigger, _actionToButtonMap["keySMove"]);
-		_gamepadButtonToButtonMap.insert(gamepad::GamePadButton::GamePad_Button_DPAD_LEFT, _actionToButtonMap["keyPreviousSpell"]);
-		_gamepadButtonToButtonMap.insert(gamepad::GamePadButton::GamePad_Button_DPAD_RIGHT, _actionToButtonMap["keyNextSpell"]);
-		_gamepadButtonToButtonMap.insert(gamepad::GamePadButton::GamePad_Button_DPAD_UP, _actionToButtonMap["keyDrawSpell"]);
-		_gamepadButtonToButtonMap.insert(gamepad::GamePadButton::GamePad_Button_DPAD_DOWN, _actionToButtonMap["keyShowMap"]);
+		_gamepadButtonToButtonMap.insert(GamePadButton::GamePad_LStick_Y_Pos, _actionToButtonMap["keyUp"]);
+		_gamepadButtonToButtonMap.insert(GamePadButton::GamePad_LStick_Y_Neg, _actionToButtonMap["keyDown"]);
+		_gamepadButtonToButtonMap.insert(GamePadButton::GamePad_LStick_X_Pos, _actionToButtonMap["keyRight"]);
+		_gamepadButtonToButtonMap.insert(GamePadButton::GamePad_LStick_X_Neg, _actionToButtonMap["keyLeft"]);
+		_gamepadButtonToButtonMap.insert(GamePadButton::GamePad_Button_LEFT_THUMB, _actionToButtonMap["keySneak"]);
+		_gamepadButtonToButtonMap.insert(GamePadButton::GamePad_Button_RIGHT_THUMB, _actionToButtonMap["keySlow"]);
+		_gamepadButtonToButtonMap.insert(GamePadButton::GamePad_Button_START, _actionToButtonMap["keyShowStatus"]);
+		_gamepadButtonToButtonMap.insert(GamePadButton::GamePad_Button_A, _actionToButtonMap["keyEnter"]);
+		_gamepadButtonToButtonMap.insert(GamePadButton::GamePad_Button_X, _actionToButtonMap["keyDrawMeleeWeapon"]);
+		_gamepadButtonToButtonMap.insert(GamePadButton::GamePad_Button_B, _actionToButtonMap["keyDrawRangedWeapon"]);
+		_gamepadButtonToButtonMap.insert(GamePadButton::GamePad_Button_Y, _actionToButtonMap["keyShowLog"]);
+		_gamepadButtonToButtonMap.insert(GamePadButton::GamePad_Button_LEFT_SHOULDER, _actionToButtonMap["keyInventory"]);
+		_gamepadButtonToButtonMap.insert(GamePadButton::GamePad_Button_RIGHT_SHOULDER, _actionToButtonMap["keyWeapon"]);
+		_gamepadButtonToButtonMap.insert(GamePadButton::GamePad_RTrigger, _actionToButtonMap["keyAction"]);
+		_gamepadButtonToButtonMap.insert(GamePadButton::GamePad_LTrigger, _actionToButtonMap["keySMove"]);
+		_gamepadButtonToButtonMap.insert(GamePadButton::GamePad_Button_DPAD_LEFT, _actionToButtonMap["keyPreviousSpell"]);
+		_gamepadButtonToButtonMap.insert(GamePadButton::GamePad_Button_DPAD_RIGHT, _actionToButtonMap["keyNextSpell"]);
+		_gamepadButtonToButtonMap.insert(GamePadButton::GamePad_Button_DPAD_UP, _actionToButtonMap["keyDrawSpell"]);
+		_gamepadButtonToButtonMap.insert(GamePadButton::GamePad_Button_DPAD_DOWN, _actionToButtonMap["keyShowMap"]);
 		for (auto it = _gamepadButtonToButtonMap.begin(); it != _gamepadButtonToButtonMap.end(); ++it) {
 			const QString buttonText = buttonToString(it.key());
 			it.value()->setText(buttonText);
 		}
 	} else {
 		for (auto it = _actionToButtonMap.begin(); it != _actionToButtonMap.end(); ++it) {
-			i = Config::IniParser->value(it.key(), gamepad::GamePadButton_Max).toInt();
-			it.value()->setText(buttonToString(gamepad::GamePadButton(i)));
-			if (i != gamepad::GamePadButton_Max) {
-				_gamepadButtonToButtonMap.insert(gamepad::GamePadButton(i), it.value());
+			i = Config::IniParser->value(it.key(), GamePadButton_Max).toInt();
+			it.value()->setText(buttonToString(GamePadButton(i)));
+			if (i != GamePadButton_Max) {
+				_gamepadButtonToButtonMap.insert(GamePadButton(i), it.value());
 			}
 		}
 	}
@@ -685,16 +684,16 @@ bool GamepadSettingsWidget::isEnabled() const {
 	return _gamepadEnabled->isChecked() && _controllerList->count();
 }
 
-gamepad::GamePadIndex GamepadSettingsWidget::getIndex() const {
-	return _controllerList->count() ? gamepad::GamePadIndex(_controllerList->currentData(Qt::UserRole).toInt()) : gamepad::GamePadIndex::GamePadIndex_One;
+GamePadIndex GamepadSettingsWidget::getIndex() const {
+	return _controllerList->count() ? GamePadIndex(_controllerList->currentData(Qt::UserRole).toInt()) : GamePadIndex::GamePadIndex_One;
 }
 
 int GamepadSettingsWidget::getKeyDelay() const {
 	return _keyDelayBox->value();
 }
 
-QMap<QString, gamepad::GamePadButton> GamepadSettingsWidget::getKeyMapping() const {
-	QMap<QString, gamepad::GamePadButton> map;
+QMap<QString, GamePadButton> GamepadSettingsWidget::getKeyMapping() const {
+	QMap<QString, GamePadButton> map;
 	for (auto it = _gamepadButtonToButtonMap.begin(); it != _gamepadButtonToButtonMap.end(); ++it) {
 		for (auto it2 = _actionToButtonMap.begin(); it2 != _actionToButtonMap.end(); ++it2) {
 			if (it.value() == it2.value()) {
@@ -714,8 +713,8 @@ void GamepadSettingsWidget::changedGamepadState(int checkState) {
 void GamepadSettingsWidget::newButton() {
 	QPushButton * pb = qobject_cast<QPushButton *>(sender());
 	if (pb) {
-		const gamepad::GamePadButton button = gamepad::GamePadXbox::getButtonPressed(gamepad::GamePadIndex(_controllerList->count() ? _controllerList->currentData(Qt::UserRole).toInt() : 0));
-		if (button == gamepad::GamePadButton_Max) {
+		const GamePadButton button = GamePadXbox::getButtonPressed(GamePadIndex(_controllerList->count() ? _controllerList->currentData(Qt::UserRole).toInt() : 0));
+		if (button == GamePadButton_Max) {
 			return;
 		}
 		auto it = _gamepadButtonToButtonMap.find(button);

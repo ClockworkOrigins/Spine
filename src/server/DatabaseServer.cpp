@@ -27,94 +27,90 @@
 
 using namespace boost::property_tree;
 
-namespace spine {
-namespace server {
+using namespace spine::server;
 
-	DatabaseServer::DatabaseServer() : _server(nullptr), _runner(nullptr) {
-	}
+DatabaseServer::DatabaseServer() : _server(nullptr), _runner(nullptr) {
+}
 
-	DatabaseServer::~DatabaseServer() {
-		delete _server;
-		delete _runner;
-	}
+DatabaseServer::~DatabaseServer() {
+	delete _server;
+	delete _runner;
+}
 
-	int DatabaseServer::run() {
-		_server = new HttpsServer(SSLCHAINPATH, SSLPRIVKEYNPATH);
-		_server->config.port = DATABASESERVER_PORT;
-		
-		_server->resource["^/getModnameForIDs"]["POST"] = std::bind(&DatabaseServer::getModnameForIDs, this, std::placeholders::_1, std::placeholders::_2);
+int DatabaseServer::run() {
+	_server = new HttpsServer(SSLCHAINPATH, SSLPRIVKEYNPATH);
+	_server->config.port = DATABASESERVER_PORT;
+	
+	_server->resource["^/getModnameForIDs"]["POST"] = std::bind(&DatabaseServer::getModnameForIDs, this, std::placeholders::_1, std::placeholders::_2);
 
-		_runner = new std::thread([this]() {
-			_server->start();
-		});
-		
-		return 0;
-	}
+	_runner = new std::thread([this]() {
+		_server->start();
+	});
+	
+	return 0;
+}
 
-	void DatabaseServer::stop() {
-		_server->stop();
-		_runner->join();
-	}
+void DatabaseServer::stop() {
+	_server->stop();
+	_runner->join();
+}
 
-	void DatabaseServer::getModnameForIDs(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
-		try {
-			const std::string content = ServerCommon::convertString(request->content.string());
+void DatabaseServer::getModnameForIDs(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
 
-			std::stringstream ss(content);
+		std::stringstream ss(content);
 
-			ptree pt;
-			read_json(ss, pt);
-		
-			const std::string language = pt.get<std::string>("Language");
+		ptree pt;
+		read_json(ss, pt);
+	
+		const std::string language = pt.get<std::string>("Language");
 
-			SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
 
-			std::stringstream responseStream;
-			ptree responseTree;
+		std::stringstream responseStream;
+		ptree responseTree;
 
-			do {
-				CONNECTTODATABASE(__LINE__)
+		do {
+			CONNECTTODATABASE(__LINE__)
 
-				if (!database.query("PREPARE selectStmt FROM \"SELECT Name FROM modnames WHERE ModID = ? AND Language = ? LIMIT 1\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-					code = SimpleWeb::StatusCode::client_error_failed_dependency;
-					break;
-				}
-				if (!database.query("SET @paramLanguage='" + language + "';")) {
+			if (!database.query("PREPARE selectStmt FROM \"SELECT Name FROM modnames WHERE ModID = ? AND Language = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramLanguage='" + language + "';")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+
+			ptree nameNodes;
+			for (const auto & v : pt.get_child("ModIDs")) {
+				if (!database.query("SET @paramModID=" + v.second.data() + ";")) {
 					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					return;
 				}
-
-				ptree nameNodes;
-				for (const auto & v : pt.get_child("ModIDs")) {
-					if (!database.query("SET @paramModID=" + v.second.data() + ";")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-						code = SimpleWeb::StatusCode::client_error_failed_dependency;
-						return;
-					}
-					if (!database.query("EXECUTE selectStmt USING @paramModID, @paramLanguage;")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-						code = SimpleWeb::StatusCode::client_error_failed_dependency;
-						break;
-					}
-					const auto results = database.getResults<std::vector<std::string>>();
-					if (results.empty()) continue;
-
-					ptree nameNode;
-					nameNode.put("", results[0][0]);
-					nameNodes.push_back(std::make_pair("", nameNode));
+				if (!database.query("EXECUTE selectStmt USING @paramModID, @paramLanguage;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
 				}
-				responseTree.add_child("Names", nameNodes);
-			} while (false);
+				const auto results = database.getResults<std::vector<std::string>>();
+				if (results.empty()) continue;
 
-			write_json(responseStream, responseTree);
+				ptree nameNode;
+				nameNode.put("", results[0][0]);
+				nameNodes.push_back(std::make_pair("", nameNode));
+			}
+			responseTree.add_child("Names", nameNodes);
+		} while (false);
 
-			response->write(code, responseStream.str());
-		} catch (...) {
-			response->write(SimpleWeb::StatusCode::client_error_bad_request);
-		}
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
 	}
-
-} /* namespace server */
-} /* namespace spine */
+}
