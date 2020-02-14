@@ -145,7 +145,7 @@ void AutoUpdateDialog::checkForUpdate() {
 		QFile f(qApp->applicationDirPath() + "/../" + filename);
 		QString shortFilename = filename;
 		shortFilename.resize(shortFilename.length() - 1);
-		if (QFile(qApp->applicationDirPath() + "/../" + shortFilename).exists()) {
+		if (QFileInfo::exists(qApp->applicationDirPath() + "/../" + shortFilename)) {
 			QFile(qApp->applicationDirPath() + "/../" + shortFilename).remove();
 		}
 		if (f.rename(qApp->applicationDirPath() + "/../" + shortFilename)) {

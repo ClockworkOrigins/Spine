@@ -1380,7 +1380,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 		LOGERROR("Starting " << usedExecutable->toStdString() << " in " << _directory.toStdString());
 	}
 	if (systempack) {
-		if (QFile::exists(_directory + "/System/vdfs32g.exe")) {
+		if (QFileInfo::exists(_directory + "/System/vdfs32g.exe")) {
 			QFile::rename(_directory + "/System/vdfs32g.exe", _directory + "/System/vdfs32g.exe.spbak");
 			_copiedFiles.append("System/vdfs32g.exe");
 		}

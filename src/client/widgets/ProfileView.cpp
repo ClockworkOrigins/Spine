@@ -399,14 +399,14 @@ void ProfileView::updateAchievements(int32_t modID, std::vector<common::SendAllA
 		if (!as.iconLocked.empty() && !as.iconLockedHash.empty()) {
 			QString filename = QString::fromStdString(as.iconLocked);
 			filename.chop(2); // remove .z
-			if (!QFile(Config::MODDIR + "/mods/" + QString::number(modID) + "/achievements/" + filename).exists()) {
+			if (!QFileInfo::exists(Config::MODDIR + "/mods/" + QString::number(modID) + "/achievements/" + filename)) {
 				images.insert(QPair<QString, QString>(QString::fromStdString(as.iconLocked), QString::fromStdString(as.iconLockedHash)));
 			}
 		}
 		if (!as.iconUnlocked.empty() && !as.iconUnlockedHash.empty()) {
 			QString filename = QString::fromStdString(as.iconUnlocked);
 			filename.chop(2); // remove .z
-			if (!QFile(Config::MODDIR + "/mods/" + QString::number(modID) + "/achievements/" + filename).exists()) {
+			if (!QFileInfo::exists(Config::MODDIR + "/mods/" + QString::number(modID) + "/achievements/" + filename)) {
 				images.insert(QPair<QString, QString>(QString::fromStdString(as.iconUnlocked), QString::fromStdString(as.iconUnlockedHash)));
 			}
 		}

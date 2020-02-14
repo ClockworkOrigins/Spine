@@ -123,7 +123,7 @@ int Config::Init() {
 	}
 	QFile oldIni(qApp->applicationDirPath() + "/Spine.ini");
 	if (oldIni.exists()) {
-		if (!QFile(BASEDIR + "/Spine.ini").exists()) {
+		if (!QFileInfo::exists(BASEDIR + "/Spine.ini")) {
 			oldIni.rename(BASEDIR + "/Spine.ini");
 		}
 	}

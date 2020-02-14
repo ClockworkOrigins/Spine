@@ -100,7 +100,7 @@ void InstallGothic2FromCDDialog::startInstallation() {
 		resultMsg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
 		resultMsg.button(QMessageBox::StandardButton::Cancel)->setText(QApplication::tr("Cancel"));
 		if (QMessageBox::StandardButton::Ok == resultMsg.exec()) {
-			QString exeFileName = qApp->applicationDirPath() + "/" + qApp->applicationName();
+			const QString exeFileName = qApp->applicationDirPath() + "/" + qApp->applicationName();
 			const int result = int(::ShellExecuteA(nullptr, "runas", exeFileName.toUtf8().constData(), nullptr, nullptr, SW_SHOWNORMAL));
 			if (result > 32) { // no error
 				qApp->quit();
@@ -109,7 +109,7 @@ void InstallGothic2FromCDDialog::startInstallation() {
 		return;
 	}
 	QString g2Cdr = ".";
-	while (!QFile(g2Cdr + "/Gothic2-Setup.exe").exists()) {
+	while (!QFileInfo::exists(g2Cdr + "/Gothic2-Setup.exe")) {
 		QMessageBox resultMsg(QMessageBox::Icon::Information, QApplication::tr("EnterGothic2CD"), QApplication::tr("EnterGothic2CDText"), QMessageBox::StandardButton::Ok | QMessageBox::StandardButton::Cancel);
 		resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
 		resultMsg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
@@ -118,7 +118,7 @@ void InstallGothic2FromCDDialog::startInstallation() {
 			return;
 		};
 		for (const QFileInfo & fi : QDir::drives()) {
-			if (QFile(fi.absolutePath() + "/Gothic2-Setup.exe").exists()) {
+			if (QFileInfo::exists(fi.absolutePath() + "/Gothic2-Setup.exe")) {
 				g2Cdr = fi.absolutePath();
 				break;
 			}
@@ -152,7 +152,7 @@ void InstallGothic2FromCDDialog::startAddonInstallation(int exitCode, QProcess::
 	const bool b = exitCode == 0 && exitStatus == QProcess::ExitStatus::NormalExit;
 	if (b) {
 		QString g2Cdr = ".";
-		while (!QFile(g2Cdr + "/Gothic2-Addon-Setup.exe").exists()) {
+		while (!QFileInfo::exists(g2Cdr + "/Gothic2-Addon-Setup.exe")) {
 			QMessageBox resultMsg(QMessageBox::Icon::Information, QApplication::tr("EnterGothic2CD"), QApplication::tr("EnterGothic2AddonCDText"), QMessageBox::StandardButton::Ok | QMessageBox::StandardButton::Cancel);
 			resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
 			resultMsg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
@@ -161,7 +161,7 @@ void InstallGothic2FromCDDialog::startAddonInstallation(int exitCode, QProcess::
 				return;
 			};
 			for (const QFileInfo & fi : QDir::drives()) {
-				if (QFile(fi.absolutePath() + "/Gothic2-Addon-Setup.exe").exists()) {
+				if (QFileInfo::exists(fi.absolutePath() + "/Gothic2-Addon-Setup.exe")) {
 					g2Cdr = fi.absolutePath();
 					break;
 				}

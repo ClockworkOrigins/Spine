@@ -84,9 +84,9 @@ ProfileModView::ProfileModView(common::ModStats ms, QString gothicDirectory, QSt
 		if (pixmap.isNull()) {
 			if (found) {
 				QString exeFileName;
-				if (mid == common::GameType::Gothic && QFile(gothicDirectory + "/System/Gothic.exe").exists()) {
+				if (mid == common::GameType::Gothic && QFileInfo::exists(gothicDirectory + "/System/Gothic.exe")) {
 					exeFileName = gothicDirectory + "/System/Gothic.exe";
-				} else if (mid == common::GameType::Gothic2 && QFile(gothic2Directory + "/System/Gothic2.exe").exists()) {
+				} else if (mid == common::GameType::Gothic2 && QFileInfo::exists(gothic2Directory + "/System/Gothic2.exe")) {
 					exeFileName = gothic2Directory + "/System/Gothic2.exe";
 				}
 #ifdef Q_OS_WIN

@@ -75,7 +75,7 @@ namespace utils {
 	}
 
 	bool makeSymlink(QString sourceFile, QString targetFile) {
-		if (!QFile(sourceFile).exists()) {
+		if (!QFileInfo::exists(sourceFile)) {
 			return false;
 		}
 		QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
