@@ -19,7 +19,6 @@
 		<File Hash="6419a78ce72e61160399b795f303e5c9e8d6f206eaa1becd44c438208e4ff93583b077f4b4c2e26f08f685b9cd9319105e788ae04b3290c05aac61fea34c9711">styles.css.z</File>
 	</Version>
 	<Version majorVersion="1" minorVersion="14" patchVersion="0">
-		<File Hash="54fd77b9f1ac68b9ad2849e76395b8cf03086c644065a55912df73932b861094ebdf35ea9156785a835f43678400b207c33b5028ad205a4e8cae1ee1b1602480">bin/cleanup.exe.z</File>
 		<File Hash="7b57c710043d8c60ee071386c404322cd8259b8d712d6430ff0dcbdb4cd31edbb301397002c0bfeadbb385abc7682e9fe6dd6cf94d2ed4f2f62ad5bb530e007e">bin/TranslatorAPI.dll.z</File>
 		<File Hash="b4c964346f7521e0557fc8bd1f657a1c3a083d4c9416d86a4cb5ca14461f9d12f44b3936d8d2f903aa776606360930c0ce0e51a51d54375a670095831c653f87">bin/TranslatorCommon.dll.z</File>
 		<File Hash="41766601b6c89b86651abb843bd234b515a08c934422bc09261931c73a10ce7b0c0180b4c5855cc946e81a0c0d0a76a4d6c2843bc85260a5b53e8be3c153f5cc">bin/4758cca.dll.z</File>
@@ -51,15 +50,14 @@
 		<File Hash="c0d266af87e977ea85a5a9589ee93500bee1f5277db2b09402b5c8ab95085d46e99242498fd011152200edde14ac6f14f1bb0b04ea33136ef97c8a1345e417c0">bin/plugins/platforms/qwindows.dll.z</File>
 		<File Hash="e8cb67fc8e0312da3cc98364b96dfa1a63150ab9de60069c4af60c1cf77d440b7dffe630b4784ba07ea9bf146bdbf6ad5282a900ffd6ab7d86433456a752b2fd">vcredist_x86.exe.z</File>
 	</Version>
-	<Version majorVersion="1" minorVersion="14" patchVersion="14">
-		<File Hash="092da915bd3f7b1b6ca021aa735e6edc5c861437f7add0794bb876cd14db2e74a6f459bf8af935fad549e4474b3aec0c322a9f0d29f106c22adde1a8825b211d">bin/de_DE.qm.z</File>
-		<File Hash="d4dced94aa57338f122b8951d068244cd5edc03ddac2d17ace5b72ba311caa5ffa19517f837fdd73098a06d34f909090fe30c9c7870807396e69b2d35fa8c410">bin/en_US.qm.z</File>
-		<File Hash="6e04f8f133024f86be1cbc74e013416cb1e66c77c54ebd076360c913133fcdb0ce292a061defd6ab2b5cdabf6b6d5e1db673d3707cc1b36acba466edfc22a80f">bin/po_PO.qm.z</File>
-		<File Hash="88997d74f86705b40522f7d669514e667121cd792400823f593ef0e562913dc3994cd29fd5d7a1f7816e8ef9218655fa4cd7e70309b53c48cb59c394f756e758">bin/ru_RU.qm.z</File>
-	</Version>
-	<Version majorVersion="1" minorVersion="15" patchVersion="2">
-		<File Hash="0810a8e3b1bc76b2aa7b9f4399fcf87f75cbb2a3cf23c40295760dd358a82ce469157a5184fb8c31dddf9a0d4f1fa1b7becbe129e68354c76f6d3ed578e0c3a9">bin/changelog.xml.z</File>
-		<File Hash="2f8d5629e40ae991797f1b6de72da93018d8dd7a38c0a1572f91522f1686b3d5902d4416b5402c66d5db14fccbee6e26cf5a003d2a62d1c944b3d86ff757dd67">bin/Spine.exe.z</File>
-		<File Hash="4323b0486058a238669ac62202e15698ac1fef97b909f76e79cd7450eabe987581819edd8d61ebc500e53932514cc7f54eecc41104c05a37367d936124ab41f5">bin/SpineAPI.dll.z</File>
+	<Version majorVersion="1" minorVersion="16" patchVersion="0">
+		<File Hash="56f88a947c7aa90d81e5f414c72fedcc8038745cef609e6a8c1f97a10283fd04639379f74158bdc68db8cf4fb79c45e317187ab2f4e52625d20189c04d93e44f">bin/changelog.xml.z</File>
+		<File Hash="df1faf41e0c132bfc23b41a28c836b59ed2acfef6ae9fe73304d4873f6e67aca3b0310d36001a66f041fd3b06ac83798f227a77ba781380521f075445f1e14a7">bin/Spine.exe.z</File>
+		<File Hash="1d1a31d7e8a23c0868ac27fedf03656f6a0fe346793eab75685499add44097d5964fa4214ea4f661a5ff65ac80e49871f6a0a18e4a2f785df7b60d78d0923a9e">bin/SpineAPI.dll.z</File>
+		<File Hash="8d6019c7812fe35a9bff50ae29af3c565f3a9880ed838805d8a02f9e86f5a9f3f3bb69103a86e531f6656eef90eca4b5847cf39678c4ebd7135dc1b2a1ad4eb3">bin/cleanup.exe.z</File>
+		<File Hash="99a08967746aa3265febb1395a148f99406ed9ad0f0f4e4efbbdf37c2f2987d20d8245f96cc2c4255d813ca6f8a6e619c1fa7c1a9d3d60080f4c7a25e8c70307">bin/de_DE.qm.z</File>
+		<File Hash="036b6c3dfa3a598edbc3748561d8091f398eff5d2c1aaffe0c5bc8de15b4162b3d3058912db730add3582abe869ca5952db484324c888a9a28bf1abb55351922">bin/en_US.qm.z</File>
+		<File Hash="ba2c169baccae21868c92e4ac93138a72f7c5e8f57eb9ed3f93655b388eebebea4b2faef14feba9a96b2ce9b77f1c8e4693917203c80482c64b6f4683f3e0577">bin/po_PO.qm.z</File>
+		<File Hash="c9fdc913f614ceed0b0b31c690bc06b7624f4f5ef8bc23479266a478f52e7f5a57a5084b09073d9a84f7387bdba3b13ca5ce77bd778732d1a06d25d9f0096e06">bin/ru_RU.qm.z</File>
 	</Version>
 </Versions>
