@@ -1709,4 +1709,9 @@
 		<Bug language="English">Patches and tools can be selected again when offline</Bug>
 		<Bug language="English">Removed corrupted files from integrity check and showing count instead</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="16" patchVersion="1">
+		<Bug language="Deutsch">Fehler behoben, wodurch bei einigen Spielern keine Mods mehr gestartet werden konnten</Bug>
+		
+		<Bug language="English">Fixed bug that caused game not to start for some players</Bug>
+	</Version>
 </Versions>

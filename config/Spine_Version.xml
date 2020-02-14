@@ -51,13 +51,15 @@
 		<File Hash="e8cb67fc8e0312da3cc98364b96dfa1a63150ab9de60069c4af60c1cf77d440b7dffe630b4784ba07ea9bf146bdbf6ad5282a900ffd6ab7d86433456a752b2fd">vcredist_x86.exe.z</File>
 	</Version>
 	<Version majorVersion="1" minorVersion="16" patchVersion="0">
-		<File Hash="56f88a947c7aa90d81e5f414c72fedcc8038745cef609e6a8c1f97a10283fd04639379f74158bdc68db8cf4fb79c45e317187ab2f4e52625d20189c04d93e44f">bin/changelog.xml.z</File>
-		<File Hash="df1faf41e0c132bfc23b41a28c836b59ed2acfef6ae9fe73304d4873f6e67aca3b0310d36001a66f041fd3b06ac83798f227a77ba781380521f075445f1e14a7">bin/Spine.exe.z</File>
-		<File Hash="1d1a31d7e8a23c0868ac27fedf03656f6a0fe346793eab75685499add44097d5964fa4214ea4f661a5ff65ac80e49871f6a0a18e4a2f785df7b60d78d0923a9e">bin/SpineAPI.dll.z</File>
 		<File Hash="8d6019c7812fe35a9bff50ae29af3c565f3a9880ed838805d8a02f9e86f5a9f3f3bb69103a86e531f6656eef90eca4b5847cf39678c4ebd7135dc1b2a1ad4eb3">bin/cleanup.exe.z</File>
 		<File Hash="99a08967746aa3265febb1395a148f99406ed9ad0f0f4e4efbbdf37c2f2987d20d8245f96cc2c4255d813ca6f8a6e619c1fa7c1a9d3d60080f4c7a25e8c70307">bin/de_DE.qm.z</File>
 		<File Hash="036b6c3dfa3a598edbc3748561d8091f398eff5d2c1aaffe0c5bc8de15b4162b3d3058912db730add3582abe869ca5952db484324c888a9a28bf1abb55351922">bin/en_US.qm.z</File>
 		<File Hash="ba2c169baccae21868c92e4ac93138a72f7c5e8f57eb9ed3f93655b388eebebea4b2faef14feba9a96b2ce9b77f1c8e4693917203c80482c64b6f4683f3e0577">bin/po_PO.qm.z</File>
 		<File Hash="c9fdc913f614ceed0b0b31c690bc06b7624f4f5ef8bc23479266a478f52e7f5a57a5084b09073d9a84f7387bdba3b13ca5ce77bd778732d1a06d25d9f0096e06">bin/ru_RU.qm.z</File>
+	</Version>
+	<Version majorVersion="1" minorVersion="16" patchVersion="1">
+		<File Hash="2335ebd4307f24a9b7b8d63e25e43cb5dd38fc46f11f8837e196180545cef3b060e133c52e1fd057f251de32a6ef4b023ecb52a371f9be460769229924c78364">bin/changelog.xml.z</File>
+		<File Hash="28aaa62ec0c70136e17766b423f7cf5da1a1f8502ef041a9ae7f1248446bb3f88128daf6dd9c1c920536af237955ef07bd5c0f05273fa7a6fba5d9447a035b06">bin/Spine.exe.z</File>
+		<File Hash="5890738a8df0d6c80a69b408a069c98ed05ac51443b9839f22da75e633d8e1cfa7de6794184b9ef7299545dee86366c9d7de528cbcd4ef378b8524be094ac034">bin/SpineAPI.dll.z</File>
 	</Version>
 </Versions>
