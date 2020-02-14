@@ -1714,4 +1714,9 @@
 		
 		<Bug language="English">Fixed bug that caused game not to start for some players</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="16" patchVersion="2">
+		<Bug language="Deutsch">Fehler behoben, wodurch der Auto-Update nicht mehr geladen hat</Bug>
+		
+		<Bug language="English">Fixed bug that caused auto updater not to load anymore</Bug>
+	</Version>
 </Versions>

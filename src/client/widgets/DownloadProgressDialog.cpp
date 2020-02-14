@@ -40,6 +40,7 @@ DownloadProgressDialog::DownloadProgressDialog(MultiFileDownloader * downloader,
 	connect(downloader, &MultiFileDownloader::downloadSucceeded, this, &DownloadProgressDialog::downloadSucceeded);
 	connect(downloader, &MultiFileDownloader::downloadFailed, this, &DownloadProgressDialog::downloadFailed);
 	connect(downloader, &MultiFileDownloader::startedDownload, this, &DownloadProgressDialog::downloadFile);
+	connect(downloader, &MultiFileDownloader::totalBytes, downloader, &MultiFileDownloader::startDownload);
 	connect(this, &DownloadProgressDialog::canceled, downloader, &MultiFileDownloader::abort);
 
 #ifdef Q_OS_WIN
@@ -67,7 +68,7 @@ DownloadError DownloadProgressDialog::getLastError() const {
 
 int DownloadProgressDialog::exec() {
 	_finished = false;
-	_downloader->startDownloads(_maxSize);
+	_downloader->querySize();
 #ifdef Q_OS_WIN
 	_taskbarProgress->show();
 #endif
