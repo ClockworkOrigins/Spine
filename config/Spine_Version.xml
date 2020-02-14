@@ -57,9 +57,9 @@
 		<File Hash="ba2c169baccae21868c92e4ac93138a72f7c5e8f57eb9ed3f93655b388eebebea4b2faef14feba9a96b2ce9b77f1c8e4693917203c80482c64b6f4683f3e0577">bin/po_PO.qm.z</File>
 		<File Hash="c9fdc913f614ceed0b0b31c690bc06b7624f4f5ef8bc23479266a478f52e7f5a57a5084b09073d9a84f7387bdba3b13ca5ce77bd778732d1a06d25d9f0096e06">bin/ru_RU.qm.z</File>
 	</Version>
-	<Version majorVersion="1" minorVersion="16" patchVersion="1">
-		<File Hash="2335ebd4307f24a9b7b8d63e25e43cb5dd38fc46f11f8837e196180545cef3b060e133c52e1fd057f251de32a6ef4b023ecb52a371f9be460769229924c78364">bin/changelog.xml.z</File>
-		<File Hash="28aaa62ec0c70136e17766b423f7cf5da1a1f8502ef041a9ae7f1248446bb3f88128daf6dd9c1c920536af237955ef07bd5c0f05273fa7a6fba5d9447a035b06">bin/Spine.exe.z</File>
-		<File Hash="5890738a8df0d6c80a69b408a069c98ed05ac51443b9839f22da75e633d8e1cfa7de6794184b9ef7299545dee86366c9d7de528cbcd4ef378b8524be094ac034">bin/SpineAPI.dll.z</File>
+	<Version majorVersion="1" minorVersion="16" patchVersion="2">
+		<File Hash="1bd1a659161ad0a173b2e14d5d57cf450d202653d5d53878dd6206c844a5c16a7b887e46a6b40e6460616716c912b32a1b844ec14cda4ed82bad3461f0d600ad">bin/changelog.xml.z</File>
+		<File Hash="11be438037796f485af0f15582bbb97e1eb6d623ff929c265e1686da2394df61ab9d3a49eac7fec43af623e5dfc951e90fdae57e00d66da7beb5702f8145ce6a">bin/Spine.exe.z</File>
+		<File Hash="2c860526ac708e26d69b919196cfe868c44eaaa6352340072d790b7ee31c7f6a0d8b47f8a2560d5d4a0f66a9cfabd868eb1437523f749a969f892d34793b8fb6">bin/SpineAPI.dll.z</File>
 	</Version>
 </Versions>

@@ -84,7 +84,7 @@ void AutoUpdateDialog::checkForUpdate() {
 
 	urm.majorVersion = VERSION_MAJOR;
 	urm.minorVersion = VERSION_MINOR;
-	urm.patchVersion = VERSION_PATCH;
+	urm.patchVersion = 0;
 
 	std::string serialized = urm.SerializeBlank();
 	if (sock.writePacket(serialized) != clockUtils::ClockError::SUCCESS) {
