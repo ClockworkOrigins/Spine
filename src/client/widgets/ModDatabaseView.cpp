@@ -786,6 +786,7 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, std::vector<std::pair<st
 		}
 	});
 
+	mfd->setSize(mod.downloadSize);
 	DownloadQueue::getInstance()->add(mfd);
 }
 

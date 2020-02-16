@@ -1719,4 +1719,9 @@
 		
 		<Bug language="English">Fixed bug that caused auto updater not to load anymore</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="16" patchVersion="3">
+		<Bug language="Deutsch">Fehler behoben, wodurch neue Downloads langsam angefangen haben und im Falle von D3D11 gar nicht richtig gestart sind</Bug>
+		
+		<Bug language="English">Fixed download start for new download being slow and in case of D3D11 not starting at all</Bug>
+	</Version>
 </Versions>
