@@ -60,7 +60,7 @@ void ILauncher::init() {
 	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "CREATE TABLE IF NOT EXISTS installDates (ModID INT PRIMARY KEY, InstallDate INT NOT NULL);", err);
 	Database::execute(Config::BASEDIR.toStdString() + "/" + LASTPLAYED_DATABASE, "CREATE TABLE IF NOT EXISTS lastPlayed (ModID INT NOT NULL, Ini TEXT NOT NULL, PRIMARY KEY (ModID, Ini));", err);
 	
-	qRegisterMetaType<ModStats>("ModStats");
+	qRegisterMetaType<common::ModStats>("common::ModStats");
 
 	_screenshotManager = new ScreenshotManager(this);
 }
