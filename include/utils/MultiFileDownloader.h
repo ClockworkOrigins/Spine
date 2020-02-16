@@ -42,6 +42,7 @@ namespace utils {
 		void startDownloads(qint64 maxSize); // deprecated
 		void startDownload();
 		void querySize();
+		void setSize(qint64 size);
 
 	signals:
 		void downloadProgress(qint64);

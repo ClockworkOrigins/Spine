@@ -30,50 +30,40 @@ MultiFileDownloader::MultiFileDownloader(QObject * par) : QObject(par), _downloa
 void MultiFileDownloader::addFileDownloader(FileDownloader * fileDownloader) {
 	_downloadStats.insert(fileDownloader, qMakePair(0, 100));
 	_downloadQueue.enqueue(fileDownloader);
+
+	connect(fileDownloader, &FileDownloader::downloadProgress, this, &MultiFileDownloader::updateDownloadProgress, Qt::UniqueConnection);
+	connect(fileDownloader, &FileDownloader::fileFailed, this, &MultiFileDownloader::downloadFailed, Qt::UniqueConnection);
+	connect(fileDownloader, &FileDownloader::fileSucceeded, this, &MultiFileDownloader::finishedFile, Qt::UniqueConnection);
+	connect(fileDownloader, &FileDownloader::downloadFinished, this, &MultiFileDownloader::startDownloadInternal, Qt::UniqueConnection);
+	connect(this, &MultiFileDownloader::abort, fileDownloader, &FileDownloader::abort, Qt::UniqueConnection);
+	connect(fileDownloader, &FileDownloader::startedDownload, this, &MultiFileDownloader::startedDownload, Qt::UniqueConnection);
+	connect(fileDownloader, &FileDownloader::totalBytes, this, &MultiFileDownloader::updateDownloadMax, Qt::UniqueConnection);
 }
 
 void MultiFileDownloader::startDownloads(qint64 maxSize) {
 	if (maxSize != 0) {
 		_maxSize = maxSize;
-		for (auto it = _downloadStats.begin(); it != _downloadStats.end(); ++it) {
-			connect(it.key(), &FileDownloader::downloadProgress, this, &MultiFileDownloader::updateDownloadProgress, Qt::UniqueConnection);
-			connect(it.key(), &FileDownloader::fileFailed, this, &MultiFileDownloader::downloadFailed, Qt::UniqueConnection);
-			connect(it.key(), &FileDownloader::fileSucceeded, this, &MultiFileDownloader::finishedFile, Qt::UniqueConnection);
-			connect(it.key(), &FileDownloader::downloadFinished, this, &MultiFileDownloader::startDownloadInternal, Qt::UniqueConnection);
-			connect(this, &MultiFileDownloader::abort, it.key(), &FileDownloader::abort, Qt::UniqueConnection);
-			connect(it.key(), &FileDownloader::startedDownload, this, &MultiFileDownloader::startedDownload, Qt::UniqueConnection);
-		}
 		startDownload();
 	} else {
 		_currentIndex = _downloadStats.begin();
 		if (_currentIndex != _downloadStats.end()) {
 			emit startedDownload(_currentIndex.key()->getFileName());
-			connect(_currentIndex.key(), &FileDownloader::downloadProgress, this, &MultiFileDownloader::updateDownloadProgress, Qt::UniqueConnection);
-			connect(_currentIndex.key(), &FileDownloader::totalBytes, this, &MultiFileDownloader::updateDownloadMax, Qt::UniqueConnection);
-			connect(_currentIndex.key(), &FileDownloader::fileFailed, this, &MultiFileDownloader::downloadFailed, Qt::UniqueConnection);
-			connect(_currentIndex.key(), &FileDownloader::fileSucceeded, this, &MultiFileDownloader::finishedFile, Qt::UniqueConnection);
-			connect(_currentIndex.key(), &FileDownloader::downloadFinished, this, &MultiFileDownloader::startDownloadInternal, Qt::UniqueConnection);
-			connect(_currentIndex.key(), &FileDownloader::startedDownload, this, &MultiFileDownloader::startedDownload, Qt::UniqueConnection);
 			_currentIndex.key()->requestFileSize();
-			connect(this, &MultiFileDownloader::abort, _currentIndex.key(), &FileDownloader::abort, Qt::UniqueConnection);
 		}
 	}
 }
 
 void MultiFileDownloader::querySize() {
 	_currentIndex = _downloadStats.begin();
-	if (_currentIndex != _downloadStats.end()) {
-		connect(_currentIndex.key(), &FileDownloader::downloadProgress, this, &MultiFileDownloader::updateDownloadProgress, Qt::UniqueConnection);
-		connect(_currentIndex.key(), &FileDownloader::totalBytes, this, &MultiFileDownloader::updateDownloadMax, Qt::UniqueConnection);
-		connect(_currentIndex.key(), &FileDownloader::fileFailed, this, &MultiFileDownloader::downloadFailed, Qt::UniqueConnection);
-		connect(_currentIndex.key(), &FileDownloader::fileSucceeded, this, &MultiFileDownloader::finishedFile, Qt::UniqueConnection);
-		connect(_currentIndex.key(), &FileDownloader::downloadFinished, this, &MultiFileDownloader::startDownloadInternal, Qt::UniqueConnection);
-		connect(_currentIndex.key(), &FileDownloader::startedDownload, this, &MultiFileDownloader::startedDownload, Qt::UniqueConnection);
+	if (_currentIndex != _downloadStats.end() && _maxSize == 0) {
 		_currentIndex.key()->requestFileSize();
-		connect(this, &MultiFileDownloader::abort, _currentIndex.key(), &FileDownloader::abort, Qt::UniqueConnection);
 	} else {
-		emit totalBytes(0);
+		emit totalBytes(_maxSize);
 	}
+}
+
+void MultiFileDownloader::setSize(qint64 size) {
+	_maxSize = size;
 }
 
 void MultiFileDownloader::startDownload() {
@@ -110,14 +100,7 @@ void MultiFileDownloader::updateDownloadMax(qint64 bytesTotal) {
 	_maxSize += bytesTotal;
 	_downloadStats[fd].second = bytesTotal;
 	if (++_currentIndex != _downloadStats.end()) {
-		connect(_currentIndex.key(), &FileDownloader::downloadProgress, this, &MultiFileDownloader::updateDownloadProgress, Qt::UniqueConnection);
-		connect(_currentIndex.key(), &FileDownloader::totalBytes, this, &MultiFileDownloader::updateDownloadMax, Qt::UniqueConnection);
-		connect(_currentIndex.key(), &FileDownloader::fileFailed, this, &MultiFileDownloader::downloadFailed, Qt::UniqueConnection);
-		connect(_currentIndex.key(), &FileDownloader::fileSucceeded, this, &MultiFileDownloader::finishedFile, Qt::UniqueConnection);
-		connect(_currentIndex.key(), &FileDownloader::downloadFinished, this, &MultiFileDownloader::startDownloadInternal, Qt::UniqueConnection);
-		connect(_currentIndex.key(), &FileDownloader::startedDownload, this, &MultiFileDownloader::startedDownload, Qt::UniqueConnection);
 		_currentIndex.key()->requestFileSize();
-		connect(this, &MultiFileDownloader::abort, _currentIndex.key(), &FileDownloader::abort, Qt::UniqueConnection);
 	} else {
 		emit totalBytes(_maxSize);
 	}
