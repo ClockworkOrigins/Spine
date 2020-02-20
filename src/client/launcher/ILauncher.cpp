@@ -549,7 +549,11 @@ void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::socket
 					if (rospm) {
 						QString overallSavePath = getOverallSavePath();
 						SendOverallSavePathMessage sospm;
+#ifdef Q_OS_WIN
 						sospm.path = q2ws(overallSavePath);
+#else
+						sospm.path = q2s(overallSavePath);
+#endif
 						socket->writePacket(sospm.SerializeBlank());
 					} else {
 						socket->writePacket("empty");
