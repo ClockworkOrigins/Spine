@@ -64,9 +64,9 @@ ChangelogDialog::ChangelogDialog(QWidget * par) : QDialog(par), _changelogBrowse
 	QPushButton * b = dbb->button(QDialogButtonBox::StandardButton::Close);
 	b->setText(QApplication::tr("Close"));
 
-	connect(b, SIGNAL(clicked()), this, SIGNAL(accepted()));
-	connect(b, SIGNAL(clicked()), this, SLOT(accept()));
-	connect(b, SIGNAL(clicked()), this, SLOT(hide()));
+	connect(b, &QPushButton::released, this, &ChangelogDialog::accepted);
+	connect(b, &QPushButton::released, this, &ChangelogDialog::accept);
+	connect(b, &QPushButton::released, this, &ChangelogDialog::hide);
 
 	setMinimumWidth(500);
 	setMinimumHeight(500);

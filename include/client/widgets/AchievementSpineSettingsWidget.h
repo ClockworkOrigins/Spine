@@ -43,6 +43,9 @@ namespace widgets {
 
 		void save();
 
+	public slots:
+		void updateFromModel();
+
 	private slots:
 		void addNewAchievement();
 		void removeAchievement();
@@ -50,7 +53,6 @@ namespace widgets {
 		void selectUnlockedImage();
 		void changedLockedImagePath();
 		void changedUnlockedImagePath();
-		void updateFromModel();
 		void showOrientationPreview();
 
 	private:

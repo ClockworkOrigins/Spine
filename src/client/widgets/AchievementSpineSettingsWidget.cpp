@@ -214,12 +214,12 @@ void AchievementSpineSettingsWidget::addNewAchievement() {
 	s.layout->addLayout(hl3);
 	s.layout->addLayout(hl4);
 
-	connect(s.addButton, SIGNAL(released()), this, SLOT(addNewAchievement()));
-	connect(s.removeButton, SIGNAL(released()), this, SLOT(removeAchievement()));
-	connect(s.lockedImageButton, SIGNAL(released()), this, SLOT(selectLockedImage()));
-	connect(s.unlockedImageButton, SIGNAL(released()), this, SLOT(selectUnlockedImage()));
-	connect(s.lockedImageLineEdit, SIGNAL(textChanged(QString)), this, SLOT(changedLockedImagePath()));
-	connect(s.unlockedImageLineEdit, SIGNAL(textChanged(QString)), this, SLOT(changedUnlockedImagePath()));
+	connect(s.addButton, &QPushButton::released, this, &AchievementSpineSettingsWidget::addNewAchievement);
+	connect(s.removeButton, &QPushButton::released, this, &AchievementSpineSettingsWidget::removeAchievement);
+	connect(s.lockedImageButton, &QPushButton::released, this, &AchievementSpineSettingsWidget::selectLockedImage);
+	connect(s.unlockedImageButton, &QPushButton::released, this, &AchievementSpineSettingsWidget::selectUnlockedImage);
+	connect(s.lockedImageLineEdit, &QLineEdit::textChanged, this, &AchievementSpineSettingsWidget::changedLockedImagePath);
+	connect(s.unlockedImageLineEdit, &QLineEdit::textChanged, this, &AchievementSpineSettingsWidget::changedUnlockedImagePath);
 
 	if (pb) {
 		int index = 0;
@@ -314,7 +314,7 @@ void AchievementSpineSettingsWidget::changedLockedImagePath() {
 
 void AchievementSpineSettingsWidget::changedUnlockedImagePath() {
 	QLineEdit * le = qobject_cast<QLineEdit *>(sender());
-	for (Achievement a : _achievements) {
+	for (const Achievement & a : _achievements) {
 		if (a.unlockedImageLineEdit == le) {
 			updateAchievementImages(a);
 			break;
@@ -323,8 +323,8 @@ void AchievementSpineSettingsWidget::changedUnlockedImagePath() {
 }
 
 void AchievementSpineSettingsWidget::updateAchievementImages(Achievement a) {
-	QString iconLocked = a.lockedImageLineEdit->text();
-	QString iconUnlocked = a.unlockedImageLineEdit->text();
+	const QString iconLocked = a.lockedImageLineEdit->text();
+	const QString iconUnlocked = a.unlockedImageLineEdit->text();
 
 	{
 		QPixmap achievementPixmap(iconLocked);
@@ -365,7 +365,7 @@ void AchievementSpineSettingsWidget::updateFromModel() {
 	_displayDurationSpinBox->setValue(_model->getAchievementDisplayDuration());
 
 	clear();
-	for (const models::AchievementModel am : _model->getAchievements()) {
+	for (const models::AchievementModel & am : _model->getAchievements()) {
 		addNewAchievement();
 		_achievements.back().nameLineEdit->setText(am.name);
 		_achievements.back().descriptionLineEdit->setText(am.description);

@@ -39,7 +39,7 @@ namespace widgets {
 
 		void save();
 
-	private slots:
+	public slots:
 		void updateFromModel();
 
 	private:

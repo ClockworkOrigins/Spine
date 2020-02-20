@@ -58,13 +58,13 @@
 #include <QSet>
 #include <QSettings>
 #include <QTabWidget>
+#include <QtConcurrentRun>
 #include <QTextStream>
 #include <QVBoxLayout>
 
-#include <QtConcurrentRun>
-
 using namespace spine;
 using namespace spine::gui;
+using namespace spine::models;
 using namespace spine::utils;
 using namespace spine::widgets;
 
@@ -86,71 +86,71 @@ SpineEditor::SpineEditor(QMainWindow * mainWindow) : QDialog(nullptr), _model(ne
 	_generalSpineSettingsWidget = new GeneralSpineSettingsWidget(_model, _tabWidget);
 	_tabWidget->addTab(_generalSpineSettingsWidget, QApplication::tr("General"));
 	UPDATELANGUAGESETTABTEXT(_tabWidget, EditorTabs::General, "General");
-	connect(_model, SIGNAL(changed()), _generalSpineSettingsWidget, SLOT(updateFromModel()));
+	connect(_model, &SpineEditorModel::changed, _generalSpineSettingsWidget, &GeneralSpineSettingsWidget::updateFromModel);
 
 	_legoSpineSettingsWidget = new LeGoSpineSettingsWidget(_model, _tabWidget);
 	_tabWidget->addTab(_legoSpineSettingsWidget, QApplication::tr("LeGo"));
 	UPDATELANGUAGESETTABTEXT(_tabWidget, EditorTabs::LeGo, "LeGo");
-	connect(_model, SIGNAL(changed()), _legoSpineSettingsWidget, SLOT(updateFromModel()));
+	connect(_model, &SpineEditorModel::changed, _legoSpineSettingsWidget, &LeGoSpineSettingsWidget::updateFromModel);
 
 	_achievementSpineSettingsWidget = new AchievementSpineSettingsWidget(_model, _tabWidget);
 	_tabWidget->addTab(_achievementSpineSettingsWidget, QApplication::tr("AchievementModule"));
 	UPDATELANGUAGESETTABTEXT(_tabWidget, EditorTabs::Achievement, "AchievementModule");
-	connect(_model, SIGNAL(changed()), _achievementSpineSettingsWidget, SLOT(updateFromModel()));
+	connect(_model, &SpineEditorModel::changed, _achievementSpineSettingsWidget, &AchievementSpineSettingsWidget::updateFromModel);
 	_tabWidget->setTabEnabled(EditorTabs::Achievement, false);
 
 	_scoreSpineSettingsWidget = new ScoreSpineSettingsWidget(_model, _tabWidget);
 	_tabWidget->addTab(_scoreSpineSettingsWidget, QApplication::tr("ScoresModule"));
 	UPDATELANGUAGESETTABTEXT(_tabWidget, EditorTabs::Score, "ScoresModule");
-	connect(_model, SIGNAL(changed()), _scoreSpineSettingsWidget, SLOT(updateFromModel()));
+	connect(_model, &SpineEditorModel::changed, _scoreSpineSettingsWidget, &ScoreSpineSettingsWidget::updateFromModel);
 	_tabWidget->setTabEnabled(EditorTabs::Score, false);
 
 	_gamepadSpineSettingsWidget = new GamepadSpineSettingsWidget(_model, _tabWidget);
 	_tabWidget->addTab(_gamepadSpineSettingsWidget, QApplication::tr("GamepadModule"));
 	UPDATELANGUAGESETTABTEXT(_tabWidget, EditorTabs::Score, "GamepadModule");
-	connect(_model, SIGNAL(changed()), _gamepadSpineSettingsWidget, SLOT(updateFromModel()));
+	connect(_model, &SpineEditorModel::changed, _gamepadSpineSettingsWidget, &GamepadSpineSettingsWidget::updateFromModel);
 	_tabWidget->setTabEnabled(EditorTabs::Gamepad, false);
 
-	connect(_generalSpineSettingsWidget, SIGNAL(changedAchievementState(int)), this, SLOT(achievementStateChanged(int)));
-	connect(_generalSpineSettingsWidget, SIGNAL(changedAchievementState(int)), _legoSpineSettingsWidget, SLOT(achievementStateChanged(int)));
-	connect(_generalSpineSettingsWidget, SIGNAL(changedScoreState(int)), this, SLOT(scoreStateChanged(int)));
-	connect(_generalSpineSettingsWidget, SIGNAL(changedGamepadState(int)), this, SLOT(gamepadStateChanged(int)));
-	connect(_generalSpineSettingsWidget, SIGNAL(changedGamepadState(int)), _legoSpineSettingsWidget, SLOT(gamepadStateChanged(int)));
-	connect(_model, SIGNAL(changed()), this, SLOT(updateFromModel()));
+	connect(_generalSpineSettingsWidget, &GeneralSpineSettingsWidget::changedAchievementState, this, &SpineEditor::achievementStateChanged);
+	connect(_generalSpineSettingsWidget, &GeneralSpineSettingsWidget::changedAchievementState, _legoSpineSettingsWidget, &LeGoSpineSettingsWidget::achievementStateChanged);
+	connect(_generalSpineSettingsWidget, &GeneralSpineSettingsWidget::changedScoreState, this, &SpineEditor::scoreStateChanged);
+	connect(_generalSpineSettingsWidget, &GeneralSpineSettingsWidget::changedGamepadState, this, &SpineEditor::gamepadStateChanged);
+	connect(_generalSpineSettingsWidget, &GeneralSpineSettingsWidget::changedGamepadState, _legoSpineSettingsWidget, &LeGoSpineSettingsWidget::gamepadStateChanged);
+	connect(_model, &SpineEditorModel::changed, this, &SpineEditor::updateFromModel);
 
 	_installSpineButton = new QPushButton(QApplication::tr("InstallSpineScripts"), this);
 	UPDATELANGUAGESETTEXT(_installSpineButton, "InstallSpineScripts");
-	connect(_installSpineButton, SIGNAL(released()), this, SLOT(installSpineScripts()));
+	connect(_installSpineButton, &QPushButton::released, this, &SpineEditor::installSpineScripts);
 	_installSpineButton->hide();
 	l->addWidget(_installSpineButton);
 
 	_updateSpineButton = new QPushButton(QApplication::tr("UpdateSpineScripts"), this);
 	UPDATELANGUAGESETTEXT(_updateSpineButton, "UpdateSpineScripts");
-	connect(_updateSpineButton, SIGNAL(released()), this, SLOT(updateSpineScripts()));
+	connect(_updateSpineButton, &QPushButton::released, this, &SpineEditor::updateSpineScripts);
 	_updateSpineButton->hide();
 	l->addWidget(_updateSpineButton);
 
 	_installIkarusButton = new QPushButton(QApplication::tr("InstallIkarusScripts"), this);
 	UPDATELANGUAGESETTEXT(_installIkarusButton, "InstallIkarusScripts");
-	connect(_installIkarusButton, SIGNAL(released()), this, SLOT(installIkarusScripts()));
+	connect(_installIkarusButton, &QPushButton::released, this, &SpineEditor::installIkarusScripts);
 	_installIkarusButton->hide();
 	l->addWidget(_installIkarusButton);
 
 	_updateIkarusButton = new QPushButton(QApplication::tr("UpdateIkarusScripts"), this);
 	UPDATELANGUAGESETTEXT(_updateIkarusButton, "UpdateIkarusScripts");
-	connect(_updateIkarusButton, SIGNAL(released()), this, SLOT(updateIkarusScripts()));
+	connect(_updateIkarusButton, &QPushButton::released, this, &SpineEditor::updateIkarusScripts);
 	_updateIkarusButton->hide();
 	l->addWidget(_updateIkarusButton);
 
 	_installLeGoButton = new QPushButton(QApplication::tr("InstallLeGoScripts"), this);
 	UPDATELANGUAGESETTEXT(_installLeGoButton, "InstallLeGoScripts");
-	connect(_installLeGoButton, SIGNAL(released()), this, SLOT(installLeGoScripts()));
+	connect(_installLeGoButton, &QPushButton::released, this, &SpineEditor::installLeGoScripts);
 	_installLeGoButton->hide();
 	l->addWidget(_installLeGoButton);
 
 	_updateLeGoButton = new QPushButton(QApplication::tr("UpdateLeGoScripts"), this);
 	UPDATELANGUAGESETTEXT(_updateLeGoButton, "UpdateLeGoScripts");
-	connect(_updateLeGoButton, SIGNAL(released()), this, SLOT(updateLeGoScripts()));
+	connect(_updateLeGoButton, &QPushButton::released, this, &SpineEditor::updateLeGoScripts);
 	_updateLeGoButton->hide();
 	l->addWidget(_updateLeGoButton);
 
@@ -163,24 +163,24 @@ SpineEditor::SpineEditor(QMainWindow * mainWindow) : QDialog(nullptr), _model(ne
 	b->setText(QApplication::tr("Save"));
 	UPDATELANGUAGESETTEXT(b, "Save");
 
-	connect(b, SIGNAL(clicked()), this, SIGNAL(accepted()));
-	connect(b, SIGNAL(clicked()), this, SLOT(accept()));
-	connect(b, SIGNAL(clicked()), this, SLOT(hide()));
+	connect(b, &QPushButton::released, this, &SpineEditor::accepted);
+	connect(b, &QPushButton::released, this, &SpineEditor::accept);
+	connect(b, &QPushButton::released, this, &SpineEditor::hide);
 
 	b = dbb->button(QDialogButtonBox::StandardButton::Discard);
 	b->setText(QApplication::tr("Discard"));
 	UPDATELANGUAGESETTEXT(b, "Discard");
 
-	connect(b, SIGNAL(clicked()), this, SIGNAL(rejected()));
-	connect(b, SIGNAL(clicked()), this, SLOT(reject()));
-	connect(b, SIGNAL(clicked()), this, SLOT(hide()));
+	connect(b, &QPushButton::released, this, &SpineEditor::rejected);
+	connect(b, &QPushButton::released, this, &SpineEditor::reject);
+	connect(b, &QPushButton::released, this, &SpineEditor::hide);
 
 	b = dbb->button(QDialogButtonBox::StandardButton::Apply);
 	b->setText(QApplication::tr("Submit"));
 	UPDATELANGUAGESETTEXT(b, "Submit");
 	b->setToolTip(QApplication::tr("SubmitScripts"));
 	UPDATELANGUAGESETTOOLTIP(b, "SubmitScripts");
-	connect(b, SIGNAL(released()), this, SLOT(submit()));
+	connect(b, &QPushButton::released, this, &SpineEditor::submit);
 
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 	setWindowTitle(QApplication::tr("SpineEditor"));
@@ -254,7 +254,7 @@ void SpineEditor::submit() {
 		return;
 	}
 	QStringList modList;
-	for (auto s : _modList) {
+	for (const auto & s : _modList) {
 		modList.append(s2q(s.name));
 	}
 	QString modname = QInputDialog::getItem(this, QApplication::tr("Modname"), QApplication::tr("EnterModname"), modList);
@@ -266,7 +266,7 @@ void SpineEditor::submit() {
 
 	QFutureWatcher<clockUtils::ClockError> watcher(this);
 	QEventLoop loop;
-	connect(&watcher, SIGNAL(finished()), &loop, SLOT(quit()));
+	connect(&watcher, &QFutureWatcher<clockUtils::ClockError>::finished, &loop, &QEventLoop::quit);
 
 	const QFuture<clockUtils::ClockError> future = QtConcurrent::run([this, &modname]() {
 		common::SubmitScriptFeaturesMessage ssfm;
@@ -388,8 +388,8 @@ void SpineEditor::installSpineScripts() {
 		{ "Spine_Utils.d.z", "84df11c2081401c7accbf3a27555095db4fc391808099d42c627f1241d7ac089c3d4f3bb200f2bb880df0f2ad75bfffef8960c6aad80b6e946fa7ac1e0248f4d" }
 	};
 	MultiFileDownloader * mfd = new MultiFileDownloader(this);
-	connect(mfd, SIGNAL(downloadFailed(DownloadError)), mfd, SLOT(deleteLater()));
-	connect(mfd, SIGNAL(downloadSucceeded()), mfd, SLOT(deleteLater()));
+	connect(mfd, &MultiFileDownloader::downloadFailed, mfd, &MultiFileDownloader::deleteLater);
+	connect(mfd, &MultiFileDownloader::downloadSucceeded, mfd, &MultiFileDownloader::deleteLater);
 	for (const QPair<QString, QString> & p : spineFiles) {
 		QFileInfo fi(p.first);
 		FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/scripts/Spine/" + p.first), _model->getPath() + "/_work/data/Scripts/Content/Spine/" + fi.path(), fi.fileName(), p.second, mfd);

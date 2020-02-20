@@ -72,8 +72,8 @@ SavegameDialog::SavegameDialog(LocationSettingsWidget * locationSettingsWidget, 
 	tv->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Stretch);
 	tv->horizontalHeader()->hide();
 	tv->verticalHeader()->hide();
-	connect(filterEdit, SIGNAL(textChanged(QString)), filterModel, SLOT(setFilterFixedString(QString)));
-	connect(_model, SIGNAL(itemChanged(QStandardItem *)), this, SLOT(itemChanged(QStandardItem *)));
+	connect(filterEdit, &QLineEdit::textChanged, filterModel, &QSortFilterProxyModel::setFilterFixedString);
+	connect(_model, &QStandardItemModel::itemChanged, this, &SavegameDialog::itemChanged);
 
 	QDialogButtonBox * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Ok | QDialogButtonBox::StandardButton::Cancel, Qt::Orientation::Horizontal, this);
 	l->addWidget(dbb);
@@ -83,17 +83,17 @@ SavegameDialog::SavegameDialog(LocationSettingsWidget * locationSettingsWidget, 
 	QPushButton * b = dbb->button(QDialogButtonBox::StandardButton::Ok);
 	b->setText(QApplication::tr("Save"));
 
-	connect(b, SIGNAL(released()), this, SLOT(save()));
-	connect(b, SIGNAL(released()), this, SIGNAL(accepted()));
-	connect(b, SIGNAL(released()), this, SLOT(accept()));
-	connect(b, SIGNAL(released()), this, SLOT(hide()));
+	connect(b, &QPushButton::released, this, &SavegameDialog::save);
+	connect(b, &QPushButton::released, this, &SavegameDialog::accepted);
+	connect(b, &QPushButton::released, this, &SavegameDialog::accept);
+	connect(b, &QPushButton::released, this, &SavegameDialog::hide);
 
 	b = dbb->button(QDialogButtonBox::StandardButton::Cancel);
 	b->setText(QApplication::tr("Cancel"));
 
-	connect(b, SIGNAL(released()), this, SIGNAL(rejected()));
-	connect(b, SIGNAL(released()), this, SLOT(reject()));
-	connect(b, SIGNAL(released()), this, SLOT(hide()));
+	connect(b, &QPushButton::released, this, &SavegameDialog::rejected);
+	connect(b, &QPushButton::released, this, &SavegameDialog::reject);
+	connect(b, &QPushButton::released, this, &SavegameDialog::hide);
 
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 	setWindowTitle(QApplication::tr("SavegameEditor"));

@@ -176,7 +176,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keyUp", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -191,7 +191,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keyDown", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -206,7 +206,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keyLeft", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -221,7 +221,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keyRight", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -236,7 +236,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keyActionLeft", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -251,7 +251,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keyActionRight", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -266,7 +266,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keyAction", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -281,7 +281,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keyStrafeLeft", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -296,7 +296,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keyStrafeRight", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -311,7 +311,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keyInventory", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -326,7 +326,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keyShowMap", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -341,7 +341,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keySneak", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -356,7 +356,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keyShowStatus", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -371,7 +371,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keyShowLog", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -386,7 +386,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keyHeal", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -401,7 +401,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keyPotion", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -416,7 +416,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keyLockTarget", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -431,7 +431,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keyParade", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -446,7 +446,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keySlow", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -461,7 +461,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keySMove", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -476,7 +476,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keyWeapon", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -491,7 +491,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keyDrawMeleeWeapon", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -506,7 +506,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keyDrawRangedWeapon", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -521,7 +521,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keyLook", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -536,7 +536,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keyLookFP", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -551,7 +551,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keyPreviousSpell", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -566,7 +566,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keyNextSpell", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -581,7 +581,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keyDrawSpell", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 
 			row++;
 		}
@@ -596,7 +596,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 			_actionToButtonMap.insert("keyEnter", pb);
 
-			connect(pb, SIGNAL(released()), this, SLOT(newButton()));
+			connect(pb, &QPushButton::released, this, &GamepadSettingsWidget::newButton);
 		}
 
 		gb->setLayout(gl);
@@ -605,7 +605,7 @@ GamepadSettingsWidget::GamepadSettingsWidget(QWidget * par) : QWidget(par), _gam
 
 	setLayout(l);
 
-	connect(_gamepadEnabled, SIGNAL(stateChanged(int)), this, SLOT(changedGamepadState(int)));
+	connect(_gamepadEnabled, &QCheckBox::stateChanged, this, &GamepadSettingsWidget::changedGamepadState);
 
 	rejectSettings();
 

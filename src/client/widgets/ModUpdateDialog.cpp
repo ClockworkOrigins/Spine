@@ -68,24 +68,24 @@ ModUpdateDialog::ModUpdateDialog(QMainWindow * mainWindow) : QDialog(nullptr), _
 
 	qRegisterMetaType<std::vector<common::ModUpdate>>("std::vector<common::ModUpdate>");
 
-	connect(this, SIGNAL(receivedMods(std::vector<common::ModUpdate>)), dbb, SLOT(show()));
-	connect(this, SIGNAL(receivedMods(std::vector<common::ModUpdate>)), this, SLOT(updateModList(std::vector<common::ModUpdate>)));
+	connect(this, &ModUpdateDialog::receivedMods, dbb, &QDialogButtonBox::show);
+	connect(this, &ModUpdateDialog::receivedMods, this, &ModUpdateDialog::updateModList);
 
 	setLayout(l);
 
 	QPushButton * b = dbb->button(QDialogButtonBox::StandardButton::Apply);
 	b->setText(QApplication::tr("Apply"));
 
-	connect(b, SIGNAL(clicked()), this, SIGNAL(accepted()));
-	connect(b, SIGNAL(clicked()), this, SLOT(accept()));
-	connect(b, SIGNAL(clicked()), this, SLOT(hide()));
+	connect(b, &QPushButton::released, this, &ModUpdateDialog::accepted);
+	connect(b, &QPushButton::released, this, &ModUpdateDialog::accept);
+	connect(b, &QPushButton::released, this, &ModUpdateDialog::hide);
 
 	b = dbb->button(QDialogButtonBox::StandardButton::Discard);
 	b->setText(QApplication::tr("Discard"));
 
-	connect(b, SIGNAL(clicked()), this, SIGNAL(rejected()));
-	connect(b, SIGNAL(clicked()), this, SLOT(reject()));
-	connect(b, SIGNAL(clicked()), this, SLOT(hide()));
+	connect(b, &QPushButton::released, this, &ModUpdateDialog::rejected);
+	connect(b, &QPushButton::released, this, &ModUpdateDialog::reject);
+	connect(b, &QPushButton::released, this, &ModUpdateDialog::hide);
 
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 

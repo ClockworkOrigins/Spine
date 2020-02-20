@@ -133,11 +133,11 @@ void AutoUpdateDialog::checkForUpdate() {
 	}
 #endif
 	MultiFileDownloader * mfd = new MultiFileDownloader(this);
-	connect(mfd, SIGNAL(downloadFailed(DownloadError)), mfd, SLOT(deleteLater()));
-	connect(mfd, SIGNAL(downloadSucceeded()), mfd, SLOT(deleteLater()));
+	connect(mfd, &MultiFileDownloader::downloadFailed, mfd, &MultiFileDownloader::deleteLater);
+	connect(mfd, &MultiFileDownloader::downloadSucceeded, mfd, &MultiFileDownloader::deleteLater);
 	QStringList removedFiles;
 	QStringList removeFiles;
-	for (const auto p : ufm->files) {
+	for (const auto & p : ufm->files) {
 		QString filename = QString::fromStdString(p.first);
 		if (QFileInfo(filename).suffix() == "z") {
 			filename.resize(filename.size() - 2);

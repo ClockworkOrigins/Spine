@@ -92,7 +92,7 @@ NewsWriterDialog::NewsWriterDialog(QWidget * par) : QDialog(par), _newsPreviewWi
 		_imageReferencesEdit = new QLineEdit(this);
 		_imageReferencesEdit->setPlaceholderText(QApplication::tr("ImagesPlaceholder"));
 		QPushButton * pb = new QPushButton(QIcon(":/svg/add.svg"), "", this);
-		connect(pb, SIGNAL(released()), this, SLOT(addImage()));
+		connect(pb, &QPushButton::released, this, &NewsWriterDialog::addImage);
 		imageLayout->addWidget(_imageReferencesEdit, 1);
 		imageLayout->addWidget(pb);
 		vl->addLayout(imageLayout);
@@ -105,24 +105,24 @@ NewsWriterDialog::NewsWriterDialog(QWidget * par) : QDialog(par), _newsPreviewWi
 		QPushButton * b = dbb->button(QDialogButtonBox::StandardButton::Apply);
 		b->setText(QApplication::tr("Submit"));
 
-		connect(b, SIGNAL(clicked()), this, SLOT(accept()));
+		connect(b, &QPushButton::released, this, &NewsWriterDialog::accept);
 
 		b = dbb->button(QDialogButtonBox::StandardButton::Discard);
 		b->setText(QApplication::tr("Discard"));
 
-		connect(b, SIGNAL(clicked()), this, SIGNAL(rejected()));
-		connect(b, SIGNAL(clicked()), this, SLOT(reject()));
-		connect(b, SIGNAL(clicked()), this, SLOT(hide()));
+		connect(b, &QPushButton::released, this, &NewsWriterDialog::rejected);
+		connect(b, &QPushButton::released, this, &NewsWriterDialog::reject);
+		connect(b, &QPushButton::released, this, &NewsWriterDialog::hide);
 
 		l->addLayout(vl);
 
-		connect(_titleEdit, SIGNAL(textChanged(const QString&)), this, SLOT(changedNews()));
-		connect(_dateEdit, SIGNAL(dateChanged(const QDate&)), this, SLOT(changedNews()));
-		connect(_bodyEdit, SIGNAL(textChanged()), this, SLOT(changedNews()));
+		connect(_titleEdit, &QLineEdit::textChanged, this, &NewsWriterDialog::changedNews);
+		connect(_dateEdit, &QDateEdit::dateChanged, this, &NewsWriterDialog::changedNews);
+		connect(_bodyEdit, &QTextEdit::textChanged, this, &NewsWriterDialog::changedNews);
 	}
 
 	qRegisterMetaType<std::vector<common::Mod>>("std::vector<common::Mod>");
-	connect(this, SIGNAL(receivedModList(std::vector<common::Mod>)), this, SLOT(updateModList(std::vector<common::Mod>)));
+	connect(this, &NewsWriterDialog::receivedModList, this, &NewsWriterDialog::updateModList);
 
 	setLayout(l);
 

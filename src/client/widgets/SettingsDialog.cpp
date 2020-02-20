@@ -87,17 +87,17 @@ SettingsDialog::SettingsDialog(QWidget * par) : QDialog(par), _developerSettings
 	b->setText(QApplication::tr("Apply"));
 	UPDATELANGUAGESETTEXT(b, "Apply");
 
-	connect(b, SIGNAL(clicked()), this, SIGNAL(accepted()));
-	connect(b, SIGNAL(clicked()), this, SLOT(accept()));
-	connect(b, SIGNAL(clicked()), this, SLOT(hide()));
+	connect(b, &QPushButton::released, this, &SettingsDialog::accepted);
+	connect(b, &QPushButton::released, this, &SettingsDialog::accept);
+	connect(b, &QPushButton::released, this, &SettingsDialog::hide);
 
 	b = dbb->button(QDialogButtonBox::StandardButton::Discard);
 	b->setText(QApplication::tr("Discard"));
 	UPDATELANGUAGESETTEXT(b, "Discard");
 
-	connect(b, SIGNAL(clicked()), this, SIGNAL(rejected()));
-	connect(b, SIGNAL(clicked()), this, SLOT(reject()));
-	connect(b, SIGNAL(clicked()), this, SLOT(hide()));
+	connect(b, &QPushButton::released, this, &SettingsDialog::rejected);
+	connect(b, &QPushButton::released, this, &SettingsDialog::reject);
+	connect(b, &QPushButton::released, this, &SettingsDialog::hide);
 
 	setWindowTitle(QApplication::tr("Settings"));
 	UPDATELANGUAGESETWINDOWTITLE(this, "Settings");

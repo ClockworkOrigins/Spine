@@ -89,9 +89,9 @@ DeveloperSettingsWidget::DeveloperSettingsWidget(QWidget * par) : QWidget(par), 
 		hl->addWidget(gothicPathPushButton, 0, 2);
 		hl->addWidget(gothic1CheckBox, 0, 3);
 		hl->addWidget(gothic2CheckBox, 0, 4);
-		connect(gothicPathPushButton, SIGNAL(clicked()), this, SLOT(openFileDialog()));
-		connect(gothic1CheckBox, SIGNAL(stateChanged(int)), this, SLOT(changedGothic(int)));
-		connect(gothic2CheckBox, SIGNAL(stateChanged(int)), this, SLOT(changedGothic2(int)));
+		connect(gothicPathPushButton, &QPushButton::released, this, &DeveloperSettingsWidget::openFileDialog);
+		connect(gothic1CheckBox, &QCheckBox::stateChanged, this, &DeveloperSettingsWidget::changedGothic);
+		connect(gothic2CheckBox, &QCheckBox::stateChanged, this, &DeveloperSettingsWidget::changedGothic2);
 
 		DevPath dp {};
 		dp.lineEdit = gothicPathLineEdit;

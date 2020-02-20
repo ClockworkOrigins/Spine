@@ -52,16 +52,16 @@ NewCombinationDialog::NewCombinationDialog(QString title, QString text, QWidget 
 	QPushButton * btn = dbb->button(QDialogButtonBox::StandardButton::Ok);
 	btn->setText(QApplication::tr("Ok"));
 
-	connect(btn, SIGNAL(clicked()), this, SIGNAL(accepted()));
-	connect(btn, SIGNAL(clicked()), this, SLOT(accept()));
-	connect(btn, SIGNAL(clicked()), this, SLOT(hide()));
+	connect(btn, &QPushButton::released, this, &NewCombinationDialog::accepted);
+	connect(btn, &QPushButton::released, this, &NewCombinationDialog::accept);
+	connect(btn, &QPushButton::released, this, &NewCombinationDialog::hide);
 
 	btn = dbb->button(QDialogButtonBox::StandardButton::Cancel);
 	btn->setText(QApplication::tr("Cancel"));
 
-	connect(btn, SIGNAL(clicked()), this, SIGNAL(rejected()));
-	connect(btn, SIGNAL(clicked()), this, SLOT(reject()));
-	connect(btn, SIGNAL(clicked()), this, SLOT(hide()));
+	connect(btn, &QPushButton::released, this, &NewCombinationDialog::rejected);
+	connect(btn, &QPushButton::released, this, &NewCombinationDialog::reject);
+	connect(btn, &QPushButton::released, this, &NewCombinationDialog::hide);
 
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 	setWindowTitle(title);

@@ -193,9 +193,9 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 	_treeView->setSortingEnabled(true);
 	_treeView->sortByColumn(DatabaseColumn::Release);
 
-	connect(_treeView->header(), SIGNAL(sectionClicked(int)), this, SLOT(sortByColumn(int)));
+	connect(_treeView->header(), &QHeaderView::sectionClicked, this, &ModDatabaseView::sortByColumn);
 
-	connect(generalSettingsWidget, SIGNAL(languageChanged(QString)), this, SLOT(changeLanguage(QString)));
+	connect(generalSettingsWidget, &GeneralSettingsWidget::languageChanged, this, &ModDatabaseView::changeLanguage);
 
 	{
 		QWidget * filterWidget = new QWidget(this);
@@ -204,7 +204,7 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 		le->setPlaceholderText(QApplication::tr("SearchPlaceholder"));
 		UPDATELANGUAGESETPLACEHOLDERTEXT(le, "SearchPlaceholder");
 
-		connect(le, SIGNAL(textChanged(const QString &)), this, SLOT(changedFilterExpression(const QString &)));
+		connect(le, &QLineEdit::textChanged, this, &ModDatabaseView::changedFilterExpression);
 
 		hl->addWidget(le);
 
@@ -217,32 +217,32 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 			QCheckBox * cb1 = new QCheckBox(QApplication::tr("TotalConversion"), filterWidget);
 			cb1->setChecked(_sortModel->isTotalConversionActive());
 			UPDATELANGUAGESETTEXT(cb1, "TotalConversion");
-			connect(cb1, SIGNAL(stateChanged(int)), _sortModel, SLOT(totalConversionChanged(int)));
+			connect(cb1, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::totalConversionChanged);
 
 			QCheckBox * cb2 = new QCheckBox(QApplication::tr("Enhancement"), filterWidget);
 			cb2->setChecked(_sortModel->isEnhancementActive());
 			UPDATELANGUAGESETTEXT(cb2, "Enhancement");
-			connect(cb2, SIGNAL(stateChanged(int)), _sortModel, SLOT(enhancementChanged(int)));
+			connect(cb2, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::enhancementChanged);
 
 			QCheckBox * cb3 = new QCheckBox(QApplication::tr("Patch"), filterWidget);
 			cb3->setChecked(_sortModel->isPathActive());
 			UPDATELANGUAGESETTEXT(cb3, "Patch");
-			connect(cb3, SIGNAL(stateChanged(int)), _sortModel, SLOT(patchChanged(int)));
+			connect(cb3, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::patchChanged);
 
 			QCheckBox * cb4 = new QCheckBox(QApplication::tr("Tool"), filterWidget);
 			cb4->setChecked(_sortModel->isToolActive());
 			UPDATELANGUAGESETTEXT(cb4, "Tool");
-			connect(cb4, SIGNAL(stateChanged(int)), _sortModel, SLOT(toolChanged(int)));
+			connect(cb4, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::toolChanged);
 
 			QCheckBox * cb5 = new QCheckBox(QApplication::tr("Original"), filterWidget);
 			cb5->setChecked(_sortModel->isOriginalActive());
 			UPDATELANGUAGESETTEXT(cb5, "Original");
-			connect(cb5, SIGNAL(stateChanged(int)), _sortModel, SLOT(originalChanged(int)));
+			connect(cb5, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::originalChanged);
 
 			QCheckBox * cb6 = new QCheckBox(QApplication::tr("GothicMultiplayer"), filterWidget);
 			cb6->setChecked(_sortModel->isGMPActive());
 			UPDATELANGUAGESETTEXT(cb6, "GothicMultiplayer");
-			connect(cb6, SIGNAL(stateChanged(int)), _sortModel, SLOT(gmpChanged(int)));
+			connect(cb6, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::gmpChanged);
 
 			vbl->addWidget(cb1);
 			vbl->addWidget(cb2);
@@ -265,17 +265,17 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 			QCheckBox * cb1 = new QCheckBox(QApplication::tr("Gothic"), filterWidget);
 			cb1->setChecked(_sortModel->isGothicActive());
 			UPDATELANGUAGESETTEXT(cb1, "Gothic");
-			connect(cb1, SIGNAL(stateChanged(int)), _sortModel, SLOT(gothicChanged(int)));
+			connect(cb1, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::gothicChanged);
 
 			QCheckBox * cb2 = new QCheckBox(QApplication::tr("Gothic2"), filterWidget);
 			cb2->setChecked(_sortModel->isGothic2Active());
 			UPDATELANGUAGESETTEXT(cb2, "Gothic2");
-			connect(cb2, SIGNAL(stateChanged(int)), _sortModel, SLOT(gothic2Changed(int)));
+			connect(cb2, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::gothic2Changed);
 
 			QCheckBox * cb3 = new QCheckBox(QApplication::tr("GothicAndGothic2"), filterWidget);
 			cb3->setChecked(_sortModel->isGothicAndGothic2Active());
 			UPDATELANGUAGESETTEXT(cb3, "GothicAndGothic2");
-			connect(cb3, SIGNAL(stateChanged(int)), _sortModel, SLOT(gothicAndGothic2Changed(int)));
+			connect(cb3, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::gothicAndGothic2Changed);
 			cb3->hide();
 
 			vbl->addWidget(cb1);
@@ -302,8 +302,8 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 			sb2->setMaximum(1000);
 			sb2->setValue(_sortModel->getMaxDuration());
 
-			connect(sb1, SIGNAL(valueChanged(int)), _sortModel, SLOT(minDurationChanged(int)));
-			connect(sb2, SIGNAL(valueChanged(int)), _sortModel, SLOT(maxDurationChanged(int)));
+			connect(sb1, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), _sortModel, &DatabaseFilterModel::minDurationChanged);
+			connect(sb2, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), _sortModel, &DatabaseFilterModel::maxDurationChanged);
 
 			QLabel * l1 = new QLabel(QApplication::tr("MinDurationHours"), gb);
 			UPDATELANGUAGESETTEXT(l1, "MinDurationHours");
@@ -336,14 +336,14 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 	qRegisterMetaType<std::vector<common::UpdatePackageListMessage::Package>>("std::vector<common::UpdatePackageListMessage::Package>");
 	qRegisterMetaType<std::vector<std::pair<std::string, std::string>>>("std::vector<std::pair<std::string, std::string>>");
 
-	connect(this, SIGNAL(receivedModList(std::vector<common::Mod>)), this, SLOT(updateModList(std::vector<common::Mod>)));
-	connect(this, SIGNAL(receivedModFilesList(common::Mod, std::vector<std::pair<std::string, std::string>>, QString)), this, SLOT(downloadModFiles(common::Mod, std::vector<std::pair<std::string, std::string>>, QString)));
-	connect(_treeView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(selectedIndex(const QModelIndex &)));
-	connect(_treeView, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(doubleClickedIndex(const QModelIndex &)));
-	connect(this, SIGNAL(receivedPackageList(std::vector<common::UpdatePackageListMessage::Package>)), this, SLOT(updatePackageList(std::vector<common::UpdatePackageListMessage::Package>)));
-	connect(this, SIGNAL(receivedPackageFilesList(common::Mod, common::UpdatePackageListMessage::Package, std::vector<std::pair<std::string, std::string>>, QString)), this, SLOT(downloadPackageFiles(common::Mod, common::UpdatePackageListMessage::Package, std::vector<std::pair<std::string, std::string>>, QString)));
-	connect(this, SIGNAL(triggerInstallMod(int)), this, SLOT(installMod(int)));
-	connect(this, SIGNAL(triggerInstallPackage(int, int)), this, SLOT(installPackage(int, int)));
+	connect(this, &ModDatabaseView::receivedModList, this, static_cast<void(ModDatabaseView::*)(std::vector<common::Mod>)>(&ModDatabaseView::updateModList));
+	connect(this, &ModDatabaseView::receivedModFilesList, this, &ModDatabaseView::downloadModFiles);
+	connect(_treeView, &QTreeView::clicked, this, &ModDatabaseView::selectedIndex);
+	connect(_treeView, &QTreeView::doubleClicked, this, &ModDatabaseView::doubleClickedIndex);
+	connect(this, &ModDatabaseView::receivedPackageList, this, &ModDatabaseView::updatePackageList);
+	connect(this, &ModDatabaseView::receivedPackageFilesList, this, &ModDatabaseView::downloadPackageFiles);
+	connect(this, &ModDatabaseView::triggerInstallMod, this, &ModDatabaseView::installMod);
+	connect(this, &ModDatabaseView::triggerInstallPackage, this, &ModDatabaseView::installPackage);
 
 	Database::DBError err;
 	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "CREATE TABLE IF NOT EXISTS mods(ModID INT NOT NULL, GothicVersion INT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL);", err);

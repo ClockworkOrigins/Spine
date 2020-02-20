@@ -112,13 +112,13 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, GeneralSettingsWidget * gener
 
 		QVBoxLayout * vl = new QVBoxLayout();
 		_addImageButton = new QPushButton(QIcon(":/svg/add.svg"), "", widget);
-		connect(_addImageButton, SIGNAL(released()), this, SLOT(addImage()));
+		connect(_addImageButton, &QPushButton::released, this, &ModInfoPage::addImage);
 		_addImageButton->hide();
 
 		vl->addWidget(_addImageButton, 0, Qt::AlignTop | Qt::AlignRight);
 
 		_deleteImageButton = new QPushButton(QIcon(":/svg/remove.svg"), "", widget);
-		connect(_deleteImageButton, SIGNAL(released()), this, SLOT(removeImage()));
+		connect(_deleteImageButton, &QPushButton::released, this, &ModInfoPage::removeImage);
 		_deleteImageButton->hide();
 
 		vl->addWidget(_deleteImageButton, 0, Qt::AlignTop | Qt::AlignRight);
@@ -141,26 +141,26 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, GeneralSettingsWidget * gener
 	_thumbnailView->setHorizontalScrollMode(QAbstractItemView::ScrollMode::ScrollPerPixel);
 	_thumbnailView->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
 	_thumbnailView->setWrapping(false);
-	connect(_thumbnailView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(changePreviewImage(const QModelIndex &)));
-	connect(_thumbnailView, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(changePreviewImage(const QModelIndex &)));
-	connect(_thumbnailView, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(showFullscreen()));
-	connect(_thumbnailView, SIGNAL(activated(const QModelIndex &)), this, SLOT(showFullscreen()));
+	connect(_thumbnailView, &QListView::clicked, this, &ModInfoPage::changePreviewImage);
+	connect(_thumbnailView, &QListView::doubleClicked, this, &ModInfoPage::changePreviewImage);
+	connect(_thumbnailView, &QListView::doubleClicked, this, &ModInfoPage::showFullscreen);
+	connect(_thumbnailView, &QListView::activated, this, &ModInfoPage::showFullscreen);
 
 	_thumbnailModel = new QStandardItemModel(_thumbnailView);
 	_thumbnailView->setModel(_thumbnailModel);
-	connect(_thumbnailView->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(changedThumbnailSelection(QItemSelection)));
+	connect(_thumbnailView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ModInfoPage::changedThumbnailSelection);
 
 	_installButton = new QPushButton(QIcon(":/svg/download.svg"), QApplication::tr("Install"), widget);
 	scrollLayout->addWidget(_installButton, 0, Qt::AlignLeft);
 	_installButton->hide();
 	UPDATELANGUAGESETTEXT(_installButton, "Install");
-	connect(_installButton, SIGNAL(released()), this, SLOT(installMod()));
+	connect(_installButton, &QPushButton::released, this, &ModInfoPage::installMod);
 
 	_startButton = new QPushButton(QApplication::tr("StartMod"), widget);
 	scrollLayout->addWidget(_startButton, 0, Qt::AlignLeft);
 	_startButton->hide();
 	UPDATELANGUAGESETTEXT(_startButton, "StartMod");
-	connect(_startButton, SIGNAL(released()), this, SLOT(startMod()));
+	connect(_startButton, &QPushButton::released, this, &ModInfoPage::startMod);
 
 	_optionalPackageButtonsLayout = new QVBoxLayout();
 	scrollLayout->addLayout(_optionalPackageButtonsLayout);
@@ -237,7 +237,7 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, GeneralSettingsWidget * gener
 	_spineFeaturesView->setEditTriggers(QAbstractItemView::EditTrigger::NoEditTriggers);
 	_spineFeaturesView->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectItems);
 	_spineFeaturesView->setSelectionMode(QAbstractItemView::SelectionMode::NoSelection);
-	connect(_spineFeaturesView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(selectedSpineFeature(const QModelIndex &)));
+	connect(_spineFeaturesView, &QListView::clicked, this, &ModInfoPage::selectedSpineFeature);
 
 	scrollLayout->addLayout(hl);
 
@@ -254,21 +254,21 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, GeneralSettingsWidget * gener
 	UPDATELANGUAGESETTOOLTIP(_editInfoPageButton, "EditInfoPageTooltip");
 	l->addWidget(_editInfoPageButton, 0, Qt::AlignBottom | Qt::AlignRight);
 	_editInfoPageButton->hide();
-	connect(_editInfoPageButton, SIGNAL(released()), this, SLOT(switchToEdit()));
+	connect(_editInfoPageButton, &QPushButton::released, this, &ModInfoPage::switchToEdit);
 
 	_applyButton = new QPushButton(QApplication::tr("Apply"), this);
 	UPDATELANGUAGESETTEXT(_applyButton, "Apply");
 	l->addWidget(_applyButton, 0, Qt::AlignBottom | Qt::AlignRight);
 	_applyButton->hide();
-	connect(_applyButton, SIGNAL(released()), this, SLOT(submitChanges()));
+	connect(_applyButton, &QPushButton::released, this, &ModInfoPage::submitChanges);
 
 	scrollLayout->addStretch(1);
 
 	setLayout(l);
 
 	qRegisterMetaType<int32_t>("int32_t");
-	connect(this, SIGNAL(receivedPage(common::SendInfoPageMessage *)), this, SLOT(updatePage(common::SendInfoPageMessage *)));
-	connect(this, SIGNAL(gotRandomMod(int32_t)), this, SLOT(loadPage(int32_t)));
+	connect(this, &ModInfoPage::receivedPage, this, &ModInfoPage::updatePage);
+	connect(this, &ModInfoPage::gotRandomMod, this, &ModInfoPage::loadPage);
 }
 
 void ModInfoPage::loginChanged() {
@@ -496,7 +496,7 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 		pb->setProperty("packageid", int(p.first));
 		_optionalPackageButtonsLayout->addWidget(pb, 0, Qt::AlignLeft);
 		_optionalPackageButtons.append(pb);
-		connect(pb, SIGNAL(released()), this, SLOT(installPackage()));
+		connect(pb, &QPushButton::released, this, &ModInfoPage::installPackage);
 	}
 
 	delete sipm;
@@ -592,7 +592,7 @@ void ModInfoPage::submitChanges() {
 
 	QFutureWatcher<void> watcher(this);
 	QEventLoop loop;
-	connect(&watcher, SIGNAL(finished()), &loop, SLOT(quit()));
+	connect(&watcher, &QFutureWatcher<void>::finished, &loop, &QEventLoop::quit);
 	int32_t modID = _modID;
 	std::string language = Config::Language.toStdString();
 	std::string description = q2s(_descriptionEdit->toPlainText());

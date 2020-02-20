@@ -78,8 +78,8 @@ ProfileView::ProfileView(QMainWindow * mainWindow, GeneralSettingsWidget * gener
 	_backToProfileButton = new QPushButton(QApplication::tr("BackToProfile"), this);
 	UPDATELANGUAGESETTEXT(_backToProfileButton, "BackToProfile");
 	_backToProfileButton->hide();
-	connect(_backToProfileButton, SIGNAL(released()), this, SLOT(reset()));
-	connect(_backToProfileButton, SIGNAL(released()), this, SLOT(updateList()));
+	connect(_backToProfileButton, &QPushButton::released, this, &ProfileView::reset);
+	connect(_backToProfileButton, &QPushButton::released, this, &ProfileView::updateList);
 
 	l->addWidget(_backToProfileButton, 0, Qt::AlignLeft);
 
@@ -127,13 +127,13 @@ ProfileView::ProfileView(QMainWindow * mainWindow, GeneralSettingsWidget * gener
 	QHBoxLayout* hl = new QHBoxLayout();
 	_logoutButton = new QPushButton(QApplication::tr("Logout"), this);
 	UPDATELANGUAGESETTEXT(_logoutButton, "Logout");
-	connect(_logoutButton, SIGNAL(clicked()), this, SIGNAL(triggerLogout()));
+	connect(_logoutButton, &QPushButton::released, this, &ProfileView::triggerLogout);
 	_logoutButton->setProperty("logout", true);
 
 	_hidePatchesAndToolsBox = new QCheckBox(QApplication::tr("HidePatchesAndTools"), this);
 	_hidePatchesAndToolsBox->setChecked(true);
 	UPDATELANGUAGESETTEXT(_hidePatchesAndToolsBox, "HidePatchesAndTools");
-	connect(_hidePatchesAndToolsBox, SIGNAL(stateChanged(int)), this, SLOT(toggledHidePatchesAndTools()));
+	connect(_hidePatchesAndToolsBox, &QCheckBox::stateChanged, this, &ProfileView::toggledHidePatchesAndTools);
 
 	hl->addWidget(_logoutButton, 0, Qt::AlignLeft);
 	hl->addWidget(_hidePatchesAndToolsBox, 0, Qt::AlignRight);
@@ -147,9 +147,9 @@ ProfileView::ProfileView(QMainWindow * mainWindow, GeneralSettingsWidget * gener
 	qRegisterMetaType<std::vector<common::ModStats>>("std::vector<common::ModStats>");
 	qRegisterMetaType<std::vector<common::SendAllAchievementStatsMessage::AchievementStats>>("std::vector<common::SendAllAchievementStatsMessage::AchievementStats>");
 	qRegisterMetaType<std::vector<common::SendAllScoreStatsMessage::ScoreStats>>("std::vector<common::SendAllScoreStatsMessage::ScoreStats>");
-	connect(this, SIGNAL(receivedMods(std::vector<common::ModStats>)), this, SLOT(updateModList(std::vector<common::ModStats>)));
-	connect(this, SIGNAL(receivedAchievementStats(int32_t, std::vector<common::SendAllAchievementStatsMessage::AchievementStats>)), this, SLOT(updateAchievements(int32_t, std::vector<common::SendAllAchievementStatsMessage::AchievementStats>)));
-	connect(this, SIGNAL(receivedScoreStats(std::vector<common::SendAllScoreStatsMessage::ScoreStats>)), this, SLOT(updateScores(std::vector<common::SendAllScoreStatsMessage::ScoreStats>)));
+	connect(this, &ProfileView::receivedMods, this, &ProfileView::updateModList);
+	connect(this, &ProfileView::receivedAchievementStats, this, &ProfileView::updateAchievements);
+	connect(this, &ProfileView::receivedScoreStats, this, &ProfileView::updateScores);
 	connect(this, &ProfileView::receivedUserLevel, this, &ProfileView::updateUserLevel);
 
 	loginChanged();
@@ -357,8 +357,8 @@ void ProfileView::updateModList(std::vector<common::ModStats> mods) {
 		}
 		_scrollLayout->addWidget(pmv);
 		_mods.append(pmv);
-		connect(pmv, SIGNAL(openAchievementView(int32_t, QString)), this, SLOT(openAchievementView(int32_t, QString)));
-		connect(pmv, SIGNAL(openScoreView(int32_t, QString)), this, SLOT(openScoreView(int32_t, QString)));
+		connect(pmv, &ProfileModView::openAchievementView, this, &ProfileView::openAchievementView);
+		connect(pmv, &ProfileModView::openScoreView, this, &ProfileView::openScoreView);
 	}
 
 	QString timeString;

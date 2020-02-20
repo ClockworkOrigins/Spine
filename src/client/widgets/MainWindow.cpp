@@ -316,19 +316,19 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 			cb1->setProperty("library", true);
 			cb1->setChecked(_sortModel->isGothicActive());
 			UPDATELANGUAGESETTEXT(cb1, "Gothic");
-			connect(cb1, SIGNAL(stateChanged(int)), _sortModel, SLOT(gothicChanged(int)));
+			connect(cb1, &QCheckBox::stateChanged, _sortModel, &LibraryFilterModel::gothicChanged);
 
 			QCheckBox * cb2 = new QCheckBox(QApplication::tr("Gothic2"), filterWidget);
 			cb2->setProperty("library", true);
 			cb2->setChecked(_sortModel->isGothic2Active());
 			UPDATELANGUAGESETTEXT(cb2, "Gothic2");
-			connect(cb2, SIGNAL(stateChanged(int)), _sortModel, SLOT(gothic2Changed(int)));
+			connect(cb2, &QCheckBox::stateChanged, _sortModel, &LibraryFilterModel::gothic2Changed);
 
 			QCheckBox * cb3 = new QCheckBox(QApplication::tr("GothicAndGothic2"), filterWidget);
 			cb3->setProperty("library", true);
 			cb3->setChecked(_sortModel->isGothicAndGothic2Active());
 			UPDATELANGUAGESETTEXT(cb3, "GothicAndGothic2");
-			connect(cb3, SIGNAL(stateChanged(int)), _sortModel, SLOT(gothicAndGothic2Changed(int)));
+			connect(cb3, &QCheckBox::stateChanged, _sortModel, &LibraryFilterModel::gothicAndGothic2Changed);
 			cb3->hide();
 
 			vbl->addWidget(cb1);
@@ -350,7 +350,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 			cb1->setProperty("library", true);
 			cb1->setChecked(_sortModel->isShowHiddenActive());
 			UPDATELANGUAGESETTEXT(cb1, "ShowHidden");
-			connect(cb1, SIGNAL(stateChanged(int)), _sortModel, SLOT(showHidden(int)));
+			connect(cb1, &QCheckBox::stateChanged, _sortModel, &LibraryFilterModel::showHidden);
 
 			vbl->addWidget(cb1);
 
@@ -406,7 +406,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 #endif
 
 	_tabWidget->addTab(w, QApplication::tr("Library"));
-	UPDATELANGUAGESETTABTEXT(_tabWidget, (Config::OnlineMode) ? int(MainTabsOnline::LibraryOnline) : int(MainTabsOffline::LibraryOffline), "Library");
+	UPDATELANGUAGESETTABTEXT(_tabWidget, Config::OnlineMode ? int(MainTabsOnline::LibraryOnline) : int(MainTabsOffline::LibraryOffline), "Library");
 
 	if (Config::OnlineMode) {
 		_profileView = new ProfileView(this, _settingsDialog->getGeneralSettingsWidget(), _tabWidget);
@@ -431,15 +431,15 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	setCentralWidget(_tabWidget);
 
 	if (Config::OnlineMode) {
-		connect(_modInfoView, SIGNAL(openAchievementView(int32_t, QString)), _profileView, SLOT(openAchievementView(int32_t, QString)));
-		connect(_modInfoView, SIGNAL(openScoreView(int32_t, QString)), _profileView, SLOT(openScoreView(int32_t, QString)));
-		connect(_modInfoView, SIGNAL(openAchievementView(int32_t, QString)), this, SLOT(openSpecialProfileView()));
-		connect(_modInfoView, SIGNAL(openScoreView(int32_t, QString)), this, SLOT(openSpecialProfileView()));
+		connect(_modInfoView, &ModInfoView::openAchievementView, _profileView, &ProfileView::openAchievementView);
+		connect(_modInfoView, &ModInfoView::openScoreView, _profileView, &ProfileView::openScoreView);
+		connect(_modInfoView, &ModInfoView::openAchievementView, this, &MainWindow::openSpecialProfileView);
+		connect(_modInfoView, &ModInfoView::openScoreView, this, &MainWindow::openSpecialProfileView);
 
-		connect(_modInfoPage, SIGNAL(openAchievementView(int32_t, QString)), _profileView, SLOT(openAchievementView(int32_t, QString)));
-		connect(_modInfoPage, SIGNAL(openScoreView(int32_t, QString)), _profileView, SLOT(openScoreView(int32_t, QString)));
-		connect(_modInfoPage, SIGNAL(openAchievementView(int32_t, QString)), this, SLOT(openSpecialProfileView()));
-		connect(_modInfoPage, SIGNAL(openScoreView(int32_t, QString)), this, SLOT(openSpecialProfileView()));
+		connect(_modInfoPage, &ModInfoPage::openAchievementView, _profileView, &ProfileView::openAchievementView);
+		connect(_modInfoPage, &ModInfoPage::openScoreView, _profileView, &ProfileView::openScoreView);
+		connect(_modInfoPage, &ModInfoPage::openAchievementView, this, &MainWindow::openSpecialProfileView);
+		connect(_modInfoPage, &ModInfoPage::openScoreView, this, &MainWindow::openSpecialProfileView);
 	}
 
 	bool firstStartup = Config::IniParser->value("MISC/firstStartup", true).toBool();
@@ -520,11 +520,11 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 
 	QAction * exportAction = fileMenu->addAction(QApplication::tr("Export"));
 	UPDATELANGUAGESETTEXT(exportAction, "Export");
-	connect(exportAction, SIGNAL(triggered()), this, SLOT(execExport()));
+	connect(exportAction, &QAction::triggered, this, &MainWindow::execExport);
 
 	QAction * importAction = fileMenu->addAction(QApplication::tr("Import"));
 	UPDATELANGUAGESETTEXT(importAction, "Import");
-	connect(importAction, SIGNAL(triggered()), this, SLOT(execImport()));
+	connect(importAction, &QAction::triggered, this, &MainWindow::execImport);
 
 	fileMenu->addSeparator();
 
@@ -535,18 +535,18 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	if (!Config::OnlineMode) {
 		QAction * onlineAction = fileMenu->addAction(QApplication::tr("SwitchToOnline"));
 		UPDATELANGUAGESETTEXT(onlineAction, "SwitchToOnline");
-		connect(onlineAction, SIGNAL(triggered()), this, SLOT(switchToOnline()));
+		connect(onlineAction, &QAction::triggered, this, &MainWindow::switchToOnline);
 	} else {
 		QAction * offlineAction = fileMenu->addAction(QApplication::tr("SwitchToOffline"));
 		UPDATELANGUAGESETTEXT(offlineAction, "SwitchToOffline");
-		connect(offlineAction, SIGNAL(triggered()), this, SLOT(switchToOffline()));
+		connect(offlineAction, &QAction::triggered, this, &MainWindow::switchToOffline);
 	}
 
 	fileMenu->addSeparator();
 
 	QAction * quitAction = fileMenu->addAction(QApplication::tr("Quit"));
 	UPDATELANGUAGESETTEXT(quitAction, "Quit");
-	connect(quitAction, SIGNAL(triggered()), this, SLOT(onQuit()));
+	connect(quitAction, &QAction::triggered, this, &MainWindow::onQuit);
 
 #ifdef Q_OS_WIN
 	QAction * installG2FromCDAction = toolsMenu->addAction(QApplication::tr("InstallGothic2FromCD"));
@@ -557,7 +557,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	if (Config::OnlineMode) {
 		QAction * submitCompatibilityAction = toolsMenu->addAction(QApplication::tr("SubmitCompatibility"));
 		UPDATELANGUAGESETTEXT(submitCompatibilityAction, "SubmitCompatibility");
-		connect(submitCompatibilityAction, SIGNAL(triggered()), this, SLOT(submitCompatibility()));
+		connect(submitCompatibilityAction, &QAction::triggered, this, &MainWindow::submitCompatibility);
 		connect(_loginDialog, &LoginDialog::loggedIn, [submitCompatibilityAction]() {
 			submitCompatibilityAction->setEnabled(!Config::Username.isEmpty());
 		});
@@ -572,32 +572,32 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	QAction * translationRequestAction = developerMenu->addAction(QApplication::tr("RequestTranslation"));
 	UPDATELANGUAGESETTEXT(translationRequestAction, "RequestTranslation");
 	translationRequestAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
-	connect(translationRequestAction, SIGNAL(triggered()), this, SLOT(openTranslationRequest()));
+	connect(translationRequestAction, &QAction::triggered, this, &MainWindow::openTranslationRequest);
 
 	QAction * translatorAction = developerMenu->addAction(QApplication::tr("Translator"));
 	UPDATELANGUAGESETTEXT(translatorAction, "Translator");
 	translatorAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
-	connect(translatorAction, SIGNAL(triggered()), this, SLOT(openTranslator()));
+	connect(translatorAction, &QAction::triggered, this, &MainWindow::openTranslator);
 
 	_devModeAction = developerMenu->addAction(QApplication::tr("ActivateDeveloperMode"));
 	UPDATELANGUAGESETTEXT(_devModeAction, "ActivateDeveloperMode");
 	_devModeAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_D));
-	connect(_devModeAction, SIGNAL(triggered()), _settingsDialog->getDeveloperSettingsWidget(), SLOT(changedDeveloperMode()));
+	connect(_devModeAction, &QAction::triggered, _settingsDialog->getDeveloperSettingsWidget(), &DeveloperSettingsWidget::changedDeveloperMode);
 	_devModeAction->setCheckable(true);
 	_devModeAction->setChecked(_settingsDialog->getDeveloperSettingsWidget()->isDeveloperModeActive());
 
 	_spineEditorAction = developerMenu->addAction(QApplication::tr("SpineEditor"));
 	UPDATELANGUAGESETTEXT(_spineEditorAction, "SpineEditor");
 	_spineEditorAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S));
-	connect(_spineEditorAction, SIGNAL(triggered()), _spineEditor, SLOT(exec()));
+	connect(_spineEditorAction, &QAction::triggered, _spineEditor, &SpineEditor::exec);
 	_spineEditorAction->setEnabled(_settingsDialog->getDeveloperSettingsWidget()->isDeveloperModeActive());
-	connect(_settingsDialog->getDeveloperSettingsWidget(), SIGNAL(developerModeChanged(bool)), _spineEditorAction, SLOT(setEnabled(bool)));
+	connect(_settingsDialog->getDeveloperSettingsWidget(), &DeveloperSettingsWidget::developerModeChanged, _spineEditorAction, &QAction::setEnabled);
 
 	if (Config::OnlineMode) {
 		QAction * managementAction = developerMenu->addAction(QApplication::tr("Management"));
 		UPDATELANGUAGESETTEXT(managementAction, "Management");
 		managementAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_M));
-		connect(managementAction, SIGNAL(triggered()), this, SLOT(execManagement()));
+		connect(managementAction, &QAction::triggered, this, &MainWindow::execManagement);
 	}
 
 	developerMenu->addSeparator();
@@ -607,7 +607,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		UPDATELANGUAGESETTEXTARG(devPathAction, "DevPath", i);
 		devPathAction->setShortcut(QKeySequence(Qt::CTRL + (Qt::Key_0 + i)));
 		devPathAction->setProperty("id", i);
-		connect(devPathAction, SIGNAL(triggered()), this, SLOT(setDevPath()));
+		connect(devPathAction, &QAction::triggered, this, &MainWindow::setDevPath);
 	}
 
 #ifdef Q_OS_WIN
@@ -630,7 +630,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		checkIntegrityAction->setToolTip(QApplication::tr("CheckIntegrityTooltip"));
 		UPDATELANGUAGESETTEXT(checkIntegrityAction, "CheckIntegrity");
 		UPDATELANGUAGESETTOOLTIP(checkIntegrityAction, "CheckIntegrityTooltip");
-		connect(checkIntegrityAction, SIGNAL(triggered()), this, SLOT(checkIntegrity()));
+		connect(checkIntegrityAction, &QAction::triggered, this, &MainWindow::checkIntegrity);
 	}
 	QAction * generateReportAction = helpMenu->addAction(QApplication::tr("GenerateReport"));
 	UPDATELANGUAGESETTEXT(generateReportAction, "GenerateReport");
@@ -641,7 +641,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	if (Config::OnlineMode) {
 		QAction * updateAction = helpMenu->addAction(QApplication::tr("CheckForUpdates"));
 		UPDATELANGUAGESETTEXT(updateAction, "CheckForUpdates");
-		connect(updateAction, SIGNAL(triggered()), _autoUpdateDialog, SLOT(exec()));
+		connect(updateAction, &QAction::triggered, _autoUpdateDialog, &AutoUpdateDialog::exec);
 	}
 
 	helpMenu->addSeparator();
@@ -661,7 +661,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	if (Config::OnlineMode) {
 		QAction * feedbackAction = helpMenu->addAction(QApplication::tr("Feedback"));
 		UPDATELANGUAGESETTEXT(feedbackAction, "Feedback");
-		connect(feedbackAction, SIGNAL(triggered()), _feedbackDialog, SLOT(exec()));
+		connect(feedbackAction, &QAction::triggered, _feedbackDialog, &FeedbackDialog::exec);
 	}
 	QAction * aboutAction = helpMenu->addAction(QApplication::tr("About"));
 	UPDATELANGUAGESETTEXT(aboutAction, "About");
@@ -683,22 +683,22 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 #endif
 
 #ifdef Q_OS_WIN
-	connect(installG2FromCDAction, SIGNAL(triggered()), _installGothic2FromCDDialog, SLOT(exec()));
+	connect(installG2FromCDAction, &QAction::triggered, _installGothic2FromCDDialog, &InstallGothic2FromCDDialog::exec);
 #endif
 
-	connect(openIniConfiguratorAction, SIGNAL(triggered()), this, SLOT(openIniConfigurator()));
-	connect(savegameEditorAction, SIGNAL(triggered()), this, SLOT(openSavegameEditor()));
-	connect(settingsAction, SIGNAL(triggered()), _settingsDialog, SLOT(exec()));
+	connect(openIniConfiguratorAction, &QAction::triggered, this, &MainWindow::openIniConfigurator);
+	connect(savegameEditorAction, &QAction::triggered, this, &MainWindow::openSavegameEditor);
+	connect(settingsAction, &QAction::triggered, _settingsDialog, &SettingsDialog::exec);
 
-	connect(faqAction, SIGNAL(triggered()), this, SLOT(execFAQ()));
+	connect(faqAction, &QAction::triggered, this, &MainWindow::execFAQ);
 	connect(generateReportAction, &QAction::triggered, this, &MainWindow::generateReports);
-	connect(showChangelogAction, SIGNAL(triggered()), _changelogDialog, SLOT(exec()));
+	connect(showChangelogAction, &QAction::triggered, _changelogDialog, &ChangelogDialog::exec);
 	connect(discordAction, &QAction::triggered, []() {
 		QDesktopServices::openUrl(QUrl("https://discord.gg/x4x5Mc8"));
 	});
-	connect(aboutAction, SIGNAL(triggered()), aboutDialog, SLOT(exec()));
+	connect(aboutAction, &QAction::triggered, aboutDialog, &AboutDialog::exec);
 
-	connect(_settingsDialog->getLocationSettingsWidget(), SIGNAL(pathChanged()), this, SLOT(pathChanged()));
+	connect(_settingsDialog->getLocationSettingsWidget(), &LocationSettingsWidget::pathChanged, this, &MainWindow::pathChanged);
 
 	menuBar()->addMenu(fileMenu);
 	menuBar()->addMenu(toolsMenu);
@@ -709,7 +709,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		QMenu * loginMenu = new QMenu(QApplication::tr("Login"), this);
 		UPDATELANGUAGESETTITLE(loginMenu, "Login");
 		menuBar()->addMenu(loginMenu);
-		connect(loginMenu, SIGNAL(aboutToShow()), _loginDialog, SLOT(execute()));
+		connect(loginMenu, &QMenu::aboutToShow, _loginDialog, &LoginDialog::execute);
 		connect(_loginDialog, &LoginDialog::loggedIn, [loginMenu]() {
 			loginMenu->menuAction()->setVisible(false);
 		});
@@ -731,16 +731,16 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	installG2FromCDAction->setVisible(!_settingsDialog->getLocationSettingsWidget()->isGothic2Valid(true));
 #endif
 
-	connect(_tabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)));
+	connect(_tabWidget, &QTabWidget::currentChanged, this, &MainWindow::tabChanged);
 	if (Config::OnlineMode) {
-		connect(_settingsDialog->getLocationSettingsWidget(), SIGNAL(validGothic(bool)), _modDatabaseView, SLOT(gothicValidationChanged(bool)));
-		connect(_settingsDialog->getLocationSettingsWidget(), SIGNAL(validGothic2(bool)), _modDatabaseView, SLOT(gothic2ValidationChanged(bool)));
+		connect(_settingsDialog->getLocationSettingsWidget(), &LocationSettingsWidget::validGothic, _modDatabaseView, &ModDatabaseView::gothicValidationChanged);
+		connect(_settingsDialog->getLocationSettingsWidget(), &LocationSettingsWidget::validGothic2, _modDatabaseView, &ModDatabaseView::gothic2ValidationChanged);
 	}
 #ifdef Q_OS_WIN
 	connect(_settingsDialog->getLocationSettingsWidget(), &LocationSettingsWidget::validGothic2, [=](bool b) {
 		installG2FromCDAction->setVisible(!b);
 	});
-	connect(_installGothic2FromCDDialog, SIGNAL(updateGothic2Directory(QString)), _settingsDialog->getLocationSettingsWidget(), SLOT(setGothic2Directory(QString)));
+	connect(_installGothic2FromCDDialog, &InstallGothic2FromCDDialog::updateGothic2Directory, _settingsDialog->getLocationSettingsWidget(), &LocationSettingsWidget::setGothic2Directory);
 #endif
 
 #ifdef Q_OS_WIN
@@ -762,7 +762,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	}
 
 	if (Config::OnlineMode) {
-		connect(_profileView, SIGNAL(triggerLogout()), _loginDialog, SLOT(logout()));
+		connect(_profileView, &ProfileView::triggerLogout, _loginDialog, &LoginDialog::logout);
 	}
 
 	if (Config::OnlineMode) {
@@ -1046,7 +1046,7 @@ void MainWindow::execManagement() {
 	connect(&dlg, &client::widgets::ManagementDialog::triggerInfoPage, _modInfoPage, &ModInfoPage::loadPage);
 	connect(&dlg, &client::widgets::ManagementDialog::triggerInfoPage, this, &MainWindow::changeToInfoTab);
 	connect(&dlg, &client::widgets::ManagementDialog::triggerInfoPage, _modInfoPage, &ModInfoPage::forceEditPage);
-	connect(&dlg, SIGNAL(checkForUpdate(int32_t)), _modUpdateDialog, SLOT(checkForUpdate(int32_t)));
+	connect(&dlg, &client::widgets::ManagementDialog::checkForUpdate, _modUpdateDialog, static_cast<void(ModUpdateDialog::*)(int32_t)>(&ModUpdateDialog::checkForUpdate));
 	dlg.exec();
 }
 
@@ -1173,8 +1173,8 @@ void MainWindow::findGothic() {
 		LocationSettingsWidget * lsw = new LocationSettingsWidget(true, &dlg);
 		QDialogButtonBox * db = new QDialogButtonBox(QDialogButtonBox::StandardButton::Ok, &dlg);
 		QPushButton * pb = db->button(QDialogButtonBox::StandardButton::Ok);
-		connect(pb, SIGNAL(clicked()), &dlg, SLOT(accept()));
-		connect(pb, SIGNAL(clicked()), &dlg, SLOT(hide()));
+		connect(pb, &QPushButton::released, &dlg, &QDialog::accept);
+		connect(pb, &QPushButton::released, &dlg, &QDialog::hide);
 		l->addWidget(descriptionLabel);
 		l->addWidget(lsw);
 		l->addWidget(db);

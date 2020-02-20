@@ -107,7 +107,7 @@ GeneralSettingsWidget::GeneralSettingsWidget(QWidget * par) : QWidget(par), _lan
 
 		l->addSpacing(10);
 
-		connect(_styleComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(changedStyle(QString)));
+		connect(_styleComboBox, static_cast<void(QComboBox::*)(const QString&)>(&QComboBox::currentIndexChanged), this, &GeneralSettingsWidget::changedStyle);
 	}
 	{
 		_autoUpdateBox = new QCheckBox(QApplication::tr("AutoUpdateCheck"), this);;
@@ -124,7 +124,7 @@ GeneralSettingsWidget::GeneralSettingsWidget(QWidget * par) : QWidget(par), _lan
 	{
 		QPushButton * pb = new QPushButton(QApplication::tr("ReactivateModUpdates"), this);
 		UPDATELANGUAGESETTEXT(pb, "ReactivateModUpdates");
-		connect(pb, SIGNAL(released()), this, SLOT(reactivateModUpdates()));
+		connect(pb, &QPushButton::released, this, &GeneralSettingsWidget::reactivateModUpdates);
 
 		l->addWidget(pb);
 	}

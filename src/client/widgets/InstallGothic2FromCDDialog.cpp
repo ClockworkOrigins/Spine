@@ -58,7 +58,7 @@ InstallGothic2FromCDDialog::InstallGothic2FromCDDialog() : QDialog(), _gothicPat
 	QPushButton * gothicPathPushButton = new QPushButton("...", this);
 	hl->addWidget(_gothicPathLineEdit);
 	hl->addWidget(gothicPathPushButton);
-	connect(gothicPathPushButton, SIGNAL(clicked()), this, SLOT(openGothicFileDialog()));
+	connect(gothicPathPushButton, &QPushButton::released, this, &InstallGothic2FromCDDialog::openGothicFileDialog);
 
 	hl->setAlignment(Qt::AlignLeft);
 
@@ -66,7 +66,7 @@ InstallGothic2FromCDDialog::InstallGothic2FromCDDialog() : QDialog(), _gothicPat
 
 	QPushButton * installButton = new QPushButton(QApplication::tr("Install"), this);
 	UPDATELANGUAGESETTEXT(installButton, "Install");
-	connect(installButton, SIGNAL(clicked()), this, SLOT(startInstallation()));
+	connect(installButton, &QPushButton::released, this, &InstallGothic2FromCDDialog::startInstallation);
 
 	l->addWidget(installButton);
 
@@ -85,7 +85,7 @@ int InstallGothic2FromCDDialog::exec() {
 }
 
 void InstallGothic2FromCDDialog::openGothicFileDialog() {
-	QString path = QFileDialog::getExistingDirectory(this, QApplication::tr("SelectGothic2Dir"), _gothicPathLineEdit->text());
+	const QString path = QFileDialog::getExistingDirectory(this, QApplication::tr("SelectGothic2Dir"), _gothicPathLineEdit->text());
 	if (!path.isEmpty()) {
 		if (_gothicPathLineEdit->text() != path) {
 			_gothicPathLineEdit->setText(path);
@@ -129,9 +129,9 @@ void InstallGothic2FromCDDialog::startInstallation() {
 	env.insert("G2DIR", _gothicPathLineEdit->text());
 	env.insert("G2CDR", g2Cdr);
 	QProcess * installProcess = new QProcess();
-	connect(installProcess, SIGNAL(readyRead()), this, SLOT(updateLog()));
-	connect(installProcess, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(startAddonInstallation(int, QProcess::ExitStatus)));
-	connect(installProcess, SIGNAL(finished(int, QProcess::ExitStatus)), installProcess, SLOT(deleteLater()));
+	connect(installProcess, &QProcess::readyRead, this, &InstallGothic2FromCDDialog::updateLog);
+	connect(installProcess, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), this, &InstallGothic2FromCDDialog::startAddonInstallation);
+	connect(installProcess, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), installProcess, &QProcess::deleteLater);
 	installProcess->setProcessChannelMode(QProcess::MergedChannels);
 	installProcess->setWorkingDirectory(qApp->applicationDirPath() + "/../");
 	installProcess->setEnvironment(env.toStringList());
@@ -141,8 +141,8 @@ void InstallGothic2FromCDDialog::startInstallation() {
 	l->addWidget(tb);
 	dlg->setLayout(l);
 	dlg->setCancelButton(nullptr);
-	connect(this, SIGNAL(updateProgressLog(QString)), tb, SLOT(setText(QString)));
-	connect(installProcess, SIGNAL(finished(int, QProcess::ExitStatus)), dlg, SLOT(accept()));
+	connect(this, &InstallGothic2FromCDDialog::updateProgressLog, tb, &QTextBrowser::setText);
+	connect(installProcess, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), dlg, &QProgressDialog::accept);
 	installProcess->start("cmd.exe", QStringList() << "/c" << "Gothic2-Setup.bat");
 	dlg->exec();
 	delete dlg;
@@ -172,9 +172,9 @@ void InstallGothic2FromCDDialog::startAddonInstallation(int exitCode, QProcess::
 		env.insert("G2DIR", _gothicPathLineEdit->text());
 		env.insert("G2CDR", g2Cdr);
 		QProcess * installProcess = new QProcess();
-		connect(installProcess, SIGNAL(readyRead()), this, SLOT(updateLog()));
-		connect(installProcess, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(finishedInstallation(int, QProcess::ExitStatus)));
-		connect(installProcess, SIGNAL(finished(int, QProcess::ExitStatus)), installProcess, SLOT(deleteLater()));
+		connect(installProcess, &QProcess::readyRead, this, &InstallGothic2FromCDDialog::updateLog);
+		connect(installProcess, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), this, &InstallGothic2FromCDDialog::finishedInstallation);
+		connect(installProcess, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), installProcess, &QProcess::deleteLater);
 		installProcess->setProcessChannelMode(QProcess::MergedChannels);
 		installProcess->setWorkingDirectory(qApp->applicationDirPath() + "/../");
 		installProcess->setEnvironment(env.toStringList());
@@ -184,8 +184,8 @@ void InstallGothic2FromCDDialog::startAddonInstallation(int exitCode, QProcess::
 		l->addWidget(tb);
 		dlg->setLayout(l);
 		dlg->setCancelButton(nullptr);
-		connect(this, SIGNAL(updateProgressLog(QString)), tb, SLOT(setText(QString)));
-		connect(installProcess, SIGNAL(finished(int, QProcess::ExitStatus)), dlg, SLOT(accept()));
+		connect(this, &InstallGothic2FromCDDialog::updateProgressLog, tb, &QTextBrowser::setText);
+		connect(installProcess, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), dlg, &QProgressDialog::accept);
 		installProcess->start("cmd.exe", QStringList() << "/c" << "Gothic2-Addon-Setup.bat");
 		dlg->exec();
 		delete dlg;

@@ -60,14 +60,14 @@ ImportDialog::ImportDialog(QWidget * par) : QDialog(par), _importPathLineEdit(nu
 		hl->addWidget(importPathLabel);
 		hl->addWidget(_importPathLineEdit);
 		hl->addWidget(importPathPushButton);
-		connect(importPathPushButton, SIGNAL(released()), this, SLOT(openImportPathDialog()));
+		connect(importPathPushButton, &QPushButton::released, this, &ImportDialog::openImportPathDialog);
 
 		hl->setAlignment(Qt::AlignLeft);
 
 		l->addLayout(hl);
 	}
 	_importPushButton = new QPushButton(QApplication::tr("Import"), this);
-	connect(_importPushButton, SIGNAL(released()), this, SLOT(importMods()));
+	connect(_importPushButton, &QPushButton::released, this, &ImportDialog::importMods);
 	l->addWidget(_importPushButton);
 	_importPushButton->setDisabled(true);
 
@@ -116,11 +116,11 @@ void ImportDialog::importMods() {
 
 	QProgressDialog dlg(QApplication::tr("Importing").arg("..."), QApplication::tr("Cancel"), 0, modfiles.size(), this);
 	dlg.setWindowFlags(dlg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-	connect(this, SIGNAL(updateProgress(int)), &dlg, SLOT(setValue(int)));
+	connect(this, &ImportDialog::updateProgress, &dlg, &QProgressDialog::setValue);
 	connect(this, &ImportDialog::updateFile, [&dlg](QString file) {
 		dlg.setLabelText(QApplication::tr("Importing").arg(file));
 	});
-	connect(this, SIGNAL(error()), &dlg, SLOT(cancel()));
+	connect(this, &ImportDialog::error, &dlg, &QProgressDialog::cancel);
 	bool running = true;
 	QFutureWatcher<void> watcher(this);
 	QString importFile = _importPathLineEdit->text();
@@ -173,7 +173,7 @@ void ImportDialog::importMods() {
 		emit updateProgress(int(modfiles.size()));
 	});
 	watcher.setFuture(future);
-	connect(&dlg, SIGNAL(canceled()), &watcher, SLOT(cancel()));
+	connect(&dlg, &QProgressDialog::canceled, &watcher, &QFutureWatcher<void>::cancel);
 	connect(&dlg, &QProgressDialog::canceled, [&running]() {
 		running = false;
 	});

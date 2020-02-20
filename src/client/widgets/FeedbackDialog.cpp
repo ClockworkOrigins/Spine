@@ -66,15 +66,15 @@ FeedbackDialog::FeedbackDialog() : QDialog(), _textEdit(nullptr), _usernameEdit(
 	b->setText(QApplication::tr("Submit"));
 	UPDATELANGUAGESETTEXT(b, "Submit");
 
-	connect(b, SIGNAL(clicked()), this, SLOT(accept()));
+	connect(b, &QPushButton::released, this, &FeedbackDialog::accept);
 
 	b = dbb->button(QDialogButtonBox::StandardButton::Discard); 
 	b->setText(QApplication::tr("Discard"));
 	UPDATELANGUAGESETTEXT(b, "Discard");
 
-	connect(b, SIGNAL(clicked()), this, SIGNAL(rejected()));
-	connect(b, SIGNAL(clicked()), this, SLOT(reject()));
-	connect(b, SIGNAL(clicked()), this, SLOT(hide()));
+	connect(b, &QPushButton::released, this, &FeedbackDialog::rejected);
+	connect(b, &QPushButton::released, this, &FeedbackDialog::reject);
+	connect(b, &QPushButton::released, this, &FeedbackDialog::hide);
 
 	setWindowTitle(QApplication::tr("Feedback"));
 	UPDATELANGUAGESETWINDOWTITLE(this, "Feedback");

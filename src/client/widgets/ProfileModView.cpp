@@ -104,10 +104,10 @@ ProfileModView::ProfileModView(common::ModStats ms, QString gothicDirectory, QSt
 
 	QLabel * achievementLabel = new QLabel(R"(<a href="Foobar" style="color: #181C22">)" + QApplication::tr("AchievementText").arg(ms.achievedAchievements).arg(ms.allAchievements).arg(ms.achievedAchievements * 100 / ((ms.allAchievements) ? ms.allAchievements : 1)) + "</a>", this);
 	achievementLabel->setProperty("internalLink", true);
-	connect(achievementLabel, SIGNAL(linkActivated(const QString &)), this, SLOT(prepareAchievementView()));
-	QLabel * scoreLabel = new QLabel(R"(<a href="Foobar" style="color: #181C22">)" + ((ms.bestScoreRank > 0) ? QApplication::tr("BestScoreText").arg(s2q(ms.bestScoreName)).arg(ms.bestScoreRank).arg(ms.bestScore) : QApplication::tr("NoBestScore")) + "</a>", this);
+	connect(achievementLabel, &QLabel::linkActivated, this, &ProfileModView::prepareAchievementView);
+	QLabel * scoreLabel = new QLabel(R"(<a href="Foobar" style="color: #181C22">)" + (ms.bestScoreRank > 0 ? QApplication::tr("BestScoreText").arg(s2q(ms.bestScoreName)).arg(ms.bestScoreRank).arg(ms.bestScore) : QApplication::tr("NoBestScore")) + "</a>", this);
 	scoreLabel->setProperty("internalLink", true);
-	connect(scoreLabel, SIGNAL(linkActivated(const QString &)), this, SLOT(prepareScoreView()));
+	connect(scoreLabel, &QLabel::linkActivated, this, &ProfileModView::prepareScoreView);
 
 	QString timeString;
 	if (ms.duration == -1) {
@@ -116,7 +116,7 @@ ProfileModView::ProfileModView(common::ModStats ms, QString gothicDirectory, QSt
 		if (ms.duration > 90) {
 			timeString = QString::number((ms.duration + 30) / 60) + " " + ((ms.duration >= 90) ? QApplication::tr("Hours") : QApplication::tr("Hour"));
 		} else {
-			timeString = QString::number(ms.duration) + " " + ((ms.duration > 1 || ms.duration == 0) ? QApplication::tr("Minutes") : QApplication::tr("Minute"));
+			timeString = QString::number(ms.duration) + " " + (ms.duration > 1 || ms.duration == 0 ? QApplication::tr("Minutes") : QApplication::tr("Minute"));
 		}
 	}
 	QLabel * timeLabel = new QLabel(timeString, this);

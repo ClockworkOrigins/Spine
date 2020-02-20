@@ -68,8 +68,8 @@ SubmitCompatibilityDialog::SubmitCompatibilityDialog(int32_t modID, int32_t patc
 
 		l->addWidget(gb);
 
-		connect(_g1Button, SIGNAL(toggled(bool)), this, SLOT(updateView()));
-		connect(_g2Button, SIGNAL(toggled(bool)), this, SLOT(updateView()));
+		connect(_g1Button, &QRadioButton::toggled, this, &SubmitCompatibilityDialog::updateView);
+		connect(_g2Button, &QRadioButton::toggled, this, &SubmitCompatibilityDialog::updateView);
 	}
 	{
 		QHBoxLayout * hl = new QHBoxLayout();
@@ -81,8 +81,8 @@ SubmitCompatibilityDialog::SubmitCompatibilityDialog(int32_t modID, int32_t patc
 		_modView->setModel(_modList);
 		_patchView->setModel(_patchList);
 
-		connect(_modView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(selectIndex(const QModelIndex &)));
-		connect(_patchView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(selectPatchIndex(const QModelIndex &)));
+		connect(_modView, &QListView::clicked, this, &SubmitCompatibilityDialog::selectIndex);
+		connect(_patchView, &QListView::clicked, this, &SubmitCompatibilityDialog::selectPatchIndex);
 
 		hl->addWidget(_modView);
 		hl->addWidget(_patchView);
@@ -107,7 +107,7 @@ SubmitCompatibilityDialog::SubmitCompatibilityDialog(int32_t modID, int32_t patc
 	}
 	QCheckBox * showSubmitted = new QCheckBox(QApplication::tr("ShowAlreadySubmittedCompatibilities"), this);
 	l->addWidget(showSubmitted);
-	connect(showSubmitted, SIGNAL(stateChanged(int)), this, SLOT(changedHiddenState(int)));
+	connect(showSubmitted, &QCheckBox::stateChanged, this, &SubmitCompatibilityDialog::changedHiddenState);
 
 	QDialogButtonBox * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Ok | QDialogButtonBox::StandardButton::Cancel, Qt::Orientation::Horizontal, this);
 	l->addWidget(dbb);
@@ -118,18 +118,18 @@ SubmitCompatibilityDialog::SubmitCompatibilityDialog(int32_t modID, int32_t patc
 	b->setText(QApplication::tr("Submit"));
 	_submitButton = b;
 
-	connect(b, SIGNAL(clicked()), this, SIGNAL(accepted()));
-	connect(b, SIGNAL(clicked()), this, SLOT(accept()));
-	connect(b, SIGNAL(clicked()), this, SLOT(hide()));
+	connect(b, &QPushButton::released, this, &SubmitCompatibilityDialog::accepted);
+	connect(b, &QPushButton::released, this, &SubmitCompatibilityDialog::accept);
+	connect(b, &QPushButton::released, this, &SubmitCompatibilityDialog::hide);
 
 	b = dbb->button(QDialogButtonBox::StandardButton::Cancel);
 	b->setText(QApplication::tr("Cancel"));
 
-	connect(b, SIGNAL(clicked()), this, SIGNAL(rejected()));
-	connect(b, SIGNAL(clicked()), this, SLOT(reject()));
-	connect(b, SIGNAL(clicked()), this, SLOT(hide()));
+	connect(b, &QPushButton::released, this, &SubmitCompatibilityDialog::rejected);
+	connect(b, &QPushButton::released, this, &SubmitCompatibilityDialog::reject);
+	connect(b, &QPushButton::released, this, &SubmitCompatibilityDialog::hide);
 
-	connect(this, SIGNAL(receivedModList(std::vector<common::Mod>)), this, SLOT(updateModList(std::vector<common::Mod>)));
+	connect(this, &SubmitCompatibilityDialog::receivedModList, this, &SubmitCompatibilityDialog::updateModList);
 
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 	setWindowTitle(QApplication::tr("SubmitCompatibility"));

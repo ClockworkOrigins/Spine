@@ -71,8 +71,8 @@ void ScoreSpineSettingsWidget::addNewScore() {
 	s.layout->addWidget(s.removeButton);
 	s.layout->addWidget(s.addButton);
 
-	connect(s.addButton, SIGNAL(released()), this, SLOT(addNewScore()));
-	connect(s.removeButton, SIGNAL(released()), this, SLOT(removeScore()));
+	connect(s.addButton, &QPushButton::released, this, &ScoreSpineSettingsWidget::addNewScore);
+	connect(s.removeButton, &QPushButton::released, this, &ScoreSpineSettingsWidget::removeScore);
 
 	if (pb) {
 		int index = 0;
@@ -123,7 +123,7 @@ void ScoreSpineSettingsWidget::removeScore() {
 
 void ScoreSpineSettingsWidget::updateFromModel() {
 	clear();
-	for (const models::ScoreModel sm : _model->getScores()) {
+	for (const models::ScoreModel & sm : _model->getScores()) {
 		addNewScore();
 		_scores.back().lineEdit->setText(sm.name);
 	}

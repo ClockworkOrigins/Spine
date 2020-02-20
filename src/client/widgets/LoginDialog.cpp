@@ -230,11 +230,11 @@ LoginDialog::LoginDialog(QWidget *) : QDialog(nullptr), _connected(false), _dont
 		UPDATELANGUAGESETTEXT(_registerStayBox, "StayLoggedIn");
 		UPDATELANGUAGESETTEXT(_registerButton, "Register");
 
-		connect(_registerButton, SIGNAL(released()), this, SLOT(registerUser()));
-		connect(_registerUsernameEdit, SIGNAL(textChanged(const QString &)), this, SLOT(changedRegisterInput()));
-		connect(_registerMailEdit, SIGNAL(textChanged(const QString &)), this, SLOT(changedRegisterInput()));
-		connect(_registerPasswordEdit, SIGNAL(textChanged(const QString &)), this, SLOT(changedRegisterInput()));
-		connect(_registerPasswordRepeatEdit, SIGNAL(textChanged(const QString &)), this, SLOT(changedRegisterInput()));
+		connect(_registerButton, &QPushButton::released, this, &LoginDialog::registerUser);
+		connect(_registerUsernameEdit, &QLineEdit::textChanged, this, &LoginDialog::changedRegisterInput);
+		connect(_registerMailEdit, &QLineEdit::textChanged, this, &LoginDialog::changedRegisterInput);
+		connect(_registerPasswordEdit, &QLineEdit::textChanged, this, &LoginDialog::changedRegisterInput);
+		connect(_registerPasswordRepeatEdit, &QLineEdit::textChanged, this, &LoginDialog::changedRegisterInput);
 		connect(resetPasswordButton, &QPushButton::released, this, &LoginDialog::resetPassword);
 		connect(_registerAcceptPrivacyPolicy, &QCheckBox::toggled, this, &LoginDialog::onPrivacyAcceptChanged);
 	}
@@ -281,8 +281,8 @@ LoginDialog::LoginDialog(QWidget *) : QDialog(nullptr), _connected(false), _dont
 		UPDATELANGUAGESETTEXT(_loginButton, "Login");
 
 		connect(_loginButton, &QPushButton::released, this, &LoginDialog::loginUser);
-		connect(_loginUsernameEdit, SIGNAL(textChanged(const QString &)), this, SLOT(changedLoginInput()));
-		connect(_loginPasswordEdit, SIGNAL(textChanged(const QString &)), this, SLOT(changedLoginInput()));
+		connect(_loginUsernameEdit, &QLineEdit::textChanged, this, &LoginDialog::changedLoginInput);
+		connect(_loginPasswordEdit, &QLineEdit::textChanged, this, &LoginDialog::changedLoginInput);
 		connect(resetPasswordButton, &QPushButton::released, this, &LoginDialog::resetPassword);
 	}
 
@@ -315,7 +315,7 @@ LoginDialog::LoginDialog(QWidget *) : QDialog(nullptr), _connected(false), _dont
 
 			hbl->addWidget(cb);
 
-			connect(cb, SIGNAL(stateChanged(int)), this, SLOT(dontShowAgainChanged(int)));
+			connect(cb, &QCheckBox::stateChanged, this, &LoginDialog::dontShowAgainChanged);
 		}
 		{
 			QPushButton * pb = new QPushButton(QApplication::tr("ContinueWithoutLogin"), this);
@@ -324,8 +324,8 @@ LoginDialog::LoginDialog(QWidget *) : QDialog(nullptr), _connected(false), _dont
 
 			hbl->addWidget(pb);
 
-			connect(pb, SIGNAL(clicked()), this, SLOT(accept()));
-			connect(pb, SIGNAL(clicked()), this, SLOT(hide()));
+			connect(pb, &QPushButton::clicked, this, &LoginDialog::accept);
+			connect(pb, &QPushButton::clicked, this, &LoginDialog::hide);
 		}
 
 		l->addLayout(hbl);

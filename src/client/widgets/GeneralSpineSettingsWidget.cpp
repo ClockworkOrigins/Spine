@@ -70,13 +70,13 @@ GeneralSpineSettingsWidget::GeneralSpineSettingsWidget(models::SpineEditorModel 
 			QCheckBox * cb = new QCheckBox(QApplication::tr("AchievementModule"), modulesBox);
 			gl->addWidget(cb, 0, 1);
 			_spineModuleCheckBoxes.insert(common::SpineModules::Achievements, cb);
-			connect(cb, SIGNAL(stateChanged(int)), this, SIGNAL(changedAchievementState(int)));
+			connect(cb, &QCheckBox::stateChanged, this, &GeneralSpineSettingsWidget::changedAchievementState);
 		}
 		{
 			QCheckBox * cb = new QCheckBox(QApplication::tr("ScoresModule"), modulesBox);
 			gl->addWidget(cb, 0, 2);
 			_spineModuleCheckBoxes.insert(common::SpineModules::Scores, cb);
-			connect(cb, SIGNAL(stateChanged(int)), this, SIGNAL(changedScoreState(int)));
+			connect(cb, &QCheckBox::stateChanged, this, &GeneralSpineSettingsWidget::changedScoreState);
 		}
 		{
 			QCheckBox * cb = new QCheckBox(QApplication::tr("MultiplayerModule"), modulesBox);

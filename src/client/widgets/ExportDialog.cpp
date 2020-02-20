@@ -58,14 +58,14 @@ ExportDialog::ExportDialog(QWidget * par) : QDialog(par), _exportPathLineEdit(nu
 		hl->addWidget(exportPathLabel);
 		hl->addWidget(_exportPathLineEdit);
 		hl->addWidget(exportPathPushButton);
-		connect(exportPathPushButton, SIGNAL(released()), this, SLOT(openExportPathDialog()));
+		connect(exportPathPushButton, &QPushButton::released, this, &ExportDialog::openExportPathDialog);
 
 		hl->setAlignment(Qt::AlignLeft);
 
 		l->addLayout(hl);
 	}
 	_exportPushButton = new QPushButton(QApplication::tr("Export"), this);
-	connect(_exportPushButton, SIGNAL(released()), this, SLOT(exportMods()));
+	connect(_exportPushButton, &QPushButton::released, this, &ExportDialog::exportMods);
 	l->addWidget(_exportPushButton);
 	_exportPushButton->setDisabled(true);
 
@@ -103,7 +103,7 @@ void ExportDialog::exportMods() {
 
 	QProgressDialog dlg(QApplication::tr("Exporting").arg(QString::fromStdString(modfiles[0][1])), QApplication::tr("Cancel"), 0, modfiles.size(), this);
 	dlg.setWindowFlags(dlg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-	connect(this, SIGNAL(updateProgress(int)), &dlg, SLOT(setValue(int)));
+	connect(this, &ExportDialog::updateProgress, &dlg, &QProgressDialog::setValue);
 	connect(this, &ExportDialog::updateFile, [&dlg](QString file) {
 		dlg.setLabelText(QApplication::tr("Exporting").arg(file));
 	});
@@ -166,7 +166,7 @@ void ExportDialog::exportMods() {
 		emit updateProgress(int(modfiles.size()));
 	});
 	watcher.setFuture(future);
-	connect(&dlg, SIGNAL(canceled()), &watcher, SLOT(cancel()));
+	connect(&dlg, &QProgressDialog::canceled, &watcher, &QFutureWatcher<void>::cancel);
 	connect(&dlg, &QProgressDialog::canceled, [&running]() {
 		running = false;
 	});

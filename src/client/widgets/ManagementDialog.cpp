@@ -56,7 +56,7 @@ ManagementDialog::ManagementDialog(QWidget * par) : QDialog(par), _modList(nullp
 		QListView * modList = new QListView(this);
 		_modList = new QStandardItemModel(modList);
 		modList->setModel(_modList);
-		connect(modList, SIGNAL(clicked(QModelIndex)), this, SLOT(selectedMod(QModelIndex)));
+		connect(modList, &QListView::clicked, this, &ManagementDialog::selectedMod);
 		hl->addWidget(modList);
 
 		_tabWidget = new QTabWidget(this);

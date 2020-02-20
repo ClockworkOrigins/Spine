@@ -41,7 +41,7 @@ namespace widgets {
 		void achievementStateChanged(int state);
 		void gamepadStateChanged(int state);
 
-	private slots:
+	public slots:
 		void updateFromModel();
 
 	private:

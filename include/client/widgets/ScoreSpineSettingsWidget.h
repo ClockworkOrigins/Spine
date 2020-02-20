@@ -39,10 +39,12 @@ namespace widgets {
 
 		void save();
 
+	public slots:
+		void updateFromModel();
+
 	private slots:
 		void addNewScore();
 		void removeScore();
-		void updateFromModel();
 
 	private:
 		typedef struct {
