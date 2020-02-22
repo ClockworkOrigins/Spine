@@ -18,8 +18,9 @@
 
 #pragma once
 
-#include <string>
 #include <vector>
+
+#include "SpineServerConfig.h"
 
 namespace spine {
 namespace server {

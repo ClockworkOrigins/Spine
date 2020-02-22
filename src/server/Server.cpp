@@ -31,7 +31,7 @@
 #include "MariaDBWrapper.h"
 #include "MatchmakingServer.h"
 #include "ServerCommon.h"
-#include "SpineServerConfig.h"
+#include "SpineLevel.h"
 #include "UploadServer.h"
 
 #include "common/MessageStructs.h"
@@ -47,7 +47,7 @@ using namespace spine::server;
 
 static const std::string DEFAULTURL = "https://clockwork-origins.de/Gothic/downloads/mods/";
 
-Server::Server() : _listenClient(new clockUtils::sockets::TcpSocket()), _listenMPServer(new clockUtils::sockets::TcpSocket()), _downloadSizeChecker(new DownloadSizeChecker()), _matchmakingServer(new MatchmakingServer()), _newsLock(), _gmpServer(new GMPServer()), _uploadServer(new UploadServer()), _databaseServer(new DatabaseServer()), _managementServer(new ManagementServer()) {
+Server::Server() : _listenClient(new clockUtils::sockets::TcpSocket()), _listenMPServer(new clockUtils::sockets::TcpSocket()), _downloadSizeChecker(new DownloadSizeChecker()), _matchmakingServer(new MatchmakingServer()), _gmpServer(new GMPServer()), _uploadServer(new UploadServer()), _databaseServer(new DatabaseServer()), _managementServer(new ManagementServer()) {
 	DatabaseCreator::createTables();
 }
 
@@ -927,6 +927,8 @@ void Server::handleUpdateScore(clockUtils::sockets::TcpSocket *, UpdateScoreMess
 				return;
 			}
 		}
+
+		SpineLevel::updateLevel(userID);
 	}
 }
 
@@ -1058,6 +1060,8 @@ void Server::handleUnlockAchievement(clockUtils::sockets::TcpSocket *, UnlockAch
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
+
+		SpineLevel::updateLevel(userID);
 	}
 }
 
@@ -1865,7 +1869,7 @@ void Server::handleRequestAllAchievementStats(clockUtils::sockets::TcpSocket * s
 		playerCount = std::stoi(playerResult[0][0]);
 	}
 
-	bool isTeamMember = isTeamMemberOfMod(msg->modID, userID);
+	const bool isTeamMember = isTeamMemberOfMod(msg->modID, userID);
 
 	SendAllAchievementStatsMessage saasm;
 	for (auto vec : lastResults) {
@@ -2857,7 +2861,7 @@ void Server::handleSubmitInfoPage(clockUtils::sockets::TcpSocket * sock, SubmitI
 		}
 	} while (false);
 	// send ack
-	AckMessage ack;
+	const AckMessage ack;
 	const std::string serialized = ack.SerializePrivate();
 	sock->writePacket(serialized);
 }
@@ -2938,7 +2942,7 @@ void Server::handleSendUserInfos(clockUtils::sockets::TcpSocket * sock, SendUser
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				return;
 			}
-			auto lastResults = database.getResults<std::vector<std::string>>();
+			const auto lastResults = database.getResults<std::vector<std::string>>();
 			if (lastResults.empty()) { // if current mac doesn't match the mac from startup => ban
 				if (!database.query("EXECUTE insertBanStmt USING @paramUserID;")) {
 					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
@@ -3109,6 +3113,8 @@ void Server::handleSubmitCompatibility(clockUtils::sockets::TcpSocket *, SubmitC
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			break;
 		}
+
+		SpineLevel::updateLevel(userID);
 	} while (false);
 }
 
@@ -3321,6 +3327,8 @@ void Server::handleSubmitRating(clockUtils::sockets::TcpSocket *, SubmitRatingMe
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			break;
 		}
+
+		SpineLevel::updateLevel(userID);
 	} while (false);
 }
 
@@ -3639,7 +3647,7 @@ void Server::handleUpdateOfflineData(clockUtils::sockets::TcpSocket *, UpdateOff
 				break;
 			}
 		}
-		for (auto o : msg->overallSaves) {
+		for (const auto & o : msg->overallSaves) {
 			if (!database.query("SET @paramModID=" + std::to_string(o.modID) + ";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				break;
@@ -3671,6 +3679,8 @@ void Server::handleUpdateOfflineData(clockUtils::sockets::TcpSocket *, UpdateOff
 				break;
 			}
 		}
+
+		SpineLevel::updateLevel(userID);
 	} while (false);
 }
 
@@ -3908,11 +3918,13 @@ void Server::handleRequestAllFriends(clockUtils::sockets::TcpSocket * sock, Requ
 			std::string friendName = ServerCommon::getUsername(std::stoi(vec[0]));
 			auto results = database.getResults<std::vector<std::string>>();
 			if (results.empty()) {
-				uint32_t currentXP, nextXP;
-				safm.pendingFriends.emplace_back(friendName, getLevel(std::stoi(vec[0]), currentXP, nextXP));
+				int32_t friendID = std::stoi(vec[0]);
+				const auto sulm = SpineLevel::getLevel(friendID);
+				safm.pendingFriends.emplace_back(friendName, sulm.level);
 			} else {
-				uint32_t currentXP, nextXP;
-				safm.friends.emplace_back(friendName, getLevel(std::stoi(vec[0]), currentXP, nextXP));
+				int32_t friendID = std::stoi(vec[0]);
+				const auto sulm = SpineLevel::getLevel(friendID);
+				safm.friends.emplace_back(friendName, sulm.level);
 			}
 			allUsers.erase(std::remove_if(allUsers.begin(), allUsers.end(), [friendName](const std::string & o) { return o == friendName; }), allUsers.end());
 		}
@@ -3924,8 +3936,9 @@ void Server::handleRequestAllFriends(clockUtils::sockets::TcpSocket * sock, Requ
 		for (auto vec : lastResults) {
 			const std::string friendName = ServerCommon::getUsername(std::stoi(vec[0]));
 			if (std::find_if(safm.friends.begin(), safm.friends.end(), [friendName](const Friend & o) { return o.name == friendName; }) == safm.friends.end()) {
-				uint32_t currentXP, nextXP;
-				safm.friendRequests.emplace_back(friendName, getLevel(std::stoi(vec[0]), currentXP, nextXP));
+				int32_t friendID = std::stoi(vec[0]);
+				const auto sulm = SpineLevel::getLevel(friendID);
+				safm.friendRequests.emplace_back(friendName, sulm.level);
 				allUsers.erase(std::remove_if(allUsers.begin(), allUsers.end(), [friendName](const std::string & o) { return o == friendName; }), allUsers.end());
 			}
 		}
@@ -4039,10 +4052,7 @@ void Server::handleRequestUserLevel(clockUtils::sockets::TcpSocket * sock, Reque
 		if (userID == -1) {
 			break;
 		}
-		uint32_t currentXP, nextXP;
-		sulm.level = getLevel(userID, currentXP, nextXP);
-		sulm.currentXP = currentXP;
-		sulm.nextXP = nextXP;
+		sulm = SpineLevel::getLevel(userID);
 	} while (false);
 	const std::string serialized = sulm.SerializePrivate();
 	sock->writePacket(serialized);
@@ -4209,77 +4219,4 @@ bool Server::isTeamMemberOfMod(int modID, int userID) const {
 	} while (false);
 
 	return false;
-}
-
-uint32_t Server::getLevel(const int userID, uint32_t & currentXP, uint32_t & nextXP) const {
-	int level = 0;
-	currentXP = 0;
-
-	do {
-		MariaDBWrapper database;
-		if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, SPINEDATABASE, 0)) {
-			std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-			break;
-		}
-		if (!database.query("PREPARE selectAchievementsStmt FROM \"SELECT COUNT(*) FROM modAchievements WHERE UserID = ?\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			break;
-		}
-		if (!database.query("PREPARE selectScoresStmt FROM \"SELECT Count(*) FROM modScores WHERE UserID = ?\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			break;
-		}
-		if (!database.query("PREPARE selectRatingsStmt FROM \"SELECT Count(*) FROM ratings WHERE UserID = ?\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			break;
-		}
-		if (!database.query("PREPARE selectCompatibilitiesStmt FROM \"SELECT Count(*) FROM compatibilityList WHERE UserID = ?\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			break;
-		}
-		if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			break;
-		}
-		if (!database.query("EXECUTE selectAchievementsStmt USING @paramUserID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-			break;
-		}
-		auto lastResults = database.getResults<std::vector<std::string>>();
-		if (!lastResults.empty()) {
-			currentXP += std::stoi(lastResults[0][0]) * 50; // 50 EP per achievement
-		}
-		if (!database.query("EXECUTE selectScoresStmt USING @paramUserID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-			break;
-		}
-		lastResults = database.getResults<std::vector<std::string>>();
-		if (!lastResults.empty()) {
-			currentXP += std::stoi(lastResults[0][0]) * 100; // 100 EP per score
-		}
-		if (!database.query("EXECUTE selectRatingsStmt USING @paramUserID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-			break;
-		}
-		lastResults = database.getResults<std::vector<std::string>>();
-		if (!lastResults.empty()) {
-			currentXP += std::stoi(lastResults[0][0]) * 250; // 250 EP per rating
-		}
-		if (!database.query("EXECUTE selectCompatibilitiesStmt USING @paramUserID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-			break;
-		}
-		lastResults = database.getResults<std::vector<std::string>>();
-		if (!lastResults.empty()) {
-			currentXP += std::stoi(lastResults[0][0]) * 10; // 10 EP per compatibility list entry
-		}
-	} while (false);
-
-	nextXP = 500;
-	while (currentXP >= nextXP) {
-		level++;
-		nextXP += (level + 1) * 500;
-	}
-
-	return level;
 }

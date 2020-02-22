@@ -170,9 +170,6 @@ namespace server {
 		void handleIsAchievementUnlocked(clockUtils::sockets::TcpSocket * sock, common::IsAchievementUnlockedMessage * msg) const;
 
 		bool isTeamMemberOfMod(int modID, int userID) const;
-
-		// MP stuff, communication with external server
-		uint32_t getLevel(int userID, uint32_t & currentXP, uint32_t & nextXP) const;
 	};
 
 } /* namespace server */
