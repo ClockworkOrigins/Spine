@@ -51,6 +51,11 @@ void SpineLevel::updateLevel(int userID) {
 	cacheLevel(userID);
 }
 
+void SpineLevel::clear() {
+	std::lock_guard<std::recursive_mutex> lg(_lock);
+	_levels.clear();
+}
+
 void SpineLevel::cacheLevel(int userID) {
 	SendUserLevelMessage sulm;
 
@@ -85,6 +90,14 @@ void SpineLevel::cacheLevel(int userID) {
 			break;
 		}
 		if (!database.query("PREPARE selectCompatibilitiesStmt FROM \"SELECT Count(*) FROM compatibilityList WHERE UserID = ?\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("PREPARE selectPlayedModsWithTimeStmt FROM \"SELECT ModID, Duration FROM playtimes WHERE UserID = ?\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("PREPARE selectPlayTimesStmt FROM \"SELECT Duration FROM playtimes WHERE ModID = ? ORDER BY Duration ASC\";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
@@ -157,6 +170,37 @@ void SpineLevel::cacheLevel(int userID) {
 		lastResults = database.getResults<std::vector<std::string>>();
 		if (!lastResults.empty()) {
 			currentXP += std::stoi(lastResults[0][0]) * 10; // 10 EP per compatibility list entry
+		}
+
+		// play time over median or even third quartile gives some bonus XP
+		
+		if (!database.query("EXECUTE selectPlayedModsWithTimeStmt USING @paramUserID;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			break;
+		}
+		lastResults = database.getResults<std::vector<std::string>>();
+		for (const auto & vec : lastResults) {
+			const int ownDuration = std::stoi(vec[1]);
+			if (!database.query("SET @paramModID=" + vec[0] + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("EXECUTE selectPlayTimesStmt USING @paramModID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			const auto r = database.getResults<std::vector<std::string>>();
+			const int firstQuartile = std::stoi(r[r.size() / 4][0]);
+			const int median = std::stoi(r[r.size() / 2][0]);
+			const int thirdQuartile = std::stoi(r[(r.size() * 3) / 4][0]);
+
+			if (ownDuration > thirdQuartile) {
+				currentXP += 250;
+			} else if (ownDuration > median) {
+				currentXP += 100;
+			} else if (ownDuration > firstQuartile) {
+				currentXP += 50;
+			}
 		}
 	} while (false);
 

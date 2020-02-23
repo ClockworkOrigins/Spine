@@ -29,6 +29,7 @@ namespace server {
 	public:
 		static common::SendUserLevelMessage getLevel(int userID);
 		static void updateLevel(int userID);
+		static void clear();
 
 	private:
 		static std::recursive_mutex _lock;

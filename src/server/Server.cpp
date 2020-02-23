@@ -799,6 +799,7 @@ void Server::handleUpdatePlaytime(clockUtils::sockets::TcpSocket *, UpdatePlayTi
 		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
+	SpineLevel::clear();
 }
 
 void Server::handleRequestPlaytime(clockUtils::sockets::TcpSocket * sock, RequestPlayTimeMessage * msg) const {

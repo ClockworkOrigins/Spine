@@ -1726,7 +1726,9 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="17" patchVersion="0">
 		<Enhancement language="Deutsch">Erhält man alle Erfolge einer Mod, gibt es einen Bonus von 1000 XP auf das Spine-Level</Enhancement>
+		<Enhancement language="Deutsch">Spielzeit beeinflusst jetzt das Spine-Level</Enhancement>
 		
 		<Enhancement language="English">Unlocking all achievements of a mod gives a bonus of 1000 XP for the Spine level</Enhancement>
+		<Enhancement language="English">Playing time now influences the Spine level</Enhancement>
 	</Version>
 </Versions>
