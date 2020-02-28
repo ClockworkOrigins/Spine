@@ -202,6 +202,32 @@ void SpineLevel::cacheLevel(int userID) {
 				currentXP += 50;
 			}
 		}
+
+		// bonus XP for people that support us by playing our games
+		{
+			MariaDBWrapper ewDatabase;
+			if (!ewDatabase.connect("localhost", DATABASEUSER, DATABASEPASSWORD, EWDATABASE, 0)) {
+				std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			if (!ewDatabase.query("PREPARE selectPlayedTimeStmt FROM \"SELECT Time FROM playTimes WHERE UserID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+		
+			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("EXECUTE selectPlayedTimeStmt USING @paramUserID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			const auto r = database.getResults<std::vector<std::string>>();
+			if (!r.empty()) {
+				currentXP += 1000;
+			}
+		}
 	} while (false);
 
 	uint32_t nextXP = 500;

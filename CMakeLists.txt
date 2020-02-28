@@ -18,6 +18,7 @@ SET(DATABASEUSER "foobar" CACHE STRING "user used on the server for database acc
 SET(DATABASEPASSWORD "blafoo" CACHE STRING "password used on the server for database access")
 SET(ACCOUNTSDATABASE "accounts" CACHE STRING "database used for general account stuff")
 SET(SPINEDATABASE "spine" CACHE STRING "database for all Spine related stuff")
+SET(EWDATABASE "Elemental War" CACHE STRING "database for all Elemental War related stuff")
 SET(TRANSLATOR_RSA_HEADER "config/RSAKey.h" CACHE STRING "header containing the RSA key used for the translator API")
 SET(SPINE_RSA_HEADER "config/RSAKey.h" CACHE STRING "header containing the RSA key used for the server API")
 SET(SPINE_PRIVATE_KEY "config/rsa.pem" CACHE STRING "private RSA key used for the server")
