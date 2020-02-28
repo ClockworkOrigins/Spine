@@ -215,15 +215,15 @@ void SpineLevel::cacheLevel(int userID) {
 				break;
 			}
 		
-			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+			if (!ewDatabase.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				break;
 			}
-			if (!database.query("EXECUTE selectPlayedTimeStmt USING @paramUserID;")) {
+			if (!ewDatabase.query("EXECUTE selectPlayedTimeStmt USING @paramUserID;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				break;
 			}
-			const auto r = database.getResults<std::vector<std::string>>();
+			const auto r = ewDatabase.getResults<std::vector<std::string>>();
 			if (!r.empty()) {
 				currentXP += 1000;
 			}
