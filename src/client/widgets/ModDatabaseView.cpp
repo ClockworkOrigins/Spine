@@ -168,7 +168,7 @@ namespace widgets {
 } /* namespace widgets */
 } /* namespace spine */
 
-ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _mainWindow(mainWindow), _treeView(nullptr), _sourceModel(nullptr), _sortModel(nullptr), _mods(), _gothicValid(false), _gothic2Valid(false), _parentMods(), _gothicDirectory(), _gothic2Directory(), _packageIDIconMapping(), _waitSpinner(nullptr), _allowRenderer(false) {
+ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _mainWindow(mainWindow), _treeView(nullptr), _sourceModel(nullptr), _sortModel(nullptr), _gothicValid(false), _gothic2Valid(false), _waitSpinner(nullptr), _allowRenderer(false), _cached(false) {
 	QVBoxLayout * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
@@ -369,9 +369,13 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 	_sortModel->setRendererAllowed(_allowRenderer);
 
 	removeInvalidDatabaseEntries();
+
+	updateModList(-1, -1, InstallMode::None);
 }
 
 void ModDatabaseView::changeLanguage(QString language) {
+	_cached = false;
+	
 	updateModList(-1, -1, InstallMode::None);
 }
 
@@ -379,61 +383,57 @@ void ModDatabaseView::updateModList(int modID, int packageID, InstallMode mode) 
 	if (mode == InstallMode::Silent && modID != -1) {
 		_installSilently.insert(modID);
 	}
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage updateModList #1: " << getPRAMValue());
-#endif
-	_waitSpinner = new WaitSpinner(QApplication::tr("LoadingDatabase"), this);
-	_sourceModel->setHorizontalHeaderLabels(QStringList() << QApplication::tr("ID") << QApplication::tr("Name") << QApplication::tr("Author") << QApplication::tr("Type") << QApplication::tr("Game") << QApplication::tr("DevTime") << QApplication::tr("AvgTime") << QApplication::tr("ReleaseDate") << QApplication::tr("Version") << QApplication::tr("DownloadSize") << QString());
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage updateModList #2: " << getPRAMValue());
-#endif
+	if (!_cached) {
+		_waitSpinner = new WaitSpinner(QApplication::tr("LoadingDatabase"), this);
+		_sourceModel->setHorizontalHeaderLabels(QStringList() << QApplication::tr("ID") << QApplication::tr("Name") << QApplication::tr("Author") << QApplication::tr("Type") << QApplication::tr("Game") << QApplication::tr("DevTime") << QApplication::tr("AvgTime") << QApplication::tr("ReleaseDate") << QApplication::tr("Version") << QApplication::tr("DownloadSize") << QString());
+	}
 	QtConcurrent::run([this, modID, packageID]() {
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage updateModList #3: " << getPRAMValue());
-#endif
-		common::RequestAllModsMessage ramm;
-		ramm.language = Config::Language.toStdString();
-		ramm.username = Config::Username.toStdString();
-		ramm.password = Config::Password.toStdString();
-		std::string serialized = ramm.SerializePublic();
-		clockUtils::sockets::TcpSocket sock;
-		clockUtils::ClockError err = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-		if (clockUtils::ClockError::SUCCESS == err) {
-			sock.writePacket(serialized);
-			if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-				try {
-					common::Message * m = common::Message::DeserializePublic(serialized);
-					if (m) {
-						common::UpdateAllModsMessage * uamm = dynamic_cast<common::UpdateAllModsMessage *>(m);
-						if (uamm) {
-							emit receivedModList(uamm->mods);
+		if (!_cached) {
+			common::RequestAllModsMessage ramm;
+			ramm.language = Config::Language.toStdString();
+			ramm.username = Config::Username.toStdString();
+			ramm.password = Config::Password.toStdString();
+			std::string serialized = ramm.SerializePublic();
+			clockUtils::sockets::TcpSocket sock;
+			clockUtils::ClockError err = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
+			if (clockUtils::ClockError::SUCCESS == err) {
+				sock.writePacket(serialized);
+				if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
+					try {
+						common::Message * m = common::Message::DeserializePublic(serialized);
+						if (m) {
+							common::UpdateAllModsMessage * uamm = dynamic_cast<common::UpdateAllModsMessage *>(m);
+							if (uamm) {
+								_cached = true;
+								emit receivedModList(uamm->mods);
+							}
 						}
+						delete m;
+					} catch (...) {
+						return;
 					}
-					delete m;
-				} catch (...) {
-					return;
+				} else {
+					qDebug() << "Error occurred: " << int(err);
+				}
+				if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
+					try {
+						common::Message * m = common::Message::DeserializePublic(serialized);
+						if (m) {
+							common::UpdatePackageListMessage * uplm = dynamic_cast<common::UpdatePackageListMessage *>(m);
+							if (uplm) {
+								emit receivedPackageList(uplm->packages);
+							}
+						}
+						delete m;
+					} catch (...) {
+						return;
+					}
+				} else {
+					qDebug() << "Error occurred: " << int(err);
 				}
 			} else {
 				qDebug() << "Error occurred: " << int(err);
 			}
-			if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-				try {
-					common::Message * m = common::Message::DeserializePublic(serialized);
-					if (m) {
-						common::UpdatePackageListMessage * uplm = dynamic_cast<common::UpdatePackageListMessage *>(m);
-						if (uplm) {
-							emit receivedPackageList(uplm->packages);
-						}
-					}
-					delete m;
-				} catch (...) {
-					return;
-				}
-			} else {
-				qDebug() << "Error occurred: " << int(err);
-			}
-		} else {
-			qDebug() << "Error occurred: " << int(err);
 		}
 		if (modID > 0 && packageID > 0) {
 			emit triggerInstallPackage(modID, packageID);
@@ -464,12 +464,10 @@ void ModDatabaseView::loginChanged() {
 			Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "DELETE FROM patchConfigs WHERE ModID = " + std::to_string(modID) + " AND PatchID = 228;", dbErr);
 			Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "INSERT INTO patchConfigs (ModID, PatchID, Enabled) VALUES (" + std::to_string(modID) + ", 228, 1);", dbErr);
 		}
-	} else if (isVisible()) {
-		updateModList(-1, -1, InstallMode::None);
 	}
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage ModDatabaseView::setUsername #2: " << getPRAMValue());
-#endif
+
+	_cached = false;
+	updateModList(-1, -1, InstallMode::None);
 }
 
 void ModDatabaseView::setGothicDirectory(QString dir) {

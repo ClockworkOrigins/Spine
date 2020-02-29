@@ -102,6 +102,8 @@ namespace widgets {
 		QList<int32_t> _downloadingPackageList;
 		QSet<int32_t> _installSilently;
 
+		bool _cached;
+
 		void resizeEvent(QResizeEvent * evt) override;
 		qint64 getDownloadSize(common::Mod mod) const;
 		void selectedModIndex(const QModelIndex & index);
