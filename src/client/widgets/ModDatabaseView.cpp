@@ -440,9 +440,6 @@ void ModDatabaseView::updateModList(int modID, int packageID, InstallMode mode) 
 		} else if (modID > 0) {
 			emit triggerInstallMod(modID);
 		}
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage updateModList #4: " << getPRAMValue());
-#endif
 	});
 }
 
@@ -455,9 +452,6 @@ void ModDatabaseView::gothic2ValidationChanged(bool valid) {
 }
 
 void ModDatabaseView::loginChanged() {
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage ModDatabaseView::setUsername #1: " << getPRAMValue());
-#endif
 	// check if a GMP mod is installed and GMP is not installed
 	Database::DBError dbErr;
 	const std::vector<int> gmpModInstalled = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID FROM mods WHERE ModID = 62 OR ModID = 117 OR ModID = 171 OR ModID = 172 OR ModID = 173 OR ModID = 218;", dbErr);
@@ -487,9 +481,6 @@ void ModDatabaseView::setGothic2Directory(QString dir) {
 }
 
 void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage updateModList #10: " << getPRAMValue());
-#endif
 	_sourceModel->removeRows(0, _sourceModel->rowCount());
 	_parentMods.clear();
 	int row = 0;
@@ -623,9 +614,6 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 		row++;
 	}
 	_mods = mods;
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage updateModList #11: " << getPRAMValue());
-#endif
 }
 
 void ModDatabaseView::selectedIndex(const QModelIndex & index) {

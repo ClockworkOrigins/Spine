@@ -71,9 +71,6 @@ int AutoUpdateDialog::exec() {
 }
 
 void AutoUpdateDialog::checkForUpdate() {
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage checkForUpdate #1: " << getPRAMValue());
-#endif
 	clockUtils::sockets::TcpSocket sock;
 	if (sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000) != clockUtils::ClockError::SUCCESS) {
 		accept();
@@ -112,9 +109,6 @@ void AutoUpdateDialog::checkForUpdate() {
 		}
 		delete ufm;
 		accept();
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage checkForUpdate #3: " << getPRAMValue());
-#endif
 		return;
 	}
 	QString exeFileName = qApp->applicationDirPath() + "/" + qApp->applicationName();
@@ -180,7 +174,4 @@ void AutoUpdateDialog::checkForUpdate() {
 			}
 		}
 	}
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage checkForUpdate #2: " << getPRAMValue());
-#endif
 }

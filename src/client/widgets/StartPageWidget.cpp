@@ -122,9 +122,6 @@ void StartPageWidget::requestNewsUpdate() {
 		return;
 	}
 	QtConcurrent::run([this]() {
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage requestNewsUpdate #1: " << getPRAMValue());
-#endif
 		Database::DBError err;
 		std::vector<int> res = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT IFNULL(MAX(NewsID), 0) FROM news WHERE Language = '" + Config::Language.toStdString() + "';", err);
 		if (res.empty()) {
@@ -159,9 +156,6 @@ void StartPageWidget::requestNewsUpdate() {
 			}
 		}
 		emit receivedNews();
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage requestNewsUpdate #2: " << getPRAMValue());
-#endif
 	});
 }
 
@@ -174,9 +168,6 @@ void StartPageWidget::loginChanged() {
 }
 
 void StartPageWidget::updateNews() {
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage updateNews #1: " << getPRAMValue());
-#endif
 	for (NewsWidget * nw : _news) {
 		nw->deleteLater();
 	}
@@ -184,9 +175,6 @@ void StartPageWidget::updateNews() {
 	_newsTickerModel->clear();
 	Database::DBError err;
 	std::vector<common::SendAllNewsMessage::News> news = Database::queryAll<common::SendAllNewsMessage::News, std::string, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT NewsID, Title, Body, Timestamp FROM news WHERE Language = '" + Config::Language.toStdString() + "' ORDER BY Timestamp DESC, NewsID DESC;", err);
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage updateNews #2: " << getPRAMValue());
-#endif
 	if (Config::OnlineMode) {
 		const auto images = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT DISTINCT File, Hash FROM newsImageReferences;", err);
 		MultiFileDownloader * mfd = new MultiFileDownloader(this);
@@ -207,17 +195,8 @@ void StartPageWidget::updateNews() {
 		}
 		
 		DownloadQueue::getInstance()->add(mfd);
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage updateNews #3: " << getPRAMValue());
-#endif
 	}
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage updateNews #4: " << getPRAMValue());
-#endif
 	for (common::SendAllNewsMessage::News n : news) {
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage updateNews #4.1: " << getPRAMValue());
-#endif
 		const auto mods = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT DISTINCT ModID, Name FROM newsModReferences WHERE NewsID = " + std::to_string(n.id) + " AND Language = '" + Config::Language.toStdString() + "';", err);
 		for (const auto & p : mods) {
 			n.referencedMods.emplace_back(std::stoi(p.first), p.second);
@@ -240,17 +219,11 @@ void StartPageWidget::updateNews() {
 		itmTitle->setFont(f);
 		itmTimestamp->setFont(f);
 		_newsTickerModel->appendRow(QList<QStandardItem *>() << itmTitle << itmTimestamp);
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage updateNews #4.2: " << getPRAMValue());
-#endif
 	}
 	if (!_news.empty()) {
 		_newsTicker->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Stretch);
 		_newsTicker->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeMode::ResizeToContents);
 	}
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage updateNews #5: " << getPRAMValue());
-#endif
 }
 
 void StartPageWidget::selectedNews(const QModelIndex & index) {

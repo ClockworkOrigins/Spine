@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include <QMap>
 #include <QModelIndex>
 #include <QSet>
 #include <QWidget>

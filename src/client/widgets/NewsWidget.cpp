@@ -57,10 +57,6 @@ using namespace spine::widgets;
 NewsWidget::NewsWidget(common::SendAllNewsMessage::News news, bool onlineMode, QWidget * par) : QWidget(par), _titleLabel(nullptr), _textBrowser(nullptr), _timestampLabel(nullptr), _newsID(news.id), _installButtons() {
 	setObjectName("NewsWidget");
 
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage NewsWidget #1: " << getPRAMValue());
-#endif
-
 	QVBoxLayout * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
@@ -73,10 +69,6 @@ NewsWidget::NewsWidget(common::SendAllNewsMessage::News news, bool onlineMode, Q
 	hbl->addWidget(_titleLabel, 0, Qt::AlignLeft);
 	hbl->addWidget(_timestampLabel, 0, Qt::AlignRight);
 	l->addLayout(hbl);
-
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage NewsWidget #2: " << getPRAMValue());
-#endif
 
 	_textBrowser = new QTextBrowser(this);
 	_textBrowser->setProperty("newsText", true);
@@ -91,23 +83,13 @@ NewsWidget::NewsWidget(common::SendAllNewsMessage::News news, bool onlineMode, Q
 	l->addWidget(_textBrowser);
 	l->setStretchFactor(_textBrowser, 1);
 
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage NewsWidget #3: " << getPRAMValue());
-#endif
-
 	static QIcon downloadIcon(":/svg/download.svg");
 
 	int installButtonSize = 0;
 	for (const std::pair<int32_t, std::string> & mod : news.referencedMods) {
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage NewsWidget #3.1: " << getPRAMValue());
-#endif
 		Database::DBError err;
 		const bool installed = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM mods WHERE ModID = " + std::to_string(mod.first) + " LIMIT 1;", err) > 0;
 		if (!installed && onlineMode) {
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage NewsWidget #3.2: " << getPRAMValue());
-#endif
 			//QPushButton * installButton = new QPushButton(QIcon(":/svg/download.svg"), s2q(mod.second), this);
 			QPushButton * installButton = new QPushButton(downloadIcon, s2q(mod.second), this);
 			l->addWidget(installButton, 0, Qt::AlignLeft);
@@ -115,16 +97,8 @@ NewsWidget::NewsWidget(common::SendAllNewsMessage::News news, bool onlineMode, Q
 			installButton->setProperty("modid", int(mod.first));
 			connect(installButton, &QPushButton::released, this, &NewsWidget::installMod);
 			_installButtons.append(installButton);
-
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage NewsWidget #3.3: " << getPRAMValue());
-#endif
 		}
 	}
-
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage NewsWidget #4: " << getPRAMValue());
-#endif
 
 	setLayout(l);
 
@@ -136,20 +110,12 @@ NewsWidget::NewsWidget(common::SendAllNewsMessage::News news, bool onlineMode, Q
 
 	static const QMap<int, double> additionalPercentage = { { 200, 0.3 }, { 350, 0.4 }, { 2000, 0.45 } };
 
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage NewsWidget #5: " << getPRAMValue());
-#endif
-
 	const int height = _textBrowser->document()->size().height();
 	const double percent = additionalPercentage.upperBound(height).value();
 	_textBrowser->setMinimumHeight(height + int(percent * height));
 	_textBrowser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 	setMinimumSize(800, std::max(_titleLabel->size().height(), _timestampLabel->size().height()) + height + installButtonSize + int(percent * height) + 50);
 	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
-	
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage NewsWidget #6: " << getPRAMValue());
-#endif
 }
 
 void NewsWidget::finishedInstallation(int modID, int, bool success) {

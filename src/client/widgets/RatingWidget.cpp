@@ -135,9 +135,6 @@ void RatingWidget::mousePressEvent(QMouseEvent * evt) {
 
 void RatingWidget::requestRating() {
 	QtConcurrent::run([this]() {
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage RatingWidget::requestRating #1: " << getPRAMValue());
-#endif
 		clockUtils::sockets::TcpSocket sock;
 		clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
 		if (clockUtils::ClockError::SUCCESS == cErr) {
@@ -168,8 +165,5 @@ void RatingWidget::requestRating() {
 				}
 			}
 		}
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage RatingWidget::requestRating #2: " << getPRAMValue());
-#endif
 	});
 }

@@ -108,10 +108,6 @@ void Gothic1Launcher::setDirectory(const QString & directory) {
 void Gothic1Launcher::patchCheck() {		
 	if (!QFileInfo::exists(_directory + "/System/Gothic.exe")) return;
 
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage patchCheckG1 #1: " << getPRAMValue());
-#endif
-
 	QMap<QString, QString> fileList;
 	fileList.insert("system/Autopan.flt", "3b72d25d0ddeb6085657ec74b51cf5c03dc61c9f26ed75faa6ed4033ab051082e3b232b310f67bbc1e9eaf063451fe098da456e8a89699e49abbca99ac1005cb");
 	fileList.insert("system/Capture.flt", "5e5bf1c6639c13b188108b0ae6ca54c7ae8703d6902c6b2c0875c3769e123a9b90247562e71591bbce0ada652c3f37cf6b36ffdfe00730e8ec458349ef8023f9");
@@ -190,10 +186,6 @@ void Gothic1Launcher::patchCheck() {
 	if (QFileInfo::exists(_directory + "/System/ddraw.dll")) {
 		QFile::remove(_directory + "/System/ddraw.dll");
 	}
-
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage patchCheckG1 #2: " << getPRAMValue());
-#endif
 }
 
 QString Gothic1Launcher::getExecutable() const {

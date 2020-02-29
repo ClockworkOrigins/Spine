@@ -91,9 +91,6 @@ int ChangelogDialog::execStartup() {
 }
 
 int ChangelogDialog::exec() {
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage ChangelogDialog::exec #1: " << getPRAMValue());
-#endif
 	tinyxml2::XMLDocument doc;
 
 	const tinyxml2::XMLError e = doc.LoadFile((qApp->applicationDirPath().toStdString() + "/changelog.xml").c_str());
@@ -160,9 +157,6 @@ int ChangelogDialog::exec() {
 		}
 	}
 	_changelogBrowser->setHtml(html);
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage ChangelogDialog::exec #2: " << getPRAMValue());
-#endif
 
 	return QDialog::exec();
 }

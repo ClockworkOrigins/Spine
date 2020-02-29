@@ -140,22 +140,12 @@ int main(int argc, char ** argv) {
 
 	LOGINFO("Start logging");
 
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage main #1: " << getPRAMValue());
-#endif
-
 	int ret;
 	{
 		spine::widgets::MainWindow wnd(false);
 
-#ifdef Q_OS_WIN
-		LOGINFO("Memory Usage main #2: " << getPRAMValue());
-#endif
 		wnd.show();
 
-#ifdef Q_OS_WIN
-		LOGINFO("Memory Usage main #3: " << getPRAMValue());
-#endif
 		ret = QApplication::exec();
 	}
 	delete Config::IniParser;

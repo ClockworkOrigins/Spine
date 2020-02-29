@@ -132,10 +132,6 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 
 	_downloadQueue = new DownloadQueue();
 
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage MainWindow c'tor #1: " << getPRAMValue());
-#endif
-
 	if (!Config::IniParser->contains("INSTALLATION/DirectX")) {
 		// so far Spine automatically install DirectX during installation, but to enforce reinstall on download of e.g. renderer, this can manually set to false in the ini
 		Config::IniParser->setValue("INSTALLATION/DirectX", true);
@@ -152,10 +148,6 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 
 	restoreSettings();
 
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage MainWindow c'tor #2: " << getPRAMValue());
-#endif
-
 	qRegisterMetaType<int32_t>("int32_t");
 
 	QString version = Config::IniParser->value("MISC/Version", "").toString();
@@ -169,10 +161,6 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		}
 		showChangelog = true;
 	}
-
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage MainWindow c'tor #3: " << getPRAMValue());
-#endif
 
 	if (Config::OnlineMode) {
 		{
@@ -196,10 +184,6 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		}
 	}
 
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage MainWindow c'tor #4: " << getPRAMValue());
-#endif
-
 	// remove High Vegetation Mod from patches
 	{
 		Database::DBError err;
@@ -215,10 +199,6 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 
 		Config::IniParser->setValue("MISC/Version", QString::fromStdString(VERSION_STRING));
 	}
-
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage MainWindow c'tor #5: " << getPRAMValue());
-#endif
 
 	_tabWidget = new QTabWidget(this);
 	_tabWidget->setProperty("library", true);
@@ -256,10 +236,6 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	}
 	connect(startPage, &StartPageWidget::triggerModStart, this, &MainWindow::triggerModStart);
 
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage MainWindow c'tor #6: " << getPRAMValue());
-#endif
-
 	_spineEditor = new SpineEditor(this);
 
 	QWidget * w = new QWidget(_tabWidget);
@@ -288,10 +264,6 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		_modListView->setFont(f);
 	}
 	_modListView->setIconSize(QSize(200, 200));
-
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage MainWindow c'tor #7: " << getPRAMValue());
-#endif
 
 	{
 		QWidget * filterWidget = new QWidget(this);
@@ -362,10 +334,6 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		l->addWidget(filterWidget);
 	}
 
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage MainWindow c'tor #8: " << getPRAMValue());
-#endif
-
 	connect(_modListView, &LibraryListView::clicked, this, &MainWindow::selectedMod);
 	connect(_modListView, &LibraryListView::doubleClicked, this, &MainWindow::selectedMod);
 
@@ -385,10 +353,6 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 
 	_modListView->setFixedWidth(400);
 
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage MainWindow c'tor #9: " << getPRAMValue());
-#endif
-
 	topLayout->addWidget(_modListView);
 
 	QVBoxLayout * vbl = new QVBoxLayout();
@@ -400,10 +364,6 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	l->addWidget(topWidget);
 
 	w->setLayout(l);
-
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage MainWindow c'tor #10: " << getPRAMValue());
-#endif
 
 	_tabWidget->addTab(w, QApplication::tr("Library"));
 	UPDATELANGUAGESETTABTEXT(_tabWidget, Config::OnlineMode ? int(MainTabsOnline::LibraryOnline) : int(MainTabsOffline::LibraryOffline), "Library");
@@ -421,10 +381,6 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 
 		connect(_modInfoView, &ModInfoView::installMod, _modDatabaseView, static_cast<void(ModDatabaseView::*)(int, int, InstallMode)>(&ModDatabaseView::updateModList));
 	}
-
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage MainWindow c'tor #11: " << getPRAMValue());
-#endif
 
 	_tabWidget->setCurrentWidget(startPage);
 
@@ -472,16 +428,8 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		}
 	}
 
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage MainWindow c'tor #12: " << getPRAMValue());
-#endif
-
 	Database::DBError err;
 	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "CREATE TABLE IF NOT EXISTS hiddenMods (ModID INT PRIMARY KEY);", err);
-
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage MainWindow c'tor #13: " << getPRAMValue());
-#endif
 
 	LauncherFactory::getInstance()->updateModel(_modListModel);
 	
@@ -503,10 +451,6 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		}
 	}
 
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage MainWindow c'tor #14: " << getPRAMValue());
-#endif
-
 	_loginDialog = new LoginDialog(this);
 
 	QMenu * fileMenu = new QMenu(QApplication::tr("File"), this);
@@ -527,10 +471,6 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	connect(importAction, &QAction::triggered, this, &MainWindow::execImport);
 
 	fileMenu->addSeparator();
-
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage MainWindow c'tor #15: " << getPRAMValue());
-#endif
 
 	if (!Config::OnlineMode) {
 		QAction * onlineAction = fileMenu->addAction(QApplication::tr("SwitchToOnline"));
@@ -610,15 +550,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		connect(devPathAction, &QAction::triggered, this, &MainWindow::setDevPath);
 	}
 
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage MainWindow c'tor #16: " << getPRAMValue());
-#endif
-
 	_autoUpdateDialog = new AutoUpdateDialog(this);
-
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage MainWindow c'tor #17: " << getPRAMValue());
-#endif
 
 	QAction * faqAction = helpMenu->addAction(QApplication::tr("FAQ"));
 	faqAction->setToolTip(QApplication::tr("FAQTooltip"));
@@ -666,21 +598,9 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	QAction * aboutAction = helpMenu->addAction(QApplication::tr("About"));
 	UPDATELANGUAGESETTEXT(aboutAction, "About");
 
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage MainWindow c'tor #18: " << getPRAMValue());
-#endif
-
 	AboutDialog * aboutDialog = new AboutDialog(this);
 
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage MainWindow c'tor #19: " << getPRAMValue());
-#endif
-
 	_changelogDialog = new ChangelogDialog(this);
-
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage MainWindow c'tor #20: " << getPRAMValue());
-#endif
 
 #ifdef Q_OS_WIN
 	connect(installG2FromCDAction, &QAction::triggered, _installGothic2FromCDDialog, &InstallGothic2FromCDDialog::exec);
@@ -715,10 +635,6 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		});
 	}
 
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage MainWindow c'tor #21: " << getPRAMValue());
-#endif
-
 	if (showChangelog && !version.isEmpty()) {
 		QTimer::singleShot(0, _changelogDialog, &ChangelogDialog::execStartup);
 	}
@@ -741,10 +657,6 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		installG2FromCDAction->setVisible(!b);
 	});
 	connect(_installGothic2FromCDDialog, &InstallGothic2FromCDDialog::updateGothic2Directory, _settingsDialog->getLocationSettingsWidget(), &LocationSettingsWidget::setGothic2Directory);
-#endif
-
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage MainWindow c'tor #22: " << getPRAMValue());
 #endif
 
 	if (Config::OnlineMode) {
@@ -788,10 +700,6 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		connect(_modUpdateDialog, &ModUpdateDialog::updatedMod, LauncherFactory::getInstance(), &LauncherFactory::updateFinished);
 		connect(_modUpdateDialog, &ModUpdateDialog::updatedMod, _modInfoPage, &ModInfoPage::updateFinished);
 	}
-
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage MainWindow c'tor #23: " << getPRAMValue());
-#endif
 }
 
 MainWindow::~MainWindow() {

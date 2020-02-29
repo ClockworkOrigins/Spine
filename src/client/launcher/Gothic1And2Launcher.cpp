@@ -1980,9 +1980,6 @@ void Gothic1And2Launcher::parseMods() {
 		LOGINFO("Parsing Mods");
 	}
 
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage parseMods #1: " << getPRAMValue());
-#endif
 	_parsedInis.clear();
 	if (!_developerModeActive) {
 		if (Config::extendedLogging) {
@@ -1991,17 +1988,10 @@ void Gothic1And2Launcher::parseMods() {
 		parseInstalledMods();
 	}
 
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage parseMods #2: " << getPRAMValue());
-#endif
 	if (Config::extendedLogging) {
 		LOGINFO("Parsing Mods in Gothic 1 Folder");
 	}
 	parseMods(_directory);
-
-#ifdef Q_OS_WIN
-	LOGINFO("Memory Usage parseMods #3: " << getPRAMValue());
-#endif
 }
 
 void Gothic1And2Launcher::parseMods(QString baseDir) {
