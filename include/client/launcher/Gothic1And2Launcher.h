@@ -149,7 +149,7 @@ namespace launcher {
 
 		void updateModStats() override;
 		
-		bool prepareModStart(QString * usedExecutable, QStringList * backgroundExecutables, bool * newGMP, QSet<QString> * dependencies);
+		bool prepareModStart(QString * usedExecutable, QStringList * backgroundExecutables, bool * newGMP, QSet<QString> * dependencies, bool * renderer);
 
 		void updateView(int modID, const QString & iniFile) override;
 		void removeModFiles();
@@ -163,6 +163,7 @@ namespace launcher {
 		void updatePlugins(int modID);
 
 		bool linkOrCopyFile(QString sourcePath, QString destinationPath);
+		bool linkOrCopyFolder(QString sourcePath, QString destinationPath);
 		bool canSkipFile(const QString & filename) const;
 
 		void emitSplashMessage(QString message);
