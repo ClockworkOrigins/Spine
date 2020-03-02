@@ -32,6 +32,7 @@
 #include <QDir>
 #include <QEventLoop>
 #include <QFile>
+#include <QFutureWatcher>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
@@ -85,8 +86,16 @@ void FileDownloader::startDownload() {
 		realName.chop(2);
 	}
 	if (QFileInfo::exists(_targetDirectory + "/" + realName)) {
-		const bool b = utils::Hashing::checkHash(_targetDirectory + "/" + realName, _hash);
-		if (b) {
+		QEventLoop hashLoop;
+		QFutureWatcher<bool> watcher;
+		connect(&watcher, &QFutureWatcher<bool>::finished, &hashLoop, &QEventLoop::quit);
+		QFuture<bool> f = QtConcurrent::run([&]() {
+			return utils::Hashing::checkHash(_targetDirectory + "/" + realName, _hash);
+		});
+		watcher.setFuture(f);
+		hashLoop.exec();
+		
+		if (f.result()) {
 			if (Config::extendedLogging) {
 				LOGINFO("Skipping file as it already exists");
 			}

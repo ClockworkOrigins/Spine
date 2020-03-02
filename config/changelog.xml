@@ -1729,10 +1729,12 @@
 		<Enhancement language="Deutsch">Spielzeit beeinflusst jetzt das Spine-Level</Enhancement>
 		<Enhancement language="Deutsch">Datenbank wird jetzt nur neu geladen, wenn Sprache oder Account gewechselt wird</Enhancement>
 		<Bug language="Deutsch">Renderer kann im Admin-Modus jetzt auch bei Start über Steam genutzt werden</Bug>
+		<Bug language="Deutsch">Initiales Hashen bei Download-Start wird jetzt im Hintergrund ausgeführt, um die GUI nicht mehr zu blockieren</Bug>
 		
 		<Enhancement language="English">Unlocking all achievements of a mod gives a bonus of 1000 XP for the Spine level</Enhancement>
 		<Enhancement language="English">Playing time now influences the Spine level</Enhancement>
 		<Enhancement language="English">Database now only gets reloaded when language or account is switched</Enhancement>
 		<Bug language="English">Renderer can be used when launching via Steam now in admin mode</Bug>
+		<Bug language="English">Initial hashing now is done in background to not block GUI anymore</Bug>
 	</Version>
 </Versions>
