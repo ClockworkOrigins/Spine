@@ -794,7 +794,12 @@ void Gothic1And2Launcher::start() {
 #endif
 
 	if (newGMP) {
-		process->start("\"" + _directory + "/" + usedExecutable + "\"", args);
+		if (QFileInfo::exists(_directory + "/" + usedExecutable) && QFileInfo(_directory + "/" + usedExecutable).isExecutable()) {
+			process->start("\"" + _directory + "/" + usedExecutable + "\"", args);
+		} else {
+			finishedMod(0, QProcess::CrashExit);
+			return;
+		}
 	} else {
 		if (usedExecutable.compare(getExecutable(), Qt::CaseInsensitive) == 0 && canBeStartedWithSteam()) {
 			if (renderer) {
@@ -803,7 +808,12 @@ void Gothic1And2Launcher::start() {
 			}
 			startViaSteam(args);
 		} else {
-			process->start("\"" + _directory + "/System/" + usedExecutable + "\"", args);
+			if (QFileInfo::exists(_directory + "/System/" + usedExecutable) && QFileInfo(_directory + "/System/" + usedExecutable).isExecutable()) {
+				process->start("\"" + _directory + "/System/" + usedExecutable + "\"", args);
+			} else {
+				finishedMod(0, QProcess::CrashExit);
+				return;
+			}
 		}
 	}
 	LOGINFO("Started " << usedExecutable.toStdString());
