@@ -54,9 +54,9 @@ namespace widgets {
 	signals:
 		void receivedModList(std::vector<common::Mod>);
 		void receivedModSizes(std::vector<std::pair<int32_t, uint64_t>>);
-		void receivedModFilesList(common::Mod, std::vector<std::pair<std::string, std::string>>, QString);
+		void receivedModFilesList(common::Mod, QSharedPointer<QList<QPair<QString, QString>>>, QString);
 		void receivedPackageList(std::vector<common::UpdatePackageListMessage::Package>);
-		void receivedPackageFilesList(common::Mod, common::UpdatePackageListMessage::Package, std::vector<std::pair<std::string, std::string>>, QString fileserver);
+		void receivedPackageFilesList(common::Mod, common::UpdatePackageListMessage::Package, QSharedPointer<QList<QPair<QString, QString>>>, QString fileserver);
 		void triggerInstallMod(int);
 		void triggerInstallPackage(int, int);
 		void loadPage(int32_t);
@@ -75,11 +75,11 @@ namespace widgets {
 		void updateModList(std::vector<common::Mod> mods);
 		void selectedIndex(const QModelIndex & index);
 		void doubleClickedIndex(const QModelIndex & index);
-		void downloadModFiles(common::Mod mod, std::vector<std::pair<std::string, std::string>> fileList, QString fileserver);
+		void downloadModFiles(common::Mod mod, QSharedPointer<QList<QPair<QString, QString>>> fileList, QString fileserver);
 		void sortByColumn(int column);
 		void changedFilterExpression(const QString & expression);
 		void updatePackageList(std::vector<common::UpdatePackageListMessage::Package> packages);
-		void downloadPackageFiles(common::Mod mod, common::UpdatePackageListMessage::Package package, std::vector<std::pair<std::string, std::string>> fileList, QString fileserver);
+		void downloadPackageFiles(common::Mod mod, common::UpdatePackageListMessage::Package package, QSharedPointer<QList<QPair<QString, QString>>> fileList, QString fileserver);
 		void installMod(int modID);
 		void installPackage(int modID, int packageID);
 

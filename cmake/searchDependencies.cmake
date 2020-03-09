@@ -43,6 +43,26 @@ IF(WITH_CLIENT)
 ENDIF(WITH_CLIENT)
 
 #----------------------------------------------------
+# Zipper
+#----------------------------------------------------
+
+IF(WITH_CLIENT)
+	#IF(WIN32 AND NOT ANDROID AND NOT EXISTS "${SPINE_DEP_DIR}/zipper/")
+		#execute_process(COMMAND ${CMAKE_SOURCE_DIR}/dependencies/build-gmock.bat ${VS_TOOLCHAIN} ${VS_ARCH} WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/dependencies)
+	#ENDIF(WIN32 AND NOT ANDROID AND NOT EXISTS "${SPINE_DEP_DIR}/gmock/")
+	#IF(UNIX AND NOT ANDROID AND NOT EXISTS "${SPINE_DEP_DIR}/gmock/")
+		#execute_process(COMMAND ${CMAKE_SOURCE_DIR}/dependencies/build-gmock.sh ${UNIX_COMPILER} WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/dependencies)
+	#ENDIF(UNIX AND NOT ANDROID AND NOT EXISTS "${SPINE_DEP_DIR}/gmock/")
+	SET(LIBNAME "ZIPPER")
+	SET(LIBHEADER "zipper/zipper.h")
+	SET(ZIPPER_ROOT ${SPINE_DEP_DIR}/zipper)
+	SET(ZIPPER_COMPONENT ${ZIPPER_COMPONENT} libZipper-static)
+
+	find_package(EasyFind REQUIRED COMPONENTS ${ZIPPER_COMPONENT})
+	include_directories(SYSTEM ${ZIPPER_INCLUDE_DIR})
+ENDIF(WITH_CLIENT)
+
+#----------------------------------------------------
 # MariaDB
 #----------------------------------------------------
 

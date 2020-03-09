@@ -40,6 +40,8 @@
 #include <QSettings>
 #include <QtConcurrentRun>
 
+#include "zipper/unzipper.h"
+
 #ifdef Q_OS_WIN
 	#include <Windows.h>
 	#include <shellapi.h>
@@ -204,9 +206,12 @@ void FileDownloader::uncompressAndHash() {
 	QtConcurrent::run([this]() {
 		QFileInfo fi(_fileName);
 		const QString fileNameBackup = _fileName;
+
+		auto suffix = fi.suffix();
+		
 		// compressed files always end with .z
-		// in this case, uncompress, drop file extension and proceeed
-		if (fi.suffix() == "z") {
+		// in this case, uncompress, drop file extension and proceeed		
+		if (suffix.compare("z", Qt::CaseInsensitive) == 0) {
 			try {
 				utils::Compression::uncompress(_targetDirectory + "/" + _fileName, true); // remove compressed download now
 			} catch (boost::iostreams::zlib_error & e) {
@@ -215,122 +220,24 @@ void FileDownloader::uncompressAndHash() {
 			}
 			_fileName.chop(2);
 		}
-		if (Config::extendedLogging) {
-			LOGINFO("Checking Hash");
+
+		fi = QFileInfo(_fileName);
+		suffix = fi.suffix();
+
+		// zip case
+		if (suffix.compare("zip", Qt::CaseInsensitive) == 0) {
+			handleZip();
+			
+			return;
 		}
+		
 		const bool b = utils::Hashing::checkHash(_targetDirectory + "/" + _fileName, _hash);
 		if (b) {
-			if (Config::extendedLogging) {
-				LOGINFO("Hash Check passed");
-			}
 			if (_fileName.startsWith("vc") && _fileName.endsWith(".exe")) {
-#ifdef Q_OS_WIN
-				if (Config::extendedLogging) {
-					LOGINFO("Starting Visual Studio Redistributable");
-				}
-				SHELLEXECUTEINFO shExecInfo = { 0 };
-				shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-				shExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
-				shExecInfo.hwnd = nullptr;
-				shExecInfo.lpVerb = "runas";
-				char file[1024];
-				QString qf = _targetDirectory + "/" + _fileName;
-				qf = qf.replace("\0", "");
-				strcpy(file, qf.toUtf8().constData());
-				shExecInfo.lpFile = file;
-				shExecInfo.lpParameters = "/q /norestart";
-				char directory[1024];
-				strcpy(directory, _targetDirectory.replace("\0", "").toUtf8().constData());
-				shExecInfo.lpDirectory = directory;
-				shExecInfo.nShow = SW_SHOWNORMAL;
-				shExecInfo.hInstApp = nullptr;
-				ShellExecuteEx(&shExecInfo);
-				const int result = WaitForSingleObject(shExecInfo.hProcess, INFINITE);
-				if (result != 0) {
-					LOGERROR("Execute failed: " << _fileName.toStdString());
-					emit fileFailed(DownloadError::UnknownError);
-				} else {
-					if (Config::extendedLogging) {
-						LOGINFO("Download succeeded");
-					}
-					emit fileSucceeded();
-				}
-#endif
+				handleVcRedist();
 			} else if (_fileName == "directx_Jun2010_redist.exe") {
-#ifdef Q_OS_WIN
-				if (Config::extendedLogging) {
-					LOGINFO("Starting DirectX Redistributable");
-				}
-				bool dxSuccess = true;
-				{
-					SHELLEXECUTEINFO shExecInfo = { 0 };
-					shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-					shExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
-					shExecInfo.hwnd = nullptr;
-					shExecInfo.lpVerb = "runas";
-					char file[1024];
-					QString qf = _targetDirectory + "/" + _fileName;
-					qf = qf.replace("\0", "");
-					strcpy(file, qf.toUtf8().constData());
-					shExecInfo.lpFile = file;
-					char parameters[1024];
-					qf = ("/Q /T:\"" + _targetDirectory + "/directX\"");
-					qf = qf.replace("\0", "");
-					strcpy(parameters, qf.toUtf8().constData());
-					shExecInfo.lpParameters = parameters;
-					char directory[1024];
-					strcpy(directory, _targetDirectory.replace("\0", "").toUtf8().constData());
-					shExecInfo.lpDirectory = directory;
-					shExecInfo.nShow = SW_SHOWNORMAL;
-					shExecInfo.hInstApp = nullptr;
-					ShellExecuteEx(&shExecInfo);
-					const int result = WaitForSingleObject(shExecInfo.hProcess, INFINITE);
-					if (result != 0) {
-						dxSuccess = false;
-						LOGERROR("Execute failed: " << _fileName.toStdString());
-						emit fileFailed(DownloadError::UnknownError);
-					}
-				}
-				if (dxSuccess) {
-					SHELLEXECUTEINFO shExecInfo = { 0 };
-					shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-					shExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
-					shExecInfo.hwnd = nullptr;
-					shExecInfo.lpVerb = "runas";
-					char file[1024];
-					QString qf = (_targetDirectory + "/directX/DXSETUP.exe");
-					qf = qf.replace("\0", "");
-					strcpy(file, qf.toUtf8().constData());
-					shExecInfo.lpFile = file;
-					shExecInfo.lpParameters = "/silent";
-					char directory[1024];
-					qf = (_targetDirectory + "/directX");
-					qf = qf.replace("\0", "");
-					strcpy(directory, qf.toUtf8().constData());
-					shExecInfo.lpDirectory = directory;
-					shExecInfo.nShow = SW_SHOWNORMAL;
-					shExecInfo.hInstApp = nullptr;
-					ShellExecuteEx(&shExecInfo);
-					const int result = WaitForSingleObject(shExecInfo.hProcess, INFINITE);
-					if (result != 0) {
-						dxSuccess = false;
-						LOGERROR("Execute failed: " << _fileName.toStdString());
-						emit fileFailed(DownloadError::UnknownError);
-					}
-				}
-				if (dxSuccess) {
-					if (Config::extendedLogging) {
-						LOGINFO("Download succeeded");
-					}
-					emit fileSucceeded();
-				}
-				QDir(_targetDirectory + "/directX/").removeRecursively();
-				Config::IniParser->setValue("INSTALLATION/DirectX", true);
-#endif
+				handleDirectX();
 			} else {
-				if (Config::extendedLogging) {
-					LOGINFO("Download succeeded");
-				}
 				emit fileSucceeded();
 			}
 		} else {
@@ -339,4 +246,174 @@ void FileDownloader::uncompressAndHash() {
 			utils::ErrorReporting::report(QString("Hash invalid: %1 (%2)").arg(_fileName).arg(_url.toString()));
 		}
 	});
+}
+
+void FileDownloader::handleZip() {
+	const auto fullPath = _targetDirectory + "/" + _fileName;
+	{
+		const bool b = utils::Hashing::checkHash(fullPath, _hash);
+		if (!b) {
+			LOGERROR("Hash invalid: " << _fileName.toStdString());
+			emit fileFailed(DownloadError::HashError);
+			utils::ErrorReporting::report(QString("Hash invalid: %1 (%2)").arg(_fileName).arg(_url.toString()));
+			return;
+		}
+	}
+
+	{
+		zipper::Unzipper unzipper(q2s(fullPath));
+		const bool b = unzipper.extract(q2s(_targetDirectory));
+		if (!b) {
+			LOGERROR("Unzipping failed: " << _fileName.toStdString());
+			emit fileFailed(DownloadError::UnknownError);
+			utils::ErrorReporting::report(QString("Unzipping failed: %1 (%2)").arg(_fileName).arg(_url.toString()));
+			return;
+		}				
+	}
+
+	QFile(fullPath).remove();
+
+	if (!QFileInfo::exists(_targetDirectory + "/.manifest")) {
+		LOGERROR("Archive doesn't contain manifest: " << _fileName.toStdString());
+		emit fileFailed(DownloadError::UnknownError);
+		utils::ErrorReporting::report(QString("Archive doesn't contain manifest: %1 (%2)").arg(_fileName).arg(_url.toString()));
+		return;
+	}
+
+	QFile manifest(_targetDirectory + "/.manifest");
+	if (!manifest.open(QIODevice::ReadOnly)) {
+		LOGERROR("Manifest can't be opened: " << _fileName.toStdString());
+		emit fileFailed(DownloadError::UnknownError);
+		return;
+	}
+
+	QList<QPair<QString, QString>> files;
+	
+	QTextStream ts(&manifest);
+
+	while (!ts.atEnd()) {
+		const QString line = ts.readLine();
+		
+		if (line.isEmpty()) continue;
+
+		const auto split = line.split(";");
+
+		if (split.count() != 2) continue;
+
+		files.append(qMakePair(split[0], split[1]));
+	}
+	manifest.close();
+
+	QFile(_targetDirectory + "/.manifest").remove();
+
+	emit unzippedArchive(_fileName, files);
+	emit fileSucceeded();
+}
+
+void FileDownloader::handleVcRedist() {
+#ifdef Q_OS_WIN
+	if (Config::extendedLogging) {
+		LOGINFO("Starting Visual Studio Redistributable");
+	}
+	SHELLEXECUTEINFO shExecInfo = { 0 };
+	shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+	shExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+	shExecInfo.hwnd = nullptr;
+	shExecInfo.lpVerb = "runas";
+	char file[1024];
+	QString qf = _targetDirectory + "/" + _fileName;
+	qf = qf.replace("\0", "");
+	strcpy(file, qf.toUtf8().constData());
+	shExecInfo.lpFile = file;
+	shExecInfo.lpParameters = "/q /norestart";
+	char directory[1024];
+	strcpy(directory, _targetDirectory.replace("\0", "").toUtf8().constData());
+	shExecInfo.lpDirectory = directory;
+	shExecInfo.nShow = SW_SHOWNORMAL;
+	shExecInfo.hInstApp = nullptr;
+	ShellExecuteEx(&shExecInfo);
+	const int result = WaitForSingleObject(shExecInfo.hProcess, INFINITE);
+	if (result != 0) {
+		LOGERROR("Execute failed: " << _fileName.toStdString());
+		emit fileFailed(DownloadError::UnknownError);
+	} else {
+		if (Config::extendedLogging) {
+			LOGINFO("Download succeeded");
+		}
+		emit fileSucceeded();
+	}
+#endif
+}
+
+void FileDownloader::handleDirectX() {
+#ifdef Q_OS_WIN
+	if (Config::extendedLogging) {
+		LOGINFO("Starting DirectX Redistributable");
+	}
+	bool dxSuccess = true;
+	{
+		SHELLEXECUTEINFO shExecInfo = { 0 };
+		shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+		shExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+		shExecInfo.hwnd = nullptr;
+		shExecInfo.lpVerb = "runas";
+		char file[1024];
+		QString qf = _targetDirectory + "/" + _fileName;
+		qf = qf.replace("\0", "");
+		strcpy(file, qf.toUtf8().constData());
+		shExecInfo.lpFile = file;
+		char parameters[1024];
+		qf = ("/Q /T:\"" + _targetDirectory + "/directX\"");
+		qf = qf.replace("\0", "");
+		strcpy(parameters, qf.toUtf8().constData());
+		shExecInfo.lpParameters = parameters;
+		char directory[1024];
+		strcpy(directory, _targetDirectory.replace("\0", "").toUtf8().constData());
+		shExecInfo.lpDirectory = directory;
+		shExecInfo.nShow = SW_SHOWNORMAL;
+		shExecInfo.hInstApp = nullptr;
+		ShellExecuteEx(&shExecInfo);
+		const int result = WaitForSingleObject(shExecInfo.hProcess, INFINITE);
+		if (result != 0) {
+			dxSuccess = false;
+			LOGERROR("Execute failed: " << _fileName.toStdString());
+			emit fileFailed(DownloadError::UnknownError);
+		}
+	}
+	if (dxSuccess) {
+		SHELLEXECUTEINFO shExecInfo = { 0 };
+		shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+		shExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+		shExecInfo.hwnd = nullptr;
+		shExecInfo.lpVerb = "runas";
+		char file[1024];
+		QString qf = (_targetDirectory + "/directX/DXSETUP.exe");
+		qf = qf.replace("\0", "");
+		strcpy(file, qf.toUtf8().constData());
+		shExecInfo.lpFile = file;
+		shExecInfo.lpParameters = "/silent";
+		char directory[1024];
+		qf = (_targetDirectory + "/directX");
+		qf = qf.replace("\0", "");
+		strcpy(directory, qf.toUtf8().constData());
+		shExecInfo.lpDirectory = directory;
+		shExecInfo.nShow = SW_SHOWNORMAL;
+		shExecInfo.hInstApp = nullptr;
+		ShellExecuteEx(&shExecInfo);
+		const int result = WaitForSingleObject(shExecInfo.hProcess, INFINITE);
+		if (result != 0) {
+			dxSuccess = false;
+			LOGERROR("Execute failed: " << _fileName.toStdString());
+			emit fileFailed(DownloadError::UnknownError);
+		}
+	}
+	if (dxSuccess) {
+		if (Config::extendedLogging) {
+			LOGINFO("Download succeeded");
+		}
+		emit fileSucceeded();
+	}
+	QDir(_targetDirectory + "/directX/").removeRecursively();
+	Config::IniParser->setValue("INSTALLATION/DirectX", true);
+#endif
 }

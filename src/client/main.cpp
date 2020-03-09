@@ -18,7 +18,6 @@
 
 #include "widgets/MainWindow.h"
 
-#include <iostream>
 #include <thread>
 
 #include "SpineConfig.h"

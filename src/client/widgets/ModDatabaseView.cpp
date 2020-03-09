@@ -37,9 +37,7 @@
 #include "utils/DownloadQueue.h"
 #include "utils/FileDownloader.h"
 #include "utils/MultiFileDownloader.h"
-#include "utils/WindowsExtensions.h"
 
-#include "widgets/UninstallDialog.h"
 #include "widgets/UpdateLanguage.h"
 
 #include "clockUtils/sockets/TcpSocket.h"
@@ -335,6 +333,7 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 	qRegisterMetaType<common::UpdatePackageListMessage::Package>("common::UpdatePackageListMessage::Package");
 	qRegisterMetaType<std::vector<common::UpdatePackageListMessage::Package>>("std::vector<common::UpdatePackageListMessage::Package>");
 	qRegisterMetaType<std::vector<std::pair<std::string, std::string>>>("std::vector<std::pair<std::string, std::string>>");
+	qRegisterMetaType<QSharedPointer<QList<QPair<QString, QString>>>>("QSharedPointer<QList<QPair<QString, QString>>>");
 
 	connect(this, &ModDatabaseView::receivedModList, this, static_cast<void(ModDatabaseView::*)(std::vector<common::Mod>)>(&ModDatabaseView::updateModList));
 	connect(this, &ModDatabaseView::receivedModFilesList, this, &ModDatabaseView::downloadModFiles);
@@ -640,17 +639,36 @@ void ModDatabaseView::doubleClickedIndex(const QModelIndex & index) {
 	}
 }
 
-void ModDatabaseView::downloadModFiles(common::Mod mod, std::vector<std::pair<std::string, std::string>> fileList, QString fileserver) {
+void ModDatabaseView::downloadModFiles(common::Mod mod, QSharedPointer<QList<QPair<QString, QString>>> fileList, QString fileserver) {
 	const QDir dir(Config::MODDIR + "/mods/" + QString::number(mod.id));
 	if (!dir.exists()) {
 		bool b = dir.mkpath(dir.absolutePath());
 		Q_UNUSED(b);
 	}
 	MultiFileDownloader * mfd = new MultiFileDownloader(this);
-	for (const auto & p : fileList) {
-		QFileInfo fi(QString::fromStdString(p.first));
-		FileDownloader * fd = new FileDownloader(QUrl(fileserver + QString::number(mod.id) + "/" + QString::fromStdString(p.first)), dir.absolutePath() + "/" + fi.path(), fi.fileName(), QString::fromStdString(p.second), mfd);
+	for (const auto & p : *fileList) {
+		QFileInfo fi(p.first);
+		FileDownloader * fd = new FileDownloader(QUrl(fileserver + QString::number(mod.id) + "/" + p.first), dir.absolutePath() + "/" + fi.path(), fi.fileName(), p.second, mfd);
 		mfd->addFileDownloader(fd);
+
+		// zip workflow
+		const auto suffix = fi.completeSuffix();
+		
+		if (suffix.compare("zip.z", Qt::CaseInsensitive) != 0) continue;
+
+		// 1. if it is a zip, register new signal. FileDownloader will send signal after extracting the archive reporting the files with hashes it contained
+		// 2. reported files need to be added to filelist and archive must be removed
+		connect(fd, &FileDownloader::unzippedArchive, [fileList](QString archive, QList<QPair<QString, QString>> files) {
+			for (auto it = fileList->begin(); it != fileList->end(); ++it) {
+				if (it->first != archive) continue;
+				
+				fileList->erase(it);
+				
+				break;
+			}
+
+			fileList->append(files);
+		});
 	}
 
 	{
@@ -681,13 +699,13 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, std::vector<std::pair<st
 		Database::open(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, err);
 		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "BEGIN TRANSACTION;", err);
 		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO mods (ModID, GothicVersion, MajorVersion, MinorVersion, PatchVersion) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(int(mod.gothic)) + ", " + std::to_string(int(_mods[row].majorVersion)) + ", " + std::to_string(int(_mods[row].minorVersion)) + ", " + std::to_string(int(_mods[row].patchVersion)) + ");", err);
-		for (const auto & p : fileList) {
-			QString fileName = QString::fromStdString(p.first);
+		for (const auto & p : *fileList) {
+			QString fileName = p.first;
 			QFileInfo fi(fileName);
 			if (fi.suffix() == "z") {
 				fileName = fileName.mid(0, fileName.size() - 2);
 			}
-			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO modfiles (ModID, File, Hash) VALUES (" + std::to_string(mod.id) + ", '" + fileName.toStdString() + "', '" + p.second + "');", err);
+			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO modfiles (ModID, File, Hash) VALUES (" + std::to_string(mod.id) + ", '" + fileName.toStdString() + "', '" + q2s(p.second) + "');", err);
 		}
 		if (mod.type == common::ModType::PATCH || mod.type == common::ModType::TOOL) {
 			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO patches (ModID, Name) VALUES (" + std::to_string(mod.id) + ", '" + mod.name + "');", err);
@@ -884,16 +902,16 @@ void ModDatabaseView::updatePackageList(std::vector<common::UpdatePackageListMes
 	_waitSpinner = nullptr;
 }
 
-void ModDatabaseView::downloadPackageFiles(common::Mod mod, common::UpdatePackageListMessage::Package package, std::vector<std::pair<std::string, std::string>> fileList, QString fileserver) {
+void ModDatabaseView::downloadPackageFiles(common::Mod mod, common::UpdatePackageListMessage::Package package, QSharedPointer<QList<QPair<QString, QString>>> fileList, QString fileserver) {
 	const QDir dir(Config::MODDIR + "/mods/" + QString::number(mod.id));
 	if (!dir.exists()) {
 		bool b = dir.mkpath(dir.absolutePath());
 		Q_UNUSED(b);
 	}
 	MultiFileDownloader * mfd = new MultiFileDownloader(this);
-	for (const auto & p : fileList) {
-		QFileInfo fi(QString::fromStdString(p.first));
-		FileDownloader * fd = new FileDownloader(QUrl(fileserver + QString::number(mod.id) + "/" + QString::fromStdString(p.first)), dir.absolutePath() + "/" + fi.path(), fi.fileName(), QString::fromStdString(p.second), mfd);
+	for (const auto & p : *fileList) {
+		QFileInfo fi(p.first);
+		FileDownloader * fd = new FileDownloader(QUrl(fileserver + QString::number(mod.id) + "/" + p.first), dir.absolutePath() + "/" + fi.path(), fi.fileName(), p.second, mfd);
 		mfd->addFileDownloader(fd);
 	}
 
@@ -912,13 +930,13 @@ void ModDatabaseView::downloadPackageFiles(common::Mod mod, common::UpdatePackag
 		Database::DBError err;
 		Database::open(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, err);
 		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "BEGIN TRANSACTION;", err);
-		for (const auto & p : fileList) {
-			QString fileName = QString::fromStdString(p.first);
+		for (const auto & p : *fileList) {
+			QString fileName = p.first;
 			QFileInfo fi(fileName);
 			if (fi.suffix() == "z") {
 				fileName = fileName.mid(0, fileName.size() - 2);
 			}
-			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO modfiles (ModID, File, Hash) VALUES (" + std::to_string(mod.id) + ", '" + fileName.toStdString() + "', '" + p.second + "');", err);
+			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO modfiles (ModID, File, Hash) VALUES (" + std::to_string(mod.id) + ", '" + fileName.toStdString() + "', '" + q2s(p.second) + "');", err);
 			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO packages (ModID, PackageID, File) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(package.packageID) + ", '" + fileName.toStdString() + "');", err);
 		}
 		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "END TRANSACTION;", err);
@@ -1065,7 +1083,14 @@ void ModDatabaseView::selectedModIndex(const QModelIndex & index) {
 							common::Message * m = common::Message::DeserializePublic(serialized);
 							if (m) {
 								common::ListModFilesMessage * lmfm = dynamic_cast<common::ListModFilesMessage *>(m);
-								emit receivedModFilesList(mod, lmfm->fileList, s2q(lmfm->fileserver));
+
+								QSharedPointer<QList<QPair<QString, QString>>> fileList(new QList<QPair<QString, QString>>());
+
+								for (const auto & p : lmfm->fileList) {
+									fileList->append(qMakePair(s2q(p.first), s2q(p.second)));
+								}
+								
+								emit receivedModFilesList(mod, fileList, s2q(lmfm->fileserver));
 							}
 							delete m;
 						} catch (...) {
@@ -1140,7 +1165,14 @@ void ModDatabaseView::selectedPackageIndex(const QModelIndex & index) {
 							common::Message * m = common::Message::DeserializePublic(serialized);
 							if (m) {
 								common::ListModFilesMessage * lmfm = dynamic_cast<common::ListModFilesMessage *>(m);
-								emit receivedPackageFilesList(mod, package, lmfm->fileList, s2q(lmfm->fileserver));
+
+								QSharedPointer<QList<QPair<QString, QString>>> fileList(new QList<QPair<QString, QString>>());
+
+								for (const auto & p : lmfm->fileList) {
+									fileList->append(qMakePair(s2q(p.first), s2q(p.second)));
+								}
+								
+								emit receivedPackageFilesList(mod, package, fileList, s2q(lmfm->fileserver));
 							}
 							delete m;
 						} catch (...) {
