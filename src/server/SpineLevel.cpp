@@ -239,4 +239,6 @@ void SpineLevel::cacheLevel(int userID) {
 	sulm.level = level;
 	sulm.currentXP = currentXP;
 	sulm.nextXP = nextXP;
+
+	_levels[userID] = sulm;
 }
