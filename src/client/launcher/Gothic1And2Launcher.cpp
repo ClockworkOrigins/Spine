@@ -1541,7 +1541,6 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 					break;
 				}
 				// backup old file, if already backed up, don't patch
-				qDebug() << _copiedFiles;
 				if (!_copiedFiles.contains(filename, Qt::CaseInsensitive) && !_skippedFiles.contains(filename, Qt::CaseInsensitive) && ((QFileInfo::exists(_directory + "/" + filename) && !QFileInfo::exists(_directory + "/" + filename + ".spbak")) || !QFileInfo::exists(_directory + "/" + filename))) {
 					if (Config::extendedLogging) {
 						LOGINFO("Copying file " << file.first);

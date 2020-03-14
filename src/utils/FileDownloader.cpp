@@ -306,7 +306,7 @@ void FileDownloader::handleZip() {
 
 	QFile(_targetDirectory + "/.manifest").remove();
 
-	emit unzippedArchive(_fileName, files);
+	emit unzippedArchive(_fileName + ".z", files);
 	emit fileSucceeded();
 }
 

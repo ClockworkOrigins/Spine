@@ -1216,6 +1216,9 @@ void ModDatabaseView::removeInvalidDatabaseEntries() {
 	if (isInstalled(225) && isInstalled(234)) {
 		client::Uninstaller::uninstall(234);
 	}
+	
+	Database::DBError err;
+	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "DELETE FROM modfiles WHERE File = 'D3D11.zip';", err);
 }
 
 bool ModDatabaseView::isInstalled(int modID) {

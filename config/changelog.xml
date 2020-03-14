@@ -1739,4 +1739,9 @@
 		<Bug language="English">Renderer can be used when launching via Steam now in admin mode</Bug>
 		<Bug language="English">Initial hashing now is done in background to not block GUI anymore</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="17" patchVersion="1">
+		<Bug language="Deutsch">Fehler beim Starten einer Mod mit dem neuen Renderer-Download behoben</Bug>
+		
+		<Bug language="English">Fixed bug starting a mod with the new renderer download</Bug>
+	</Version>
 </Versions>
