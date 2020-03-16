@@ -2563,7 +2563,7 @@ void Server::handleRequestInfoPage(clockUtils::sockets::TcpSocket * sock, Reques
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
-	if (!database.query("PREPARE selectTeamIDStmt FROM \"SELECT TeamID FROM mods WHERE ModID = ? LIMIT 1\";")) {
+	if (!database.query("PREPARE selectTeamIDAndReleaseDateStmt FROM \"SELECT TeamID, ReleaseDate FROM mods WHERE ModID = ? LIMIT 1\";")) {
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
@@ -2643,11 +2643,14 @@ void Server::handleRequestInfoPage(clockUtils::sockets::TcpSocket * sock, Reques
 		if (!lastResults.empty()) {
 			sipm.spineFeatures = std::stoi(lastResults[0][0]);
 		}
-		if (!database.query("EXECUTE selectTeamIDStmt USING @paramModID;")) {
+		if (!database.query("EXECUTE selectTeamIDAndReleaseDateStmt USING @paramModID;")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
 		lastResults = database.getResults<std::vector<std::string>>();
+
+		sipm.releaseDate = std::stoi(lastResults[0][1]);
+		
 		const int userID = ServerCommon::getUserID(msg->username, msg->password);
 		if (!database.query("SET @paramTeamID=" + lastResults[0][0] + ";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;

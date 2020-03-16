@@ -51,6 +51,10 @@ QLabel[StartPageWelcome=true] {
 	font-size: 44px;
 }
 
+QLabel[small=true] {
+	font-size: 10px;
+}
+
 QLabel[adminInfo=true] {
 	color: #FF0000;
 }

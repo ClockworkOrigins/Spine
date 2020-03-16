@@ -1744,4 +1744,9 @@
 		
 		<Bug language="English">Fixed bug starting a mod with the new renderer download</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="18" patchVersion="0">
+		<Enhancement language="Deutsch">Releasedatum ist jetzt auf der Infoseite sichtbar</Enhancement>
+		
+		<Enhancement language="English">Release date now is visible on info page</Enhancement>
+	</Version>
 </Versions>

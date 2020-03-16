@@ -36,6 +36,7 @@
 #include "utils/MultiFileDownloader.h"
 
 #include "widgets/NewsWidget.h"
+#include "widgets/ProjectInfoBoxWidget.h"
 #include "widgets/RatingWidget.h"
 #include "widgets/UpdateLanguage.h"
 
@@ -107,6 +108,10 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, GeneralSettingsWidget * gener
 			_rateWidget->setVisible(false);
 
 			vl->addStretch(1);
+
+			_projectInfoBoxWidget = new ProjectInfoBoxWidget(this);
+			vl->addWidget(_projectInfoBoxWidget, 0, Qt::AlignBottom | Qt::AlignRight);
+			
 			hl->addLayout(vl, 25);
 		}
 
@@ -346,6 +351,8 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 	_rateWidget->setModName(s2q(sipm->modname));
 	_ratingWidget->setVisible(true);
 	_rateWidget->setVisible(true);
+
+	_projectInfoBoxWidget->update(sipm);
 
 	_thumbnailModel->clear();
 	_screens.clear();

@@ -898,7 +898,9 @@ namespace common {
 		uint8_t majorVersion;
 		uint8_t minorVersion;
 		uint8_t patchVersion;
-		SendInfoPageMessage() : Message(), modname(), screenshots(), description(), features(), spineFeatures(0), editRights(false), installAllowed(true), optionalPackages(), majorVersion(), minorVersion(), patchVersion() {
+		int releaseDate;
+		
+		SendInfoPageMessage() : Message(), modname(), screenshots(), description(), features(), spineFeatures(0), editRights(false), installAllowed(true), optionalPackages(), majorVersion(), minorVersion(), patchVersion(), releaseDate(0) {
 			type = MessageType::SENDINFOPAGE;
 		}
 		template<class Archive>
@@ -915,6 +917,7 @@ namespace common {
 			ar & majorVersion;
 			ar & minorVersion;
 			ar & patchVersion;
+			ar & releaseDate;
 		}
 	};
 

@@ -49,6 +49,7 @@ namespace widgets {
 	class GeneralSettingsWidget;
 	class NewsWidget;
 	class NewsWriterDialog;
+	class ProjectInfoBoxWidget;
 	class RatingWidget;
 
 
@@ -119,6 +120,7 @@ namespace widgets {
 		QList<QPushButton *> _optionalPackageButtons;
 		bool _forceEdit;
 		QList<int> _runningUpdates;
+		ProjectInfoBoxWidget * _projectInfoBoxWidget;
 
 		void mouseDoubleClickEvent(QMouseEvent * evt) override;
 		void showEvent(QShowEvent * evt) override;
