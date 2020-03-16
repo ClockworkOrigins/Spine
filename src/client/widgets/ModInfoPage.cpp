@@ -415,6 +415,11 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 
 	QString infoText = s2q(sipm->description);
 
+	if (infoText.isEmpty()) {
+		infoText = QApplication::tr("NoDescriptionAvailable");
+		infoText += QString(" <a href=\"%1\">%1</a>").arg("https://forum.worldofplayers.de/forum/threads/1490886-Mod-Beschreibungen-f%C3%BCr-Spine-gesucht");
+	}
+
 	if (!sipm->features.empty()) {
 		infoText.append("<br><br><strong>" + QApplication::tr("Features") + ":</strong><br><ul>");
 		for (const std::string & f : sipm->features) {
@@ -422,8 +427,11 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 		}
 		infoText.append("</ul>");
 	}
-	_descriptionView->setHtml(infoText.replace("&apos;", "'"));
-	_descriptionView->setVisible(!infoText.isEmpty());
+
+	infoText = infoText.replace("&apos;", "'");
+	
+	_descriptionView->setHtml(infoText);
+	_descriptionView->setVisible(true);
 	_descriptionView->setMinimumHeight(static_cast<int>(_descriptionView->document()->size().height() + 75));
 	_descriptionView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 	_descriptionEdit->setPlainText(s2q(sipm->description));

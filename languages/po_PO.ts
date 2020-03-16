@@ -3052,5 +3052,9 @@ Zgodę można odwołać w każdej chwili. Wszystkie niezbędne informacje można
         <source>PublishingOnSpine</source>
         <translation>Publishen auf Spine</translation>
     </message>
+    <message>
+        <source>NoDescriptionAvailable</source>
+        <translation>Für diese Seite gibt es keine Beschreibung. Wenn du der Ersteller bist oder weißt, worum es geht, kannst du gerne eine Beschreibung vorschlagen:</translation>
+    </message>
 </context>
 </TS>
