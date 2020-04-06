@@ -3056,5 +3056,9 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>NoDescriptionAvailable</source>
         <translation>Für diese Seite gibt es keine Beschreibung. Wenn du der Ersteller bist oder weißt, worum es geht, kannst du gerne eine Beschreibung vorschlagen:</translation>
     </message>
+    <message>
+        <source>InQueue</source>
+        <translation>In Warteschlange</translation>
+    </message>
 </context>
 </TS>

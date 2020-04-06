@@ -51,6 +51,7 @@ namespace utils {
 		void downloadFailed(DownloadError);
 		void abort();
 		void startedDownload(QString);
+		void downloadProgressPercent(qreal);
 
 	private slots :
 		void startDownloadInternal();

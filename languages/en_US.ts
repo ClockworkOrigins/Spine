@@ -3064,5 +3064,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>NoDescriptionAvailable</source>
         <translation>For this page no description is available. If you're the creator or know what it is about, you're welcome to suggest an description:</translation>
     </message>
+    <message>
+        <source>InQueue</source>
+        <translation>In queue</translation>
+    </message>
 </context>
 </TS>

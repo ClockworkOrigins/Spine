@@ -1747,8 +1747,10 @@
 	<Version majorVersion="1" minorVersion="18" patchVersion="0">
 		<Enhancement language="Deutsch">Releasedatum ist jetzt auf der Infoseite sichtbar</Enhancement>
 		<Enhancement language="Deutsch">Wenn eine Beschreibung auf einer Infoseite fehlt, dann kommt jetzt ein Hinweis inklusive Link auf den Thread zum Einreichen</Enhancement>
+		<Enhancement language="Deutsch">Es wird in der Datenbank jetzt angezeigt, ob ein Download gerade in der Warteschlange ist bzw. wie der Fortschritt ist</Enhancement>
 		
 		<Enhancement language="English">Release date now is visible on info page</Enhancement>
 		<Enhancement language="English">When an info page misses a description there is an info about it now including a link the thread to submit one</Enhancement>
+		<Enhancement language="English">It's displayed now in the database whether a download is in the queue or how the progress is</Enhancement>
 	</Version>
 </Versions>

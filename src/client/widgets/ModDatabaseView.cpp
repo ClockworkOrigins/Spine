@@ -572,8 +572,8 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 		sizeItem->setEditable(false);
 		QStandardItem * buttonItem = nullptr;
 		if (_downloadingList.contains(mod.id)) {
-			buttonItem = new TextItem(QChar(int(FontAwesome::angledoubledown)));
-			buttonItem->setToolTip(QApplication::tr("Downloading"));
+			buttonItem = new TextItem(QApplication::tr("InQueue"));
+			buttonItem->setToolTip(QApplication::tr("InQueue"));
 		} else if (installedMods.find(mod.id) == installedMods.end()) {
 			buttonItem = new TextItem(QChar(int(FontAwesome::downloado)));
 			buttonItem->setToolTip(QApplication::tr("Install"));
@@ -679,9 +679,21 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, QSharedPointer<QList<QPa
 			}
 		}
 		TextItem * buttonItem = dynamic_cast<TextItem *>(_sourceModel->item(row, DatabaseColumn::Install));
-		buttonItem->setText(QChar(int(FontAwesome::angledoubledown)));
-		buttonItem->setToolTip(QApplication::tr("Downloading"));
+		buttonItem->setText(QApplication::tr("InQueue"));
+		buttonItem->setToolTip(QApplication::tr("InQueue"));
 	}
+
+	connect(mfd, &MultiFileDownloader::downloadProgressPercent, [this, mod](qreal progress) {
+		int row = 0;
+		for (; row < int(_mods.size()); row++) {
+			if (_mods[row].id == mod.id) {
+				break;
+			}
+		}
+		TextItem * buttonItem = dynamic_cast<TextItem *>(_sourceModel->item(row, DatabaseColumn::Install));
+		buttonItem->setText(QString("%1: %2%").arg(QApplication::tr("Downloading")).arg(static_cast<int>(progress * 100)));
+		buttonItem->setToolTip(QApplication::tr("Downloading"));
+	});
 
 	connect(mfd, &MultiFileDownloader::downloadSucceeded, [this, mod, fileList]() {
 		_downloadingList.removeAll(mod.id);
@@ -828,8 +840,8 @@ void ModDatabaseView::updatePackageList(std::vector<common::UpdatePackageListMes
 		SizeItem * sizeItem = new SizeItem(package.downloadSize);
 		TextItem * buttonItem = nullptr;
 		if (_downloadingPackageList.contains(package.packageID)) {
-			buttonItem = new TextItem(QChar(int(FontAwesome::angledoubledown)));
-			buttonItem->setToolTip(QApplication::tr("Downloading"));
+			buttonItem = new TextItem(QApplication::tr("InQueue"));
+			buttonItem->setToolTip(QApplication::tr("InQueue"));
 		} else if (installedPackages.find(package.packageID) == installedPackages.end()) {
 			buttonItem = new TextItem(QChar(int(FontAwesome::downloado)));
 			buttonItem->setToolTip(QApplication::tr("Install"));
@@ -917,9 +929,15 @@ void ModDatabaseView::downloadPackageFiles(common::Mod mod, common::UpdatePackag
 
 	{
 		TextItem * buttonItem = _packageIDIconMapping[package.packageID];
-		buttonItem->setText(QChar(int(FontAwesome::angledoubledown)));
-		buttonItem->setToolTip(QApplication::tr("Downloading"));
+		buttonItem->setText(QApplication::tr("InQueue"));
+		buttonItem->setToolTip(QApplication::tr("InQueue"));
 	}
+
+	connect(mfd, &MultiFileDownloader::downloadProgressPercent, [this, package](qreal progress) {
+		TextItem * buttonItem = _packageIDIconMapping[package.packageID];
+		buttonItem->setText(QString("%1: %2%").arg(QApplication::tr("Downloading")).arg(static_cast<int>(progress * 100)));
+		buttonItem->setToolTip(QApplication::tr("Downloading"));
+	});
 
 	connect(mfd, &MultiFileDownloader::downloadSucceeded, [this, package, fileList, mod]() {
 		_downloadingPackageList.removeAll(package.packageID);
