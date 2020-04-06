@@ -2983,6 +2983,7 @@ void Server::handleSendUserInfos(clockUtils::sockets::TcpSocket * sock, SendUser
 void Server::handleRequestRandomMod(clockUtils::sockets::TcpSocket * sock, RequestRandomModMessage * msg) const {
 	SendRandomModMessage srmm;
 	srmm.modID = -1;
+	const int userID = ServerCommon::getUserID(msg->username, msg->password);
 	do {
 		MariaDBWrapper database;
 		if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, SPINEDATABASE, 0)) {
@@ -3001,6 +3002,10 @@ void Server::handleRequestRandomMod(clockUtils::sockets::TcpSocket * sock, Reque
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
+		if (!database.query("PREPARE selectPlaytimesStmt FROM \"SELECT ModID FROM playtimes WHERE UserID = ?\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
 		if (!database.query("SET @paramLanguage='" + msg->language + "';")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
@@ -3011,7 +3016,7 @@ void Server::handleRequestRandomMod(clockUtils::sockets::TcpSocket * sock, Reque
 		}
 		auto lastResults = database.getResults<std::vector<std::string>>();
 		std::vector<int> ids;
-		for (auto vec : lastResults) {
+		for (const auto & vec : lastResults) {
 			if (!database.query("SET @paramModID=" + vec[0] + ";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				continue;
@@ -3026,10 +3031,35 @@ void Server::handleRequestRandomMod(clockUtils::sockets::TcpSocket * sock, Reque
 			}
 			ids.push_back(std::stoi(results[0][0]));
 		}
-		if (!ids.empty()) {
-			srmm.modID = ids[std::rand() % ids.size()];
+
+		std::vector<int> filteredIds = ids;
+		if (userID != -1) {
+			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("EXECUTE selectPlaytimesStmt USING @paramUserID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			lastResults = database.getResults<std::vector<std::string>>();
+
+			for (const auto & vec : lastResults) {
+				const auto it = std::find_if(ids.begin(), ids.end(), [&vec](int id) {
+					return id == std::stoi(vec[0]);
+				});
+
+				if (it != ids.end()) {
+					ids.erase(it);
+				}
+			}
 		}
-		if (srmm.modID == -1) {
+		
+		if (!filteredIds.empty()) {
+			srmm.modID = filteredIds[std::rand() % filteredIds.size()];
+		} else if (!ids.empty()) {
+			srmm.modID = ids[std::rand() % ids.size()];
+		} else {
 			if (!database.query("EXECUTE selectRandomModStmt USING @paramLanguage;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				break;

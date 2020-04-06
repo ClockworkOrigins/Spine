@@ -984,13 +984,17 @@ namespace common {
 
 	struct RequestRandomModMessage : public Message {
 		std::string language;
-		RequestRandomModMessage() : Message(), language() {
+		std::string username;
+		std::string password;
+		RequestRandomModMessage() : Message(), language(), username(), password() {
 			type = MessageType::REQUESTRANDOMMOD;
 		}
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int /* file_version */) {
 			ar & boost::serialization::base_object<Message>(*this);
 			ar & language;
+			ar & username;
+			ar & password;
 		}
 	};
 

@@ -35,6 +35,7 @@
 #include "utils/Hashing.h"
 #include "utils/MultiFileDownloader.h"
 
+#include "widgets/LoginDialog.h"
 #include "widgets/NewsWidget.h"
 #include "widgets/ProjectInfoBoxWidget.h"
 #include "widgets/RatingWidget.h"
@@ -691,6 +692,8 @@ void ModInfoPage::submitChanges() {
 void ModInfoPage::requestRandomMod() {
 	QtConcurrent::run([this]() {
 		common::RequestRandomModMessage rrmm;
+		rrmm.username = q2s(Config::Username);
+		rrmm.password = q2s(Config::Password);
 		rrmm.language = Config::Language.toStdString();
 		std::string serialized = rrmm.SerializePublic();
 		clockUtils::sockets::TcpSocket sock;
