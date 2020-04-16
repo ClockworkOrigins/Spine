@@ -3060,5 +3060,9 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>InQueue</source>
         <translation>In Warteschlange</translation>
     </message>
+    <message>
+        <source>SupportUsText</source>
+        <translation>Hilf uns, die laufenden Kosten von Spine zu bezahlen.</translation>
+    </message>
 </context>
 </TS>

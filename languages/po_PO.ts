@@ -3060,5 +3060,9 @@ Zgodę można odwołać w każdej chwili. Wszystkie niezbędne informacje można
         <source>InQueue</source>
         <translation>In Warteschlange</translation>
     </message>
+    <message>
+        <source>SupportUsText</source>
+        <translation>Hilf uns, die laufenden Kosten von Spine zu bezahlen.</translation>
+    </message>
 </context>
 </TS>

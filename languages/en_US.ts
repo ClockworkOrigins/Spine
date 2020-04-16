@@ -3068,5 +3068,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>InQueue</source>
         <translation>In queue</translation>
     </message>
+    <message>
+        <source>SupportUsText</source>
+        <translation>Help us to pay the running costs of Spine.</translation>
+    </message>
 </context>
 </TS>

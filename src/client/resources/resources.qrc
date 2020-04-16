@@ -17,6 +17,9 @@
 	<file alias="branch-closed.png">stylesheet-branch-closed.png</file>
 	<file alias="branch-open.png">stylesheet-branch-open.png</file>
 	
+	<file alias="donate.png">donate.png</file>
+	<file alias="donate_hover.png">donate_hover.png</file>
+	
 	<file alias="svg/add.svg">svg/add.svg</file>
 	<file alias="svg/check.svg">svg/check.svg</file>
 	<file alias="svg/close.svg">svg/close.svg</file>

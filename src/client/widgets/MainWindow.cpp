@@ -35,7 +35,6 @@
 #include "utils/DownloadQueue.h"
 #include "utils/FileDownloader.h"
 #include "utils/MultiFileDownloader.h"
-#include "utils/WindowsExtensions.h"
 
 #include "widgets/AboutDialog.h"
 #include "widgets/AutoUpdateDialog.h"
@@ -127,7 +126,7 @@ enum MainTabsOffline {
 
 MainWindow * MainWindow::instance = nullptr;
 
-MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par), _modListView(nullptr), _modInfoView(nullptr), _profileView(nullptr), _friendsView(nullptr), _gothicDirectory(), _gothic2Directory(), _settingsDialog(nullptr), _autoUpdateDialog(), _changelogDialog(nullptr), _modListModel(nullptr), _loginDialog(nullptr), _modUpdateDialog(nullptr), _installGothic2FromCDDialog(nullptr), _feedbackDialog(nullptr), _developerModeActive(false), _devModeAction(nullptr), _modDatabaseView(nullptr), _tabWidget(nullptr), _spineEditorAction(nullptr), _spineEditor(nullptr), _modInfoPage(nullptr) {
+MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par), _modListView(nullptr), _modInfoView(nullptr), _profileView(nullptr), _friendsView(nullptr), _settingsDialog(nullptr), _autoUpdateDialog(), _changelogDialog(nullptr), _modListModel(nullptr), _loginDialog(nullptr), _modUpdateDialog(nullptr), _installGothic2FromCDDialog(nullptr), _feedbackDialog(nullptr), _developerModeActive(false), _devModeAction(nullptr), _modDatabaseView(nullptr), _tabWidget(nullptr), _spineEditorAction(nullptr), _spineEditor(nullptr), _modInfoPage(nullptr) {
 	instance = this;
 
 	_downloadQueue = new DownloadQueue();
@@ -384,7 +383,41 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 
 	_tabWidget->setCurrentWidget(startPage);
 
-	setCentralWidget(_tabWidget);
+	QWidget * cw = new QWidget(this);
+
+	QVBoxLayout * vl = new QVBoxLayout();
+
+	{
+		QHBoxLayout * hl = new QHBoxLayout();
+
+		QPushButton * donateButton = new QPushButton(cw);
+		QPixmap pixmap(":/donate.png");
+		donateButton->setIconSize(pixmap.rect().size());
+		donateButton->setFixedSize(pixmap.rect().size());
+		donateButton->setProperty("donateButton", true);
+
+		hl->addStretch(1);
+
+		QLabel * donateLabel = new QLabel(QApplication::tr("SupportUsText"), cw);
+		UPDATELANGUAGESETTEXT(donateLabel, "SupportUsText");
+
+		donateLabel->setProperty("donateText", true);
+		
+		hl->addWidget(donateLabel);
+		hl->addWidget(donateButton);
+		
+		vl->addLayout(hl);
+
+		connect(donateButton, &QPushButton::released, []() {
+			QDesktopServices::openUrl(QUrl("https://paypal.me/ClockworkOrigins"));
+		});
+	}	
+
+	vl->addWidget(_tabWidget);
+
+	cw->setLayout(vl);
+
+	setCentralWidget(cw);
 
 	if (Config::OnlineMode) {
 		connect(_modInfoView, &ModInfoView::openAchievementView, _profileView, &ProfileView::openAchievementView);

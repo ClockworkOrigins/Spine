@@ -115,9 +115,28 @@ QPushButton::disabled {
 	color: #CCCCCC;
 }
 
-QPushButton::hover {
+QPushButton::hover[donateButton=false] {
 	background: #808080;
 	color: #FFFFFF;
+}
+
+QPushButton[donateButton=true] {
+	border: none;
+	image: url(":/donate.png");
+}
+
+QPushButton::hover[donateButton=true] {
+	image: url(":/donate_hover.png");
+}
+
+QLabel[donateText=true] {
+	border: 1px solid #4f4f51;
+	border-radius: 10px;
+	
+	background-color: #FFFFFF;
+	color: #181C22;
+	font-family: "Lato Semibold";
+	font-size: 14px;
 }
 
 QDoubleSpinBox {
