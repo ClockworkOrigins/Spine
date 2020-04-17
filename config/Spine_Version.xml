@@ -15,9 +15,6 @@
 		<File Hash="c60795e5ec474132147b94a9e4d1eb56b6d6a15b0c22fe3699273e4880c0cbc5d32e007c5cebaa377073109aa3b4f64bfa84fe33a093b5322404e6b6908c8685">removeSymlink.bat.z</File>
 		<File Hash="4325f649f56f2773b3bea2ca00639878caaa272f801be3931835a58ef313c397aa39e5b164e4006127b9061492e9350501c2756c6514e99f4612bba4fa663b0e">directx_Jun2010_redist.exe.z</File>
 	</Version>
-	<Version majorVersion="1" minorVersion="13" patchVersion="0">
-		<File Hash="6419a78ce72e61160399b795f303e5c9e8d6f206eaa1becd44c438208e4ff93583b077f4b4c2e26f08f685b9cd9319105e788ae04b3290c05aac61fea34c9711">styles.css.z</File>
-	</Version>
 	<Version majorVersion="1" minorVersion="14" patchVersion="0">
 		<File Hash="7b57c710043d8c60ee071386c404322cd8259b8d712d6430ff0dcbdb4cd31edbb301397002c0bfeadbb385abc7682e9fe6dd6cf94d2ed4f2f62ad5bb530e007e">bin/TranslatorAPI.dll.z</File>
 		<File Hash="b4c964346f7521e0557fc8bd1f657a1c3a083d4c9416d86a4cb5ca14461f9d12f44b3936d8d2f903aa776606360930c0ce0e51a51d54375a670095831c653f87">bin/TranslatorCommon.dll.z</File>
@@ -52,14 +49,15 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="16" patchVersion="0">
 		<File Hash="8d6019c7812fe35a9bff50ae29af3c565f3a9880ed838805d8a02f9e86f5a9f3f3bb69103a86e531f6656eef90eca4b5847cf39678c4ebd7135dc1b2a1ad4eb3">bin/cleanup.exe.z</File>
-		<File Hash="99a08967746aa3265febb1395a148f99406ed9ad0f0f4e4efbbdf37c2f2987d20d8245f96cc2c4255d813ca6f8a6e619c1fa7c1a9d3d60080f4c7a25e8c70307">bin/de_DE.qm.z</File>
-		<File Hash="036b6c3dfa3a598edbc3748561d8091f398eff5d2c1aaffe0c5bc8de15b4162b3d3058912db730add3582abe869ca5952db484324c888a9a28bf1abb55351922">bin/en_US.qm.z</File>
-		<File Hash="ba2c169baccae21868c92e4ac93138a72f7c5e8f57eb9ed3f93655b388eebebea4b2faef14feba9a96b2ce9b77f1c8e4693917203c80482c64b6f4683f3e0577">bin/po_PO.qm.z</File>
-		<File Hash="c9fdc913f614ceed0b0b31c690bc06b7624f4f5ef8bc23479266a478f52e7f5a57a5084b09073d9a84f7387bdba3b13ca5ce77bd778732d1a06d25d9f0096e06">bin/ru_RU.qm.z</File>
 	</Version>
-	<Version majorVersion="1" minorVersion="17" patchVersion="1">
-		<File Hash="693f39cc32ec069ac927178c278e47a0439637b255a75ffeeda7c52eb699169c5b9eb48d1fb3482e5f849e573a3b5d8c8e2cb4f125aa0f3ab5e777f377bc2e6d">bin/changelog.xml.z</File>
-		<File Hash="30b2b9e4c47961c554519fd31c744be738b6cb41541484b500d9ea5765e76303f9d4aa85dfd9c5c46763047f43966b228e8d4a927e3120256fcdab056e11ca3f">bin/Spine.exe.z</File>
-		<File Hash="2733e559c1a10495c28cfbfb363b1e1cd4d5b194966a8c72a341454739ec57ce1c08bc8acef0b27bacb0a8f2382dfc78cca5778df067d510694e4ae09bf57d76">bin/SpineAPI.dll.z</File>
+	<Version majorVersion="1" minorVersion="18" patchVersion="0">
+		<File Hash="3311655358edda8b180671b21c48e3ca478f4d5ea5f871d750c02154835cd39e8386946810d6fd75e57cd98a89d76468997e6092441d30cfe9bbad345f33d668">bin/changelog.xml.z</File>
+		<File Hash="431c50312ff5b0b5b0695feb125bde53082d85da25e8161cf9f160d5fb6f8bcde3336173487fde8d509aedf8778b8fa00f9371cbd1044c8cc09ce55181ce7dbc">bin/Spine.exe.z</File>
+		<File Hash="83ae26081a94d866a2e756f904348c29297ab66d36d505e543e12bbea7a17fb0c0c5fa8b4b621818ed226129fb51554735bfeedb6612f33029df165ae8852339">bin/SpineAPI.dll.z</File>
+		<File Hash="690bda7fcbb9befabc0ac82f65b3d32b89ce1e302336487c459348862a96f2d7121d544cb3f87bb24b6fcb2aadda8414d503a793fe1361fea3f2e4368daeba01">bin/de_DE.qm.z</File>
+		<File Hash="dab45b49687149a78f4cfbe3762fcff6b413ff42675da8d576b96c04f6e38e0c8039f4932ed6707bea245d7f69aa149d5529612a4949294b8e1f799a430a7e77">bin/en_US.qm.z</File>
+		<File Hash="512a4d7052c1e9a67ec8c1eceaf89bcafdc890ff63bba36e7c673afee779ca2c7c6635a11c06dc38879581a0ae6bc0685ef952e07da188c63ff9d3d5677aca47">bin/po_PO.qm.z</File>
+		<File Hash="edfcb459ae5f3d93e7c03b5ecd08ed45c91bf89d343404e0910e6fb8c8895bddde61d999874f74505f077bd9038ef92c6cfc38d4b434a1f53c519d9ea9635899">bin/ru_RU.qm.z</File>
+		<File Hash="bfef9399d365a1d62d452b1ac5054f06432148318a35558fbe63ab4ecc6dcc6f4c31e20f19edf11c310542b15d1aaed8cbfa474b1087b7ebe30ecfc956733708">styles.css.z</File>
 	</Version>
 </Versions>
