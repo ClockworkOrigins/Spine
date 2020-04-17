@@ -1237,6 +1237,26 @@ void ModDatabaseView::removeInvalidDatabaseEntries() {
 	
 	Database::DBError err;
 	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "DELETE FROM modfiles WHERE File = 'D3D11.zip';", err);
+
+	const auto patches = Database::queryAll<std::vector<int>, int, int>(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT ModID, PatchID FROM patchConfigs;", err);
+
+	QMap<QPair<int, int>, int> patchCount;
+	
+	for (const auto & patch : patches) {
+		const int modID = patch[0];
+		const int patchID = patch[1];
+
+		patchCount[qMakePair(modID, patchID)]++;
+	}
+
+	for (auto it = patchCount.begin(); it != patchCount.end(); ++it) {
+		for (int i = 1; i < it.value(); i++) {
+			const int modID = it.key().first;
+			const int patchID = it.key().second;
+			
+			Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "DELETE FROM patchConfigs WHERE ModID = " + std::to_string(modID) + " AND PatchID = " + std::to_string(patchID) + " LIMIT 1;", err);
+		}
+	}
 }
 
 bool ModDatabaseView::isInstalled(int modID) {
