@@ -115,7 +115,7 @@ QPushButton::disabled {
 	color: #CCCCCC;
 }
 
-QPushButton::hover[donateButton=false] {
+QPushButton::hover {
 	background: #808080;
 	color: #FFFFFF;
 }
@@ -127,6 +127,8 @@ QPushButton[donateButton=true] {
 
 QPushButton::hover[donateButton=true] {
 	image: url(":/donate_hover.png");
+	background: #F0F0F0;
+	color: #FFFFFF;
 }
 
 QLabel[donateText=true] {

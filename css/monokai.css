@@ -173,7 +173,7 @@ QPushButton::disabled {
 	color: #1F201B;
 }
 
-QPushButton::hover[donateButton=false] {
+QPushButton::hover {
 	background: #3E3D32;
 	color: #F8F8F2;
 }
@@ -185,6 +185,7 @@ QPushButton[donateButton=true] {
 
 QPushButton::hover[donateButton=true] {
 	image: url(":/donate_hover.png");
+	background-color: #272822;
 }
 
 QDoubleSpinBox,
