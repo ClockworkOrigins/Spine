@@ -36,12 +36,12 @@ using namespace spine::utils;
 using namespace spine::widgets;
 
 bool Uninstaller::uninstall(uint32_t modID, QString modName, QString directory) {
-	UninstallDialog dlg(QApplication::tr("ReallyWantToUninstall"), QApplication::tr("ReallyWantToUninstallText").arg(modName), Config::MODDIR + "/mods/" + QString::number(modID));
+	UninstallDialog dlg(QApplication::tr("ReallyWantToUninstall"), QApplication::tr("ReallyWantToUninstallText").arg(modName), Config::DOWNLOADDIR + "/mods/" + QString::number(modID));
 	
 	if (QDialog::DialogCode::Accepted != dlg.exec()) return false;
 	
 	if (!dlg.keepSavegame()) {
-		QDirIterator it(Config::MODDIR + "/mods/" + QString::number(modID), QStringList() << "*ini", QDir::Files, QDirIterator::Subdirectories);
+		QDirIterator it(Config::DOWNLOADDIR + "/mods/" + QString::number(modID), QStringList() << "*ini", QDir::Files, QDirIterator::Subdirectories);
 		while (it.hasNext()) {
 			it.next();
 			QDir dir(QString("%1/saves_%2/").arg(directory).arg(it.fileInfo().baseName()));
@@ -83,7 +83,7 @@ bool Uninstaller::uninstall(uint32_t modID, QString modName, QString directory) 
 }
 
 bool Uninstaller::uninstall(uint32_t modID) {
-	QDir dir(Config::MODDIR + "/mods/" + QString::number(modID));
+	QDir dir(Config::DOWNLOADDIR + "/mods/" + QString::number(modID));
 	if (dir.removeRecursively()) {
 		Database::DBError err;
 

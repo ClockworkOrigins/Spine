@@ -161,7 +161,7 @@ void ExportDialog::exportMods() {
 				bool b = QDir(targetFolder + QFileInfo(QString::fromStdString(modfiles[i][1])).path()).mkpath(targetFolder + QFileInfo(QString::fromStdString(modfiles[i][1])).path());
 				Q_UNUSED(b);
 			}
-			utils::Compression::compress(Config::MODDIR + "/mods/" + s2q(modfiles[i][0]) + "/" + s2q(modfiles[i][1]), targetFolder + s2q(modfiles[i][1]), false);
+			utils::Compression::compress(Config::DOWNLOADDIR + "/mods/" + s2q(modfiles[i][0]) + "/" + s2q(modfiles[i][1]), targetFolder + s2q(modfiles[i][1]), false);
 		}
 		emit updateProgress(int(modfiles.size()));
 	});

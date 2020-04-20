@@ -137,13 +137,13 @@ void AchievementWidget::setAchievement(int32_t modID, ManagementAchievement achi
 
 	QString lockedImage = _newAchievement.lockedImageName;
 	lockedImage.chop(2);
-	lockedImage.prepend(Config::MODDIR + "/mods/" + QString::number(modID) + "/achievements/");
+	lockedImage.prepend(Config::DOWNLOADDIR + "/achievements/" + QString::number(modID) + "/");
 
 	if (QFileInfo::exists(lockedImage) || _newAchievement.lockedImageName.isEmpty()) {
 		changedLockedImage(lockedImage);
 	} else {
 		const QString fileName = _newAchievement.lockedImageName;
-		FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(modID) + "/achievements/" + fileName), Config::MODDIR + "/mods/" + QString::number(modID) + "/achievements/", fileName, _newAchievement.lockedImageHash, this);
+		FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(modID) + "/achievements/" + fileName), Config::DOWNLOADDIR + "/achievements/" + QString::number(modID) + "/", fileName, _newAchievement.lockedImageHash, this);
 		connect(fd, &FileDownloader::fileSucceeded, [=]() {
 			changedLockedImage(lockedImage);
 			fd->deleteLater();
@@ -154,13 +154,13 @@ void AchievementWidget::setAchievement(int32_t modID, ManagementAchievement achi
 
 	QString unlockedImage = _newAchievement.unlockedImageName;
 	unlockedImage.chop(2);
-	unlockedImage.prepend(Config::MODDIR + "/mods/" + QString::number(modID) + "/achievements/");
+	unlockedImage.prepend(Config::DOWNLOADDIR + "/achievements/" + QString::number(modID) + "/");
 
 	if (QFileInfo::exists(unlockedImage) || _newAchievement.unlockedImageName.isEmpty()) {
 		changedUnlockedImage(unlockedImage);
 	} else {
 		const QString fileName = _newAchievement.unlockedImageName;
-		FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(modID) + "/achievements/" + fileName), Config::MODDIR + "/mods/" + QString::number(modID) + "/achievements/", fileName, _newAchievement.unlockedImageHash, this);
+		FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(modID) + "/achievements/" + fileName), Config::DOWNLOADDIR + "/achievements/" + QString::number(modID) + "/", fileName, _newAchievement.unlockedImageHash, this);
 		connect(fd, &FileDownloader::fileSucceeded, [=]() {
 			changedUnlockedImage(unlockedImage);
 			fd->deleteLater();

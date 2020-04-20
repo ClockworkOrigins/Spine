@@ -27,7 +27,7 @@ namespace spine {
 
 	public:
 		enum DataRole {
-			GothicRole = Qt::UserRole,
+			GameRole = Qt::UserRole,
 			TypeRole,
 			IniFileRole,
 			InstalledRole,
@@ -35,6 +35,10 @@ namespace spine {
 			HiddenRole
 		};
 		LibraryFilterModel(QObject * par);
+
+		bool isGameActive() const {
+			return _gameActive;
+		}
 
 		bool isGothicActive() const {
 			return _gothicActive;
@@ -53,12 +57,14 @@ namespace spine {
 		}
 
 	public slots:
+		void gameChanged(int state);
 		void gothicChanged(int state);
 		void gothic2Changed(int state);
 		void gothicAndGothic2Changed(int state);
 		void showHidden(int state);
 
 	private:
+		bool _gameActive;
 		bool _gothicActive;
 		bool _gothic2Active;
 		bool _gothicAndGothic2Active;

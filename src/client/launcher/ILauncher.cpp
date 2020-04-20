@@ -71,6 +71,8 @@ QWidget * ILauncher::getLibraryWidget() const {
 
 void ILauncher::loginChanged() {
 	_ratingWidget->loginChanged();
+
+	updateView(_modID, _iniFile);
 	
 	if (!Config::Username.isEmpty()) {
 		tryCleanCaches();

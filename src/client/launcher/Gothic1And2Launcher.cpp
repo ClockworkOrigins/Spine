@@ -606,7 +606,7 @@ void Gothic1And2Launcher::updateView(int modID, const QString & iniFile) {
 		const ModVersion modGv = Database::queryNth<ModVersion, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion, MajorVersion, MinorVersion, PatchVersion FROM mods WHERE ModID = " + std::to_string(_modID) + " LIMIT 1;", err, 0);
 		
 		{
-			QDirIterator it(Config::MODDIR + "/mods/" + QString::number(_modID) + "/", QStringList() << "*.pdf", QDir::Filter::Files);
+			QDirIterator it(Config::DOWNLOADDIR + "/mods/" + QString::number(_modID) + "/", QStringList() << "*.pdf", QDir::Filter::Files);
 			while (it.hasNext()) {
 				it.next();
 				QLabel * l = new QLabel("<a href=\"file:///" + it.filePath().toHtmlEscaped() + R"(" style="color: #181C22">)" + QFileInfo(it.fileName()).fileName() + "</a>", _pdfGroup);
@@ -1255,7 +1255,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 						QRegularExpression regex("System/GD3D11/textures/replacements/(Normalmaps_[^/]+)/", QRegularExpression::CaseInsensitiveOption);
 						QRegularExpressionMatch match = regex.match(filename);
 						const QString targetName = clockworkRenderer ? _directory + "/" + checkPath + QString::number(normalsCounter) : "/System/GD3D11/textures/replacements/" + match.captured(1);
-						makeSymlinkFolder(Config::MODDIR + "/mods/" + QString::number(_modID) + "/System/GD3D11/textures/replacements/" + match.captured(1), targetName);
+						makeSymlinkFolder(Config::DOWNLOADDIR + "/mods/" + QString::number(_modID) + "/System/GD3D11/textures/replacements/" + match.captured(1), targetName);
 						_copiedFiles.append("/System/GD3D11/textures/replacements/" + match.captured(1));
 						continue;
 					}
@@ -1282,9 +1282,9 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 						QRegularExpressionMatch match = regex.match(filename);
 						// backup old file
 						bool copy = true;
-						QFile f(Config::MODDIR + "/mods/" + QString::number(_modID) + "/" + filename);
+						QFile f(Config::DOWNLOADDIR + "/mods/" + QString::number(_modID) + "/" + filename);
 						if (QFileInfo::exists(_directory + "/" + filename)) {
-							const bool b = utils::Hashing::checkHash(Config::MODDIR + "/mods/" + QString::number(_modID) + "/" + filename, QString::fromStdString(file.second));
+							const bool b = utils::Hashing::checkHash(Config::DOWNLOADDIR + "/mods/" + QString::number(_modID) + "/" + filename, QString::fromStdString(file.second));
 							if (b) {
 								copy = false;
 								if (Config::extendedLogging) {
@@ -1307,7 +1307,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 						}
 						if (copy) {
 							f.close();
-							success = linkOrCopyFile(Config::MODDIR + "/mods/" + QString::number(_modID) + "/" + filename, _directory + "/" + changedFile);
+							success = linkOrCopyFile(Config::DOWNLOADDIR + "/mods/" + QString::number(_modID) + "/" + filename, _directory + "/" + changedFile);
 						}
 						if (!success) {
 							LOGERROR("Couldn't copy file: " << filename.toStdString() << " " << f.errorString().toStdString());
@@ -1348,7 +1348,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 					}
 				}
 				if (copy) {
-					success = linkOrCopyFile(Config::MODDIR + "/mods/" + QString::number(_modID) + "/" + filename, _directory + "/" + filename);
+					success = linkOrCopyFile(Config::DOWNLOADDIR + "/mods/" + QString::number(_modID) + "/" + filename, _directory + "/" + filename);
 				}
 				if (!success) {
 					LOGERROR("Couldn't copy file: " << filename.toStdString());
@@ -1363,7 +1363,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 				LOGERROR("Failed copying mod data");
 				return false;
 			}
-			checkToolCfg(Config::MODDIR + "/mods/" + QString::number(_modID), backgroundExecutables, newGMP);
+			checkToolCfg(Config::DOWNLOADDIR + "/mods/" + QString::number(_modID), backgroundExecutables, newGMP);
 			updatePlugins(_modID);
 		}
 	} else {
@@ -1403,7 +1403,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 					// D3D11 special treatment... don't set symlink for every file, but set symlink to base dir
 					QString checkPath = "System/GD3D11/Data";
 					if (!skippedBases.contains(checkPath) && filename.contains(checkPath, Qt::CaseInsensitive) && (!QDir(_directory + "/" + checkPath).exists() || QFileInfo(_directory + "/" + checkPath).isSymLink())) {
-						makeSymlinkFolder(Config::MODDIR + "/mods/" + QString::number(patchID) + "/" + checkPath, _directory + "/" + checkPath);
+						makeSymlinkFolder(Config::DOWNLOADDIR + "/mods/" + QString::number(patchID) + "/" + checkPath, _directory + "/" + checkPath);
 						skippedBases.insert(checkPath);
 						_copiedFiles.append(checkPath);
 						continue;
@@ -1413,7 +1413,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 					}
 					checkPath = "System/GD3D11/Meshes";
 					if (!skippedBases.contains(checkPath) && filename.contains(checkPath, Qt::CaseInsensitive) && (!QDir(_directory + "/" + checkPath).exists() || QFileInfo(_directory + "/" + checkPath).isSymLink())) {
-						makeSymlinkFolder(Config::MODDIR + "/mods/" + QString::number(patchID) + "/" + checkPath, _directory + "/" + checkPath);
+						makeSymlinkFolder(Config::DOWNLOADDIR + "/mods/" + QString::number(patchID) + "/" + checkPath, _directory + "/" + checkPath);
 						skippedBases.insert(checkPath);
 						_copiedFiles.append(checkPath);
 						continue;
@@ -1423,7 +1423,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 					}
 					checkPath = "System/GD3D11/shaders";
 					if (!skippedBases.contains(checkPath) && filename.contains(checkPath, Qt::CaseInsensitive) && (!QDir(_directory + "/" + checkPath).exists() || QFileInfo(_directory + "/" + checkPath).isSymLink())) {
-						makeSymlinkFolder(Config::MODDIR + "/mods/" + QString::number(patchID) + "/" + checkPath, _directory + "/" + checkPath);
+						makeSymlinkFolder(Config::DOWNLOADDIR + "/mods/" + QString::number(patchID) + "/" + checkPath, _directory + "/" + checkPath);
 						skippedBases.insert(checkPath);
 						_copiedFiles.append(checkPath);
 						continue;
@@ -1433,7 +1433,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 					}
 					checkPath = "System/GD3D11/textures/infos";
 					if (!skippedBases.contains(checkPath) && filename.contains(checkPath, Qt::CaseInsensitive) && (!QDir(_directory + "/" + checkPath).exists() || QFileInfo(_directory + "/" + checkPath).isSymLink())) {
-						makeSymlinkFolder(Config::MODDIR + "/mods/" + QString::number(patchID) + "/" + checkPath, _directory + "/" + checkPath);
+						makeSymlinkFolder(Config::DOWNLOADDIR + "/mods/" + QString::number(patchID) + "/" + checkPath, _directory + "/" + checkPath);
 						skippedBases.insert(checkPath);
 						_copiedFiles.append(checkPath);
 						continue;
@@ -1443,7 +1443,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 					}
 					checkPath = "System/GD3D11/textures/RainDrops";
 					if (!skippedBases.contains(checkPath) && filename.contains(checkPath, Qt::CaseInsensitive) && (!QDir(_directory + "/" + checkPath).exists() || QFileInfo(_directory + "/" + checkPath).isSymLink())) {
-						makeSymlinkFolder(Config::MODDIR + "/mods/" + QString::number(patchID) + "/" + checkPath, _directory + "/" + checkPath);
+						makeSymlinkFolder(Config::DOWNLOADDIR + "/mods/" + QString::number(patchID) + "/" + checkPath, _directory + "/" + checkPath);
 						skippedBases.insert(checkPath);
 						_copiedFiles.append(checkPath);
 						continue;
@@ -1453,7 +1453,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 					}
 					checkPath = "System/GD3D11/textures/replacements/Normalmaps_Original";
 					if (!skippedBases.contains(checkPath) && filename.contains(checkPath, Qt::CaseInsensitive) && (!QDir(_directory + "/" + checkPath).exists() || QFileInfo(_directory + "/" + checkPath).isSymLink())) {
-						makeSymlinkFolder(Config::MODDIR + "/mods/" + QString::number(patchID) + "/" + checkPath, _directory + "/" + checkPath);
+						makeSymlinkFolder(Config::DOWNLOADDIR + "/mods/" + QString::number(patchID) + "/" + checkPath, _directory + "/" + checkPath);
 						skippedBases.insert(checkPath);
 						_copiedFiles.append(checkPath);
 						continue;
@@ -1472,7 +1472,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 						QRegularExpression regex("System/GD3D11/textures/replacements/(Normalmaps_[^/]+)/", QRegularExpression::CaseInsensitiveOption);
 						QRegularExpressionMatch match = regex.match(filename);
 						const QString targetName = clockworkRenderer ? _directory + "/" + checkPath + QString::number(normalsCounter) : "/System/GD3D11/textures/replacements/" + match.captured(1);
-						makeSymlinkFolder(Config::MODDIR + "/mods/" + QString::number(patchID) + "/System/GD3D11/textures/replacements/" + match.captured(1), targetName);
+						makeSymlinkFolder(Config::DOWNLOADDIR + "/mods/" + QString::number(patchID) + "/System/GD3D11/textures/replacements/" + match.captured(1), targetName);
 						_copiedFiles.append("/System/GD3D11/textures/replacements/" + match.captured(1));
 						continue;
 					}
@@ -1500,12 +1500,12 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 						QRegularExpressionMatch match = regex.match(filename);
 						// backup old file
 						bool copy = true;
-						QFile f(Config::MODDIR + "/mods/" + QString::number(patchID) + "/" + filename);
+						QFile f(Config::DOWNLOADDIR + "/mods/" + QString::number(patchID) + "/" + filename);
 						QString changedFile = filename;
 						if (clockworkRenderer && match.captured(1).compare("Normalmaps_Original", Qt::CaseInsensitive) != 0) {
 							changedFile = changedFile.replace(match.captured(1), "Normalmaps_" + QString::number(normalsCounter), Qt::CaseInsensitive);
 						}
-						Q_ASSERT(QFileInfo::exists(Config::MODDIR + "/mods/" + QString::number(patchID) + "/" + filename));
+						Q_ASSERT(QFileInfo::exists(Config::DOWNLOADDIR + "/mods/" + QString::number(patchID) + "/" + filename));
 						if (QFileInfo::exists(_directory + "/" + changedFile)) {
 							const bool b = utils::Hashing::checkHash(_directory + "/" + changedFile, QString::fromStdString(file.second));
 							if (b) {
@@ -1524,7 +1524,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 						}
 						if (copy) {
 							f.close();
-							const bool b = linkOrCopyFile(Config::MODDIR + "/mods/" + QString::number(patchID) + "/" + filename, _directory + "/" + changedFile);
+							const bool b = linkOrCopyFile(Config::DOWNLOADDIR + "/mods/" + QString::number(patchID) + "/" + filename, _directory + "/" + changedFile);
 							_copiedFiles.append(changedFile);
 							Q_ASSERT(b);
 						}
@@ -1557,7 +1557,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 					}
 					if (copy) {
 						QFile::rename(_directory + "/" + filename, _directory + "/" + filename + ".spbak");
-						success = linkOrCopyFile(Config::MODDIR + "/mods/" + QString::number(patchID) + "/" + filename, _directory + "/" + filename);
+						success = linkOrCopyFile(Config::DOWNLOADDIR + "/mods/" + QString::number(patchID) + "/" + filename, _directory + "/" + filename);
 						if (!success) {
 							std::vector<std::string> name = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Name FROM patches WHERE ModID = " + patchIDString + " LIMIT 1;", err);
 							Q_ASSERT(!name.empty());
@@ -1568,7 +1568,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 					_copiedFiles.append(filename);
 				}
 			}
-			checkToolCfg(Config::MODDIR + "/mods/" + QString::number(patchID), backgroundExecutables, newGMP);
+			checkToolCfg(Config::DOWNLOADDIR + "/mods/" + QString::number(patchID), backgroundExecutables, newGMP);
 			updatePlugins(patchID);
 		}
 	}
@@ -1826,7 +1826,7 @@ void Gothic1And2Launcher::collectDependencies(int modID, QSet<QString> * depende
 
 	while (!toCheck.empty()) {
 		auto id = toCheck.dequeue();
-		auto path = Config::MODDIR + "/mods/" + id;
+		auto path = Config::DOWNLOADDIR + "/mods/" + id;
 		if (QFileInfo::exists(path + "/tool.cfg")) {
 			QSettings configParser(path + "/tool.cfg", QSettings::IniFormat);
 
@@ -1865,7 +1865,7 @@ void Gothic1And2Launcher::prepareForNinja() {
 }
 
 void Gothic1And2Launcher::updatePlugins(int modID) {
-	const auto path = QString("%1/mods/%2").arg(Config::MODDIR).arg(modID);
+	const auto path = QString("%1/mods/%2").arg(Config::DOWNLOADDIR).arg(modID);
 
 	if (!QFileInfo::exists(path + "/tool.cfg")) return;
 
@@ -2100,7 +2100,7 @@ void Gothic1And2Launcher::parseMods(QString baseDir) {
 		item->setData(false, LibraryFilterModel::HiddenRole);
 		item->setData(-1, LibraryFilterModel::ModIDRole);
 		item->setEditable(false);
-		item->setData(int(getGothicVersion()), LibraryFilterModel::GothicRole);
+		item->setData(int(getGothicVersion()), LibraryFilterModel::GameRole);
 		
 		_model->appendRow(item);
 	}
@@ -2108,9 +2108,9 @@ void Gothic1And2Launcher::parseMods(QString baseDir) {
 
 void Gothic1And2Launcher::parseInstalledMods() {
 	if (Config::extendedLogging) {
-		LOGINFO("Checking Files in " << Config::MODDIR.toStdString());
+		LOGINFO("Checking Files in " << Config::DOWNLOADDIR.toStdString());
 	}
-	QDirIterator it(Config::MODDIR + "/mods", QStringList() << "*.ini", QDir::Files, QDirIterator::Subdirectories);
+	QDirIterator it(Config::DOWNLOADDIR + "/mods", QStringList() << "*.ini", QDir::Files, QDirIterator::Subdirectories);
 	while (it.hasNext()) {
 		it.next();
 		QString fileName = it.filePath();
@@ -2146,7 +2146,7 @@ void Gothic1And2Launcher::parseIni(QString file) {
 	const QString iconPath = fi.absolutePath() + "/" + icon;
 	QPixmap pixmap(iconPath);
 	QString modID = fi.absolutePath();
-	QDir md(Config::MODDIR + "/mods");
+	QDir md(Config::DOWNLOADDIR + "/mods");
 	modID.replace(md.absolutePath(), "");
 	modID = modID.split("/", QString::SplitBehavior::SkipEmptyParts).front();
 	Database::DBError err;
@@ -2174,7 +2174,7 @@ void Gothic1And2Launcher::parseIni(QString file) {
 	item->setData(file, LibraryFilterModel::IniFileRole);
 	item->setData(true, LibraryFilterModel::InstalledRole);
 	item->setData(modID.toInt(), LibraryFilterModel::ModIDRole);
-	item->setData(int(mid), LibraryFilterModel::GothicRole);
+	item->setData(int(mid), LibraryFilterModel::GameRole);
 	if (!Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID FROM hiddenMods WHERE ModID = " + modID.toStdString() + " LIMIT 1;", err).empty()) {
 		item->setData(true, LibraryFilterModel::HiddenRole);
 	} else {
@@ -2204,6 +2204,6 @@ void Gothic1And2Launcher::finishedInstallation(int modID, int packageID, bool su
 
 	if (packageID != -1) return;
 	
-	parseMod(QString("%1/mods/%2").arg(Config::MODDIR).arg(modID));
+	parseMod(QString("%1/mods/%2").arg(Config::DOWNLOADDIR).arg(modID));
 	updateModStats();
 }

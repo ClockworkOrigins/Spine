@@ -33,7 +33,7 @@ namespace utils {
 		static int Init();
 
 		static QString BASEDIR;
-		static QString MODDIR;
+		static QString DOWNLOADDIR;
 		static QString NEWSIMAGEDIR;
 		static QString STYLESDIR;
 		static QSettings * IniParser;

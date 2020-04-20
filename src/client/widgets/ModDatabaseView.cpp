@@ -242,12 +242,24 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 			UPDATELANGUAGESETTEXT(cb6, "GothicMultiplayer");
 			connect(cb6, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::gmpChanged);
 
+			QCheckBox * cb7 = new QCheckBox(QApplication::tr("FullVersion"), filterWidget);
+			cb7->setChecked(_sortModel->isFullVersionsActive());
+			UPDATELANGUAGESETTEXT(cb7, "FullVersion");
+			connect(cb7, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::fullVersionsChanged);
+
+			QCheckBox * cb8 = new QCheckBox(QApplication::tr("Demo"), filterWidget);
+			cb8->setChecked(_sortModel->isDemosActive());
+			UPDATELANGUAGESETTEXT(cb8, "Demo");
+			connect(cb8, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::gmpChanged);
+
 			vbl->addWidget(cb1);
 			vbl->addWidget(cb2);
 			vbl->addWidget(cb3);
 			vbl->addWidget(cb4);
 			vbl->addWidget(cb5);
 			vbl->addWidget(cb6);
+			vbl->addWidget(cb7);
+			vbl->addWidget(cb8);
 
 			gb->setLayout(vbl);
 
@@ -274,11 +286,16 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 			cb3->setChecked(_sortModel->isGothicAndGothic2Active());
 			UPDATELANGUAGESETTEXT(cb3, "GothicAndGothic2");
 			connect(cb3, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::gothicAndGothic2Changed);
-			cb3->hide();
+
+			QCheckBox * cb4 = new QCheckBox(QApplication::tr("Game"), filterWidget);
+			cb4->setChecked(_sortModel->isGamesActive());
+			UPDATELANGUAGESETTEXT(cb4, "Game");
+			connect(cb4, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::gamesChanged);
 
 			vbl->addWidget(cb1);
 			vbl->addWidget(cb2);
 			vbl->addWidget(cb3);
+			vbl->addWidget(cb4);
 
 			gb->setLayout(vbl);
 
@@ -526,6 +543,14 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 			typeName = QApplication::tr("GothicMultiplayer");
 			break;
 		}
+		case common::ModType::FULLVERSION: {
+			typeName = QApplication::tr("FullVersion");
+			break;
+		}
+		case common::ModType::DEMO: {
+			typeName = QApplication::tr("Demo");
+			break;
+		}
 		default: {
 			break;
 		}
@@ -548,6 +573,10 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 		}
 		case common::GameType::Gothic1And2: {
 			gameName = QApplication::tr("GothicAndGothic2");
+			break;
+		}
+		case common::GameType::Game: {
+			gameName = QApplication::tr("Game");
 			break;
 		}
 		default: {
@@ -594,7 +623,7 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 		for (int i = 0; i < _sourceModel->columnCount(); i++) {
 			_sourceModel->setData(_sourceModel->index(row, i), Qt::AlignCenter, Qt::TextAlignmentRole);
 		}
-		if ((mod.gothic == common::GameType::Gothic && !_gothicValid) || (mod.gothic == common::GameType::Gothic2 && !_gothic2Valid) || (mod.gothic == common::GameType::GothicInGothic2 && (!_gothicValid || !_gothic2Valid)) || (mod.gothic == common::GameType::Gothic1And2 && !_gothicValid && !_gothic2Valid) || Config::MODDIR.isEmpty() || !QDir(Config::MODDIR).exists()) {
+		if ((mod.gothic == common::GameType::Gothic && !_gothicValid) || (mod.gothic == common::GameType::Gothic2 && !_gothic2Valid) || (mod.gothic == common::GameType::GothicInGothic2 && (!_gothicValid || !_gothic2Valid)) || (mod.gothic == common::GameType::Gothic1And2 && !_gothicValid && !_gothic2Valid) || Config::DOWNLOADDIR.isEmpty() || !QDir(Config::DOWNLOADDIR).exists()) {
 			idItem->setEnabled(false);
 			nameItem->setEnabled(false);
 			teamItem->setEnabled(false);
@@ -640,7 +669,7 @@ void ModDatabaseView::doubleClickedIndex(const QModelIndex & index) {
 }
 
 void ModDatabaseView::downloadModFiles(common::Mod mod, QSharedPointer<QList<QPair<QString, QString>>> fileList, QString fileserver) {
-	const QDir dir(Config::MODDIR + "/mods/" + QString::number(mod.id));
+	const QDir dir(Config::DOWNLOADDIR + "/mods/" + QString::number(mod.id));
 	if (!dir.exists()) {
 		bool b = dir.mkpath(dir.absolutePath());
 		Q_UNUSED(b);
@@ -769,7 +798,7 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, QSharedPointer<QList<QPa
 			paused = QMessageBox::StandardButton::Ok == msg.exec();
 		}
 		if (!paused) {
-			QDir dir2(Config::MODDIR + "/mods/" + QString::number(mod.id));
+			QDir dir2(Config::DOWNLOADDIR + "/mods/" + QString::number(mod.id));
 			
 			QString errorText = QApplication::tr("InstallationUnsuccessfulText").arg(s2q(mod.name));
 			if (error == DownloadError::DiskSpaceError) {
@@ -915,7 +944,7 @@ void ModDatabaseView::updatePackageList(std::vector<common::UpdatePackageListMes
 }
 
 void ModDatabaseView::downloadPackageFiles(common::Mod mod, common::UpdatePackageListMessage::Package package, QSharedPointer<QList<QPair<QString, QString>>> fileList, QString fileserver) {
-	const QDir dir(Config::MODDIR + "/mods/" + QString::number(mod.id));
+	const QDir dir(Config::DOWNLOADDIR + "/mods/" + QString::number(mod.id));
 	if (!dir.exists()) {
 		bool b = dir.mkpath(dir.absolutePath());
 		Q_UNUSED(b);
@@ -1206,7 +1235,7 @@ void ModDatabaseView::selectedPackageIndex(const QModelIndex & index) {
 		msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
 		msg.button(QMessageBox::StandardButton::Cancel)->setText(QApplication::tr("Cancel"));
 		if (QMessageBox::StandardButton::Ok == msg.exec()) {
-			QDir dir(Config::MODDIR + "/mods/" + QString::number(mod.id));
+			QDir dir(Config::DOWNLOADDIR + "/mods/" + QString::number(mod.id));
 			const auto files = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT File FROM packages WHERE PackageID = " + std::to_string(package.packageID) + ";", err);
 			for (const std::string & s : files) {
 				QFile(dir.absolutePath() + "/" + QString::fromStdString(s)).remove();

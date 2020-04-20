@@ -487,7 +487,7 @@ W przypadku znalezienia aktualizacji Spine automatycznie rozpocznie pobieranie, 
     </message>
     <message>
         <source>GothicAndGothic2</source>
-        <translation>Gothic I &amp; II</translation>
+        <translation>Gothic I &amp;&amp; II</translation>
     </message>
     <message>
         <source>CheckIntegrity</source>
@@ -3063,6 +3063,14 @@ Zgodę można odwołać w każdej chwili. Wszystkie niezbędne informacje można
     <message>
         <source>SupportUsText</source>
         <translation>Hilf uns, die laufenden Kosten von Spine zu bezahlen.</translation>
+    </message>
+    <message>
+        <source>FullVersion</source>
+        <translation>Vollversion</translation>
+    </message>
+    <message>
+        <source>Demo</source>
+        <translation>Demo</translation>
     </message>
 </context>
 </TS>

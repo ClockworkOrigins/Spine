@@ -31,7 +31,7 @@ namespace launcher {
 	public:
 		static LauncherFactory * getInstance();
 		
-		ILauncherPtr getLauncher(common::GameType gothic) const;
+		ILauncherPtr getLauncher(common::GameType gameType) const;
 		ILauncherPtr getLauncher(int32_t modID, const QString & iniFile) const;
 
 		void loginChanged();
@@ -58,7 +58,7 @@ namespace launcher {
 		
 		LauncherFactory();
 		
-		ILauncherPtr createLauncher(common::GameType gothic) const;
+		void initLauncher(ILauncherPtr launcher) const;
 	};
 
 } /* namespace launcher */

@@ -51,7 +51,7 @@ ProfileModView::ProfileModView(common::ModStats ms, QString gothicDirectory, QSt
 	_nameLabel = new QLabel(s2q(ms.name), this);
 	QLabel * iconLabel = new QLabel(this);
 
-	QDirIterator it(Config::MODDIR + "/mods/" + QString::number(ms.modID), QStringList() << "*.ini", QDir::Files, QDirIterator::Subdirectories);
+	QDirIterator it(Config::DOWNLOADDIR + "/mods/" + QString::number(ms.modID), QStringList() << "*.ini", QDir::Files, QDirIterator::Subdirectories);
 	QStringList files;
 	while (it.hasNext()) {
 		it.next();
@@ -71,7 +71,7 @@ ProfileModView::ProfileModView(common::ModStats ms, QString gothicDirectory, QSt
 		const QString iconPath = fi.absolutePath() + "/" + icon;
 		QPixmap pixmap(iconPath);
 		QString modID = fi.absolutePath();
-		QDir md(Config::MODDIR + "/mods");
+		QDir md(Config::DOWNLOADDIR + "/mods");
 		modID.replace(md.absolutePath(), "");
 		modID = modID.split("/", QString::SplitBehavior::SkipEmptyParts).front();
 		Database::DBError err;

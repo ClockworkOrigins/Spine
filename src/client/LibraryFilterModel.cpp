@@ -28,13 +28,20 @@
 using namespace spine;
 using namespace spine::utils;
 
-LibraryFilterModel::LibraryFilterModel(QObject * par) : QSortFilterProxyModel(par), _gothicActive(true), _gothic2Active(true), _gothicAndGothic2Active(true), _showHidden(false) {
+LibraryFilterModel::LibraryFilterModel(QObject * par) : QSortFilterProxyModel(par), _gameActive(true), _gothicActive(true), _gothic2Active(true), _gothicAndGothic2Active(true), _showHidden(false) {
 	Config::IniParser->beginGroup("LIBRARYFILTER");
+	_gameActive = Config::IniParser->value("Game", true).toBool();
 	_gothicActive = Config::IniParser->value("Gothic", true).toBool();
 	_gothic2Active = Config::IniParser->value("Gothic2", true).toBool();
 	_gothicAndGothic2Active = Config::IniParser->value("GothicAndGothic2", true).toBool();
 	_showHidden = Config::IniParser->value("ShowHidden", false).toBool();
 	Config::IniParser->endGroup();
+}
+
+void LibraryFilterModel::gameChanged(int state) {
+	_gameActive = state == Qt::Checked;
+	Config::IniParser->setValue("LIBRARYFILTER/Game", _gameActive);
+	invalidateFilter();
 }
 
 void LibraryFilterModel::gothicChanged(int state) {
@@ -64,7 +71,10 @@ void LibraryFilterModel::showHidden(int state) {
 bool LibraryFilterModel::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const {
 	bool result = true;
 	QStandardItemModel * model = dynamic_cast<QStandardItemModel *>(sourceModel());
-	result = result && ((common::GameType(model->data(model->index(source_row, 0), GothicRole).toInt()) == common::GameType::Gothic && _gothicActive) || (common::GameType(model->data(model->index(source_row, 0), GothicRole).toInt()) == common::GameType::Gothic2 && _gothic2Active) || (common::GameType(model->data(model->index(source_row, 0), GothicRole).toInt()) == common::GameType::GothicInGothic2 && _gothicAndGothic2Active) || (common::GameType(model->data(model->index(source_row, 0), GothicRole).toInt()) == common::GameType::Gothic1And2 && (_gothicActive || _gothic2Active || _gothicAndGothic2Active)));
+
+	const auto gameType = static_cast<common::GameType>(model->data(model->index(source_row, 0), GameRole).toInt());
+	
+	result = result && ((gameType == common::GameType::Gothic && _gothicActive) || (gameType == common::GameType::Gothic2 && _gothic2Active) || (gameType == common::GameType::GothicInGothic2 && _gothicAndGothic2Active) || (gameType == common::GameType::Gothic1And2 && (_gothicActive || _gothic2Active || _gothicAndGothic2Active)) || (gameType == common::GameType::Game && _gameActive));
 	result = result && (_showHidden || !model->data(model->index(source_row, 0), HiddenRole).toBool());
 	result = result && QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
 	return result;

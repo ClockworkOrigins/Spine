@@ -242,9 +242,9 @@ void LocationSettingsWidget::saveSettings() {
 		}
 	}
 	Config::IniParser->setValue("PATH/Downloads", _downloadPathLineEdit->text());
-	if (Config::MODDIR != _downloadPathLineEdit->text()) {
+	if (Config::DOWNLOADDIR != _downloadPathLineEdit->text()) {
 		{
-			QDir oldDir(Config::MODDIR + "/mods");
+			QDir oldDir(Config::DOWNLOADDIR + "/mods");
 			const QDir dir = _downloadPathLineEdit->text() + "/mods";
 			if (oldDir.exists() && !dir.exists()) {
 				QDirIterator it(oldDir.absolutePath(), QStringList() << "*", QDir::Files, QDirIterator::Subdirectories);
@@ -274,7 +274,7 @@ void LocationSettingsWidget::saveSettings() {
 				Q_UNUSED(b);
 			}
 		}
-		Config::MODDIR = _downloadPathLineEdit->text();
+		Config::DOWNLOADDIR = _downloadPathLineEdit->text();
 		emit downloadPathChanged();
 	}
 	{

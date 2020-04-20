@@ -193,10 +193,17 @@ void IntegrityCheckDialog::process() {
 		step = 1;
 	}
 	QSet<QString> allFiles;
-	QDirIterator it(Config::MODDIR + "/mods/", QDir::Files, QDirIterator::Subdirectories);
+	QDirIterator it(Config::DOWNLOADDIR + "/mods/", QDir::Files, QDirIterator::Subdirectories);
 	while (it.hasNext()) {
 		QString path = it.next();
-		if (!path.contains("/screens/") && !path.contains("/achievements/")) {
+		if (!path.contains(".spsav")) {
+			allFiles.insert(path);
+		}
+	}
+	QDirIterator gamesIt(Config::DOWNLOADDIR + "/games/", QDir::Files, QDirIterator::Subdirectories);
+	while (gamesIt.hasNext()) {
+		QString path = gamesIt.next();
+		if (!path.contains(".spsav")) {
 			allFiles.insert(path);
 		}
 	}
@@ -206,12 +213,12 @@ void IntegrityCheckDialog::process() {
 			emit updateText(fi.fileName());
 		}
 
-		const bool b = utils::Hashing::checkHash(Config::MODDIR + "/mods/" + QString::number(file.modID) + "/" + file.file, file.hash);
+		const bool b = utils::Hashing::checkHash(Config::DOWNLOADDIR + "/mods/" + QString::number(file.modID) + "/" + file.file, file.hash);
 		if (!b && !file.file.contains("directx_Jun2010_redist.exe", Qt::CaseInsensitive)) {
 			_corruptFiles.append(file);
 		}
 		
-		allFiles.remove(Config::MODDIR + "/mods/" + QString::number(file.modID) + "/" + file.file);
+		allFiles.remove(Config::DOWNLOADDIR + "/mods/" + QString::number(file.modID) + "/" + file.file);
 		count++;
 		if (count % step == 0) {
 			emit updateValue(count);

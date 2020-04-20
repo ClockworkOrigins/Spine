@@ -302,9 +302,16 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 			connect(cb3, &QCheckBox::stateChanged, _sortModel, &LibraryFilterModel::gothicAndGothic2Changed);
 			cb3->hide();
 
+			QCheckBox * cb4 = new QCheckBox(QApplication::tr("Game"), filterWidget);
+			cb4->setProperty("library", true);
+			cb4->setChecked(_sortModel->isGameActive());
+			UPDATELANGUAGESETTEXT(cb4, "Game");
+			connect(cb4, &QCheckBox::stateChanged, _sortModel, &LibraryFilterModel::gameChanged);
+
 			vbl->addWidget(cb1);
 			vbl->addWidget(cb2);
 			vbl->addWidget(cb3);
+			vbl->addWidget(cb4);
 
 			gb->setLayout(vbl);
 
@@ -864,7 +871,7 @@ void MainWindow::checkIntegrity() {
 				}
 				for (const IntegrityCheckDialog::ModFile & file : corruptFiles) {
 					QFileInfo fi(file.file);
-					FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(file.modID) + "/" + file.file), Config::MODDIR + "/mods/" + QString::number(file.modID) + "/" + fi.path(), fi.fileName(), file.hash, mfd);
+					FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(file.modID) + "/" + file.file), Config::DOWNLOADDIR + "/mods/" + QString::number(file.modID) + "/" + fi.path(), fi.fileName(), file.hash, mfd);
 					mfd->addFileDownloader(fd);
 				}
 				for (const IntegrityCheckDialog::ModFile & file : corruptGothicFiles) {
@@ -1037,7 +1044,7 @@ void MainWindow::uninstallMod() {
 	}
 	const QModelIndex idx = idxList.constFirst();
 	const int modId = idx.data(LibraryFilterModel::ModIDRole).toInt();
-	const common::GameType gothicVersion = common::GameType(idx.data(LibraryFilterModel::GothicRole).toInt());
+	const common::GameType gothicVersion = common::GameType(idx.data(LibraryFilterModel::GameRole).toInt());
 	const QString directory = gothicVersion == common::GameType::Gothic ? _gothicDirectory : _gothic2Directory;
 	_modListView->clearSelection();
 

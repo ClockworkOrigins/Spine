@@ -43,8 +43,8 @@ int main(int argc, char ** argv) {
 		if (!Config::BASEDIR.isEmpty() && Config::BASEDIR.endsWith("Clockwork Origins/Spine")) {
 			QDir(Config::BASEDIR + "/").removeRecursively();
 		}
-		if (!Config::MODDIR.isEmpty()) {
-			QDir(Config::MODDIR + "/mods/").removeRecursively();
+		if (!Config::DOWNLOADDIR.isEmpty()) {
+			QDir(Config::DOWNLOADDIR + "/mods/").removeRecursively();
 		}
 	}
 

@@ -134,7 +134,7 @@ void ImportDialog::importMods() {
 				emit error();
 				return;
 			}
-			QString targetFolder = Config::MODDIR + "/" + QString::fromStdString(modfiles[i][0]) + "/";
+			QString targetFolder = Config::DOWNLOADDIR + "/" + QString::fromStdString(modfiles[i][0]) + "/";
 			if (!QDir(targetFolder + QFileInfo(QString::fromStdString(modfiles[i][1])).path()).exists()) {
 				bool b = QDir(targetFolder + QFileInfo(QString::fromStdString(modfiles[i][1])).path()).mkpath(targetFolder + QFileInfo(QString::fromStdString(modfiles[i][1])).path());
 				Q_UNUSED(b);

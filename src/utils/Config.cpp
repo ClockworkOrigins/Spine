@@ -37,7 +37,7 @@
 using namespace spine::utils;
 
 QString Config::BASEDIR;
-QString Config::MODDIR;
+QString Config::DOWNLOADDIR;
 QString Config::NEWSIMAGEDIR;
 QString Config::STYLESDIR;
 QSettings * Config::IniParser = nullptr;
@@ -129,7 +129,7 @@ int Config::Init() {
 	IniParser = new QSettings(BASEDIR + "/Spine.ini", QSettings::IniFormat);
 	{
 		const QString path = IniParser->value("PATH/Downloads", "").toString();
-		MODDIR = path;
+		DOWNLOADDIR = path;
 	}
 	QString language = IniParser->value("MISC/language", "").toString();
 	if (language.isEmpty()) {

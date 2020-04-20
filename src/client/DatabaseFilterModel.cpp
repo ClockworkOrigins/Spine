@@ -27,8 +27,11 @@
 using namespace spine;
 using namespace spine::utils;
 
-DatabaseFilterModel::DatabaseFilterModel(QObject * par) : QSortFilterProxyModel(par), _gothicActive(true), _gothic2Active(true), _gothicAndGothic2Active(true), _totalConversionActive(true), _enhancementActive(true), _patchActive(true), _toolActive(true), _originalActive(true), _gmpActive(true), _minDuration(0), _maxDuration(1000), _rendererAllowed(false) {
+DatabaseFilterModel::DatabaseFilterModel(QObject * par) : QSortFilterProxyModel(par), _gamesActive(true), _demosActive(true), _fullVersionsActive(true), _gothicActive(true), _gothic2Active(true), _gothicAndGothic2Active(true), _totalConversionActive(true), _enhancementActive(true), _patchActive(true), _toolActive(true), _originalActive(true), _gmpActive(true), _minDuration(0), _maxDuration(1000), _rendererAllowed(false) {
 	Config::IniParser->beginGroup("DATABASEFILTER");
+	_gamesActive = Config::IniParser->value("Games", true).toBool();
+	_demosActive = Config::IniParser->value("Demos", true).toBool();
+	_fullVersionsActive = Config::IniParser->value("FullVersions", true).toBool();
 	_gothicActive = Config::IniParser->value("Gothic", true).toBool();
 	_gothic2Active = Config::IniParser->value("Gothic2", true).toBool();
 	_gothicAndGothic2Active = Config::IniParser->value("GothicAndGothic2", true).toBool();
@@ -41,6 +44,24 @@ DatabaseFilterModel::DatabaseFilterModel(QObject * par) : QSortFilterProxyModel(
 	_minDuration = Config::IniParser->value("MinDuration", 0).toInt();
 	_maxDuration = Config::IniParser->value("MaxDuration", 1000).toInt();
 	Config::IniParser->endGroup();
+}
+
+void DatabaseFilterModel::gamesChanged(int state) {
+	_gamesActive = state == Qt::Checked;
+	Config::IniParser->setValue("DATABASEFILTER/Games", _gamesActive);
+	invalidateFilter();
+}
+
+void DatabaseFilterModel::demosChanged(int state) {
+	_demosActive = state == Qt::Checked;
+	Config::IniParser->setValue("DATABASEFILTER/Demos", _demosActive);
+	invalidateFilter();
+}
+
+void DatabaseFilterModel::fullVersionsChanged(int state) {
+	_fullVersionsActive = state == Qt::Checked;
+	Config::IniParser->setValue("DATABASEFILTER/FullVersions", _fullVersionsActive);
+	invalidateFilter();
 }
 
 void DatabaseFilterModel::gothicChanged(int state) {
@@ -113,9 +134,13 @@ bool DatabaseFilterModel::filterAcceptsRow(int source_row, const QModelIndex & s
 	bool result = true;
 	QStandardItemModel * model = dynamic_cast<QStandardItemModel *>(sourceModel());
 	if (!source_parent.isValid() && !model->item(source_row, DatabaseColumn::Name)->data(PackageIDRole).isValid()) {
-		result = result && ((model->item(source_row, DatabaseColumn::Type)->text() == QApplication::tr("TotalConversion") && _totalConversionActive) || (model->item(source_row, DatabaseColumn::Type)->text() == QApplication::tr("Enhancement") && _enhancementActive) || (model->item(source_row, DatabaseColumn::Type)->text() == QApplication::tr("Patch") && _patchActive) || (model->item(source_row, DatabaseColumn::Type)->text() == QApplication::tr("Tool") && _toolActive) || (model->item(source_row, DatabaseColumn::Type)->text() == QApplication::tr("Original") && _originalActive) || (model->item(source_row, DatabaseColumn::Type)->text() == QApplication::tr("GothicMultiplayer") && _gmpActive));
-		result = result && ((model->item(source_row, DatabaseColumn::Game)->text() == QApplication::tr("Gothic") && _gothicActive) || (model->item(source_row, DatabaseColumn::Game)->text() == QApplication::tr("Gothic2") && _gothic2Active) || (model->item(source_row, DatabaseColumn::Game)->text() == QApplication::tr("GothicAndGothic2") && _gothicAndGothic2Active));
-		result = result && (model->item(source_row, DatabaseColumn::Type)->text() == QApplication::tr("Patch") || model->item(source_row, DatabaseColumn::Type)->text() == QApplication::tr("Tool") || (model->item(source_row, DatabaseColumn::DevDuration)->data(Qt::UserRole).toInt() / 60 >= _minDuration && model->item(source_row, DatabaseColumn::DevDuration)->data(Qt::UserRole).toInt() / 60 <= _maxDuration));
+		const auto typeText = model->item(source_row, DatabaseColumn::Type)->text();
+		const auto gameText = model->item(source_row, DatabaseColumn::Game)->text();
+		const int devDuration = model->item(source_row, DatabaseColumn::DevDuration)->data(Qt::UserRole).toInt();
+		
+		result = result && ((typeText == QApplication::tr("TotalConversion") && _totalConversionActive) || (typeText == QApplication::tr("Enhancement") && _enhancementActive) || (typeText == QApplication::tr("Patch") && _patchActive) || (typeText == QApplication::tr("Tool") && _toolActive) || (typeText == QApplication::tr("Original") && _originalActive) || (typeText == QApplication::tr("GothicMultiplayer") && _gmpActive) || (typeText == QApplication::tr("FullVersion") && _gamesActive) || (typeText == QApplication::tr("Demo") && _demosActive));
+		result = result && ((gameText == QApplication::tr("Gothic") && _gothicActive) || (gameText == QApplication::tr("Gothic2") && _gothic2Active) || (gameText == QApplication::tr("GothicAndGothic2") && _gothicAndGothic2Active) || (gameText == QApplication::tr("Game") && _gamesActive));
+		result = result && (typeText == QApplication::tr("Patch") || typeText == QApplication::tr("Tool") || (devDuration / 60 >= _minDuration && devDuration / 60 <= _maxDuration));
 		result = result && QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
 	}
 	result = result && (_rendererAllowed || !model->item(source_row, DatabaseColumn::Name)->text().contains("D3D11")); // check here to also filter D3D11 as package for another modification (e.g. GRM)

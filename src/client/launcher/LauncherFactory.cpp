@@ -18,6 +18,7 @@
 
 #include "launcher/LauncherFactory.h"
 
+#include "launcher/GameLauncher.h"
 #include "launcher/Gothic1Launcher.h"
 #include "launcher/Gothic2Launcher.h"
 
@@ -30,8 +31,13 @@ LauncherFactory * LauncherFactory::getInstance() {
 }
 
 LauncherFactory::LauncherFactory() {
-	_launchers.append(createLauncher(GameType::Gothic));
-	_launchers.append(createLauncher(GameType::Gothic2));
+	_launchers.append(ILauncherPtr(new Gothic1Launcher));
+	_launchers.append(ILauncherPtr(new Gothic2Launcher));
+	_launchers.append(ILauncherPtr(new GameLauncher));
+
+	for (auto & launcher : _launchers) {
+		initLauncher(launcher);
+	}
 }
 
 ILauncherPtr LauncherFactory::getLauncher(GameType gothic) const {
@@ -96,41 +102,16 @@ void LauncherFactory::updateModel(QStandardItemModel * model) {
 	}
 }
 
-ILauncherPtr LauncherFactory::createLauncher(GameType gothic) const {
-	ILauncherPtr launcher;
-	switch (gothic) {
-	case GameType::Gothic: {
-		launcher = QSharedPointer<Gothic1Launcher>(new Gothic1Launcher());
-		break;
-	}
-	case GameType::Gothic2: {
-		launcher = QSharedPointer<Gothic2Launcher>(new Gothic2Launcher());
-		break;
-	}
-	case GameType::GothicInGothic2: {
-		// not supported as launcher
-		break;
-	}
-	case GameType::Gothic1And2: {
-		// not supported as launcher
-		break;
-	}
-	default: {
-		break;
-	}
-	}
-
-	if (launcher) {
-		launcher->init();
-		
-		connect(launcher.data(), &ILauncher::restartAsAdmin, this, &LauncherFactory::restartAsAdmin);
-		connect(launcher.data(), &ILauncher::errorMessage, this, &LauncherFactory::errorMessage);
-		connect(launcher.data(), &ILauncher::openAchievementView, this, &LauncherFactory::openAchievementView);
-		connect(launcher.data(), &ILauncher::openScoreView, this, &LauncherFactory::openScoreView);
-		connect(this, &LauncherFactory::finishedInstallation, launcher.data(), &ILauncher::finishedInstallation);
-		connect(this, &LauncherFactory::updateStarted, launcher.data(), &ILauncher::updateStarted);
-		connect(this, &LauncherFactory::updateFinished, launcher.data(), &ILauncher::updateFinished);
-	}
-
-	return launcher;
+void LauncherFactory::initLauncher(ILauncherPtr launcher) const {
+	if (!launcher) return;
+	
+	launcher->init();
+	
+	connect(launcher.data(), &ILauncher::restartAsAdmin, this, &LauncherFactory::restartAsAdmin);
+	connect(launcher.data(), &ILauncher::errorMessage, this, &LauncherFactory::errorMessage);
+	connect(launcher.data(), &ILauncher::openAchievementView, this, &LauncherFactory::openAchievementView);
+	connect(launcher.data(), &ILauncher::openScoreView, this, &LauncherFactory::openScoreView);
+	connect(this, &LauncherFactory::finishedInstallation, launcher.data(), &ILauncher::finishedInstallation);
+	connect(this, &LauncherFactory::updateStarted, launcher.data(), &ILauncher::updateStarted);
+	connect(this, &LauncherFactory::updateFinished, launcher.data(), &ILauncher::updateFinished);
 }

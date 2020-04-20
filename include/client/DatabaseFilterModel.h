@@ -48,6 +48,18 @@ namespace spine {
 	public:
 		DatabaseFilterModel(QObject * par);
 
+		bool isGamesActive() const {
+			return _gamesActive;
+		}
+
+		bool isDemosActive() const {
+			return _demosActive;
+		}
+
+		bool isFullVersionsActive() const {
+			return _fullVersionsActive;
+		}
+
 		bool isGothicActive() const {
 			return _gothicActive;
 		}
@@ -97,6 +109,9 @@ namespace spine {
 		}
 
 	public slots:
+		void gamesChanged(int state);
+		void demosChanged(int state);
+		void fullVersionsChanged(int state);
 		void gothicChanged(int state);
 		void gothic2Changed(int state);
 		void gothicAndGothic2Changed(int state);
@@ -110,6 +125,9 @@ namespace spine {
 		void maxDurationChanged(int);
 
 	private:
+		bool _gamesActive;
+		bool _demosActive;
+		bool _fullVersionsActive;
 		bool _gothicActive;
 		bool _gothic2Active;
 		bool _gothicAndGothic2Active;

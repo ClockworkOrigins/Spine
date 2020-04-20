@@ -375,9 +375,9 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 			for (const auto & p : images) {
 				QString filename = p.first;
 				filename.chop(2); // every image is compressed, so it has a .z at the end
-				if (!QFileInfo::exists(Config::MODDIR + "/mods/" + QString::number(_modID) + "/screens/" + filename)) {
+				if (!QFileInfo::exists(Config::DOWNLOADDIR + "/screens/" + QString::number(_modID) + "/" + filename)) {
 					QFileInfo fi(p.first);
-					FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(_modID) + "/screens/" + p.first), Config::MODDIR + "/mods/" + QString::number(_modID) + "/screens/" + fi.path(), fi.fileName(), p.second, mfd);
+					FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(_modID) + "/screens/" + p.first), Config::DOWNLOADDIR + "/screens/" + QString::number(_modID) + "/" + fi.path(), fi.fileName(), p.second, mfd);
 					mfd->addFileDownloader(fd);
 				}
 			}
@@ -388,13 +388,13 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 				
 				QString filename = QString::fromStdString(_screens[0].first);
 				filename.chop(2);
-				const QPixmap preview(Config::MODDIR + "/mods/" + QString::number(_modID) + "/screens/" + filename);
+				const QPixmap preview(Config::DOWNLOADDIR + "/screens/" + QString::number(_modID) + "/" + filename);
 				_previewImageLabel->setPixmap(preview.scaled(QSize(640, 480), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 				for (const auto & p : _screens) {
 					QString fn = QString::fromStdString(p.first);
 					fn.chop(2); // .z
 					QStandardItem * itm = new QStandardItem();
-					QPixmap thumb(Config::MODDIR + "/mods/" + QString::number(_modID) + "/screens/" + fn);
+					QPixmap thumb(Config::DOWNLOADDIR + "/screens/" + QString::number(_modID) + "/" + fn);
 					QPixmap scaledThumb = thumb.scaled(QSize(300, 100), Qt::KeepAspectRatio, Qt::SmoothTransformation);
 					itm->setIcon(scaledThumb);
 					minWidth = std::min(minWidth, scaledThumb.width());
@@ -502,7 +502,7 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 	_installButton->setVisible(!installed && sipm->installAllowed);
 	_installButton->setProperty("modid", int(_modID));
 
-	const QDirIterator it(Config::MODDIR + "/mods/" + QString::number(_modID) + "/System", QStringList() << "*.ini", QDir::Files, QDirIterator::Subdirectories);
+	const QDirIterator it(Config::DOWNLOADDIR + "/mods/" + QString::number(_modID) + "/System", QStringList() << "*.ini", QDir::Files, QDirIterator::Subdirectories);
 	_startButton->setVisible(installed && it.hasNext() && !_runningUpdates.contains(_modID));
 
 	for (const auto & p : sipm->optionalPackages) {
@@ -536,7 +536,7 @@ void ModInfoPage::changePreviewImage(const QModelIndex & idx) {
 	QString filename = QString::fromStdString(_screens[idx.row()].first);
 	if (!_screens[idx.row()].second.empty()) { // downloaded screens: relative path
 		filename.chop(2);
-		const QPixmap preview(Config::MODDIR + "/mods/" + QString::number(_modID) + "/screens/" + filename);
+		const QPixmap preview(Config::DOWNLOADDIR + "/screens/" + QString::number(_modID) + "/" + filename);
 		_previewImageLabel->setPixmap(preview.scaled(QSize(640, 480), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 	} else {
 		const QPixmap preview(filename);
@@ -723,7 +723,7 @@ void ModInfoPage::requestRandomMod() {
 }
 
 void ModInfoPage::startMod() {
-	QDirIterator it(Config::MODDIR + "/mods/" + QString::number(_modID) + "/System", QStringList() << "*.ini", QDir::Files, QDirIterator::Subdirectories);
+	QDirIterator it(Config::DOWNLOADDIR + "/mods/" + QString::number(_modID) + "/System", QStringList() << "*.ini", QDir::Files, QDirIterator::Subdirectories);
 	if (it.hasNext()) {
 		it.next();
 		emit triggerModStart(_modID, it.filePath());
@@ -734,7 +734,7 @@ void ModInfoPage::showFullscreen() {
 	QItemSelectionModel * selectionModel = _thumbnailView->selectionModel();
 	const QModelIndexList list = selectionModel->selectedRows();
 	const int row = list.isEmpty() ? 0 : selectionModel->selectedRows().front().row();
-	FullscreenPreview fp(Config::MODDIR + "/mods/" + QString::number(_modID) + "/screens/" + QString::fromStdString(_screens[row].first), this);
+	FullscreenPreview fp(Config::DOWNLOADDIR + "/screens/" + QString::number(_modID) + "/" + QString::fromStdString(_screens[row].first), this);
 	fp.exec();
 }
 

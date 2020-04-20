@@ -27,7 +27,9 @@ namespace common {
 		PATCH,
 		TOOL,
 		ORIGINAL,
-		GMP
+		GMP,
+		FULLVERSION,
+		DEMO
 	};
 
 } /* namespace common */

@@ -399,14 +399,14 @@ void ProfileView::updateAchievements(int32_t modID, std::vector<common::SendAllA
 		if (!as.iconLocked.empty() && !as.iconLockedHash.empty()) {
 			QString filename = QString::fromStdString(as.iconLocked);
 			filename.chop(2); // remove .z
-			if (!QFileInfo::exists(Config::MODDIR + "/mods/" + QString::number(modID) + "/achievements/" + filename)) {
+			if (!QFileInfo::exists(Config::DOWNLOADDIR + "/achievements/" + QString::number(modID) + "/" + filename)) {
 				images.insert(QPair<QString, QString>(QString::fromStdString(as.iconLocked), QString::fromStdString(as.iconLockedHash)));
 			}
 		}
 		if (!as.iconUnlocked.empty() && !as.iconUnlockedHash.empty()) {
 			QString filename = QString::fromStdString(as.iconUnlocked);
 			filename.chop(2); // remove .z
-			if (!QFileInfo::exists(Config::MODDIR + "/mods/" + QString::number(modID) + "/achievements/" + filename)) {
+			if (!QFileInfo::exists(Config::DOWNLOADDIR + "/achievements/" + QString::number(modID) + "/" + filename)) {
 				images.insert(QPair<QString, QString>(QString::fromStdString(as.iconUnlocked), QString::fromStdString(as.iconUnlockedHash)));
 			}
 		}
@@ -415,7 +415,7 @@ void ProfileView::updateAchievements(int32_t modID, std::vector<common::SendAllA
 		MultiFileDownloader * mfd = new MultiFileDownloader(this);
 		for (const auto & p : images) {
 			QFileInfo fi(p.first);
-			FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(modID) + "/achievements/" + p.first), Config::MODDIR + "/mods/" + QString::number(modID) + "/achievements/" + fi.path(), fi.fileName(), p.second, mfd);
+			FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(modID) + "/achievements/" + p.first), Config::DOWNLOADDIR + "/achievements/" + QString::number(modID) + "/" + fi.path(), fi.fileName(), p.second, mfd);
 			mfd->addFileDownloader(fd);
 		}
 
@@ -453,7 +453,7 @@ void ProfileView::updateScores(std::vector<common::SendAllScoreStatsMessage::Sco
 		int lastRank = 1;
 		int lastScore = 0;
 		int row = 0;
-		for (auto p : score.scores) {
+		for (const auto & p : score.scores) {
 			if (lastScore != p.second) {
 				rank = lastRank;
 			}

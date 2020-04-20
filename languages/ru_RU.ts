@@ -485,7 +485,7 @@
     </message>
     <message>
         <source>GothicAndGothic2</source>
-        <translation>Gothic I &amp; II</translation>
+        <translation>Gothic I &amp;&amp; II</translation>
     </message>
     <message>
         <source>CheckIntegrity</source>
@@ -3068,6 +3068,14 @@ You can revoke your permission at every point in time. All necessary information
     <message>
         <source>SupportUsText</source>
         <translation>Help us to pay the running costs of Spine.</translation>
+    </message>
+    <message>
+        <source>FullVersion</source>
+        <translation>Full Version</translation>
+    </message>
+    <message>
+        <source>Demo</source>
+        <translation>Demo</translation>
     </message>
 </context>
 </TS>

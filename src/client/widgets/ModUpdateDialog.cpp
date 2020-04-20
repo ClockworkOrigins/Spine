@@ -250,7 +250,7 @@ void ModUpdateDialog::accept() {
 
 	MultiFileDownloader * mfd = new MultiFileDownloader(this);
 	for (const ModFile & mf : installFiles) {
-		QDir dir(Config::MODDIR + "/mods/" + QString::number(mf.modID));
+		QDir dir(Config::DOWNLOADDIR + "/mods/" + QString::number(mf.modID));
 		if (!dir.exists()) {
 			bool b = dir.mkpath(dir.absolutePath());
 			Q_UNUSED(b);
@@ -260,7 +260,7 @@ void ModUpdateDialog::accept() {
 		mfd->addFileDownloader(fd);
 	}
 	for (const ModFile & mf : newFiles) {
-		QDir dir(Config::MODDIR + "/mods/" + QString::number(mf.modID));
+		QDir dir(Config::DOWNLOADDIR + "/mods/" + QString::number(mf.modID));
 		if (!dir.exists()) {
 			bool b = dir.mkpath(dir.absolutePath());
 			Q_UNUSED(b);
@@ -312,7 +312,7 @@ void ModUpdateDialog::accept() {
 				fileName = fileName.mid(0, fileName.size() - 2);
 			}
 			mf.file = fileName.toStdString();
-			QFile(Config::MODDIR + "/mods/" + QString::number(mf.modID) + "/" + fileName).remove();
+			QFile(Config::DOWNLOADDIR + "/mods/" + QString::number(mf.modID) + "/" + fileName).remove();
 			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "DELETE FROM modfiles WHERE ModID = " + std::to_string(mf.modID) + " AND File = '" + mf.file + "';", err);
 			success = success && !err.error;
 			if (success && mf.packageID != -1) {

@@ -89,12 +89,12 @@ void AchievementView::updateIcons() {
 	if (!_achievement.iconUnlocked.empty()) {
 		QString filename = QString::fromStdString(_achievement.iconUnlocked);
 		filename.chop(2);
-		iconUnlocked = Config::MODDIR + "/mods/" + QString::number(_modID) + "/achievements/" + filename;
+		iconUnlocked = Config::DOWNLOADDIR + "/achievements/" + QString::number(_modID) + "/" + filename;
 	}
 	if (!_achievement.iconLocked.empty()) {
 		QString filename = QString::fromStdString(_achievement.iconLocked);
 		filename.chop(2);
-		iconLocked = Config::MODDIR + "/mods/" + QString::number(_modID) + "/achievements/" + filename;
+		iconLocked = Config::DOWNLOADDIR + "/achievements/" + QString::number(_modID) + "/" + filename;
 	}
 
 	{
