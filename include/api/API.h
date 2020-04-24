@@ -144,5 +144,10 @@ namespace api {
 	 */
 	SPINEAPI_EXPORTS int getTestMode();
 
+	/**
+	 * \brief returns the user ID
+	 */
+	SPINEAPI_EXPORTS int getUserID();
+
 } /* namespace api */
 } /* namespace spine */

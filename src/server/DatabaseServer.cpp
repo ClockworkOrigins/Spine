@@ -42,6 +42,7 @@ int DatabaseServer::run() {
 	_server->config.port = DATABASESERVER_PORT;
 	
 	_server->resource["^/getModnameForIDs"]["POST"] = std::bind(&DatabaseServer::getModnameForIDs, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/getUserID"]["POST"] = std::bind(&DatabaseServer::getUserID, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -106,6 +107,35 @@ void DatabaseServer::getModnameForIDs(std::shared_ptr<HttpsServer::Response> res
 			}
 			responseTree.add_child("Names", nameNodes);
 		} while (false);
+
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::getUserID(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+	
+		const std::string username = pt.get<std::string>("Username");
+		const std::string password = pt.get<std::string>("Password");
+
+		const int userID = ServerCommon::getUserID(username, password);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		responseTree.put("ID", userID);
 
 		write_json(responseStream, responseTree);
 

@@ -60,6 +60,8 @@ namespace {
 
 	std::map<std::pair<int, int>, bool> otherModsAchievements;
 
+	int userID = -1;
+
 	void saveOverallSave() {
 		std::thread([]() {
 			std::lock_guard<std::mutex> lg(overallSaveMutex);
@@ -553,6 +555,10 @@ namespace {
 
 	int32_t getTestMode() {
 		return testMode ? 1 : 0;
+	}
+
+	int32_t getUserID() {
+		return userID;
 	}
 
 } /* namespace api */

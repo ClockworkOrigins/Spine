@@ -315,8 +315,8 @@ void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::socket
 				if (msg->type == MessageType::REQUESTUSERNAME) {
 					SendUsernameMessage sum;
 					sum.username = Config::Username.toStdString();
-					sum.password = Config::Password.toStdString();
 					sum.modID = _modID;
+					sum.userID = Config::UserID;
 					serialized = sum.SerializeBlank();
 					socket->writePacket(serialized);
 				} else if (msg->type == MessageType::REQUESTSCORES) {

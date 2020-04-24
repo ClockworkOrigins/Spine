@@ -25,6 +25,8 @@
 
 #include "common/MessageStructs.h"
 
+#include "https/Https.h"
+
 #include "security/Hash.h"
 
 #include "utils/Config.h"
@@ -41,6 +43,7 @@
 #include <QDir>
 #include <QFile>
 #include <QInputDialog>
+#include <QJsonObject>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMessageBox>
@@ -75,6 +78,7 @@ namespace login {
 }
 
 using namespace spine;
+using namespace spine::https;
 using namespace spine::utils;
 using namespace spine::widgets;
 
@@ -655,6 +659,11 @@ void LoginDialog::handleLogin() {
 				const std::string serialized = suim.SerializePublic();
 				sock.writePacket(serialized);
 			}
+			Https::postAsync(DATABASESERVER_PORT, "getUserID", QString("{ \"Username\": \"%1\", \"Password\": \"%2\2 }").arg(Config::Username).arg(Config::Password), [](const QJsonObject & json, int status) {
+				if (!json.contains("ID")) return;
+
+				Config::UserID = json["ID"].toString().toInt();
+			});
 		}
 	});
 }

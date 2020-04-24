@@ -46,6 +46,7 @@ bool Config::OnlineMode = true;
 QString Config::Username = "";
 QString Config::Password = "";
 QString Config::Language = "";
+int Config::UserID = -1;
 
 int Config::downloadRate = 5120;
 bool Config::extendedLogging = false;

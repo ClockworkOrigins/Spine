@@ -248,17 +248,17 @@ namespace common {
 
 	struct SendUsernameMessage : public Message {
 		std::string username;
-		std::string password;
 		int32_t modID;
-		SendUsernameMessage() : Message(), username(), password(), modID() {
+		int32_t userID;
+		SendUsernameMessage() : Message(), username(), modID(), userID(-1) {
 			type = MessageType::SENDUSERNAME;
 		}
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int /* file_version */) {
 			ar & boost::serialization::base_object<Message>(*this);
 			ar & username;
-			ar & password;
 			ar & modID;
+			ar & userID;
 		}
 	};
 

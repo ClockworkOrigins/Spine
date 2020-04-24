@@ -42,6 +42,7 @@ namespace utils {
 		static QString Username;
 		static QString Password;
 		static QString Language;
+		static int UserID;
 
 		static int downloadRate;
 		static bool extendedLogging;
