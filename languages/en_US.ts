@@ -490,6 +490,10 @@ If an update is found, Spine will automatically download the update and restart 
         <translation>Gothic I &amp;&amp; II</translation>
     </message>
     <message>
+        <source>GothicAndGothic2_2</source>
+        <translation>Gothic I &amp; II</translation>
+    </message>
+    <message>
         <source>CheckIntegrity</source>
         <translation>Check integrity</translation>
     </message>

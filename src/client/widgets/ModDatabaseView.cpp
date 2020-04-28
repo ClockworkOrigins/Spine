@@ -572,7 +572,7 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 			break;
 		}
 		case common::GameType::Gothic1And2: {
-			gameName = QApplication::tr("GothicAndGothic2");
+			gameName = QApplication::tr("GothicAndGothic2_2");
 			break;
 		}
 		case common::GameType::Game: {

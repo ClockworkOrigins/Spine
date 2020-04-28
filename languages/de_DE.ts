@@ -490,6 +490,10 @@ Wenn ein Update gefunden wird, wird Spine automatisch den Download starten und s
         <translation>Gothic I &amp;&amp; II</translation>
     </message>
     <message>
+        <source>GothicAndGothic2_2</source>
+        <translation>Gothic I &amp; II</translation>
+    </message>
+    <message>
         <source>CheckIntegrity</source>
         <translation>Integrität überprüfen</translation>
     </message>
