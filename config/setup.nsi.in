@@ -217,6 +217,7 @@ Section !$(NameSecModFiles) SecModFiles
   File      "@CMAKE_BINARY_DIR@\bin\cleanup.exe"
   File      "@CMAKE_BINARY_DIR@\bin\*.qm"
   File      "@CMAKE_BINARY_DIR@\bin\SpineAPI.dll"
+  File      "@CMAKE_BINARY_DIR@\bin\SpineAPI64.dll"
   File      "@CMAKE_SOURCE_DIR@\config\changelog.xml"
   File      "@CMAKE_SOURCE_DIR@\config\*.conf"
   File      "@SPINE_DEP_DIR@\openSSL\bin\*.dll"

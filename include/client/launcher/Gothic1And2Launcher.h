@@ -155,14 +155,11 @@ namespace launcher {
 		void removeModFiles();
 
 		void checkToolCfg(QString path, QStringList * backgroundExecutables, bool * newGMP);
-
-		bool isAllowedSymlinkSuffix(QString suffix) const;
 		
 		void collectDependencies(int modID, QSet<QString> * dependencies, QSet<QString> * forbidden);
 		void prepareForNinja();
 		void updatePlugins(int modID);
 
-		bool linkOrCopyFile(QString sourcePath, QString destinationPath);
 		bool linkOrCopyFolder(QString sourcePath, QString destinationPath);
 		bool canSkipFile(const QString & filename) const;
 

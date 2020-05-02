@@ -28,6 +28,7 @@
 #include "utils/Config.h"
 #include "utils/Conversion.h"
 #include "utils/Database.h"
+#include "utils/WindowsExtensions.h"
 
 #include "widgets/RatingWidget.h"
 
@@ -35,6 +36,7 @@
 
 #include <QApplication>
 #include <QDate>
+#include <QFileInfo>
 #include <QLabel>
 #include <QPushButton>
 #include <QtConcurrentRun>
@@ -949,4 +951,33 @@ void ILauncher::synchronizeOfflineData() {
 		} catch (...) {
 		}
 	});
+}
+
+bool ILauncher::linkOrCopyFile(QString sourcePath, QString destinationPath) {
+#ifdef Q_OS_WIN
+	const auto suffix = QFileInfo(sourcePath).suffix();
+	if (IsRunAsAdmin() && isAllowedSymlinkSuffix(suffix)) {
+		const bool linked = makeSymlink(sourcePath, destinationPath);
+		return linked;
+	}
+
+	const bool linked = CreateHardLinkW(destinationPath.toStdWString().c_str(), sourcePath.toStdWString().c_str(), nullptr);
+	if (!linked) {
+		const bool copied = QFile::copy(sourcePath, destinationPath);
+		return copied;
+	}
+	return linked;
+#else
+	const bool copied = QFile::copy(sourcePath, destinationPath);
+	return copied;
+#endif
+}
+
+bool ILauncher::isAllowedSymlinkSuffix(QString suffix) const {
+	suffix = suffix.toLower();
+	const bool canSymlink = suffix == "mod" || suffix == "vdf" || suffix == "sty" || suffix == "sgt" || suffix == "dls" || suffix == "bik" || suffix == "dds" || suffix == "jpg" || suffix == "png" || suffix == "mi" || suffix == "hlsl" || suffix == "h" || suffix == "vi" || suffix == "exe" || suffix == "dll" || suffix == "bin" || suffix == "mtl" || suffix == "obj" || suffix == "txt" || suffix == "rtf" || suffix == "obj" || suffix == "ico" || suffix == "ini" || suffix == "bak" || suffix == "gsp" || suffix == "pdb" || suffix == "config" || suffix == "fx" || suffix == "3ds" || suffix == "mcache" || suffix == "fxh";
+	if (!canSymlink) {
+		LOGINFO("Copying extension: " << suffix.toStdString());
+	}
+	return canSymlink;
 }

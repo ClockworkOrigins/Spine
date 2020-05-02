@@ -127,6 +127,9 @@ namespace launcher {
 
 		virtual void updateModStats() {}
 
+		bool isAllowedSymlinkSuffix(QString suffix) const;
+		bool linkOrCopyFile(QString sourcePath, QString destinationPath);
+
 	private:
 		QLabel * _playTimeLabel = nullptr;
 		widgets::RatingWidget * _ratingWidget = nullptr;
