@@ -1759,9 +1759,11 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="19" patchVersion="0">
 		<Enhancement language="Deutsch">Unterstützung für Spiele und Spiele-Demos eingebaut</Enhancement>
+		<Enhancement language="Deutsch">Aktualisierungsdatum in Datenbank und auf Infoseite ergänzt</Enhancement>
 		<Bug language="Deutsch">Öffnen der Bibliothek mit bereits ausgewähltem Eintrag von letzter Session zeigt jetzt die Online-Daten richtig an</Bug>
 		
 		<Enhancement language="English">Added support for games and game demos</Enhancement>
+		<Enhancement language="English">Added update date to database and info page</Enhancement>
 		<Bug language="English">Opening the library with an already selected entry from a previous session now shows online data correctly</Bug>
 	</Version>
 </Versions>

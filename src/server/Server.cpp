@@ -291,7 +291,7 @@ void Server::receiveMessage(const std::vector<uint8_t> & message, clockUtils::so
 				UploadAchievementIconsMessage * msg = dynamic_cast<UploadAchievementIconsMessage *>(m);
 				_managementServer->uploadAchievementIcons(msg);
 			} else {
-				std::cerr << "unexpected control message arrived: " << int(m->type) << std::endl;
+				std::cerr << "unexpected control message arrived: " << static_cast<int>(m->type) << std::endl;
 				delete m;
 				return;
 			}
@@ -333,7 +333,7 @@ void Server::handleAutoUpdate(clockUtils::sockets::TcpSocket * sock, UpdateReque
 	std::map<uint32_t, std::vector<std::pair<std::string, std::string>>> versions;
 	versions.insert(std::make_pair(lastVersion, std::vector<std::pair<std::string, std::string>>()));
 
-	auto rootNode = doc.FirstChildElement("Versions");
+	auto * const rootNode = doc.FirstChildElement("Versions");
 
 	if (rootNode != nullptr) {
 		for (tinyxml2::XMLElement * node = rootNode->FirstChildElement("Version"); node != nullptr; node = node->NextSiblingElement("Version")) {
@@ -368,7 +368,7 @@ void Server::handleAutoUpdate(clockUtils::sockets::TcpSocket * sock, UpdateReque
 
 	// 3. send file count
 	UpdateFilesMessage ufm;
-	for (auto & p : files) {
+	for (const auto & p : files) {
 		ufm.files.push_back(p);
 	}
 	const std::string serialized = ufm.SerializeBlank();
@@ -417,6 +417,11 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
+	if (!database.query("PREPARE selectUpdateDateStmt FROM \"SELECT Date FROM lastUpdated WHERE ProjectID = ? LIMIT 1\";")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return;
+	}
+	
 	auto enabledResults = database.getResults<std::vector<std::string>>();
 	const int userID = ServerCommon::getUserID(msg->username, msg->password);
 	if (userID != -1) {
@@ -466,7 +471,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 		}
 	}
 	UpdateAllModsMessage uamm;
-	if (!database.query("PREPARE selectNodnameStmt FROM \"SELECT CAST(Name AS BINARY) FROM modnames WHERE ModID = ? AND Language = ? LIMIT 1\";")) {
+	if (!database.query("PREPARE selectModnameStmt FROM \"SELECT CAST(Name AS BINARY) FROM modnames WHERE ModID = ? AND Language = ? LIMIT 1\";")) {
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
@@ -486,7 +491,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			return;
 		}
-		if (!database.query("EXECUTE selectNodnameStmt USING @paramModID, @paramLanguage;")) {
+		if (!database.query("EXECUTE selectModnameStmt USING @paramModID, @paramLanguage;")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
@@ -534,6 +539,15 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 		}
 		uint32_t version = (mod.majorVersion << 16) + (mod.minorVersion << 8) + mod.patchVersion;
 		mod.downloadSize = _downloadSizeChecker->getBytes(mod.id, msg->language, version);
+
+		if (!database.query("EXECUTE selectUpdateDateStmt USING @paramModID;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			return;
+		}
+		results = database.getResults<std::vector<std::string>>();
+
+		mod.updateDate = results.empty() ? 0 : std::stoi(results[0][0]);
+		
 		uamm.mods.push_back(mod);
 		versions.insert(std::make_pair(mod.id, version));
 	}
@@ -1244,7 +1258,7 @@ void Server::handleFeedback(clockUtils::sockets::TcpSocket * sock, FeedbackMessa
 	}
 	std::fstream file;
 	file.open(ss.str(), std::fstream::out);
-	file << msg->text << std::endl << std::endl << int(msg->majorVersion) << "." << int(msg->minorVersion) << "." << int(msg->patchVersion) << std::endl << std::endl << msg->username;
+	file << msg->text << std::endl << std::endl << static_cast<int>(msg->majorVersion) << "." << static_cast<int>(msg->minorVersion) << "." << static_cast<int>(msg->patchVersion) << std::endl << std::endl << msg->username;
 	file.close();
 
 	std::string replyMail = "noreply@clockwork-origins.de";
@@ -1278,7 +1292,7 @@ void Server::handleFeedback(clockUtils::sockets::TcpSocket * sock, FeedbackMessa
 		} while (false);
 	}
 
-	ServerCommon::sendMail("[Spine] New Feedback arrived", ss.str() + "\n" + msg->text + "\n" + std::to_string(int(msg->majorVersion)) + "." + std::to_string(int(msg->minorVersion)) + "." + std::to_string(int(msg->patchVersion)) + "\n\n" + msg->username, replyMail);
+	ServerCommon::sendMail("[Spine] New Feedback arrived", ss.str() + "\n" + msg->text + "\n" + std::to_string(static_cast<int>(msg->majorVersion)) + "." + std::to_string(static_cast<int>(msg->minorVersion)) + "." + std::to_string(static_cast<int>(msg->patchVersion)) + "\n\n" + msg->username, replyMail);
 }
 
 void Server::handleRequestOriginalFiles(clockUtils::sockets::TcpSocket * sock, RequestOriginalFilesMessage * msg) const {
@@ -1603,7 +1617,7 @@ void Server::handleRequestAllModStats(clockUtils::sockets::TcpSocket * sock, Req
 					int rank = 1;
 					int lastRank = 1;
 					int lastScore = 0;
-					for (const auto p : score.second) {
+					for (const auto & p : score.second) {
 						if (lastScore != p.first) {
 							rank = lastRank;
 						}
@@ -1756,7 +1770,7 @@ void Server::handleRequestSingleModStat(clockUtils::sockets::TcpSocket * sock, R
 			int realRank = 1;
 			int lastScore = 0;
 			int rank = 1;
-			for (const auto p : score.second) {
+			for (const auto & p : score.second) {
 				if (lastScore != p.first) {
 					rank = realRank;
 				}
@@ -1922,7 +1936,7 @@ void Server::handleRequestAllAchievementStats(clockUtils::sockets::TcpSocket * s
 		if (results.empty()) {
 			as.unlockedPercent = 0.0;
 		} else {
-			as.unlockedPercent = (playerCount == 0) ? 0.0 : double(std::stoi(results[0][0]) * 100) / playerCount;
+			as.unlockedPercent = playerCount == 0 ? 0.0 : static_cast<double>(std::stoi(results[0][0]) * 100) / playerCount;
 		}
 		if (!database.query("EXECUTE selectAllOwnAchievementsStmt USING @paramModID, @paramUserID, @paramIdentifier;")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
@@ -2595,6 +2609,10 @@ void Server::handleRequestInfoPage(clockUtils::sockets::TcpSocket * sock, Reques
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
+	if (!database.query("PREPARE selectUpdateDateStmt FROM \"SELECT Date FROM lastUpdated WHERE ProjectID = ? LIMIT 1\";")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return;
+	}
 	if (!database.query("SET @paramLanguage='" + msg->language + "';")) {
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
@@ -2650,6 +2668,14 @@ void Server::handleRequestInfoPage(clockUtils::sockets::TcpSocket * sock, Reques
 		lastResults = database.getResults<std::vector<std::string>>();
 
 		sipm.releaseDate = std::stoi(lastResults[0][1]);
+		
+		if (!database.query("EXECUTE selectUpdateDateStmt USING @paramModID;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			return;
+		}
+		lastResults = database.getResults<std::vector<std::string>>();
+
+		sipm.updateDate = lastResults.empty() ? 0 : std::stoi(lastResults[0][1]);
 		
 		const int userID = ServerCommon::getUserID(msg->username, msg->password);
 		if (!database.query("SET @paramTeamID=" + lastResults[0][0] + ";")) {
@@ -3419,7 +3445,7 @@ void Server::handleAutoUpdateEncrypted(clockUtils::sockets::TcpSocket * sock, Up
 
 	// 3. send file count
 	UpdateFilesMessage ufm;
-	for (auto & p : files) {
+	for (const auto & p : files) {
 		ufm.files.push_back(p);
 	}
 	const std::string serialized = ufm.SerializePrivate();
@@ -3699,7 +3725,7 @@ void Server::handleUpdateOfflineData(clockUtils::sockets::TcpSocket *, UpdateOff
 				break;
 			}
 		}
-		for (const auto p : msg->playTimes) {
+		for (const auto & p : msg->playTimes) {
 			if (!database.query("SET @paramModID=" + std::to_string(p.first) + ";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				break;

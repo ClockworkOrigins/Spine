@@ -3084,5 +3084,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>Demo</source>
         <translation>Demo</translation>
     </message>
+    <message>
+        <source>UpdateDate</source>
+        <translation>Update Date</translation>
+    </message>
 </context>
 </TS>

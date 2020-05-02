@@ -205,6 +205,10 @@ void GameLauncher::finishedInstallation(int gameID, int packageID, bool success)
 void GameLauncher::createWidget() {
 	ILauncher::createWidget();
 
+	_nameLabel = new QLabel(_widget);
+	_nameLabel->setProperty("library", true);
+	_nameLabel->setAlignment(Qt::AlignCenter);
+
 	_layout->insertWidget(3, _nameLabel);
 }
 

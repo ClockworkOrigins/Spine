@@ -951,6 +951,12 @@ void ManagementServer::updateModVersion(std::shared_ptr<HttpsServer::Response> r
 		const int32_t versionMajor = pt.get<int32_t>("VersionMajor");
 		const int32_t versionMinor = pt.get<int32_t>("VersionMinor");
 		const int32_t versionPatch = pt.get<int32_t>("VersionPatch");
+		
+		int32_t date = 0;
+
+		try {
+			date = pt.get<int32_t>("Date");
+		} catch (...) {}
 
 		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
 
@@ -958,6 +964,11 @@ void ManagementServer::updateModVersion(std::shared_ptr<HttpsServer::Response> r
 			CONNECTTODATABASE(__LINE__)
 
 			if (!database.query("PREPARE updateStmt FROM \"UPDATE mods SET MajorVersion = ?, MinorVersion = ?, PatchVersion = ? WHERE ModID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE updateDateStmt FROM \"INSERT INTO lastUpdated (ProjectID, Date) VALUES (?, ?) ON DUPLICATE KEY UPDATE Date = ? LIMIT 1\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
@@ -982,7 +993,17 @@ void ManagementServer::updateModVersion(std::shared_ptr<HttpsServer::Response> r
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
+			if (!database.query("SET @paramDate=" + std::to_string(date) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
 			if (!database.query("EXECUTE updateStmt USING @paramVersionMajor, @paramVersionMinor, @paramVersionPatch, @paramModID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("EXECUTE updateDateStmt USING @paramModID, @paramDate, @paramDate;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;

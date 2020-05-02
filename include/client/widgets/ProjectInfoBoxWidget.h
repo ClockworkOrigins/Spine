@@ -38,6 +38,7 @@ namespace widgets {
 
 	private:
 		QLabel * _releaseDateLabel;
+		QLabel * _updateDateLabel;
 	};
 
 } /* namespace widgets */

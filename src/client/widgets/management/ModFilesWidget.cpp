@@ -459,6 +459,10 @@ void ModFilesWidget::updateVersion() {
 	json["VersionMajor"] = _majorVersionBox->value();
 	json["VersionMinor"] = _minorVersionBox->value();
 	json["VersionPatch"] = _patchVersionBox->value();
+
+	const QDate date(2000, 1, 1);
+	
+	json["Date"] = date.daysTo(QDate::currentDate());
 	
 	https::Https::postAsync(MANAGEMENTSERVER_PORT, "updateModVersion", QJsonDocument(json).toJson(QJsonDocument::Compact), [](const QJsonObject &, int) {
 		// error handling

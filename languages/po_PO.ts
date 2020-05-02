@@ -3076,5 +3076,9 @@ Zgodę można odwołać w każdej chwili. Wszystkie niezbędne informacje można
         <source>Demo</source>
         <translation>Demo</translation>
     </message>
+    <message>
+        <source>UpdateDate</source>
+        <translation>Aktualisierungsdatum</translation>
+    </message>
 </context>
 </TS>

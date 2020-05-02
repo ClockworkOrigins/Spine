@@ -34,9 +34,15 @@ using namespace spine::widgets;
 ProjectInfoBoxWidget::ProjectInfoBoxWidget(QWidget * par) : QWidget(par) {
 	QVBoxLayout * l = new QVBoxLayout();
 
+	l->addStretch(1);
+	
 	_releaseDateLabel = new QLabel(this);
 	_releaseDateLabel->setProperty("small", true);
 	l->addWidget(_releaseDateLabel, 0, Qt::AlignLeft);
+	
+	_updateDateLabel = new QLabel(this);
+	_updateDateLabel->setProperty("small", true);
+	l->addWidget(_updateDateLabel, 0, Qt::AlignLeft);
 	
 	setLayout(l);
 
@@ -44,7 +50,14 @@ ProjectInfoBoxWidget::ProjectInfoBoxWidget(QWidget * par) : QWidget(par) {
 }
 
 void ProjectInfoBoxWidget::update(common::SendInfoPageMessage * sipm) {
-	QDate date(2000, 1, 1);
-	date = date.addDays(sipm->releaseDate);
-	_releaseDateLabel->setText(QString("%1: %2").arg(QApplication::tr("ReleaseDate").toUpper()).arg(date.toString("dd.MM.yyyy")));
+	{
+		QDate date(2000, 1, 1);
+		date = date.addDays(sipm->releaseDate);
+		_releaseDateLabel->setText(QString("%1: %2").arg(QApplication::tr("ReleaseDate").toUpper()).arg(date.toString("dd.MM.yyyy")));
+	}
+	{
+		QDate date(2000, 1, 1);
+		date = date.addDays(std::max(sipm->updateDate, sipm->releaseDate));
+		_updateDateLabel->setText(QString("%1: %2").arg(QApplication::tr("UpdateDate").toUpper()).arg(date.toString("dd.MM.yyyy")));
+	}
 }

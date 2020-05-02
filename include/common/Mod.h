@@ -45,9 +45,9 @@ namespace common {
 		int32_t devDuration;
 		int32_t avgDuration;
 		uint64_t downloadSize;
+		uint32_t updateDate;
 
-		Mod() {
-		}
+		Mod() {}
 
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int /* file_version */) {
@@ -64,6 +64,7 @@ namespace common {
 			ar & devDuration;
 			ar & avgDuration;
 			ar & downloadSize;
+			ar & updateDate;
 		}
 	};
 

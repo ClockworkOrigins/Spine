@@ -274,4 +274,8 @@ void DatabaseCreator::createTables() {
 		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
+	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS lastUpdated (ProjectID INT PRIMARY KEY, Date INT NOT NULL);"))) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
 }

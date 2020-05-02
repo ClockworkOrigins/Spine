@@ -3076,5 +3076,9 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>Demo</source>
         <translation>Demo</translation>
     </message>
+    <message>
+        <source>UpdateDate</source>
+        <translation>Aktualisierungsdatum</translation>
+    </message>
 </context>
 </TS>

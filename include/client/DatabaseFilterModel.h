@@ -31,6 +31,7 @@ namespace spine {
 		DevDuration,
 		AvgDuration,
 		Release,
+		Update,
 		Version,
 		Size,
 		Install

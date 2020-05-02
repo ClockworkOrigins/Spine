@@ -131,7 +131,7 @@ namespace widgets {
 				sizeString = "-";
 			} else {
 				QString unit = "B";
-				double dSize = double(size);
+				double dSize = static_cast<double>(size);
 				while (dSize > 1024 && unit != "GB") {
 					dSize /= 1024.0;
 					if (unit == "B") {
@@ -183,7 +183,7 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 	_treeView->header()->setStretchLastSection(true);
 	_treeView->header()->setDefaultAlignment(Qt::AlignHCenter);
 	_treeView->header()->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
-	_sourceModel->setHorizontalHeaderLabels(QStringList() << QApplication::tr("ID") << QApplication::tr("Name") << QApplication::tr("Author") << QApplication::tr("Type") << QApplication::tr("Game") << QApplication::tr("DevTime") << QApplication::tr("AvgTime") << QApplication::tr("ReleaseDate") << QApplication::tr("Version") << QApplication::tr("DownloadSize") << QString());
+	_sourceModel->setHorizontalHeaderLabels(QStringList() << QApplication::tr("ID") << QApplication::tr("Name") << QApplication::tr("Author") << QApplication::tr("Type") << QApplication::tr("Game") << QApplication::tr("DevTime") << QApplication::tr("AvgTime") << QApplication::tr("ReleaseDate") << QApplication::tr("UpdateDate") << QApplication::tr("Version") << QApplication::tr("DownloadSize") << QString());
 	_treeView->setAlternatingRowColors(true);
 	_treeView->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
 	_treeView->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
@@ -401,7 +401,7 @@ void ModDatabaseView::updateModList(int modID, int packageID, InstallMode mode) 
 	}
 	if (!_cached) {
 		_waitSpinner = new WaitSpinner(QApplication::tr("LoadingDatabase"), this);
-		_sourceModel->setHorizontalHeaderLabels(QStringList() << QApplication::tr("ID") << QApplication::tr("Name") << QApplication::tr("Author") << QApplication::tr("Type") << QApplication::tr("Game") << QApplication::tr("DevTime") << QApplication::tr("AvgTime") << QApplication::tr("ReleaseDate") << QApplication::tr("Version") << QApplication::tr("DownloadSize") << QString());
+		_sourceModel->setHorizontalHeaderLabels(QStringList() << QApplication::tr("ID") << QApplication::tr("Name") << QApplication::tr("Author") << QApplication::tr("Type") << QApplication::tr("Game") << QApplication::tr("DevTime") << QApplication::tr("AvgTime") << QApplication::tr("ReleaseDate") << QApplication::tr("UpdateDate") << QApplication::tr("Version") << QApplication::tr("DownloadSize") << QString());
 	}
 	QtConcurrent::run([this, modID, packageID]() {
 		if (!_cached) {
@@ -429,7 +429,7 @@ void ModDatabaseView::updateModList(int modID, int packageID, InstallMode mode) 
 						return;
 					}
 				} else {
-					qDebug() << "Error occurred: " << int(err);
+					qDebug() << "Error occurred: " << static_cast<int>(err);
 				}
 				if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
 					try {
@@ -445,10 +445,10 @@ void ModDatabaseView::updateModList(int modID, int packageID, InstallMode mode) 
 						return;
 					}
 				} else {
-					qDebug() << "Error occurred: " << int(err);
+					qDebug() << "Error occurred: " << static_cast<int>(err);
 				}
 			} else {
-				qDebug() << "Error occurred: " << int(err);
+				qDebug() << "Error occurred: " << static_cast<int>(err);
 			}
 		}
 		if (modID > 0 && packageID > 0) {
@@ -595,6 +595,12 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 		date = date.addDays(mod.releaseDate);
 		DateItem * releaseDateItem = new DateItem(date);
 		releaseDateItem->setEditable(false);
+
+		date = QDate(2000, 1, 1);
+		date = date.addDays(std::max(mod.releaseDate, mod.updateDate));
+		DateItem * updateDateItem = new DateItem(date);
+		updateDateItem->setEditable(false);
+		
 		VersionItem * versionItem = new VersionItem(mod.majorVersion, mod.minorVersion, mod.patchVersion);
 		versionItem->setEditable(false);
 		SizeItem * sizeItem = new SizeItem(mod.downloadSize);
@@ -604,10 +610,10 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 			buttonItem = new TextItem(QApplication::tr("InQueue"));
 			buttonItem->setToolTip(QApplication::tr("InQueue"));
 		} else if (installedMods.find(mod.id) == installedMods.end()) {
-			buttonItem = new TextItem(QChar(int(FontAwesome::downloado)));
+			buttonItem = new TextItem(QChar(static_cast<int>(FontAwesome::downloado)));
 			buttonItem->setToolTip(QApplication::tr("Install"));
 		} else {
-			buttonItem = new TextItem(QChar(int(FontAwesome::trasho)));
+			buttonItem = new TextItem(QChar(static_cast<int>(FontAwesome::trasho)));
 			buttonItem->setToolTip(QApplication::tr("Uninstall"));
 		}
 		QFont f = buttonItem->font();
@@ -619,7 +625,7 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 		QStandardItem * idItem = new IntItem(mod.id);
 		idItem->setEditable(false);
 
-		_sourceModel->appendRow(QList<QStandardItem *>() << idItem << nameItem << teamItem << typeItem << gameItem << devTimeItem << avgTimeItem << releaseDateItem << versionItem << sizeItem << buttonItem);
+		_sourceModel->appendRow(QList<QStandardItem *>() << idItem << nameItem << teamItem << typeItem << gameItem << devTimeItem << avgTimeItem << releaseDateItem << updateDateItem << versionItem << sizeItem << buttonItem);
 		for (int i = 0; i < _sourceModel->columnCount(); i++) {
 			_sourceModel->setData(_sourceModel->index(row, i), Qt::AlignCenter, Qt::TextAlignmentRole);
 		}
@@ -632,6 +638,7 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 			devTimeItem->setEnabled(false);
 			avgTimeItem->setEnabled(false);
 			releaseDateItem->setEnabled(false);
+			updateDateItem->setEnabled(false);
 			versionItem->setEnabled(false);
 			sizeItem->setEnabled(false);
 			buttonItem->setEnabled(false);
@@ -702,7 +709,7 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, QSharedPointer<QList<QPa
 
 	{
 		int row = 0;
-		for (; row < int(_mods.size()); row++) {
+		for (; row < static_cast<int>(_mods.size()); row++) {
 			if (_mods[row].id == mod.id) {
 				break;
 			}
@@ -714,7 +721,7 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, QSharedPointer<QList<QPa
 
 	connect(mfd, &MultiFileDownloader::downloadProgressPercent, [this, mod](qreal progress) {
 		int row = 0;
-		for (; row < int(_mods.size()); row++) {
+		for (; row < static_cast<int>(_mods.size()); row++) {
 			if (_mods[row].id == mod.id) {
 				break;
 			}
@@ -728,18 +735,18 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, QSharedPointer<QList<QPa
 		_downloadingList.removeAll(mod.id);
 		
 		int row = 0;
-		for (; row < int(_mods.size()); row++) {
+		for (; row < static_cast<int>(_mods.size()); row++) {
 			if (_mods[row].id == mod.id) {
 				break;
 			}
 		}
 		TextItem * buttonItem = dynamic_cast<TextItem *>(_sourceModel->item(row, DatabaseColumn::Install));
-		buttonItem->setText(QChar(int(FontAwesome::trasho)));
+		buttonItem->setText(QChar(static_cast<int>(FontAwesome::trasho)));
 		buttonItem->setToolTip(QApplication::tr("Uninstall"));
 		Database::DBError err;
 		Database::open(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, err);
 		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "BEGIN TRANSACTION;", err);
-		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO mods (ModID, GothicVersion, MajorVersion, MinorVersion, PatchVersion) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(int(mod.gothic)) + ", " + std::to_string(int(_mods[row].majorVersion)) + ", " + std::to_string(int(_mods[row].minorVersion)) + ", " + std::to_string(int(_mods[row].patchVersion)) + ");", err);
+		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO mods (ModID, GothicVersion, MajorVersion, MinorVersion, PatchVersion) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(static_cast<int>(mod.gothic)) + ", " + std::to_string(static_cast<int>(_mods[row].majorVersion)) + ", " + std::to_string(static_cast<int>(_mods[row].minorVersion)) + ", " + std::to_string(static_cast<int>(_mods[row].patchVersion)) + ");", err);
 		for (const auto & p : *fileList) {
 			QString fileName = p.first;
 			QFileInfo fi(fileName);
@@ -872,10 +879,10 @@ void ModDatabaseView::updatePackageList(std::vector<common::UpdatePackageListMes
 			buttonItem = new TextItem(QApplication::tr("InQueue"));
 			buttonItem->setToolTip(QApplication::tr("InQueue"));
 		} else if (installedPackages.find(package.packageID) == installedPackages.end()) {
-			buttonItem = new TextItem(QChar(int(FontAwesome::downloado)));
+			buttonItem = new TextItem(QChar(static_cast<int>(FontAwesome::downloado)));
 			buttonItem->setToolTip(QApplication::tr("Install"));
 		} else {
-			buttonItem = new TextItem(QChar(int(FontAwesome::trasho)));
+			buttonItem = new TextItem(QChar(static_cast<int>(FontAwesome::trasho)));
 			buttonItem->setToolTip(QApplication::tr("Uninstall"));
 		}
 		_packageIDIconMapping.insert(package.packageID, buttonItem);
@@ -885,7 +892,7 @@ void ModDatabaseView::updatePackageList(std::vector<common::UpdatePackageListMes
 		buttonItem->setFont(f);
 		buttonItem->setEditable(false);
 		QStandardItem * par = _sourceModel->item(_parentMods[package.modID].row());
-		for (int i = 0; i < INT_MAX; i++) {
+		for (int i = 0; i < std::numeric_limits<int>::max(); i++) {
 			if (par->child(i) == nullptr) {
 				par->setChild(i, DatabaseColumn::Name, nameItem);
 				par->setChild(i, DatabaseColumn::Size, sizeItem);
@@ -923,6 +930,11 @@ void ModDatabaseView::updatePackageList(std::vector<common::UpdatePackageListMes
 					QStandardItem * itm = new QStandardItem();
 					itm->setEditable(false);
 					par->setChild(i, DatabaseColumn::Release, itm);
+				}
+				{
+					QStandardItem * itm = new QStandardItem();
+					itm->setEditable(false);
+					par->setChild(i, DatabaseColumn::Update, itm);
 				}
 				{
 					QStandardItem * itm = new QStandardItem();
@@ -972,7 +984,7 @@ void ModDatabaseView::downloadPackageFiles(common::Mod mod, common::UpdatePackag
 		_downloadingPackageList.removeAll(package.packageID);
 		
 		TextItem * buttonItem = _packageIDIconMapping[package.packageID];
-		buttonItem->setText(QChar(int(FontAwesome::trasho)));
+		buttonItem->setText(QChar(static_cast<int>(FontAwesome::trasho)));
 		buttonItem->setToolTip(QApplication::tr("Uninstall"));
 		Database::DBError err;
 		Database::open(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, err);
@@ -1079,7 +1091,7 @@ qint64 ModDatabaseView::getDownloadSize(common::Mod mod) const {
 	qint64 size = 0;
 	for (size_t i = 0; i < _mods.size(); i++) {
 		if (_mods[i].id == mod.id) {
-			size = _sourceModel->item(int(i), DatabaseColumn::Size)->data(Qt::UserRole).toLongLong();
+			size = _sourceModel->item(static_cast<int>(i), DatabaseColumn::Size)->data(Qt::UserRole).toLongLong();
 			break;
 		}
 	}
@@ -1151,13 +1163,13 @@ void ModDatabaseView::selectedModIndex(const QModelIndex & index) {
 		const bool uninstalled = client::Uninstaller::uninstall(mod.id, s2q(mod.name), mod.gothic == common::GameType::Gothic ? _gothicDirectory : _gothic2Directory);
 		if (uninstalled) {
 			int row = 0;
-			for (; row < int(_mods.size()); row++) {
+			for (; row < static_cast<int>(_mods.size()); row++) {
 				if (_mods[row].id == mod.id) {
 					break;
 				}
 			}
 			TextItem * buttonItem = dynamic_cast<TextItem *>(_sourceModel->item(row, DatabaseColumn::Install));
-			buttonItem->setText(QChar(int(FontAwesome::downloado)));
+			buttonItem->setText(QChar(static_cast<int>(FontAwesome::downloado)));
 			buttonItem->setToolTip(QApplication::tr("Install"));
 		}
 	}
@@ -1244,7 +1256,7 @@ void ModDatabaseView::selectedPackageIndex(const QModelIndex & index) {
 			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "DELETE FROM packages WHERE PackageID = " + std::to_string(package.packageID) + ";", err);
 
 			TextItem * buttonItem = _packageIDIconMapping[package.packageID];
-			buttonItem->setText(QChar(int(FontAwesome::downloado)));
+			buttonItem->setText(QChar(static_cast<int>(FontAwesome::downloado)));
 			buttonItem->setToolTip(QApplication::tr("Install"));
 			QMessageBox resultMsg(QMessageBox::Icon::Information, QApplication::tr("UninstallationSuccessful"), QApplication::tr("UninstallationSuccessfulText").arg(s2q(package.name)), QMessageBox::StandardButton::Ok);
 			resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
