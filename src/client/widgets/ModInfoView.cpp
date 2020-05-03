@@ -44,8 +44,9 @@ ModInfoView::ModInfoView(GeneralSettingsWidget * generalSettingsWidget, QWidget 
 	connect(this, &ModInfoView::errorMessage, this, &ModInfoView::showErrorMessage);
 
 	{
-		const auto factory = LauncherFactory::getInstance();
+		auto * const factory = LauncherFactory::getInstance();
 		connect(factory, &LauncherFactory::restartAsAdmin, this, &ModInfoView::restartSpineAsAdmin);
+		connect(factory, &LauncherFactory::errorMessage, this, &ModInfoView::errorMessage);
 		
 		{
 			const auto launcher = factory->getLauncher(common::GameType::Gothic);
@@ -96,14 +97,14 @@ void ModInfoView::selectMod(const QString & modID, const QString & iniFile) {
 }
 
 void ModInfoView::setGothicDirectory(QString directory) {
-	const auto factory = LauncherFactory::getInstance();
+	auto * const factory = LauncherFactory::getInstance();
 	const auto launcher = factory->getLauncher(common::GameType::Gothic);
 	auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
 	gothicLauncher->setDirectory(directory);
 }
 
 void ModInfoView::setGothic2Directory(QString directory) {
-	const auto factory = LauncherFactory::getInstance();
+	auto * const factory = LauncherFactory::getInstance();
 	const auto launcher = factory->getLauncher(common::GameType::Gothic2);
 	auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
 	gothicLauncher->setDirectory(directory);
@@ -134,7 +135,7 @@ void ModInfoView::setShowAchievements(bool showAchievements) {
 }
 
 void ModInfoView::setHideIncompatible(bool enabled) {
-	const auto factory = LauncherFactory::getInstance();
+	auto * const factory = LauncherFactory::getInstance();
 	{
 		const auto launcher = factory->getLauncher(common::GameType::Gothic);
 		auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
