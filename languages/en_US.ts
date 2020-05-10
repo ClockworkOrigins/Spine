@@ -3088,5 +3088,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>UpdateDate</source>
         <translation>Update Date</translation>
     </message>
+    <message>
+        <source>AddFolder</source>
+        <translation>Add folder</translation>
+    </message>
 </context>
 </TS>

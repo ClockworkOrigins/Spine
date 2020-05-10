@@ -1760,11 +1760,13 @@
 	<Version majorVersion="1" minorVersion="19" patchVersion="0">
 		<Enhancement language="Deutsch">Unterstützung für Spiele und Spiele-Demos eingebaut</Enhancement>
 		<Enhancement language="Deutsch">Aktualisierungsdatum in Datenbank und auf Infoseite ergänzt</Enhancement>
+		<Enhancement language="Deutsch">Es ist jetzt möglich Projekte über einen Ordner zu aktualisieren</Enhancement>
 		<Bug language="Deutsch">Öffnen der Bibliothek mit bereits ausgewähltem Eintrag von letzter Session zeigt jetzt die Online-Daten richtig an</Bug>
 		<Bug language="Deutsch">Fehlende Abhängigkeiten einer Mod/eines Patches werden jetzt wieder angezeigt</Bug>
 		
 		<Enhancement language="English">Added support for games and game demos</Enhancement>
 		<Enhancement language="English">Added update date to database and info page</Enhancement>
+		<Enhancement language="English">It's possible now to update a project via a folder</Enhancement>
 		<Bug language="English">Opening the library with an already selected entry from a previous session now shows online data correctly</Bug>
 		<Bug language="English">Missing dependencies of a mod/patch now are displayed again</Bug>
 	</Version>

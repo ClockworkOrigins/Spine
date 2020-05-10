@@ -3080,5 +3080,9 @@ Zgodę można odwołać w każdej chwili. Wszystkie niezbędne informacje można
         <source>UpdateDate</source>
         <translation>Aktualisierungsdatum</translation>
     </message>
+    <message>
+        <source>AddFolder</source>
+        <translation>Ordner hinzufügen</translation>
+    </message>
 </context>
 </TS>

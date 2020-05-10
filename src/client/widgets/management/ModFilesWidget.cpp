@@ -38,6 +38,7 @@
 #include "clockUtils/sockets/TcpSocket.h"
 
 #include <QApplication>
+#include <QDirIterator>
 #include <QFileDialog>
 #include <QHeaderView>
 #include <QInputDialog>
@@ -116,7 +117,11 @@ ModFilesWidget::ModFilesWidget(QWidget * par) : QWidget(par), _fileList(nullptr)
 		QPushButton * pbDelete = new QPushButton("-", this);
 		pbDelete->setToolTip(QApplication::tr("RemoveFileTooltip"));
 		hl2->addWidget(pbDelete);
-		connect(pbDelete, &QPushButton::released, this, &ModFilesWidget::deleteFile);
+		connect(pbDelete, &QPushButton::released, this, static_cast<void(ModFilesWidget::*)()>(&ModFilesWidget::deleteFile));
+
+		QPushButton * pbAddFolder = new QPushButton(QApplication::tr("AddFolder"), this);
+		hl2->addWidget(pbAddFolder);
+		connect(pbAddFolder, &QPushButton::released, this, &ModFilesWidget::addFolder);
 
 		l->addLayout(hl2);
 	}
@@ -175,47 +180,8 @@ void ModFilesWidget::addFile() {
 		}
 		realMapping += rm;
 	}
-	QString file = realMapping + "/" + QFileInfo(path).fileName();
-	while (file.startsWith("/")) {
-		file.remove(0, 1);
-	}
 
-	addFile(_directory.value("/"), file, "All");
-	_fileTreeView->expandAll();
-	_fileTreeView->resizeColumnToContents(0);
-	_fileTreeView->resizeColumnToContents(1);
-	bool found = false;
-	for (auto & it : _data.files) {
-		QString currentFileName = it.filename;
-		while (currentFileName[0] == '/') {
-			currentFileName = currentFileName.mid(1);
-		}
-		if (currentFileName.endsWith(".z")) {
-			currentFileName.chop(2);
-		}
-		if (file == currentFileName) {
-			if (it.deleted) {
-				it.deleted = false;
-			}
-			// check hash of new file
-			const bool b = utils::Hashing::checkHash(path, it.hash);
-			if (!b) { // hash changed
-				it.changed = true;
-				_fileMap.insert(file, path);
-			}
-			found = true;
-			break;
-		}
-	}
-	if (!found) {
-		ManagementModFile mf;
-		mf.filename = file;
-		mf.language = "All";
-		mf.changed = true;
-		mf.deleted = false;
-		_data.files.append(mf);
-		_fileMap.insert(file, path);
-	}
+	addFile(path, realMapping, QFileInfo(path).fileName());
 }
 
 void ModFilesWidget::deleteFile() {
@@ -223,22 +189,8 @@ void ModFilesWidget::deleteFile() {
 	if (_fileTreeView->selectionModel()->selectedIndexes().isEmpty()) return;
 
 	const QModelIndex idx = _fileTreeView->selectionModel()->selectedIndexes().front();
-	const QVariant v = idx.data(PathRole);
-	if (v.isValid()) {
-		const QString path = v.toString();
-		for (auto & file : _data.files) {
-			QString currentFileName = file.filename;
-			if (currentFileName.endsWith(".z")) {
-				currentFileName.chop(2);
-			}
-			if (path == currentFileName) {
-				file.deleted = true;
-				break;
-			}
-		}
-		_directory.remove(path);
-		_fileList->removeRow(idx.row(), idx.parent());
-	}
+
+	deleteFile(idx);
 }
 
 void ModFilesWidget::uploadCurrentMod() {
@@ -431,6 +383,30 @@ void ModFilesWidget::updateData(ManagementModFilesData content) {
 	_patchVersionBox->setValue(_data.versionPatch);
 }
 
+void ModFilesWidget::addFolder() {
+	const auto dir = QFileDialog::getExistingDirectory(this, QApplication::tr("AddFolder"), ".", QFileDialog::ShowDirsOnly);
+	
+	if (dir.isEmpty()) return;
+
+	QList<QString> fileList = _fileMap.keys();
+
+	QDirIterator it(dir, QDir::Files, QDirIterator::Subdirectories);
+	while (it.hasNext()) {
+		it.next();
+		const QString path = it.filePath().replace(dir, "");
+		const QString fileName = it.fileName();
+
+		addFile(it.filePath(), path.split(fileName)[0], fileName);
+
+		fileList.removeAll(path.right(path.length() - 1));
+	}
+
+	for (const QString & file : fileList) {
+		const auto idxList = _fileList->match(_fileList->index(0, 0), PathRole, QVariant::fromValue(file), 2, Qt::MatchRecursive);
+		deleteFile(idxList[0]);
+	}
+}
+
 void ModFilesWidget::changedLanguage(QStandardItem * itm) {
 	const QVariant v = itm->data(PathRole);
 	if (!v.isValid()) return;
@@ -496,6 +472,53 @@ void ModFilesWidget::testUpdate() {
 	emit checkForUpdate(_mods[_modIndex].id);
 }
 
+void ModFilesWidget::addFile(QString fullPath, QString relativePath, QString file) {
+	while (relativePath.endsWith("/")) {
+		relativePath.resize(relativePath.length() - 1);
+	}
+	QString fullRelativePath = relativePath + "/" + file;
+	while (fullRelativePath.startsWith("/")) {
+		fullRelativePath.remove(0, 1);
+	}
+
+	addFile(_directory.value("/"), fullRelativePath, "All");
+	_fileTreeView->expandAll();
+	_fileTreeView->resizeColumnToContents(0);
+	_fileTreeView->resizeColumnToContents(1);
+	bool found = false;
+	for (auto & it : _data.files) {
+		QString currentFileName = it.filename;
+		while (currentFileName[0] == '/') {
+			currentFileName = currentFileName.mid(1);
+		}
+		if (currentFileName.endsWith(".z")) {
+			currentFileName.chop(2);
+		}
+		if (fullRelativePath == currentFileName) {
+			if (it.deleted) {
+				it.deleted = false;
+			}
+			// check hash of new file
+			const bool b = utils::Hashing::checkHash(fullRelativePath, it.hash);
+			if (!b) { // hash changed
+				it.changed = true;
+				_fileMap.insert(fullRelativePath, fullPath);
+			}
+			found = true;
+			break;
+		}
+	}
+	if (!found) {
+		ManagementModFile mf;
+		mf.filename = fullRelativePath;
+		mf.language = "All";
+		mf.changed = true;
+		mf.deleted = false;
+		_data.files.append(mf);
+		_fileMap.insert(fullRelativePath, fullPath);
+	}
+}
+
 void ModFilesWidget::addFile(QStandardItem * itm, QString file, QString language) {
 	QString currentFileName = file;
 	if (currentFileName.endsWith(".z")) {
@@ -526,5 +549,24 @@ void ModFilesWidget::addFile(QStandardItem * itm, QString file, QString language
 			it = _directory.insert(currentPath, newItm);
 		}
 		parentItem = it.value();
+	}
+}
+
+void ModFilesWidget::deleteFile(const QModelIndex & idx) {
+	const QVariant v = idx.data(PathRole);
+	if (v.isValid()) {
+		const QString path = v.toString();
+		for (auto & file : _data.files) {
+			QString currentFileName = file.filename;
+			if (currentFileName.endsWith(".z")) {
+				currentFileName.chop(2);
+			}
+			if (path == currentFileName) {
+				file.deleted = true;
+				break;
+			}
+		}
+		_directory.remove(path);
+		_fileList->removeRow(idx.row(), idx.parent());
 	}
 }

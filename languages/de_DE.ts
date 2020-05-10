@@ -3080,5 +3080,9 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>UpdateDate</source>
         <translation>Aktualisierungsdatum</translation>
     </message>
+    <message>
+        <source>AddFolder</source>
+        <translation>Ordner hinzufügen</translation>
+    </message>
 </context>
 </TS>

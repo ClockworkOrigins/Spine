@@ -69,7 +69,7 @@ GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(
 			_gothicVersionBox->setEditable(false);
 
 			QStringList items;
-			items << QApplication::tr("Gothic") << QApplication::tr("Gothic2") << QApplication::tr("GothicInGothic2") << QApplication::tr("GothicAndGothic2");
+			items << QApplication::tr("Gothic") << QApplication::tr("Gothic2") << QApplication::tr("GothicInGothic2") << QApplication::tr("GothicAndGothic2_2") << QApplication::tr("Game");
 
 			_gothicVersionBox->addItems(items);
 
@@ -83,7 +83,7 @@ GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(
 			_typeBox->setEditable(false);
 
 			QStringList items;
-			items << QApplication::tr("TotalConversion") << QApplication::tr("Enhancement") << QApplication::tr("Patch") << QApplication::tr("Tool") << QApplication::tr("Original") << QApplication::tr("GothicMultiplayer");
+			items << QApplication::tr("TotalConversion") << QApplication::tr("Enhancement") << QApplication::tr("Patch") << QApplication::tr("Tool") << QApplication::tr("Original") << QApplication::tr("GothicMultiplayer") << QApplication::tr("FullVersion") << QApplication::tr("Demo");
 
 			_typeBox->addItems(items);
 

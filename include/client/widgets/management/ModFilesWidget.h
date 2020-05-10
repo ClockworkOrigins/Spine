@@ -48,7 +48,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		ModFilesWidget(QWidget * par);
+		explicit ModFilesWidget(QWidget * par);
 
 		void updateModList(QList<client::ManagementMod> modList);
 		void selectedMod(int index);
@@ -72,6 +72,7 @@ namespace widgets {
 		void finishUpload(bool success, int updatedCount);
 		void testUpdate();
 		void updateData(ManagementModFilesData content);
+		void addFolder();
 
 	private:
 		QStandardItemModel * _fileList;
@@ -87,7 +88,9 @@ namespace widgets {
 		QWinTaskbarProgress * _taskbarProgress;
 		ManagementModFilesData _data;
 
+		void addFile(QString fullPath, QString relativePath, QString file);
 		void addFile(QStandardItem * itm, QString file, QString language);
+		void deleteFile(const QModelIndex & idx);
 	};
 
 } /* namespace widgets */
