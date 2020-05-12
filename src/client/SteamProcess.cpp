@@ -156,7 +156,11 @@ void SteamProcess::checkIfProcessRunning(int timeoutInSecs) {
 	int procID;
 	
 	do {
-		procID = GetProcId("Steam.exe");
+		procID = GetProcId("steam.exe");
+
+		if (procID == 0) {
+			procID = GetProcId("Steam.exe");
+		}
 	} while (procID == 0 && startTime.secsTo(QTime::currentTime()) < timeoutInSecs);
 
 	if (procID == 0) {

@@ -1763,11 +1763,13 @@
 		<Enhancement language="Deutsch">Es ist jetzt möglich Projekte über einen Ordner zu aktualisieren</Enhancement>
 		<Bug language="Deutsch">Öffnen der Bibliothek mit bereits ausgewähltem Eintrag von letzter Session zeigt jetzt die Online-Daten richtig an</Bug>
 		<Bug language="Deutsch">Fehlende Abhängigkeiten einer Mod/eines Patches werden jetzt wieder angezeigt</Bug>
+		<Bug language="Deutsch">Über Steam starten funktioniert wieder</Bug>
 		
 		<Enhancement language="English">Added support for games and game demos</Enhancement>
 		<Enhancement language="English">Added update date to database and info page</Enhancement>
 		<Enhancement language="English">It's possible now to update a project via a folder</Enhancement>
 		<Bug language="English">Opening the library with an already selected entry from a previous session now shows online data correctly</Bug>
 		<Bug language="English">Missing dependencies of a mod/patch now are displayed again</Bug>
+		<Bug language="English">Launching via Steam works again</Bug>
 	</Version>
 </Versions>
