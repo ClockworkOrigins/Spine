@@ -24,6 +24,7 @@ const std::string DATABASEPASSWORD = "@DATABASEPASSWORD@";
 const std::string ACCOUNTSDATABASE = "@ACCOUNTSDATABASE@";
 const std::string SPINEDATABASE = "@SPINEDATABASE@";
 const std::string EWDATABASE = "@EWDATABASE@";
+const std::string TRI6DATABASE = "@TRI6DATABASE@";
 
 const std::string SSLCHAINPATH = "@SSLCHAINPATH@";
 const std::string SSLPRIVKEYNPATH = "@SSLPRIVKEYNPATH@";

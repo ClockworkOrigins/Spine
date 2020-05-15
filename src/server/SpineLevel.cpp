@@ -228,6 +228,43 @@ void SpineLevel::cacheLevel(int userID) {
 				currentXP += 1000;
 			}
 		}
+		{
+			MariaDBWrapper tri6Database;
+			if (!tri6Database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, TRI6DATABASE, 0)) {
+				std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			if (!tri6Database.query("PREPARE selectPlayedTimeStmt FROM \"SELECT Time FROM playTimes WHERE UserID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!tri6Database.query("PREPARE selectPlayedTimeDemoStmt FROM \"SELECT Time FROM playTimesDemo WHERE UserID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+		
+			if (!tri6Database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!tri6Database.query("EXECUTE selectPlayedTimeStmt USING @paramUserID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			auto r = tri6Database.getResults<std::vector<std::string>>();
+			if (!r.empty()) {
+				currentXP += 1000;
+			} else {
+				if (!tri6Database.query("EXECUTE selectPlayedTimeDemoStmt USING @paramUserID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					break;
+				}
+				r = tri6Database.getResults<std::vector<std::string>>();
+				if (!r.empty()) {
+					currentXP += 250;
+				}
+			}
+		}
 	} while (false);
 
 	uint32_t nextXP = 500;
