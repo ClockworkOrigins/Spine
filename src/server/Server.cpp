@@ -412,13 +412,15 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 			}
 		}
 	}
+	
+	if (!database.query("PREPARE selectUpdateDateStmt FROM \"SELECT Date FROM lastUpdated WHERE ProjectID = ? LIMIT 1\";")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return;
+	}
+	
 	// ModID | Name of the Mod shown in GUI | ID of the team | Enabled in GUI or only internal | 1 or 2 either if the mod is for Gothic 1 or 2 | Release date encoded as integer in days | one of Mod or Patch encoded as integer | major version | minor version | patch version
 	if (!database.query(std::string("SELECT ModID, TeamID, Gothic, ReleaseDate, Type, MajorVersion, MinorVersion, PatchVersion FROM mods WHERE Enabled = 1;"))) {
 		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-		return;
-	}
-	if (!database.query("PREPARE selectUpdateDateStmt FROM \"SELECT Date FROM lastUpdated WHERE ProjectID = ? LIMIT 1\";")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
 	
@@ -2669,14 +2671,6 @@ void Server::handleRequestInfoPage(clockUtils::sockets::TcpSocket * sock, Reques
 
 		sipm.releaseDate = std::stoi(lastResults[0][1]);
 		
-		if (!database.query("EXECUTE selectUpdateDateStmt USING @paramModID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-			return;
-		}
-		lastResults = database.getResults<std::vector<std::string>>();
-
-		sipm.updateDate = lastResults.empty() ? 0 : std::stoi(lastResults[0][1]);
-		
 		const int userID = ServerCommon::getUserID(msg->username, msg->password);
 		if (!database.query("SET @paramTeamID=" + lastResults[0][0] + ";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
@@ -2709,6 +2703,15 @@ void Server::handleRequestInfoPage(clockUtils::sockets::TcpSocket * sock, Reques
 		sipm.majorVersion = uint8_t(std::stoi(lastResults[0][0]));
 		sipm.minorVersion = uint8_t(std::stoi(lastResults[0][1]));
 		sipm.patchVersion = uint8_t(std::stoi(lastResults[0][2]));
+		
+		if (!database.query("EXECUTE selectUpdateDateStmt USING @paramModID;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			return;
+		}
+		lastResults = database.getResults<std::vector<std::string>>();
+
+		sipm.updateDate = lastResults.empty() ? 0 : std::stoi(lastResults[0][0]);
+		
 		if (!database.query("EXECUTE selectModEnabledStmt USING @paramModID;")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
