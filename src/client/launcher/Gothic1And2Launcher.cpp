@@ -21,6 +21,8 @@
 #include "LibraryFilterModel.h"
 #include "SpineConfig.h"
 
+#include "client/IconCache.h"
+
 #include "client/widgets/UpdateLanguage.h"
 
 #include "common/MessageStructs.h"
@@ -65,6 +67,7 @@
 #include <QtConcurrentRun>
 
 using namespace spine;
+using namespace spine::client;
 using namespace spine::launcher;
 using namespace spine::utils;
 
@@ -2071,7 +2074,7 @@ void Gothic1And2Launcher::parseMods(QString baseDir) {
 		item->setData(false, LibraryFilterModel::HiddenRole);
 		item->setData(-1, LibraryFilterModel::ModIDRole);
 		item->setEditable(false);
-		item->setData(int(getGothicVersion()), LibraryFilterModel::GameRole);
+		item->setData(static_cast<int>(getGothicVersion()), LibraryFilterModel::GameRole);
 		
 		_model->appendRow(item);
 	}
@@ -2115,16 +2118,24 @@ void Gothic1And2Launcher::parseIni(QString file) {
 	const QString icon = iniParser.value("INFO/Icon", "").toString();
 	QFileInfo fi(file);
 	const QString iconPath = fi.absolutePath() + "/" + icon;
-	QPixmap pixmap(iconPath);
-	QString modID = fi.absolutePath();
+
+	QString modIDString = fi.absolutePath();
 	QDir md(Config::DOWNLOADDIR + "/mods");
-	modID.replace(md.absolutePath(), "");
-	modID = modID.split("/", QString::SplitBehavior::SkipEmptyParts).front();
+	modIDString.replace(md.absolutePath(), "");
+	modIDString = modIDString.split("/", QString::SplitBehavior::SkipEmptyParts).front();
+	int32_t modID = modIDString.toInt();
+	
+	if (!IconCache::getInstance()->hasIcon(modID)) {
+		IconCache::getInstance()->cacheIcon(modID, iconPath);
+	}
+	
+	QPixmap pixmap = IconCache::getInstance()->getIcon(modID);
+
 	Database::DBError err;
 	common::GameType mid;
 	bool found;
-	if (!Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + modID.toStdString() + " LIMIT 1;", err).empty()) {
-		mid = static_cast<common::GameType>(Database::queryNth<std::vector<int>, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + modID.toStdString() + " LIMIT 1;", err, 0).front());
+	if (!Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + modIDString.toStdString() + " LIMIT 1;", err).empty()) {
+		mid = static_cast<common::GameType>(Database::queryNth<std::vector<int>, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + modIDString.toStdString() + " LIMIT 1;", err, 0).front());
 
 		if (mid != getGothicVersion()) return;
 		
@@ -2144,9 +2155,9 @@ void Gothic1And2Launcher::parseIni(QString file) {
 	QStandardItem * item = new QStandardItem(QIcon(pixmap), title);
 	item->setData(file, LibraryFilterModel::IniFileRole);
 	item->setData(true, LibraryFilterModel::InstalledRole);
-	item->setData(modID.toInt(), LibraryFilterModel::ModIDRole);
-	item->setData(int(mid), LibraryFilterModel::GameRole);
-	if (!Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID FROM hiddenMods WHERE ModID = " + modID.toStdString() + " LIMIT 1;", err).empty()) {
+	item->setData(modID, LibraryFilterModel::ModIDRole);
+	item->setData(static_cast<int>(mid), LibraryFilterModel::GameRole);
+	if (!Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID FROM hiddenMods WHERE ModID = " + modIDString.toStdString() + " LIMIT 1;", err).empty()) {
 		item->setData(true, LibraryFilterModel::HiddenRole);
 	} else {
 		item->setData(false, LibraryFilterModel::HiddenRole);
@@ -2157,7 +2168,7 @@ void Gothic1And2Launcher::parseIni(QString file) {
 	QString hashSum;
 	const bool b = utils::Hashing::hash(file, hashSum);
 	if (b) {
-		_parsedInis.insert(fi.fileName(), std::make_tuple(hashSum, modID.toInt()));
+		_parsedInis.insert(fi.fileName(), std::make_tuple(hashSum, modID));
 	}
 	if (Config::extendedLogging) {
 		LOGINFO("Listing Mod: " << title.toStdString());

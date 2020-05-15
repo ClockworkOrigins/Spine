@@ -1773,8 +1773,10 @@
 		<Bug language="English">Launching via Steam works again</Bug>
 	</Version>
 	<Version majorVersion="1" minorVersion="20" patchVersion="0">
+		<Enhancement language="Deutsch">Icons werden jetzt gecached, damit sie auch nach Deinstallation im Profil angezeigt werden können</Enhancement>
 		<Bug language="Deutsch">Aktualisierungsdatum ist jetzt immer mindestens das Releasedatum</Bug>
 		
+		<Enhancement language="English">Icons now are cached so they can be displayed in the profile even after uninstallation</Enhancement>
 		<Bug language="English">Update date now is always at least the release date</Bug>
 	</Version>
 </Versions>

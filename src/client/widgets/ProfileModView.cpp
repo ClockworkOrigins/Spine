@@ -20,6 +20,8 @@
 
 #include "SpineConfig.h"
 
+#include "client/IconCache.h"
+
 #include "common/GameType.h"
 
 #include "utils/Config.h"
@@ -40,6 +42,7 @@
 #endif
 
 using namespace spine;
+using namespace spine::client;
 using namespace spine::utils;
 using namespace spine::widgets;
 
@@ -52,54 +55,69 @@ ProfileModView::ProfileModView(common::ModStats ms, QString gothicDirectory, QSt
 	QLabel * iconLabel = new QLabel(this);
 
 	QDirIterator it(Config::DOWNLOADDIR + "/mods/" + QString::number(ms.modID), QStringList() << "*.ini", QDir::Files, QDirIterator::Subdirectories);
-	QStringList files;
-	while (it.hasNext()) {
-		it.next();
+
+	if (IconCache::getInstance()->hasIcon(ms.modID)) {
+		QPixmap pixmap = IconCache::getInstance()->getIcon(ms.modID);
+		pixmap = pixmap.scaled(QSize(32, 32), Qt::AspectRatioMode::KeepAspectRatio, Qt::SmoothTransformation);
+		iconLabel->setPixmap(pixmap);
+	} else {	
+		QStringList files;
+		while (it.hasNext()) {
+			it.next();
+			QString fileName = it.filePath();
+			if (!fileName.isEmpty()) {
+				files.append(fileName);
+			}
+		}
 		QString fileName = it.filePath();
 		if (!fileName.isEmpty()) {
 			files.append(fileName);
 		}
-	}
-	QString fileName = it.filePath();
-	if (!fileName.isEmpty()) {
-		files.append(fileName);
-	}
-	for (const QString & s : files) {
-		QSettings iniParser(s, QSettings::IniFormat);
-		const QString icon = iniParser.value("INFO/Icon", "").toString();
-		QFileInfo fi(s);
-		const QString iconPath = fi.absolutePath() + "/" + icon;
-		QPixmap pixmap(iconPath);
-		QString modID = fi.absolutePath();
-		QDir md(Config::DOWNLOADDIR + "/mods");
-		modID.replace(md.absolutePath(), "");
-		modID = modID.split("/", QString::SplitBehavior::SkipEmptyParts).front();
-		Database::DBError err;
-		common::GameType mid = common::GameType::Gothic2;
-		bool found = false;
-		if (Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + modID.toStdString() + " LIMIT 1;", err) > 0) {
-			mid = common::GameType(Database::queryNth<std::vector<int>, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + modID.toStdString() + " LIMIT 1;", err, 0).front());
-			found = true;
-		}
-		if (pixmap.isNull()) {
-			if (found) {
-				QString exeFileName;
-				if (mid == common::GameType::Gothic && QFileInfo::exists(gothicDirectory + "/System/Gothic.exe")) {
-					exeFileName = gothicDirectory + "/System/Gothic.exe";
-				} else if (mid == common::GameType::Gothic2 && QFileInfo::exists(gothic2Directory + "/System/Gothic2.exe")) {
-					exeFileName = gothic2Directory + "/System/Gothic2.exe";
-				}
-#ifdef Q_OS_WIN
-				if (!exeFileName.isEmpty()) {
-					const HINSTANCE hInstance = GetModuleHandle(nullptr);
-					const HICON ic = ExtractIcon(hInstance, exeFileName.toStdString().c_str(), 0);
-					pixmap = QtWin::fromHICON(ic);
-				}
-#endif
+		for (const QString & s : files) {
+			QSettings iniParser(s, QSettings::IniFormat);
+			const QString icon = iniParser.value("INFO/Icon", "").toString();
+			QFileInfo fi(s);
+			const QString iconPath = fi.absolutePath() + "/" + icon;
+			
+			QString modIDString = fi.absolutePath();
+			QDir md(Config::DOWNLOADDIR + "/mods");
+			modIDString.replace(md.absolutePath(), "");
+			modIDString = modIDString.split("/", QString::SplitBehavior::SkipEmptyParts).front();
+
+			const int32_t modID = modIDString.toInt();
+
+			if (!IconCache::getInstance()->hasIcon(modID)) {
+				IconCache::getInstance()->cacheIcon(modID, iconPath);
 			}
+
+			QPixmap pixmap = IconCache::getInstance()->getIcon(modID);
+			Database::DBError err;
+			common::GameType mid = common::GameType::Gothic2;
+			bool found = false;
+			if (Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + modIDString.toStdString() + " LIMIT 1;", err) > 0) {
+				mid = common::GameType(Database::queryNth<std::vector<int>, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + modIDString.toStdString() + " LIMIT 1;", err, 0).front());
+				found = true;
+			}
+			if (pixmap.isNull()) {
+				if (found) {
+					QString exeFileName;
+					if (mid == common::GameType::Gothic && QFileInfo::exists(gothicDirectory + "/System/Gothic.exe")) {
+						exeFileName = gothicDirectory + "/System/Gothic.exe";
+					} else if (mid == common::GameType::Gothic2 && QFileInfo::exists(gothic2Directory + "/System/Gothic2.exe")) {
+						exeFileName = gothic2Directory + "/System/Gothic2.exe";
+					}
+#ifdef Q_OS_WIN
+					if (!exeFileName.isEmpty()) {
+						const HINSTANCE hInstance = GetModuleHandle(nullptr);
+						const HICON ic = ExtractIcon(hInstance, exeFileName.toStdString().c_str(), 0);
+						pixmap = QtWin::fromHICON(ic);
+					}
+#endif
+				}
+			}
+			pixmap = pixmap.scaled(QSize(32, 32), Qt::AspectRatioMode::KeepAspectRatio, Qt::SmoothTransformation);
+			iconLabel->setPixmap(pixmap);
 		}
-		pixmap = pixmap.scaled(QSize(32, 32), Qt::AspectRatioMode::KeepAspectRatio, Qt::SmoothTransformation);
-		iconLabel->setPixmap(pixmap);
 	}
 
 	QLabel * achievementLabel = new QLabel(R"(<a href="Foobar" style="color: #181C22">)" + QApplication::tr("AchievementText").arg(ms.achievedAchievements).arg(ms.allAchievements).arg(ms.achievedAchievements * 100 / ((ms.allAchievements) ? ms.allAchievements : 1)) + "</a>", this);

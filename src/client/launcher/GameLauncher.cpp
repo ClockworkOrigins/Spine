@@ -21,6 +21,8 @@
 #include "LibraryFilterModel.h"
 #include "SpineConfig.h"
 
+#include "client/IconCache.h"
+
 #include "common/MessageStructs.h"
 
 #include "security/Hash.h"
@@ -44,6 +46,7 @@
 #include <QTime>
 #include <QVBoxLayout>
 
+using namespace spine::client;
 using namespace spine::common;
 using namespace spine::launcher;
 using namespace spine::security;
@@ -225,7 +228,12 @@ void GameLauncher::parseGame(int gameID, int gameType) {
 	const auto icon = cfgFile.value("INFO/Icon").toString();
 
 	const auto iconPath = QString("%1/mods/%2/%3").arg(Config::DOWNLOADDIR).arg(gameID).arg(icon);
-	QPixmap pixmap(iconPath);
+
+	if (!IconCache::getInstance()->hasIcon(gameID)) {
+		IconCache::getInstance()->cacheIcon(gameID, iconPath);
+	}
+	
+	QPixmap pixmap = IconCache::getInstance()->getIcon(gameID);
 
 	pixmap = pixmap.scaled(QSize(32, 32), Qt::AspectRatioMode::KeepAspectRatio, Qt::SmoothTransformation);
 	while (title.startsWith(' ') || title.startsWith('\t')) {
