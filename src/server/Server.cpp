@@ -548,7 +548,8 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 		}
 		results = database.getResults<std::vector<std::string>>();
 
-		mod.updateDate = results.empty() ? 0 : std::stoi(results[0][0]);
+		const uint32_t updateDate = results.empty() ? 0 : std::stoi(results[0][0]);
+		mod.updateDate = std::max(mod.releaseDate, updateDate);
 		
 		uamm.mods.push_back(mod);
 		versions.insert(std::make_pair(mod.id, version));
@@ -2710,7 +2711,8 @@ void Server::handleRequestInfoPage(clockUtils::sockets::TcpSocket * sock, Reques
 		}
 		lastResults = database.getResults<std::vector<std::string>>();
 
-		sipm.updateDate = lastResults.empty() ? 0 : std::stoi(lastResults[0][0]);
+		const uint32_t updateDate = lastResults.empty() ? 0 : std::stoi(lastResults[0][0]);
+		sipm.updateDate = std::max(sipm.releaseDate, updateDate);
 		
 		if (!database.query("EXECUTE selectModEnabledStmt USING @paramModID;")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;

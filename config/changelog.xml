@@ -1772,4 +1772,9 @@
 		<Bug language="English">Missing dependencies of a mod/patch now are displayed again</Bug>
 		<Bug language="English">Launching via Steam works again</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="20" patchVersion="0">
+		<Bug language="Deutsch">Aktualisierungsdatum ist jetzt immer mindestens das Releasedatum</Bug>
+		
+		<Bug language="English">Update date now is always at least the release date</Bug>
+	</Version>
 </Versions>
