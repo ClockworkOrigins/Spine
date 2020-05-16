@@ -499,7 +499,7 @@ void ModFilesWidget::addFile(QString fullPath, QString relativePath, QString fil
 				it.deleted = false;
 			}
 			// check hash of new file
-			const bool b = utils::Hashing::checkHash(fullRelativePath, it.hash);
+			const bool b = utils::Hashing::checkHash(fullPath, it.hash);
 			if (!b) { // hash changed
 				it.changed = true;
 				_fileMap.insert(fullRelativePath, fullPath);
@@ -545,7 +545,7 @@ void ModFilesWidget::addFile(QStandardItem * itm, QString file, QString language
 				languageItm = new QStandardItem();
 			}
 			languageItm->setEditable(true);
-			parentItem->appendRow(QList<QStandardItem *>() << newItm << languageItm);
+			parentItem->appendRow({ newItm, languageItm });
 			it = _directory.insert(currentPath, newItm);
 		}
 		parentItem = it.value();

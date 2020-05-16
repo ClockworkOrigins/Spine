@@ -147,7 +147,7 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 					break;
 				}
 				do {
-					if (currentIndex == int(umm->files.size())) {
+					if (currentIndex == static_cast<int>(umm->files.size())) {
 						break;
 					}
 					const common::ModFile mf = umm->files[currentIndex];
@@ -245,7 +245,7 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 
 					currentIndex++;
 
-					if (umm && currentIndex == int(umm->files.size())) {
+					if (umm && currentIndex == static_cast<int>(umm->files.size())) {
 						break; // finished uploadss
 					}
 
