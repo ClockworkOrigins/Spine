@@ -1772,6 +1772,11 @@
 		<Bug language="English">Missing dependencies of a mod/patch now are displayed again</Bug>
 		<Bug language="English">Launching via Steam works again</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="19" patchVersion="1">
+		<Bug language="Deutsch">Fehler beim Update über einen Ordner behoben</Bug>
+		
+		<Bug language="English">Fixed bug when updating via a folder</Bug>
+	</Version>
 	<Version majorVersion="1" minorVersion="20" patchVersion="0">
 		<Enhancement language="Deutsch">Icons werden jetzt gecached, damit sie auch nach Deinstallation im Profil angezeigt werden können</Enhancement>
 		<Bug language="Deutsch">Aktualisierungsdatum ist jetzt immer mindestens das Releasedatum</Bug>
