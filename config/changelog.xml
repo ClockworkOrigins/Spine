@@ -1780,8 +1780,10 @@
 	<Version majorVersion="1" minorVersion="20" patchVersion="0">
 		<Enhancement language="Deutsch">Icons werden jetzt gecached, damit sie auch nach Deinstallation im Profil angezeigt werden können</Enhancement>
 		<Bug language="Deutsch">Aktualisierungsdatum ist jetzt immer mindestens das Releasedatum</Bug>
+		<Bug language="Deutsch">Fehler behoben mit dem Löschen von Dateien, wenn man über einen Ordner aktualisiert</Bug>
 		
 		<Enhancement language="English">Icons now are cached so they can be displayed in the profile even after uninstallation</Enhancement>
 		<Bug language="English">Update date now is always at least the release date</Bug>
+		<Bug language="English">Fixed deletion of files when updating via folder</Bug>
 	</Version>
 </Versions>

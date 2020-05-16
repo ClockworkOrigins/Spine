@@ -388,7 +388,17 @@ void ModFilesWidget::addFolder() {
 	
 	if (dir.isEmpty()) return;
 
-	QList<QString> fileList = _fileMap.keys();
+	QList<QString> fileList;
+
+	for (const auto & mmf : _data.files) {
+		auto fileName = mmf.filename;
+		if (fileName.endsWith(".z")) {
+			fileName.chop(2);
+		}
+		fileList.append(fileName);
+	}
+
+	qDebug() << fileList.count();
 
 	QDirIterator it(dir, QDir::Files, QDirIterator::Subdirectories);
 	while (it.hasNext()) {
@@ -402,7 +412,12 @@ void ModFilesWidget::addFolder() {
 	}
 
 	for (const QString & file : fileList) {
+		qDebug() << file;
+		
 		const auto idxList = _fileList->match(_fileList->index(0, 0), PathRole, QVariant::fromValue(file), 2, Qt::MatchRecursive);
+
+		if (idxList.isEmpty()) continue;
+		
 		deleteFile(idxList[0]);
 	}
 }
