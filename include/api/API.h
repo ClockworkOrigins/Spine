@@ -55,6 +55,11 @@ namespace api {
 	SPINEAPI_EXPORTS void getUsername(char * str);
 
 	/**
+	 * \brief returns the username of the user currently logged into Spine
+	 */
+	SPINEAPI_EXPORTS const char * getUsernameAsString();
+
+	/**
 	 * \brief updates score for given id
 	 */
 	SPINEAPI_EXPORTS void updateScore(int32_t id, int32_t score);

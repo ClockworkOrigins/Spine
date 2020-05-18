@@ -105,6 +105,7 @@ namespace {
 							if (msg->type == common::MessageType::SENDUSERNAME) {
 								username = dynamic_cast<common::SendUsernameMessage *>(msg)->username;
 								modID = dynamic_cast<common::SendUsernameMessage *>(msg)->modID;
+								userID = dynamic_cast<common::SendUsernameMessage *>(msg)->userID;
 								testMode = modID == -1;
 							} else {
 								success = false;
@@ -264,6 +265,10 @@ namespace {
 				str[i] = '\0';
 			}
 		}
+	}
+
+	const char * getUsernameAsString() {
+		return username.c_str();
 	}
 
 	void updateScore(int32_t id, int32_t score) {

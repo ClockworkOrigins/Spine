@@ -659,7 +659,7 @@ void LoginDialog::handleLogin() {
 				const std::string serialized = suim.SerializePublic();
 				sock.writePacket(serialized);
 			}
-			Https::postAsync(DATABASESERVER_PORT, "getUserID", QString("{ \"Username\": \"%1\", \"Password\": \"%2\2 }").arg(Config::Username).arg(Config::Password), [](const QJsonObject & json, int status) {
+			Https::postAsync(DATABASESERVER_PORT, "getUserID", QString("{ \"Username\": \"%1\", \"Password\": \"%2\" }").arg(Config::Username).arg(Config::Password), [](const QJsonObject & json, int status) {
 				if (!json.contains("ID")) return;
 
 				Config::UserID = json["ID"].toString().toInt();

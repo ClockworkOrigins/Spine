@@ -1781,9 +1781,15 @@
 		<Enhancement language="Deutsch">Icons werden jetzt gecached, damit sie auch nach Deinstallation im Profil angezeigt werden können</Enhancement>
 		<Bug language="Deutsch">Aktualisierungsdatum ist jetzt immer mindestens das Releasedatum</Bug>
 		<Bug language="Deutsch">Fehler behoben mit dem Löschen von Dateien, wenn man über einen Ordner aktualisiert</Bug>
+		<Bug language="Deutsch">Spine-API wird korrekt wieder aus den Spiele-Ordnern entfernt</Bug>
+		<Bug language="Deutsch">64bit Spine-API wird jetzt korrekt kopiert</Bug>
+		<Bug language="Deutsch">User ID API funktioniert jetzt</Bug>
 		
 		<Enhancement language="English">Icons now are cached so they can be displayed in the profile even after uninstallation</Enhancement>
 		<Bug language="English">Update date now is always at least the release date</Bug>
 		<Bug language="English">Fixed deletion of files when updating via folder</Bug>
+		<Bug language="English">Spine API now is correctly removed from game folder again</Bug>
+		<Bug language="English">64bit Spine API now is properly deployed</Bug>
+		<Bug language="English">User ID API works now</Bug>
 	</Version>
 </Versions>

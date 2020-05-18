@@ -67,8 +67,8 @@ void GameLauncher::finishedGame(int, QProcess::ExitStatus) {
 	Database::execute(Config::BASEDIR.toStdString() + "/" + LASTPLAYED_DATABASE, "DELETE FROM lastPlayed;", err);
 	Database::execute(Config::BASEDIR.toStdString() + "/" + LASTPLAYED_DATABASE, "INSERT INTO lastPlayed (ModID, Ini) VALUES (" + std::to_string(_modID) + ", '" + _iniFile.toStdString() + "');", err);
 
-	QFile(_directory + "/System/SpineAPI.dll").remove();
-	QFile(_directory + "/System/SpineAPI64.dll").remove();
+	QFile(_directory + "/SpineAPI.dll").remove();
+	QFile(_directory + "/SpineAPI64.dll").remove();
 }
 
 bool GameLauncher::supportsGame(GameType gameType) const {
@@ -119,7 +119,7 @@ void GameLauncher::start() {
 	}
 
 	linkOrCopyFile(qApp->applicationDirPath() + "/SpineAPI.dll", _directory + "/SpineAPI.dll");
-	linkOrCopyFile(qApp->applicationDirPath() + "/SpineAPI.dll", _directory + "/SpineAPI64.dll");
+	linkOrCopyFile(qApp->applicationDirPath() + "/SpineAPI64.dll", _directory + "/SpineAPI64.dll");
 
 	process->start(QString("\"%1\"").arg(executablePath), args);
 
