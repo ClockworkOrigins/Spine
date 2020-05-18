@@ -37,11 +37,11 @@
     </message>
     <message>
         <source>Bugs</source>
-        <translation>Bug fixes</translation>
+        <translation>Łatki</translation>
     </message>
     <message>
         <source>Enhancements</source>
-        <translation>Rozszerzenia</translation>
+        <translation>Nowości</translation>
     </message>
     <message>
         <source>Changelogs</source>
@@ -221,7 +221,7 @@ Możesz ją zmienić w opcjach w każdej chwili.</translation>
     <message>
         <source>AccountInformation</source>
         <translation>Konto w Clockwork Origins nie jest podstawą konieczną do działania Spine,
-jednak aktywuje kilka dodatkowych funkcji jak statystyki czasu gry, osiągnięcia, opinie o modzie...
+jednak aktywuje kilka dodatkowych funkcji, takich jak statystyki czasu gry, osiągnięcia, opinie o modzie…
 Ponadto może być ono używane do wszystkich produktów Clockwork Origins.</translation>
     </message>
     <message>
@@ -323,7 +323,7 @@ W przypadku znalezienia aktualizacji Spine automatycznie rozpocznie pobieranie, 
     </message>
     <message>
         <source>ReallyWantToInstallText</source>
-        <translation>Czy naprawdę chcesz zainstalować %1?</translation>
+        <translation>Czy na pewno chcesz zainstalować %1?</translation>
     </message>
     <message>
         <source>ReallyWantToUninstall</source>
@@ -331,7 +331,7 @@ W przypadku znalezienia aktualizacji Spine automatycznie rozpocznie pobieranie, 
     </message>
     <message>
         <source>ReallyWantToUninstallText</source>
-        <translation>Czy naprawdę chcesz odinstalować %1?</translation>
+        <translation>Czy na pewno chcesz odinstalować %1?</translation>
     </message>
     <message>
         <source>DownloadedBytes</source>
@@ -371,7 +371,7 @@ W przypadku znalezienia aktualizacji Spine automatycznie rozpocznie pobieranie, 
     </message>
     <message>
         <source>DeveloperModeInfo</source>
-        <translation>Wszystkie wymienione tutaj ustawienia dotyczą jedynie twórcy moda i przeznaczone są do testów funkcjonalności w nowych modyfikacjach, aby je wesprzeć. Te ustawienia nie mają żadnego wpływu na modyfikacje, które zostały zainstalowane przez Spine bądź ręcznie oraz zaimplementowane przy pomocy Spine-API.</translation>
+        <translation>Wszystkie wymienione tutaj ustawienia dotyczą jedynie twórcy moda i przeznaczone są do testów funkcjonalności w nowych modyfikacjach. Te ustawienia nie mają żadnego wpływu na modyfikacje, które zostały zainstalowane przez Spine bądź ręcznie oraz zaimplementowane przy pomocy Spine-API.</translation>
     </message>
     <message>
         <source>ActivateDeveloperMode</source>
@@ -471,11 +471,11 @@ W przypadku znalezienia aktualizacji Spine automatycznie rozpocznie pobieranie, 
     </message>
     <message>
         <source>FeedbackSuccessfulText</source>
-        <translation>Otrzymaliśmy twoją wiadomość. Wielkie dzięki.</translation>
+        <translation>Otrzymaliśmy twoją wiadomość. Dziękujemy.</translation>
     </message>
     <message>
         <source>FeedbackUnsuccessful</source>
-        <translation>Nie wysłano Feedbacku</translation>
+        <translation>Nie wysłano feedbacku</translation>
     </message>
     <message>
         <source>FeedbackUnsuccessfulText</source>
@@ -499,7 +499,7 @@ W przypadku znalezienia aktualizacji Spine automatycznie rozpocznie pobieranie, 
     </message>
     <message>
         <source>CheckIntegrityTooltip</source>
-        <translation>Sprawdzanie zainstalowanych modyfikacji pod względem błędów w plikach oraz zmian...</translation>
+        <translation>Sprawdzanie zainstalowanych modyfikacji pod względem błędów w plikach oraz zmian…</translation>
     </message>
     <message>
         <source>CheckIntegrityChecking</source>
@@ -660,7 +660,7 @@ Zredukuj ją w przypadku, jeśli podczas pobierania jakiejś modyfikacji chcesz 
     </message>
     <message>
         <source>LogoutText</source>
-        <translation>Naprawdę chcesz się wylogować? Takie funkcje jak osiągnięcia i wyniki w niektórych modyfikacjach nie będą już do dyspozycji.</translation>
+        <translation>Na pewno chcesz się wylogować? Takie funkcje jak osiągnięcia i wyniki w niektórych modyfikacjach nie będą już do dyspozycji.</translation>
     </message>
     <message>
         <source>NotEnoughDiskSpace</source>
@@ -676,7 +676,7 @@ Zredukuj ją w przypadku, jeśli podczas pobierania jakiejś modyfikacji chcesz 
     </message>
     <message>
         <source>UninstallationUnsuccessfulText</source>
-        <translation>Dezinstalacja %1 zakończona niepowodzeniem. Możliwe, że był jeszcze otwarty folder lub jakiś plik z tym związany. Upewnij się, czy wszystko pozamykałeś i spróbuj ponownie.</translation>
+        <translation>Dezinstalacja %1 zakończona niepowodzeniem. Możliwe, że był jeszcze otwarty folder lub jakiś plik z tym związany. Upewnij się, że wszystko zostało pozamykane i spróbuj ponownie.</translation>
     </message>
     <message>
         <source>WriteNewsTooltip</source>
@@ -696,7 +696,7 @@ Zredukuj ją w przypadku, jeśli podczas pobierania jakiejś modyfikacji chcesz 
     </message>
     <message>
         <source>ImagesPlaceholder</source>
-        <translation>Referencyjne screeny: Screen1.png;Screen2.png...</translation>
+        <translation>Referencyjne screeny: Screen1.png;Screen2.png…</translation>
     </message>
     <message>
         <source>NewsSuccessful</source>
@@ -720,7 +720,7 @@ Zredukuj ją w przypadku, jeśli podczas pobierania jakiejś modyfikacji chcesz 
     </message>
     <message>
         <source>SpineEditor</source>
-        <translation>Spine-Edytor</translation>
+        <translation>Edytor Spine</translation>
     </message>
     <message>
         <source>Save</source>
@@ -748,7 +748,7 @@ Zredukuj ją w przypadku, jeśli podczas pobierania jakiejś modyfikacji chcesz 
     </message>
     <message>
         <source>OverallSaveModule</source>
-        <translation>Savegame - nadrzędne zapisy</translation>
+        <translation>Savegame — nadrzędne zapisy</translation>
     </message>
     <message>
         <source>Hidden</source>
@@ -796,7 +796,7 @@ Zredukuj ją w przypadku, jeśli podczas pobierania jakiejś modyfikacji chcesz 
     </message>
     <message>
         <source>SubmitScripts</source>
-        <translation>Osiągnięcia oraz wyniki - o ile istnieją - zostaną przesłane, aby mogły zostać przeniesione do oficjalnej bazy danych Spine.
+        <translation>Osiągnięcia oraz wyniki — o ile istnieją — zostaną przesłane, aby mogły zostać przeniesione do oficjalnej bazy danych Spine.
 Stanie się tak jednak dopiero po ich zatwierdzeniu.
 Obrazki do osiągnięć również zostaną bezpośrednio dostarczone.</translation>
     </message>
@@ -870,7 +870,7 @@ Obrazki do osiągnięć również zostaną bezpośrednio dostarczone.</translati
     </message>
     <message>
         <source>SpineFeatures</source>
-        <translation>Spine - Cechy</translation>
+        <translation>Spine — Cechy</translation>
     </message>
     <message>
         <source>FeaturesEditPlaceholder</source>
@@ -890,19 +890,19 @@ Obrazki do osiągnięć również zostaną bezpośrednio dostarczone.</translati
     </message>
     <message>
         <source>AchievementViewDescription</source>
-        <translation>Tutaj pokazane są wszystkie widoczne osiągnięcia. Osiągnięcia, które są ukryte, ukażą się dopiero, gdy zostaną one odblokowane. Pasek postępu oraz wskaźnik procentowy odzwierciedlają zaś, jaki procent wszystkich graczy danej modyfikacji zdobyło określone osiągnięcie.</translation>
+        <translation>Tutaj pokazane są wszystkie widoczne osiągnięcia. Osiągnięcia, które są ukryte, ukażą się dopiero, gdy zostaną odblokowane. Pasek postępu oraz wskaźnik procentowy odzwierciedlają zaś, jaki procent wszystkich graczy danej modyfikacji zdobył określone osiągnięcie.</translation>
     </message>
     <message>
         <source>Gothic1Settings</source>
-        <translation>Gothic - Ustawienia</translation>
+        <translation>Gothic — Ustawienia</translation>
     </message>
     <message>
         <source>Gothic2Settings</source>
-        <translation>Gothic II - Ustawienia</translation>
+        <translation>Gothic II — Ustawienia</translation>
     </message>
     <message>
         <source>IniConfigurator</source>
-        <translation>Gothic-Konfigurator</translation>
+        <translation>Konfiguracja Gothica</translation>
     </message>
     <message>
         <source>Subtitles</source>
@@ -1115,7 +1115,7 @@ Zostaw wartość na 0, jeśli nie chodzi o osiągnięcie związane z licznikiem.
     </message>
     <message>
         <source>HashError</source>
-        <translation>Pobrany plik był uszkodzony. Jeśli problem będzie występował wielokrotnie przy tej modyfikacji, zgłoś to proszę koniecznie z podaniem dokładnej nazwy modyfikacji przez Pomoc => Feedback.</translation>
+        <translation>Pobrany plik był uszkodzony. Jeśli problem będzie występował wielokrotnie przy tej modyfikacji, zgłoś to proszę koniecznie z podaniem dokładnej nazwy modyfikacji przez Pomoc → Feedback.</translation>
     </message>
     <message>
         <source>Original</source>
@@ -1123,55 +1123,55 @@ Zostaw wartość na 0, jeśli nie chodzi o osiągnięcie związane z licznikiem.
     </message>
     <message>
         <source>RemovingOldFiles</source>
-        <translation>Usuwanie starych plików...</translation>
+        <translation>Usuwanie starych plików…</translation>
     </message>
     <message>
         <source>DetermingCorrectGothicPath</source>
-        <translation>Ustalanie prawidłowej ścieżki Gothic...</translation>
+        <translation>Ustalanie prawidłowej ścieżki Gothic…</translation>
     </message>
     <message>
         <source>RemovingBackups</source>
-        <translation>Reset kopii bezpieczeństwa...</translation>
+        <translation>Reset kopii bezpieczeństwa…</translation>
     </message>
     <message>
         <source>CopyingModfiles</source>
-        <translation>Kopiowanie plików modyfikacji...</translation>
+        <translation>Kopiowanie plików modyfikacji…</translation>
     </message>
     <message>
         <source>CopyingPatchfiles</source>
-        <translation>Kopiowanie łatek...</translation>
+        <translation>Kopiowanie łatek…</translation>
     </message>
     <message>
         <source>OverridingIni</source>
-        <translation>Nadpisywanie Ini...</translation>
+        <translation>Nadpisywanie pliku .ini…</translation>
     </message>
     <message>
         <source>SubmittingPage</source>
-        <translation>Przesyłanie strony...</translation>
+        <translation>Przesyłanie strony…</translation>
     </message>
     <message>
         <source>LoadingPage</source>
-        <translation>Ładowanie strony...</translation>
+        <translation>Ładowanie strony…</translation>
     </message>
     <message>
         <source>SubmittingFeatures</source>
-        <translation>Przesyłanie zmian Spine...</translation>
+        <translation>Przesyłanie zmian Spine…</translation>
     </message>
     <message>
         <source>LoadingDatabase</source>
-        <translation>Przesyłanie bazy danych...</translation>
+        <translation>Przesyłanie bazy danych…</translation>
     </message>
     <message>
         <source>LoadingProfile</source>
-        <translation>Ładowanie profilu...</translation>
+        <translation>Ładowanie profilu…</translation>
     </message>
     <message>
         <source>LoadingAchievements</source>
-        <translation>Ładowanie osiągnięć...</translation>
+        <translation>Ładowanie osiągnięć…</translation>
     </message>
     <message>
         <source>LoadingScores</source>
-        <translation>Ładowanie wyników...</translation>
+        <translation>Ładowanie wyników…</translation>
     </message>
     <message>
         <source>ExtendedLogging</source>
@@ -1180,7 +1180,7 @@ Zostaw wartość na 0, jeśli nie chodzi o osiągnięcie związane z licznikiem.
     <message>
         <source>ExtendedLoggingTooltip</source>
         <translation>Rozszerzone logowanie zapisuje znacznie większą część twoich działań. Przydaje się to do rozwiązywania problemów,
-ale może również doprowadzić do wyraźnych spadków wydajności. Dlatego używaj tej opcji tylko w przypadku,
+ale może również doprowadzić do wyraźnych spadków wydajności. Używaj zatem tej opcji tylko w przypadku,
 gdy będziesz miał problem ze Spine, przed zgłoszeniem błędu.</translation>
     </message>
     <message>
@@ -1189,11 +1189,11 @@ gdy będziesz miał problem ze Spine, przed zgłoszeniem błędu.</translation>
     </message>
     <message>
         <source>SystempackGothic1Settings</source>
-        <translation>Ustawienia G1-Systempacka</translation>
+        <translation>Ustawienia SystemPacka do G1</translation>
     </message>
     <message>
         <source>SystempackGothic2Settings</source>
-        <translation>Ustawienia G2-Systempacka</translation>
+        <translation>Ustawienia SystemPacka do G2</translation>
     </message>
     <message>
         <source>Debug</source>
@@ -2273,7 +2273,7 @@ Das zwingt den Treiber die Szene nach jedem Objekt zu flushen, was zu ernsthafen
     </message>
     <message>
         <source>GothicAdminInfo</source>
-        <translation>%1 jest zainstalowany w folderze z ograniczonymi prawami dostępu. Musisz uruchomić program jako Administrator. Jeśli jednak %1 dalej nie działa prawidłowo albo sprawia problemy, zainstaluj %1 w innym folderze (np. C:\Gry) lub bezpośrednio na innej partycji (D:).</translation>
+        <translation>%1 jest zainstalowany w folderze z ograniczonymi prawami dostępu. Musisz uruchomić program jako administrator. Jeśli jednak %1 dalej nie działa prawidłowo albo sprawia problemy, zainstaluj %1 w innym folderze (np. C:\Gry) lub bezpośrednio na innej partycji (D:).</translation>
     </message>
     <message>
         <source>GamepadModule</source>
@@ -2353,7 +2353,7 @@ Das zwingt den Treiber die Szene nach jedem Objekt zu flushen, was zu ernsthafen
     </message>
     <message>
         <source>DrawMeleeWeapon</source>
-        <translation>Broń zwarciowa</translation>
+        <translation>Broń sieczna</translation>
     </message>
     <message>
         <source>DrawRangedWeapon</source>
@@ -2614,7 +2614,7 @@ Das zwingt den Treiber die Szene nach jedem Objekt zu flushen, was zu ernsthafen
     </message>
     <message>
         <source>LoadingFriends</source>
-        <translation>Dodaj przyjaciela</translation>
+        <translation>Dodaj znajomego</translation>
     </message>
     <message>
         <source>SendFriendRequest</source>
@@ -2650,7 +2650,7 @@ Das zwingt den Treiber die Szene nach jedem Objekt zu flushen, was zu ernsthafen
     </message>
     <message>
         <source>Updating</source>
-        <translation>Aktualizacja...</translation>
+        <translation>Aktualizacja…</translation>
     </message>
     <message>
         <source>ConvertTextures</source>
@@ -2707,8 +2707,8 @@ Das zwingt den Treiber die Szene nach jedem Objekt zu flushen, was zu ernsthafen
     <message>
         <source>VersionNumberTooltip</source>
         <translation>Numer wersji: Major Version | Minor Version | Patch Version.
-Patch Version powinien zazwyczaj pójść w górę tylko, jeśli został naprawiony błąd, Minor Version,
-gdy tylko zostaną wprowadzone nowe funkcje, a Major Version przy naprawdę wielkich zmianach.</translation>
+Patch Version powinien zazwyczaj zostać wykorzystany tylko, jeśli został naprawiony błąd, Minor Version,
+gdy zostaną wprowadzone nowe funkcje, a Major Version przy naprawdę wielkich zmianach.</translation>
     </message>
     <message>
         <source>UpdateVersionNumberTooltip</source>
@@ -2805,11 +2805,11 @@ Do czasu zaktualizowania numeru wersji nowe pliki obejmują jedynie graczy, któ
     </message>
     <message>
         <source>ReallyQuit</source>
-        <translation>Czy naprawdę chcesz wyjść?</translation>
+        <translation>Czy na pewno chcesz wyjść?</translation>
     </message>
     <message>
         <source>ReallyQuitDescription</source>
-        <translation>Czy naprawdę chcesz zamknąć Spine?</translation>
+        <translation>Czy na pewno chcesz zamknąć Spine?</translation>
     </message>
     <message>
         <source>Statistics</source>
@@ -2949,11 +2949,11 @@ Do czasu zaktualizowania numeru wersji nowe pliki obejmują jedynie graczy, któ
     </message>
     <message>
         <source>FAQQuestion5</source>
-        <translation>Przy starcie jakiejkolwiek modyfikacji na końcu paska ładowania zawsze wywala błąd Access Violation.</translation>
+        <translation>Przy starcie jakiejkolwiek modyfikacji na końcu paska ładowania zawsze wyrzuca błąd Access Violation.</translation>
     </message>
     <message>
         <source>FAQAnswer5</source>
-        <translation>Prawie zawsze jest to wina funkcji zapobiegania wykonywania danych od Windowsa (DEP). Tyczy się to wszystkich modyfikacji korzystających z pakietu skryptowego Ikarusa (czyli prawie wszystkich z ostatnich lat), ponieważ pakiet ten zastępuje adresy pamięci w Gothicu, aby oferować modderom nowe możliwości. W celu pozbycia się crashy wystarczy jedynie dodać Gothica do wyjątków. Aby to zrobić, należy wykonać następujące kroki: Windows + Pause Break -> Zaawansowane ustawienia systemu -> w zakładce „Zaawansowane” kliknąć przy Wydajności „Ustawienia…” -> Zakładka „Zapobieganie wykonywaniu danych” i wprowadzamy wszystkie pliki .exe bezpośrednio z folderu Gothic 2 (w sumie 3). Po wykonaniu tych kroków problem powinien ustąpić.</translation>
+        <translation>Prawie zawsze jest to wina funkcji zapobiegania wykonywania danych od Windowsa (DEP). Tyczy się to wszystkich modyfikacji korzystających z pakietu skryptowego Ikarusa (czyli prawie wszystkich z ostatnich lat), ponieważ pakiet ten zastępuje adresy pamięci w Gothicu, aby oferować modderom nowe możliwości. W celu pozbycia się crashy wystarczy dodać Gothica do wyjątków. Aby to zrobić, należy wykonać następujące kroki: Windows + Pause Break → Zaawansowane ustawienia systemu → w zakładce „Zaawansowane” kliknąć przy Wydajności „Ustawienia…” → Zakładka „Zapobieganie wykonywaniu danych” i wprowadzamy wszystkie pliki .exe bezpośrednio z folderu System (w sumie trzy). Po wykonaniu tych kroków problem powinien ustąpić.</translation>
     </message>
     <message>
         <source>FAQQuestion6</source>
@@ -2969,7 +2969,7 @@ Do czasu zaktualizowania numeru wersji nowe pliki obejmują jedynie graczy, któ
     </message>
     <message>
         <source>FAQAnswer7</source>
-        <translation>Upewnij się, że w folderze docelowym do pobierania (zobacz Ustawienia -> Ścieżka -> Ścieżka do zainstalowanych modyfikacji) dostępna jest wystarczająca ilość miejsca. Rozmiar podany w bazie danych odpowiada jedynie plikom do pobrania. Wykorzystanie miejsca na dysku twardym jest nieco większe.</translation>
+        <translation>Upewnij się, że w folderze docelowym do pobierania (zobacz Ustawienia → Ścieżka → Ścieżka do zainstalowanych modyfikacji) dostępna jest wystarczająca ilość miejsca. Rozmiar podany w bazie danych odpowiada jedynie plikom do pobrania. Wykorzystanie miejsca na dysku twardym jest nieco większe.</translation>
     </message>
     <message>
         <source>SkipExitCheckbox</source>
@@ -2981,32 +2981,32 @@ Do czasu zaktualizowania numeru wersji nowe pliki obejmują jedynie graczy, któ
     </message>
     <message>
         <source>ForgotPassword</source>
-        <translation>Passwort vergessen?</translation>
+        <translation>Nie pamiętasz hasła?</translation>
     </message>
     <message>
         <source>ForgotPasswordDescription</source>
-        <translation>Wenn du dein Passwort vergessen hast, gib hier den Account-Namen oder deine Mail-Adresse ein. Du bekommst anschließend eine E-Mail mit einem Link, über den du dein Passwort zurücksetzen kannst.</translation>
+        <translation>Wpisz tutaj swoją nazwę konta lub adres e-mail, a otrzymasz wiadomość zwrotną na skrzynkę pocztową z linkiem do zresetowania hasła.</translation>
     </message>
     <message>
         <source>ForgotPasswordWaitForMail</source>
-        <translation>Die E-Mail wurde verschickt. Prüfe dein Postfach, um dein Passwort zurückzusetzen.</translation>
+        <translation>Wiadomość została wysłana. Sprawdź swoją skrzynkę pocztową.</translation>
     </message>
     <message>
         <source>ForgotPasswordNoUser</source>
-        <translation>Für die angegebenen Daten wurde kein Account gefunden. Bitte prüfe die Daten und versuche es noch einmal. Solltest du Probleme haben, nutze die Feedback-Funktion, um direkt Kontakt aufzunehmen. Stelle dazu möglichst viele Informationen zu deinem Account bereit.</translation>
+        <translation>Nie znaleziono konta pasującego do podanych danych. Upewnij się, że wpisałeś je poprawnie i spróbuj jeszcze raz. W razie problemów skorzystaj z funkcji Pomoc → Feedback, aby skontaktować się z nami bezpośrednio. Będziemy potrzebować jak najwięcej informacji o twoim koncie.</translation>
     </message>
     <message>
         <source>Privacy</source>
-        <translation>Oświadczenie o ochronie danych</translation>
+        <translation>Polityka prywatności</translation>
     </message>
     <message>
         <source>AcceptPrivacy</source>
-        <translation>Wyrażam zgodę na politykę prywatności</translation>
+        <translation>Wyrażam zgodę na przetwarzanie moich danych osobowych</translation>
     </message>
     <message>
         <source>AcceptPrivacyTooltip</source>
-        <translation>Wyrażając zgodę na Politykę Prywatności, wyrażasz zgodę na zbieranie i przetwarzanie informacji zawartych w Polityce Prywatności.
-Zgodę można odwołać w każdej chwili. Wszystkie niezbędne informacje można znaleźć na stronie głównej.</translation>
+        <translation>Użytkownik wyraża zgodę na gromadzenie i przetwarzanie informacji zawartych w polityce prywatności.
+Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje znajdziesz na stronie głównej.</translation>
     </message>
     <message>
         <source>Discord</source>
@@ -3014,63 +3014,63 @@ Zgodę można odwołać w każdej chwili. Wszystkie niezbędne informacje można
     </message>
     <message>
         <source>xOfyFilesHaveBeenUpdated</source>
-        <translation>%1 von %2 Dateien wurden aktualisiert.</translation>
+        <translation>%1 z %2 plików zostało zaktualizowanych.</translation>
     </message>
     <message>
         <source>GothicAdminInfoRequiresAdmin</source>
-        <translation>%1 benötigt zum Spielen Admin-Rechte. Bitte starte Spine als Administrator, um %1 spielen zu können.</translation>
+        <translation>%1 wymaga odpowiednich uprawnień. Uruchom Spine jako administrator, aby móc zagrać w %1.</translation>
     </message>
     <message>
         <source>FAQQuestion8</source>
-        <translation>Gothic 1 stürzt beim Starten/Laden mit einer Access Violation ab.</translation>
+        <translation>Gothic 1 przy nowej grze/podczas wczytywania wyrzuca błąd Access Violation.</translation>
     </message>
     <message>
         <source>FAQAnswer8</source>
-        <translation>Das liegt an der Datenausführungsverhinderung von Windows. Um die Abstürze zu beheben muss lediglich die Datenausführungsverhinderung für Gothic deaktiviert werden. Dazu müssen folgende Schritte ausgeführt werden: Windows + Pause drücken, "Erweiterte Systemeinstellungen", "Einstellungen" unter "Leistung" drücken, "Datenausführungsverhinderung", alle EXE-Dateien direkt aus dem Gothic-System-Ordner eintragen (3 Stück, Gothic.exe, GothicMod.exe und KillHelp.exe).</translation>
+        <translation>Jest to wina funkcji zapobiegania wykonywania danych od Windowsa (DEP). W celu pozbycia się crashy wystarczy dodać Gothica do wyjątków. Aby to zrobić, należy wykonać następujące kroki: Windows + Pause Break → Zaawansowane ustawienia systemu → w zakładce „Zaawansowane” kliknąć przy Wydajności „Ustawienia…” → Zakładka „Zapobieganie wykonywaniu danych” i wprowadzamy wszystkie pliki .exe bezpośrednio z folderu System (w sumie trzy: Gothic.exe, GothicMod.exe i KillHelp.exe).</translation>
     </message>
     <message>
         <source>FAQQuestion9</source>
-        <translation>Ich habe einen GSync-Monitor und Gothic stürzt ab.</translation>
+        <translation>Mam monitor G-Sync i Gothic crashuje.</translation>
     </message>
     <message>
         <source>FAQAnswer9</source>
-        <translation>Der Renderer hat seine Probleme mit GSync und ist nicht richtig kompatibel. Die Lösung ist daher, GSync für Gothic zu deaktivieren.</translation>
+        <translation>Renderer ma swoje problemy z tą technologią i nie jest w pełni kompatybilny. Najlepszym rozwiązaniem będzie wyłączenie tej opcji dla Gothica.</translation>
     </message>
     <message>
         <source>DependenciesMissing</source>
-        <translation>Zum Spielen sind die folgenden nicht installierten Patches/Tools erforderlich:</translation>
+        <translation>Aby móc zagrać, musisz odinstalować następujące patche/narzędzia:</translation>
     </message>
     <message>
         <source>StartWithSteam</source>
-        <translation>Mit Steam starten</translation>
+        <translation>Uruchom ze Steamem</translation>
     </message>
     <message>
         <source>Downloading</source>
-        <translation>Downloading</translation>
+        <translation>Pobieranie</translation>
     </message>
     <message>
         <source>Tutorials</source>
-        <translation>Tutorials</translation>
+        <translation>Tutoriale</translation>
     </message>
     <message>
         <source>PublishingOnSpine</source>
-        <translation>Publishen auf Spine</translation>
+        <translation>Publikowanie na Spine</translation>
     </message>
     <message>
         <source>NoDescriptionAvailable</source>
-        <translation>Für diese Seite gibt es keine Beschreibung. Wenn du der Ersteller bist oder weißt, worum es geht, kannst du gerne eine Beschreibung vorschlagen:</translation>
+        <translation>Aktualnie nie ma żadnego opisu do tej modyfikacji. Jeśli jesteś twórcą albo chcesz zaproponować coś od siebie, zapraszamy tutaj:</translation>
     </message>
     <message>
         <source>InQueue</source>
-        <translation>In Warteschlange</translation>
+        <translation>W kolejce</translation>
     </message>
     <message>
         <source>SupportUsText</source>
-        <translation>Hilf uns, die laufenden Kosten von Spine zu bezahlen.</translation>
+        <translation>Pomóż twórcy pokryć koszty bieżące programu.</translation>
     </message>
     <message>
         <source>FullVersion</source>
-        <translation>Vollversion</translation>
+        <translation>Pełna wersja</translation>
     </message>
     <message>
         <source>Demo</source>
@@ -3078,11 +3078,11 @@ Zgodę można odwołać w każdej chwili. Wszystkie niezbędne informacje można
     </message>
     <message>
         <source>UpdateDate</source>
-        <translation>Aktualisierungsdatum</translation>
+        <translation>Data aktualizacji</translation>
     </message>
     <message>
         <source>AddFolder</source>
-        <translation>Ordner hinzufügen</translation>
+        <translation>Dodaj folder</translation>
     </message>
 </context>
 </TS>
