@@ -278,4 +278,12 @@ void DatabaseCreator::createTables() {
 		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
+	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS feedbackMails (ProjectID INT PRIMARY KEY, Mail TEXT NOT NULL);"))) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS discussionUrls (ProjectID INT PRIMARY KEY, Url TEXT NOT NULL);"))) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
 }

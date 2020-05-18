@@ -3100,5 +3100,21 @@ You can revoke your permission at every point in time. All necessary information
         <source>Modification</source>
         <translation>Modification</translation>
     </message>
+    <message>
+        <source>FeedbackMail</source>
+        <translation>Feedback e-mail address</translation>
+    </message>
+    <message>
+        <source>FeedbackMailTooltip</source>
+        <translation>When an e-mail address is provided, players can send feedback anonymously directly from the library.</translation>
+    </message>
+    <message>
+        <source>DiscussionUrl</source>
+        <translation>Link to discussions</translation>
+    </message>
+    <message>
+        <source>DiscussionUrlTooltip</source>
+        <translation>When configured the link will be displayed in the library. The link can point towards your forum, Discord or any other portal where you want to discuss about your game/modification.</translation>
+    </message>
 </context>
 </TS>

@@ -36,6 +36,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLabel>
+#include <QLineEdit>
 #include <QPushButton>
 #include <QSpinBox>
 #include <QVBoxLayout>
@@ -108,6 +109,30 @@ GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(
 
 			l->addWidget(lbl, 4, 0);
 			l->addWidget(_devDurationBox, 4, 1);
+		}
+
+		{
+			const QRegularExpression mailRegex("[a-zA-Z0-9 _.@-]+");
+			QValidator * mailValidator = new QRegularExpressionValidator(mailRegex, this);
+			
+			QLabel * lbl = new QLabel(QApplication::tr("FeedbackMail"), this);
+			lbl->setToolTip(QApplication::tr("FeedbackMailTooltip"));
+			_feedbackMailEdit = new QLineEdit(this);
+			_feedbackMailEdit ->setToolTip(QApplication::tr("FeedbackMailTooltip"));
+			_feedbackMailEdit->setValidator(mailValidator);
+
+			l->addWidget(lbl, 5, 0);
+			l->addWidget(_feedbackMailEdit, 5, 1);
+		}
+
+		{
+			QLabel * lbl = new QLabel(QApplication::tr("DiscussionUrl"), this);
+			lbl->setToolTip(QApplication::tr("DiscussionUrlTooltip"));
+			_discussionUrlEdit = new QLineEdit(this);
+			_discussionUrlEdit ->setToolTip(QApplication::tr("DiscussionUrlTooltip"));
+
+			l->addWidget(lbl, 6, 0);
+			l->addWidget(_discussionUrlEdit, 6, 1);
 		}
 
 		vl->addLayout(l);
@@ -185,6 +210,8 @@ void GeneralConfigurationWidget::updateMod() {
 	mgd.modType = static_cast<common::ModType>(_typeBox->currentIndex());
 	mgd.duration = _devDurationBox->value();
 	mgd.releaseDate = _releaseDateEdit->date();
+	mgd.feedbackMail = _feedbackMailEdit->text();
+	mgd.discussionUrl = _discussionUrlEdit->text();
 
 	QJsonObject json;
 	json["Username"] = Config::Username;
@@ -209,4 +236,6 @@ void GeneralConfigurationWidget::updateData(ManagementGeneralData content) {
 	_typeBox->setCurrentIndex(static_cast<int>(content.modType));
 	_devDurationBox->setValue(content.duration);
 	_releaseDateEdit->setDate(content.releaseDate);
+	_feedbackMailEdit->setText(content.feedbackMail);
+	_discussionUrlEdit->setText(content.discussionUrl.toString());
 }

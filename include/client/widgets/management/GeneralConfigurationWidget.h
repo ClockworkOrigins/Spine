@@ -28,6 +28,7 @@
 class QCheckBox;
 class QComboBox;
 class QDateEdit;
+class QLineEdit;
 class QSpinBox;
 
 namespace spine {
@@ -66,6 +67,8 @@ namespace widgets {
 		QComboBox * _gothicVersionBox;
 		QDateEdit * _releaseDateEdit;
 		QSpinBox * _devDurationBox;
+		QLineEdit * _feedbackMailEdit;
+		QLineEdit * _discussionUrlEdit;
 		gui::WaitSpinner * _waitSpinner;
 	};
 

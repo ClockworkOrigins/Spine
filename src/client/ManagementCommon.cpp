@@ -168,6 +168,15 @@ void ManagementGeneralData::read(const QJsonObject & json) {
 	QDate rd(2000, 1, 1);
 	rd = rd.addDays(dateOffset);
 	releaseDate = rd;
+
+	if (json.contains("FeedbackMail")) {
+		feedbackMail = json["FeedbackMail"].toString();
+	}
+
+	if (json.contains("DiscussionUrl")) {
+		const auto url = json["DiscussionUrl"].toString();
+		discussionUrl = QUrl(url);
+	}
 }
 
 void ManagementGeneralData::write(QJsonObject & json) const {
@@ -180,6 +189,14 @@ void ManagementGeneralData::write(QJsonObject & json) const {
 	const auto rd = static_cast<int32_t>(date.daysTo(releaseDate));
 	
 	json["ReleaseDate"] = rd;
+
+	if (!feedbackMail.isEmpty()) {
+		json["FeedbackMail"] = feedbackMail;
+	}
+
+	if (!discussionUrl.isEmpty() && discussionUrl.isValid()) {
+		json["DiscussionUrl"] = discussionUrl.toString();
+	}
 }
 
 void ManagementCustomStatistic::read(const QJsonObject & json) {

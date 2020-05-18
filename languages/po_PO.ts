@@ -3092,5 +3092,21 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>Modification</source>
         <translation>Modifikation</translation>
     </message>
+    <message>
+        <source>FeedbackMail</source>
+        <translation>Feedback E-Mail-Adresse</translation>
+    </message>
+    <message>
+        <source>FeedbackMailTooltip</source>
+        <translation>Wenn eine E-Mail-Adresse angegeben wird, können Spieler direkt über die Bibliothek anonym Feedback senden.</translation>
+    </message>
+    <message>
+        <source>DiscussionUrl</source>
+        <translation>Link zu Diskussionen</translation>
+    </message>
+    <message>
+        <source>DiscussionUrlTooltip</source>
+        <translation>Wenn konfiguriert wird der Link in der Bibliothek angezeigt. Der Link kann zu deinem Forum, Discord oder sonstigem Portal zeigen, wo ihr über euer Spiel/eure Modifikation diskutiert.</translation>
+    </message>
 </context>
 </TS>

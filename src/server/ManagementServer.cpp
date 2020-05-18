@@ -597,6 +597,16 @@ void ManagementServer::getGeneralConfiguration(std::shared_ptr<HttpsServer::Resp
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
+			if (!database.query("PREPARE selectFeedbackMailStmt FROM \"SELECT Mail FROM feedbackMails WHERE ProjectID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectDiscussionUrlStmt FROM \"SELECT Url FROM discussionUrls WHERE ProjectID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
 			if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
@@ -627,6 +637,28 @@ void ManagementServer::getGeneralConfiguration(std::shared_ptr<HttpsServer::Resp
 			results = database.getResults<std::vector<std::string>>();
 
 			responseTree.put("Duration", results.empty() ? 0 : std::stoi(results[0][0]));
+			
+			if (!database.query("EXECUTE selectFeedbackMailStmt USING @paramModID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			results = database.getResults<std::vector<std::string>>();
+
+			if (!results.empty()) {
+				responseTree.put("FeedbackMail", results[0][0]);
+			}
+			
+			if (!database.query("EXECUTE selectDiscussionUrlStmt USING @paramModID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			results = database.getResults<std::vector<std::string>>();
+
+			if (!results.empty()) {
+				responseTree.put("DiscussionUrl", results[0][0]);
+			}
 		} while (false);
 
 		write_json(responseStream, responseTree);
@@ -684,6 +716,26 @@ void ManagementServer::updateGeneralConfiguration(std::shared_ptr<HttpsServer::R
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
+			if (!database.query("PREPARE updateFeedbackMailStmt FROM \"INSERT INTO feedbackMails (ProjectID, Mail) VALUES (?, ?) ON DUPLICATE KEY UPDATE Mail = ?\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE deleteFeedbackMailStmt FROM \"DELETE FROM feedbackMails WHERE ProjectID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE updateDiscussionUrlStmt FROM \"INSERT INTO discussionUrls (ProjectID, Url) VALUES (?, ?) ON DUPLICATE KEY UPDATE Url = ?\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE deleteDiscussionUrlStmt FROM \"DELETE FROM discussionUrls WHERE ProjectID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
 			if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
@@ -723,6 +775,44 @@ void ManagementServer::updateGeneralConfiguration(std::shared_ptr<HttpsServer::R
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
+			}
+
+			if (pt.count("FeedbackMail") == 0) {
+				if (!database.query("EXECUTE deleteFeedbackMailStmt USING @paramModID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+			} else {
+				if (!database.query("SET @paramMail='" + pt.get<std::string>("FeedbackMail") + "';")) {
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("EXECUTE updateFeedbackMailStmt USING @paramModID, @paramMail, @paramMail;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+			}
+
+			if (pt.count("DiscussionUrl") == 0) {
+				if (!database.query("EXECUTE deleteDiscussionUrlStmt USING @paramModID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+			} else {
+				if (!database.query("SET @paramUrl='" + pt.get<std::string>("DiscussionUrl") + "';")) {
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("EXECUTE updateDiscussionUrlStmt USING @paramModID, @paramUrl, @paramUrl;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
 			}
 		} while (false);
 

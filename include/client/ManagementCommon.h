@@ -29,6 +29,7 @@
 #include <QMap>
 #include <QMetaType>
 #include <QString>
+#include <QUrl>
 
 class QJsonObject;
 
@@ -77,6 +78,8 @@ namespace client {
 		common::ModType modType;
 		int32_t duration = 0;
 		QDate releaseDate;
+		QString feedbackMail;
+		QUrl discussionUrl;
 
 		void read(const QJsonObject &json);
 		void write(QJsonObject & json) const;
