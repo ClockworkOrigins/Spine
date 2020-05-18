@@ -210,58 +210,91 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 			QGroupBox * gb = new QGroupBox(QApplication::tr("Type"), filterWidget);
 			UPDATELANGUAGESETTITLE(gb, "Type");
 
-			QVBoxLayout * vbl = new QVBoxLayout();
+			QHBoxLayout * gbHl = new QHBoxLayout();
 
-			QCheckBox * cb1 = new QCheckBox(QApplication::tr("TotalConversion"), filterWidget);
-			cb1->setChecked(_sortModel->isTotalConversionActive());
-			UPDATELANGUAGESETTEXT(cb1, "TotalConversion");
-			connect(cb1, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::totalConversionChanged);
+			{
+				QGroupBox * gbGame = new QGroupBox(QApplication::tr("Game"), gb);
+				UPDATELANGUAGESETTITLE(gbGame, "Game");
+				
+				QVBoxLayout * vbl = new QVBoxLayout();
 
-			QCheckBox * cb2 = new QCheckBox(QApplication::tr("Enhancement"), filterWidget);
-			cb2->setChecked(_sortModel->isEnhancementActive());
-			UPDATELANGUAGESETTEXT(cb2, "Enhancement");
-			connect(cb2, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::enhancementChanged);
+				QCheckBox * cbFullVersion = new QCheckBox(QApplication::tr("FullVersion"), filterWidget);
+				cbFullVersion->setChecked(_sortModel->isFullVersionsActive());
+				UPDATELANGUAGESETTEXT(cbFullVersion, "FullVersion");
+				connect(cbFullVersion, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::fullVersionsChanged);
 
-			QCheckBox * cb3 = new QCheckBox(QApplication::tr("Patch"), filterWidget);
-			cb3->setChecked(_sortModel->isPathActive());
-			UPDATELANGUAGESETTEXT(cb3, "Patch");
-			connect(cb3, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::patchChanged);
+				QCheckBox * cbDemo = new QCheckBox(QApplication::tr("Demo"), filterWidget);
+				cbDemo->setChecked(_sortModel->isDemosActive());
+				UPDATELANGUAGESETTEXT(cbDemo, "Demo");
+				connect(cbDemo, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::demosChanged);
 
-			QCheckBox * cb4 = new QCheckBox(QApplication::tr("Tool"), filterWidget);
-			cb4->setChecked(_sortModel->isToolActive());
-			UPDATELANGUAGESETTEXT(cb4, "Tool");
-			connect(cb4, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::toolChanged);
+				QCheckBox * cbPlayTesting = new QCheckBox(QApplication::tr("PlayTesting"), filterWidget);
+				cbPlayTesting->setChecked(_sortModel->isPlayTestingActive());
+				UPDATELANGUAGESETTEXT(cbPlayTesting, "PlayTesting");
+				connect(cbPlayTesting, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::playTestingChanged);
 
-			QCheckBox * cb5 = new QCheckBox(QApplication::tr("Original"), filterWidget);
-			cb5->setChecked(_sortModel->isOriginalActive());
-			UPDATELANGUAGESETTEXT(cb5, "Original");
-			connect(cb5, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::originalChanged);
+				vbl->addWidget(cbFullVersion);
+				vbl->addWidget(cbDemo);
+				vbl->addWidget(cbPlayTesting);
 
-			QCheckBox * cb6 = new QCheckBox(QApplication::tr("GothicMultiplayer"), filterWidget);
-			cb6->setChecked(_sortModel->isGMPActive());
-			UPDATELANGUAGESETTEXT(cb6, "GothicMultiplayer");
-			connect(cb6, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::gmpChanged);
+				vbl->addStretch(1);
 
-			QCheckBox * cb7 = new QCheckBox(QApplication::tr("FullVersion"), filterWidget);
-			cb7->setChecked(_sortModel->isFullVersionsActive());
-			UPDATELANGUAGESETTEXT(cb7, "FullVersion");
-			connect(cb7, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::fullVersionsChanged);
+				gbGame->setLayout(vbl);
 
-			QCheckBox * cb8 = new QCheckBox(QApplication::tr("Demo"), filterWidget);
-			cb8->setChecked(_sortModel->isDemosActive());
-			UPDATELANGUAGESETTEXT(cb8, "Demo");
-			connect(cb8, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::gmpChanged);
+				gbHl->addWidget(gbGame);
+			}
 
-			vbl->addWidget(cb1);
-			vbl->addWidget(cb2);
-			vbl->addWidget(cb3);
-			vbl->addWidget(cb4);
-			vbl->addWidget(cb5);
-			vbl->addWidget(cb6);
-			vbl->addWidget(cb7);
-			vbl->addWidget(cb8);
+			{
+				QGroupBox * gbMod = new QGroupBox(QApplication::tr("Modification"), gb);
+				UPDATELANGUAGESETTITLE(gbMod, "Modification");
+				
+				QVBoxLayout * vbl = new QVBoxLayout();
 
-			gb->setLayout(vbl);
+				QCheckBox * cbTotalConversion = new QCheckBox(QApplication::tr("TotalConversion"), filterWidget);
+				cbTotalConversion->setChecked(_sortModel->isTotalConversionActive());
+				UPDATELANGUAGESETTEXT(cbTotalConversion, "TotalConversion");
+				connect(cbTotalConversion, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::totalConversionChanged);
+
+				QCheckBox * cbEnhancement = new QCheckBox(QApplication::tr("Enhancement"), filterWidget);
+				cbEnhancement->setChecked(_sortModel->isEnhancementActive());
+				UPDATELANGUAGESETTEXT(cbEnhancement, "Enhancement");
+				connect(cbEnhancement, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::enhancementChanged);
+
+				QCheckBox * cbPatch = new QCheckBox(QApplication::tr("Patch"), filterWidget);
+				cbPatch->setChecked(_sortModel->isPathActive());
+				UPDATELANGUAGESETTEXT(cbPatch, "Patch");
+				connect(cbPatch, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::patchChanged);
+
+				QCheckBox * cbTool = new QCheckBox(QApplication::tr("Tool"), filterWidget);
+				cbTool->setChecked(_sortModel->isToolActive());
+				UPDATELANGUAGESETTEXT(cbTool, "Tool");
+				connect(cbTool, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::toolChanged);
+
+				QCheckBox * cbOriginal = new QCheckBox(QApplication::tr("Original"), filterWidget);
+				cbOriginal->setChecked(_sortModel->isOriginalActive());
+				UPDATELANGUAGESETTEXT(cbOriginal, "Original");
+				connect(cbOriginal, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::originalChanged);
+
+				QCheckBox * cbGMP = new QCheckBox(QApplication::tr("GothicMultiplayer"), filterWidget);
+				cbGMP->setChecked(_sortModel->isGMPActive());
+				UPDATELANGUAGESETTEXT(cbGMP, "GothicMultiplayer");
+				connect(cbGMP, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::gmpChanged);
+
+				vbl->addWidget(cbTotalConversion);
+				vbl->addWidget(cbEnhancement);
+				vbl->addWidget(cbPatch);
+				vbl->addWidget(cbTool);
+				vbl->addWidget(cbOriginal);
+				vbl->addWidget(cbGMP);
+
+				vbl->addStretch(1);
+
+				gbMod->setLayout(vbl);
+
+				gbHl->addWidget(gbMod);
+			}
+
+			gb->setLayout(gbHl);
 
 			hl->addWidget(gb);
 		}
@@ -296,6 +329,8 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 			vbl->addWidget(cb2);
 			vbl->addWidget(cb3);
 			vbl->addWidget(cb4);
+
+			vbl->addStretch(1);
 
 			gb->setLayout(vbl);
 
@@ -340,7 +375,7 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 		l->addWidget(filterWidget);
 	}
 
-	l->addWidget(_treeView);
+	l->addWidget(_treeView, 2);
 
 	setLayout(l);
 

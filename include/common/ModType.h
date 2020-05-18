@@ -29,7 +29,8 @@ namespace common {
 		ORIGINAL,
 		GMP,
 		FULLVERSION,
-		DEMO
+		DEMO,
+		PLAYTESTING
 	};
 
 } /* namespace common */

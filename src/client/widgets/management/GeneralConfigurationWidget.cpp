@@ -83,7 +83,7 @@ GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(
 			_typeBox->setEditable(false);
 
 			QStringList items;
-			items << QApplication::tr("TotalConversion") << QApplication::tr("Enhancement") << QApplication::tr("Patch") << QApplication::tr("Tool") << QApplication::tr("Original") << QApplication::tr("GothicMultiplayer") << QApplication::tr("FullVersion") << QApplication::tr("Demo");
+			items << QApplication::tr("TotalConversion") << QApplication::tr("Enhancement") << QApplication::tr("Patch") << QApplication::tr("Tool") << QApplication::tr("Original") << QApplication::tr("GothicMultiplayer") << QApplication::tr("FullVersion") << QApplication::tr("Demo") << QApplication::tr("PlayTesting");
 
 			_typeBox->addItems(items);
 
@@ -205,8 +205,8 @@ void GeneralConfigurationWidget::openInfoPage() {
 
 void GeneralConfigurationWidget::updateData(ManagementGeneralData content) {
 	_enabledBox->setChecked(content.enabled);
-	_gothicVersionBox->setCurrentIndex(int(content.gothicVersion));
-	_typeBox->setCurrentIndex(int(content.modType));
+	_gothicVersionBox->setCurrentIndex(static_cast<int>(content.gothicVersion));
+	_typeBox->setCurrentIndex(static_cast<int>(content.modType));
 	_devDurationBox->setValue(content.duration);
 	_releaseDateEdit->setDate(content.releaseDate);
 }

@@ -3084,5 +3084,13 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>AddFolder</source>
         <translation>Dodaj folder</translation>
     </message>
+    <message>
+        <source>PlayTesting</source>
+        <translation>Play Testing</translation>
+    </message>
+    <message>
+        <source>Modification</source>
+        <translation>Modifikation</translation>
+    </message>
 </context>
 </TS>

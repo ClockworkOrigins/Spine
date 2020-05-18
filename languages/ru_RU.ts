@@ -3089,5 +3089,13 @@ You can revoke your permission at every point in time. All necessary information
         <source>AddFolder</source>
         <translation>Add folder</translation>
     </message>
+    <message>
+        <source>PlayTesting</source>
+        <translation>Play Testing</translation>
+    </message>
+    <message>
+        <source>Modification</source>
+        <translation>Modification</translation>
+    </message>
 </context>
 </TS>
