@@ -187,9 +187,13 @@ std::vector<std::string> ServerCommon::getUserList() {
 }
 
 void ServerCommon::sendMail(const std::string & subject, const std::string & body, const std::string & replyTo) {
-	std::thread([subject, body, replyTo]() {
+	sendMail(subject, body, replyTo, "bonne@clockwork-origins.de");
+}
+
+void ServerCommon::sendMail(const std::string & subject, const std::string & body, const std::string & replyTo, const std::string & receiver) {
+	std::thread([subject, body, replyTo, receiver]() {
 		const Smtp s("127.0.0.1");
-		const bool b = s.sendMail("contact@clockwork-origins.de", "bonne@clockwork-origins.de", subject, body, replyTo);
+		const bool b = s.sendMail("contact@clockwork-origins.de", receiver, subject, body, replyTo);
 		static_cast<void>(b);
 	}).detach();
 }

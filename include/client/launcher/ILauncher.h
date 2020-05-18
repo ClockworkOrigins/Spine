@@ -92,6 +92,10 @@ namespace launcher {
 		void updateStarted(int modID);
 		void updateFinished(int modID);
 
+	private slots:
+		void feedbackClicked();
+		void openDiscussionsUrl();
+
 	protected:
 		QWidget * _widget = nullptr;
 		QVBoxLayout * _layout = nullptr;
@@ -137,11 +141,16 @@ namespace launcher {
 		QLabel * _lastPlayedDate = nullptr;
 		QLabel * _achievementLabel = nullptr;
 		QLabel * _scoresLabel = nullptr;
+		QPushButton * _feedbackButton = nullptr;
+		QLabel * _discussionUrlTitle = nullptr;
+		QLabel * _discussionUrlText = nullptr;
 
 		ScreenshotManager * _screenshotManager = nullptr;
 
 		clockUtils::sockets::TcpSocket * _listenSocket = nullptr;
 		clockUtils::sockets::TcpSocket * _socket = nullptr;
+
+		QString _discussionUrl;
 
 		bool _showAchievements = true;
 

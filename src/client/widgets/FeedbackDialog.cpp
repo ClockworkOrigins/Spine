@@ -42,13 +42,15 @@ using namespace spine;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-FeedbackDialog::FeedbackDialog() : QDialog(), _textEdit(nullptr), _usernameEdit(nullptr) {
+FeedbackDialog::FeedbackDialog(int32_t projectID, Type type, uint8_t majorVersion, uint8_t minorVersion, uint8_t patchVersion) : QDialog(), _textEdit(nullptr), _usernameEdit(nullptr), _projectID(projectID), _type(type), _majorVersion(majorVersion), _minorVersion(minorVersion), _patchVersion(patchVersion) {
 	QVBoxLayout * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
-	QLabel * infoLabel = new QLabel(QApplication::tr("FeedbackText"), this);
+	const char * feedbackText = type == Type::Spine ? "FeedbackText" : "FeedbackTextProject";
+	
+	QLabel * infoLabel = new QLabel(QApplication::tr(feedbackText), this);
 	l->addWidget(infoLabel);
-	UPDATELANGUAGESETTEXT(infoLabel, "FeedbackText");
+	UPDATELANGUAGESETTEXT(infoLabel, feedbackText);
 
 	_textEdit = new QTextEdit(this);
 	l->addWidget(_textEdit);
@@ -81,9 +83,6 @@ FeedbackDialog::FeedbackDialog() : QDialog(), _textEdit(nullptr), _usernameEdit(
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 }
 
-FeedbackDialog::~FeedbackDialog() {
-}
-
 void FeedbackDialog::loginChanged() {
 	_usernameEdit->setText(Config::Username);
 	_usernameEdit->setEnabled(!Config::Username.isEmpty());
@@ -92,13 +91,14 @@ void FeedbackDialog::loginChanged() {
 void FeedbackDialog::accept() {
 	common::FeedbackMessage fm;
 	fm.text = _textEdit->toPlainText().trimmed().toStdString();
-	fm.majorVersion = VERSION_MAJOR;
-	fm.minorVersion = VERSION_MINOR;
-	fm.patchVersion = VERSION_PATCH;
-	fm.username = _usernameEdit->text().toStdString();
-	if (fm.text.empty()) {
-		return;
-	}
+	fm.majorVersion = _majorVersion;
+	fm.minorVersion = _minorVersion;
+	fm.patchVersion = _patchVersion;
+	fm.username = _type == Type::Spine ? _usernameEdit->text().toStdString() : "";
+	fm.projectID = _projectID;
+	
+	if (fm.text.empty()) return;
+	
 	const std::string serialized = fm.SerializePublic();
 	clockUtils::sockets::TcpSocket sock;
 	const clockUtils::ClockError err = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);

@@ -3108,5 +3108,9 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>DiscussionUrlTooltip</source>
         <translation>Wenn konfiguriert wird der Link in der Bibliothek angezeigt. Der Link kann zu deinem Forum, Discord oder sonstigem Portal zeigen, wo ihr über euer Spiel/eure Modifikation diskutiert.</translation>
     </message>
+    <message>
+        <source>FeedbackTextProject</source>
+        <translation>Dein Feedback wird anonym direkt an die Entwickler des Spiels/der Modifikation geschickt. Sie haben keine Möglichkeit, auf dein Feedback zu antworten. Für Diskussionen, nutze in den Bibliothek den Diskussions-Link sofern verfügbar.</translation>
+    </message>
 </context>
 </TS>

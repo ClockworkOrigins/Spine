@@ -41,8 +41,10 @@ namespace common {
 		std::string bestScoreName;
 		int32_t bestScoreRank;
 		int32_t bestScore;
+		bool feedbackMailAvailable;
+		std::string discussionUrl;
 
-		ModStats() {
+		ModStats() : modID(-1), type(ModType::TOTALCONVERSION), lastTimePlayed(0), duration(0), achievedAchievements(0), allAchievements(0), bestScoreRank(0), bestScore(0), feedbackMailAvailable(false) {
 		}
 
 		template<class Archive>
@@ -57,6 +59,8 @@ namespace common {
 			ar & bestScoreName;
 			ar & bestScoreRank;
 			ar & bestScore;
+			ar & feedbackMailAvailable;
+			ar & discussionUrl;
 		}
 	};
 

@@ -428,7 +428,9 @@ namespace common {
 		uint8_t minorVersion;
 		uint8_t patchVersion;
 		std::string username;
-		FeedbackMessage() : Message(), text(), majorVersion(), minorVersion(), patchVersion(), username() {
+		int32_t projectID;
+		
+		FeedbackMessage() : Message(), majorVersion(), minorVersion(), patchVersion(), projectID(-1) {
 			type = MessageType::FEEDBACK;
 		}
 		template<class Archive>

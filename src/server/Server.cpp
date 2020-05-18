@@ -1295,7 +1295,53 @@ void Server::handleFeedback(clockUtils::sockets::TcpSocket * sock, FeedbackMessa
 		} while (false);
 	}
 
-	ServerCommon::sendMail("[Spine] New Feedback arrived", ss.str() + "\n" + msg->text + "\n" + std::to_string(static_cast<int>(msg->majorVersion)) + "." + std::to_string(static_cast<int>(msg->minorVersion)) + "." + std::to_string(static_cast<int>(msg->patchVersion)) + "\n\n" + msg->username, replyMail);
+	if (msg->projectID == -1) {	
+		ServerCommon::sendMail("[Spine] New Feedback arrived", ss.str() + "\n" + msg->text + "\n" + std::to_string(static_cast<int>(msg->majorVersion)) + "." + std::to_string(static_cast<int>(msg->minorVersion)) + "." + std::to_string(static_cast<int>(msg->patchVersion)) + "\n\n" + msg->username, replyMail);
+	} else {
+		MariaDBWrapper accountDatabase;
+		do {
+			if (!accountDatabase.connect("localhost", DATABASEUSER, DATABASEPASSWORD, ACCOUNTSDATABASE, 0)) {
+				std::cout << "Couldn't connect to database" << std::endl;
+				break;
+			}
+
+			if (!accountDatabase.query("PREPARE selectMailStmt FROM \"SELECT Mail FROM feedbackMails WHERE ProjectID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!accountDatabase.query("PREPARE selectProjectNameStmt FROM \"SELECT Name FROM modnames WHERE ModID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!accountDatabase.query("SET @paramProjectID=" + std::to_string(msg->projectID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!accountDatabase.query("EXECUTE selectMailStmt USING @paramProjectID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			}
+			auto results = accountDatabase.getResults<std::vector<std::string>>();
+			
+			if (results.empty()) break;
+			
+			const auto receiver = results[0][0];
+			
+			if (!accountDatabase.query("EXECUTE selectProjectNameStmt USING @paramProjectID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			}
+			results = accountDatabase.getResults<std::vector<std::string>>();
+			
+			if (results.empty()) break;
+
+			const auto projectName = results[0][0];
+
+			const auto title = "[Spine] Feedback for '" + projectName + "'!";
+
+			const auto message = msg->text + "\n\nPlayed Version: " + std::to_string(static_cast<int>(msg->majorVersion)) + "." + std::to_string(static_cast<int>(msg->minorVersion)) + "." + std::to_string(static_cast<int>(msg->patchVersion));
+
+			ServerCommon::sendMail(title, msg->text, replyMail, receiver);
+		} while (false);
+	}
 }
 
 void Server::handleRequestOriginalFiles(clockUtils::sockets::TcpSocket * sock, RequestOriginalFilesMessage * msg) const {

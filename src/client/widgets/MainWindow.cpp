@@ -143,7 +143,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	_installGothic2FromCDDialog = new InstallGothic2FromCDDialog();
 #endif
 
-	_feedbackDialog = new FeedbackDialog();
+	_feedbackDialog = new FeedbackDialog(-1, FeedbackDialog::Type::Spine, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 	restoreSettings();
 

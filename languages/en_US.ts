@@ -3116,5 +3116,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>DiscussionUrlTooltip</source>
         <translation>When configured the link will be displayed in the library. The link can point towards your forum, Discord or any other portal where you want to discuss about your game/modification.</translation>
     </message>
+    <message>
+        <source>FeedbackTextProject</source>
+        <translation>Your feedback will be sent anonymously directly to the developers of the game/modification. They don't have the possibility to reply to your feedback. For discussions, please use the discussion link in the library if available.</translation>
+    </message>
 </context>
 </TS>

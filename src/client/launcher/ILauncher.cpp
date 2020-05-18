@@ -21,6 +21,7 @@
 #include "ScreenshotManager.h"
 #include "SpineConfig.h"
 
+#include "client/widgets/FeedbackDialog.h"
 #include "client/widgets/UpdateLanguage.h"
 
 #include "common/MessageStructs.h"
@@ -36,16 +37,19 @@
 
 #include <QApplication>
 #include <QDate>
+#include <QDesktopServices>
 #include <QFileInfo>
 #include <QLabel>
 #include <QPushButton>
 #include <QtConcurrentRun>
+#include <QUrl>
 #include <QVBoxLayout>
 #include <QWidget>
 
 using namespace spine::common;
 using namespace spine::launcher;
 using namespace spine::utils;
+using namespace spine::widgets;
 
 void ILauncher::init() {
 	createWidget();
@@ -142,6 +146,37 @@ void ILauncher::createWidget() {
 		_layout->addLayout(hbl);
 	}
 
+	{
+		QHBoxLayout * hbl = new QHBoxLayout();
+
+		_discussionUrlTitle = new QLabel(QApplication::tr("DiscussionUrl"), _widget);
+		UPDATELANGUAGESETTEXT(_discussionUrlTitle, "DiscussionUrl");
+		_discussionUrlTitle->setProperty("library", true);
+		_discussionUrlTitle->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+		_discussionUrlTitle->hide();
+
+		hbl->addWidget(_discussionUrlTitle, 0, Qt::AlignLeft | Qt::AlignVCenter);
+
+		hbl->addSpacing(25);
+
+		_discussionUrlText = new QLabel(_widget);
+		_discussionUrlText->setProperty("library", true);
+		_discussionUrlText->hide();
+		connect(_discussionUrlText, &QLabel::linkActivated, this, &ILauncher::openDiscussionsUrl);
+		
+		hbl->addWidget(_discussionUrlText);
+
+		hbl->addStretch(1);
+
+		_layout->addLayout(hbl);
+	}
+
+	_feedbackButton = new QPushButton(QApplication::tr("Feedback"), _widget);
+	UPDATELANGUAGESETTEXT(_feedbackButton, "Feedback");
+	_feedbackButton->setProperty("library", true);
+	_feedbackButton->hide();
+	connect(_feedbackButton, &QPushButton::released, this, &ILauncher::feedbackClicked);
+
 	_achievementLabel = new QLabel(_widget);
 	_achievementLabel->setProperty("library", true);
 	_achievementLabel->setAlignment(Qt::AlignCenter);
@@ -188,6 +223,24 @@ void ILauncher::updateFinished(int modID) {
 	_runningUpdates.removeAll(modID);
 
 	refresh(modID);
+}
+
+void ILauncher::feedbackClicked() {
+	Database::DBError err;
+	const auto version = Database::queryNth<std::vector<int>, int, int, int>(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "SELECT MajorVersion, MinorVersion, PatchVersion FROM updates WHERE ModID = " + std::to_string(_modID) + " LIMIT 1;", err);
+
+	const uint8_t versionMajor = version.empty() ? 0 : static_cast<uint8_t>(version[0]);
+	const uint8_t versionMinor = version.empty() ? 0 : static_cast<uint8_t>(version[1]);
+	const uint8_t versionPatch = version.empty() ? 0 : static_cast<uint8_t>(version[2]);
+	
+	FeedbackDialog dlg(_modID, FeedbackDialog::Type::Project, versionMajor, versionMinor, versionPatch);
+	dlg.exec();
+}
+
+void ILauncher::openDiscussionsUrl() {
+	if (_discussionUrl.isEmpty()) return;
+
+	QDesktopServices::openUrl(QUrl(_discussionUrl));
 }
 
 void ILauncher::updateCommonView(int modID, const QString & name) {
@@ -239,6 +292,15 @@ void ILauncher::updateModInfoView(ModStats ms) {
 		_lastPlayedDate->setText(QApplication::tr("LastPlayed").arg(QDate(1970, 1, 1).addDays(ms.lastTimePlayed / 24).toString("dd.MM.yyyy")));
 		_lastPlayedDate->show();
 	}
+
+	_feedbackButton->setVisible(ms.feedbackMailAvailable);
+
+	_discussionUrl = s2q(ms.discussionUrl);
+
+	_discussionUrlTitle->setVisible(!ms.discussionUrl.empty());
+	_discussionUrlText->setVisible(!ms.discussionUrl.empty());
+
+	_discussionUrlText->setText(QString("<a href=\"%1\">%1</a>").arg(_discussionUrl));
 }
 
 void ILauncher::startScreenshotManager(int modID) {

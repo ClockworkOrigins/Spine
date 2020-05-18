@@ -30,8 +30,12 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		FeedbackDialog();
-		~FeedbackDialog();
+		enum class Type {
+			Spine,
+			Project
+		};
+
+		FeedbackDialog(int32_t projectID, Type type, uint8_t majorVersion, uint8_t minorVersion, uint8_t patchVersion);
 
 	public slots:
 		void loginChanged();
@@ -43,6 +47,14 @@ namespace widgets {
 	private:
 		QTextEdit * _textEdit;
 		QLineEdit * _usernameEdit;
+
+		int32_t _projectID;
+
+		Type _type;
+
+		uint8_t _majorVersion;
+		uint8_t _minorVersion;
+		uint8_t _patchVersion;
 
 		void closeEvent(QCloseEvent * evt) override;
 	};
