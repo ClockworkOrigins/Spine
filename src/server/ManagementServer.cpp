@@ -58,6 +58,14 @@ int ManagementServer::run() {
 	_server->resource["^/updateScores"]["POST"] = std::bind(&ManagementServer::updateScores, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/getUsers"]["POST"] = std::bind(&ManagementServer::getUsers, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/changeUserAccess"]["POST"] = std::bind(&ManagementServer::changeUserAccess, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/createPlayTestSurvey"]["POST"] = std::bind(&ManagementServer::createPlayTestSurvey, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/enablePlayTestSurvey"]["POST"] = std::bind(&ManagementServer::enablePlayTestSurvey, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/updatePlayTestSurvey"]["POST"] = std::bind(&ManagementServer::updatePlayTestSurvey, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/getPlayTestSurvey"]["POST"] = std::bind(&ManagementServer::getPlayTestSurvey, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/getPlayTestSurveys"]["POST"] = std::bind(&ManagementServer::getPlayTestSurveys, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/submitPlayTestSurveyAnswers"]["POST"] = std::bind(&ManagementServer::submitPlayTestSurveyAnswers, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/getOwnPlayTestSurveyAnswers"]["POST"] = std::bind(&ManagementServer::getOwnPlayTestSurveyAnswers, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/getAllPlayTestSurveyAnswers"]["POST"] = std::bind(&ManagementServer::getAllPlayTestSurveyAnswers, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -1706,6 +1714,705 @@ void ManagementServer::changeUserAccess(std::shared_ptr<HttpsServer::Response> r
 		} while (false);
 
 		response->write(code);
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void ManagementServer::createPlayTestSurvey(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+	
+		const std::string username = pt.get<std::string>("Username");
+		const std::string password = pt.get<std::string>("Password");
+		const int32_t projectID = pt.get<int32_t>("ProjectID");
+		const std::string language = pt.get<std::string>("Language");
+		const int32_t majorVersion = pt.get<int32_t>("MajorVersion");
+		const int32_t minorVersion = pt.get<int32_t>("MinorVersion");
+		const int32_t patchVersion = pt.get<int32_t>("PatchVersion");
+
+		const int userID = ServerCommon::getUserID(username, password);
+
+		if (userID == -1) {
+			response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+			return;
+		}
+
+		if (!hasAdminAccessToMod(userID, projectID)) {
+			response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+			return;
+		}
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+				
+			if (!database.query("PREPARE insertStmt FROM \"INSERT INTO playTestSurveys (ProjectID, Language, Enabled, MajorVersion, MinorVersion, PatchVersion) VALUES (?, ?, 0, ?, ?, ?)\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramProjectID=" + std::to_string(projectID) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramLanguage='" + language + "';")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramMajorVersion=" + std::to_string(majorVersion) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramMinorVersion=" + std::to_string(minorVersion) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramPatchVersion=" + std::to_string(patchVersion) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("EXECUTE insertStmt USING @paramProjectID, @paramLanguage, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+		} while (false);
+
+		response->write(code);
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void ManagementServer::enablePlayTestSurvey(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+	
+		const std::string username = pt.get<std::string>("Username");
+		const std::string password = pt.get<std::string>("Password");
+		const int32_t projectID = pt.get<int32_t>("ProjectID");
+		const int32_t surveyID = pt.get<int32_t>("SurveyID");
+		const int32_t enabled = pt.get<int32_t>("Enabled");
+
+		const int userID = ServerCommon::getUserID(username, password);
+
+		if (userID == -1) {
+			response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+			return;
+		}
+
+		if (!hasAdminAccessToMod(userID, projectID)) {
+			response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+			return;
+		}
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+				
+			if (!database.query("PREPARE updateStmt FROM \"UPDATE playTestSurveys SET Enabled = ? WHERE SurveyID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramSurveyID=" + std::to_string(surveyID) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramEnabled=" + std::to_string(enabled) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("EXECUTE updateStmt USING @paramEnabled, @paramSurveyID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+		} while (false);
+
+		response->write(code);
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void ManagementServer::updatePlayTestSurvey(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+	
+		const std::string username = pt.get<std::string>("Username");
+		const std::string password = pt.get<std::string>("Password");
+		const int32_t projectID = pt.get<int32_t>("ProjectID");
+		const int32_t surveyID = pt.get<int32_t>("SurveyID");
+
+		const int userID = ServerCommon::getUserID(username, password);
+
+		if (userID == -1) {
+			response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+			return;
+		}
+
+		if (!hasAdminAccessToMod(userID, projectID)) {
+			response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+			return;
+		}
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+				
+			if (!database.query("PREPARE insertStmt FROM \"INSERT INTO playTestSurveyQuestions (SurveyID, Question) VALUES (?, CONVERT(? USING BINARY))\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}	
+			if (!database.query("PREPARE deleteStmt FROM \"DELETE FROM playTestSurveyQuestions WHERE SurveyID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramSurveyID=" + std::to_string(surveyID) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("EXECUTE updateStmt USING @paramEnabled, @paramSurveyID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			for (const auto & v : pt.get_child("Questions")) {
+				const auto question = v.second.data();
+				if (!database.query("SET @paramQuestion='" + question + "';")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("EXECUTE insertStmt USING @paramSurveyID, @paramQuestion;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+			}
+		} while (false);
+
+		response->write(code);
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void ManagementServer::getPlayTestSurveys(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+	
+		const std::string username = pt.get<std::string>("Username");
+		const std::string password = pt.get<std::string>("Password");
+		const int32_t projectID = pt.get<int32_t>("ProjectID");
+
+		const int userID = ServerCommon::getUserID(username, password);
+
+		if (userID == -1) {
+			response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+			return;
+		}
+
+		if (!hasAdminAccessToMod(userID, projectID)) {
+			response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+			return;
+		}
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+			
+			if (!database.query("PREPARE selectStmt FROM \"SELECT SurveyID, Enabled, Language, MajorVersion, MinorVersion, PatchVersion playTestSurveys WHERE ProjectID = ? ORDER BY MajorVersion DESC ORDER BY MinorVersion DESC ORDER BY PatchVersion DESC\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectQuestionCountStmt FROM \"SELECT COUNT(*) FROM playTestSurveyQuestions WHERE SurveyID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectAnswerCountStmt FROM \"SELECT DISTINCT UserID FROM playTestSurveyAnswers WHERE SurveyID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramProjectID=" + std::to_string(projectID) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("EXECUTE selectStmt USING @paramProjectID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			const auto results = database.getResults<std::vector<std::string>>();
+			
+			ptree surveysNode;
+			for (const auto & vec : results) {
+				ptree surveyNode;
+
+				surveyNode.put("SurveyID", vec[0]);
+				surveyNode.put("Enabled", vec[1]);
+				surveyNode.put("Language", vec[2]);
+				surveyNode.put("MajorVersion", vec[3]);
+				surveyNode.put("MinorVersion", vec[4]);
+				surveyNode.put("PatchVersion", vec[5]);
+				
+				if (!database.query("SET @paramSurveyID=" + vec[0] + ";")) {
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("EXECUTE selectQuestionCountStmt USING @paramSurveyID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				auto results2 = database.getResults<std::vector<std::string>>();
+
+				surveyNode.put("QuestionCount", results2.empty() ? "0" : results2[0][0]);
+				
+				if (!database.query("EXECUTE selectAnswerCountStmt USING @paramSurveyID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				results2 = database.getResults<std::vector<std::string>>();
+
+				surveyNode.put("AnswerCount", results2.size());
+				
+				surveysNode.push_back(std::make_pair("", surveyNode));
+			}
+			responseTree.add_child("Surveys", surveysNode);
+		} while (false);
+
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void ManagementServer::getPlayTestSurvey(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+	
+		const std::string username = pt.get<std::string>("Username");
+		const std::string password = pt.get<std::string>("Password");
+		const int32_t surveyID = pt.get<int32_t>("SurveyID");
+		const int32_t projectID = pt.get<int32_t>("ProjectID");
+
+		const int userID = ServerCommon::getUserID(username, password);
+
+		if (userID == -1) {
+			response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+			return;
+		}
+
+		if (!hasAdminAccessToMod(userID, projectID)) {
+			response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+			return;
+		}
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+			
+			if (!database.query("PREPARE selectQuestionsStmt FROM \"SELECT CAST(Question AS BINARY) FROM playTestSurveyQuestions WHERE SurveyID = ? ORDER BY QuestionID ASC\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramSurveyID=" + std::to_string(surveyID) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("EXECUTE selectQuestionsStmt USING @paramSurveyID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			const auto results = database.getResults<std::vector<std::string>>();
+			
+			ptree answersNode;
+			for (const auto & vec : results) {
+				ptree answerNode;
+
+				answerNode.put("Question", vec[0]);
+				
+				answersNode.push_back(std::make_pair("", answerNode));
+			}
+			responseTree.add_child("Answers", answersNode);
+		} while (false);
+
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void ManagementServer::submitPlayTestSurveyAnswers(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+	
+		const std::string username = pt.get<std::string>("Username");
+		const std::string password = pt.get<std::string>("Password");
+		const int32_t surveyID = pt.get<int32_t>("SurveyID");
+		const int32_t majorVersion = pt.get<int32_t>("MajorVersion");
+		const int32_t minorVersion = pt.get<int32_t>("MinorVersion");
+		const int32_t patchVersion = pt.get<int32_t>("PatchVersion");
+
+		const int userID = ServerCommon::getUserID(username, password);
+
+		if (userID == -1) {
+			response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+			return;
+		}
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+				
+			if (!database.query("PREPARE insertStmt FROM \"INSERT INTO playTestSurveyAnswers (SurveyID, UserID, QuestionID, Answer, MajorVersion, MinorVersion, PatchVersion) VALUES (?, ?, ?, CONVERT(? USING BINARY), ?, ?, ?) ON DUPLICATE KEY UPDATE Answer = CONVERT(? USING BINARY), MajorVersion = ?, MinorVersion = ?, PatchVersion = ?\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramSurveyID=" + std::to_string(surveyID) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramMajorVersion=" + std::to_string(majorVersion) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramMinorVersion=" + std::to_string(minorVersion) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramPatchVersion=" + std::to_string(patchVersion) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			for (const auto & v : pt.get_child("Answers")) {
+				const auto questionID = v.second.get<int32_t>("QuestionID");
+				const auto answer = v.second.get<std::string>("Answer");
+				
+				if (!database.query("SET @paramQuestionID=" + std::to_string(questionID) + ";")) {
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("SET @paramAnswer='" + answer + "';")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("EXECUTE insertStmt USING @paramSurveyID, @paramUserID, @paramQuestionID, @paramAnswer, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion, @paramAnswer, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+			}
+		} while (false);
+
+		response->write(code);
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void ManagementServer::getOwnPlayTestSurveyAnswers(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+	
+		const std::string username = pt.get<std::string>("Username");
+		const std::string password = pt.get<std::string>("Password");
+		const std::string language = pt.get<std::string>("Language");
+		const int32_t projectID = pt.get<int32_t>("ProjectID");
+		const int32_t majorVersion = pt.get<int32_t>("MajorVersion");
+		const int32_t minorVersion = pt.get<int32_t>("MinorVersion");
+		const int32_t patchVersion = pt.get<int32_t>("PatchVersion");
+
+		const int userID = ServerCommon::getUserID(username, password);
+
+		if (userID == -1) {
+			response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+			return;
+		}
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+			
+			if (!database.query("PREPARE selectSurveyIDStmt FROM \"SELECT SurveyID FROM playTestSurveys WHERE ProjectID = ? AND Language = CONVERT(? USING BINARY) AND MajorVersion = ? AND MinorVersion = ? AND PatchVersion = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectAnswersStmt FROM \"SELECT QuestionID, CAST(Answer AS BINARY) FROM playTestSurveyAnswers WHERE SurveyID = ? AND UserID = ? ORDER BY QuestionID ASC\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramProjectID=" + std::to_string(projectID) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramMajorVersion=" + std::to_string(majorVersion) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramMinorVersion=" + std::to_string(minorVersion) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramPatchVersion=" + std::to_string(patchVersion) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramLanguage='" + language + "';")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("EXECUTE selectSurveyIDStmt USING @paramProjectID, @paramLanguage, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			auto results = database.getResults<std::vector<std::string>>();
+
+			if (results.empty() && language != "English") {
+				if (!database.query("SET @paramLanguage='English';")) {
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("EXECUTE selectSurveyIDStmt USING @paramProjectID, @paramLanguage, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				results = database.getResults<std::vector<std::string>>();
+			}
+
+			if (results.empty()) break;
+			
+			if (!database.query("SET @paramSurveyID=" + results[0][0] + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			
+			if (!database.query("EXECUTE selectAnswersStmt USING @paramSurveyID, @paramUserID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			results = database.getResults<std::vector<std::string>>();
+			
+			ptree answersNode;
+			for (const auto & vec : results) {
+				ptree answerNode;
+
+				answerNode.put("QuestionID", vec[0]);
+				answerNode.put("Answer", vec[1]);
+				
+				answersNode.push_back(std::make_pair("", answerNode));
+			}
+			responseTree.add_child("Answers", answersNode);
+		} while (false);
+
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void ManagementServer::getAllPlayTestSurveyAnswers(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+	
+		const std::string username = pt.get<std::string>("Username");
+		const std::string password = pt.get<std::string>("Password");
+		const int32_t surveyID = pt.get<int32_t>("SurveyID");
+		const int32_t projectID = pt.get<int32_t>("ProjectID");
+
+		const int userID = ServerCommon::getUserID(username, password);
+
+		if (userID == -1) {
+			response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+			return;
+		}
+
+		if (!hasAdminAccessToMod(userID, projectID)) {
+			response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+			return;
+		}
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+			
+			if (!database.query("PREPARE selectQuestionsStmt FROM \"SELECT QuestionID, CAST(Question AS BINARY) FROM playTestSurveyQuestions WHERE SurveyID = ? ORDER BY QuestionID ASC\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectAnswersStmt FROM \"SELECT CAST(Answer AS BINARY) FROM playTestSurveyAnswers WHERE QuestionID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramSurveyID=" + std::to_string(surveyID) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("EXECUTE selectQuestionsStmt USING @paramSurveyID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			const auto results = database.getResults<std::vector<std::string>>();
+			
+			ptree questionsNode;
+			for (const auto & vec : results) {
+				ptree questionNode;
+
+				questionNode.put("Question", vec[1]);
+				
+				if (!database.query("SET @paramQuestionID=" + vec[0] + ";")) {
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("EXECUTE selectAnswersStmt USING @paramQuestionID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				const auto results2 = database.getResults<std::vector<std::string>>();
+
+				ptree answersNode;
+
+				for (const auto & vec2 : results2) {
+					ptree answerNode;
+
+					answerNode.put("Answer", vec2[0]);
+
+					answersNode.push_back(std::make_pair("", answerNode));
+				}
+
+				questionNode.add_child("Answers", answersNode);
+				
+				questionsNode.push_back(std::make_pair("", questionNode));
+			}
+			responseTree.add_child("Questions", questionsNode);
+		} while (false);
+
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
 	} catch (...) {
 		response->write(SimpleWeb::StatusCode::client_error_bad_request);
 	}

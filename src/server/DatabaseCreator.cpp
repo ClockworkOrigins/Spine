@@ -286,4 +286,16 @@ void DatabaseCreator::createTables() {
 		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
+	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS playTestSurveys (SurveyID INT AUTO_INCREMENT PRIMARY KEY, ProjectID INT NOT NULL, Language TEXT NOT NULL, Enabled INT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, MajorVersion INT NOT NULL);"))) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS playTestSurveyQuestions (QuestionID INT AUTO_INCREMENT PRIMARY KEY, SurveyID INT NOT NULL, Question TEXT NOT NULL) CHARACTER SET utf8;"))) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS playTestSurveyAnswers (SurveyID INT NOT NULL, UserID INT NOT NULL, QuestionID INT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, MajorVersion INT NOT NULL, Answer TEXT NOT NULL, PRIMARY KEY(SurveyID, UserID, QuestionID)) CHARACTER SET utf8;"))) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
 }
