@@ -72,7 +72,7 @@ void DownloadQueue::checkQueue() {
 
 	if (_running) return;
 
-	auto downloader = _queue.dequeue();
+	auto * downloader = _queue.dequeue();
 
 	_running = true;
 	

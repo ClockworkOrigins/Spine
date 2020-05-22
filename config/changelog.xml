@@ -1787,6 +1787,7 @@
 		<Bug language="Deutsch">Gamepad-Support entfernt</Bug>
 		<Bug language="Deutsch">Falsche Übersetzung für zwei Texte in den Entwickler-Einstellungen korrigiert, wenn man im laufenden Betrieb die Sprache ändert</Bug>
 		<Bug language="Deutsch">Start-Button zeigt jetzt je nachdem ob Spiel oder Modifikation den richtigen Text an</Bug>
+		<Bug language="Deutsch">Potenziellen Crash im Fehlerfall beim Download behoben</Bug>
 		
 		<Enhancement language="English">Icons now are cached so they can be displayed in the profile even after uninstallation</Enhancement>
 		<Bug language="English">Update date now is always at least the release date</Bug>
@@ -1797,5 +1798,6 @@
 		<Bug language="English">Removed gamepad support</Bug>
 		<Bug language="English">Fixed translation of two texts in the developer settings when changing language</Bug>
 		<Bug language="English">Start button now shows correct text depending on whether it's a game or a modification</Bug>
+		<Bug language="English">Fixed potential crash in error case when downloading</Bug>
 	</Version>
 </Versions>

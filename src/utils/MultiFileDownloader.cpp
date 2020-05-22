@@ -24,7 +24,7 @@
 
 using namespace spine::utils;
 
-MultiFileDownloader::MultiFileDownloader(QObject * par) : QObject(par), _downloadStats(), _downloadQueue(), _counter(0), _maxSize(0), _downloadFilesCount(0) {
+MultiFileDownloader::MultiFileDownloader(QObject * par) : QObject(par), _counter(0), _maxSize(0), _downloadFilesCount(0) {
 }
 
 void MultiFileDownloader::addFileDownloader(FileDownloader * fileDownloader) {
@@ -109,7 +109,7 @@ void MultiFileDownloader::updateDownloadMax(qint64 bytesTotal) {
 
 void MultiFileDownloader::finishedFile() {
 	_downloadFilesCount++;
-	if (_downloadFilesCount == int(_downloadStats.size())) {
+	if (_downloadFilesCount == _downloadStats.size()) {
 		emit downloadSucceeded();
 	}
 }
