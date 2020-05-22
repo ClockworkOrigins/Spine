@@ -2654,7 +2654,7 @@ void Server::handleRequestInfoPage(clockUtils::sockets::TcpSocket * sock, Reques
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
-	if (!database.query("PREPARE selectVersionStmt FROM \"SELECT MajorVersion, MinorVersion, PatchVersion FROM mods WHERE ModID = ? LIMIT 1\";")) {
+	if (!database.query("PREPARE selectVersionStmt FROM \"SELECT MajorVersion, MinorVersion, PatchVersion, Gothic FROM mods WHERE ModID = ? LIMIT 1\";")) {
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
@@ -2750,6 +2750,7 @@ void Server::handleRequestInfoPage(clockUtils::sockets::TcpSocket * sock, Reques
 		sipm.majorVersion = uint8_t(std::stoi(lastResults[0][0]));
 		sipm.minorVersion = uint8_t(std::stoi(lastResults[0][1]));
 		sipm.patchVersion = uint8_t(std::stoi(lastResults[0][2]));
+		sipm.gameType = static_cast<GameType>(std::stoi(lastResults[0][3]));
 		
 		if (!database.query("EXECUTE selectUpdateDateStmt USING @paramModID;")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;

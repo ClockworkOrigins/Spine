@@ -654,6 +654,13 @@ void Gothic1And2Launcher::updateView(int modID, const QString & iniFile) {
 		}
 	}
 
+	if (_modID == 36 || _modID == 37 || _modID == 116) {
+		_startButton->setText(QApplication::tr("StartGame"));
+		UPDATELANGUAGESETTEXT(_startButton, "StartGame");
+	} else {
+		_startButton->setText(QApplication::tr("StartMod"));
+		UPDATELANGUAGESETTEXT(_startButton, "StartMod");
+	}
 	_startButton->setEnabled(!_runningUpdates.contains(_modID));
 }
 

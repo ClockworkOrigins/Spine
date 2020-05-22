@@ -3120,5 +3120,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>FeedbackTextProject</source>
         <translation>Your feedback will be sent anonymously directly to the developers of the game/modification. They don't have the possibility to reply to your feedback. For discussions, please use the discussion link in the library if available.</translation>
     </message>
+    <message>
+        <source>StartGame</source>
+        <translation>Start game</translation>
+    </message>
 </context>
 </TS>

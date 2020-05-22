@@ -23,6 +23,8 @@
 
 #include "client/IconCache.h"
 
+#include "client/widgets/UpdateLanguage.h"
+
 #include "common/MessageStructs.h"
 
 #include "security/Hash.h"
@@ -175,6 +177,8 @@ void GameLauncher::updateView(int gameID, const QString & configFile) {
 		_nameLabel->setText(title);
 	}
 
+	_startButton->setText(QApplication::tr("StartGame"));
+	UPDATELANGUAGESETTEXT(_startButton, "StartGame");
 	_startButton->setEnabled(!_runningUpdates.contains(_modID));	
 }
 

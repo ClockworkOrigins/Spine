@@ -447,37 +447,37 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 	if (sipm->spineFeatures & common::SpineModules::Achievements) {
 		QStandardItem * itm = new QStandardItem(QApplication::tr("AchievementModule"));
 		_spineFeatureModel->appendRow(itm);
-		itm->setData(int(common::SpineModules::Achievements), Qt::UserRole);
+		itm->setData(static_cast<int>(common::SpineModules::Achievements), Qt::UserRole);
 	}
 	if (sipm->spineFeatures & common::SpineModules::Scores) {
 		QStandardItem * itm = new QStandardItem(QApplication::tr("ScoresModule"));
 		_spineFeatureModel->appendRow(itm);
-		itm->setData(int(common::SpineModules::Scores), Qt::UserRole);
+		itm->setData(static_cast<int>(common::SpineModules::Scores), Qt::UserRole);
 	}
 	if (sipm->spineFeatures & common::SpineModules::Multiplayer) {
 		QStandardItem * itm = new QStandardItem(QApplication::tr("MultiplayerModule"));
 		_spineFeatureModel->appendRow(itm);
-		itm->setData(int(common::SpineModules::Multiplayer), Qt::UserRole);
+		itm->setData(static_cast<int>(common::SpineModules::Multiplayer), Qt::UserRole);
 	}
 	if (sipm->spineFeatures & common::SpineModules::OverallSave) {
 		QStandardItem * itm = new QStandardItem(QApplication::tr("OverallSaveModule"));
 		_spineFeatureModel->appendRow(itm);
-		itm->setData(int(common::SpineModules::OverallSave), Qt::UserRole);
+		itm->setData(static_cast<int>(common::SpineModules::OverallSave), Qt::UserRole);
 	}
 	if (sipm->spineFeatures & common::SpineModules::Gamepad) {
 		QStandardItem * itm = new QStandardItem(QApplication::tr("GamepadModule"));
 		_spineFeatureModel->appendRow(itm);
-		itm->setData(int(common::SpineModules::Gamepad), Qt::UserRole);
+		itm->setData(static_cast<int>(common::SpineModules::Gamepad), Qt::UserRole);
 	}
 	if (sipm->spineFeatures & common::SpineModules::Friends) {
 		QStandardItem * itm = new QStandardItem(QApplication::tr("FriendsModule"));
 		_spineFeatureModel->appendRow(itm);
-		itm->setData(int(common::SpineModules::Friends), Qt::UserRole);
+		itm->setData(static_cast<int>(common::SpineModules::Friends), Qt::UserRole);
 	}
 	if (sipm->spineFeatures & common::SpineModules::Statistics) {
 		QStandardItem * itm = new QStandardItem(QApplication::tr("StatisticsModule"));
 		_spineFeatureModel->appendRow(itm);
-		itm->setData(int(common::SpineModules::Statistics), Qt::UserRole);
+		itm->setData(static_cast<int>(common::SpineModules::Statistics), Qt::UserRole);
 	}
 	_spineFeaturesView->setVisible(_spineFeatureModel->rowCount());
 	_moduleCheckBoxes[common::SpineModules::Achievements]->setChecked(sipm->spineFeatures & common::SpineModules::Achievements);
@@ -500,7 +500,7 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 	Database::DBError err;
 	const bool installed = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM mods WHERE ModID = " + std::to_string(_modID) + " LIMIT 1;", err) > 0;
 	_installButton->setVisible(!installed && sipm->installAllowed);
-	_installButton->setProperty("modid", int(_modID));
+	_installButton->setProperty("modid", static_cast<int>(_modID));
 
 	const QDirIterator it(Config::DOWNLOADDIR + "/mods/" + QString::number(_modID) + "/System", QStringList() << "*.ini", QDir::Files, QDirIterator::Subdirectories);
 	_startButton->setVisible(installed && it.hasNext() && !_runningUpdates.contains(_modID));
@@ -509,10 +509,18 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 		const bool packageInstalled = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT PackageID FROM packages WHERE ModID = " + std::to_string(_modID) + " AND PackageID = " + std::to_string(p.first) + " LIMIT 1;", err) > 0;
 		QPushButton * pb = new QPushButton(QIcon(":/svg/download.svg"), s2q(p.second), this);
 		pb->setVisible(!packageInstalled && installed && sipm->installAllowed);
-		pb->setProperty("packageid", int(p.first));
+		pb->setProperty("packageid", static_cast<int>(p.first));
 		_optionalPackageButtonsLayout->addWidget(pb, 0, Qt::AlignLeft);
 		_optionalPackageButtons.append(pb);
 		connect(pb, &QPushButton::released, this, &ModInfoPage::installPackage);
+	}
+
+	if (sipm->gameType == common::GameType::Game || _modID == 36 || _modID == 37 || _modID == 116) {
+		_startButton->setText(QApplication::tr("StartGame"));
+		UPDATELANGUAGESETTEXT(_startButton, "StartGame");
+	} else {
+		_startButton->setText(QApplication::tr("StartMod"));
+		UPDATELANGUAGESETTEXT(_startButton, "StartMod");
 	}
 
 	delete sipm;

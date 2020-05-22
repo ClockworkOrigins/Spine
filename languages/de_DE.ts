@@ -3112,5 +3112,9 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>FeedbackTextProject</source>
         <translation>Dein Feedback wird anonym direkt an die Entwickler des Spiels/der Modifikation geschickt. Sie haben keine Möglichkeit, auf dein Feedback zu antworten. Für Diskussionen, nutze in den Bibliothek den Diskussions-Link sofern verfügbar.</translation>
     </message>
+    <message>
+        <source>StartGame</source>
+        <translation>Spiel starten</translation>
+    </message>
 </context>
 </TS>

@@ -902,8 +902,9 @@ namespace common {
 		uint8_t patchVersion;
 		uint32_t releaseDate;
 		uint32_t updateDate;
+		GameType gameType;
 		
-		SendInfoPageMessage() : Message(), modname(), screenshots(), description(), features(), spineFeatures(0), editRights(false), installAllowed(true), optionalPackages(), majorVersion(), minorVersion(), patchVersion(), releaseDate(0), updateDate(0) {
+		SendInfoPageMessage() : Message(), spineFeatures(0), editRights(false), installAllowed(true), majorVersion(), minorVersion(), patchVersion(), releaseDate(0), updateDate(0), gameType(GameType::Gothic) {
 			type = MessageType::SENDINFOPAGE;
 		}
 		template<class Archive>
@@ -922,6 +923,7 @@ namespace common {
 			ar & patchVersion;
 			ar & releaseDate;
 			ar & updateDate;
+			ar & gameType;
 		}
 	};
 

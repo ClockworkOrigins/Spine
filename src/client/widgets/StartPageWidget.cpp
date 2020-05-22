@@ -51,7 +51,7 @@ using namespace spine;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-StartPageWidget::StartPageWidget(QWidget * par) : QWidget(par), _news(), _newsTicker(nullptr), _newsTickerModel(nullptr) {
+StartPageWidget::StartPageWidget(QWidget * par) : QWidget(par), _newsTicker(nullptr), _newsTickerModel(nullptr) {
 	QVBoxLayout * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
