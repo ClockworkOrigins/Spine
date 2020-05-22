@@ -239,16 +239,10 @@ Section !$(NameSecModFiles) SecModFiles
   File      "@CMAKE_BINARY_DIR@\installer\Windows\removeSymlink.bat"
   File      "@CMAKE_SOURCE_DIR@\css\styles.css"
   File      "@VCREDIST@"
-  File		"directx_Jun2010_redist.exe"
 
   ;not installed, so run the installer
   ExecWait '"$INSTDIR\${GAME_NAME}\@VCREDIST@" /q /norestart';
-  
-  ExecWait '"$INSTDIR\${GAME_NAME}\directx_Jun2010_redist.exe" /Q /T:"$TEMP\directx"';
-  ExecWait '"$TEMP\directx\DXSETUP.exe" /silent';
 
-  !insertmacro CWGames_DeleteFile "$TEMP\directx\*"
-  !insertmacro CWGames_DeleteFile "$INSTDIR\${GAME_NAME}\directx_Jun2010_redist.exe"
   !insertmacro CWGames_DeleteFile "$INSTDIR\${GAME_NAME}\@VCREDIST@"
 
   AccessControl::GrantOnFile "$INSTDIR\${GAME_NAME}" "(BU)" "GenericRead + GenericWrite"

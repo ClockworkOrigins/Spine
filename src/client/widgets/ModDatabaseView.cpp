@@ -21,7 +21,6 @@
 #include <utility>
 
 #include "DatabaseFilterModel.h"
-#include "DirectXVersionCheck.h"
 #include "FontAwesome.h"
 #include "InstallMode.h"
 #include "SpineConfig.h"
@@ -402,22 +401,7 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "CREATE TABLE IF NOT EXISTS patches(ModID INT NOT NULL, Name TEXT NOT NULL);", err);
 	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "CREATE TABLE IF NOT EXISTS packages(ModID INT NOT NULL, PackageID INT NOT NULL, File TEXT NOT NULL);", err);
 
-#ifdef Q_OS_WIN
-	DWORD versionMajor = 0;
-	DWORD versionMinor = 0;
-
-	const HRESULT hr = GetDXVersion(&versionMajor, &versionMinor);
-	if (SUCCEEDED(hr)) {
-		LOGINFO("DirectX version: " << versionMajor << "." << versionMinor);
-		_allowRenderer = versionMajor >= 11;
-	} else {
-		_allowRenderer = true;
-	}
-	_allowRenderer = true;
-#else
-	_allowRenderer = false;
-#endif
-	_sortModel->setRendererAllowed(_allowRenderer);
+	_sortModel->setRendererAllowed(true);
 
 	removeInvalidDatabaseEntries();
 

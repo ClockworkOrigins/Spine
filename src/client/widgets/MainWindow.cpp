@@ -133,7 +133,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 
 	if (!Config::IniParser->contains("INSTALLATION/DirectX")) {
 		// so far Spine automatically install DirectX during installation, but to enforce reinstall on download of e.g. renderer, this can manually set to false in the ini
-		Config::IniParser->setValue("INSTALLATION/DirectX", true);
+		Config::IniParser->setValue("INSTALLATION/DirectX", false);
 	}
 
 	setWindowIcon(QIcon(":/Spine.ico"));

@@ -24,7 +24,6 @@ SET(TRANSLATOR_RSA_HEADER "config/RSAKey.h" CACHE STRING "header containing the 
 SET(SPINE_RSA_HEADER "config/RSAKey.h" CACHE STRING "header containing the RSA key used for the server API")
 SET(SPINE_PRIVATE_KEY "config/rsa.pem" CACHE STRING "private RSA key used for the server")
 SET(VCREDIST_PATH "" CACHE STRING "path to the vcredist for the used Visual Studio version")
-SET(DXREDIST_PATH "" CACHE STRING "path to the DirectX redistributable")
 SET(SSLCHAINPATH "" CACHE STRING "path to the fullchain path of the SSL certificate")
 SET(SSLPRIVKEYNPATH "" CACHE STRING "path to the private key of the SSL certificate")
 

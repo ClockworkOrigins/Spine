@@ -1784,6 +1784,7 @@
 		<Bug language="Deutsch">Spine-API wird korrekt wieder aus den Spiele-Ordnern entfernt</Bug>
 		<Bug language="Deutsch">64bit Spine-API wird jetzt korrekt kopiert</Bug>
 		<Bug language="Deutsch">User ID API funktioniert jetzt</Bug>
+		<Bug language="Deutsch">Gamepad-Support entfernt</Bug>
 		
 		<Enhancement language="English">Icons now are cached so they can be displayed in the profile even after uninstallation</Enhancement>
 		<Bug language="English">Update date now is always at least the release date</Bug>
@@ -1791,5 +1792,6 @@
 		<Bug language="English">Spine API now is correctly removed from game folder again</Bug>
 		<Bug language="English">64bit Spine API now is properly deployed</Bug>
 		<Bug language="English">User ID API works now</Bug>
+		<Bug language="English">Removed gamepad support</Bug>
 	</Version>
 </Versions>

@@ -55,10 +55,6 @@ IF(WITH_TRANSLATOR)
 	target_link_libraries(Spine SpineTranslator)
 ENDIF(WITH_TRANSLATOR)
 
-IF(WIN32)
-	TARGET_LINK_LIBRARIES(Spine SpineGamepad)
-ENDIF(WIN32)
-
 IF(UNIX)
 	target_link_libraries(Spine pthread)
 ENDIF(UNIX)

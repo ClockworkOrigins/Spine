@@ -22,10 +22,6 @@
 
 #include "widgets/DeveloperSettingsWidget.h"
 
-#ifdef Q_OS_WIN
-	#include "gamepad/GamepadSettingsWidget.h"
-#endif
-
 #include "widgets/GameSettingsWidget.h"
 #include "widgets/LocationSettingsWidget.h"
 #include "widgets/UpdateLanguage.h"
@@ -64,13 +60,6 @@ SettingsDialog::SettingsDialog(QWidget * par) : QDialog(par), _developerSettings
 	tabWidget->addTab(_locationSettingsWidget, QApplication::tr("Locations"));
 	UPDATELANGUAGESETTABTEXT(tabWidget, tabCounter, "Locations");
 	++tabCounter;
-
-#ifdef Q_OS_WIN
-	_gamepadSettingsWidget = new GamepadSettingsWidget(tabWidget);
-	tabWidget->addTab(_gamepadSettingsWidget, QApplication::tr("Gamepad"));
-	UPDATELANGUAGESETTABTEXT(tabWidget, tabCounter, "Gamepad");
-	++tabCounter;
-#endif
 
 	_developerSettingsWidget = new DeveloperSettingsWidget(tabWidget);
 	tabWidget->addTab(_developerSettingsWidget, QApplication::tr("Developer"));
@@ -113,9 +102,6 @@ SettingsDialog::~SettingsDialog() {
 void SettingsDialog::accept() {
 	_developerSettingsWidget->saveSettings();
 	_gameSettingsWidget->saveSettings();
-#ifdef Q_OS_WIN
-	_gamepadSettingsWidget->saveSettings();
-#endif
 	_generalSettingsWidget->saveSettings();
 	_locationSettingsWidget->saveSettings();
 }
@@ -123,9 +109,6 @@ void SettingsDialog::accept() {
 void SettingsDialog::reject() {
 	_developerSettingsWidget->rejectSettings();
 	_gameSettingsWidget->rejectSettings();
-#ifdef Q_OS_WIN
-	_gamepadSettingsWidget->rejectSettings();
-#endif
 	_generalSettingsWidget->rejectSettings();
 	_locationSettingsWidget->rejectSettings();
 }
