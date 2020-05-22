@@ -1785,6 +1785,7 @@
 		<Bug language="Deutsch">64bit Spine-API wird jetzt korrekt kopiert</Bug>
 		<Bug language="Deutsch">User ID API funktioniert jetzt</Bug>
 		<Bug language="Deutsch">Gamepad-Support entfernt</Bug>
+		<Bug language="Deutsch">Falsche Übersetzung für zwei Texte in den Entwickler-Einstellungen korrigiert, wenn man im laufenden Betrieb die Sprache ändert</Bug>
 		
 		<Enhancement language="English">Icons now are cached so they can be displayed in the profile even after uninstallation</Enhancement>
 		<Bug language="English">Update date now is always at least the release date</Bug>
@@ -1793,5 +1794,6 @@
 		<Bug language="English">64bit Spine API now is properly deployed</Bug>
 		<Bug language="English">User ID API works now</Bug>
 		<Bug language="English">Removed gamepad support</Bug>
+		<Bug language="English">Fixed translation of two texts in the developer settings when changing language</Bug>
 	</Version>
 </Versions>

@@ -63,7 +63,7 @@ DeveloperSettingsWidget::DeveloperSettingsWidget(QWidget * par) : QWidget(par), 
 		const bool zSpy = Config::IniParser->value("DEVELOPER/ZSpy", false).toBool();
 
 		_zSpyCheckbox = new QCheckBox(QApplication::tr("ActivateZSpy"), this);
-		UPDATELANGUAGESETTEXT(_developerModeCheckbox, "ActivateZSpy");
+		UPDATELANGUAGESETTEXT(_zSpyCheckbox, "ActivateZSpy");
 		_zSpyCheckbox->setChecked(zSpy);
 
 		l->addWidget(_zSpyCheckbox);
@@ -106,9 +106,6 @@ DeveloperSettingsWidget::DeveloperSettingsWidget(QWidget * par) : QWidget(par), 
 	}
 
 	setLayout(l);
-}
-
-DeveloperSettingsWidget::~DeveloperSettingsWidget() {
 }
 
 void DeveloperSettingsWidget::saveSettings() {

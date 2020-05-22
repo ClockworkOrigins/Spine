@@ -35,7 +35,6 @@ namespace widgets {
 
 	public:
 		DeveloperSettingsWidget(QWidget * par);
-		~DeveloperSettingsWidget();
 
 		void saveSettings();
 		void rejectSettings();
