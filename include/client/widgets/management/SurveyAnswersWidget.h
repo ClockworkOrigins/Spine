@@ -20,14 +20,8 @@
 
 #include "ManagementCommon.h"
 
-#include "widgets/management/IManagementWidget.h"
-
-#include <QModelIndex>
 #include <QWidget>
 
-class QComboBox;
-class QSpinBox;
-class QStackedWidget;
 class QVBoxLayout;
 
 namespace spine {
@@ -37,47 +31,31 @@ namespace gui {
 namespace client {
 namespace widgets {
 
-	class SurveyAnswersWidget;
-	class SurveyEditWidget;
-
-	class SurveyWidget : public QWidget, public IManagementWidget {
+	class SurveyAnswersWidget : public QWidget {
 		Q_OBJECT
 
 	public:
-		SurveyWidget(QWidget * par);
+		SurveyAnswersWidget(QWidget * par);
 
-		void updateModList(QList<ManagementMod> modList);
-		void selectedMod(int index);
-		void updateView() override;
+		void updateView(int projectID, int surveyID);
 
 	signals:
+		void backClicked();
 		void removeSpinner();
-		void loadedData(ManagementSurveys);
-		void triggerUpdate();
+		void loadedData(ManagementSurveyAnswers);
 
 	private slots:
-		void updateData(ManagementSurveys content);
-		void createSurvey();
+		void updateData(ManagementSurveyAnswers content);
 
 	private:
-		QList<ManagementMod> _mods;
-		int _modIndex;
-		QStackedWidget * _stackedWidget;
-		QVBoxLayout * _surveysLayout;
+		int _projectID;
+		int _surveyID;
+
+		QVBoxLayout * _layout;
+
+		QList<QWidget *> _widgetList;
+		
 		gui::WaitSpinner * _waitSpinner;
-
-		QList<QWidget *> _surveyWidgetList;
-
-		QSpinBox * _majorVersionBox;
-		QSpinBox * _minorVersionBox;
-		QSpinBox * _patchVersionBox;
-		QComboBox * _languageBox;
-
-		SurveyAnswersWidget * _surveyAnswersWidget;
-		SurveyEditWidget * _surveyEditWidget;
-
-		ManagementSurveys _managementSurveys;
-		int _surveyIndex;
 	};
 
 } /* namespace widgets */

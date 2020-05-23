@@ -3160,5 +3160,9 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>DeleteSurveyDescription</source>
         <translation>Wenn du die Umfrage löscht, gehen sämtliche Fragen und Antworten verloren. Willst du die Umfrage wirklich löschen?</translation>
     </message>
+    <message>
+        <source>Back</source>
+        <translation>Zurück</translation>
+    </message>
 </context>
 </TS>

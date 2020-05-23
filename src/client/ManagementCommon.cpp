@@ -432,3 +432,61 @@ void ManagementSurveys::read(const QJsonObject & json) {
 		}
 	}
 }
+
+void ManagementSurveyAnswer::read(const QJsonObject & json) {
+	if (!json.contains("Question")) return;
+	
+	question = json["Question"].toString();
+
+	auto it = json.find("Answers");
+	if (it != json.end()) {
+		const auto a = it->toArray();
+		for (auto answerEntry : a) {
+			const auto answer = answerEntry.toObject();
+
+			if (answer.isEmpty()) continue;
+
+			answers.append(answer["Answer"].toString());
+		}
+	}
+}
+
+void ManagementSurveyAnswers::read(const QJsonObject & json) {
+	// name translations
+	auto it = json.find("Questions");
+	if (it != json.end()) {
+		const auto q = it->toArray();
+		for (auto questionEntry : q) {
+			const auto question = questionEntry.toObject();
+
+			if (question.isEmpty()) continue;
+
+			ManagementSurveyAnswer msa;
+			msa.read(question);
+			answers.append(msa);
+		}
+	}
+}
+
+void ManagementSurveyQuestion::read(const QJsonObject & json) {
+	if (!json.contains("Question")) return;
+	
+	question = json["Question"].toString();
+}
+
+void ManagementSurveyQuestions::read(const QJsonObject & json) {
+	// name translations
+	auto it = json.find("Questions");
+	if (it != json.end()) {
+		const auto q = it->toArray();
+		for (auto questionEntry : q) {
+			const auto question = questionEntry.toObject();
+
+			if (question.isEmpty()) continue;
+
+			ManagementSurveyQuestion msq;
+			msq.read(question);
+			questions.append(msq);
+		}
+	}
+}

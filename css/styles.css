@@ -55,8 +55,20 @@ QLabel[small=true] {
 	font-size: 10px;
 }
 
+QLabel[bold=true] {
+	font-weight: bold;
+}
+
+QLabel[big=true] {
+	font-size: 20px;
+}
+
 QLabel[adminInfo=true] {
 	color: #FF0000;
+}
+
+QLabel[fontAwesome=true] {
+	font-family: "FontAwesome";
 }
 
 QLineEdit {

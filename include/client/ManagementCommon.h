@@ -182,8 +182,32 @@ namespace client {
 		QList<ManagementSurvey> surveys;
 
 		void read(const QJsonObject &json);
-		void write(QJsonObject & json) const;
 	} ManagementSurveys;
+
+	typedef struct {
+		QString question;
+		QStringList answers;
+
+		void read(const QJsonObject &json);
+	} ManagementSurveyAnswer;
+
+	typedef struct {
+		QList<ManagementSurveyAnswer> answers;
+
+		void read(const QJsonObject &json);
+	} ManagementSurveyAnswers;
+
+	typedef struct {
+		QString question;
+
+		void read(const QJsonObject &json);
+	} ManagementSurveyQuestion;
+
+	typedef struct {
+		QList<ManagementSurveyQuestion> questions;
+
+		void read(const QJsonObject &json);
+	} ManagementSurveyQuestions;
 
 } /* namespace client */
 } /* namespace spine */
@@ -199,6 +223,10 @@ Q_DECLARE_METATYPE(spine::client::ManagementModFilesData)
 Q_DECLARE_METATYPE(spine::client::ManagementScore)
 Q_DECLARE_METATYPE(spine::client::ManagementStatistic)
 Q_DECLARE_METATYPE(spine::client::ManagementStatistics)
+Q_DECLARE_METATYPE(spine::client::ManagementSurvey)
+Q_DECLARE_METATYPE(spine::client::ManagementSurveyAnswer)
+Q_DECLARE_METATYPE(spine::client::ManagementSurveyAnswers)
+Q_DECLARE_METATYPE(spine::client::ManagementSurveys)
 Q_DECLARE_METATYPE(spine::client::ManagementTranslation)
 Q_DECLARE_METATYPE(spine::client::ManagementVersionDownload)
 Q_DECLARE_METATYPE(QList<spine::client::ManagementMod>)

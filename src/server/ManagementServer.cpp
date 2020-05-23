@@ -2087,15 +2087,15 @@ void ManagementServer::getPlayTestSurvey(std::shared_ptr<HttpsServer::Response> 
 			}
 			const auto results = database.getResults<std::vector<std::string>>();
 			
-			ptree answersNode;
+			ptree questionsNode;
 			for (const auto & vec : results) {
-				ptree answerNode;
+				ptree questionNode;
 
-				answerNode.put("Question", vec[0]);
+				questionNode.put("Question", vec[0]);
 				
-				answersNode.push_back(std::make_pair("", answerNode));
+				questionsNode.push_back(std::make_pair("", questionNode));
 			}
-			responseTree.add_child("Answers", answersNode);
+			responseTree.add_child("Questions", questionsNode);
 		} while (false);
 
 		write_json(responseStream, responseTree);

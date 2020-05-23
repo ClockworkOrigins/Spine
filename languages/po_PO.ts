@@ -3160,5 +3160,9 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>DeleteSurveyDescription</source>
         <translation>Wenn du die Umfrage löscht, gehen sämtliche Fragen und Antworten verloren. Willst du die Umfrage wirklich löschen?</translation>
     </message>
+    <message>
+        <source>Back</source>
+        <translation>Zurück</translation>
+    </message>
 </context>
 </TS>

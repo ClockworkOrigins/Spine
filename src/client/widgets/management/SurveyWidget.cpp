@@ -20,6 +20,8 @@
 
 #include "SpineConfig.h"
 
+#include "client/widgets/management/SurveyAnswersWidget.h"
+#include "client/widgets/management/SurveyEditWidget.h"
 #include "client/widgets/management/SurveyEntryWidget.h"
 
 #include "gui/WaitSpinner.h"
@@ -27,7 +29,6 @@
 #include "https/Https.h"
 
 #include "utils/Config.h"
-#include "utils/Conversion.h"
 
 #include <QApplication>
 #include <QComboBox>
@@ -110,77 +111,23 @@ SurveyWidget::SurveyWidget(QWidget * par) : QWidget(par), _modIndex(-1), _waitSp
 	}
 
 	{
-		QWidget * w = new QWidget(nullptr);
-		
-		QVBoxLayout * vlOuter = new QVBoxLayout();
-		
-		QScrollArea * sa = new QScrollArea(this);
-		QWidget * cw = new QWidget(sa);
-		_questionsLayout = new QVBoxLayout();
-		_questionsLayout->setAlignment(Qt::AlignTop);
-		cw->setLayout(_questionsLayout);
-		sa->setWidget(cw);
-		sa->setWidgetResizable(true);
-		sa->setProperty("default", true);
-		cw->setProperty("default", true);
+		_surveyAnswersWidget = new SurveyAnswersWidget(this);
 
-		vlOuter->addWidget(sa, 1);
+		connect(_surveyAnswersWidget, &SurveyAnswersWidget::backClicked, [this]() {
+			_stackedWidget->setCurrentIndex(0);
+		});
 
-		{
-			QHBoxLayout * hl = new QHBoxLayout();
-
-			QPushButton * pb = new QPushButton(QApplication::tr("Back"));
-
-			hl->addStretch(1);
-			hl->addWidget(pb);
-
-			vlOuter->addLayout(hl);
-
-			connect(pb, &QPushButton::released, [this]() {
-				_stackedWidget->setCurrentIndex(0);
-			});
-		}
-
-		w->setLayout(vlOuter);
-
-		_stackedWidget->addWidget(w);
+		_stackedWidget->addWidget(_surveyAnswersWidget);
 	}
 
 	{
-		QWidget * w = new QWidget(nullptr);
-		
-		QVBoxLayout * vlOuter = new QVBoxLayout();
-		
-		QScrollArea * sa = new QScrollArea(this);
-		QWidget * cw = new QWidget(sa);
-		_surveysLayout = new QVBoxLayout();
-		_surveysLayout->setAlignment(Qt::AlignTop);
-		cw->setLayout(_surveysLayout);
-		sa->setWidget(cw);
-		sa->setWidgetResizable(true);
-		sa->setProperty("default", true);
-		cw->setProperty("default", true);
+		_surveyEditWidget = new SurveyEditWidget(this);
 
-		vlOuter->addWidget(sa, 1);
+		connect(_surveyEditWidget, &SurveyEditWidget::backClicked, [this]() {
+			_stackedWidget->setCurrentIndex(0);
+		});
 
-		{
-			QHBoxLayout * hl = new QHBoxLayout();
-
-			QPushButton * pb = new QPushButton(QApplication::tr("Back"));
-
-			hl->addStretch(1);
-			hl->addWidget(pb);
-
-			vlOuter->addLayout(hl);
-
-			connect(pb, &QPushButton::released, [this]() {
-				_stackedWidget->setCurrentIndex(0);
-			});
-		}
-
-		w->setLayout(vlOuter);
-
-		_stackedWidget->addWidget(w);
+		_stackedWidget->addWidget(_surveyEditWidget);
 	}
 
 	l->addWidget(_stackedWidget);
@@ -209,15 +156,9 @@ void SurveyWidget::selectedMod(int index) {
 void SurveyWidget::updateView() {
 	if (_modIndex == -1 || _modIndex >= _mods.size()) return;
 	
-	qDeleteAll(_answersWidgetList);
-	_answersWidgetList.clear();
-	
 	qDeleteAll(_surveyWidgetList);
 	_surveyWidgetList.clear();
 	
-	qDeleteAll(_questionsWidgetList);
-	_questionsWidgetList.clear();
-
 	_stackedWidget->setCurrentIndex(0);
 	
 	delete _waitSpinner;
@@ -251,12 +192,12 @@ void SurveyWidget::updateData(ManagementSurveys content) {
 		connect(sew, &SurveyEntryWidget::releaseClicked, this, &SurveyWidget::updateView);
 		connect(sew, &SurveyEntryWidget::deleteClicked, this, &SurveyWidget::updateView);
 		connect(sew, &SurveyEntryWidget::editClicked, [this](int surveyID) {
-			_stackedWidget->setCurrentIndex(1);
-			// TODO: load for modification
+			_stackedWidget->setCurrentIndex(2);
+			_surveyEditWidget->updateView(_mods[_modIndex].id, surveyID);
 		});
 		connect(sew, &SurveyEntryWidget::showAnswersClicked, [this](int surveyID) {
-			_stackedWidget->setCurrentIndex(2);
-			// TODO: load answers to display them
+			_stackedWidget->setCurrentIndex(1);
+			_surveyAnswersWidget->updateView(_mods[_modIndex].id, surveyID);
 		});
 	}
 }

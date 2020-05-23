@@ -3165,5 +3165,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>DeleteSurveyDescription</source>
         <translation>When the survey is deleted all questions and answers are lost. Do you really want to delete the survey?</translation>
     </message>
+    <message>
+        <source>Back</source>
+        <translation>Back</translation>
+    </message>
 </context>
 </TS>

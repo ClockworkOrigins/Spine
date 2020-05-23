@@ -46,6 +46,7 @@ SurveyEntryWidget::SurveyEntryWidget(int projectID, ManagementSurvey survey, QWi
 	QHBoxLayout * hl = new QHBoxLayout();
 	
 	QPushButton * deleteButton = new QPushButton(QChar(static_cast<int>(FontAwesome::trasho)), this);
+	deleteButton->setProperty("fontAwesome", true);
 	connect(deleteButton, &QPushButton::released, this, &SurveyEntryWidget::wantToDelete);
 
 	QLabel * versionLbl = new QLabel(QApplication::tr("Version") + ":", this);
