@@ -386,3 +386,49 @@ void ManagementScore::write(QJsonObject & json) const {
 	}
 	json["Names"] = nameArray;
 }
+
+void ManagementSurvey::read(const QJsonObject & json) {
+	if (!json.contains("SurveyID")) return;
+	
+	if (!json.contains("MajorVersion")) return;
+	
+	if (!json.contains("MinorVersion")) return;
+	
+	if (!json.contains("PatchVersion")) return;
+	
+	if (!json.contains("Enabled")) return;
+	
+	if (!json.contains("Language")) return;
+
+	surveyID = json["SurveyID"].toString().toInt();
+	majorVersion = json["MajorVersion"].toString().toInt();
+	minorVersion = json["MinorVersion"].toString().toInt();
+	patchVersion = json["PatchVersion"].toString().toInt();
+	enabled = json["Enabled"].toString().toInt() == 1;
+	language = json["Language"].toString();
+
+	if (json.contains("QuestionCount")) {
+		questionCount = json["QuestionCount"].toString().toInt();
+	}
+
+	if (json.contains("AnswerCount")) {
+		answerCount = json["AnswerCount"].toString().toInt();
+	}
+}
+
+void ManagementSurveys::read(const QJsonObject & json) {
+	// name translations
+	auto it = json.find("Surveys");
+	if (it != json.end()) {
+		const auto s = it->toArray();
+		for (auto surveyEntry : s) {
+			const auto survey = surveyEntry.toObject();
+
+			if (survey.isEmpty()) continue;
+
+			ManagementSurvey ms;
+			ms.read(survey);
+			surveys.append(ms);
+		}
+	}
+}

@@ -66,6 +66,7 @@ int ManagementServer::run() {
 	_server->resource["^/submitPlayTestSurveyAnswers"]["POST"] = std::bind(&ManagementServer::submitPlayTestSurveyAnswers, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/getOwnPlayTestSurveyAnswers"]["POST"] = std::bind(&ManagementServer::getOwnPlayTestSurveyAnswers, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/getAllPlayTestSurveyAnswers"]["POST"] = std::bind(&ManagementServer::getAllPlayTestSurveyAnswers, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/deletePlayTestSurvey"]["POST"] = std::bind(&ManagementServer::deletePlayTestSurvey, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -2413,6 +2414,80 @@ void ManagementServer::getAllPlayTestSurveyAnswers(std::shared_ptr<HttpsServer::
 		write_json(responseStream, responseTree);
 
 		response->write(code, responseStream.str());
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void ManagementServer::deletePlayTestSurvey(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+	
+		const std::string username = pt.get<std::string>("Username");
+		const std::string password = pt.get<std::string>("Password");
+		const int32_t projectID = pt.get<int32_t>("ProjectID");
+		const int32_t surveyID = pt.get<int32_t>("SurveyID");
+
+		const int userID = ServerCommon::getUserID(username, password);
+
+		if (userID == -1) {
+			response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+			return;
+		}
+
+		if (!hasAdminAccessToMod(userID, projectID)) {
+			response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+			return;
+		}
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+				
+			if (!database.query("PREPARE deleteSurveyStmt FROM \"DELETE FROM playTestSurveys WHERE SurveyID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE deleteSurveyQuestionsStmt FROM \"DELETE FROM playTestSurveyQuestions WHERE SurveyID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE deleteSurveyAnswersStmt FROM \"DELETE FROM playTestSurveyAnswers WHERE SurveyID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramSurveyID=" + std::to_string(surveyID) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("EXECUTE deleteSurveyStmt USING @paramSurveyID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("EXECUTE deleteSurveyQuestionsStmt USING @paramSurveyID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("EXECUTE deleteSurveyAnswersStmt USING @paramSurveyID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+		} while (false);
+
+		response->write(code);
 	} catch (...) {
 		response->write(SimpleWeb::StatusCode::client_error_bad_request);
 	}

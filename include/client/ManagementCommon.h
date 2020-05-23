@@ -165,6 +165,26 @@ namespace client {
 		void write(QJsonObject & json) const;
 	} ManagementScore;
 
+	typedef struct {
+		int32_t surveyID = 0;
+		QString language;
+		int32_t majorVersion = 0;
+		int32_t minorVersion = 0;
+		int32_t patchVersion = 0;
+		int32_t questionCount = 0;
+		int32_t answerCount = 0;
+		bool enabled = false;
+
+		void read(const QJsonObject &json);
+	} ManagementSurvey;
+
+	typedef struct {
+		QList<ManagementSurvey> surveys;
+
+		void read(const QJsonObject &json);
+		void write(QJsonObject & json) const;
+	} ManagementSurveys;
+
 } /* namespace client */
 } /* namespace spine */
 

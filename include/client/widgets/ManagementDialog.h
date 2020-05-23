@@ -37,6 +37,7 @@ namespace widgets {
 	class ModFilesWidget;
 	class ScoresWidget;
 	class StatisticsWidget;
+	class SurveyWidget;
 	class UserManagementWidget;
 
 	class ManagementDialog : public QDialog {
@@ -67,6 +68,7 @@ namespace widgets {
 		AchievementsWidget * _achievementsWidget;
 		ScoresWidget * _scoresWidget;
 		CustomStatisticsWidget * _customStatisticsWidget;
+		SurveyWidget * _surveyWidget;
 		QTabWidget * _tabWidget;
 
 		void loadModList();

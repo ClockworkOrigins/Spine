@@ -3116,5 +3116,49 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>StartGame</source>
         <translation>Spiel starten</translation>
     </message>
+    <message>
+        <source>Surveys</source>
+        <translation>Umfragen</translation>
+    </message>
+    <message>
+        <source>CreateSurvey</source>
+        <translation>Umfrage erstellen</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>Bearbeiten</translation>
+    </message>
+    <message>
+        <source>Questions</source>
+        <translation>Fragen</translation>
+    </message>
+    <message>
+        <source>Answers</source>
+        <translation>Antworten</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Veröffentlichen</translation>
+    </message>
+    <message>
+        <source>ShowAnswers</source>
+        <translation>Antworten zeigen</translation>
+    </message>
+    <message>
+        <source>ReleaseSurvey</source>
+        <translation>Umfrage veröffentlichen</translation>
+    </message>
+    <message>
+        <source>ReleaseSurveyDescription</source>
+        <translation>Wenn die Umfrage veröffentlicht ist, kannst du sie nicht mehr ändern. Wirklich veröffentlichen?</translation>
+    </message>
+    <message>
+        <source>DeleteSurvey</source>
+        <translation>Umfrage löschen</translation>
+    </message>
+    <message>
+        <source>DeleteSurveyDescription</source>
+        <translation>Wenn du die Umfrage löscht, gehen sämtliche Fragen und Antworten verloren. Willst du die Umfrage wirklich löschen?</translation>
+    </message>
 </context>
 </TS>

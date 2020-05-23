@@ -30,6 +30,7 @@
 #include "widgets/management/ModFilesWidget.h"
 #include "widgets/management/ScoresWidget.h"
 #include "widgets/management/StatisticsWidget.h"
+#include "widgets/management/SurveyWidget.h"
 #include "widgets/management/UserManagementWidget.h"
 
 #include <QApplication>
@@ -46,7 +47,7 @@ using namespace spine::client;
 using namespace spine::client::widgets;
 using namespace spine::utils;
 
-ManagementDialog::ManagementDialog(QWidget * par) : QDialog(par), _modList(nullptr), _mods(), _modIndex(-1), _generalConfigurationWidget(nullptr), _modFilesWidget(nullptr), _userManagementWidget(nullptr), _statisticsWidget(nullptr) {
+ManagementDialog::ManagementDialog(QWidget * par) : QDialog(par), _modList(nullptr), _modIndex(-1), _generalConfigurationWidget(nullptr), _modFilesWidget(nullptr), _userManagementWidget(nullptr), _statisticsWidget(nullptr), _surveyWidget(nullptr) {
 	QVBoxLayout * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
@@ -67,6 +68,7 @@ ManagementDialog::ManagementDialog(QWidget * par) : QDialog(par), _modList(nullp
 		_achievementsWidget = new AchievementsWidget(this);
 		_scoresWidget = new ScoresWidget(this);
 		_customStatisticsWidget = new CustomStatisticsWidget(this);
+		_surveyWidget = new SurveyWidget(this);
 		_tabWidget->addTab(_generalConfigurationWidget, QApplication::tr("General"));
 		_tabWidget->addTab(_modFilesWidget, QApplication::tr("ModFiles"));
 		_tabWidget->addTab(_userManagementWidget, QApplication::tr("UserManagement"));
@@ -74,6 +76,7 @@ ManagementDialog::ManagementDialog(QWidget * par) : QDialog(par), _modList(nullp
 		_tabWidget->addTab(_achievementsWidget, QApplication::tr("Achievements"));
 		_tabWidget->addTab(_scoresWidget, QApplication::tr("Scores"));
 		_tabWidget->addTab(_customStatisticsWidget, QApplication::tr("CustomStatistics"));
+		_tabWidget->addTab(_surveyWidget, QApplication::tr("Surveys"));
 		hl->addWidget(_tabWidget);
 
 		connect(_tabWidget, &QTabWidget::currentChanged, this, &ManagementDialog::changedTab);
@@ -121,6 +124,7 @@ void ManagementDialog::updateModList(QList<ManagementMod> modList) {
 	_achievementsWidget->updateModList(modList);
 	_scoresWidget->updateModList(modList);
 	_customStatisticsWidget->updateModList(modList);
+	_surveyWidget->updateModList(modList);
 
 	_tabWidget->setEnabled(!modList.empty());
 }
@@ -134,6 +138,7 @@ void ManagementDialog::selectedMod(const QModelIndex & index) {
 	_achievementsWidget->selectedMod(_modIndex);
 	_scoresWidget->selectedMod(_modIndex);
 	_customStatisticsWidget->selectedMod(_modIndex);
+	_surveyWidget->selectedMod(_modIndex);
 
 	changedTab();
 }
@@ -180,8 +185,8 @@ void ManagementDialog::saveSettings() {
 }
 
 void ManagementDialog::changedTab() {
-	const auto tab = _tabWidget->currentWidget();
-	auto managementWidget = dynamic_cast<IManagementWidget *>(tab);
+	auto * const tab = _tabWidget->currentWidget();
+	auto * managementWidget = dynamic_cast<IManagementWidget *>(tab);
 
 	managementWidget->updateView();
 }

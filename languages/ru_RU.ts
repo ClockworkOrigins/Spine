@@ -3121,5 +3121,49 @@ You can revoke your permission at every point in time. All necessary information
         <source>StartGame</source>
         <translation>Start game</translation>
     </message>
+    <message>
+        <source>Surveys</source>
+        <translation>Surveys</translation>
+    </message>
+    <message>
+        <source>CreateSurvey</source>
+        <translation>Create survey</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>Edit</translation>
+    </message>
+    <message>
+        <source>Questions</source>
+        <translation>Questions</translation>
+    </message>
+    <message>
+        <source>Answers</source>
+        <translation>Answers</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Release</translation>
+    </message>
+    <message>
+        <source>ShowAnswers</source>
+        <translation>Show answers</translation>
+    </message>
+    <message>
+        <source>ReleaseSurvey</source>
+        <translation>Release survey</translation>
+    </message>
+    <message>
+        <source>ReleaseSurveyDescription</source>
+        <translation>When the survey has been released you can't edit it anymore. Do you really want to release it?</translation>
+    </message>
+    <message>
+        <source>DeleteSurvey</source>
+        <translation>Delete survey</translation>
+    </message>
+    <message>
+        <source>DeleteSurveyDescription</source>
+        <translation>When the survey is deleted all questions and answers are lost. Do you really want to delete the survey?</translation>
+    </message>
 </context>
 </TS>
