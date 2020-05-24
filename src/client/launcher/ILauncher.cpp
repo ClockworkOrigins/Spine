@@ -26,6 +26,8 @@
 
 #include "common/MessageStructs.h"
 
+#include "https/Https.h"
+
 #include "utils/Config.h"
 #include "utils/Conversion.h"
 #include "utils/Database.h"
@@ -39,6 +41,8 @@
 #include <QDate>
 #include <QDesktopServices>
 #include <QFileInfo>
+#include <QJsonArray>
+#include <QJsonDocument>
 #include <QLabel>
 #include <QPushButton>
 #include <QtConcurrentRun>
@@ -360,6 +364,60 @@ void ILauncher::stopCommon() {
 	});
 
 	stopScreenshotManager();
+
+	Database::DBError err;
+	const auto version = Database::queryNth<std::vector<int>, int, int, int>(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "SELECT MajorVersion, MinorVersion, PatchVersion FROM updates WHERE ModID = " + std::to_string(_modID) + " LIMIT 1;", err);
+
+	const int versionMajor = version.empty() ? 0 : static_cast<uint8_t>(version[0]);
+	const int versionMinor = version.empty() ? 0 : static_cast<uint8_t>(version[1]);
+	const int versionPatch = version.empty() ? 0 : static_cast<uint8_t>(version[2]);
+
+	QJsonObject requestData;
+	requestData["Username"] = Config::Username;
+	requestData["Password"] = Config::Password;
+	requestData["ProjectID"] = _modID;
+	requestData["Language"] = Config::Language;
+	requestData["MajorVersion"] = versionMajor;
+	requestData["MinorVersion"] = versionMinor;
+	requestData["PatchVersion"] = versionPatch;
+	
+	https::Https::postAsync(MANAGEMENTSERVER_PORT, "getOwnPlayTestSurveyAnswers", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this, versionMajor, versionMinor, versionPatch](const QJsonObject & json, int statusCode) {
+		if (statusCode != 200) return;
+
+		if (!json.contains("SurveyID")) return;
+
+		Survey s;
+
+		s.surveyID = json["SurveyID"].toString().toInt();
+
+		auto it = json.find("Questions");
+		if (it != json.end()) {
+			const auto q = it->toArray();
+			for (auto questionEntry : q) {
+				const auto question = questionEntry.toObject();
+
+				if (question.isEmpty()) continue;
+
+				if (!question.contains("QuestionID")) continue;
+				
+				if (!question.contains("Question")) continue;
+				
+				if (!question.contains("Answer")) continue;
+
+				SurveyQuestion sq;
+				
+				sq.questionID = question["QuestionID"].toString().toInt();
+				sq.question = question["Question"].toString();
+				sq.answer = question["Answer"].toString();
+				
+				s.questions.append(sq);
+			}
+		}
+
+		if (s.questions.isEmpty()) return;
+
+		emit loadedSurvey(s, versionMajor, versionMinor, versionPatch);
+	});
 }
 
 void ILauncher::acceptedConnection(clockUtils::sockets::TcpSocket * sock, clockUtils::ClockError err) {

@@ -52,6 +52,7 @@ namespace launcher {
 		void finishedInstallation(int, int, bool);
 		void updateStarted(int);
 		void updateFinished(int);
+		void showSurvey(widgets::Survey survey, int versionMajor, int versionMinor, int versionPatch);
 
 	private:
 		QList<ILauncherPtr> _launchers;

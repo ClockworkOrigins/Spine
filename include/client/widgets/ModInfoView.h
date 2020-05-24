@@ -65,6 +65,7 @@ namespace widgets {
 	private slots:
 		void restartSpineAsAdmin();
 		void showErrorMessage(QString msg);
+		void showSurvey(widgets::Survey survey, int versionMajor, int versionMinor, int versionPatch);
 
 	private:
 		QVBoxLayout * _layout;

@@ -64,6 +64,7 @@ ModInfoView::ModInfoView(GeneralSettingsWidget * generalSettingsWidget, QWidget 
 
 	connect(LauncherFactory::getInstance(), &LauncherFactory::openAchievementView, this, &ModInfoView::openAchievementView);
 	connect(LauncherFactory::getInstance(), &LauncherFactory::openScoreView, this, &ModInfoView::openScoreView);
+	connect(LauncherFactory::getInstance(), &LauncherFactory::showSurvey, this, &ModInfoView::showSurvey);
 
 	setHideIncompatible(generalSettingsWidget->getHideIncompatible());
 	connect(generalSettingsWidget, &GeneralSettingsWidget::changedHideIncompatible, this, &ModInfoView::setHideIncompatible);
@@ -177,4 +178,9 @@ void ModInfoView::restoreSettings() {
 
 void ModInfoView::saveSettings() {
 	LauncherFactory::getInstance()->saveSettings();
+}
+
+void ModInfoView::showSurvey(widgets::Survey survey, int versionMajor, int versionMinor, int versionPatch) {
+	SurveyDialog sd(survey, versionMajor, versionMinor, versionPatch, this);
+	sd.exec();
 }

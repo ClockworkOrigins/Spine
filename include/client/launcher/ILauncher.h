@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "client/widgets/SurveyDialog.h"
+
 #include "common/GameType.h"
 #include "common/ModStats.h"
 
@@ -86,6 +88,7 @@ namespace launcher {
 		void errorMessage(QString);
 		void openAchievementView(int32_t, QString);
 		void openScoreView(int32_t, QString);
+		void loadedSurvey(widgets::Survey survey, int versionMajor, int versionMinor, int versionPatch);
 
 	public slots:
 		virtual void finishedInstallation(int modID, int packageID, bool success) = 0;

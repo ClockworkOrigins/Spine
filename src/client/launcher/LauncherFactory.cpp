@@ -111,6 +111,7 @@ void LauncherFactory::initLauncher(ILauncherPtr launcher) const {
 	connect(launcher.data(), &ILauncher::errorMessage, this, &LauncherFactory::errorMessage);
 	connect(launcher.data(), &ILauncher::openAchievementView, this, &LauncherFactory::openAchievementView);
 	connect(launcher.data(), &ILauncher::openScoreView, this, &LauncherFactory::openScoreView);
+	connect(launcher.data(), &ILauncher::loadedSurvey, this, &LauncherFactory::showSurvey);
 	connect(this, &LauncherFactory::finishedInstallation, launcher.data(), &ILauncher::finishedInstallation);
 	connect(this, &LauncherFactory::updateStarted, launcher.data(), &ILauncher::updateStarted);
 	connect(this, &LauncherFactory::updateFinished, launcher.data(), &ILauncher::updateFinished);

@@ -2229,7 +2229,12 @@ void ManagementServer::getOwnPlayTestSurveyAnswers(std::shared_ptr<HttpsServer::
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			if (!database.query("PREPARE selectAnswersStmt FROM \"SELECT QuestionID, CAST(Answer AS BINARY) FROM playTestSurveyAnswers WHERE SurveyID = ? AND UserID = ? ORDER BY QuestionID ASC\";")) {
+			if (!database.query("PREPARE selectQuestionsStmt FROM \"SELECT QuestionID, CAST(Question AS BINARY) FROM playTestSurveyQuestions WHERE SurveyID = ? ORDER BY QuestionID ASC\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectAnswersStmt FROM \"SELECT CAST(Answer AS BINARY) FROM playTestSurveyAnswers WHERE SurveyID = ? AND UserID = ? AND QuestionID = ? LIMIT 1\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
@@ -2293,23 +2298,39 @@ void ManagementServer::getOwnPlayTestSurveyAnswers(std::shared_ptr<HttpsServer::
 				break;
 			}
 			
-			if (!database.query("EXECUTE selectAnswersStmt USING @paramSurveyID, @paramUserID;")) {
+			responseTree.put("SurveyID", results[0][0]);
+			
+			if (!database.query("EXECUTE selectQuestionsStmt USING @paramSurveyID;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
 			results = database.getResults<std::vector<std::string>>();
 			
-			ptree answersNode;
+			ptree questionsNode;
 			for (const auto & vec : results) {
+				if (!database.query("SET @paramQuestionID=" + vec[0] + ";")) {
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+			
+				if (!database.query("EXECUTE selectAnswersStmt USING @paramSurveyID, @paramUserID, @paramQuestionID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				const auto results2 = database.getResults<std::vector<std::string>>();
+			
 				ptree answerNode;
 
 				answerNode.put("QuestionID", vec[0]);
-				answerNode.put("Answer", vec[1]);
+				answerNode.put("Question", vec[1]);
+				answerNode.put("Answer", results2.empty() ? "" : results2[0][0]);
 				
-				answersNode.push_back(std::make_pair("", answerNode));
+				questionsNode.push_back(std::make_pair("", answerNode));
 			}
-			responseTree.add_child("Answers", answersNode);
+			responseTree.add_child("Questions", questionsNode);
 		} while (false);
 
 		write_json(responseStream, responseTree);
