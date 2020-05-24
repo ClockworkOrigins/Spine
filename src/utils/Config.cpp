@@ -21,6 +21,10 @@
 #include <iostream>
 #include <thread>
 
+#include "Conversion.h"
+#include "Database.h"
+#include "SpineConfig.h"
+
 #include <QApplication>
 #include <QDirIterator>
 #include <QFontDatabase>
@@ -97,6 +101,11 @@ int Config::Init() {
 		}
 		Q_ASSERT(baseDir.exists());
 	}
+	
+	Database::DBError err;
+	Database::execute(Config::BASEDIR.toStdString() + "/" + BACKUP_DATABASE, "CREATE TABLE IF NOT EXISTS downloadPath(Path TEXT NOT NULL PRIMARY KEY);", err);
+
+	
 	STYLESDIR = BASEDIR + "/styles/";
 	{
 		QDir stylesDir(STYLESDIR);
@@ -131,6 +140,15 @@ int Config::Init() {
 	{
 		const QString path = IniParser->value("PATH/Downloads", "").toString();
 		DOWNLOADDIR = path;
+
+		if (path.isEmpty()) {
+			const auto backupPath = Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + BACKUP_DATABASE, "SELECT Path FROM downloadPath;", err);
+
+			if (!backupPath.empty()) {
+				IniParser->setValue("PATH/Downloads", s2q(backupPath));
+				DOWNLOADDIR = s2q(backupPath);
+			}
+		}
 	}
 	QString language = IniParser->value("MISC/language", "").toString();
 	if (language.isEmpty()) {

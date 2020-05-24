@@ -32,5 +32,6 @@ const std::string NEWS_DATABASE = "databases/news.db";
 const std::string OFFLINE_DATABASE = "databases/offline.db";
 const std::string PATCHCONFIG_DATABASE = "databases/patchConfig.db";
 const std::string UPDATES_DATABASE = "databases/updates.db";
+const std::string BACKUP_DATABASE = "databases/backup.db";
 
 #endif /* __SPINE_GMMCONFIG_H__ */

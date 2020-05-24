@@ -19,8 +19,11 @@
 #include "widgets/LocationSettingsWidget.h"
 
 #include "DirValidator.h"
+#include "SpineConfig.h"
 
 #include "utils/Config.h"
+#include "utils/Conversion.h"
+#include "utils/Database.h"
 
 #include "widgets/UpdateLanguage.h"
 
@@ -276,6 +279,10 @@ void LocationSettingsWidget::saveSettings() {
 		}
 		Config::DOWNLOADDIR = _downloadPathLineEdit->text();
 		emit downloadPathChanged();
+
+		Database::DBError err;
+		Database::execute(Config::BASEDIR.toStdString() + "/" + BACKUP_DATABASE, "INSERT INTO downloadPath (Path) VALUES ('" + q2s(Config::DOWNLOADDIR) + "');", err);
+		Database::execute(Config::BASEDIR.toStdString() + "/" + BACKUP_DATABASE, "UPDATE downloadPath SET Path = '" + q2s(Config::DOWNLOADDIR) + "';", err);
 	}
 	{
 		const QString path = Config::IniParser->value("PATH/Screenshots", "").toString();

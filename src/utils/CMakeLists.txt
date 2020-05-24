@@ -8,7 +8,7 @@ FILE(GLOB SpineUtilsHeader ${includedir}/*.h)
 
 ADD_LIBRARY(SpineUtils STATIC ${SpineUtilsSrc} ${SpineUtilsHeader})
 
-target_link_libraries(SpineUtils ${BOOST_LIBRARIES})
+target_link_libraries(SpineUtils ${BOOST_LIBRARIES} ${SQLITE3_LIBRARIES})
 
 set_target_properties(
 	SpineUtils PROPERTIES FOLDER Libraries
