@@ -87,7 +87,7 @@ SurveyWidget::SurveyWidget(QWidget * par) : QWidget(par), _modIndex(-1), _waitSp
 			_patchVersionBox->setMaximum(127);
 
 			_languageBox = new QComboBox(this);
-			_languageBox->addItems({ "Deutsch", "English" });
+			_languageBox->addItems({ "Deutsch", "English", "Polish", "Russian" });
 			_languageBox->setCurrentIndex(1);
 			_languageBox->setEditable(false);
 
