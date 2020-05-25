@@ -1644,60 +1644,65 @@ void Server::handleRequestAllModStats(clockUtils::sockets::TcpSocket * sock, Req
 					ms.achievedAchievements = std::stoi(results[0][0]);
 				}
 			}
-			if (!database.query("EXECUTE selectScoreStmt USING @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-				continue;
-			}
-			results = database.getResults<std::vector<std::string>>();
-			if (results.empty()) {
-				ms.bestScore = 0;
-				ms.bestScoreName = "";
-				ms.bestScoreRank = -1;
+
+			if (ms.modID == 339) {
+				getBestTri6Score(userID, ms);
 			} else {
-				std::map<int, std::vector<std::pair<int, int>>> scores;
-				for (auto s : results) {
-					scores[std::stoi(s[1])].push_back(std::make_pair(std::stoi(s[0]), std::stoi(s[2])));
+				if (!database.query("EXECUTE selectScoreStmt USING @paramModID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					continue;
 				}
-				ms.bestScore = 0;
-				ms.bestScoreName = "";
-				ms.bestScoreRank = 0;
-				int identifier = -1;
-				for (auto & score : scores) {
-					int rank = 1;
-					int lastRank = 1;
-					int lastScore = 0;
-					for (const auto & p : score.second) {
-						if (lastScore != p.first) {
-							rank = lastRank;
-						}
-						if (p.second == userID) {
-							if (rank < ms.bestScoreRank || ms.bestScoreRank == 0 || (ms.bestScoreRank == rank && ms.bestScore < p.first)) {
-								ms.bestScore = p.first;
-								ms.bestScoreRank = rank;
-								identifier = score.first;
-								break;
+				results = database.getResults<std::vector<std::string>>();
+				if (results.empty()) {
+					ms.bestScore = 0;
+					ms.bestScoreName = "";
+					ms.bestScoreRank = -1;
+				} else {
+					std::map<int, std::vector<std::pair<int, int>>> scores;
+					for (auto s : results) {
+						scores[std::stoi(s[1])].push_back(std::make_pair(std::stoi(s[0]), std::stoi(s[2])));
+					}
+					ms.bestScore = 0;
+					ms.bestScoreName = "";
+					ms.bestScoreRank = 0;
+					int identifier = -1;
+					for (auto & score : scores) {
+						int rank = 1;
+						int lastRank = 1;
+						int lastScore = 0;
+						for (const auto & p : score.second) {
+							if (lastScore != p.first) {
+								rank = lastRank;
 							}
+							if (p.second == userID) {
+								if (rank < ms.bestScoreRank || ms.bestScoreRank == 0 || (ms.bestScoreRank == rank && ms.bestScore < p.first)) {
+									ms.bestScore = p.first;
+									ms.bestScoreRank = rank;
+									identifier = score.first;
+									break;
+								}
+							}
+							lastScore = p.first;
+							lastRank++;
 						}
-						lastScore = p.first;
-						lastRank++;
 					}
-				}
-				if (identifier != -1) {
-					if (!database.query("SET @paramIdentifier=" + std::to_string(identifier) + ";")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-						continue;
-					}
-					if (!database.query("EXECUTE selectScoreNameStmt USING @paramModID, @paramIdentifier, @paramLanguage;")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-						continue;
-					}
-					results = database.getResults<std::vector<std::string>>();
-					if (results.empty()) {
-						ms.bestScore = 0;
-						ms.bestScoreRank = 0;
-						ms.bestScoreName = "";
-					} else {
-						ms.bestScoreName = results[0][0];
+					if (identifier != -1) {
+						if (!database.query("SET @paramIdentifier=" + std::to_string(identifier) + ";")) {
+							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+							continue;
+						}
+						if (!database.query("EXECUTE selectScoreNameStmt USING @paramModID, @paramIdentifier, @paramLanguage;")) {
+							std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+							continue;
+						}
+						results = database.getResults<std::vector<std::string>>();
+						if (results.empty()) {
+							ms.bestScore = 0;
+							ms.bestScoreRank = 0;
+							ms.bestScoreName = "";
+						} else {
+							ms.bestScoreName = results[0][0];
+						}
 					}
 				}
 			}
@@ -2024,12 +2029,18 @@ void Server::handleRequestAllAchievementStats(clockUtils::sockets::TcpSocket * s
 }
 
 void Server::handleRequestAllScoreStats(clockUtils::sockets::TcpSocket * sock, RequestAllScoreStatsMessage * msg) const {
+	if (msg->modID == 339) {
+		handleRequestAllTri6ScoreStats(sock);
+		return;
+	}
+
+	const int userID = ServerCommon::getUserID(msg->username, msg->password);
+	
 	MariaDBWrapper database;
 	if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, SPINEDATABASE, 0)) {
 		std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
-	const int userID = ServerCommon::getUserID(msg->username, msg->password);
 	if (!database.query("PREPARE selectScoreStmt FROM \"SELECT Score, UserID FROM modScores WHERE ModID = ? AND Identifier = ? ORDER BY Score DESC\";")) {
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
@@ -4331,4 +4342,138 @@ bool Server::isTeamMemberOfMod(int modID, int userID) const {
 	} while (false);
 
 	return false;
+}
+
+void Server::handleRequestAllTri6ScoreStats(clockUtils::sockets::TcpSocket * sock) const {
+	MariaDBWrapper database;
+	if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, TRI6DATABASE, 0)) {
+		std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query("PREPARE selectScoreStmt FROM \"SELECT Score, UserID FROM modScores WHERE Version = ? AND Identifier = ? ORDER BY Score DESC\";")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return;
+	}
+	if (!database.query("PREPARE selectMaxVersionStmt FROM \"SELECT MAX(Version) FROM scores\";")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return;
+	}
+	if (!database.query("EXECUTE selectMaxVersionStmt;")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	auto lastResults = database.getResults<std::vector<std::string>>();
+
+	const auto version = lastResults.empty() ? "0" : lastResults[0][0];
+	
+	if (!database.query("SET @paramVersion=" + version + ";")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return;
+	}
+
+	lastResults.clear();
+
+	lastResults.push_back({ "Hyperion", "0" });
+	lastResults.push_back({ "Hermes", "1" });
+	lastResults.push_back({ "Helios", "2" });
+	
+	SendAllScoreStatsMessage sassm;
+	for (const auto & vec : lastResults) {
+		SendAllScoreStatsMessage::ScoreStats ss;
+		ss.name = vec[0];
+
+		if (!database.query("SET @paramIdentifier=" + vec[1] + ";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			continue;
+		}
+		if (!database.query("EXECUTE selectScoreStmt USING @paramVersion, @paramIdentifier;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			continue;
+		}
+		auto results = database.getResults<std::vector<std::string>>();
+		for (auto score : results) {
+			ss.scores.emplace_back(ServerCommon::getUsername(std::stoi(score[1])), std::stoi(score[0]));
+		}
+		sassm.scores.push_back(ss);
+	}
+
+	const std::string serialized = sassm.SerializePrivate();
+	sock->writePacket(serialized);
+}
+
+void Server::getBestTri6Score(int userID, ModStats & modStats) const {
+	MariaDBWrapper database;
+	if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, TRI6DATABASE, 0)) {
+		std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query("PREPARE selectScoreStmt FROM \"SELECT Score, Identifier, UserID FROM scores WHERE Version = ? ORDER BY Score DESC\";")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return;
+	}
+	if (!database.query("PREPARE selectMaxVersionStmt FROM \"SELECT MAX(Version) FROM scores\";")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return;
+	}
+	if (!database.query("EXECUTE selectMaxVersionStmt;")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	auto lastResults = database.getResults<std::vector<std::string>>();
+
+	const auto version = lastResults.empty() ? "0" : lastResults[0][0];
+	
+	if (!database.query("SET @paramVersion=" + version + ";")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return;
+	}
+	
+	if (!database.query("EXECUTE selectScoreStmt USING @paramVersion;")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	lastResults = database.getResults<std::vector<std::string>>();
+	if (lastResults.empty()) {
+		modStats.bestScore = 0;
+		modStats.bestScoreName = "";
+		modStats.bestScoreRank = -1;
+	} else {
+		std::map<int, std::vector<std::pair<int, int>>> scores;
+		for (auto s : lastResults) {
+			scores[std::stoi(s[1])].push_back(std::make_pair(std::stoi(s[0]), std::stoi(s[2])));
+		}
+		modStats.bestScore = 0;
+		modStats.bestScoreName = "";
+		modStats.bestScoreRank = 0;
+		int identifier = -1;
+		for (auto & score : scores) {
+			int rank = 1;
+			int lastRank = 1;
+			int lastScore = 0;
+			for (const auto & p : score.second) {
+				if (lastScore != p.first) {
+					rank = lastRank;
+				}
+				if (p.second == userID) {
+					if (rank < modStats.bestScoreRank || modStats.bestScoreRank == 0 || (modStats.bestScoreRank == rank && modStats.bestScore < p.first)) {
+						modStats.bestScore = p.first;
+						modStats.bestScoreRank = rank;
+						identifier = score.first;
+						break;
+					}
+				}
+				lastScore = p.first;
+				lastRank++;
+			}
+		}
+		if (identifier != -1) {
+			static std::map<int, std::string> scoreNames = {
+				{ 0, "Hyperion" },
+				{ 1, "Hermes" },
+				{ 2, "Helios" }
+			};
+			
+			modStats.bestScoreName = scoreNames[identifier];
+		}
+	}
 }
