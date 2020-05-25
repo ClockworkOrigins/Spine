@@ -2229,7 +2229,7 @@ void ManagementServer::getOwnPlayTestSurveyAnswers(std::shared_ptr<HttpsServer::
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			if (!database.query("PREPARE selectSurveyIDStmt FROM \"SELECT SurveyID FROM playTestSurveys WHERE ProjectID = ? AND Language = CONVERT(? USING BINARY) AND MajorVersion = ? AND MinorVersion = ? AND PatchVersion = ? LIMIT 1\";")) {
+			if (!database.query("PREPARE selectSurveyIDStmt FROM \"SELECT SurveyID FROM playTestSurveys WHERE ProjectID = ? AND Language = CONVERT(? USING BINARY) AND MajorVersion = ? AND MinorVersion = ? AND PatchVersion = ? AND Enabled = 1 LIMIT 1\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
