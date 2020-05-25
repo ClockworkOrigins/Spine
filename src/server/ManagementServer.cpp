@@ -2224,6 +2224,11 @@ void ManagementServer::getOwnPlayTestSurveyAnswers(std::shared_ptr<HttpsServer::
 		do {
 			CONNECTTODATABASE(__LINE__)
 			
+			if (!database.query("PREPARE selectPlayTestStmt FROM \"SELECT ModID FROM mods WHERE ModID = ? AND Type = 8 LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
 			if (!database.query("PREPARE selectSurveyIDStmt FROM \"SELECT SurveyID FROM playTestSurveys WHERE ProjectID = ? AND Language = CONVERT(? USING BINARY) AND MajorVersion = ? AND MinorVersion = ? AND PatchVersion = ? LIMIT 1\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
@@ -2269,12 +2274,24 @@ void ManagementServer::getOwnPlayTestSurveyAnswers(std::shared_ptr<HttpsServer::
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			if (!database.query("EXECUTE selectSurveyIDStmt USING @paramProjectID, @paramLanguage, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion;")) {
+			if (!database.query("EXECUTE selectPlayTestStmt USING @paramProjectID;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
 			auto results = database.getResults<std::vector<std::string>>();
+
+			if (results.empty()) {
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			
+			if (!database.query("EXECUTE selectSurveyIDStmt USING @paramProjectID, @paramLanguage, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			results = database.getResults<std::vector<std::string>>();
 
 			if (results.empty() && language != "English") {
 				if (!database.query("SET @paramLanguage='English';")) {
