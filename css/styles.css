@@ -124,7 +124,7 @@ QMenu::item:disabled {
 }
 
 QPushButton::disabled {
-	color: #CCCCCC;
+	color: #000000;
 }
 
 QPushButton::hover {

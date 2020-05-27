@@ -83,6 +83,7 @@ StartPageWidget::StartPageWidget(QWidget * par) : QWidget(par), _newsTicker(null
 		_scrollArea->setWidget(_newsContainer);
 
 		_startModButton = new QPushButton(this);
+		_startModButton->setProperty("library", true);
 		_startModButton->hide();
 		connect(_startModButton, &QPushButton::released, this, &StartPageWidget::startMod);
 
@@ -264,7 +265,9 @@ void StartPageWidget::showEvent(QShowEvent *) {
 
 			const QSettings iniParser(ini, QSettings::IniFormat);
 			const QString title = iniParser.value("INFO/Title", "").toString();
+			const bool requiresAdmin = iniParser.value("INFO/RequiresAdmin", false).toBool();
 			_startModButton->setText(QApplication::tr("StartModName").arg(title));
+			_startModButton->setEnabled(!requiresAdmin || IsRunAsAdmin());
 		} else {
 			vec.clear();
 		}

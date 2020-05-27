@@ -1794,6 +1794,8 @@
 		<Bug language="Deutsch">Potenziellen Crash im Fehlerfall beim Download behoben</Bug>
 		<Bug language="Deutsch">Backup-Mechanismus für Downloadpfad eingebaut</Bug>
 		<Bug language="Deutsch">Wenn für eine Mod Admin-Rechte erforderlich sind, kann die Mod jetzt ohne nicht mehr gestartet werden</Bug>
+		<Bug language="Deutsch">Start-Button ist jetzt auch lesbar, wenn er deaktiviert ist</Bug>
+		<Bug language="Deutsch">Start-Button auf Startseite ist jetzt auch deaktiviert, wenn Start-Bedingungen nicht erfüllt sind</Bug>
 		
 		<Enhancement language="English">Icons now are cached so they can be displayed in the profile even after uninstallation</Enhancement>
 		<Enhancement language="English">Added survey functionality for play test (beta)</Enhancement>
@@ -1811,5 +1813,7 @@
 		<Bug language="English">Fixed potential crash in error case when downloading</Bug>
 		<Bug language="English">Added backup mechanism for download path</Bug>
 		<Bug language="English">When admin privileges are required to start a mod it can't be started anymore without</Bug>
+		<Bug language="English">Start button now is also readable when disabled</Bug>
+		<Bug language="English">Start button on start page now is also disabled when start conditions aren't fullfilled</Bug>
 	</Version>
 </Versions>
