@@ -365,6 +365,8 @@ void ILauncher::stopCommon() {
 
 	stopScreenshotManager();
 
+	if (!Config::OnlineMode) return;
+	
 	Database::DBError err;
 	const auto version = Database::queryNth<std::vector<int>, int, int, int>(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "SELECT MajorVersion, MinorVersion, PatchVersion FROM updates WHERE ModID = " + std::to_string(_modID) + " LIMIT 1;", err);
 
