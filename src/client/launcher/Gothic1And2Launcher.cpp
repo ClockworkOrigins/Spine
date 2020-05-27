@@ -661,7 +661,6 @@ void Gothic1And2Launcher::updateView(int modID, const QString & iniFile) {
 		_startButton->setText(QApplication::tr("StartMod"));
 		UPDATELANGUAGESETTEXT(_startButton, "StartMod");
 	}
-	_startButton->setEnabled(!_runningUpdates.contains(_modID));
 }
 
 void Gothic1And2Launcher::start() {
@@ -889,7 +888,7 @@ void Gothic1And2Launcher::finishedMod(int, QProcess::ExitStatus status) {
 			ts << text;
 		}
 		_systempackPreLoads.clear();
-	}	
+	}
 	
 	if (!_unionPlugins.isEmpty() && QFileInfo::exists(_directory + "/System/Union.ini")) {
 		QString text;
