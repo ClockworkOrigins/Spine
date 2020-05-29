@@ -3095,6 +3095,10 @@ void Server::handleRequestRandomMod(clockUtils::sockets::TcpSocket * sock, Reque
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
+		if (!database.query("PREPARE selectEnabledStmt FROM \"SELECT Enabled FROM mods WHERE ModID = ? LIMIT 1\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
 		if (!database.query("SET @paramLanguage='" + msg->language + "';")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
@@ -3115,9 +3119,17 @@ void Server::handleRequestRandomMod(clockUtils::sockets::TcpSocket * sock, Reque
 				continue;
 			}
 			auto results = database.getResults<std::vector<std::string>>();
-			if (results.empty()) {
+			
+			if (results.empty()) continue;
+			
+			if (!database.query("EXECUTE selectEnabledStmt USING @paramModID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				continue;
 			}
+			auto results2 = database.getResults<std::vector<std::string>>();
+			
+			if (results2.empty()) continue;
+
 			ids.push_back(std::stoi(results[0][0]));
 		}
 

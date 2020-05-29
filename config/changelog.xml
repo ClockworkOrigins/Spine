@@ -1796,6 +1796,7 @@
 		<Bug language="Deutsch">Wenn für eine Mod Admin-Rechte erforderlich sind, kann die Mod jetzt ohne nicht mehr gestartet werden</Bug>
 		<Bug language="Deutsch">Start-Button ist jetzt auch lesbar, wenn er deaktiviert ist</Bug>
 		<Bug language="Deutsch">Start-Button auf Startseite ist jetzt auch deaktiviert, wenn Start-Bedingungen nicht erfüllt sind</Bug>
+		<Bug language="Deutsch">Unveröffentlichte Mods werden bei der Zufallsseite nicht mehr angezeigt</Bug>
 		
 		<Enhancement language="English">Icons now are cached so they can be displayed in the profile even after uninstallation</Enhancement>
 		<Enhancement language="English">Added survey functionality for play test (beta)</Enhancement>
@@ -1815,5 +1816,6 @@
 		<Bug language="English">When admin privileges are required to start a mod it can't be started anymore without</Bug>
 		<Bug language="English">Start button now is also readable when disabled</Bug>
 		<Bug language="English">Start button on start page now is also disabled when start conditions aren't fullfilled</Bug>
+		<Bug language="English">Unreleased mods won't be displayed anymore for random page</Bug>
 	</Version>
 </Versions>
