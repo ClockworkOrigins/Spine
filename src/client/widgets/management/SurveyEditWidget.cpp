@@ -166,7 +166,7 @@ void SurveyEditWidget::saveClicked() {
 	}
 	requestData["Questions"] = questionArray;
 	
-	https::Https::postAsync(MANAGEMENTSERVER_PORT, "updatePlayTestSurvey", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject &, int) {});
+	https::Https::postAsync(MANAGEMENTSERVER_PORT, "updatePlayTestSurvey", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [](const QJsonObject &, int) {});
 }
 
 void SurveyEditWidget::addQuestionClicked() {
