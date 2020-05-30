@@ -267,7 +267,10 @@ void StartPageWidget::showEvent(QShowEvent *) {
 			const QString title = iniParser.value("INFO/Title", "").toString();
 			const bool requiresAdmin = iniParser.value("INFO/RequiresAdmin", false).toBool();
 			_startModButton->setText(QApplication::tr("StartModName").arg(title));
+
+#ifdef Q_OS_WIN
 			_startModButton->setEnabled(!requiresAdmin || IsRunAsAdmin());
+#endif
 		} else {
 			vec.clear();
 		}
