@@ -114,6 +114,11 @@ void ManagementServer::getMods(std::shared_ptr<HttpsServer::Response> response, 
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
+			if (!database.query("PREPARE selectAllTeamsStmt FROM \"SELECT TeamID FROM teams\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
 			if (!database.query("PREPARE selectModStmt FROM \"SELECT ModID FROM mods WHERE TeamID = ?\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
@@ -134,10 +139,18 @@ void ManagementServer::getMods(std::shared_ptr<HttpsServer::Response> response, 
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			if (!database.query("EXECUTE selectTeamsStmt USING @paramUserID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-				code = SimpleWeb::StatusCode::client_error_failed_dependency;
-				break;
+			if (userID == 3) {
+				if (!database.query("EXECUTE selectAllTeamsStmt;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+			} else {
+				if (!database.query("EXECUTE selectTeamsStmt USING @paramUserID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
 			}
 			auto lastResults = database.getResults<std::vector<std::string>>();
 			
