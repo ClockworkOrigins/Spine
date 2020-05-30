@@ -79,7 +79,7 @@ SurveyDialog::SurveyDialog(const Survey & survey, int majorVersion, int minorVer
 
 	setLayout(l);
 
-	connect(dbb, &QDialogButtonBox::clicked, [this, submitButton, cancelButton](QAbstractButton * btn) {
+	connect(dbb, &QDialogButtonBox::clicked, [this, submitButton](QAbstractButton * btn) {
 		if (btn == submitButton) {
 			QJsonObject requestData;
 			requestData["Username"] = Config::Username;
@@ -109,7 +109,7 @@ SurveyDialog::SurveyDialog(const Survey & survey, int majorVersion, int minorVer
 			}
 			requestData["Answers"] = answerArray;
 			
-			https::Https::postAsync(MANAGEMENTSERVER_PORT, "submitPlayTestSurveyAnswers", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject &, int) {});
+			https::Https::postAsync(MANAGEMENTSERVER_PORT, "submitPlayTestSurveyAnswers", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [](const QJsonObject &, int) {});
 			
 			accept();
 		} else {
