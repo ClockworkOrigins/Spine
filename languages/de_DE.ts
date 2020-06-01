@@ -3172,5 +3172,9 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>SaveNotCompatible</source>
         <translation>Spielstände deiner installierten Version sind nicht mit der neuen Version kompatibel. Falls du bereits Spielstände hast, musst du ein neues Spiel beginnen, damit alle Änderungen wirksam werden.</translation>
     </message>
+    <message>
+        <source>Changelog</source>
+        <translation>Changelog</translation>
+    </message>
 </context>
 </TS>

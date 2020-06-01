@@ -22,6 +22,8 @@
 
 #include "common/MessageStructs.h"
 
+#include "gui/Spoiler.h"
+
 #include "utils/Config.h"
 #include "utils/Conversion.h"
 #include "utils/Database.h"
@@ -41,10 +43,12 @@
 #include <QPushButton>
 #include <QSet>
 #include <QtConcurrentRun>
+#include <QTextBrowser>
 #include <QTimer>
 #include <QVBoxLayout>
 
 using namespace spine;
+using namespace spine::gui;
 using namespace spine::utils;
 using namespace spine::widgets;
 
@@ -150,6 +154,20 @@ void ModUpdateDialog::updateModList(std::vector<common::ModUpdate> updates) {
 			hl->addWidget(lbl);
 			
 			_checkBoxLayout->addLayout(hl);
+
+			const auto changelog = s2q(u.changelog);
+
+			if (b && !changelog.isEmpty()) {
+				QVBoxLayout * vl = new QVBoxLayout();
+				QTextBrowser * tb = new QTextBrowser(this);
+				tb->setText(changelog);
+				vl->addWidget(tb);
+
+				Spoiler * s = new Spoiler(QApplication::tr("Changelog"), this);
+				s->setContentLayout(vl);
+
+				_checkBoxLayout->addWidget(s);
+			}
 		}
 		if (!_updates.empty()) {
 			if (visibleCount > 0) {
