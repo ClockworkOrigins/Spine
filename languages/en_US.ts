@@ -3172,5 +3172,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>Back</source>
         <translation>Back</translation>
     </message>
+    <message>
+        <source>SavegameCompatible</source>
+        <translation>Savegame compatible</translation>
+    </message>
 </context>
 </TS>

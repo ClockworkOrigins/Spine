@@ -22,6 +22,8 @@
 
 #include "SpineConfig.h"
 
+#include "client/widgets/management/EnterChangelogDialog.h"
+
 #include "common/MessageStructs.h"
 
 #include "gui/WaitSpinner.h"
@@ -42,6 +44,7 @@
 #include <QFileDialog>
 #include <QHeaderView>
 #include <QInputDialog>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QListView>
@@ -70,7 +73,7 @@ namespace {
 	};
 }
 
-ModFilesWidget::ModFilesWidget(QWidget * par) : QWidget(par), _fileList(nullptr), _mods(), _fileTreeView(nullptr), _modIndex(-1), _directory(), _fileMap(), _majorVersionBox(nullptr), _minorVersionBox(nullptr), _patchVersionBox(nullptr), _waitSpinner(nullptr) {
+ModFilesWidget::ModFilesWidget(QWidget * par) : QWidget(par), _fileList(nullptr), _fileTreeView(nullptr), _modIndex(-1), _majorVersionBox(nullptr), _minorVersionBox(nullptr), _patchVersionBox(nullptr), _waitSpinner(nullptr) {
 	QVBoxLayout * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
@@ -454,6 +457,26 @@ void ModFilesWidget::updateVersion() {
 	const QDate date(2000, 1, 1);
 	
 	json["Date"] = date.daysTo(QDate::currentDate());
+
+	EnterChangelogDialog dlg(this);
+	const auto result = dlg.exec();
+
+	if (result != QDialog::Accepted) return;
+
+	json["SavegameCompatible"] = static_cast<int>(dlg.isSavegameCompatible());
+
+	const auto changelogs = dlg.getChangelogs();
+
+	QJsonArray changelogsArray;
+	for (auto it = changelogs.begin(); it != changelogs.end(); ++it) {
+		QJsonObject d;
+
+		d["Language"] = it.key();
+		d["Changelog"] = it.value();
+		
+		changelogsArray.append(d);
+	}
+	json["Changelogs"] = changelogsArray;
 	
 	https::Https::postAsync(MANAGEMENTSERVER_PORT, "updateModVersion", QJsonDocument(json).toJson(QJsonDocument::Compact), [](const QJsonObject &, int) {
 		// error handling
@@ -569,19 +592,20 @@ void ModFilesWidget::addFile(QStandardItem * itm, QString file, QString language
 
 void ModFilesWidget::deleteFile(const QModelIndex & idx) {
 	const QVariant v = idx.data(PathRole);
-	if (v.isValid()) {
-		const QString path = v.toString();
-		for (auto & file : _data.files) {
-			QString currentFileName = file.filename;
-			if (currentFileName.endsWith(".z")) {
-				currentFileName.chop(2);
-			}
-			if (path == currentFileName) {
-				file.deleted = true;
-				break;
-			}
+	
+	if (!v.isValid()) return;
+	
+	const QString path = v.toString();
+	for (auto & file : _data.files) {
+		QString currentFileName = file.filename;
+		if (currentFileName.endsWith(".z")) {
+			currentFileName.chop(2);
 		}
-		_directory.remove(path);
-		_fileList->removeRow(idx.row(), idx.parent());
+		if (path == currentFileName) {
+			file.deleted = true;
+			break;
+		}
 	}
+	_directory.remove(path);
+	_fileList->removeRow(idx.row(), idx.parent());
 }

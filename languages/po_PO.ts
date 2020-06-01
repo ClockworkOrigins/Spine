@@ -3164,5 +3164,9 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>Back</source>
         <translation>Zurück</translation>
     </message>
+    <message>
+        <source>SavegameCompatible</source>
+        <translation>Spielstand kompatibel</translation>
+    </message>
 </context>
 </TS>

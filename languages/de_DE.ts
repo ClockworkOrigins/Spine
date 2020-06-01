@@ -3164,5 +3164,9 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>Back</source>
         <translation>Zurück</translation>
     </message>
+    <message>
+        <source>SavegameCompatible</source>
+        <translation>Spielstand kompatibel</translation>
+    </message>
 </context>
 </TS>
