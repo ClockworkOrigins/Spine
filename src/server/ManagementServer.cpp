@@ -23,6 +23,7 @@
 #include "SpineServerConfig.h"
 
 #include "common/MessageStructs.h"
+#include "common/NewsTickerTypes.h"
 
 #define BOOST_SPIRIT_THREADSAFE
 #include "boost/filesystem/operations.hpp"
@@ -1070,6 +1071,12 @@ void ManagementServer::updateModVersion(std::shared_ptr<HttpsServer::Response> r
 			date = pt.get<int32_t>("Date");
 		} catch (...) {}
 
+		int32_t savegameCompatible = 0;
+
+		try {
+			savegameCompatible = pt.get<int32_t>("SavegameCompatible");
+		} catch (...) {}
+
 		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
 
 		do {
@@ -1081,6 +1088,26 @@ void ManagementServer::updateModVersion(std::shared_ptr<HttpsServer::Response> r
 				break;
 			}
 			if (!database.query("PREPARE updateDateStmt FROM \"INSERT INTO lastUpdated (ProjectID, Date) VALUES (?, ?) ON DUPLICATE KEY UPDATE Date = ?\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE insertNewsTickerStmt FROM \"INSERT INTO newsTicker (ProjectID, Date, Type) VALUES (?, ?, ?)\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectNewsIDStmt FROM \"SELECT MAX(NewsID) FROM newsTicker WHERE ProjectID = ? AND Date = ? AND Type = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE insertUpdateNewsStmt FROM \"INSERT INTO updateNews (NewsID, MajorVersion, MinorVersion, PatchVersion, SavegameCompatible) VALUES (?, ?, ?, ?, ?)\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE insertChangelogStmt FROM \"INSERT INTO changelogs (NewsID, Language, Changelog) VALUES (?, CONVERT(? USING BINARY), CONVERT(? USING BINARY))\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
@@ -1110,6 +1137,11 @@ void ManagementServer::updateModVersion(std::shared_ptr<HttpsServer::Response> r
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
+			if (!database.query("SET @paramType=" + std::to_string(static_cast<int>(NewTickerType::Update)) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
 			if (!database.query("EXECUTE updateStmt USING @paramVersionMajor, @paramVersionMinor, @paramVersionPatch, @paramModID;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
@@ -1119,6 +1151,54 @@ void ManagementServer::updateModVersion(std::shared_ptr<HttpsServer::Response> r
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
+			}
+			if (!database.query("EXECUTE insertNewsTickerStmt USING @paramModID, @paramDate, @paramType;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("EXECUTE selectNewsIDStmt USING @paramModID, @paramDate, @paramType;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			auto results = database.getResults<std::vector<std::string>>();
+
+			if (!database.query("SET @paramNewsID=" + results[0][0] + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramSavegameCompatible=" + std::to_string(savegameCompatible) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("EXECUTE insertUpdateNewsStmt USING @paramNewsID, @paramVersionMajor, @paramVersionMinor, @paramVersionPatch, @paramSavegameCompatible;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+
+			for (const auto & v : pt.get_child("Changelogs")) {
+				const std::string language = v.second.get<std::string>("Language");
+				const std::string changelog = v.second.get<std::string>("Changelog");
+				
+				if (!database.query("SET @paramLanguage='" + language + "';")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					return;
+				}
+				if (!database.query("SET @paramChangelog='" + changelog + "';")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					return;
+				}
+				if (!database.query("EXECUTE insertChangelogStmt USING @paramNewsID, @paramLanguage, @paramChangelog;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
 			}
 		} while (false);
 

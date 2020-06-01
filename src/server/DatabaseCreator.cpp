@@ -298,4 +298,16 @@ void DatabaseCreator::createTables() {
 		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
+	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS newsticker (NewsID INT AUTO_INCREMENT PRIMARY KEY, ProjectID INT NOT NULL, Type INT NOT NULL, Date INT NOT NULL);"))) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS updateNews (NewsID INT PRIMARY KEY, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL, SavegameCompatible INT NOT NULL);"))) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS changelogs (NewsID INT NOT NULL, Changelog TEXT NOT NULL, Language TEXT NOT NULL, PRIMARY KEY(NewsID, Language(20)) CHARACTER SET utf8;"))) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
 }
