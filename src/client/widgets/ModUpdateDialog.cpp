@@ -48,7 +48,7 @@ using namespace spine;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-ModUpdateDialog::ModUpdateDialog(QMainWindow * mainWindow) : QDialog(nullptr), _mainWindow(mainWindow), _infoLabel(nullptr), _checkBoxLayout(nullptr), _updates(), _checkBoxes(), _running(false), _lastTimeRejected(false), _oldVersions() {
+ModUpdateDialog::ModUpdateDialog(QMainWindow * mainWindow) : QDialog(nullptr), _mainWindow(mainWindow), _infoLabel(nullptr), _checkBoxLayout(nullptr), _running(false), _lastTimeRejected(false) {
 	QVBoxLayout * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
@@ -93,13 +93,6 @@ ModUpdateDialog::ModUpdateDialog(QMainWindow * mainWindow) : QDialog(nullptr), _
 	Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "CREATE TABLE IF NOT EXISTS updates (ModID INT PRIMARY KEY, Name TEXT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL);", err);
 }
 
-ModUpdateDialog::~ModUpdateDialog() {
-}
-
-int ModUpdateDialog::exec() {
-	return QDialog::exec();
-}
-
 void ModUpdateDialog::loginChanged() {
 	if (_lastTimeRejected) {
 		_lastTimeRejected = false;
@@ -127,18 +120,36 @@ void ModUpdateDialog::updateModList(std::vector<common::ModUpdate> updates) {
 		int visibleCount = 0;
 		for (const common::ModUpdate & u : updates) {
 			Database::DBError err;
-			Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "DELETE FROM updates WHERE ModID = " + std::to_string(u.modID) + " AND MajorVersion != " + std::to_string(int(u.majorVersion)) + " AND MinorVersion != " + std::to_string(int(u.minorVersion)) + " AND PatchVersion != " + std::to_string(int(u.patchVersion)) + " LIMIT 1;", err);
-			std::vector<int> result = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "SELECT ModID FROM updates WHERE ModID = " + std::to_string(u.modID) + " AND MajorVersion = " + std::to_string(int(u.majorVersion)) + " AND MinorVersion = " + std::to_string(int(u.minorVersion)) + " AND PatchVersion = " + std::to_string(int(u.patchVersion)) + " LIMIT 1;", err);
-			if (result.empty()) {
-				QCheckBox * cb = new QCheckBox(s2q(u.name) + " (" + _oldVersions[u.modID] + " => " + QString("%1.%2.%3").arg(int(u.majorVersion)).arg(int(u.minorVersion)).arg(int(u.patchVersion)) + ")", this);
-				cb->setChecked(true); // default enabled
-				_checkBoxes.push_back(cb);
-				_checkBoxLayout->addWidget(cb);
-				_updates.push_back(u);
-				const bool b = hasChanges(u);
-				cb->setVisible(b);
-				visibleCount += b ? 1 : 0;
+			Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "DELETE FROM updates WHERE ModID = " + std::to_string(u.modID) + " AND MajorVersion != " + std::to_string(static_cast<int>(u.majorVersion)) + " AND MinorVersion != " + std::to_string(static_cast<int>(u.minorVersion)) + " AND PatchVersion != " + std::to_string(static_cast<int>(u.patchVersion)) + " LIMIT 1;", err);
+			std::vector<int> result = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "SELECT ModID FROM updates WHERE ModID = " + std::to_string(u.modID) + " AND MajorVersion = " + std::to_string(static_cast<int>(u.majorVersion)) + " AND MinorVersion = " + std::to_string(static_cast<int>(u.minorVersion)) + " AND PatchVersion = " + std::to_string(static_cast<int>(u.patchVersion)) + " LIMIT 1;", err);
+			
+			if (!result.empty()) continue;
+
+			QString title = QString("%1 (%2 => %3.%4.%5)").arg(s2q(u.name)).arg(_oldVersions[u.modID]).arg(static_cast<int>(u.majorVersion)).arg(static_cast<int>(u.minorVersion)).arg(static_cast<int>(u.patchVersion));
+
+			QHBoxLayout * hl = new QHBoxLayout();
+			
+			QCheckBox * cb = new QCheckBox(title, this);
+			cb->setChecked(true); // default enabled
+			_checkBoxes.push_back(cb);
+			_updates.push_back(u);
+			const bool b = hasChanges(u);
+			cb->setVisible(b);
+			visibleCount += b ? 1 : 0;
+
+			QLabel * lbl = new QLabel(u.savegameCompatible ? "" : "!", this);
+			lbl->setVisible(b);
+			lbl->setProperty("error", true);
+			lbl->setProperty("bold", true);
+
+			if (!u.savegameCompatible) {
+				lbl->setToolTip(QApplication::tr("SaveNotCompatible"));
 			}
+
+			hl->addWidget(cb, 1);
+			hl->addWidget(lbl);
+			
+			_checkBoxLayout->addLayout(hl);
 		}
 		if (!_updates.empty()) {
 			if (visibleCount > 0) {
@@ -245,7 +256,7 @@ void ModUpdateDialog::accept() {
 		}
 
 		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE patches SET Name = '" + _updates[i].name + "' WHERE ModID = " + std::to_string(_updates[i].modID) + ";", err);
-		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE mods SET GothicVersion = " + std::to_string(int(_updates[i].gothicVersion)) + " WHERE ModID = " + std::to_string(_updates[i].modID) + ";", err);
+		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE mods SET GothicVersion = " + std::to_string(static_cast<int>(_updates[i].gothicVersion)) + " WHERE ModID = " + std::to_string(_updates[i].modID) + ";", err);
 	}
 
 	MultiFileDownloader * mfd = new MultiFileDownloader(this);
@@ -387,7 +398,7 @@ void ModUpdateDialog::checkForUpdate() {
 		Database::DBError err;
 		std::vector<common::ModVersion> m = Database::queryAll<common::ModVersion, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, MajorVersion, MinorVersion, PatchVersion FROM mods;", err);
 		for (common::ModVersion mv : m) {
-			_oldVersions.insert(mv.modID, QString("%1.%2.%3").arg(int(mv.majorVersion)).arg(int(mv.minorVersion)).arg(int(mv.patchVersion)));
+			_oldVersions.insert(mv.modID, QString("%1.%2.%3").arg(static_cast<int>(mv.majorVersion)).arg(static_cast<int>(mv.minorVersion)).arg(static_cast<int>(mv.patchVersion)));
 		}
 		common::ModVersionCheckMessage mvcm;
 		mvcm.modVersions = m;
@@ -406,7 +417,7 @@ void ModUpdateDialog::checkForUpdate() {
 						if (smtum) {
 							emit receivedMods(smtum->updates);
 						} else {
-							qDebug() << int(msg->type);
+							qDebug() << static_cast<int>(msg->type);
 							emit receivedMods(std::vector<common::ModUpdate>());
 						}
 					} else {
@@ -427,7 +438,7 @@ void ModUpdateDialog::checkForUpdate(int32_t modID) {
 	QtConcurrent::run([this, modID]() {
 		std::vector<common::ModVersion> m = { common::ModVersion(modID, 0, 0, 0) };
 		for (common::ModVersion mv : m) {
-			_oldVersions.insert(mv.modID, QString("%1.%2.%3").arg(int(mv.majorVersion)).arg(int(mv.minorVersion)).arg(int(mv.patchVersion)));
+			_oldVersions.insert(mv.modID, QString("%1.%2.%3").arg(static_cast<int>(mv.majorVersion)).arg(static_cast<int>(mv.minorVersion)).arg(static_cast<int>(mv.patchVersion)));
 		}
 		common::ModVersionCheckMessage mvcm;
 		mvcm.modVersions = m;
@@ -446,7 +457,7 @@ void ModUpdateDialog::checkForUpdate(int32_t modID) {
 						if (smtum) {
 							emit receivedMods(smtum->updates);
 						} else {
-							qDebug() << int(msg->type);
+							qDebug() << static_cast<int>(msg->type);
 							emit receivedMods(std::vector<common::ModUpdate>());
 						}
 					} else {

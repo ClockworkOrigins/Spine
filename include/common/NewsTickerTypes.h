@@ -21,7 +21,7 @@
 namespace spine {
 namespace common {
 	
-	enum class NewTickerType {
+	enum class NewsTickerType {
 		Update
 	};
 

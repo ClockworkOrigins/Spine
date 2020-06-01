@@ -107,6 +107,10 @@ QLabel[adminInfo=true] {
 	color: #F92672;
 }
 
+QLabel[error=true] {
+	color: #FF0000;
+}
+
 QLineEdit {
 	background-color: #272822;
 	color: #F8F8F2;

@@ -67,6 +67,10 @@ QLabel[adminInfo=true] {
 	color: #FF0000;
 }
 
+QLabel[error=true] {
+	color: #FF0000;
+}
+
 QLabel[fontAwesome=true] {
 	font-family: "FontAwesome";
 }

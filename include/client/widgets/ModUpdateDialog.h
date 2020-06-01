@@ -36,7 +36,6 @@ namespace widgets {
 
 	public:
 		ModUpdateDialog(QMainWindow * mainWindow);
-		~ModUpdateDialog();
 
 	signals:
 		void receivedMods(std::vector<common::ModUpdate>);
@@ -44,7 +43,6 @@ namespace widgets {
 		void updatedMod(int);
 
 	public slots:
-		int exec() override;
 		void loginChanged();
 		void checkForUpdate();
 		void checkForUpdate(int32_t modID);

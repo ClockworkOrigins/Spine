@@ -40,8 +40,10 @@ namespace common {
 		std::vector<std::pair<int32_t, std::vector<std::pair<std::string, std::string>>>> packageFiles;
 		std::string fileserver;
 		GameType gothicVersion;
+		bool savegameCompatible;
+		std::string changelog;
 
-		ModUpdate() : modID(0), majorVersion(0), minorVersion(0), patchVersion(0), gothicVersion(GameType::Gothic) {
+		ModUpdate() : modID(0), majorVersion(0), minorVersion(0), patchVersion(0), gothicVersion(GameType::Gothic), savegameCompatible(false) {
 		}
 
 		template<class Archive>
@@ -55,6 +57,8 @@ namespace common {
 			ar & packageFiles;
 			ar & fileserver;
 			ar & gothicVersion;
+			ar & savegameCompatible;
+			ar & changelog;
 		}
 	};
 

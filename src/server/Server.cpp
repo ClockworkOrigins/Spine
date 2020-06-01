@@ -35,6 +35,7 @@
 #include "UploadServer.h"
 
 #include "common/MessageStructs.h"
+#include "common/NewsTickerTypes.h"
 
 #include "boost/filesystem.hpp"
 
@@ -1121,6 +1122,18 @@ void Server::handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, ModVer
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
+	if (!database.query("PREPARE selectNewsIDStmt FROM \"SELECT MAX(NewsID) FROM newsticker WHERE ProjectID = ? AND Type = ? LIMIT 1\";")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return;
+	}
+	if (!database.query("PREPARE selectSavegamesCompatibleStmt FROM \"SELECT SavegameCompatible FROM updateNews WHERE ProjectID = ? AND SavegameCompatible = 0 AND (MajorVersion > ? OR (MajorVersion = ? AND MinorVersion > ?) OR (MajorVersion = ? AND MinorVersion = ? AND PatchVersion > ?)) LIMIT 1\";")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return;
+	}
+	if (!database.query("PREPARE selectChangelogStmt FROM \"SELECT CAST(Changelog AS BINARY) FROM changelogs WHERE NewsID = ? AND Language = ? LIMIT 1\";")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return;
+	}
 	SendModsToUpdateMessage smtum;
 	for (const ModVersion & mv : msg->modVersions) {
 		if (!database.query("SET @paramModID=" + std::to_string(mv.modID) + ";")) {
@@ -1244,6 +1257,53 @@ void Server::handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, ModVer
 					possibilities.push_back(vec[0]);
 				}
 				mu.fileserver = possibilities[std::rand() % possibilities.size()];
+				
+				if (!database.query("SET @paramType=" + std::to_string(static_cast<int>(NewsTickerType::Update)) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					return;
+				}
+				if (!database.query("EXECUTE selectNewsIDStmt USING @paramModID, @paramType;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					return;
+				}
+				lastResults = database.getResults<std::vector<std::string>>();
+
+				mu.savegameCompatible = false;
+
+				if (!lastResults.empty()) { // optional at the moment
+					if (!database.query("SET @paramNewsID=" + lastResults[0][0] + ";")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						return;
+					}
+					if (!database.query("EXECUTE selectSavegamesCompatibleStmt USING @paramModID, @paramMajorVersion, @paramMajorVersion, @paramMinorVersion, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion;")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						return;
+					}
+					lastResults = database.getResults<std::vector<std::string>>();
+
+					mu.savegameCompatible = lastResults.empty();
+					
+					if (!database.query("EXECUTE selectChangelogStmt USING @paramNewsID, @paramLanguage;")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						return;
+					}
+					lastResults = database.getResults<std::vector<std::string>>();
+
+					if (lastResults.empty() && msg->language != "English") {
+						if (!database.query("SET @paramLanguage='English';")) {
+							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+							return;
+						}
+						if (!database.query("EXECUTE selectChangelogStmt USING @paramNewsID, @paramLanguage;")) {
+							std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+							return;
+						}
+						lastResults = database.getResults<std::vector<std::string>>();
+					}
+
+					mu.changelog = lastResults.empty() ? "" : lastResults[0][0];
+				}
+				
 				smtum.updates.push_back(mu);
 			}
 		}

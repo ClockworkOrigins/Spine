@@ -1102,7 +1102,7 @@ void ManagementServer::updateModVersion(std::shared_ptr<HttpsServer::Response> r
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			if (!database.query("PREPARE insertUpdateNewsStmt FROM \"INSERT INTO updateNews (NewsID, MajorVersion, MinorVersion, PatchVersion, SavegameCompatible) VALUES (?, ?, ?, ?, ?)\";")) {
+			if (!database.query("PREPARE insertUpdateNewsStmt FROM \"INSERT INTO updateNews (NewsID, ProjectID, MajorVersion, MinorVersion, PatchVersion, SavegameCompatible) VALUES (?, ?, ?, ?, ?, ?)\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
@@ -1137,7 +1137,7 @@ void ManagementServer::updateModVersion(std::shared_ptr<HttpsServer::Response> r
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			if (!database.query("SET @paramType=" + std::to_string(static_cast<int>(NewTickerType::Update)) + ";")) {
+			if (!database.query("SET @paramType=" + std::to_string(static_cast<int>(NewsTickerType::Update)) + ";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
@@ -1174,7 +1174,7 @@ void ManagementServer::updateModVersion(std::shared_ptr<HttpsServer::Response> r
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			if (!database.query("EXECUTE insertUpdateNewsStmt USING @paramNewsID, @paramVersionMajor, @paramVersionMinor, @paramVersionPatch, @paramSavegameCompatible;")) {
+			if (!database.query("EXECUTE insertUpdateNewsStmt USING @paramNewsID, @paramModID, @paramVersionMajor, @paramVersionMinor, @paramVersionPatch, @paramSavegameCompatible;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;

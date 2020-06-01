@@ -3173,5 +3173,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>SavegameCompatible</source>
         <translation>Savegame compatible</translation>
     </message>
+    <message>
+        <source>SaveNotCompatible</source>
+        <translation>Savegames of the version you have installed aren't compatible with the new version. If you already have savegames, you have to start a new game to get all changes.</translation>
+    </message>
 </context>
 </TS>
