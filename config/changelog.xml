@@ -1783,6 +1783,8 @@
 		<Enhancement language="Deutsch">Feedback-Funktionalität pro Projekt eingebaut (Beta)</Enhancement>
 		<Enhancement language="Deutsch">Diskussions-URL-Funktionalität pro Projekt eingebaut (Beta)</Enhancement>
 		<Enhancement language="Deutsch">Plugin-Support für Union 1.0h eingebaut</Enhancement>
+		<Enhancement language="Deutsch">Mod-Updates zeigen jetzt an, ob Savegames kompatibel sind (Beta)</Enhancement>
+		<Enhancement language="Deutsch">Mod-Updates zeigen jetzt den Changelog an, falls vorhanden (Beta)</Enhancement>
 		<Bug language="Deutsch">Aktualisierungsdatum ist jetzt immer mindestens das Releasedatum</Bug>
 		<Bug language="Deutsch">Fehler behoben mit dem Löschen von Dateien, wenn man über einen Ordner aktualisiert</Bug>
 		<Bug language="Deutsch">Spine-API wird korrekt wieder aus den Spiele-Ordnern entfernt</Bug>
@@ -1803,6 +1805,8 @@
 		<Enhancement language="English">Added feedback functionality per project (beta)</Enhancement>
 		<Enhancement language="English">Added discussions URL functionality per project (beta)</Enhancement>
 		<Enhancement language="English">Added plugin support for Union 1.0h</Enhancement>
+		<Enhancement language="English">Mod updates now displayed whether savegames are compatible (beta)</Enhancement>
+		<Enhancement language="English">Mod updates now display changelog if available (beta)</Enhancement>
 		<Bug language="English">Update date now is always at least the release date</Bug>
 		<Bug language="English">Fixed deletion of files when updating via folder</Bug>
 		<Bug language="English">Spine API now is correctly removed from game folder again</Bug>
