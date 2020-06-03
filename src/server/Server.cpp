@@ -2172,7 +2172,23 @@ void Server::handleRequestAllNews(clockUtils::sockets::TcpSocket * sock, Request
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
+	if (!database.query("PREPARE selectSomeNameStmt FROM \"SELECT CAST(Name AS BINARY) FROM modnames WHERE ModID = ? LIMIT 1\";")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return;
+	}
+	if (!database.query("PREPARE selectNewsTicker FROM \"SELECT NewsID, Type, ProjectID, Date FROM newsticker ORDER BY Date DESC\";")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return;
+	}
+	if (!database.query("PREPARE selectUpdateNews FROM \"SELECT MajorVersion, MinorVersion, PatchVersion FROM updateNews WHERE NewsID = ? LIMIT 1\";")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return;
+	}
 	if (!database.query("SET @paramLanguage='" + msg->language + "';")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return;
+	}
+	if (!database.query("SET @paramFallbackLanguage='English';")) {
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
@@ -2225,6 +2241,73 @@ void Server::handleRequestAllNews(clockUtils::sockets::TcpSocket * sock, Request
 			news.imageFiles.emplace_back(p[0], p[1]);
 		}
 		sanm.news.push_back(news);
+	}
+	
+	if (!database.query("EXECUTE selectNewsTicker;")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	lastResults = database.getResults<std::vector<std::string>>();
+
+	for (const auto & vec : lastResults) {
+		const auto type = static_cast<NewsTickerType>(std::stoi(vec[1]));
+		const auto projectID = std::stoi(vec[2]);
+		const auto timestamp = std::stoi(vec[3]);
+
+		SendAllNewsMessage::NewsTicker nt;
+		nt.type = type;
+		nt.projectID = projectID;
+		nt.timestamp = timestamp;
+		
+		if (!database.query("SET @paramProjectID=" + vec[2] + ";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			continue;
+		}
+		if (!database.query("EXECUTE selectModnameStmt USING @paramProjectID, @paramLanguage;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			continue;
+		}
+		auto r = database.getResults<std::vector<std::string>>();
+
+		if (r.empty()) {
+			if (!database.query("EXECUTE selectModnameStmt USING @paramProjectID, @paramFallbackLanguage;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				continue;
+			}
+			r = database.getResults<std::vector<std::string>>();
+		}
+
+		if (r.empty()) {
+			if (!database.query("EXECUTE selectSomeNameStmt USING @paramProjectID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				continue;
+			}
+			r = database.getResults<std::vector<std::string>>();
+		}
+
+		if (r.empty()) continue; // this mustn't happen, but let's be cautious
+
+		nt.name = r[0][0];
+
+		if (type == NewsTickerType::Update) {		
+			if (!database.query("SET @paramNewsID=" + vec[0] + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				continue;
+			}
+			if (!database.query("EXECUTE selectUpdateNews USING @paramNewsID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				continue;
+			}
+			r = database.getResults<std::vector<std::string>>();
+
+			if (r.empty()) continue; // this mustn't happen, but let's be cautious
+
+			nt.majorVersion = static_cast<int8_t>(std::stoi(r[0][0]));
+			nt.minorVersion = static_cast<int8_t>(std::stoi(r[0][1]));
+			nt.patchVersion = static_cast<int8_t>(std::stoi(r[0][2]));
+		}
+
+		sanm.newsTicker.push_back(nt);
 	}
 
 	const std::string serialized = sanm.SerializePrivate();

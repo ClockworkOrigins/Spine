@@ -3184,5 +3184,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>Changelog</source>
         <translation>Changelog</translation>
     </message>
+    <message>
+        <source>Update</source>
+        <translation>Update</translation>
+    </message>
 </context>
 </TS>

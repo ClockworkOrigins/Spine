@@ -232,6 +232,11 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		connect(_modDatabaseView, &ModDatabaseView::finishedInstallation, LauncherFactory::getInstance(), &LauncherFactory::finishedInstallation);
 
 		connect(_modInfoPage, &ModInfoPage::triggerModStart, this, &MainWindow::triggerModStart);
+
+		connect(startPage, &StartPageWidget::showInfoPage, _modInfoPage, &ModInfoPage::loadPage);
+		connect(startPage, &StartPageWidget::showInfoPage, [this]() {
+			_tabWidget->setCurrentIndex(MainTabsOnline::Info);
+		});
 	}
 	connect(startPage, &StartPageWidget::triggerModStart, this, &MainWindow::triggerModStart);
 

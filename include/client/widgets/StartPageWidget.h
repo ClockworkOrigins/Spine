@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "common/MessageStructs.h"
+
 #include <QWidget>
 
 class QPushButton;
@@ -47,6 +49,7 @@ namespace widgets {
 		void tryInstallMod(int, int, client::InstallMode);
 		void finishedInstallation(int, int, bool);
 		void triggerModStart(int, QString);
+		void showInfoPage(int);
 
 	public slots:
 		void loginChanged();
@@ -65,9 +68,10 @@ namespace widgets {
 		QVBoxLayout * _newsLayout;
 		QList<NewsWidget *> _news;
 		QPushButton * _writeNewsButton;
-		QTableView * _newsTicker;
-		QStandardItemModel * _newsTickerModel;
 		QPushButton * _startModButton;
+		QVBoxLayout * _newsTickerLayout;
+		QList<QWidget *> _newsTickerWidgets;
+		QList<common::SendAllNewsMessage::NewsTicker> _newsTickers;
 
 		void showEvent(QShowEvent* evt) override;
 	};

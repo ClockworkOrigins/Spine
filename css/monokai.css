@@ -416,3 +416,17 @@ QLabel[waitSpinner=true] {
 	background-color: #272822;
 }
 
+QLabel[newsTicker=true] {
+	background-color: #EEEEEE;
+	text-decoration: underline;
+	font-size: 10px;
+}
+
+QPushButton[newsTicker=true] {
+	border: none;
+	height: 24px;
+}
+
+QPushButton::hover[newsTicker=true] {
+	background-color: #EEEEEE;
+}

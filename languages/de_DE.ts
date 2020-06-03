@@ -3176,5 +3176,9 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>Changelog</source>
         <translation>Changelog</translation>
     </message>
+    <message>
+        <source>Update</source>
+        <translation>Update</translation>
+    </message>
 </context>
 </TS>

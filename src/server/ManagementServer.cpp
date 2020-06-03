@@ -1087,6 +1087,11 @@ void ManagementServer::updateModVersion(std::shared_ptr<HttpsServer::Response> r
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
+			if (!database.query("PREPARE isEnabledStmt FROM \"SELECT Enabled FROM mods WHERE ModID = ? AND Enabled = 1 LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
 			if (!database.query("PREPARE updateDateStmt FROM \"INSERT INTO lastUpdated (ProjectID, Date) VALUES (?, ?) ON DUPLICATE KEY UPDATE Date = ?\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
@@ -1147,6 +1152,15 @@ void ManagementServer::updateModVersion(std::shared_ptr<HttpsServer::Response> r
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
+			if (!database.query("EXECUTE isEnabledStmt USING @paramModID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			auto results = database.getResults<std::vector<std::string>>();
+
+			if (results.empty()) break;
+			
 			if (!database.query("EXECUTE updateDateStmt USING @paramModID, @paramDate, @paramDate;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
@@ -1162,7 +1176,7 @@ void ManagementServer::updateModVersion(std::shared_ptr<HttpsServer::Response> r
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			auto results = database.getResults<std::vector<std::string>>();
+			results = database.getResults<std::vector<std::string>>();
 
 			if (!database.query("SET @paramNewsID=" + results[0][0] + ";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;

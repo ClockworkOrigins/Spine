@@ -37,13 +37,11 @@
 #include <QApplication>
 #include <QDate>
 #include <QFileInfo>
-#include <QHeaderView>
 #include <QLabel>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QSettings>
 #include <QStandardItemModel>
-#include <QTableView>
 #include <QtConcurrentRun>
 #include <QVBoxLayout>
 
@@ -51,7 +49,7 @@ using namespace spine;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-StartPageWidget::StartPageWidget(QWidget * par) : QWidget(par), _newsTicker(nullptr), _newsTickerModel(nullptr) {
+StartPageWidget::StartPageWidget(QWidget * par) : QWidget(par) {
 	QVBoxLayout * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
@@ -65,15 +63,17 @@ StartPageWidget::StartPageWidget(QWidget * par) : QWidget(par), _newsTicker(null
 
 	{
 		QHBoxLayout * hl = new QHBoxLayout();
-		_newsTicker = new QTableView(this);
-		_newsTicker->horizontalHeader()->hide();
-		_newsTicker->verticalHeader()->hide();
-		_newsTicker->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
-		_newsTicker->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
-		_newsTicker->setShowGrid(false);
-		_newsTickerModel = new QStandardItemModel(_newsTicker);
-		_newsTicker->setModel(_newsTickerModel);
-		_newsTicker->setProperty("newsTicker", true);
+		{
+			QScrollArea * scrollArea = new QScrollArea(this);
+			QWidget * newsTickerWidget = new QWidget(scrollArea);
+			_newsTickerLayout = new QVBoxLayout();
+			_newsTickerLayout->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
+			newsTickerWidget->setLayout(_newsTickerLayout);
+			scrollArea->setWidgetResizable(true);
+			scrollArea->setWidget(newsTickerWidget);
+			hl->addWidget(scrollArea, 25);
+		}
+		
 		_scrollArea = new QScrollArea(this);
 		_newsContainer = new QWidget(_scrollArea);
 		_newsLayout = new QVBoxLayout();
@@ -87,15 +87,11 @@ StartPageWidget::StartPageWidget(QWidget * par) : QWidget(par), _newsTicker(null
 		_startModButton->hide();
 		connect(_startModButton, &QPushButton::released, this, &StartPageWidget::startMod);
 
-		hl->addWidget(_newsTicker);
 		hl->addWidget(_scrollArea);
 		hl->addWidget(_startModButton, 0, Qt::AlignTop);
-		hl->setStretchFactor(_newsTicker, 25);
 		hl->setStretchFactor(_scrollArea, 75);
 		hl->setStretchFactor(_startModButton, 25);
 		l->addLayout(hl);
-
-		connect(_newsTicker, &QTableView::clicked, this, &StartPageWidget::selectedNews);
 	}
 
 	_writeNewsButton = new QPushButton(QIcon(":/svg/edit.svg"), "", this);
@@ -133,7 +129,7 @@ void StartPageWidget::requestNewsUpdate() {
 		ranm.language = Config::Language.toStdString();
 		std::string serialized = ranm.SerializePublic();
 		clockUtils::sockets::TcpSocket sock;
-		clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
+		const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
 		if (clockUtils::ClockError::SUCCESS == cErr) {
 			sock.writePacket(serialized);
 			if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
@@ -150,6 +146,12 @@ void StartPageWidget::requestNewsUpdate() {
 								Database::execute(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "INSERT INTO newsImageReferences (NewsID, File, Hash) VALUES (" + std::to_string(news.id) + ", '" + p.first + "', '" + p.second + "');", err);
 							}
 						}
+
+						_newsTickers.clear();
+
+						for (const auto & nt : sanm->newsTicker) {
+							_newsTickers.append(nt);
+						}
 					}
 					delete m;
 				} catch (...) {
@@ -160,7 +162,7 @@ void StartPageWidget::requestNewsUpdate() {
 	});
 }
 
-void StartPageWidget::setLanguage(QString language) {
+void StartPageWidget::setLanguage(QString) {
 	requestNewsUpdate();
 }
 
@@ -173,9 +175,14 @@ void StartPageWidget::updateNews() {
 		nw->deleteLater();
 	}
 	_news.clear();
-	_newsTickerModel->clear();
+
+	for (QWidget * w : _newsTickerWidgets) {
+		w->deleteLater();
+	}
+	_newsTickerWidgets.clear();
+	
 	Database::DBError err;
-	std::vector<common::SendAllNewsMessage::News> news = Database::queryAll<common::SendAllNewsMessage::News, std::string, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT NewsID, Title, Body, Timestamp FROM news WHERE Language = '" + Config::Language.toStdString() + "' ORDER BY Timestamp DESC, NewsID DESC;", err);
+	std::vector<common::SendAllNewsMessage::News> news = Database::queryAll<common::SendAllNewsMessage::News, std::string, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT NewsID, Title, Body, Timestamp FROM news WHERE Language = '" + Config::Language.toStdString() + "' ORDER BY Timestamp DESC, NewsID DESC LIMIT 10;", err);
 	if (Config::OnlineMode) {
 		const auto images = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT DISTINCT File, Hash FROM newsImageReferences;", err);
 		MultiFileDownloader * mfd = new MultiFileDownloader(this);
@@ -219,11 +226,37 @@ void StartPageWidget::updateNews() {
 		f.setUnderline(true);
 		itmTitle->setFont(f);
 		itmTimestamp->setFont(f);
-		_newsTickerModel->appendRow(QList<QStandardItem *>() << itmTitle << itmTimestamp);
 	}
-	if (!_news.empty()) {
-		_newsTicker->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Stretch);
-		_newsTicker->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeMode::ResizeToContents);
+
+	for (const auto & nt : _newsTickers) {
+		if (nt.type != common::NewsTickerType::Update) continue;
+		
+		QPushButton * pb = new QPushButton(this);
+
+		QHBoxLayout * hl = new QHBoxLayout();
+
+		QLabel * lblTitle = new QLabel(QString("[%1] %2 %3.%4.%5").arg(QApplication::tr("Update").toUpper()).arg(s2q(nt.name)).arg(static_cast<int>(nt.majorVersion)).arg(static_cast<int>(nt.minorVersion)).arg(static_cast<int>(nt.patchVersion)), this);
+		QLabel * lblDate = new QLabel(QDate(2000, 1, 1).addDays(nt.timestamp).toString("dd.MM.yyyy"), this);
+
+		pb->setProperty("newsTicker", true);
+		pb->setProperty("ProjectID", nt.projectID);
+		
+		lblTitle->setProperty("newsTicker", true);
+		lblDate->setProperty("newsTicker", true);
+
+		hl->addWidget(lblTitle);
+		hl->addStretch(1);
+		hl->addWidget(lblDate);
+
+		pb->setLayout(hl);
+
+		_newsTickerWidgets.append(pb);
+		
+		_newsTickerLayout->addWidget(pb);
+
+		connect(pb, &QPushButton::released, [this, pb]() {
+			emit showInfoPage(pb->property("ProjectID").toInt());
+		});
 	}
 }
 
@@ -242,7 +275,12 @@ void StartPageWidget::refresh() {
 		nw->deleteLater();
 	}
 	_news.clear();
-	_newsTickerModel->clear();
+
+	for (QWidget * w : _newsTickerWidgets) {
+		w->deleteLater();
+	}
+	_newsTickerWidgets.clear();
+	
 	requestNewsUpdate();
 }
 

@@ -23,6 +23,7 @@
 #include "common/ModStats.h"
 #include "common/ModUpdate.h"
 #include "common/ModVersion.h"
+#include "common/NewsTickerTypes.h"
 
 #include "boost/serialization/map.hpp"
 #include "boost/serialization/vector.hpp"
@@ -746,14 +747,41 @@ namespace common {
 				ar & imageFiles;
 			}
 		};
+
+		struct NewsTicker {
+			NewsTickerType type;
+			std::string name;
+			int32_t projectID;
+			int32_t timestamp;
+			int8_t majorVersion;
+			int8_t minorVersion;
+			int8_t patchVersion;
+
+			NewsTicker() : type(NewsTickerType::Update), projectID(0), timestamp(0), majorVersion(0), minorVersion(0), patchVersion(0) {}
+
+			template<class Archive>
+			void serialize(Archive & ar, const unsigned int /* file_version */) {
+				ar & type;
+				ar & name;
+				ar & projectID;
+				ar & timestamp;
+				ar & majorVersion;
+				ar & minorVersion;
+				ar & patchVersion;
+			}
+		};
+		
 		std::vector<News> news;
-		SendAllNewsMessage() : Message(), news() {
+		std::vector<NewsTicker> newsTicker;
+		
+		SendAllNewsMessage() : Message() {
 			type = MessageType::SENDALLNEWS;
 		}
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int /* file_version */) {
 			ar & boost::serialization::base_object<Message>(*this);
 			ar & news;
+			ar & newsTicker;
 		}
 	};
 

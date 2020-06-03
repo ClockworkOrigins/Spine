@@ -3176,5 +3176,9 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>Changelog</source>
         <translation>Changelog</translation>
     </message>
+    <message>
+        <source>Update</source>
+        <translation>Update</translation>
+    </message>
 </context>
 </TS>
