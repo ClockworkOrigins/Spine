@@ -206,10 +206,10 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	connect(_settingsDialog->getGeneralSettingsWidget(), &GeneralSettingsWidget::languageChanged, startPage, &StartPageWidget::setLanguage);
 
 	_tabWidget->addTab(startPage, QApplication::tr("Startpage"));
-	UPDATELANGUAGESETTABTEXT(_tabWidget, Config::OnlineMode ? int(MainTabsOnline::StartOnline) : int(MainTabsOffline::StartOffline), "Startpage");
+	UPDATELANGUAGESETTABTEXT(_tabWidget, Config::OnlineMode ? MainTabsOnline::StartOnline : MainTabsOffline::StartOffline, "Startpage");
 
 	if (Config::OnlineMode) {
-		_modInfoPage = new ModInfoPage(this, _settingsDialog->getGeneralSettingsWidget(), this);
+		_modInfoPage = new ModInfoPage(this, this);
 		_tabWidget->addTab(_modInfoPage, QApplication::tr("InfoPage"));
 		UPDATELANGUAGESETTABTEXT(_tabWidget, MainTabsOnline::Info, "InfoPage");
 	}
@@ -377,7 +377,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	w->setLayout(l);
 
 	_tabWidget->addTab(w, QApplication::tr("Library"));
-	UPDATELANGUAGESETTABTEXT(_tabWidget, Config::OnlineMode ? int(MainTabsOnline::LibraryOnline) : int(MainTabsOffline::LibraryOffline), "Library");
+	UPDATELANGUAGESETTABTEXT(_tabWidget, Config::OnlineMode ? MainTabsOnline::LibraryOnline : MainTabsOffline::LibraryOffline, "Library");
 
 	if (Config::OnlineMode) {
 		_profileView = new ProfileView(this, _settingsDialog->getGeneralSettingsWidget(), _tabWidget);

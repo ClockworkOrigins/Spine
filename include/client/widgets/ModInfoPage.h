@@ -46,7 +46,6 @@ namespace gui {
 }
 namespace widgets {
 
-	class GeneralSettingsWidget;
 	class NewsWidget;
 	class NewsWriterDialog;
 	class ProjectInfoBoxWidget;
@@ -57,7 +56,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		ModInfoPage(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QWidget * par);
+		ModInfoPage(QMainWindow * mainWindow, QWidget * par);
 
 	signals:
 		void receivedPage(common::SendInfoPageMessage *);
@@ -115,7 +114,6 @@ namespace widgets {
 		QPushButton * _deleteImageButton;
 		QMap<common::SpineModules, QCheckBox *> _moduleCheckBoxes;
 		QPushButton * _applyButton;
-		GeneralSettingsWidget * _generalSettingsWidget;
 		gui::WaitSpinner * _waitSpinner;
 		QList<QPushButton *> _optionalPackageButtons;
 		bool _forceEdit;
