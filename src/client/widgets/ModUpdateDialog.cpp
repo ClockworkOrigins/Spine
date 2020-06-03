@@ -147,7 +147,7 @@ void ModUpdateDialog::updateModList(std::vector<common::ModUpdate> updates) {
 			lbl->setProperty("bold", true);
 
 			if (!u.savegameCompatible) {
-				lbl->setToolTip(QApplication::tr("SaveNotCompatible"));
+				lbl->setToolTip(QApplication::tr("SaveNotCompatibleTooltip"));
 			}
 
 			hl->addWidget(cb, 1);

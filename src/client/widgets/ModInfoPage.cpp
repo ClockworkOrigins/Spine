@@ -24,6 +24,7 @@
 #include "common/SpineModules.h"
 
 #include "gui/FullscreenPreview.h"
+#include "gui/Spoiler.h"
 #include "gui/WaitSpinner.h"
 
 #include "utils/Compression.h"
@@ -185,14 +186,32 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 	_descriptionEdit->setPlaceholderText(QApplication::tr("InfoPageDescriptionPlaceholder"));
 	UPDATELANGUAGESETPLACEHOLDERTEXT(_descriptionEdit, "InfoPageDescriptionPlaceholder");
 
-	_spineFeaturesView = new QListView(widget);
-	hl->addWidget(_spineFeaturesView, 0, Qt::AlignTop);
-	_spineFeaturesView->hide();
+	{
+		QVBoxLayout * rightLayout = new QVBoxLayout();
+		rightLayout->setAlignment(Qt::AlignTop);
+		
+		_spineFeaturesView = new QListView(widget);
+		_spineFeaturesView->hide();
 
-	_spineFeaturesEdit = new QGroupBox(QApplication::tr("SpineFeatures"), widget);
-	hl->addWidget(_spineFeaturesEdit);
-	_spineFeaturesEdit->hide();
-	UPDATELANGUAGESETTITLE(_spineFeaturesEdit, "SpineFeatures");
+		_spineFeaturesEdit = new QGroupBox(QApplication::tr("SpineFeatures"), widget);
+		_spineFeaturesEdit->hide();
+		UPDATELANGUAGESETTITLE(_spineFeaturesEdit, "SpineFeatures");
+
+		rightLayout->addWidget(_spineFeaturesView);
+		rightLayout->addWidget(_spineFeaturesEdit);
+
+		_historyBox = new QGroupBox(QApplication::tr("History"), this);
+		UPDATELANGUAGESETTITLE(_historyBox, "History");
+
+		_historyLayout = new QVBoxLayout();
+		_historyLayout->setAlignment(Qt::AlignTop);
+
+		_historyBox->setLayout(_historyLayout);
+
+		rightLayout->addWidget(_historyBox);
+
+		hl->addLayout(rightLayout);
+	}
 	{
 		QVBoxLayout * vl = new QVBoxLayout();
 		vl->setAlignment(Qt::AlignTop);
@@ -282,12 +301,12 @@ void ModInfoPage::loginChanged() {
 }
 
 void ModInfoPage::loadPage(int32_t modID) {
-	if (modID == -1) {
-		return;
-	}
+	if (modID == -1) return;
+	
 	delete _waitSpinner;
 	_waitSpinner = new WaitSpinner(QApplication::tr("LoadingPage"), this);
 	_modID = modID;
+	
 	QtConcurrent::run([this, modID]() {
 		common::RequestInfoPageMessage ripm;
 		ripm.modID = modID;
@@ -312,18 +331,17 @@ void ModInfoPage::loadPage(int32_t modID) {
 					return;
 				}
 			} else {
-				qDebug() << "Error occurred: " << int(err);
+				qDebug() << "Error occurred: " << static_cast<int>(err);
 			}
 		} else {
-			qDebug() << "Error occurred: " << int(err);
+			qDebug() << "Error occurred: " << static_cast<int>(err);
 		}
 	});
 }
 
 void ModInfoPage::finishedInstallation(int modID, int, bool success) {
-	if (_modID != modID || !success) {
-		return;
-	}
+	if (_modID != modID || !success) return;
+
 	Database::DBError err;
 	const bool installed = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM mods WHERE ModID = " + std::to_string(_modID) + " LIMIT 1;", err) > 0;
 	_installButton->setVisible(!installed);
@@ -345,6 +363,11 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 		pb->deleteLater();
 	}
 	_optionalPackageButtons.clear();
+
+	for (QWidget * w : _historyWidgets) {
+		w->deleteLater();
+	}
+	_historyWidgets.clear();
 
 	_ratingWidget->setModID(_modID);
 	_rateWidget->setModID(_modID);
@@ -523,6 +546,30 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 		UPDATELANGUAGESETTEXT(_startButton, "StartMod");
 	}
 
+	_historyBox->setVisible(!sipm->history.empty());	
+
+	for (const auto & h : sipm->history) {
+		QVBoxLayout * vl = new QVBoxLayout();
+		QTextBrowser * tb = new QTextBrowser(this);
+
+		const auto changelog = s2q(h.changelog);
+		
+		tb->setText(changelog.isEmpty() ? QApplication::tr("NoChangelogAvailable") : changelog);
+		vl->addWidget(tb);
+
+		auto title = QString("%1.%2.%3").arg(static_cast<int>(h.majorVersion)).arg(static_cast<int>(h.minorVersion)).arg(static_cast<int>(h.patchVersion));
+
+		if (!h.savegameCompatible) {
+			title += QString(" (%1)").arg(QApplication::tr("SaveNotCompatible"));
+		}
+
+		Spoiler * s = new Spoiler(title, this);
+		s->setContentLayout(vl);
+
+		_historyLayout->addWidget(s);
+		_historyWidgets.append(s);
+	}
+
 	delete sipm;
 
 	if (_forceEdit) {
@@ -568,6 +615,7 @@ void ModInfoPage::switchToEdit() {
 	_previewImageLabel->show();
 	_thumbnailView->show();
 	_addImageButton->setEnabled(_screens.size() < 10 || Config::Username == "Bonne");
+	_historyBox->hide();
 
 	_forceEdit = false;
 }
@@ -689,7 +737,7 @@ void ModInfoPage::submitChanges() {
 			sock.writePacket(serialized);
 			sock.receivePacket(serialized); // blocks until ack arrives or error happens
 		} else {
-			qDebug() << "Error occurred: " << int(err);
+			qDebug() << "Error occurred: " << static_cast<int>(err);
 		}
 	});
 	watcher.setFuture(future);
@@ -722,10 +770,10 @@ void ModInfoPage::requestRandomMod() {
 					return;
 				}
 			} else {
-				qDebug() << "Error occurred: " << int(err);
+				qDebug() << "Error occurred: " << static_cast<int>(err);
 			}
 		} else {
-			qDebug() << "Error occurred: " << int(err);
+			qDebug() << "Error occurred: " << static_cast<int>(err);
 		}
 	});
 }

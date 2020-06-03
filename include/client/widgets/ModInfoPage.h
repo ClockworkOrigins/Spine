@@ -119,6 +119,9 @@ namespace widgets {
 		bool _forceEdit;
 		QList<int> _runningUpdates;
 		ProjectInfoBoxWidget * _projectInfoBoxWidget;
+		QGroupBox * _historyBox;
+		QVBoxLayout * _historyLayout;
+		QList<QWidget *> _historyWidgets;
 
 		void mouseDoubleClickEvent(QMouseEvent * evt) override;
 		void showEvent(QShowEvent * evt) override;

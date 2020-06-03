@@ -3175,6 +3175,10 @@ You can revoke your permission at every point in time. All necessary information
     </message>
     <message>
         <source>SaveNotCompatible</source>
+        <translation>Savegames not compatible</translation>
+    </message>
+    <message>
+        <source>SaveNotCompatibleTooltip</source>
         <translation>Savegames of the version you have installed aren't compatible with the new version. If you already have savegames, you have to start a new game to get all changes.</translation>
     </message>
     <message>
@@ -3184,6 +3188,14 @@ You can revoke your permission at every point in time. All necessary information
     <message>
         <source>Update</source>
         <translation>Update</translation>
+    </message>
+    <message>
+        <source>History</source>
+        <translation>History</translation>
+    </message>
+    <message>
+        <source>NoChangelogAvailable</source>
+        <translation>No changelog available.</translation>
     </message>
 </context>
 </TS>

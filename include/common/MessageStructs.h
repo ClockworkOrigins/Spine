@@ -917,6 +917,27 @@ namespace common {
 	};
 
 	struct SendInfoPageMessage : public Message {
+		struct History {
+			int32_t timestamp;
+			int8_t majorVersion;
+			int8_t minorVersion;
+			int8_t patchVersion;
+			bool savegameCompatible;
+			std::string changelog;
+
+			History() : timestamp(0), majorVersion(0), minorVersion(0), patchVersion(0), savegameCompatible(false) {}
+
+			template<class Archive>
+			void serialize(Archive & ar, const unsigned int /* file_version */) {
+				ar & timestamp;
+				ar & majorVersion;
+				ar & minorVersion;
+				ar & patchVersion;
+				ar & savegameCompatible;
+				ar & changelog;
+			}
+		};
+		
 		std::string modname;
 		std::vector<std::pair<std::string, std::string>> screenshots;
 		std::string description;
@@ -931,7 +952,8 @@ namespace common {
 		uint32_t releaseDate;
 		uint32_t updateDate;
 		GameType gameType;
-		
+		std::vector<History> history;
+
 		SendInfoPageMessage() : Message(), spineFeatures(0), editRights(false), installAllowed(true), majorVersion(), minorVersion(), patchVersion(), releaseDate(0), updateDate(0), gameType(GameType::Gothic) {
 			type = MessageType::SENDINFOPAGE;
 		}
@@ -952,6 +974,7 @@ namespace common {
 			ar & releaseDate;
 			ar & updateDate;
 			ar & gameType;
+			ar & history;
 		}
 	};
 
@@ -963,7 +986,7 @@ namespace common {
 		std::string description;
 		std::vector<std::string> features;
 		int32_t spineFeatures;
-		SubmitInfoPageMessage() : Message(), modID(), language(), screenshots(), imageFiles(), description(), features(), spineFeatures(0) {
+		SubmitInfoPageMessage() : Message(), modID(), spineFeatures(0) {
 			type = MessageType::SUBMITINFOPAGE;
 		}
 		template<class Archive>
@@ -1000,7 +1023,7 @@ namespace common {
 		int ownID;
 		std::string language;
 		static int id;
-		SendUserInfosMessage() : Message(), username(), password(), hash(), mac(), settings(), ownID(id++), language() {
+		SendUserInfosMessage() : Message(), ownID(id++) {
 			type = MessageType::SENDUSERINFOS;
 		}
 		template<class Archive>
@@ -1020,7 +1043,7 @@ namespace common {
 		std::string language;
 		std::string username;
 		std::string password;
-		RequestRandomModMessage() : Message(), language(), username(), password() {
+		RequestRandomModMessage() : Message() {
 			type = MessageType::REQUESTRANDOMMOD;
 		}
 		template<class Archive>

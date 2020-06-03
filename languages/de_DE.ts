@@ -3170,6 +3170,10 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
     </message>
     <message>
         <source>SaveNotCompatible</source>
+        <translation>Spielstände nicht kompatibel</translation>
+    </message>
+    <message>
+        <source>SaveNotCompatibleTooltip</source>
         <translation>Spielstände deiner installierten Version sind nicht mit der neuen Version kompatibel. Falls du bereits Spielstände hast, musst du ein neues Spiel beginnen, damit alle Änderungen wirksam werden.</translation>
     </message>
     <message>
@@ -3179,6 +3183,14 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
     <message>
         <source>Update</source>
         <translation>Update</translation>
+    </message>
+    <message>
+        <source>History</source>
+        <translation>Verlauf</translation>
+    </message>
+    <message>
+        <source>NoChangelogAvailable</source>
+        <translation>Kein Changelog verfügbar.</translation>
     </message>
 </context>
 </TS>
