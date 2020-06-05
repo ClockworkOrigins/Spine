@@ -3086,115 +3086,115 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
     </message>
     <message>
         <source>PlayTesting</source>
-        <translation>Play Testing</translation>
+        <translation>Testowanie</translation>
     </message>
     <message>
         <source>Modification</source>
-        <translation>Modifikation</translation>
+        <translation>Modyfikacja</translation>
     </message>
     <message>
         <source>FeedbackMail</source>
-        <translation>Feedback E-Mail-Adresse</translation>
+        <translation>Feedback mailowy</translation>
     </message>
     <message>
         <source>FeedbackMailTooltip</source>
-        <translation>Wenn eine E-Mail-Adresse angegeben wird, können Spieler direkt über die Bibliothek anonym Feedback senden.</translation>
+        <translation>Jeśli podany jest adres e-mail, gracze mogą wysyłać anonimowe opinie bezpośrednio przez bibliotekę.</translation>
     </message>
     <message>
         <source>DiscussionUrl</source>
-        <translation>Link zu Diskussionen</translation>
+        <translation>Link do dyskusji</translation>
     </message>
     <message>
         <source>DiscussionUrlTooltip</source>
-        <translation>Wenn konfiguriert wird der Link in der Bibliothek angezeigt. Der Link kann zu deinem Forum, Discord oder sonstigem Portal zeigen, wo ihr über euer Spiel/eure Modifikation diskutiert.</translation>
+        <translation>Po skonfigurowaniu link zostanie wyświetlony w bibliotece. Może on prowadzić na twoje forum, discorda lub inny portal, na którym prowadzone są dyskusje w sprawie gry/modyfikacji.</translation>
     </message>
     <message>
         <source>FeedbackTextProject</source>
-        <translation>Dein Feedback wird anonym direkt an die Entwickler des Spiels/der Modifikation geschickt. Sie haben keine Möglichkeit, auf dein Feedback zu antworten. Für Diskussionen, nutze in den Bibliothek den Diskussions-Link sofern verfügbar.</translation>
+        <translation>Twoja opinia zostanie wysłana anonimowo bezpośrednio do twórców gry/modyfikacji, jednak nie będą oni mieli możliwości na nią odpowiedzieć. Aby móc nawiązać dyskusję, wejdź w specjalny link podany w bibliotece (jeżeli jest dostępny).</translation>
     </message>
     <message>
         <source>StartGame</source>
-        <translation>Spiel starten</translation>
+        <translation>Rozpocznij grę</translation>
     </message>
     <message>
         <source>Surveys</source>
-        <translation>Umfragen</translation>
+        <translation>Ankiety</translation>
     </message>
     <message>
         <source>CreateSurvey</source>
-        <translation>Umfrage erstellen</translation>
+        <translation>Stwórz ankietę</translation>
     </message>
     <message>
         <source>Edit</source>
-        <translation>Bearbeiten</translation>
+        <translation>Edytuj</translation>
     </message>
     <message>
         <source>Questions</source>
-        <translation>Fragen</translation>
+        <translation>Pytania</translation>
     </message>
     <message>
         <source>Answers</source>
-        <translation>Antworten</translation>
+        <translation>Odpowiedzi</translation>
     </message>
     <message>
         <source>Release</source>
-        <translation>Veröffentlichen</translation>
+        <translation>Opublikuj</translation>
     </message>
     <message>
         <source>ShowAnswers</source>
-        <translation>Antworten zeigen</translation>
+        <translation>Pokaż odpowiedzi</translation>
     </message>
     <message>
         <source>ReleaseSurvey</source>
-        <translation>Umfrage veröffentlichen</translation>
+        <translation>Opublikuj ankietę</translation>
     </message>
     <message>
         <source>ReleaseSurveyDescription</source>
-        <translation>Wenn die Umfrage veröffentlicht ist, kannst du sie nicht mehr ändern. Wirklich veröffentlichen?</translation>
+        <translation>Po opublikowaniu ankiety nie będzie można już wprowadzić zmian. Czy na pewno chcesz to zrobić?</translation>
     </message>
     <message>
         <source>DeleteSurvey</source>
-        <translation>Umfrage löschen</translation>
+        <translation>Usuń ankietę</translation>
     </message>
     <message>
         <source>DeleteSurveyDescription</source>
-        <translation>Wenn du die Umfrage löscht, gehen sämtliche Fragen und Antworten verloren. Willst du die Umfrage wirklich löschen?</translation>
+        <translation>Jeśli usuniesz ankietę, wszystkie pytania i odpowiedzi zostaną utracone. Czy na pewno chcesz to zrobić?</translation>
     </message>
     <message>
         <source>Back</source>
-        <translation>Zurück</translation>
+        <translation>Wróć</translation>
     </message>
     <message>
         <source>SavegameCompatible</source>
-        <translation>Spielstand kompatibel</translation>
+        <translation>Kompatybilność zapisów</translation>
     </message>
     <message>
         <source>SaveNotCompatible</source>
-        <translation>Spielstände nicht kompatibel</translation>
+        <translation>Niekompatybilność zapisów</translation>
     </message>
     <message>
         <source>SaveNotCompatibleTooltip</source>
-        <translation>Spielstände deiner installierten Version sind nicht mit der neuen Version kompatibel. Falls du bereits Spielstände hast, musst du ein neues Spiel beginnen, damit alle Änderungen wirksam werden.</translation>
+        <translation>Twoje aktualne zapisy nie są kompatybilne z nową wersją. Musisz zacząć grę na nowo, aby wszystkie zmiany zostały zastosowane.</translation>
     </message>
     <message>
         <source>Changelog</source>
-        <translation>Changelog</translation>
+        <translation>Lista zmian</translation>
     </message>
     <message>
         <source>Update</source>
-        <translation>Update</translation>
+        <translation>Aktualizacja</translation>
     </message>
     <message>
         <source>History</source>
-        <translation>Verlauf</translation>
+        <translation>Historia</translation>
     </message>
     <message>
         <source>NoChangelogAvailable</source>
-        <translation>Kein Changelog verfügbar.</translation>
+        <translation>Brak listy zmian.</translation>
     </message>
     <message>
         <source>Ratings</source>
-        <translation>Bewertungen</translation>
+        <translation>Opinie</translation>
     </message>
 </context>
 </TS>
