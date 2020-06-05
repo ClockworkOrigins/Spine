@@ -18,6 +18,7 @@
 
 #include "widgets/NewsWidget.h"
 
+#include "IconCache.h"
 #include "InstallMode.h"
 #include "SpineConfig.h"
 
@@ -26,10 +27,8 @@
 #include "utils/Config.h"
 #include "utils/Conversion.h"
 #include "utils/Database.h"
-#include "utils/WindowsExtensions.h"
 
 #include "widgets/AchievementView.h"
-#include "widgets/ProfileModView.h"
 
 #include "clockUtils/sockets/TcpSocket.h"
 
@@ -83,18 +82,16 @@ NewsWidget::NewsWidget(common::SendAllNewsMessage::News news, bool onlineMode, Q
 	l->addWidget(_textBrowser);
 	l->setStretchFactor(_textBrowser, 1);
 
-	static QIcon downloadIcon(":/svg/download.svg");
-
 	int installButtonSize = 0;
 	for (const std::pair<int32_t, std::string> & mod : news.referencedMods) {
 		Database::DBError err;
 		const bool installed = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM mods WHERE ModID = " + std::to_string(mod.first) + " LIMIT 1;", err) > 0;
 		if (!installed && onlineMode) {
 			//QPushButton * installButton = new QPushButton(QIcon(":/svg/download.svg"), s2q(mod.second), this);
-			QPushButton * installButton = new QPushButton(downloadIcon, s2q(mod.second), this);
+			QPushButton * installButton = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/download.svg"), s2q(mod.second), this);
 			l->addWidget(installButton, 0, Qt::AlignLeft);
 			installButtonSize += installButton->height();
-			installButton->setProperty("modid", int(mod.first));
+			installButton->setProperty("modid", static_cast<int>(mod.first));
 			connect(installButton, &QPushButton::released, this, &NewsWidget::installMod);
 			_installButtons.append(installButton);
 		}

@@ -18,6 +18,7 @@
 
 #include "widgets/NewsWriterDialog.h"
 
+#include "IconCache.h"
 #include "SpineConfig.h"
 
 #include "utils/Config.h"
@@ -47,10 +48,11 @@
 #include <QVBoxLayout>
 
 using namespace spine;
+using namespace spine::client;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-NewsWriterDialog::NewsWriterDialog(QWidget * par) : QDialog(par), _newsPreviewWidget(nullptr), _titleEdit(nullptr), _dateEdit(nullptr), _bodyEdit(nullptr), _imageReferencesEdit(nullptr), _mods() {
+NewsWriterDialog::NewsWriterDialog(QWidget * par) : QDialog(par), _newsPreviewWidget(nullptr), _titleEdit(nullptr), _dateEdit(nullptr), _bodyEdit(nullptr), _imageReferencesEdit(nullptr) {
 	QHBoxLayout * l = new QHBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
@@ -91,7 +93,7 @@ NewsWriterDialog::NewsWriterDialog(QWidget * par) : QDialog(par), _newsPreviewWi
 		QHBoxLayout * imageLayout = new QHBoxLayout();
 		_imageReferencesEdit = new QLineEdit(this);
 		_imageReferencesEdit->setPlaceholderText(QApplication::tr("ImagesPlaceholder"));
-		QPushButton * pb = new QPushButton(QIcon(":/svg/add.svg"), "", this);
+		QPushButton * pb = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/add.svg"), "", this);
 		connect(pb, &QPushButton::released, this, &NewsWriterDialog::addImage);
 		imageLayout->addWidget(_imageReferencesEdit, 1);
 		imageLayout->addWidget(pb);

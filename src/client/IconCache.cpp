@@ -55,6 +55,16 @@ void IconCache::cacheIcon(int32_t projectID, const QString & icon) {
 	_iconCache[projectID] = icon;
 }
 
+QIcon IconCache::getOrLoadIcon(const QString & path) {
+	if (_pathIconCache.contains(path)) return _pathIconCache[path];
+
+	QIcon icon(path);
+
+	_pathIconCache.insert(path, icon);
+
+	return icon;
+}
+
 IconCache::IconCache() {
 	loadCache();
 }

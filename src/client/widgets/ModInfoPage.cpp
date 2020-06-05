@@ -18,6 +18,7 @@
 
 #include "widgets/ModInfoPage.h"
 
+#include "IconCache.h"
 #include "InstallMode.h"
 #include "SpineConfig.h"
 
@@ -124,13 +125,13 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 		}
 
 		QVBoxLayout * vl = new QVBoxLayout();
-		_addImageButton = new QPushButton(QIcon(":/svg/add.svg"), "", widget);
+		_addImageButton = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/add.svg"), "", widget);
 		connect(_addImageButton, &QPushButton::released, this, &ModInfoPage::addImage);
 		_addImageButton->hide();
 
 		vl->addWidget(_addImageButton, 0, Qt::AlignTop | Qt::AlignRight);
 
-		_deleteImageButton = new QPushButton(QIcon(":/svg/remove.svg"), "", widget);
+		_deleteImageButton = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/remove.svg"), "", widget);
 		connect(_deleteImageButton, &QPushButton::released, this, &ModInfoPage::removeImage);
 		_deleteImageButton->hide();
 
@@ -163,7 +164,7 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 	_thumbnailView->setModel(_thumbnailModel);
 	connect(_thumbnailView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ModInfoPage::changedThumbnailSelection);
 
-	_installButton = new QPushButton(QIcon(":/svg/download.svg"), QApplication::tr("Install"), widget);
+	_installButton = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/download.svg"), QApplication::tr("Install"), widget);
 	scrollLayout->addWidget(_installButton, 0, Qt::AlignLeft);
 	_installButton->hide();
 	UPDATELANGUAGESETTEXT(_installButton, "Install");
@@ -315,7 +316,7 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 	
 	scrollLayout->addWidget(_ratingsBox);
 
-	_editInfoPageButton = new QPushButton(QIcon(":/svg/edit.svg"), "", this);
+	_editInfoPageButton = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/edit.svg"), "", this);
 	_editInfoPageButton->setToolTip(QApplication::tr("EditInfoPageTooltip"));
 	UPDATELANGUAGESETTOOLTIP(_editInfoPageButton, "EditInfoPageTooltip");
 	l->addWidget(_editInfoPageButton, 0, Qt::AlignBottom | Qt::AlignRight);
@@ -601,7 +602,7 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 
 	for (const auto & p : sipm->optionalPackages) {
 		const bool packageInstalled = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT PackageID FROM packages WHERE ModID = " + std::to_string(_modID) + " AND PackageID = " + std::to_string(p.first) + " LIMIT 1;", err) > 0;
-		QPushButton * pb = new QPushButton(QIcon(":/svg/download.svg"), s2q(p.second), this);
+		QPushButton * pb = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/download.svg"), s2q(p.second), this);
 		pb->setVisible(!packageInstalled && installed && sipm->installAllowed);
 		pb->setProperty("packageid", static_cast<int>(p.first));
 		_optionalPackageButtonsLayout->addWidget(pb, 0, Qt::AlignLeft);

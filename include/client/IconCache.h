@@ -20,6 +20,7 @@
 
 #include <cstdint>
 
+#include <QIcon>
 #include <QMap>
 #include <QPixmap>
 
@@ -35,8 +36,11 @@ namespace client {
 
 		void cacheIcon(int32_t projectID, const QString & icon);
 
+		QIcon getOrLoadIcon(const QString & path);
+
 	private:
 		QMap<int32_t, QPixmap> _iconCache;
+		QMap<QString, QIcon> _pathIconCache;
 
 		IconCache();
 		

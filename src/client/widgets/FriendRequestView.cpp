@@ -20,6 +20,7 @@
 
 #include <thread>
 
+#include "IconCache.h"
 #include "SpineConfig.h"
 
 #include "common/MessageStructs.h"
@@ -35,6 +36,7 @@
 #include <QVBoxLayout>
 
 using namespace spine;
+using namespace spine::client;
 using namespace spine::utils;
 using namespace spine::widgets;
 
@@ -50,10 +52,10 @@ FriendRequestView::FriendRequestView(QString friendname, uint32_t level, QWidget
 	{
 		QVBoxLayout * vl = new QVBoxLayout();
 
-		QPushButton * acceptButton = new QPushButton(QIcon(":/svg/check.svg"), "", this);
+		QPushButton * acceptButton = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/check.svg"), "", this);
 		vl->addWidget(acceptButton);
 
-		QPushButton * declineButton = new QPushButton(QIcon(":/svg/close.svg"), "", this);
+		QPushButton * declineButton = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/close.svg"), "", this);
 		vl->addWidget(declineButton);
 
 		l->addLayout(vl);

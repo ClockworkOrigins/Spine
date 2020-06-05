@@ -18,6 +18,7 @@
 
 #include "widgets/StartPageWidget.h"
 
+#include "IconCache.h"
 #include "SpineConfig.h"
 
 #include "utils/Config.h"
@@ -46,6 +47,7 @@
 #include <QVBoxLayout>
 
 using namespace spine;
+using namespace spine::client;
 using namespace spine::utils;
 using namespace spine::widgets;
 
@@ -94,7 +96,7 @@ StartPageWidget::StartPageWidget(QWidget * par) : QWidget(par) {
 		l->addLayout(hl);
 	}
 
-	_writeNewsButton = new QPushButton(QIcon(":/svg/edit.svg"), "", this);
+	_writeNewsButton = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/edit.svg"), "", this);
 	_writeNewsButton->setToolTip(QApplication::tr("WriteNewsTooltip"));
 	UPDATELANGUAGESETTOOLTIP(_writeNewsButton, "WriteNewsTooltip");
 	l->addWidget(_writeNewsButton, 0, Qt::AlignBottom | Qt::AlignRight);
