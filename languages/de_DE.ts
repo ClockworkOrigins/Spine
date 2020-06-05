@@ -3192,5 +3192,9 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>NoChangelogAvailable</source>
         <translation>Kein Changelog verfügbar.</translation>
     </message>
+    <message>
+        <source>Ratings</source>
+        <translation>Bewertungen</translation>
+    </message>
 </context>
 </TS>

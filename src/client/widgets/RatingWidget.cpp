@@ -22,6 +22,8 @@
 
 #include "common/MessageStructs.h"
 
+#include "https/Https.h"
+
 #include "utils/Config.h"
 #include "utils/WindowsExtensions.h"
 
@@ -30,6 +32,8 @@
 
 #include <QApplication>
 #include <QHBoxLayout>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QMouseEvent>
 #include <QSvgWidget>
 #include <QtConcurrentRun>
@@ -38,7 +42,7 @@ using namespace spine;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-RatingWidget::RatingWidget(RatingMode mode, QWidget * par) : QWidget(par), _svgs(), _modID(), _modname(), _allowedToRate(false), _editable(true), _visible(false), _mode(mode) {
+RatingWidget::RatingWidget(RatingMode mode, QWidget * par) : QWidget(par), _svgs(), _modID(), _allowedToRate(false), _editable(true), _visible(false), _mode(mode) {
 	QHBoxLayout * l = new QHBoxLayout();
 	for (size_t i = 0; i < _svgs.size(); i++) {
 		_svgs[i] = new QSvgWidget(":/svg/star.svg", this);
@@ -73,15 +77,10 @@ void RatingWidget::setModName(QString name) {
 	_modname = name;
 }
 
-void RatingWidget::updateRating(int32_t modID, int32_t sum, int32_t count, bool allowedToRate) {
-	if (modID != _modID) {
-		return;
-	}
+void RatingWidget::updateRating(int32_t modID, qreal rating, int32_t count, bool allowedToRate) {
+	if (modID != _modID) return;
+	
 	_allowedToRate = allowedToRate;
-	double rating = sum;
-	if (count > 0) {
-		rating /= count;
-	}
 	for (size_t i = 0; i < _svgs.size(); i++) {
 		if (std::floor(rating) > i) {
 			if (_editable) {
@@ -108,10 +107,9 @@ void RatingWidget::updateRating(int32_t modID, int32_t sum, int32_t count, bool 
 }
 
 void RatingWidget::mousePressEvent(QMouseEvent * evt) {
-	if (!_allowedToRate || !_editable) {
-		return;
-	}
-	double value = std::ceil((double(evt->localPos().x()) / width()) * 5);
+	if (!_allowedToRate || !_editable)  return;
+
+	double value = std::ceil((static_cast<double>(evt->localPos().x()) / width()) * 5);
 	for (size_t i = 0; i < _svgs.size(); i++) {
 		if (value > i) {
 			_svgs[i]->load(QString(":/svg/star-edit-full.svg"));
@@ -134,36 +132,56 @@ void RatingWidget::mousePressEvent(QMouseEvent * evt) {
 }
 
 void RatingWidget::requestRating() {
-	QtConcurrent::run([this]() {
-		clockUtils::sockets::TcpSocket sock;
-		clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-		if (clockUtils::ClockError::SUCCESS == cErr) {
-			{
-				common::RequestRatingMessage rrm;
-				rrm.modID = _modID;
+	switch (_mode) {
+	case RatingMode::Overall: {
+		QJsonObject requestData;
+		requestData["ProjectID"] = _modID;
 
-				if (_mode == RatingMode::User) {
-					rrm.username = Config::Username.toStdString();
-					rrm.password = Config::Password.toStdString();
-				}
-				
-				std::string serialized = rrm.SerializePublic();
-				sock.writePacket(serialized);
-				if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-					try {
-						common::Message * m = common::Message::DeserializePublic(serialized);
-						if (m) {
-							common::SendRatingMessage * srm = dynamic_cast<common::SendRatingMessage *>(m);
-							emit receivedRating(srm->modID, srm->sum, srm->voteCount, srm->allowedToRate);
-						}
-						delete m;
-					} catch (...) {
-						return;
-					}
-				} else {
-					qDebug() << "Error occurred: " << int(cErr);
-				}
+		int projectID;
+		
+		https::Https::postAsync(DATABASESERVER_PORT, "getWeightedRating", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this, projectID](const QJsonObject & json, int statusCode) {
+			if (statusCode != 200) return;
+
+			if (!json.contains("Rating")) return;
+			
+			if (!json.contains("Count")) return;
+			
+			if (!json.contains("RealCount")) return;
+
+			const int rating = json["Rating"].toString().toInt();
+			const int count = json["Count"].toString().toInt();
+			const int realCount = json["RealCount"].toString().toInt();
+
+			qreal average = rating;
+			if (count > 0) {
+				average /= count;
 			}
-		}
-	});
+
+			emit receivedRating(projectID, average, realCount, false);
+		});
+		break;
+	}
+	case RatingMode::User: {
+		QJsonObject requestData;
+		requestData["Username"] = Config::Username;
+		requestData["Password"] = Config::Password;
+		requestData["ProjectID"] = _modID;
+
+		int projectID;
+		
+		https::Https::postAsync(DATABASESERVER_PORT, "getOwnRating", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this, projectID](const QJsonObject & json, int statusCode) {
+			if (statusCode != 200) return;
+
+			if (!json.contains("Rating")) return;
+			
+			if (!json.contains("AllowedToRate")) return;
+			
+			const int rating = json["Rating"].toString().toInt();
+			const bool allowedToRate = json["AllowedToRate"].toString().toInt() == 1;
+
+			emit receivedRating(projectID, rating, 1, allowedToRate);
+		});
+		break;
+	}
+	}
 }

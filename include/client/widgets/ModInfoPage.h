@@ -31,6 +31,7 @@ class QLabel;
 class QLineEdit;
 class QListView;
 class QMainWindow;
+class QProgressBar;
 class QPushButton;
 class QStandardItemModel;
 class QTextBrowser;
@@ -66,6 +67,7 @@ namespace widgets {
 		void triggerModStart(int, QString);
 		void openAchievementView(int32_t, QString);
 		void openScoreView(int32_t, QString);
+		void receivedRatings(int, int, int, int, int);
 
 	public slots:
 		void loginChanged();
@@ -89,6 +91,7 @@ namespace widgets {
 		void showFullscreen();
 		void selectedSpineFeature(const QModelIndex & idx);
 		void changedThumbnailSelection(QItemSelection selection);
+		void updateRatings(int rating1, int rating2, int rating3, int rating4, int rating5);
 
 	private:
 		QMainWindow * _mainWindow;
@@ -122,6 +125,13 @@ namespace widgets {
 		QGroupBox * _historyBox;
 		QVBoxLayout * _historyLayout;
 		QList<QWidget *> _historyWidgets;
+		QGroupBox * _ratingsBox;
+
+		struct Rating {
+			QProgressBar * shareView;
+		};
+
+		QList<Rating> _ratings;
 
 		void mouseDoubleClickEvent(QMouseEvent * evt) override;
 		void showEvent(QShowEvent * evt) override;

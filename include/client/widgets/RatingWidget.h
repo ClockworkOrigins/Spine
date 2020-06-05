@@ -42,16 +42,16 @@ namespace widgets {
 		void setEditable(bool editable);
 
 	signals:
-		void receivedRating(int32_t, int32_t, int32_t, bool);
+		void receivedRating(int32_t, qreal, int32_t, bool);
 
 	public slots:
 		void loginChanged();
-		void setModID(int32_t modID);
+		void setModID(int32_t projectID);
 		void setVisible(bool visible) override;
 		void setModName(QString name);
 
 	private slots:
-		void updateRating(int32_t modID, int32_t sum, int32_t count, bool allowedToRate);
+		void updateRating(int32_t projectID, qreal rating, int32_t count, bool allowedToRate);
 
 	private:
 		std::array<QSvgWidget *, 5> _svgs;

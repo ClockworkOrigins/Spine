@@ -3192,5 +3192,9 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>NoChangelogAvailable</source>
         <translation>Kein Changelog verfügbar.</translation>
     </message>
+    <message>
+        <source>Ratings</source>
+        <translation>Bewertungen</translation>
+    </message>
 </context>
 </TS>

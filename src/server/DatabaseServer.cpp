@@ -20,6 +20,7 @@
 
 #include "MariaDBWrapper.h"
 #include "ServerCommon.h"
+#include "SpineLevel.h"
 #include "SpineServerConfig.h"
 
 #define BOOST_SPIRIT_THREADSAFE
@@ -43,6 +44,9 @@ int DatabaseServer::run() {
 	
 	_server->resource["^/getModnameForIDs"]["POST"] = std::bind(&DatabaseServer::getModnameForIDs, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/getUserID"]["POST"] = std::bind(&DatabaseServer::getUserID, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/getOwnRating"]["POST"] = std::bind(&DatabaseServer::getOwnRating, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/getWeightedRating"]["POST"] = std::bind(&DatabaseServer::getWeightedRating, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/getRatings"]["POST"] = std::bind(&DatabaseServer::getRatings, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -136,6 +140,279 @@ void DatabaseServer::getUserID(std::shared_ptr<HttpsServer::Response> response, 
 		ptree responseTree;
 
 		responseTree.put("ID", userID);
+
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::getOwnRating(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+	
+		const std::string username = pt.get<std::string>("Username");
+		const std::string password = pt.get<std::string>("Password");
+
+		const int userID = ServerCommon::getUserID(username, password);
+
+		if (userID == -1) {
+			response->write(SimpleWeb::StatusCode::client_error_bad_request);
+			return;
+		}
+		
+		const int32_t projectID = pt.get<int32_t>("ProjectID");
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+			
+			if (!database.query("PREPARE selectOwnRatingStmt FROM \"SELECT Rating FROM ratings WHERE ModID = ? AND UserID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectOwnPlaytimeStmt FROM \"SELECT Duration FROM playtimes WHERE ModID = ? AND UserID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectOverallPlaytimeStmt FROM \"SELECT Duration FROM playtimes WHERE ModID = ? AND UserID != -1 ORDER BY Duration ASC\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramProjectID=" + std::to_string(projectID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			
+			if (!database.query("EXECUTE selectOwnRatingStmt USING @paramProjectID, @paramUserID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			auto results = database.getResults<std::vector<std::string>>();
+
+			responseTree.put("Rating", results.empty() ? 0 : std::stoi(results[0][0]));
+			
+			if (!database.query("EXECUTE selectOwnPlaytimeStmt USING @paramProjectID, @paramUserID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			results = database.getResults<std::vector<std::string>>();
+
+			const int ownPlaytime = results.empty() ? 0 : std::stoi(results[0][0]);
+			
+			if (!database.query("EXECUTE selectOverallPlaytimeStmt USING @paramProjectID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			results = database.getResults<std::vector<std::string>>();
+
+			const int medianPlaytime = results.size() < 2 ? std::numeric_limits<int>::max() : std::stoi(results[results.size() / 2][0]);
+
+			responseTree.put("AllowedToRate", ownPlaytime > medianPlaytime ? 1 : 0);
+		} while (false);
+
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::getWeightedRating(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+		
+		const int32_t projectID = pt.get<int32_t>("ProjectID");
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+			
+			if (!database.query("PREPARE selectRatingsStmt FROM \"SELECT UserID, Rating FROM ratings WHERE ModID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectPlaytimeStmt FROM \"SELECT Duration FROM playtimes WHERE ModID = ? AND UserID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectOverallPlaytimeStmt FROM \"SELECT Duration FROM playtimes WHERE ModID = ? AND UserID != -1 ORDER BY Duration ASC\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramProjectID=" + std::to_string(projectID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			
+			if (!database.query("EXECUTE selectOverallPlaytimeStmt USING @paramProjectID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			auto results = database.getResults<std::vector<std::string>>();
+
+			const int quartile3Playtime = results.size() < 4 ? std::numeric_limits<int>::max() : std::stoi(results[results.size() * 3 / 4][0]);
+			
+			if (!database.query("EXECUTE selectRatingsStmt USING @paramProjectID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			results = database.getResults<std::vector<std::string>>();
+
+			int rating = 0;
+			int count = 0;
+			
+			for (const auto & vec : results) {
+				const int u = std::stoi(vec[0]);
+				const int r = std::stoi(vec[1]);
+				
+				rating += r;
+				count++;
+				
+				if (!database.query("SET @paramUserID=" + std::to_string(u) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("EXECUTE selectPlaytimeStmt USING @paramProjectID, @paramUserID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				const auto lastResults = database.getResults<std::vector<std::string>>();
+
+				const int time = lastResults.empty() ? 0 : std::stoi(lastResults[0][0]);
+
+				if (time > quartile3Playtime) {
+					rating += r;
+					count++;
+				}
+
+				const auto level = SpineLevel::getLevel(u);
+
+				if (level.level > 5) {
+					rating += r;
+					count++;
+				}
+			}
+			
+			responseTree.put("Rating", rating);
+			responseTree.put("Count", count);
+			responseTree.put("RealCount", results.size());
+		} while (false);
+
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::getRatings(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+		
+		const int32_t projectID = pt.get<int32_t>("ProjectID");
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+			
+			if (!database.query("PREPARE selectRatingsStmt FROM \"SELECT Rating FROM ratings WHERE ModID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramProjectID=" + std::to_string(projectID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			
+			if (!database.query("EXECUTE selectRatingsStmt USING @paramProjectID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			const auto results = database.getResults<std::vector<std::string>>();
+
+			int rating1 = 0;
+			int rating2 = 0;
+			int rating3 = 0;
+			int rating4 = 0;
+			int rating5 = 0;
+			
+			for (const auto & vec : results) {
+				const int r = std::stoi(vec[0]);
+				
+				if (r == 1) {
+					rating1++;
+				} else if (r == 2) {
+					rating2++;
+				} else if (r == 3) {
+					rating3++;
+				} else if (r == 4) {
+					rating4++;
+				} else if (r == 5) {
+					rating5++;
+				}
+			}
+			
+			responseTree.put("Rating1", rating1);
+			responseTree.put("Rating2", rating2);
+			responseTree.put("Rating3", rating3);
+			responseTree.put("Rating4", rating4);
+			responseTree.put("Rating5", rating5);
+		} while (false);
 
 		write_json(responseStream, responseTree);
 

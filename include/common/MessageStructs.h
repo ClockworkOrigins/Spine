@@ -1187,6 +1187,7 @@ namespace common {
 		}
 	};
 
+	// Deprecated, remove somewhen in the future, currently kept for backwards compatibility
 	struct SendRatingMessage : public Message {
 		int32_t modID;
 		int sum;

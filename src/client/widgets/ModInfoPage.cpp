@@ -27,6 +27,8 @@
 #include "gui/Spoiler.h"
 #include "gui/WaitSpinner.h"
 
+#include "https/Https.h"
+
 #include "utils/Compression.h"
 #include "utils/Config.h"
 #include "utils/Conversion.h"
@@ -52,14 +54,18 @@
 #include <QFileInfo>
 #include <QFutureWatcher>
 #include <QGroupBox>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListView>
 #include <QMouseEvent>
+#include <QProgressBar>
 #include <QPushButton>
 #include <QSettings>
 #include <QStandardItemModel>
 #include <QScrollArea>
+#include <QSvgWidget>
 #include <QtConcurrentRun>
 #include <QTextBrowser>
 #include <QVBoxLayout>
@@ -274,6 +280,41 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 
 	l->addWidget(scrollArea);
 
+	_ratingsBox = new QGroupBox(QApplication::tr("Ratings"), this);
+
+	{
+		QVBoxLayout * ratingsLayout = new QVBoxLayout();
+
+		for (int i = 4; i >= 0; i--) {
+			QHBoxLayout * horiLayout = new QHBoxLayout();
+			for (int j = 0; j < 5; j++) {
+				auto * svgWidget = new QSvgWidget(j <= i ? ":/svg/star-full.svg" : ":/svg/star.svg", _ratingsBox);
+				svgWidget->setFixedSize(QSize(25, 25));
+				horiLayout->addWidget(svgWidget);
+			}
+
+			Rating r;
+			r.shareView = new QProgressBar(_ratingsBox);
+			r.shareView->setMinimum(0);
+			r.shareView->setMaximum(1);
+			r.shareView->setValue(0);
+			r.shareView->setFormat("(%v)");
+			r.shareView->setFixedWidth(300);
+
+			horiLayout->addWidget(r.shareView);
+
+			horiLayout->addStretch(1);
+
+			_ratings.append(r);
+
+			ratingsLayout->addLayout(horiLayout);
+		}
+
+		_ratingsBox->setLayout(ratingsLayout);
+	}
+	
+	scrollLayout->addWidget(_ratingsBox);
+
 	_editInfoPageButton = new QPushButton(QIcon(":/svg/edit.svg"), "", this);
 	_editInfoPageButton->setToolTip(QApplication::tr("EditInfoPageTooltip"));
 	UPDATELANGUAGESETTOOLTIP(_editInfoPageButton, "EditInfoPageTooltip");
@@ -294,6 +335,7 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 	qRegisterMetaType<int32_t>("int32_t");
 	connect(this, &ModInfoPage::receivedPage, this, &ModInfoPage::updatePage);
 	connect(this, &ModInfoPage::gotRandomMod, this, &ModInfoPage::loadPage);
+	connect(this, &ModInfoPage::receivedRatings, this, &ModInfoPage::updateRatings);
 }
 
 void ModInfoPage::loginChanged() {
@@ -336,6 +378,35 @@ void ModInfoPage::loadPage(int32_t modID) {
 		} else {
 			qDebug() << "Error occurred: " << static_cast<int>(err);
 		}
+	});
+
+	QJsonObject requestData;
+	requestData["ProjectID"] = _modID;
+
+	int projectID;
+	
+	https::Https::postAsync(DATABASESERVER_PORT, "getRatings", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this, projectID](const QJsonObject & json, int statusCode) {
+		if (statusCode != 200) return;
+
+		if (projectID != _modID) return;
+
+		if (!json.contains("Rating1")) return;
+		
+		if (!json.contains("Rating2")) return;
+		
+		if (!json.contains("Rating3")) return;
+		
+		if (!json.contains("Rating4")) return;
+		
+		if (!json.contains("Rating5")) return;
+		
+		const int rating1 = json["Rating1"].toString().toInt();
+		const int rating2 = json["Rating2"].toString().toInt();
+		const int rating3 = json["Rating3"].toString().toInt();
+		const int rating4 = json["Rating4"].toString().toInt();
+		const int rating5 = json["Rating5"].toString().toInt();
+
+		emit receivedRatings(rating1, rating2, rating3, rating4, rating5);
 	});
 }
 
@@ -616,6 +687,7 @@ void ModInfoPage::switchToEdit() {
 	_thumbnailView->show();
 	_addImageButton->setEnabled(_screens.size() < 10 || Config::Username == "Bonne");
 	_historyBox->hide();
+	_ratingsBox->hide();
 
 	_forceEdit = false;
 }
@@ -806,6 +878,27 @@ void ModInfoPage::changedThumbnailSelection(QItemSelection selection) {
 	if (!selection.empty()) {
 		changePreviewImage(selection.indexes().first());
 	}
+}
+
+void ModInfoPage::updateRatings(int rating1, int rating2, int rating3, int rating4, int rating5) {
+	const int sum = rating1 + rating2 + rating3 + rating4 + rating5;
+
+	_ratings[4].shareView->setMaximum(sum);
+	_ratings[4].shareView->setValue(rating1);
+
+	_ratings[3].shareView->setMaximum(sum);
+	_ratings[3].shareView->setValue(rating2);
+
+	_ratings[2].shareView->setMaximum(sum);
+	_ratings[2].shareView->setValue(rating3);
+
+	_ratings[1].shareView->setMaximum(sum);
+	_ratings[1].shareView->setValue(rating4);
+
+	_ratings[0].shareView->setMaximum(sum);
+	_ratings[0].shareView->setValue(rating5);
+
+	_ratingsBox->show();
 }
 
 void ModInfoPage::mouseDoubleClickEvent(QMouseEvent * evt) {

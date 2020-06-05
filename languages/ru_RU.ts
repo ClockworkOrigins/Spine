@@ -3197,5 +3197,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>NoChangelogAvailable</source>
         <translation>No changelog available.</translation>
     </message>
+    <message>
+        <source>Ratings</source>
+        <translation>Ratings</translation>
+    </message>
 </context>
 </TS>

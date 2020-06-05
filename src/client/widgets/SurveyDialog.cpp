@@ -23,8 +23,6 @@
 #include "https/Https.h"
 
 #include "utils/Config.h"
-#include "utils/Conversion.h"
-#include "utils/WindowsExtensions.h"
 
 #include <QApplication>
 #include <QDialogButtonBox>
