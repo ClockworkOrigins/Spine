@@ -294,7 +294,7 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 				horiLayout->addWidget(svgWidget);
 			}
 
-			Rating r;
+			Rating r {};
 			r.shareView = new QProgressBar(_ratingsBox);
 			r.shareView->setMinimum(0);
 			r.shareView->setMaximum(1);
