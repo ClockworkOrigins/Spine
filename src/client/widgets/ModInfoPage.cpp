@@ -384,7 +384,7 @@ void ModInfoPage::loadPage(int32_t modID) {
 	QJsonObject requestData;
 	requestData["ProjectID"] = _modID;
 
-	int projectID;
+	int projectID = _modID;
 	
 	https::Https::postAsync(DATABASESERVER_PORT, "getRatings", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this, projectID](const QJsonObject & json, int statusCode) {
 		if (statusCode != 200) return;
