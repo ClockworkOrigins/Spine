@@ -1863,8 +1863,42 @@ void Server::handleRequestSingleModStat(clockUtils::sockets::TcpSocket * sock, R
 			ms.achievedAchievements = std::stoi(results[0][0]);
 		}
 	}
-	if (!database.query("EXECUTE selectScoreStmt USING @paramModID;")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+	if (msg->modID == 339) {
+		do {
+			MariaDBWrapper tri6Database;
+			if (!tri6Database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, TRI6DATABASE, 0)) {
+				std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			if (!tri6Database.query("PREPARE selectTri6ScoreStmt FROM \"SELECT Score, Identifier, UserID FROM scores WHERE Version = ? ORDER BY Score DESC\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				return;
+			}
+			if (!tri6Database.query("PREPARE selectTri6MaxVersionStmt FROM \"SELECT MAX(Version) FROM scores\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				return;
+			}
+			if (!tri6Database.query("EXECUTE selectTri6MaxVersionStmt;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				return;
+			}
+			auto lastResults = tri6Database.getResults<std::vector<std::string>>();
+
+			const auto version = lastResults.empty() ? "0" : lastResults[0][0];
+			
+			if (!tri6Database.query("SET @paramVersion=" + version + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				return;
+			}
+			if (!tri6Database.query("EXECUTE selectTri6ScoreStmt USING @paramVersion;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				return;
+			}
+		} while (false);
+	} else {
+		if (!database.query("EXECUTE selectScoreStmt USING @paramModID;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		}
 	}
 	results = database.getResults<std::vector<std::string>>();
 	if (results.empty()) {
