@@ -306,7 +306,7 @@ void DatabaseCreator::createTables() {
 		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS changelogs (NewsID INT NOT NULL, Changelog TEXT NOT NULL, Language TEXT NOT NULL, PRIMARY KEY(NewsID, Language(20)) CHARACTER SET utf8;"))) {
+	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS changelogs (NewsID INT NOT NULL, Changelog TEXT NOT NULL, Language TEXT NOT NULL, PRIMARY KEY(NewsID, Language(20))) CHARACTER SET utf8;"))) {
 		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
