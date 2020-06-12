@@ -124,6 +124,7 @@ void Server::receiveMessage(const std::vector<uint8_t> & message, clockUtils::so
 					return;
 				}
 			}
+			std::cout << "Received: " + static_cast<int>(m->type) << std::endl;
 			if (m->type == MessageType::UPDATEREQUEST) {
 				UpdateRequestMessage * msg = dynamic_cast<UpdateRequestMessage *>(m);
 				handleAutoUpdate(sock, msg);
@@ -296,6 +297,7 @@ void Server::receiveMessage(const std::vector<uint8_t> & message, clockUtils::so
 				delete m;
 				return;
 			}
+			std::cout << "Finished: " + static_cast<int>(m->type) << std::endl;
 
 			delete m;
 		} catch (const boost::archive::archive_exception &) {
@@ -1872,15 +1874,15 @@ void Server::handleRequestSingleModStat(clockUtils::sockets::TcpSocket * sock, R
 			}
 			if (!tri6Database.query("PREPARE selectTri6ScoreStmt FROM \"SELECT Score, Identifier, UserID FROM scores WHERE Version = ? ORDER BY Score DESC\";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				return;
+				break;
 			}
 			if (!tri6Database.query("PREPARE selectTri6MaxVersionStmt FROM \"SELECT MAX(Version) FROM scores\";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				return;
+				break;
 			}
 			if (!tri6Database.query("EXECUTE selectTri6MaxVersionStmt;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-				return;
+				break;
 			}
 			auto lastResults = tri6Database.getResults<std::vector<std::string>>();
 
@@ -1888,19 +1890,20 @@ void Server::handleRequestSingleModStat(clockUtils::sockets::TcpSocket * sock, R
 			
 			if (!tri6Database.query("SET @paramVersion=" + version + ";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				return;
+				break;
 			}
 			if (!tri6Database.query("EXECUTE selectTri6ScoreStmt USING @paramVersion;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-				return;
+				break;
 			}
+			results = tri6Database.getResults<std::vector<std::string>>();
 		} while (false);
 	} else {
 		if (!database.query("EXECUTE selectScoreStmt USING @paramModID;")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		}
+		results = database.getResults<std::vector<std::string>>();
 	}
-	results = database.getResults<std::vector<std::string>>();
 	if (results.empty()) {
 		ms.bestScore = 0;
 		ms.bestScoreName = "";
