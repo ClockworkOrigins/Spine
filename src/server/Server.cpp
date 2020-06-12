@@ -4571,7 +4571,7 @@ void Server::handleRequestAllTri6ScoreStats(clockUtils::sockets::TcpSocket * soc
 		std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
-	if (!database.query("PREPARE selectScoreStmt FROM \"SELECT Score, UserID FROM modScores WHERE Version = ? AND Identifier = ? ORDER BY Score DESC\";")) {
+	if (!database.query("PREPARE selectScoreStmt FROM \"SELECT Score, UserID FROM scores WHERE Version = ? AND Identifier = ? ORDER BY Score DESC\";")) {
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
