@@ -1805,6 +1805,14 @@ void Server::handleRequestSingleModStat(clockUtils::sockets::TcpSocket * sock, R
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
+	if (!database.query("PREPARE selectFeedbackMailStmt FROM \"SELECT Mail FROM feedbackMails WHERE ProjectID = ? LIMIT 1\";")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return;
+	}
+	if (!database.query("PREPARE selectDiscussionsUrlStmt FROM \"SELECT CAST(Url AS BINARY) FROM discussionUrls WHERE ProjectID = ? LIMIT 1\";")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return;
+	}
 	if (!database.query("SET @paramLanguage='" + msg->language + "';")) {
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
@@ -1952,6 +1960,18 @@ void Server::handleRequestSingleModStat(clockUtils::sockets::TcpSocket * sock, R
 			}
 		}
 	}
+	if (!database.query("EXECUTE selectFeedbackMailStmt USING @paramModID;")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+	}
+	results = database.getResults<std::vector<std::string>>();
+
+	ms.feedbackMailAvailable = !results.empty();
+	if (!database.query("EXECUTE selectDiscussionsUrlStmt USING @paramModID;")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+	}
+	results = database.getResults<std::vector<std::string>>();
+
+	ms.discussionUrl = results.empty() ? "" : results[0][0];
 
 	SendSingleModStatMessage ssmsm;
 	ssmsm.mod = ms;
