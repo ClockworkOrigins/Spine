@@ -215,7 +215,7 @@ void GameLauncher::createWidget() {
 	_nameLabel->setProperty("library", true);
 	_nameLabel->setAlignment(Qt::AlignCenter);
 
-	_layout->insertWidget(3, _nameLabel);
+	_layout->insertWidget(5, _nameLabel);
 }
 
 void GameLauncher::parseGame(int gameID, int gameType) {

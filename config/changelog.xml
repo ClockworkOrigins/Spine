@@ -1828,4 +1828,9 @@
 		<Bug language="English">Start button on start page now is also disabled when start conditions aren't fullfilled</Bug>
 		<Bug language="English">Unreleased mods won't be displayed anymore for random page</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="20" patchVersion="2">
+		<Bug language="Deutsch">Fehler mit Feedback-Button behoben</Bug>
+		
+		<Bug language="English">Fixed bug with feedback button</Bug>
+	</Version>
 </Versions>

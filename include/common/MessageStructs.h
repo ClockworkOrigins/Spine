@@ -442,6 +442,7 @@ namespace common {
 			ar & minorVersion;
 			ar & patchVersion;
 			ar & username;
+			ar & projectID;
 		}
 	};
 

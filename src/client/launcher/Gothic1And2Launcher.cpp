@@ -226,12 +226,12 @@ void Gothic1And2Launcher::createWidget() {
 	_homepageLabel->setAlignment(Qt::AlignCenter);
 	_homepageLabel->setOpenExternalLinks(true);
 	
-	_layout->insertWidget(2, _adminInfoLabel);
-	_layout->insertWidget(3, _nameLabel);
-	_layout->insertWidget(4, _versionLabel);
-	_layout->insertWidget(5, _teamLabel);
-	_layout->insertWidget(6, _contactLabel);
-	_layout->insertWidget(7, _homepageLabel);
+	_layout->insertWidget(4, _adminInfoLabel);
+	_layout->insertWidget(5, _nameLabel);
+	_layout->insertWidget(6, _versionLabel);
+	_layout->insertWidget(7, _teamLabel);
+	_layout->insertWidget(8, _contactLabel);
+	_layout->insertWidget(9, _homepageLabel);
 
 	_compileScripts = new QCheckBox(QApplication::tr("CompileScripts"), _widget);
 	_compileScripts->setProperty("library", true);

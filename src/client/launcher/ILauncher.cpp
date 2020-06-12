@@ -175,11 +175,21 @@ void ILauncher::createWidget() {
 		_layout->addLayout(hbl);
 	}
 
-	_feedbackButton = new QPushButton(QApplication::tr("Feedback"), _widget);
-	UPDATELANGUAGESETTEXT(_feedbackButton, "Feedback");
-	_feedbackButton->setProperty("library", true);
-	_feedbackButton->hide();
-	connect(_feedbackButton, &QPushButton::released, this, &ILauncher::feedbackClicked);
+	{
+		QHBoxLayout * hbl = new QHBoxLayout();
+
+		_feedbackButton = new QPushButton(QApplication::tr("Feedback"), _widget);
+		UPDATELANGUAGESETTEXT(_feedbackButton, "Feedback");
+		_feedbackButton->setProperty("library", true);
+		_feedbackButton->hide();
+		connect(_feedbackButton, &QPushButton::released, this, &ILauncher::feedbackClicked);
+		
+		hbl->addWidget(_feedbackButton);
+
+		hbl->addStretch(1);
+
+		_layout->addLayout(hbl);
+	}
 
 	_achievementLabel = new QLabel(_widget);
 	_achievementLabel->setProperty("library", true);
