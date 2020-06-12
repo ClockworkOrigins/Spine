@@ -124,7 +124,7 @@ void Server::receiveMessage(const std::vector<uint8_t> & message, clockUtils::so
 					return;
 				}
 			}
-			std::cout << "Received: " + static_cast<int>(m->type) << std::endl;
+			std::cout << "Received: " << static_cast<int>(m->type) << std::endl;
 			if (m->type == MessageType::UPDATEREQUEST) {
 				UpdateRequestMessage * msg = dynamic_cast<UpdateRequestMessage *>(m);
 				handleAutoUpdate(sock, msg);
@@ -297,7 +297,7 @@ void Server::receiveMessage(const std::vector<uint8_t> & message, clockUtils::so
 				delete m;
 				return;
 			}
-			std::cout << "Finished: " + static_cast<int>(m->type) << std::endl;
+			std::cout << "Finished: " << static_cast<int>(m->type) << std::endl;
 
 			delete m;
 		} catch (const boost::archive::archive_exception &) {
