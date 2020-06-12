@@ -294,7 +294,7 @@ void DatabaseCreator::createTables() {
 		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS playTestSurveyAnswers (SurveyID INT NOT NULL, UserID INT NOT NULL, QuestionID INT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, MajorVersion INT NOT NULL, Answer TEXT NOT NULL, PRIMARY KEY(SurveyID, UserID, QuestionID)) CHARACTER SET utf8;"))) {
+	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS playTestSurveyAnswers (SurveyID INT NOT NULL, UserID INT NOT NULL, QuestionID INT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL, Answer TEXT NOT NULL, PRIMARY KEY(SurveyID, UserID, QuestionID)) CHARACTER SET utf8;"))) {
 		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
