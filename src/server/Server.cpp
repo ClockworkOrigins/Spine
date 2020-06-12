@@ -124,7 +124,6 @@ void Server::receiveMessage(const std::vector<uint8_t> & message, clockUtils::so
 					return;
 				}
 			}
-			std::cout << "Received: " << static_cast<int>(m->type) << std::endl;
 			if (m->type == MessageType::UPDATEREQUEST) {
 				UpdateRequestMessage * msg = dynamic_cast<UpdateRequestMessage *>(m);
 				handleAutoUpdate(sock, msg);
@@ -297,7 +296,6 @@ void Server::receiveMessage(const std::vector<uint8_t> & message, clockUtils::so
 				delete m;
 				return;
 			}
-			std::cout << "Finished: " << static_cast<int>(m->type) << std::endl;
 
 			delete m;
 		} catch (const boost::archive::archive_exception &) {
@@ -1124,7 +1122,7 @@ void Server::handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, ModVer
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
-	if (!database.query("PREPARE selectNewsIDStmt FROM \"SELECT MAX(NewsID) FROM newsticker WHERE ProjectID = ? AND Type = ? LIMIT 1\";")) {
+	if (!database.query("PREPARE selectNewsIDStmt FROM \"SELECT NewsID FROM newsticker WHERE ProjectID = ? AND Type = ? ORDER BY NewsID DESC LIMIT 1\";")) {
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}

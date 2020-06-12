@@ -25,9 +25,7 @@
 #include "https/Https.h"
 
 #include "utils/Config.h"
-#include "utils/WindowsExtensions.h"
 
-#include "clockUtils/log/Log.h"
 #include "clockUtils/sockets/TcpSocket.h"
 
 #include <QApplication>
@@ -132,12 +130,16 @@ void RatingWidget::mousePressEvent(QMouseEvent * evt) {
 }
 
 void RatingWidget::requestRating() {
+	if (_modID < 1) return;
+
+	QWidget::setVisible(false);
+	
 	switch (_mode) {
 	case RatingMode::Overall: {
 		QJsonObject requestData;
 		requestData["ProjectID"] = _modID;
 
-		int projectID;
+		int projectID = _modID;
 		
 		https::Https::postAsync(DATABASESERVER_PORT, "getWeightedRating", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this, projectID](const QJsonObject & json, int statusCode) {
 			if (statusCode != 200) return;
@@ -167,7 +169,7 @@ void RatingWidget::requestRating() {
 		requestData["Password"] = Config::Password;
 		requestData["ProjectID"] = _modID;
 
-		int projectID;
+		int projectID = _modID;
 		
 		https::Https::postAsync(DATABASESERVER_PORT, "getOwnRating", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this, projectID](const QJsonObject & json, int statusCode) {
 			if (statusCode != 200) return;

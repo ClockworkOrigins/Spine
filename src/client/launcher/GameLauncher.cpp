@@ -129,7 +129,6 @@ void GameLauncher::start() {
 }
 		
 void GameLauncher::updateModStats() {
-	
 	if (!Config::OnlineMode) return;
 
 	int gameID = _modID;
