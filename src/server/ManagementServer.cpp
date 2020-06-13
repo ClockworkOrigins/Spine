@@ -1097,12 +1097,12 @@ void ManagementServer::updateModVersion(std::shared_ptr<HttpsServer::Response> r
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			if (!database.query("PREPARE insertNewsTickerStmt FROM \"INSERT INTO newsTicker (ProjectID, Date, Type) VALUES (?, ?, ?)\";")) {
+			if (!database.query("PREPARE insertNewsTickerStmt FROM \"INSERT INTO newsticker (ProjectID, Date, Type) VALUES (?, ?, ?)\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			if (!database.query("PREPARE selectNewsIDStmt FROM \"SELECT MAX(NewsID) FROM newsTicker WHERE ProjectID = ? AND Date = ? AND Type = ? LIMIT 1\";")) {
+			if (!database.query("PREPARE selectNewsIDStmt FROM \"SELECT MAX(NewsID) FROM newsticker WHERE ProjectID = ? AND Date = ? AND Type = ? LIMIT 1\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
