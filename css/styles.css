@@ -68,7 +68,8 @@ QLabel[adminInfo=true] {
 }
 
 QLabel[error=true] {
-	color: #FF0000;
+	color: #800000;
+	font-size: 20px;
 }
 
 QLabel[fontAwesome=true] {
@@ -291,6 +292,10 @@ QTextBrowser {
 	border: 2px solid #FFFFFF;
 	background-color: #FFFFFF;
 	font-size: 14px;
+}
+
+QTextBrowser[changelog=true] {
+	font-size: 8px;
 }
 
 QDateEdit {

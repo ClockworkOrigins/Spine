@@ -61,7 +61,7 @@ ModUpdateDialog::ModUpdateDialog(QMainWindow * mainWindow) : QDialog(nullptr), _
 	l->addWidget(_infoLabel);
 
 	_checkBoxLayout = new QVBoxLayout();
-	l->addLayout(_checkBoxLayout);
+	l->addLayout(_checkBoxLayout, 1);
 
 	_dontShowAgain = new QCheckBox(QApplication::tr("DontShowAgain"), this);
 	l->addWidget(_dontShowAgain);
@@ -142,9 +142,9 @@ void ModUpdateDialog::updateModList(std::vector<common::ModUpdate> updates) {
 			visibleCount += b ? 1 : 0;
 
 			QLabel * lbl = new QLabel(u.savegameCompatible ? "" : "!", this);
-			lbl->setVisible(b);
 			lbl->setProperty("error", true);
 			lbl->setProperty("bold", true);
+			lbl->setVisible(b);
 
 			if (!u.savegameCompatible) {
 				lbl->setToolTip(QApplication::tr("SaveNotCompatibleTooltip"));
@@ -160,6 +160,7 @@ void ModUpdateDialog::updateModList(std::vector<common::ModUpdate> updates) {
 			if (b && !changelog.isEmpty()) {
 				QVBoxLayout * vl = new QVBoxLayout();
 				QTextBrowser * tb = new QTextBrowser(this);
+				tb->setProperty("changelog", true);
 				tb->setText(changelog);
 				vl->addWidget(tb);
 

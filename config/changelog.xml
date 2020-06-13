@@ -1831,8 +1831,12 @@
 	<Version majorVersion="1" minorVersion="20" patchVersion="2">
 		<Bug language="Deutsch">Fehler mit Feedback-Button behoben</Bug>
 		<Bug language="Deutsch">Fehler bei Changelog-Eingabe behoben</Bug>
+		<Bug language="Deutsch">Changelog-Textgröße reduziert</Bug>
+		<Bug language="Deutsch">Spielstand-Kompatibilitäts-Marker sichtbarer gemacht</Bug>
 		
 		<Bug language="English">Fixed bug with feedback button</Bug>
 		<Bug language="English">Fixed bug when entering changelog</Bug>
+		<Bug language="English">Reduced changelog text size</Bug>
+		<Bug language="English">Made savegame compatibility marker more prominent</Bug>
 	</Version>
 </Versions>

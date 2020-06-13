@@ -623,6 +623,7 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 	for (const auto & h : sipm->history) {
 		QVBoxLayout * vl = new QVBoxLayout();
 		QTextBrowser * tb = new QTextBrowser(this);
+		tb->setProperty("changelog", true);
 
 		const auto changelog = s2q(h.changelog);
 		
