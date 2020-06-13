@@ -1275,6 +1275,18 @@ void Server::handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, ModVer
 						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 						return;
 					}
+					if (!database.query("SET @paramMajorVersion=" + std::to_string(static_cast<int>(mv.majorVersion)) + ";")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						return;
+					}
+					if (!database.query("SET @paramMinorVersion=" + std::to_string(static_cast<int>(mv.minorVersion)) + ";")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						return;
+					}
+					if (!database.query("SET @paramPatchVersion=" + std::to_string(static_cast<int>(mv.patchVersion)) + ";")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						return;
+					}
 					if (!database.query("EXECUTE selectSavegamesCompatibleStmt USING @paramModID, @paramMajorVersion, @paramMajorVersion, @paramMinorVersion, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion;")) {
 						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 						return;

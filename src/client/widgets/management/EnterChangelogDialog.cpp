@@ -70,6 +70,8 @@ EnterChangelogDialog::EnterChangelogDialog(QWidget * par) : QDialog(par) {
 		_changelogs[_languageBox->currentText()] = _textEdit->toHtml();
 	});
 
+	l->addWidget(_textEdit, 1);
+
 	QDialogButtonBox * dlgButtons = new QDialogButtonBox(QDialogButtonBox::StandardButton::Ok | QDialogButtonBox::StandardButton::Cancel, Qt::Orientation::Horizontal, this);
 
 	auto * okButton = dlgButtons->button(QDialogButtonBox::Ok);
