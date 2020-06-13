@@ -23,8 +23,11 @@
 #include "SpineConfig.h"
 
 #include "utils/Config.h"
+#include "utils/Conversion.h"
 #include "utils/Database.h"
 #include "utils/Hashing.h"
+
+#include "clockUtils/log/Log.h"
 
 #include <QApplication>
 #include <QDirIterator>
@@ -267,6 +270,12 @@ void IntegrityCheckDialog::process() {
 	if (_running) {
 		for (const QString & file : allFiles) {
 			QFile(file).remove();
+		}
+
+		if (Config::extendedLogging) {
+			for (const auto & mf : _corruptFiles) {
+				LOGINFO("Integrity Check - Hash invalid: " << q2s(mf.file) << " (" << mf.modID << ")");
+			}
 		}
 	}
 }
