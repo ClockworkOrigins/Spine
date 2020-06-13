@@ -266,7 +266,7 @@ void DatabaseServer::getWeightedRating(std::shared_ptr<HttpsServer::Response> re
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			if (!database.query("PREPARE selectPlaytimeStmt FROM \"SELECT Duration FROM playtimes WHERE ModID = ? AND UserID = ? LIMIT 1\";")) {
+			if (!database.query("PREPARE selectPlaytimesStmt FROM \"SELECT UserID, Duration FROM playtimes WHERE ModID = ?\";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
@@ -291,6 +291,22 @@ void DatabaseServer::getWeightedRating(std::shared_ptr<HttpsServer::Response> re
 
 			const int quartile3Playtime = results.size() < 4 ? std::numeric_limits<int>::max() : std::stoi(results[results.size() * 3 / 4][0]);
 			
+			if (!database.query("EXECUTE selectPlaytimesStmt USING @paramProjectID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			results = database.getResults<std::vector<std::string>>();
+
+			std::map<int, int> playTimes;
+
+			for (const auto & vec : results) {
+				const int u = std::stoi(vec[0]);
+				const int t = std::stoi(vec[1]);
+
+				playTimes.insert(std::make_pair(u, t));
+			}
+			
 			if (!database.query("EXECUTE selectRatingsStmt USING @paramProjectID;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
@@ -307,20 +323,10 @@ void DatabaseServer::getWeightedRating(std::shared_ptr<HttpsServer::Response> re
 				
 				rating += r;
 				count++;
-				
-				if (!database.query("SET @paramUserID=" + std::to_string(u) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-					code = SimpleWeb::StatusCode::client_error_failed_dependency;
-					break;
-				}
-				if (!database.query("EXECUTE selectPlaytimeStmt USING @paramProjectID, @paramUserID;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-					code = SimpleWeb::StatusCode::client_error_failed_dependency;
-					break;
-				}
-				const auto lastResults = database.getResults<std::vector<std::string>>();
 
-				const int time = lastResults.empty() ? 0 : std::stoi(lastResults[0][0]);
+				const auto it = playTimes.find(u);
+
+				const int time = it == playTimes.end() ? 0 : it->second;
 
 				if (time > quartile3Playtime) {
 					rating += r;
