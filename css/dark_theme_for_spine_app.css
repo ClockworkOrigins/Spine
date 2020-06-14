@@ -404,7 +404,7 @@ QLabel[newsTicker=true] {
 
 QPushButton[newsTicker=true] {
 	border: none;
-	height: 24px;
+	height: 30px;
 }
 
 QPushButton::hover[newsTicker=true] {
