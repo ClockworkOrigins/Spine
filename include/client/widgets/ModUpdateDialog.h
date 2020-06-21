@@ -54,15 +54,17 @@ namespace widgets {
 
 	private:
 		struct ModFile {
-			int32_t packageID;
-			int32_t modID;
+			int32_t packageID = -1;
+			int32_t modID = -1;
 			std::string file;
 			std::string hash;
 			QString fileserver;
-			ModFile(std::string i, std::string s1, std::string s2) : packageID(-1), modID(std::stoi(i)), file(s1), hash(s2) {
-			}
-			ModFile(int i, std::string s1, std::string s2, int32_t p, QString fs) : packageID(p), modID(int32_t(i)), file(s1), hash(s2), fileserver(fs) {
-			}
+
+			ModFile() {}
+			
+			ModFile(std::string i, std::string s1, std::string s2) : packageID(-1), modID(std::stoi(i)), file(s1), hash(s2) {}
+			
+			ModFile(int i, std::string s1, std::string s2, int32_t p, QString fs) : packageID(p), modID(int32_t(i)), file(s1), hash(s2), fileserver(fs) {}
 		};
 
 		QMainWindow * _mainWindow;
@@ -77,6 +79,8 @@ namespace widgets {
 
 		void hideUpdates(QList<common::ModUpdate> hides) const;
 		bool hasChanges(common::ModUpdate mu) const;
+
+		void unzippedArchive(QString archive, QList<QPair<QString, QString>> files, ModFile mf, QSharedPointer<QList<ModFile>> installFiles, QSharedPointer<QList<ModFile>> newFiles, QSharedPointer<QList<ModFile>> removeFiles);
 	};
 
 } /* namespace widgets */

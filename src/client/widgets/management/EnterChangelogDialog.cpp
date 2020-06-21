@@ -67,7 +67,7 @@ EnterChangelogDialog::EnterChangelogDialog(QWidget * par) : QDialog(par) {
 	_textEdit = new QTextEdit(this);
 	_textEdit->setAutoFormatting(QTextEdit::AutoAll);
 	connect(_textEdit, &QTextEdit::textChanged, [this]() {
-		_changelogs[_languageBox->currentText()] = _textEdit->toHtml();
+		_changelogs[_languageBox->currentText()] = _textEdit->toPlainText();
 	});
 
 	l->addWidget(_textEdit, 1);

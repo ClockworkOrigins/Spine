@@ -1839,4 +1839,11 @@
 		<Bug language="English">Reduced changelog text size</Bug>
 		<Bug language="English">Made savegame compatibility marker more prominent</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="20" patchVersion="3">
+		<Bug language="Deutsch">Fehler behoben, wodurch die Standard-Mods auch im Offline-Modus installiert wurden</Bug>
+		<Bug language="Deutsch">Fehler beim Updaten von Mods mit Archiven behoben</Bug>
+		
+		<Bug language="English">Fixed bug that causes some of the default mods also being installed in offline mode</Bug>
+		<Bug language="English">Fixed bug when updating a mod using an archive</Bug>
+	</Version>
 </Versions>

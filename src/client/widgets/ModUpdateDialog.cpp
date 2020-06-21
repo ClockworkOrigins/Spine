@@ -182,9 +182,9 @@ void ModUpdateDialog::updateModList(std::vector<common::ModUpdate> updates) {
 
 void ModUpdateDialog::accept() {
 	QList<common::ModUpdate> hides;
-	std::vector<ModFile> installFiles;
-	std::vector<ModFile> removeFiles;
-	std::vector<ModFile> newFiles;
+	QSharedPointer<QList<ModFile>> installFiles(new QList<ModFile>());
+	QSharedPointer<QList<ModFile>> removeFiles(new QList<ModFile>());
+	QSharedPointer<QList<ModFile>> newFiles(new QList<ModFile>());
 	for (size_t i = 0; i < _updates.size(); i++) {
 		if (!_checkBoxes[i]->isChecked()) {
 			hides.append(_updates[i]);
@@ -249,14 +249,14 @@ void ModUpdateDialog::accept() {
 				if (filePair.file == mf.file || filePair.file == mf.file + ".z") {
 					found = true;
 					if (filePair.hash != mf.hash) {
-						installFiles.push_back(filePair);
+						installFiles->push_back(filePair);
 					}
 					break;
 				}
 			}
 			// file was not found in new update, so it has to be deleted
 			if (!found) {
-				removeFiles.push_back(mf);
+				removeFiles->push_back(mf);
 			}
 		}
 		// check for new files
@@ -270,7 +270,7 @@ void ModUpdateDialog::accept() {
 			}
 			// file was not found in local copy, so it has to be installed
 			if (!found) {
-				newFiles.push_back(pr);
+				newFiles->push_back(pr);
 			}
 		}
 
@@ -279,7 +279,7 @@ void ModUpdateDialog::accept() {
 	}
 
 	MultiFileDownloader * mfd = new MultiFileDownloader(this);
-	for (const ModFile & mf : installFiles) {
+	for (const ModFile & mf : *installFiles) {
 		QDir dir(Config::DOWNLOADDIR + "/mods/" + QString::number(mf.modID));
 		if (!dir.exists()) {
 			bool b = dir.mkpath(dir.absolutePath());
@@ -288,8 +288,19 @@ void ModUpdateDialog::accept() {
 		QFileInfo fi(QString::fromStdString(mf.file));
 		FileDownloader * fd = new FileDownloader(QUrl(mf.fileserver + QString::number(mf.modID) + "/" + QString::fromStdString(mf.file)), dir.absolutePath() + "/" + fi.path(), fi.fileName(), QString::fromStdString(mf.hash), mfd);
 		mfd->addFileDownloader(fd);
+
+		// zip workflow
+		const auto suffix = fi.completeSuffix();
+		
+		if (suffix.compare("zip.z", Qt::CaseInsensitive) != 0) continue;
+
+		// 1. if it is a zip, register new signal. FileDownloader will send signal after extracting the archive reporting the files with hashes it contained
+		// 2. reported files need to be added to filelist and archive must be removed
+		connect(fd, &FileDownloader::unzippedArchive, [this, mf, installFiles, newFiles, removeFiles](QString archive, QList<QPair<QString, QString>> files) {
+			unzippedArchive(archive, files, mf, installFiles, newFiles, removeFiles);
+		});
 	}
-	for (const ModFile & mf : newFiles) {
+	for (const ModFile & mf : *newFiles) {
 		QDir dir(Config::DOWNLOADDIR + "/mods/" + QString::number(mf.modID));
 		if (!dir.exists()) {
 			bool b = dir.mkpath(dir.absolutePath());
@@ -298,6 +309,17 @@ void ModUpdateDialog::accept() {
 		QFileInfo fi(QString::fromStdString(mf.file));
 		FileDownloader * fd = new FileDownloader(QUrl(mf.fileserver + QString::number(mf.modID) + "/" + QString::fromStdString(mf.file)), dir.absolutePath() + "/" + fi.path(), fi.fileName(), QString::fromStdString(mf.hash), mfd);
 		mfd->addFileDownloader(fd);
+
+		// zip workflow
+		const auto suffix = fi.completeSuffix();
+		
+		if (suffix.compare("zip.z", Qt::CaseInsensitive) != 0) continue;
+
+		// 1. if it is a zip, register new signal. FileDownloader will send signal after extracting the archive reporting the files with hashes it contained
+		// 2. reported files need to be added to filelist and archive must be removed
+		connect(fd, &FileDownloader::unzippedArchive, [this, mf, installFiles, newFiles, removeFiles](QString archive, QList<QPair<QString, QString>> files) {
+			unzippedArchive(archive, files, mf, installFiles, newFiles, removeFiles);
+		});
 	}
 
 	for (size_t i = 0; i < _updates.size(); i++) {
@@ -311,7 +333,7 @@ void ModUpdateDialog::accept() {
 		Database::DBError err;
 		Database::open(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, err);
 		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "BEGIN TRANSACTION;", err);
-		for (ModFile mf : installFiles) {
+		for (ModFile mf : *installFiles) {
 			QString fileName = QString::fromStdString(mf.file);
 			QFileInfo fi(fileName);
 			if (fi.suffix() == "z") {
@@ -321,7 +343,7 @@ void ModUpdateDialog::accept() {
 			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE modfiles SET Hash = '" + mf.hash + "' WHERE ModID = " + std::to_string(mf.modID) + " AND File = '" + mf.file + "';", err);
 			success = success && !err.error;
 		}
-		for (ModFile mf : newFiles) {
+		for (ModFile mf : *newFiles) {
 			QString fileName = QString::fromStdString(mf.file);
 			QFileInfo fi(fileName);
 			if (fi.suffix() == "z") {
@@ -335,7 +357,7 @@ void ModUpdateDialog::accept() {
 				success = success && !err.error;
 			}
 		}
-		for (ModFile mf : removeFiles) {
+		for (ModFile mf : *removeFiles) {
 			QString fileName = QString::fromStdString(mf.file);
 			QFileInfo fi(fileName);
 			if (fi.suffix() == "z") {
@@ -374,7 +396,7 @@ void ModUpdateDialog::accept() {
 			}
 		}
 		if (success) {
-			if (!installFiles.empty() || !newFiles.empty() || !removeFiles.empty()) {
+			if (!installFiles->empty() || !newFiles->empty() || !removeFiles->empty()) {
 				QMessageBox msg(QMessageBox::Icon::Information, QApplication::tr("UpdateSuccessful"), QApplication::tr("UpdateSuccessfulText"), QMessageBox::StandardButton::Ok);
 				msg.setWindowFlags(msg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
 				msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
@@ -566,4 +588,55 @@ bool ModUpdateDialog::hasChanges(common::ModUpdate mu) const {
 		}
 	}
 	return b;
+}
+
+void ModUpdateDialog::unzippedArchive(QString archive, QList<QPair<QString, QString>> files, ModFile mf, QSharedPointer<QList<ModFile>> installFiles, QSharedPointer<QList<ModFile>> newFiles, QSharedPointer<QList<ModFile>> removeFiles) {
+	for (auto it = installFiles->begin(); it != installFiles->end(); ++it) {
+		if (it->modID != mf.modID) continue;
+		
+		if (s2q(it->file) != archive) continue;
+		
+		installFiles->erase(it);
+		
+		break;
+	}
+	
+	for (auto it = newFiles->begin(); it != newFiles->end(); ++it) {
+		if (it->modID != mf.modID) continue;
+		
+		if (s2q(it->file) != archive) continue;
+		
+		newFiles->erase(it);
+		
+		break;
+	}
+
+	for (const auto & p : files) {
+		bool found = false;
+		
+		for (auto it = removeFiles->begin(); it != removeFiles->end(); ++it) {
+			if (it->modID != mf.modID) continue;
+
+			if (s2q(it->file) != p.first) continue;
+
+			installFiles->append(*it);
+			removeFiles->erase(it);
+
+			found = true;
+
+			break;
+		}
+
+		if (!found) {
+			ModFile f;
+			
+			f.modID = mf.modID;
+			f.packageID = mf.packageID;
+			f.file = q2s(p.first);
+			f.hash = q2s(p.second);
+			f.fileserver = mf.fileserver;
+			
+			newFiles->append(f);
+		}
+	}
 }

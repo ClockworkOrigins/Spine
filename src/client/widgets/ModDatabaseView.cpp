@@ -415,6 +415,8 @@ void ModDatabaseView::changeLanguage(QString language) {
 }
 
 void ModDatabaseView::updateModList(int modID, int packageID, InstallMode mode) {
+	if (!Config::OnlineMode) return;
+	
 	if (mode == InstallMode::Silent && modID != -1) {
 		_installSilently.insert(modID);
 	}

@@ -57,10 +57,12 @@
 		<File Hash="a1137114f1e22fb5d5109b61244cc501a6ce93155752054c2494dc500882e7aedbfeee203a7de950d76799eee3093311297bdb1e0edee13553a5f415d60d81fa">bin/ru_RU.qm.z</File>
 	</Version>
 	<Version majorVersion="1" minorVersion="20" patchVersion="2">
-		<File Hash="85cdc607f4c3aab92141e8d6a26845faadc6bd62e058d8da7c876848d8237a8529825334d340cabaf89501cf0be0f71e524e3cf51665912497d093e43f875b0e">bin/changelog.xml.z</File>
-		<File Hash="689256dae2b296bf589d3a5818198f0d1f3c712202647a4d6b28762ca6b06c0ec82fb4ff9994914be393890ab1a24d72c753ad15a14a69c1febb1a5bf766284f">bin/Spine.exe.z</File>
-		<File Hash="d9227dbaa65a6bd8db76861a51b7333e1100b6e4ec167231fd1f76c0477988e95b7747b10e6f315275cb90bee6fe102a77735f514eaeba65192f19bc41253aa8">bin/SpineAPI.dll.z</File>
-		<File Hash="643327cb31828ee31420718cae23c1b6816030a1c5ae20449a11c3ba608eba626ea81c95e0721e7139bb1afb8c605ebde1da52e366e972b90848ad7bbf74c849">bin/SpineAPI64.dll.z</File>
 		<File Hash="c087a71f34ff947c5222e0c25436d8e56c555bdde6d162a55a07be9c6f4bf1f5248833567451b07b78d1137e566ce926adbe8d4f4151f7e53764134b3b6cd639">styles.css.z</File>
+	</Version>
+	<Version majorVersion="1" minorVersion="20" patchVersion="3">
+		<File Hash="82ce0eebda6e00f341ede068312074cb3241ab1c6fe62eb75cb01f097ba9e2014de87780164bdf7e78637c497f0cfa90e9341d95751ce6565b6c57d9bd30584b">bin/changelog.xml.z</File>
+		<File Hash="b429720f302e9d37ec72adf094227a54bb5a7349f4ead5680754811def45e0c525feb0e6a2b85c9a2037c4913f551482107c427cd5c813bd96eb051b3e3b5f5b">bin/Spine.exe.z</File>
+		<File Hash="131d63a847cf8e36d221573b690b612020539ee3a26f0dc14ee72c57d40d24715b91db89ad9568927847153a94dd643146456a3850b917d810c98a0123bbf0c6">bin/SpineAPI.dll.z</File>
+		<File Hash="a8be5f6cff1dd0593fd0bfe5b66afdfc2a645604368adede2e03a04e26e761b55ff300b79736fc7303f13b3a64ba1452cd8ef700e06b20f7d0f143721788d8a4">bin/SpineAPI64.dll.z</File>
 	</Version>
 </Versions>
