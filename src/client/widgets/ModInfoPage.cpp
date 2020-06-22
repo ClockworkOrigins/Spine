@@ -184,11 +184,11 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 
 	_descriptionView = new QTextBrowser(widget);
 	_descriptionView->setOpenExternalLinks(true);
-	hl->addWidget(_descriptionView);
+	hl->addWidget(_descriptionView, 75);
 	_descriptionView->hide();
 
 	_descriptionEdit = new QTextEdit(widget);
-	hl->addWidget(_descriptionEdit);
+	hl->addWidget(_descriptionEdit, 75);
 	_descriptionEdit->hide();
 	_descriptionEdit->setPlaceholderText(QApplication::tr("InfoPageDescriptionPlaceholder"));
 	UPDATELANGUAGESETPLACEHOLDERTEXT(_descriptionEdit, "InfoPageDescriptionPlaceholder");
@@ -217,7 +217,7 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 
 		rightLayout->addWidget(_historyBox);
 
-		hl->addLayout(rightLayout);
+		hl->addLayout(rightLayout, 25);
 	}
 	{
 		QVBoxLayout * vl = new QVBoxLayout();
@@ -261,8 +261,8 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 		}
 	}
 
-	hl->setStretchFactor(_descriptionView, 1);
-	hl->setStretchFactor(_descriptionEdit, 1);
+	hl->setStretchFactor(_descriptionView, 75);
+	hl->setStretchFactor(_descriptionEdit, 75);
 
 	_spineFeatureModel = new QStandardItemModel(_spineFeaturesView);
 	_spineFeaturesView->setModel(_spineFeatureModel);
@@ -625,12 +625,12 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 		QTextBrowser * tb = new QTextBrowser(this);
 		tb->setProperty("changelog", true);
 
-		const auto changelog = s2q(h.changelog);
+		const auto changelog = s2q(h.changelog).trimmed();
 		
 		tb->setText(changelog.isEmpty() ? QApplication::tr("NoChangelogAvailable") : changelog);
 		vl->addWidget(tb);
 
-		auto title = QString("%1.%2.%3").arg(static_cast<int>(h.majorVersion)).arg(static_cast<int>(h.minorVersion)).arg(static_cast<int>(h.patchVersion));
+		auto title = QString("%1.%2.%3 - %4").arg(static_cast<int>(h.majorVersion)).arg(static_cast<int>(h.minorVersion)).arg(static_cast<int>(h.patchVersion)).arg(QDate(2000, 1, 1).addDays(h.timestamp).toString("dd.MM.yyyy"));
 
 		if (!h.savegameCompatible) {
 			title += QString(" (%1)").arg(QApplication::tr("SaveNotCompatible"));

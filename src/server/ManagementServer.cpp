@@ -45,6 +45,7 @@ ManagementServer::~ManagementServer() {
 int ManagementServer::run() {
 	_server = new HttpsServer(SSLCHAINPATH, SSLPRIVKEYNPATH);
 	_server->config.port = MANAGEMENTSERVER_PORT;
+	_server->config.thread_pool_size = 4;
 	
 	_server->resource["^/getMods"]["POST"] = std::bind(&ManagementServer::getMods, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/getAchievements"]["POST"] = std::bind(&ManagementServer::getAchievements, this, std::placeholders::_1, std::placeholders::_2);

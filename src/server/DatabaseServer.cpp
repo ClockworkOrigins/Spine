@@ -41,6 +41,7 @@ DatabaseServer::~DatabaseServer() {
 int DatabaseServer::run() {
 	_server = new HttpsServer(SSLCHAINPATH, SSLPRIVKEYNPATH);
 	_server->config.port = DATABASESERVER_PORT;
+	_server->config.thread_pool_size = 4;
 	
 	_server->resource["^/getModnameForIDs"]["POST"] = std::bind(&DatabaseServer::getModnameForIDs, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/getUserID"]["POST"] = std::bind(&DatabaseServer::getUserID, this, std::placeholders::_1, std::placeholders::_2);

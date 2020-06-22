@@ -2883,7 +2883,7 @@ void Server::handleRequestInfoPage(clockUtils::sockets::TcpSocket * sock, Reques
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
-	if (!database.query("PREPARE selectNewsTickerStmt FROM \"SELECT NewsID, Date FROM newsticker WHERE ProjectID = ? AND Type = ? ORDER BY Date DESC\";")) {
+	if (!database.query("PREPARE selectNewsTickerStmt FROM \"SELECT NewsID, Date FROM newsticker WHERE ProjectID = ? AND Type = ? ORDER BY NewsID DESC\";")) {
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}

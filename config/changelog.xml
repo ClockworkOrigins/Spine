@@ -1846,4 +1846,13 @@
 		<Bug language="English">Fixed bug that causes some of the default mods also being installed in offline mode</Bug>
 		<Bug language="English">Fixed bug when updating a mod using an archive</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="21" patchVersion="0">
+		<Bug language="Deutsch">Breite des Verlaufs auf der Infoseite erhöht</Bug>
+		<Bug language="Deutsch">Aktualisierungsdatum pro Changelog wird auf der Infoseite jetzt angezeigt</Bug>
+		<Bug language="Deutsch">Reihenfolge des Verlaufs für mehrere Updates am gleichen Tag korrigiert</Bug>
+		
+		<Bug language="English">Increased width of history on info page</Bug>
+		<Bug language="English">Update date for each changelog on info page now is displayed</Bug>
+		<Bug language="English">Fixed order of history on info page in case of multiple updates on one day</Bug>
+	</Version>
 </Versions>
