@@ -60,6 +60,7 @@
 #include <QPushButton>
 #include <QQueue>
 #include <QRegularExpression>
+#include <QScrollArea>
 #include <QSettings>
 #include <QSlider>
 #include <QSplashScreen>
@@ -288,10 +289,26 @@ void Gothic1And2Launcher::createWidget() {
 		_patchGroup = new QGroupBox(QApplication::tr("PatchesAndTools"), _widget);
 		UPDATELANGUAGESETTITLE(_patchGroup, "PatchesAndTools");
 		_patchGroup->setProperty("library", true);
-		_patchLayout = new QGridLayout();
-		_patchLayout->setColumnStretch(2, 1);
-		_patchGroup->setLayout(_patchLayout);
-		_patchGroup->hide();
+
+		{
+			_patchLayout = new QGridLayout();
+			_patchLayout->setColumnStretch(2, 1);
+			
+			auto vb = new QVBoxLayout();
+			QScrollArea * sa = new QScrollArea(_patchGroup);
+			QWidget * cw = new QWidget(sa);
+			vb->setAlignment(Qt::AlignTop);
+			cw->setLayout(_patchLayout);
+			sa->setWidget(cw);
+			sa->setWidgetResizable(true);
+			sa->setProperty("default", true);
+			cw->setProperty("default", true);
+
+			vb->addWidget(sa);
+		
+			_patchGroup->setLayout(vb);
+			_patchGroup->hide();
+		}
 
 		_pdfGroup = new QGroupBox(QApplication::tr("PDFs"), _widget);
 		UPDATELANGUAGESETTITLE(_pdfGroup, "PDFs");
