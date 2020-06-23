@@ -49,7 +49,7 @@
 
 using namespace spine::utils;
 
-FileDownloader::FileDownloader(QUrl url, QString targetDirectory, QString fileName, QString hash, QObject * par) : QObject(par), _webAccessManager(new QNetworkAccessManager(this)), _url(url), _targetDirectory(targetDirectory), _fileName(fileName), _hash(hash), _filesize(-1), _outputFile(nullptr) {
+FileDownloader::FileDownloader(QUrl url, QString targetDirectory, QString fileName, QString hash, QObject * par) : QObject(par), _webAccessManager(new QNetworkAccessManager(this)), _url(url), _targetDirectory(targetDirectory), _fileName(fileName), _hash(hash), _filesize(-1), _outputFile(nullptr), _finished(false) {
 }
 
 FileDownloader::~FileDownloader() {
@@ -100,8 +100,10 @@ void FileDownloader::startDownload() {
 				LOGINFO("Skipping file as it already exists");
 			}
 			if (_filesize == -1) {
+				_finished = true;
+				
 				QEventLoop loop;
-				connect(this, &FileDownloader::totalBytes, &loop, &QEventLoop::quit);
+				connect(this, &FileDownloader::fileSizeDetermined, &loop, &QEventLoop::quit);
 				requestFileSize();
 				loop.exec();
 			}
@@ -175,7 +177,12 @@ void FileDownloader::determineFileSize() {
 	const qlonglong filesize = dynamic_cast<QNetworkReply *>(sender())->header(QNetworkRequest::ContentLengthHeader).toLongLong();
 	sender()->deleteLater();
 	_filesize = filesize;
-	emit totalBytes(_filesize);
+
+	if (_finished) {
+		emit fileSizeDetermined();
+	} else {
+		emit totalBytes(_filesize);
+	}
 }
 
 void FileDownloader::writeToFile() {

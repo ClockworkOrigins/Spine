@@ -1851,10 +1851,12 @@
 		<Bug language="Deutsch">Aktualisierungsdatum pro Changelog wird auf der Infoseite jetzt angezeigt</Bug>
 		<Bug language="Deutsch">Reihenfolge des Verlaufs für mehrere Updates am gleichen Tag korrigiert</Bug>
 		<Bug language="Deutsch">Scrollbar für Patches und Tools eingefügt, damit sie auf niedrigeren Auflösungen richtig funktionieren</Bug>
+		<Bug language="Deutsch">Crash behoben, der immer aufgetreten ist, wenn die Datei, die runtergeladen werden soll bereits existiert</Bug>
 		
 		<Bug language="English">Increased width of history on info page</Bug>
 		<Bug language="English">Update date for each changelog on info page now is displayed</Bug>
 		<Bug language="English">Fixed order of history on info page in case of multiple updates on one day</Bug>
 		<Bug language="English">Added scrollbar to Patches and Tools so they work properly in lower resolutions</Bug>
+		<Bug language="English">Fixed crash in case file to download already exists</Bug>
 	</Version>
 </Versions>

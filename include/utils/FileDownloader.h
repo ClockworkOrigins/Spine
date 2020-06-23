@@ -57,6 +57,7 @@ namespace utils {
 		void fileSucceeded();
 		void fileFailed(DownloadError);
 		void unzippedArchive(QString archive, QList<QPair<QString, QString>> files);
+		void fileSizeDetermined();
 
 	private slots:
 		void updateDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
@@ -73,6 +74,7 @@ namespace utils {
 		QString _hash;
 		qint64 _filesize;
 		QFile * _outputFile;
+		bool _finished;
 
 		void uncompressAndHash();
 

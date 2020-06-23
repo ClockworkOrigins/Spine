@@ -101,7 +101,9 @@ void MultiFileDownloader::updateDownloadMax(qint64 bytesTotal) {
 	_maxSize += bytesTotal;
 	_downloadStats[fd].second = bytesTotal;
 	if (++_currentIndex != _downloadStats.end()) {
-		_currentIndex.key()->requestFileSize();
+		auto * nextFd = _currentIndex.key();
+		
+		nextFd->requestFileSize();
 	} else {
 		emit totalBytes(_maxSize);
 	}
