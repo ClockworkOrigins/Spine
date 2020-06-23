@@ -185,5 +185,8 @@ void RatingWidget::requestRating() {
 		});
 		break;
 	}
+	default: {
+		break;
+	}
 	}
 }
