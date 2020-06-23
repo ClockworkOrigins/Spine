@@ -197,3 +197,25 @@ void ServerCommon::sendMail(const std::string & subject, const std::string & bod
 		static_cast<void>(b);
 	}).detach();
 }
+
+bool ServerCommon::isValidUserID(int userID) {
+	MariaDBWrapper accountDatabase;
+	if (!accountDatabase.connect("localhost", DATABASEUSER, DATABASEPASSWORD, ACCOUNTSDATABASE, 0)) {
+		return false;
+	}
+
+	if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT ID FROM accounts WHERE ID = ? LIMIT 1\";")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return false;
+	}
+	if (!accountDatabase.query("SET @paramID=" + std::to_string(userID) + ";")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return false;
+	}
+	if (!accountDatabase.query("EXECUTE selectStmt USING @paramID;")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+	}
+	const auto results = accountDatabase.getResults<std::vector<std::string>>();
+
+	return !results.empty();
+}

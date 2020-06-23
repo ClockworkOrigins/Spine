@@ -48,6 +48,7 @@ int DatabaseServer::run() {
 	_server->resource["^/getOwnRating"]["POST"] = std::bind(&DatabaseServer::getOwnRating, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/getWeightedRating"]["POST"] = std::bind(&DatabaseServer::getWeightedRating, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/getRatings"]["POST"] = std::bind(&DatabaseServer::getRatings, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/unlockAchievement"]["POST"] = std::bind(&DatabaseServer::unlockAchievement, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -424,6 +425,89 @@ void DatabaseServer::getRatings(std::shared_ptr<HttpsServer::Response> response,
 		write_json(responseStream, responseTree);
 
 		response->write(code, responseStream.str());
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::unlockAchievement(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+		
+		const int32_t projectID = pt.get<int32_t>("ProjectID");
+		const int32_t userID = pt.get<int32_t>("UserID");
+		const int32_t achievementID = pt.get<int32_t>("AchievementID");
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+			
+			if (!database.query("PREPARE updateStmt FROM \"INSERT IGNORE INTO modAchievements (ModID, UserID, Identifier) VALUES (?, ?, ?)\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!database.query("PREPARE validateServerStmt FROM \"SELECT * FROM gmpWhitelist WHERE ModID = ? AND IP = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!database.query("PREPARE selectStmt FROM \"SELECT * FROM modAchievementList WHERE ModID = ? AND Identifier = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!database.query("SET @paramModID=" + std::to_string(projectID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!database.query("SET @paramIdentifier=" + std::to_string(achievementID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!database.query("SET @paramIP='" + request->remote_endpoint_address() + "';")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!database.query("EXECUTE validateServerStmt USING @paramModID, @paramIP;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			const auto results = database.getResults<std::vector<std::string>>();
+
+			if (results.empty()) {
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break; // invalid access
+			}
+			
+			if (!database.query("EXECUTE updateStmt USING @paramModID, @paramUserID, @paramIdentifier;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+
+			SpineLevel::updateLevel(userID);
+		} while (false);
+
+		response->write(code);
 	} catch (...) {
 		response->write(SimpleWeb::StatusCode::client_error_bad_request);
 	}

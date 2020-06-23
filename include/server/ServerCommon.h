@@ -45,6 +45,7 @@ namespace server {
 		static std::vector<std::string> getUserList();
 		static void sendMail(const std::string & subject, const std::string & body, const std::string & replyTo);
 		static void sendMail(const std::string & subject, const std::string & body, const std::string & replyTo, const std::string & receiver);
+		static bool isValidUserID(int userID);
 	};
 
 } /* namespace server */
