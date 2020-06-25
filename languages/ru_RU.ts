@@ -3201,5 +3201,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>Ratings</source>
         <translation>Ratings</translation>
     </message>
+    <message>
+        <source>ReleaseTag</source>
+        <translation>Release</translation>
+    </message>
 </context>
 </TS>

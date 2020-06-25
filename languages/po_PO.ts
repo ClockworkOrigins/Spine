@@ -3196,5 +3196,9 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>Ratings</source>
         <translation>Opinie</translation>
     </message>
+    <message>
+        <source>ReleaseTag</source>
+        <translation>Premiera</translation>
+    </message>
 </context>
 </TS>

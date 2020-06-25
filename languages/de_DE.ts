@@ -3196,5 +3196,9 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>Ratings</source>
         <translation>Bewertungen</translation>
     </message>
+    <message>
+        <source>ReleaseTag</source>
+        <translation>Release</translation>
+    </message>
 </context>
 </TS>

@@ -1848,6 +1848,7 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="21" patchVersion="0">
 		<Enhancement language="Deutsch">Web-API zum Freischalten von Erfolgen eingebaut</Enhancement>
+		<Enhancement language="Deutsch">Automatische Release-News für Neu-Veröffentlichungen im Newsticker eingebaut</Enhancement>
 		<Bug language="Deutsch">Breite des Verlaufs auf der Infoseite erhöht</Bug>
 		<Bug language="Deutsch">Aktualisierungsdatum pro Changelog wird auf der Infoseite jetzt angezeigt</Bug>
 		<Bug language="Deutsch">Reihenfolge des Verlaufs für mehrere Updates am gleichen Tag korrigiert</Bug>
@@ -1855,6 +1856,7 @@
 		<Bug language="Deutsch">Crash behoben, der immer aufgetreten ist, wenn die Datei, die runtergeladen werden soll bereits existiert</Bug>
 		
 		<Enhancement language="English">Added web API to unlock achievements</Enhancement>
+		<Enhancement language="English">Added automated release news for new released in newsticker</Enhancement>
 		<Bug language="English">Increased width of history on info page</Bug>
 		<Bug language="English">Update date for each changelog on info page now is displayed</Bug>
 		<Bug language="English">Fixed order of history on info page in case of multiple updates on one day</Bug>

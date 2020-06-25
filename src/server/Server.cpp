@@ -2372,6 +2372,10 @@ void Server::handleRequestAllNews(clockUtils::sockets::TcpSocket * sock, Request
 			nt.majorVersion = static_cast<int8_t>(std::stoi(r[0][0]));
 			nt.minorVersion = static_cast<int8_t>(std::stoi(r[0][1]));
 			nt.patchVersion = static_cast<int8_t>(std::stoi(r[0][2]));
+		} else if (type == NewsTickerType::Release) {
+			// nothing special here
+		} else {
+			continue;
 		}
 
 		sanm.newsTicker.push_back(nt);

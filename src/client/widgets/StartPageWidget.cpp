@@ -231,13 +231,19 @@ void StartPageWidget::updateNews() {
 	}
 
 	for (const auto & nt : _newsTickers) {
-		if (nt.type != common::NewsTickerType::Update) continue;
+		if (nt.type != common::NewsTickerType::Update && nt.type != common::NewsTickerType::Release) continue;
 		
 		QPushButton * pb = new QPushButton(this);
-
 		QHBoxLayout * hl = new QHBoxLayout();
 
-		QLabel * lblTitle = new QLabel(QString("[%1] %2 %3.%4.%5").arg(QApplication::tr("Update").toUpper()).arg(s2q(nt.name)).arg(static_cast<int>(nt.majorVersion)).arg(static_cast<int>(nt.minorVersion)).arg(static_cast<int>(nt.patchVersion)), this);
+		QLabel * lblTitle = nullptr;
+		
+		if (nt.type == common::NewsTickerType::Update) {		
+			lblTitle = new QLabel(QString("[%1] %2 %3.%4.%5").arg(QApplication::tr("Update").toUpper()).arg(s2q(nt.name)).arg(static_cast<int>(nt.majorVersion)).arg(static_cast<int>(nt.minorVersion)).arg(static_cast<int>(nt.patchVersion)), this);
+		} else if (nt.type == common::NewsTickerType::Release) {
+			lblTitle = new QLabel(QString("[%1] %2").arg(QApplication::tr("ReleaseTag").toUpper()).arg(s2q(nt.name)), this);
+		}
+		
 		QLabel * lblDate = new QLabel(QDate(2000, 1, 1).addDays(nt.timestamp).toString("dd.MM.yyyy"), this);
 
 		pb->setProperty("newsTicker", true);

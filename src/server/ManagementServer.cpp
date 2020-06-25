@@ -760,6 +760,16 @@ void ManagementServer::updateGeneralConfiguration(std::shared_ptr<HttpsServer::R
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
+			if (!database.query("PREPARE selectEnabledStateStmt FROM \"SELECT Enabled FROM mods WHERE ModID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE insertReleaseNewsStmt FROM \"INSERT INTO newsticker (ProjectID, Type, Date) VALUES (?, ?, ?)\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
 			if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
@@ -790,6 +800,28 @@ void ManagementServer::updateGeneralConfiguration(std::shared_ptr<HttpsServer::R
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
+			if (!database.query("EXECUTE selectEnabledStateStmt USING @paramModID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			const auto results = database.getResults<std::vector<std::string>>();
+
+			const bool wasEnabled = results[0][0] == "1";
+
+			if (enabled == 1 && !wasEnabled) {
+				if (!database.query("SET @paramNewsType=" + std::to_string(static_cast<int>(NewsTickerType::Release)) + ";")) {
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("EXECUTE insertReleaseNewsStmt USING @paramModID, @paramNewsType, @paramReleaseDate;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+			}
+			
 			if (!database.query("EXECUTE updateStmt USING @paramEnabled, @paramGothicVersion, @paramModType, @paramReleaseDate, @paramModID;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
