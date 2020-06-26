@@ -60,9 +60,11 @@
 		<File Hash="c087a71f34ff947c5222e0c25436d8e56c555bdde6d162a55a07be9c6f4bf1f5248833567451b07b78d1137e566ce926adbe8d4f4151f7e53764134b3b6cd639">styles.css.z</File>
 	</Version>
 	<Version majorVersion="1" minorVersion="20" patchVersion="3">
-		<File Hash="82ce0eebda6e00f341ede068312074cb3241ab1c6fe62eb75cb01f097ba9e2014de87780164bdf7e78637c497f0cfa90e9341d95751ce6565b6c57d9bd30584b">bin/changelog.xml.z</File>
-		<File Hash="b429720f302e9d37ec72adf094227a54bb5a7349f4ead5680754811def45e0c525feb0e6a2b85c9a2037c4913f551482107c427cd5c813bd96eb051b3e3b5f5b">bin/Spine.exe.z</File>
 		<File Hash="131d63a847cf8e36d221573b690b612020539ee3a26f0dc14ee72c57d40d24715b91db89ad9568927847153a94dd643146456a3850b917d810c98a0123bbf0c6">bin/SpineAPI.dll.z</File>
 		<File Hash="a8be5f6cff1dd0593fd0bfe5b66afdfc2a645604368adede2e03a04e26e761b55ff300b79736fc7303f13b3a64ba1452cd8ef700e06b20f7d0f143721788d8a4">bin/SpineAPI64.dll.z</File>
+	</Version>
+	<Version majorVersion="1" minorVersion="20" patchVersion="4">
+		<File Hash="da5381d5a1a57e803721b8b26fd8f47e6dd2a765f5d56a3a4c5bf1c49a4afb3328443f4322230701829e034a436a9212bcade19c52d4b9871f58823aeba10d4f">bin/changelog.xml.z</File>
+		<File Hash="4cfd8a780d67d4084b96db990dceba68dc2c2d1f740da776b64982721608cd6f66ff28c2a6158e6ccaa75d3c6fdbcd064cc44a23ead70b659d987bbebc47f397">bin/Spine.exe.z</File>
 	</Version>
 </Versions>

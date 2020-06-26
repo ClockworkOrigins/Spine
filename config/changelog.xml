@@ -1846,7 +1846,7 @@
 		<Bug language="English">Fixed bug that causes some of the default mods also being installed in offline mode</Bug>
 		<Bug language="English">Fixed bug when updating a mod using an archive</Bug>
 	</Version>
-	<Version majorVersion="1" minorVersion="21" patchVersion="0">
+	<Version majorVersion="1" minorVersion="20" patchVersion="4">
 		<Enhancement language="Deutsch">Web-API zum Freischalten von Erfolgen eingebaut</Enhancement>
 		<Enhancement language="Deutsch">Automatische Release-News für Neu-Veröffentlichungen im Newsticker eingebaut</Enhancement>
 		<Bug language="Deutsch">Breite des Verlaufs auf der Infoseite erhöht</Bug>
