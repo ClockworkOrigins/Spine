@@ -100,7 +100,7 @@ QMap<QString, QString> EnterChangelogDialog::getChangelogs() const {
 		const QString & language = it.key();
 		QString changelog = it.value();
 		changelog.replace("'", "&apos;");
-		changelog.replace("\n", "");
+		changelog.replace("\n", "<br>");
 		changelog.replace("\"", "&quot;");
 		changelog = changelog.trimmed();
 
