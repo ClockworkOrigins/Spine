@@ -57,6 +57,7 @@ namespace widgets {
 		void receivedAchievementStats(int32_t, std::vector<common::SendAllAchievementStatsMessage::AchievementStats>);
 		void receivedScoreStats(std::vector<common::SendAllScoreStatsMessage::ScoreStats>);
 		void triggerLogout();
+		void discordLinkageStateReceived(bool linked);
 
 	public slots:
 		void updateList();
@@ -72,6 +73,10 @@ namespace widgets {
 		void updateScores(std::vector<common::SendAllScoreStatsMessage::ScoreStats> scoreStats);
 		void toggledHidePatchesAndTools();
 		void updateAchievementIcons();
+		void linkWithDiscord();
+		void unlinkFromDiscord();
+		void requestDiscordLinkage();
+		void updateDiscordLinkage(bool linked);
 
 	private:
 		QLabel * _nameLabel;
@@ -96,6 +101,8 @@ namespace widgets {
 		QMainWindow * _mainWindow;
 		gui::WaitSpinner * _waitSpinner;
 		HiddenAchievementsView * _hiddenAchievementsView;
+		QPushButton * _linkDiscordButton;
+		QPushButton * _unlinkDiscordButton;
 	};
 
 } /* namespace widgets */

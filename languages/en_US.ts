@@ -3216,5 +3216,13 @@ You can revoke your permission at every point in time. All necessary information
         <source>InGame</source>
         <translation>In game</translation>
     </message>
+    <message>
+        <source>LinkDiscord</source>
+        <translation>Link with Discord</translation>
+    </message>
+    <message>
+        <source>UnlinkDiscord</source>
+        <translation>Unlink from Discord</translation>
+    </message>
 </context>
 </TS>

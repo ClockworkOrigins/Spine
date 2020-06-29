@@ -43,7 +43,15 @@ void DiscordManager::updatePresence(const QString & details, const QString & sta
 	activity.SetInstance(false);
 	activity.GetAssets().SetLargeImage("spine_1024x1024");
 	activity.SetType(ActivityType::Playing);
-	_core->ActivityManager().UpdateActivity(activity, [](Result r) {});
+	_core->ActivityManager().UpdateActivity(activity, [](Result) {});
+}
+
+bool DiscordManager::isConnected() const {
+	return _core && _currentUser->GetId() > 0;
+}
+
+int64_t DiscordManager;;int64_t spine::discord::DiscordManager::getUserID() const {
+	return _currentUser->GetId();
 }
 
 DiscordManager::DiscordManager() : _currentUser(new User()), _running(true), _thread(nullptr) {
@@ -57,6 +65,8 @@ DiscordManager::DiscordManager() : _currentUser(new User()), _running(true), _th
 
 	core->UserManager().OnCurrentUserUpdate.Connect([this]() {
         _core->UserManager().GetCurrentUser(_currentUser);
+
+		emit connected();
 	});
 
 	_thread = new std::thread([this]() {

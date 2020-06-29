@@ -34,11 +34,20 @@ namespace std {
 namespace spine {
 namespace discord {
 
-	class DiscordManager {
+	class DiscordManager : public QObject {
+		Q_OBJECT
+		
 	public:
 		static DiscordManager * instance();
 
 		void updatePresence(const QString & details, const QString & state);
+
+		bool isConnected() const;
+
+		int64_t getUserID() const;
+
+	signals:
+		void connected();
 
 	private:
 		std::shared_ptr<::discord::Core> _core;

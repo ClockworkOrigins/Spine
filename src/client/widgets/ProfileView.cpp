@@ -22,7 +22,11 @@
 
 #include "common/MessageStructs.h"
 
+#include "discord/DiscordManager.h"
+
 #include "gui/WaitSpinner.h"
+
+#include "https/Https.h"
 
 #include "utils/Config.h"
 #include "utils/Conversion.h"
@@ -42,6 +46,8 @@
 #include <QDebug>
 #include <QFileInfo>
 #include <QHeaderView>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLabel>
 #include <QPushButton>
 #include <QScrollArea>
@@ -52,7 +58,9 @@
 #include <QVBoxLayout>
 
 using namespace spine;
+using namespace spine::discord;
 using namespace spine::gui;
+using namespace spine::https;
 using namespace spine::utils;
 using namespace spine::widgets;
 
@@ -61,7 +69,7 @@ ProfileView::ProfileView(QMainWindow * mainWindow, GeneralSettingsWidget * gener
 	l->setAlignment(Qt::AlignTop);
 
 	_nameLabel = new QLabel(QApplication::tr("NotLoggedIn"), this);
-	connect(generalSettingsWidget, &GeneralSettingsWidget::languageChanged, [this](QString language) {
+	connect(generalSettingsWidget, &GeneralSettingsWidget::languageChanged, [this](QString) {
 		if (Config::Username.isEmpty()) {
 			_nameLabel->setText(QApplication::tr("NotLoggedIn"));
 		}
@@ -130,12 +138,24 @@ ProfileView::ProfileView(QMainWindow * mainWindow, GeneralSettingsWidget * gener
 	connect(_logoutButton, &QPushButton::released, this, &ProfileView::triggerLogout);
 	_logoutButton->setProperty("logout", true);
 
+	_linkDiscordButton = new QPushButton(QApplication::tr("LinkDiscord"), this);
+	UPDATELANGUAGESETTEXT(_linkDiscordButton, "LinkDiscord");
+	connect(_linkDiscordButton, &QPushButton::released, this, &ProfileView::linkWithDiscord);
+	_linkDiscordButton->hide();
+
+	_unlinkDiscordButton = new QPushButton(QApplication::tr("UnlinkDiscord"), this);
+	UPDATELANGUAGESETTEXT(_unlinkDiscordButton, "UnlinkDiscord");
+	connect(_unlinkDiscordButton, &QPushButton::released, this, &ProfileView::unlinkFromDiscord);
+	_unlinkDiscordButton->hide();
+
 	_hidePatchesAndToolsBox = new QCheckBox(QApplication::tr("HidePatchesAndTools"), this);
 	_hidePatchesAndToolsBox->setChecked(true);
 	UPDATELANGUAGESETTEXT(_hidePatchesAndToolsBox, "HidePatchesAndTools");
 	connect(_hidePatchesAndToolsBox, &QCheckBox::stateChanged, this, &ProfileView::toggledHidePatchesAndTools);
 
 	hl->addWidget(_logoutButton, 0, Qt::AlignLeft);
+	hl->addWidget(_linkDiscordButton, 0, Qt::AlignHCenter);
+	hl->addWidget(_unlinkDiscordButton, 0, Qt::AlignHCenter);
 	hl->addWidget(_hidePatchesAndToolsBox, 0, Qt::AlignRight);
 
 	l->addLayout(hl);
@@ -151,6 +171,10 @@ ProfileView::ProfileView(QMainWindow * mainWindow, GeneralSettingsWidget * gener
 	connect(this, &ProfileView::receivedAchievementStats, this, &ProfileView::updateAchievements);
 	connect(this, &ProfileView::receivedScoreStats, this, &ProfileView::updateScores);
 	connect(this, &ProfileView::receivedUserLevel, this, &ProfileView::updateUserLevel);
+	
+	connect(this, &ProfileView::discordLinkageStateReceived, this, &ProfileView::updateDiscordLinkage);
+
+	connect(DiscordManager::instance(), &DiscordManager::connected, this, &ProfileView::requestDiscordLinkage);
 
 	loginChanged();
 }
@@ -237,9 +261,11 @@ void ProfileView::reset() {
 }
 
 void ProfileView::loginChanged() {
-	_nameLabel->setText((!Config::Username.isEmpty()) ? Config::Username : QApplication::tr("NotLoggedIn"));
+	_nameLabel->setText(!Config::Username.isEmpty() ? Config::Username : QApplication::tr("NotLoggedIn"));
 	_scrollArea->setVisible(!Config::Username.isEmpty());
 	_logoutButton->setVisible(!Config::Username.isEmpty());
+
+	requestDiscordLinkage();
 }
 
 void ProfileView::openAchievementView(int32_t modID, QString modName) {
@@ -493,4 +519,70 @@ void ProfileView::updateAchievementIcons() {
 	for (const auto & av : _achievements) {
 		av->updateIcons();
 	}
+}
+
+void ProfileView::linkWithDiscord() {
+	if (Config::Username.isEmpty()) return;
+	
+	if (Config::Password.isEmpty()) return;
+
+	if (!DiscordManager::instance()->isConnected()) return;
+
+	QJsonObject requestData;
+	requestData["Username"] = Config::Username;
+	requestData["Password"] = Config::Password;
+	requestData["DiscordID"] = DiscordManager::instance()->getUserID();
+	
+	https::Https::postAsync(SERVER_PORT, "linkToDiscord", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+		if (statusCode != 200) return;
+		
+		if (!json.contains("Linked")) return;
+		
+		emit discordLinkageStateReceived(json["Linked"].toString() == "1");
+	});
+}
+
+void ProfileView::unlinkFromDiscord() {
+	if (Config::Username.isEmpty()) return;
+	
+	if (Config::Password.isEmpty()) return;
+
+	if (!DiscordManager::instance()->isConnected()) return;
+
+	QJsonObject requestData;
+	requestData["Username"] = Config::Username;
+	requestData["Password"] = Config::Password;
+	
+	https::Https::postAsync(SERVER_PORT, "unlinkFromDiscord", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+		if (statusCode != 200) return;
+		
+		if (!json.contains("Linked")) return;
+		
+		emit discordLinkageStateReceived(json["Linked"].toString() == "1");
+	});
+}
+
+void ProfileView::requestDiscordLinkage() {
+	if (Config::Username.isEmpty()) return;
+	
+	if (Config::Password.isEmpty()) return;
+
+	if (!DiscordManager::instance()->isConnected()) return;
+
+	QJsonObject requestData;
+	requestData["Username"] = Config::Username;
+	requestData["Password"] = Config::Password;
+	
+	https::Https::postAsync(SERVER_PORT, "isLinkedWithDiscord", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+		if (statusCode != 200) return;
+		
+		if (!json.contains("Linked")) return;
+		
+		emit discordLinkageStateReceived(json["Linked"].toString() == "1");
+	});
+}
+
+void ProfileView::updateDiscordLinkage(bool linked) {
+	_linkDiscordButton->setVisible(!linked);
+	_unlinkDiscordButton->setVisible(linked);
 }

@@ -132,7 +132,9 @@ MainWindow * MainWindow::instance = nullptr;
 MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par), _modListView(nullptr), _modInfoView(nullptr), _profileView(nullptr), _friendsView(nullptr), _settingsDialog(nullptr), _autoUpdateDialog(), _changelogDialog(nullptr), _modListModel(nullptr), _loginDialog(nullptr), _modUpdateDialog(nullptr), _installGothic2FromCDDialog(nullptr), _feedbackDialog(nullptr), _developerModeActive(false), _devModeAction(nullptr), _modDatabaseView(nullptr), _tabWidget(nullptr), _spineEditorAction(nullptr), _spineEditor(nullptr), _modInfoPage(nullptr) {
 	instance = this;
 
-	DiscordManager::instance()->updatePresence(QApplication::tr("Browsing"), "");
+	connect(DiscordManager::instance(), &DiscordManager::connected, []() {
+		DiscordManager::instance()->updatePresence(QApplication::tr("Browsing"), "");
+	});
 
 	_downloadQueue = new DownloadQueue();
 

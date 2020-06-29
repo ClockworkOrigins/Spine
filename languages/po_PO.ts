@@ -3208,5 +3208,13 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>InGame</source>
         <translation>Im Spiel</translation>
     </message>
+    <message>
+        <source>LinkDiscord</source>
+        <translation>Mit Discord verknüpfen</translation>
+    </message>
+    <message>
+        <source>UnlinkDiscord</source>
+        <translation>Verknüpfung mit Discord lösen</translation>
+    </message>
 </context>
 </TS>

@@ -130,18 +130,51 @@ void DatabaseServer::getUserID(std::shared_ptr<HttpsServer::Response> response, 
 
 		ptree pt;
 		read_json(ss, pt);
-	
-		const std::string username = pt.get<std::string>("Username");
-		const std::string password = pt.get<std::string>("Password");
-
-		const int userID = ServerCommon::getUserID(username, password);
 
 		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
 
 		std::stringstream responseStream;
 		ptree responseTree;
 
-		responseTree.put("ID", userID);
+		if (pt.count("Username") == 1 && pt.count("Password") == 1) {
+			const std::string username = pt.get<std::string>("Username");
+			const std::string password = pt.get<std::string>("Password");
+
+			const int userID = ServerCommon::getUserID(username, password);			
+
+			responseTree.put("ID", userID);
+		} else if (pt.count("DiscordID") == 1) {
+			const int64_t discordAPI = pt.get<int64_t>("DiscordAPI");
+
+			do {
+				MariaDBWrapper accountDatabase;
+				if (!accountDatabase.connect("localhost", DATABASEUSER, DATABASEPASSWORD, ACCOUNTSDATABASE, 0)) {
+					code = SimpleWeb::StatusCode::client_error_bad_request;
+					break;
+				}
+
+				if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT ID FROM linkedDiscordAccounts WHERE DiscordID = ? LIMIT 1\";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_bad_request;
+					break;
+				}
+				if (!accountDatabase.query("SET @paramDiscordID=" + std::to_string(discordAPI) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_bad_request;
+					break;
+				}
+				if (!accountDatabase.query("EXECUTE selectStmt USING @paramDiscordID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_bad_request;
+					break;
+				}
+				const auto results = accountDatabase.getResults<std::vector<std::string>>();
+
+				responseTree.put("UserID", results.empty() ? -1 : std::stoi(results[0][0]));
+			} while (false);
+		} else {
+			code = SimpleWeb::StatusCode::client_error_bad_request;
+		}
 
 		write_json(responseStream, responseTree);
 
