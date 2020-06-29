@@ -49,6 +49,7 @@ int DatabaseServer::run() {
 	_server->resource["^/getWeightedRating"]["POST"] = std::bind(&DatabaseServer::getWeightedRating, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/getRatings"]["POST"] = std::bind(&DatabaseServer::getRatings, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/unlockAchievement"]["POST"] = std::bind(&DatabaseServer::unlockAchievement, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/getUserIDForDiscordID"]["POST"] = std::bind(&DatabaseServer::getUserIDForDiscordID, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -136,45 +137,12 @@ void DatabaseServer::getUserID(std::shared_ptr<HttpsServer::Response> response, 
 		std::stringstream responseStream;
 		ptree responseTree;
 
-		if (pt.count("Username") == 1 && pt.count("Password") == 1) {
-			const std::string username = pt.get<std::string>("Username");
-			const std::string password = pt.get<std::string>("Password");
+		const std::string username = pt.get<std::string>("Username");
+		const std::string password = pt.get<std::string>("Password");
 
-			const int userID = ServerCommon::getUserID(username, password);			
+		const int userID = ServerCommon::getUserID(username, password);			
 
-			responseTree.put("ID", userID);
-		} else if (pt.count("DiscordID") == 1) {
-			const int64_t discordAPI = pt.get<int64_t>("DiscordAPI");
-
-			do {
-				MariaDBWrapper accountDatabase;
-				if (!accountDatabase.connect("localhost", DATABASEUSER, DATABASEPASSWORD, ACCOUNTSDATABASE, 0)) {
-					code = SimpleWeb::StatusCode::client_error_bad_request;
-					break;
-				}
-
-				if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT ID FROM linkedDiscordAccounts WHERE DiscordID = ? LIMIT 1\";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-					code = SimpleWeb::StatusCode::client_error_bad_request;
-					break;
-				}
-				if (!accountDatabase.query("SET @paramDiscordID=" + std::to_string(discordAPI) + ";")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-					code = SimpleWeb::StatusCode::client_error_bad_request;
-					break;
-				}
-				if (!accountDatabase.query("EXECUTE selectStmt USING @paramDiscordID;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-					code = SimpleWeb::StatusCode::client_error_bad_request;
-					break;
-				}
-				const auto results = accountDatabase.getResults<std::vector<std::string>>();
-
-				responseTree.put("UserID", results.empty() ? -1 : std::stoi(results[0][0]));
-			} while (false);
-		} else {
-			code = SimpleWeb::StatusCode::client_error_bad_request;
-		}
+		responseTree.put("ID", userID);
 
 		write_json(responseStream, responseTree);
 
@@ -541,6 +509,85 @@ void DatabaseServer::unlockAchievement(std::shared_ptr<HttpsServer::Response> re
 		} while (false);
 
 		response->write(code);
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::getUserIDForDiscordID(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		const int64_t discordAPI = pt.get<int64_t>("DiscordAPI");
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+			
+			if (!database.query("PREPARE validateServerStmt FROM \"SELECT * FROM gmpWhitelist WHERE IP = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!database.query("SET @paramIP='" + request->remote_endpoint_address() + "';")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!database.query("EXECUTE validateServerStmt USING @paramIP;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			const auto results = database.getResults<std::vector<std::string>>();
+
+			if (results.empty()) {
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break; // invalid access
+			}
+		} while (false);
+
+		do {
+			if (code != SimpleWeb::StatusCode::success_ok) break;
+			
+			MariaDBWrapper accountDatabase;
+			if (!accountDatabase.connect("localhost", DATABASEUSER, DATABASEPASSWORD, ACCOUNTSDATABASE, 0)) {
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+
+			if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT ID FROM linkedDiscordAccounts WHERE DiscordID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!accountDatabase.query("SET @paramDiscordID=" + std::to_string(discordAPI) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!accountDatabase.query("EXECUTE selectStmt USING @paramDiscordID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			const auto results = accountDatabase.getResults<std::vector<std::string>>();
+
+			responseTree.put("UserID", results.empty() ? -1 : std::stoi(results[0][0]));
+		} while (false);
+
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
 	} catch (...) {
 		response->write(SimpleWeb::StatusCode::client_error_bad_request);
 	}
