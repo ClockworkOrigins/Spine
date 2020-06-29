@@ -3208,5 +3208,13 @@ You can revoke your permission at every point in time. All necessary information
         <source>ReleaseTag</source>
         <translation>Release</translation>
     </message>
+    <message>
+        <source>Browsing</source>
+        <translation>Browsing</translation>
+    </message>
+    <message>
+        <source>InGame</source>
+        <translation>In game</translation>
+    </message>
 </context>
 </TS>

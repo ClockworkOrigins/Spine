@@ -26,6 +26,8 @@
 
 #include "common/MessageStructs.h"
 
+#include "discord/DiscordManager.h"
+
 #include "launcher/LauncherFactory.h"
 
 #include "models/SpineEditorModel.h"
@@ -105,6 +107,7 @@
 
 using namespace spine;
 using namespace spine::client;
+using namespace spine::discord;
 using namespace spine::launcher;
 using namespace spine::translator;
 using namespace spine::utils;
@@ -128,6 +131,8 @@ MainWindow * MainWindow::instance = nullptr;
 
 MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par), _modListView(nullptr), _modInfoView(nullptr), _profileView(nullptr), _friendsView(nullptr), _settingsDialog(nullptr), _autoUpdateDialog(), _changelogDialog(nullptr), _modListModel(nullptr), _loginDialog(nullptr), _modUpdateDialog(nullptr), _installGothic2FromCDDialog(nullptr), _feedbackDialog(nullptr), _developerModeActive(false), _devModeAction(nullptr), _modDatabaseView(nullptr), _tabWidget(nullptr), _spineEditorAction(nullptr), _spineEditor(nullptr), _modInfoPage(nullptr) {
 	instance = this;
+
+	DiscordManager::instance()->updatePresence(QApplication::tr("Browsing"), "");
 
 	_downloadQueue = new DownloadQueue();
 

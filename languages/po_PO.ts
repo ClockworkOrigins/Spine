@@ -3200,5 +3200,13 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>ReleaseTag</source>
         <translation>Premiera</translation>
     </message>
+    <message>
+        <source>Browsing</source>
+        <translation>Browsen</translation>
+    </message>
+    <message>
+        <source>InGame</source>
+        <translation>Im Spiel</translation>
+    </message>
 </context>
 </TS>

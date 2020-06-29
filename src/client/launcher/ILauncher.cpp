@@ -26,6 +26,8 @@
 
 #include "common/MessageStructs.h"
 
+#include "discord/DiscordManager.h"
+
 #include "https/Https.h"
 
 #include "utils/Config.h"
@@ -51,6 +53,7 @@
 #include <QWidget>
 
 using namespace spine::common;
+using namespace spine::discord;
 using namespace spine::launcher;
 using namespace spine::utils;
 using namespace spine::widgets;
@@ -259,6 +262,7 @@ void ILauncher::openDiscussionsUrl() {
 
 void ILauncher::updateCommonView(int modID, const QString & name) {
 	_modID = modID;
+	_name = name;
 	
 	_installDate->hide();
 	_lastPlayedDate->hide();
@@ -326,6 +330,8 @@ void ILauncher::stopScreenshotManager() {
 }
 
 void ILauncher::startCommon() {
+	DiscordManager::instance()->updatePresence(QApplication::tr("InGame"), _name);
+
 	_listenSocket = new clockUtils::sockets::TcpSocket();
 	_listenSocket->listen(LOCAL_PORT, 1, true, std::bind(&ILauncher::acceptedConnection, this, std::placeholders::_1, std::placeholders::_2));
 	
@@ -348,6 +354,8 @@ void ILauncher::startCommon() {
 }
 
 void ILauncher::stopCommon() {
+	DiscordManager::instance()->updatePresence(QApplication::tr("Browsing"), "");
+	
 	int duration = _timer->elapsed();
 	duration = duration / 1000; // to seconds
 	duration = duration / 60; // to minutes

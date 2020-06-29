@@ -21,7 +21,7 @@
 ; TODO: Eigenschaften der Modifikation
 !define GAME_FILE "Spine"                  ; Game-Titel
 !define GAME_NAME "Spine"                  ; Game-Titel
-!define GAME_COPY "Copyright 2017 - 2018, Clockwork Origins"  ; Game-Copyright
+!define GAME_COPY "Copyright 2017 - 2020, Clockwork Origins"  ; Game-Copyright
 !define GAME_COMP "Clockwork Origins"                    ; Game-Herausgeber
 !define GAME_LINK "http://clockwork-origins.de/"     ; Herausgeber-Link
 !define GAME_HELP "http://clockwork-origins.de/contact" ; Support-Link
@@ -223,6 +223,7 @@ Section !$(NameSecModFiles) SecModFiles
   File      "@SPINE_DEP_DIR@\openSSL\bin\*.dll"
   File      "@SQLITE3_ROOT@\bin\sqlite3.dll"
   File      "@TRANSLATOR_ROOT@\bin\*.dll"
+  File      "@DISCORD_ROOT@\lib\*.dll"
   File      "@CMAKE_BINARY_DIR@\installer\Qt\*.dll"
   SetOutPath "$INSTDIR\${GAME_NAME}\bin\plugins\imageformats"
   File      "@CMAKE_BINARY_DIR@\installer\Qt\plugins\imageformats\*.dll"

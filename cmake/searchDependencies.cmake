@@ -1,6 +1,31 @@
 SET(CMAKE_LIBRARY_PATH ${SPINE_DEP_DIR})
 
 #----------------------------------------------------
+# Discord
+#----------------------------------------------------
+
+IF(WITH_CLIENT)
+	IF(WIN32 AND NOT ANDROID AND NOT EXISTS "${SPINE_DEP_DIR}/Discord/")
+		execute_process(COMMAND ${CMAKE_SOURCE_DIR}/dependencies/build-discord.bat ${VS_TOOLCHAIN} ${VS_ARCH} WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/dependencies)
+	ENDIF(WIN32 AND NOT ANDROID AND NOT EXISTS "${SPINE_DEP_DIR}/Discord/")
+	IF(UNIX AND NOT ANDROID AND NOT EXISTS "${SPINE_DEP_DIR}/Discord/")
+		execute_process(COMMAND ${CMAKE_SOURCE_DIR}/dependencies/build-discord.sh ${UNIX_COMPILER} WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/dependencies)
+	ENDIF(UNIX AND NOT ANDROID AND NOT EXISTS "${SPINE_DEP_DIR}/Discord/")
+	SET(LIBNAME "DISCORD")
+	SET(LIBHEADER "discord.h")
+	SET(DISCORD_ROOT ${SPINE_DEP_DIR}/Discord)
+	
+	IF(WIN32)
+		SET(DISCORD_COMPONENT ${DISCORD_COMPONENT} discord_game_sdk.dll)
+	ELSE(WIN32)
+		SET(DISCORD_COMPONENT ${DISCORD_COMPONENT} discord_game_sdk)
+	ENDIF(WIN32)
+
+	find_package(EasyFind REQUIRED COMPONENTS ${DISCORD_COMPONENT})
+	include_directories(SYSTEM ${DISCORD_INCLUDE_DIR})
+ENDIF(WITH_CLIENT)
+
+#----------------------------------------------------
 # clockUtils
 #----------------------------------------------------
 

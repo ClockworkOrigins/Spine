@@ -34,4 +34,6 @@ const std::string PATCHCONFIG_DATABASE = "databases/patchConfig.db";
 const std::string UPDATES_DATABASE = "databases/updates.db";
 const std::string BACKUP_DATABASE = "databases/backup.db";
 
+const int64_t DISCORD_CLIENTID = @DISCORDKEY@;
+
 #endif /* __SPINE_GMMCONFIG_H__ */

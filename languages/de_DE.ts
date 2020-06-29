@@ -3200,5 +3200,13 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>ReleaseTag</source>
         <translation>Release</translation>
     </message>
+    <message>
+        <source>Browsing</source>
+        <translation>Browsen</translation>
+    </message>
+    <message>
+        <source>InGame</source>
+        <translation>Im Spiel</translation>
+    </message>
 </context>
 </TS>
