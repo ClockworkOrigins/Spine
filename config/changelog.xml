@@ -1863,4 +1863,9 @@
 		<Bug language="English">Added scrollbar to Patches and Tools so they work properly in lower resolutions</Bug>
 		<Bug language="English">Fixed crash in case file to download already exists</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="21" patchVersion="0">
+		<Bug language="Deutsch">Fehler bei Upload behoben, der bei Sprach-Änderung Datei auf Server gelöscht hat</Bug>
+		
+		<Bug language="English">Fixed bug during upload that cases file being deleted when changing language</Bug>
+	</Version>
 </Versions>

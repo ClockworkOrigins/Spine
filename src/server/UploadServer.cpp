@@ -110,6 +110,11 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 		delete sock;
 		error = true;
 	}
+	if (!spineDatabase.query("PREPARE updateLanguageStmt FROM \"UPDATE modfiles SET Language = ? WHERE ModID = ? AND Path = ? LIMIT 1\";")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		delete sock;
+		error = true;
+	}
 
 	std::string newBuffer;
 	std::string unreadBuffer;
@@ -167,6 +172,17 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 							break;
 						}
 						currentIndex++;
+					} else if (mf.changed && mf.size == 0) {
+						if (!spineDatabase.query("SET @paramLanguage='" + mf.language + "';")) {
+							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+							error = true;
+							break;
+						}
+						if (!spineDatabase.query("EXECUTE updateLanguageStmt USING @paramLanguage, @paramModID, @paramPath;")) {
+							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+							error = true;
+							break;
+						}
 					} else {
 						// now we have to receive a new file, so set currentSize and go on
 						currentSize = mf.size;
