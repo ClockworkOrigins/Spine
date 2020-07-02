@@ -739,8 +739,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	if (Config::OnlineMode) {
 		_modUpdateDialog = new ModUpdateDialog(this);
 		connect(_loginDialog, &LoginDialog::loggedIn, _modUpdateDialog, &ModUpdateDialog::loginChanged);
-
-		_modUpdateDialog->loginChanged();
+		connect(_loginDialog, &LoginDialog::notLoggedIn, _modUpdateDialog, &ModUpdateDialog::loginChanged);
 
 		connect(_settingsDialog->getGeneralSettingsWidget(), &GeneralSettingsWidget::resetModUpdates, _modUpdateDialog, static_cast<void(ModUpdateDialog::*)()>(&ModUpdateDialog::checkForUpdate));
 
@@ -951,8 +950,8 @@ void MainWindow::setDevPath() {
 	if (!_developerModeActive) {
 		_devModeAction->trigger();
 	}
-	_gothicDirectory = (gv == common::GameType::Gothic) ? path : "";
-	_gothic2Directory = (gv == common::GameType::Gothic2) ? path : "";
+	_gothicDirectory = gv == common::GameType::Gothic ? path : "";
+	_gothic2Directory = gv == common::GameType::Gothic2 ? path : "";
 	_modInfoView->setGothicDirectory(_gothicDirectory);
 	_modInfoView->setGothic2Directory(_gothic2Directory);
 	if (Config::OnlineMode) {

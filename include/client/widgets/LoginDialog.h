@@ -34,6 +34,7 @@ namespace widgets {
 
 	signals:
 		void loggedIn();
+		void notLoggedIn();
 		void showErrorMessage(QString);
 		void showInfoMessage(QString);
 
@@ -76,7 +77,10 @@ namespace widgets {
 
 		QString _language;
 
+		QMetaObject::Connection _connection;
+
 		void handleLogin();
+		void closeEvent(QCloseEvent * evt) override;
 	};
 
 } /* namespace widgets */

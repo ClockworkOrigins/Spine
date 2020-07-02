@@ -1866,8 +1866,12 @@
 	<Version majorVersion="1" minorVersion="21" patchVersion="0">
 		<Enhancement language="Deutsch">Discord Rich Presence wird jetzt unterstützt</Enhancement>
 		<Bug language="Deutsch">Fehler bei Upload behoben, der bei Sprach-Änderung Datei auf Server gelöscht hat</Bug>
+		<Bug language="Deutsch">Schriftgröße vom Changelog vergrößert</Bug>
+		<Bug language="Deutsch">Update-Dialog ploppt jetzt nicht mehr 2x auf unter bestimmten Umständen</Bug>
 		
 		<Enhancement language="English">Discord Rich Presence now is supported</Enhancement>
 		<Bug language="English">Fixed bug during upload that cases file being deleted when changing language</Bug>
+		<Bug language="English">Increased font size of changelog</Bug>
+		<Bug language="English">Update dialog doesn't pup up twice anymore under certain circumstances</Bug>
 	</Version>
 </Versions>

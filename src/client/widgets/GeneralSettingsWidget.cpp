@@ -220,7 +220,7 @@ void GeneralSettingsWidget::saveSettings() {
 		const QString style = Config::IniParser->value("style", "Default").toString();
 		if (style != _styleComboBox->currentText()) {
 			Config::IniParser->setValue("style", _styleComboBox->currentText());
-			QString cssFile = ":styles.css";
+			QString cssFile;
 			if (_styleComboBox->currentText() == "Default") {
 				cssFile = ":styles.css";
 			} else if (_styleComboBox->currentText() == "Dark Theme By Elgcahlxukuth") {

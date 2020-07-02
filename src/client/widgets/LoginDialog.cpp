@@ -115,7 +115,7 @@ namespace {
 
 }
 
-LoginDialog::LoginDialog(QWidget *) : QDialog(nullptr), _connected(false), _dontShow(false), _language() {
+LoginDialog::LoginDialog(QWidget *) : QDialog(nullptr), _connected(false), _dontShow(false) {
 	QDir dir(Config::BASEDIR + "/databases");
 	if (!dir.exists()) {
 		bool b = dir.mkpath(dir.absolutePath());
@@ -356,15 +356,21 @@ LoginDialog::LoginDialog(QWidget *) : QDialog(nullptr), _connected(false), _dont
 }
 
 int LoginDialog::exec() {
+	disconnect(_connection);
+	
 	if (!_loginUsernameEdit->text().isEmpty() && !_loginPasswordEdit->text().isEmpty()) {
-		loginUser();
+		_connection = connect(this, &LoginDialog::showErrorMessage, this, &LoginDialog::exec);
+		
+		loginUser();		
 		return QDialog::Accepted;
 	}
-	if (!_dontShow) {
-		return QDialog::exec();
-	} else {
+	if (_dontShow) {
+		emit notLoggedIn();
+		
 		return QDialog::Accepted;
 	}
+	
+	return QDialog::exec();
 }
 
 int LoginDialog::execute() {
@@ -440,7 +446,7 @@ void LoginDialog::loginUser() {
 					std::string compressedPath;
 					clockUtils::ClockError cErr = c.compress(homeDir.absolutePath().toStdString(), compressedPath);
 					Q_UNUSED(cErr);
-					pathLength = int(compressedPath.length());
+					pathLength = static_cast<int>(compressedPath.length());
 					memcpy(pl, &pathLength, sizeof(int));
 					f.write(pl, sizeof(int));
 					f.write(compressedPath.c_str(), pathLength);
@@ -538,7 +544,7 @@ void LoginDialog::registerUser() {
 					std::string compressedPath;
 					clockUtils::ClockError cErr = c.compress(homeDir.absolutePath().toStdString(), compressedPath);
 					Q_UNUSED(cErr);
-					pathLength = int(compressedPath.length());
+					pathLength = static_cast<int>(compressedPath.length());
 					memcpy(pl, &pathLength, sizeof(int));
 					f.write(pl, sizeof(int));
 					f.write(compressedPath.c_str(), pathLength);
@@ -576,11 +582,11 @@ void LoginDialog::loginSuccess() {
 }
 
 void LoginDialog::changedLoginInput() {
-	_loginButton->setEnabled(_loginUsernameEdit->text().size() > 0 && _loginPasswordEdit->text().size() > 0);
+	_loginButton->setEnabled(!_loginUsernameEdit->text().isEmpty() && !_loginPasswordEdit->text().isEmpty());
 }
 
 void LoginDialog::changedRegisterInput() {
-	_registerButton->setEnabled(_registerUsernameEdit->text().size() > 0 && _registerPasswordEdit->text().size() > 0 && _registerPasswordRepeatEdit->text().size() > 0 && _registerMailEdit->text().size() > 0 && _registerAcceptPrivacyPolicy->isChecked());
+	_registerButton->setEnabled(!_registerUsernameEdit->text().isEmpty() && !_registerPasswordEdit->text().isEmpty() && !_registerPasswordRepeatEdit->text().isEmpty() && !_registerMailEdit->text().isEmpty() && _registerAcceptPrivacyPolicy->isChecked());
 }
 
 void LoginDialog::showErrorMessageBox(QString message) {
@@ -659,11 +665,17 @@ void LoginDialog::handleLogin() {
 				const std::string serialized = suim.SerializePublic();
 				sock.writePacket(serialized);
 			}
-			Https::postAsync(DATABASESERVER_PORT, "getUserID", QString("{ \"Username\": \"%1\", \"Password\": \"%2\" }").arg(Config::Username).arg(Config::Password), [](const QJsonObject & json, int status) {
+			Https::postAsync(DATABASESERVER_PORT, "getUserID", QString("{ \"Username\": \"%1\", \"Password\": \"%2\" }").arg(Config::Username).arg(Config::Password), [](const QJsonObject & json, int) {
 				if (!json.contains("ID")) return;
 
 				Config::UserID = json["ID"].toString().toInt();
 			});
 		}
 	});
+}
+
+void LoginDialog::closeEvent(QCloseEvent *) {
+	if (_connected) return;
+
+	emit notLoggedIn();
 }

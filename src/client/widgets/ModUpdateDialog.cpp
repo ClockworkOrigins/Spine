@@ -103,7 +103,7 @@ void ModUpdateDialog::loginChanged() {
 		return;
 	}
 	if (_running) {
-		QTimer::singleShot(1000, std::bind(&ModUpdateDialog::loginChanged, this));
+		QTimer::singleShot(1000, [this] { loginChanged(); });
 	} else {
 		checkForUpdate();
 	}
@@ -384,7 +384,7 @@ void ModUpdateDialog::accept() {
 				if (!_checkBoxes[i]->isChecked()) {
 					continue;
 				}
-				Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE mods SET MajorVersion = " + std::to_string(int(_updates[i].majorVersion)) + ", MinorVersion = " + std::to_string(int(_updates[i].minorVersion)) + ", PatchVersion = " + std::to_string(int(_updates[i].patchVersion)) + " WHERE ModID = " + std::to_string(_updates[i].modID) + ";", err);
+				Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE mods SET MajorVersion = " + std::to_string(static_cast<int>(_updates[i].majorVersion)) + ", MinorVersion = " + std::to_string(static_cast<int>(_updates[i].minorVersion)) + ", PatchVersion = " + std::to_string(static_cast<int>(_updates[i].patchVersion)) + " WHERE ModID = " + std::to_string(_updates[i].modID) + ";", err);
 				success = success && !err.error;
 				if (success) {
 					usm.modID = _updates[i].modID;
@@ -520,7 +520,7 @@ void ModUpdateDialog::hideUpdates(QList<common::ModUpdate> hides) const {
 	}
 	for (const common::ModUpdate & mu : hides) {
 		Database::DBError err;
-		Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "INSERT INTO updates (ModID, Name, MajorVersion, MinorVersion, PatchVersion) VALUES (" + std::to_string(mu.modID) + ", '" + mu.name + "', " + std::to_string(int(mu.majorVersion)) + ", " + std::to_string(int(mu.minorVersion)) + "," + std::to_string(int(mu.patchVersion)) + ");", err);
+		Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "INSERT INTO updates (ModID, Name, MajorVersion, MinorVersion, PatchVersion) VALUES (" + std::to_string(mu.modID) + ", '" + mu.name + "', " + std::to_string(static_cast<int>(mu.majorVersion)) + ", " + std::to_string(static_cast<int>(mu.minorVersion)) + "," + std::to_string(static_cast<int>(mu.patchVersion)) + ");", err);
 	}
 }
 
