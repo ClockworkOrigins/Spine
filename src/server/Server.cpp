@@ -820,7 +820,7 @@ void Server::handleUpdatePlaytime(clockUtils::sockets::TcpSocket *, UpdatePlayTi
 		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
-	SpineLevel::clear();
+	SpineLevel::clear(); // TODO: only clear players that played this specific project to avoid recalculating too many players that are not affected at all
 }
 
 void Server::handleRequestPlaytime(clockUtils::sockets::TcpSocket * sock, RequestPlayTimeMessage * msg) const {

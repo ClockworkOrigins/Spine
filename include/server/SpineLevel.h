@@ -22,6 +22,9 @@
 
 #include "common/MessageStructs.h"
 
+#define BOOST_SPIRIT_THREADSAFE
+#include "boost/property_tree/json_parser.hpp"
+
 namespace spine {
 namespace server {
 
@@ -31,11 +34,21 @@ namespace server {
 		static void updateLevel(int userID);
 		static void clear();
 
+		static void addRanking(boost::property_tree::ptree & json);
+
 	private:
 		static std::recursive_mutex _lock;
 		static std::map<int, common::SendUserLevelMessage> _levels;
+		static boost::property_tree::ptree _rankingList;
 
 		static void cacheLevel(int userID);
+
+		typedef struct {
+			int userID;
+			std::string username;
+			uint32_t level;
+			uint32_t xp;
+		} RankingEntry;
 	};
 
 } /* namespace server */

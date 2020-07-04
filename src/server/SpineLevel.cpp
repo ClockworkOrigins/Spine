@@ -21,11 +21,14 @@
 #include "MariaDBWrapper.h"
 #include "ServerCommon.h"
 
+using namespace boost::property_tree;
+
 using namespace spine::common;
 using namespace spine::server;
 
 std::recursive_mutex SpineLevel::_lock;
 std::map<int, SendUserLevelMessage> SpineLevel::_levels;
+ptree SpineLevel::_rankingList;
 
 SendUserLevelMessage SpineLevel::getLevel(int userID) {
 	std::lock_guard<std::recursive_mutex> lg(_lock);
@@ -49,11 +52,89 @@ void SpineLevel::updateLevel(int userID) {
 	}
 
 	cacheLevel(userID);
+
+	_rankingList.clear();
 }
 
 void SpineLevel::clear() {
 	std::lock_guard<std::recursive_mutex> lg(_lock);
 	_levels.clear();
+	_rankingList.clear();
+}
+
+void SpineLevel::addRanking(boost::property_tree::ptree & json) {
+	std::lock_guard<std::recursive_mutex> lg(_lock);
+	if (_rankingList.empty()) {
+		std::map<int, std::string> userList;
+
+		do {
+			MariaDBWrapper accountDatabase;
+			if (!accountDatabase.connect("localhost", DATABASEUSER, DATABASEPASSWORD, ACCOUNTSDATABASE, 0)) {
+				break;
+			}
+
+			if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT ID, Username FROM accounts\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!accountDatabase.query("EXECUTE selectStmt USING @paramID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			const auto results = accountDatabase.getResults<std::vector<std::string>>();
+
+			for (const auto & vec : results) {
+				const int id = std::stoi(vec[0]);
+				const std::string username = vec[1];
+
+				userList.insert(std::make_pair(id, username));
+			}
+		} while (false);
+		
+		std::vector<RankingEntry> levels(userList.size());
+		
+		do {
+			for (auto & p : userList) {
+				const auto sulm = getLevel(p.first);
+
+				RankingEntry re;
+				re.userID = p.first;
+				re.username = p.second;
+				re.level = sulm.level;
+				re.xp = sulm.currentXP;
+
+				levels.push_back(re);
+			}
+		} while (false);
+
+		std::sort(levels.begin(), levels.end(), [](const RankingEntry & a, const RankingEntry & b) {
+			return a.level > b.level || a.level == b.level && a.xp > b.xp;
+		});
+
+		uint32_t rank = 0;
+		uint32_t lastXP = 0;
+		uint32_t realRank = 0;
+		
+		for (const auto & re : levels) {
+			realRank++;
+
+			if (re.xp != lastXP) {
+				rank = realRank;
+				lastXP = re.xp;
+			}
+			
+			ptree rankingEntry;
+			
+			rankingEntry.put("Name", re.username);
+			rankingEntry.put("Level", re.level);
+			rankingEntry.put("XP", re.xp);
+			rankingEntry.put("Rank", rank);
+
+			_rankingList.push_back(std::make_pair("", rankingEntry));
+		}
+	}
+	
+	json.add_child("Ranking", _rankingList);
 }
 
 void SpineLevel::cacheLevel(int userID) {
