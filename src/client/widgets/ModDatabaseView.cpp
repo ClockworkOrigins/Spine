@@ -35,6 +35,7 @@
 #include "utils/Database.h"
 #include "utils/DownloadQueue.h"
 #include "utils/FileDownloader.h"
+#include "utils/LanguageConverter.h"
 #include "utils/MultiFileDownloader.h"
 
 #include "widgets/UpdateLanguage.h"
@@ -400,15 +401,16 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "CREATE TABLE IF NOT EXISTS modfiles(ModID INT NOT NULL, File TEXT NOT NULL, Hash TEXT NOT NULL);", err);
 	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "CREATE TABLE IF NOT EXISTS patches(ModID INT NOT NULL, Name TEXT NOT NULL);", err);
 	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "CREATE TABLE IF NOT EXISTS packages(ModID INT NOT NULL, PackageID INT NOT NULL, File TEXT NOT NULL);", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "CREATE TABLE IF NOT EXISTS languages(ProjectID INT PRIMARY KEY, Language INT NOT NULL);", err);
 
 	_sortModel->setRendererAllowed(true);
 
-	removeInvalidDatabaseEntries();
+	updateDatabaseEntries();
 
 	updateModList(-1, -1, InstallMode::None);
 }
 
-void ModDatabaseView::changeLanguage(QString language) {
+void ModDatabaseView::changeLanguage(QString) {
 	_cached = false;
 	
 	updateModList(-1, -1, InstallMode::None);
@@ -783,7 +785,8 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, QSharedPointer<QList<QPa
 		Database::close(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, err);
 		const int currentDate = std::chrono::duration_cast<std::chrono::hours>(std::chrono::system_clock::now() - std::chrono::system_clock::time_point()).count();
 		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO installDates (ModID, InstallDate) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(currentDate) + ";", err);
-
+		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO languages (ProjectID, Language) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(static_cast<int>(mod.language)) + ");", err);
+		
 		// enable systempack by default
 		if (mod.type != common::ModType::PATCH && mod.type != common::ModType::TOOL) {
 			Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "INSERT INTO patchConfigs (ModID, PatchID, Enabled) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(mod.gothic == common::GameType::Gothic ? 57 : 40) + ", 1);", err);
@@ -1287,7 +1290,7 @@ void ModDatabaseView::selectedPackageIndex(const QModelIndex & index) {
 	}
 }
 
-void ModDatabaseView::removeInvalidDatabaseEntries() {
+void ModDatabaseView::updateDatabaseEntries() {
 	// Free Aiming: 223 and 227. 227 is now obsolete
 	if (isInstalled(223) && isInstalled(227)) {
 		client::Uninstaller::uninstall(227);
@@ -1318,6 +1321,16 @@ void ModDatabaseView::removeInvalidDatabaseEntries() {
 			
 			Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "DELETE FROM patchConfigs WHERE ModID = " + std::to_string(modID) + " AND PatchID = " + std::to_string(patchID) + " LIMIT 1;", err);
 		}
+	}
+
+	const auto projects = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID FROM mods;", err);
+
+	for (const auto & project : projects) {
+		const auto count = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ProjectID FROM languages WHERE ProjectID = " + std::to_string(project) + " LIMIT 1;", err);
+
+		if (count == 1) continue;
+		
+		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO languages (ProjectID, Language) VALUES (" + std::to_string(project) + ", " + std::to_string(static_cast<int>(LanguageConverter::convert(Config::Language))) + ");", err);
 	}
 }
 

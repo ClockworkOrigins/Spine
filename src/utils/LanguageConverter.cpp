@@ -16,10 +16,13 @@
  */
 // Copyright 2020 Clockwork Origins
 
-#include "Language.h"
+#include "LanguageConverter.h"
+
+#include "common/Language.h"
 
 #include <QMap>
 
+using namespace spine::common;
 using namespace spine::utils;
 
 QString LanguageConverter::convert(Language language) {

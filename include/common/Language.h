@@ -18,10 +18,8 @@
 
 #pragma once
 
-#include <QString>
-
 namespace spine {
-namespace utils {
+namespace common {
 
 	enum Language {
 		None,
@@ -31,12 +29,6 @@ namespace utils {
 		Polish = 1 << 2,
 		Russian = 1 << 3
 	};
-	
-	class LanguageConverter {
-	public:
-		static QString convert(Language language);
-		static Language convert(const QString & language);
-	};
 
-} /* namespace utils */
+} /* namespace common */
 } /* namespace spine */

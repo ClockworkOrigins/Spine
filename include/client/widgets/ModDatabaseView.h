@@ -109,7 +109,7 @@ namespace widgets {
 		void selectedModIndex(const QModelIndex & index);
 		void selectedPackageIndex(const QModelIndex & index);
 
-		void removeInvalidDatabaseEntries();
+		void updateDatabaseEntries();
 	};
 
 } /* namespace widgets */

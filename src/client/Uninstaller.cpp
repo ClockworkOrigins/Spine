@@ -92,6 +92,7 @@ bool Uninstaller::uninstall(uint32_t modID) {
 		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "DELETE FROM patches WHERE ModID = " + std::to_string(modID) + ";", err);
 		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "DELETE FROM packages WHERE ModID = " + std::to_string(modID) + ";", err);
 		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "DELETE FROM installDates WHERE ModID = " + std::to_string(modID) + ";", err);
+		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "DELETE FROM languages WHERE ProjectID = " + std::to_string(modID) + ";", err);
 		
 		return true;
 	}

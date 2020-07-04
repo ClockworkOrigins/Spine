@@ -22,6 +22,7 @@
 #include <string>
 
 #include "common/GameType.h"
+#include "common/Language.h"
 #include "common/ModType.h"
 
 #include "boost/archive/text_oarchive.hpp"
@@ -46,6 +47,7 @@ namespace common {
 		int32_t avgDuration;
 		uint64_t downloadSize;
 		uint32_t updateDate;
+		Language language;
 
 		Mod() {}
 
@@ -65,6 +67,7 @@ namespace common {
 			ar & avgDuration;
 			ar & downloadSize;
 			ar & updateDate;
+			ar & language;
 		}
 	};
 

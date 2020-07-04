@@ -27,6 +27,7 @@
 #include "DatabaseServer.h"
 #include "DownloadSizeChecker.h"
 #include "GMPServer.h"
+#include "LanguageConverter.h"
 #include "ManagementServer.h"
 #include "MariaDBWrapper.h"
 #include "MatchmakingServer.h"
@@ -551,6 +552,8 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 
 		const uint32_t updateDate = results.empty() ? 0 : std::stoi(results[0][0]);
 		mod.updateDate = std::max(mod.releaseDate, updateDate);
+
+		mod.language = LanguageConverter::convert(msg->language);
 		
 		uamm.mods.push_back(mod);
 		versions.insert(std::make_pair(mod.id, version));
