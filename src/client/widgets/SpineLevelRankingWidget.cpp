@@ -52,6 +52,8 @@ SpineLevelRankingWidget::SpineLevelRankingWidget(QWidget * par) : QWidget(par), 
 	_tableView->setSelectionMode(QAbstractItemView::SelectionMode::NoSelection);
 	_tableView->setProperty("score", true);
 
+	l->addWidget(_tableView);
+
 	setLayout(l);
 
 	qRegisterMetaType<QList<RankingEntry>>("QList<RankingEntry>");
