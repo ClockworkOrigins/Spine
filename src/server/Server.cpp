@@ -771,6 +771,10 @@ void Server::handleUpdatePlaytime(clockUtils::sockets::TcpSocket *, UpdatePlayTi
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
+	if (!database.query("PREPARE selectProjectPlayersStmt FROM \"SELECT UserID FROM playtimes WHERE ModID = ?\";")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return;
+	}
 	if (!database.query("SET @paramModID=" + std::to_string(msg->modID) + ";")) {
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
@@ -820,7 +824,20 @@ void Server::handleUpdatePlaytime(clockUtils::sockets::TcpSocket *, UpdatePlayTi
 		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
-	SpineLevel::clear(); // TODO: only clear players that played this specific project to avoid recalculating too many players that are not affected at all
+	
+	if (!database.query("EXECUTE selectProjectPlayersStmt USING @paramModID;")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	const auto lastResults = database.getResults<std::vector<std::string>>();
+
+	std::vector<int> userList(lastResults.size());
+	
+	for (const auto & vec : lastResults) {
+		userList.push_back(std::stoi(vec[0]));
+	}
+	
+	SpineLevel::clear(userList);
 }
 
 void Server::handleRequestPlaytime(clockUtils::sockets::TcpSocket * sock, RequestPlayTimeMessage * msg) const {

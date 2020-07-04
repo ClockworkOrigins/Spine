@@ -56,9 +56,19 @@ void SpineLevel::updateLevel(int userID) {
 	_rankingList.clear();
 }
 
-void SpineLevel::clear() {
+void SpineLevel::clear(const std::vector<int> & userList) {
 	std::lock_guard<std::recursive_mutex> lg(_lock);
-	_levels.clear();
+
+	for (int userID : userList) {
+		auto it = _levels.find(userID);
+
+		if (it == _levels.end()) continue;
+		
+		_levels.erase(it);
+	}
+
+	if (userList.empty()) return;
+	
 	_rankingList.clear();
 }
 

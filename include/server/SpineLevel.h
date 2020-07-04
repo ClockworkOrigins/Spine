@@ -32,7 +32,7 @@ namespace server {
 	public:
 		static common::SendUserLevelMessage getLevel(int userID);
 		static void updateLevel(int userID);
-		static void clear();
+		static void clear(const std::vector<int> & userList);
 
 		static void addRanking(boost::property_tree::ptree & json);
 
