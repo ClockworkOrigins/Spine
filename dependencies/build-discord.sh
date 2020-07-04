@@ -16,7 +16,7 @@ title "Compile Discord"
 
 status "Extracting Discord"
 
-downloadAndUnpack ${ARCHIVE} https://dl-game-sdk.discordapp.net/latest/
+downloadAndUnpack ${ARCHIVE} https://dl-game-sdk.discordapp.net/latest
 
 mkdir "${PREFIX}"
 mkdir "${PREFIX}/include"
