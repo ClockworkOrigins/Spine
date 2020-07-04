@@ -57,25 +57,29 @@ int64_t DiscordManager;;int64_t spine::discord::DiscordManager::getUserID() cons
 DiscordManager::DiscordManager() : _currentUser(new User()), _running(true), _thread(nullptr) {
 	Core * core = nullptr;
 
-	Core::Create(DISCORD_CLIENTID, DiscordCreateFlags_Default, &core);
+	try {
+		Core::Create(DISCORD_CLIENTID, DiscordCreateFlags_NoRequireDiscord, &core);
 
-	_core.reset(core);
+		_core.reset(core);
 
-	if (!_core) return;
+		if (!_core) return;
 
-	core->UserManager().OnCurrentUserUpdate.Connect([this]() {
-        _core->UserManager().GetCurrentUser(_currentUser);
+		core->UserManager().OnCurrentUserUpdate.Connect([this]() {
+	        _core->UserManager().GetCurrentUser(_currentUser);
 
-		emit connected();
-	});
+			emit connected();
+		});
 
-	_thread = new std::thread([this]() {
-		while (_running) {
-			_core->RunCallbacks();
+		_thread = new std::thread([this]() {
+			while (_running) {
+				_core->RunCallbacks();
 
-			std::this_thread::sleep_for(std::chrono::milliseconds(16));
-		}
-	});
+				std::this_thread::sleep_for(std::chrono::milliseconds(16));
+			}
+		});
+	} catch (...) {
+		
+	}
 }
 
 DiscordManager::~DiscordManager() {
