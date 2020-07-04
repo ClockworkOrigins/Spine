@@ -50,6 +50,7 @@ namespace widgets {
 	class ProfileView;
 	class SettingsDialog;
 	class SpineEditor;
+	class SpineLevelRankingWidget;
 
 	class MainWindow : public QMainWindow {
 		Q_OBJECT
@@ -97,6 +98,7 @@ namespace widgets {
 		ModInfoView * _modInfoView;
 		ProfileView * _profileView;
 		FriendsView * _friendsView;
+		SpineLevelRankingWidget * _spineLevelRankingWidget;
 		QString _gothicDirectory;
 		QString _gothic2Directory;
 		SettingsDialog * _settingsDialog;

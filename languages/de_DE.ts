@@ -3216,5 +3216,13 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>UnlinkDiscord</source>
         <translation>Verknüpfung mit Discord lösen</translation>
     </message>
+    <message>
+        <source>Experience</source>
+        <translation>Erfahrung</translation>
+    </message>
+    <message>
+        <source>Ranking</source>
+        <translation>Ranking</translation>
+    </message>
 </context>
 </TS>

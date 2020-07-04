@@ -68,6 +68,7 @@
 #include "widgets/SavegameDialog.h"
 #include "widgets/SettingsDialog.h"
 #include "widgets/SpineEditor.h"
+#include "widgets/SpineLevelRankingWidget.h"
 #include "widgets/StartPageWidget.h"
 #include "widgets/SubmitCompatibilityDialog.h"
 #include "widgets/UpdateLanguage.h"
@@ -119,7 +120,8 @@ enum MainTabsOnline {
 	Database,
 	LibraryOnline,
 	Profile,
-	Friends
+	Friends,
+	SpineLevelRanking
 };
 
 enum MainTabsOffline {
@@ -129,7 +131,7 @@ enum MainTabsOffline {
 
 MainWindow * MainWindow::instance = nullptr;
 
-MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par), _modListView(nullptr), _modInfoView(nullptr), _profileView(nullptr), _friendsView(nullptr), _settingsDialog(nullptr), _autoUpdateDialog(), _changelogDialog(nullptr), _modListModel(nullptr), _loginDialog(nullptr), _modUpdateDialog(nullptr), _installGothic2FromCDDialog(nullptr), _feedbackDialog(nullptr), _developerModeActive(false), _devModeAction(nullptr), _modDatabaseView(nullptr), _tabWidget(nullptr), _spineEditorAction(nullptr), _spineEditor(nullptr), _modInfoPage(nullptr) {
+MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par), _modListView(nullptr), _modInfoView(nullptr), _profileView(nullptr), _friendsView(nullptr), _spineLevelRankingWidget(nullptr), _settingsDialog(nullptr), _autoUpdateDialog(), _changelogDialog(nullptr), _modListModel(nullptr), _loginDialog(nullptr), _modUpdateDialog(nullptr), _installGothic2FromCDDialog(nullptr), _feedbackDialog(nullptr), _developerModeActive(false), _devModeAction(nullptr), _modDatabaseView(nullptr), _tabWidget(nullptr), _spineEditorAction(nullptr), _spineEditor(nullptr), _modInfoPage(nullptr) {
 	instance = this;
 
 	connect(DiscordManager::instance(), &DiscordManager::connected, []() {
@@ -396,6 +398,11 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 
 		_tabWidget->addTab(_friendsView, QApplication::tr("Friends"));
 		UPDATELANGUAGESETTABTEXT(_tabWidget, MainTabsOnline::Friends, "Friends");
+
+		_spineLevelRankingWidget = new SpineLevelRankingWidget(_tabWidget);
+
+		_tabWidget->addTab(_spineLevelRankingWidget, QApplication::tr("Ranking"));
+		UPDATELANGUAGESETTABTEXT(_tabWidget, MainTabsOnline::SpineLevelRanking, "Ranking");
 
 		connect(_modInfoView, &ModInfoView::installMod, _modDatabaseView, static_cast<void(ModDatabaseView::*)(int, int, InstallMode)>(&ModDatabaseView::updateModList));
 	}
@@ -816,6 +823,8 @@ void MainWindow::tabChanged(int index) {
 			_profileView->reset();
 		} else if (index == MainTabsOnline::Friends) {
 			_friendsView->updateFriendList();
+		} else if (index == MainTabsOnline::SpineLevelRanking) {
+			_spineLevelRankingWidget->requestUpdate();
 		} else {
 			_profileView->reset();
 		}

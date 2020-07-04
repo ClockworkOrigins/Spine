@@ -293,8 +293,8 @@ void Gothic1And2Launcher::createWidget() {
 		{
 			_patchLayout = new QGridLayout();
 			_patchLayout->setColumnStretch(2, 1);
-			
-			auto vb = new QVBoxLayout();
+
+			auto * vb = new QVBoxLayout();
 			QScrollArea * sa = new QScrollArea(_patchGroup);
 			QWidget * cw = new QWidget(sa);
 			vb->setAlignment(Qt::AlignTop);

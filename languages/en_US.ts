@@ -3224,5 +3224,13 @@ You can revoke your permission at every point in time. All necessary information
         <source>UnlinkDiscord</source>
         <translation>Unlink from Discord</translation>
     </message>
+    <message>
+        <source>Experience</source>
+        <translation>Experience</translation>
+    </message>
+    <message>
+        <source>Ranking</source>
+        <translation>Ranking</translation>
+    </message>
 </context>
 </TS>

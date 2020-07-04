@@ -3216,5 +3216,13 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>UnlinkDiscord</source>
         <translation>Verknüpfung mit Discord lösen</translation>
     </message>
+    <message>
+        <source>Experience</source>
+        <translation>Erfahrung</translation>
+    </message>
+    <message>
+        <source>Ranking</source>
+        <translation>Ranking</translation>
+    </message>
 </context>
 </TS>
