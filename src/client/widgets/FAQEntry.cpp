@@ -43,6 +43,3 @@ FAQEntry::FAQEntry(QString question, QString answer, QWidget * par) : QWidget(pa
 
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
-
-FAQEntry::~FAQEntry() {
-}

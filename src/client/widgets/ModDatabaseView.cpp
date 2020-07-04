@@ -127,7 +127,7 @@ namespace widgets {
 
 		void setSize(const uint64_t size) {
 			QString sizeString;
-			if (size == UINT64_MAX) {
+			if (size == std::numeric_limits<uint64_t>::max()) {
 				sizeString = "-";
 			} else {
 				QString unit = "B";
@@ -151,7 +151,7 @@ namespace widgets {
 
 	class VersionItem : public QStandardItem {
 	public:
-		VersionItem(const uint8_t majorVersion, const uint8_t minorVersion, const uint8_t patchVersion) : QStandardItem(QString::number(int(majorVersion)) + "." + QString::number(int(minorVersion)) + "." + QString::number(int(patchVersion))) {
+		VersionItem(const uint8_t majorVersion, const uint8_t minorVersion, const uint8_t patchVersion) : QStandardItem(QString::number(static_cast<int>(majorVersion)) + "." + QString::number(static_cast<int>(minorVersion)) + "." + QString::number(static_cast<int>(patchVersion))) {
 			QStandardItem::setData(quint64(majorVersion * 256 * 256 + minorVersion * 256 + patchVersion), Qt::UserRole);
 		}
 	};
@@ -867,7 +867,7 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, QSharedPointer<QList<QPa
 }
 
 void ModDatabaseView::sortByColumn(int column) {
-	_sortModel->sort(column, ((_sortModel->sortColumn() == column) ? ((_sortModel->sortOrder() == Qt::SortOrder::AscendingOrder) ? Qt::SortOrder::DescendingOrder : Qt::SortOrder::AscendingOrder) : Qt::SortOrder::AscendingOrder));
+	_sortModel->sort(column, _sortModel->sortColumn() == column ? (_sortModel->sortOrder() == Qt::SortOrder::AscendingOrder ? Qt::SortOrder::DescendingOrder : Qt::SortOrder::AscendingOrder) : Qt::SortOrder::AscendingOrder);
 }
 
 void ModDatabaseView::changedFilterExpression(const QString & expression) {

@@ -154,7 +154,7 @@ void ExportDialog::exportMods() {
 		Database::close(database, err);
 
 		for (size_t i = 0; i < modfiles.size() && running; i++) {
-			emit updateProgress(int(i));
+			emit updateProgress(static_cast<int>(i));
 			emit updateFile(QString::fromStdString(modfiles[i][1]));
 			QString targetFolder = exportPath + "/" + QString::fromStdString(modfiles[i][0]) + "/";
 			if (!QDir(targetFolder + QFileInfo(QString::fromStdString(modfiles[i][1])).path()).exists()) {
@@ -163,7 +163,7 @@ void ExportDialog::exportMods() {
 			}
 			utils::Compression::compress(Config::DOWNLOADDIR + "/mods/" + s2q(modfiles[i][0]) + "/" + s2q(modfiles[i][1]), targetFolder + s2q(modfiles[i][1]), false);
 		}
-		emit updateProgress(int(modfiles.size()));
+		emit updateProgress(static_cast<int>(modfiles.size()));
 	});
 	watcher.setFuture(future);
 	connect(&dlg, &QProgressDialog::canceled, &watcher, &QFutureWatcher<void>::cancel);

@@ -28,7 +28,6 @@ namespace widgets {
 
 	public:
 		LibraryListView(QWidget * par);
-		~LibraryListView();
 
 	signals:
 		void hideModTriggered();

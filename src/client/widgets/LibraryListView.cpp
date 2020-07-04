@@ -30,9 +30,6 @@ using namespace spine::widgets;
 LibraryListView::LibraryListView(QWidget * par) : QListView(par) {
 }
 
-LibraryListView::~LibraryListView() {
-}
-
 void LibraryListView::contextMenuEvent(QContextMenuEvent * evt) {
 	if (!selectedIndexes().empty()) {
 		const QModelIndex idx = selectedIndexes().constFirst();

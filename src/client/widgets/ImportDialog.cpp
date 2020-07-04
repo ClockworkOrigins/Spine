@@ -128,7 +128,7 @@ void ImportDialog::importMods() {
 		std::string database = importFile.toStdString();
 		Database::DBError err;
 		for (size_t i = 0; i < modfiles.size() && running; i++) {
-			emit updateProgress(int(i));
+			emit updateProgress(static_cast<int>(i));
 			emit updateFile(QString::fromStdString(modfiles[i][1]));
 			if (!QFile(QFileInfo(importFile).path() + "/" + QString::fromStdString(modfiles[i][0]) + "/" + QString::fromStdString(modfiles[i][1]) + ".z").exists()) {
 				emit error();
@@ -170,7 +170,7 @@ void ImportDialog::importMods() {
 		Database::execute(targetDatabase, "END TRANSACTION;", err);
 		Database::close(targetDatabase, err);
 
-		emit updateProgress(int(modfiles.size()));
+		emit updateProgress(static_cast<int>(modfiles.size()));
 	});
 	watcher.setFuture(future);
 	connect(&dlg, &QProgressDialog::canceled, &watcher, &QFutureWatcher<void>::cancel);

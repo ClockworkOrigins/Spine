@@ -47,7 +47,7 @@ using namespace spine::gui;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-FriendsView::FriendsView(QWidget * par) : QWidget(par), _friendsList(nullptr), _waitSpinner(nullptr), _model(nullptr), _sendRequestButton(nullptr), _users(), _friendRequests(), _scrollArea(nullptr), _mainWidget(nullptr), _scrollLayout(nullptr) {
+FriendsView::FriendsView(QWidget * par) : QWidget(par), _friendsList(nullptr), _waitSpinner(nullptr), _model(nullptr), _sendRequestButton(nullptr), _scrollArea(nullptr), _mainWidget(nullptr), _scrollLayout(nullptr) {
 	QVBoxLayout * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
@@ -96,9 +96,6 @@ FriendsView::FriendsView(QWidget * par) : QWidget(par), _friendsList(nullptr), _
 	connect(this, &FriendsView::receivedFriends, this, &FriendsView::updateFriendsList);
 }
 
-FriendsView::~FriendsView() {
-}
-
 void FriendsView::updateFriendList() {
 	if (Config::Username.isEmpty()) {
 		return;
@@ -133,7 +130,7 @@ void FriendsView::updateFriendList() {
 					return;
 				}
 			} else {
-				qDebug() << "Error occurred: " << int(cErr);
+				qDebug() << "Error occurred: " << static_cast<int>(cErr);
 			}
 		}
 	});

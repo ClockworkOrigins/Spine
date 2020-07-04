@@ -41,7 +41,6 @@ namespace widgets {
 
 	public:
 		FriendsView(QWidget * par);
-		~FriendsView();
 
 		void updateFriendList();
 

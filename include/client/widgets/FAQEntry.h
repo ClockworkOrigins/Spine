@@ -26,7 +26,6 @@ namespace widgets {
 	class FAQEntry : public QWidget {
 	public:
 		FAQEntry(QString question, QString answer, QWidget * par);
-		~FAQEntry();
 	};
 
 } /* namespace widgets */
