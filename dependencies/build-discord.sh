@@ -16,6 +16,8 @@ title "Compile Discord"
 
 status "Extracting Discord"
 
+rm -rf "${BUILD_DIR}"
+
 downloadAndUnpack ${ARCHIVE} https://dl-game-sdk.discordapp.net/latest
 
 mkdir -p "${PREFIX}"
