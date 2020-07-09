@@ -18,9 +18,9 @@ status "Extracting Discord"
 
 downloadAndUnpack ${ARCHIVE} https://dl-game-sdk.discordapp.net/latest
 
-mkdir "${PREFIX}"
-mkdir "${PREFIX}/include"
-mkdir "${PREFIX}/lib"
+mkdir -p "${PREFIX}"
+mkdir -p "${PREFIX}/include"
+mkdir -p "${PREFIX}/lib"
 
 mv "${BUILD_DIR}/cpp/*.h" "${PREFIX}/include/"
 mv "${BUILD_DIR}/cpp/*.cpp" "${PREFIX}/src/"
