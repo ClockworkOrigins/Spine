@@ -23,6 +23,7 @@ downloadAndUnpack ${ARCHIVE} https://dl-game-sdk.discordapp.net/latest
 mkdir -p "${PREFIX}"
 mkdir -p "${PREFIX}include"
 mkdir -p "${PREFIX}lib"
+mkdir -p "${PREFIX}src"
 
 cp ${BUILD_DIR}cpp/*.h "${PREFIX}include/"
 cp ${BUILD_DIR}cpp/*.cpp "${PREFIX}src/"
