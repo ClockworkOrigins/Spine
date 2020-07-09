@@ -31,5 +31,5 @@ mv "${BUILD_DIR}lib/x86_64/discord_game_sdk.so" "${PREFIX}/lib/"
 status "Cleaning up"
 
 cd "${DEP_DIR}"
-rm -rf "${BUILD_ROOT}"
+#rm -rf "${BUILD_ROOT}"
 
