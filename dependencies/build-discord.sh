@@ -24,9 +24,9 @@ mkdir -p "${PREFIX}"
 mkdir -p "${PREFIX}/include"
 mkdir -p "${PREFIX}/lib"
 
-mv "${BUILD_DIR}cpp/*.h" "${PREFIX}/include/"
-mv "${BUILD_DIR}cpp/*.cpp" "${PREFIX}/src/"
-mv "${BUILD_DIR}lib/x86_64/discord_game_sdk.so" "${PREFIX}/lib/"
+mv ${BUILD_DIR}cpp/*.h "${PREFIX}/include/"
+mv ${BUILD_DIR}cpp/*.cpp "${PREFIX}/src/"
+mv ${BUILD_DIR}lib/x86_64/discord_game_sdk.so "${PREFIX}/lib/"
 
 status "Cleaning up"
 
