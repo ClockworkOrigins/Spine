@@ -197,7 +197,10 @@ LoginDialog::LoginDialog(QWidget *) : QDialog(nullptr), _connected(false), _dont
 		_registerAcceptPrivacyPolicy = new QCheckBox(QApplication::tr("AcceptPrivacy"), w);
 		QLabel * privacyLink = new QLabel("<a href=\"https://clockwork-origins.com/privacy\">" + QApplication::tr("Privacy") + "</a>", this);
 		privacyLink->setOpenExternalLinks(true);
+		_registerSubscribeNewsletterBox = new QCheckBox(QApplication::tr("SubscribeNewsletter"), w);
+		_registerSubscribeNewsletterBox->setChecked(false);
 		_registerStayBox = new QCheckBox(QApplication::tr("StayLoggedIn"), w);
+		
 		_registerButton = new QPushButton(QApplication::tr("Register"), w);
 		_registerButton->setEnabled(false);
 
@@ -216,9 +219,10 @@ LoginDialog::LoginDialog(QWidget *) : QDialog(nullptr), _connected(false), _dont
 		gl->addWidget(_registerPasswordRepeatEdit, 3, 1);
 		gl->addWidget(_registerAcceptPrivacyPolicy, 4, 1);
 		gl->addWidget(privacyLink, 5, 1);
-		gl->addWidget(_registerStayBox, 6, 1);
-		gl->addWidget(resetPasswordButton, 7, 0);
-		gl->addWidget(_registerButton, 7, 1);
+		gl->addWidget(_registerSubscribeNewsletterBox, 6, 1);
+		gl->addWidget(_registerStayBox, 7, 1);
+		gl->addWidget(resetPasswordButton, 8, 0);
+		gl->addWidget(_registerButton, 8, 1);
 		_registerButton->setShortcut(QKeySequence(Qt::Key_Enter));
 
 		w->setLayout(gl);
@@ -232,6 +236,7 @@ LoginDialog::LoginDialog(QWidget *) : QDialog(nullptr), _connected(false), _dont
 		UPDATELANGUAGESETTEXT(_registerAcceptPrivacyPolicy, "AcceptPrivacy");
 		UPDATELANGUAGESETTEXT(_registerStayBox, "StayLoggedIn");
 		UPDATELANGUAGESETTEXT(_registerButton, "Register");
+		UPDATELANGUAGESETTEXT(_registerSubscribeNewsletterBox, "SubscribeNewsletter");
 
 		connect(_registerButton, &QPushButton::released, this, &LoginDialog::registerUser);
 		connect(_registerUsernameEdit, &QLineEdit::textChanged, this, &LoginDialog::changedRegisterInput);
@@ -494,11 +499,15 @@ void LoginDialog::registerUser() {
 
 	const QString mail = _registerMailEdit->text();
 
+	const bool addToNewsletter = _registerSubscribeNewsletterBox->isChecked();
+
 	if (Config::OnlineMode) {
 		HttpsClient client("clockwork-origins.com:19101", false);
 
-		QString content = R"({"type": 0,"username": "%1","password": "%2", "mail": "%3"})";
-		content = content.arg(username, passwd, mail);
+		const QString newsletterString = addToNewsletter ? ",\"newsletter\": 1" : "";
+
+		QString content = R"({"type": 0,"username": "%1","password": "%2", "mail": "%3"%4})";
+		content = content.arg(username).arg(passwd).arg(mail).arg(newsletterString);
 
 		// Synchronous request examples
 		client.request("POST", "/json", content.toStdString(), [this, username, passwd, stayLoggedIn](std::shared_ptr<HttpsClient::Response> response, const SimpleWeb::error_code &) {

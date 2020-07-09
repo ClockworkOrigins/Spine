@@ -3229,5 +3229,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>Ranking</source>
         <translation>Ranking</translation>
     </message>
+    <message>
+        <source>SubscribeNewsletter</source>
+        <translation>Subscribe for newsletter</translation>
+    </message>
 </context>
 </TS>

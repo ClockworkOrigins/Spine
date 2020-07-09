@@ -64,6 +64,7 @@ namespace widgets {
 		QLineEdit * _registerPasswordRepeatEdit;
 		
 		QCheckBox * _registerAcceptPrivacyPolicy;
+		QCheckBox * _registerSubscribeNewsletterBox;
 		QCheckBox * _registerStayBox;
 		QPushButton * _registerButton;
 

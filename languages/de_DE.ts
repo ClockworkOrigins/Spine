@@ -3224,5 +3224,9 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>Ranking</source>
         <translation>Ranking</translation>
     </message>
+    <message>
+        <source>SubscribeNewsletter</source>
+        <translation>Für Newsletter anmelden</translation>
+    </message>
 </context>
 </TS>

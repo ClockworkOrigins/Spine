@@ -3224,5 +3224,9 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>Ranking</source>
         <translation>Ranking</translation>
     </message>
+    <message>
+        <source>SubscribeNewsletter</source>
+        <translation>Für Newsletter anmelden</translation>
+    </message>
 </context>
 </TS>
