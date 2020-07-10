@@ -100,22 +100,16 @@ void SpineLevel::updateLevel(int userID) {
 }
 
 void SpineLevel::clear(const std::vector<int> & userList) {
-	std::lock_guard<std::recursive_mutex> lg(_lock);
-
-	for (int userID : userList) {
-		auto it = _levels.find(userID);
-
-		if (it == _levels.end()) continue;
-		
-		_levels.erase(it);
-	}
+	std::thread([userList]() {
+		for (int userID : userList) {
+			updateLevel(userID);
+		}
+	}).detach();
 }
 
 void SpineLevel::addRanking(boost::property_tree::ptree & json) {
 	std::lock_guard<std::mutex> lg(_rankingLock);
 
-	std::cout << "Adding Ranking" << std::endl;
-	
 	std::sort(_rankings.begin(), _rankings.end(), [](const RankingEntry & a, const RankingEntry & b) {
 		return a.level > b.level || (a.level == b.level && a.xp > b.xp);
 	});
@@ -144,7 +138,7 @@ void SpineLevel::addRanking(boost::property_tree::ptree & json) {
 		rankingList.push_back(std::make_pair("", rankingEntry));
 	}
 	
-	json.add_child("Ranking", rankingList);
+	json.add_child("Names", rankingList);
 }
 
 void SpineLevel::cacheLevel(int userID) {
