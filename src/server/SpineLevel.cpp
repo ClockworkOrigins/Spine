@@ -87,7 +87,7 @@ void SpineLevel::addRanking(boost::property_tree::ptree & json) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				break;
 			}
-			if (!accountDatabase.query("EXECUTE selectStmt USING @paramID;")) {
+			if (!accountDatabase.query("EXECUTE selectStmt;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				break;
 			}
