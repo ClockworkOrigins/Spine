@@ -50,21 +50,16 @@
 	<Version majorVersion="1" minorVersion="16" patchVersion="0">
 		<File Hash="8d6019c7812fe35a9bff50ae29af3c565f3a9880ed838805d8a02f9e86f5a9f3f3bb69103a86e531f6656eef90eca4b5847cf39678c4ebd7135dc1b2a1ad4eb3">bin/cleanup.exe.z</File>
 	</Version>
-	<Version majorVersion="1" minorVersion="20" patchVersion="0">
-		<File Hash="0852362e7f21191771cc27e72ec65ce94dfd85b5b370e0656d819db0e5f1ac7a9723beed7bceb760ce53acaf0f5a2911b72d22270dc1b4b4191d6d91da7577e6">bin/de_DE.qm.z</File>
-		<File Hash="8a6c1a50960e455b28629924c1bce892e2b1ea82b0164f6436ec2059a362b3258f1e37fbd3a41f4789b06cc847b9311538f7f4dd33e3992057bf86ee21bc776f">bin/en_US.qm.z</File>
-		<File Hash="6fca75d6fa762d6d3ef84bb1b6d1fc750bdd84dfda22b2583982d287e8ea0af59c0927bc7b276c646b6813311439bb6205a5d11ac693a17c185dcd453ca18878">bin/po_PO.qm.z</File>
-		<File Hash="a1137114f1e22fb5d5109b61244cc501a6ce93155752054c2494dc500882e7aedbfeee203a7de950d76799eee3093311297bdb1e0edee13553a5f415d60d81fa">bin/ru_RU.qm.z</File>
-	</Version>
-	<Version majorVersion="1" minorVersion="20" patchVersion="2">
-		<File Hash="c087a71f34ff947c5222e0c25436d8e56c555bdde6d162a55a07be9c6f4bf1f5248833567451b07b78d1137e566ce926adbe8d4f4151f7e53764134b3b6cd639">styles.css.z</File>
-	</Version>
-	<Version majorVersion="1" minorVersion="20" patchVersion="3">
-		<File Hash="131d63a847cf8e36d221573b690b612020539ee3a26f0dc14ee72c57d40d24715b91db89ad9568927847153a94dd643146456a3850b917d810c98a0123bbf0c6">bin/SpineAPI.dll.z</File>
-		<File Hash="a8be5f6cff1dd0593fd0bfe5b66afdfc2a645604368adede2e03a04e26e761b55ff300b79736fc7303f13b3a64ba1452cd8ef700e06b20f7d0f143721788d8a4">bin/SpineAPI64.dll.z</File>
-	</Version>
-	<Version majorVersion="1" minorVersion="20" patchVersion="4">
-		<File Hash="da5381d5a1a57e803721b8b26fd8f47e6dd2a765f5d56a3a4c5bf1c49a4afb3328443f4322230701829e034a436a9212bcade19c52d4b9871f58823aeba10d4f">bin/changelog.xml.z</File>
-		<File Hash="4cfd8a780d67d4084b96db990dceba68dc2c2d1f740da776b64982721608cd6f66ff28c2a6158e6ccaa75d3c6fdbcd064cc44a23ead70b659d987bbebc47f397">bin/Spine.exe.z</File>
+	<Version majorVersion="1" minorVersion="21" patchVersion="0">
+		<File Hash="8b192a0521df2d4e7805a4bd3975787e29546766d0472d5c011969207bc7aa30e78024acbac459424d86a5959fd0cb1c4b40615c4e0ab396a666f18c885b2333">styles.css.z</File>
+		<File Hash="c517ddb25e6330b06edacac7acb5eed6a2b3e7d7ae613010c8b6c147f847145fabc3853ecda79a62467161012e500a968651b6d7692c5b32935411042d25a49e">bin/changelog.xml.z</File>
+		<File Hash="dbdabbcc3a986b8b4ed4bd4a7a8172aff032d768f1d211a931c0a2a817d813ecc455663c2ca8566bdc7027769e8920626db1786dbea38edcccb8ac8b5cbc650f">bin/Spine.exe.z</File>
+		<File Hash="1b8c4e731f792ecc1df320500970c60383b0a37b19690dba2c8677ee5c993ba36f17b12a2746b524ba0c7f4d99166627cbfbcd20b4224493f8286afa7923b97e">bin/SpineAPI.dll.z</File>
+		<File Hash="d713919bd5c6287a4b93811477b6224d3108650938cb0f676b8a4c55d7877703fd5dee6519dda40ee9341a93937ef0f1a8599ddfb737a2c40b2984299845d7b1">bin/SpineAPI64.dll.z</File>
+		<File Hash="6b077ae45e7eed9623ba17d9b3324b3a25fd6eb7313cd1dda57a1419f3fd06cdac2cfdb287e052dc5154e2d142c6cd2ee815a42536439165fd1250020ed8fc31">bin/discord_game_sdk.dll.z</File>
+		<File Hash="39039637be915b2a89310693fa0f54b176180b61b72e836752f82fbc4870f67a89334aec28b7533a1785cc442378624821a91d78e4f93eea6222085c53167491">bin/de_DE.qm.z</File>
+		<File Hash="d93b1afed4f3e5d4b27207273c310002cb07e34fbcc57aa811032e6552eb0ac52d224374cba2d7a7f7eff1d3d700a08ef5311865383da0648e00e259ce53cefe">bin/en_US.qm.z</File>
+		<File Hash="b36219fc54550be02b3abc48d9f04030a6e716ecb478d7bad1fc8def25beef7850c6385ae1eb82a70a44269f28118edbeced87b7364bbd3e8b39881616ab88a3">bin/po_PO.qm.z</File>
+		<File Hash="8d03282441c36810e9373dc1d56189864eb0a6cc35f1012d8e6c2bed240965c310259a0ea7daa68fa44c197d6bac0e8a3cd5db1e4f14f8fd6771d52ddae8283e">bin/ru_RU.qm.z</File>
 	</Version>
 </Versions>
