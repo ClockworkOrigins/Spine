@@ -19,6 +19,7 @@
 #pragma once
 
 #include <mutex>
+#include <set>
 
 #include "common/MessageStructs.h"
 
@@ -50,6 +51,8 @@ namespace server {
 		static std::map<int, common::SendUserLevelMessage> _levels;
 		static std::vector<RankingEntry> _rankings;
 		static std::mutex _rankingLock;
+		static std::set<int> _updateQueue;
+		static std::mutex _updateQueueLock;
 
 		static void cacheLevel(int userID);
 	};

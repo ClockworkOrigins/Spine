@@ -32,11 +32,11 @@ std::mutex SpineLevel::_lock;
 std::map<int, SendUserLevelMessage> SpineLevel::_levels;
 std::vector<SpineLevel::RankingEntry> SpineLevel::_rankings;
 std::mutex SpineLevel::_rankingLock;
+std::set<int> SpineLevel::_updateQueue;
+std::mutex SpineLevel::_updateQueueLock;
 
 void SpineLevel::init() {
 	std::thread([]() {
-		std::map<int, std::string> userList;
-
 		do {
 			MariaDBWrapper accountDatabase;
 			if (!accountDatabase.connect("localhost", DATABASEUSER, DATABASEPASSWORD, ACCOUNTSDATABASE, 0)) {
@@ -53,24 +53,38 @@ void SpineLevel::init() {
 			}
 			const auto results = accountDatabase.getResults<std::vector<std::string>>();
 
+			std::lock_guard<std::mutex> lg(_rankingLock);
+			std::lock_guard<std::mutex> lg2(_updateQueueLock);
+			
 			for (const auto & vec : results) {
 				const int id = std::stoi(vec[0]);
 				const std::string username = vec[1];
 
-				userList.insert(std::make_pair(id, username));
+				RankingEntry re;
+				re.userID = id;
+				re.username = username;
+				re.level = 0;
+				re.xp = 0;
+				
+				_rankings.push_back(re);
+				_updateQueue.insert(id);
 			}
 		} while (false);
 		
-		for (auto & p : userList) {
-			{
-				std::lock_guard<std::mutex> lg(_rankingLock);
-				
-				if (std::find_if(_rankings.begin(), _rankings.end(), [p](const RankingEntry & a) {
-						return p.first == a.userID;
-					}) != _rankings.end()) continue;
-			}
+		while (true) {
+			_updateQueueLock.lock();
 			
-			getLevel(p.first);
+			if (!_updateQueue.empty()) {
+				const int id = *_updateQueue.begin();
+				_updateQueue.erase(id);
+
+				_updateQueueLock.unlock();
+
+				cacheLevel(id);
+			} else {
+				_updateQueueLock.unlock();
+				std::this_thread::sleep_for(std::chrono::seconds(30));
+			}
 		}
 	}).detach();
 }
@@ -93,15 +107,15 @@ SendUserLevelMessage SpineLevel::getLevel(int userID) {
 }
 
 void SpineLevel::updateLevel(int userID) {
-	cacheLevel(userID);
+	std::lock_guard<std::mutex> lg(_updateQueueLock);
+	_updateQueue.insert(userID);
 }
 
 void SpineLevel::clear(const std::vector<int> & userList) {
-	std::thread([userList]() {
-		for (int userID : userList) {
-			updateLevel(userID);
-		}
-	}).detach();
+	std::lock_guard<std::mutex> lg(_updateQueueLock);
+	for (int userID : userList) {
+		_updateQueue.insert(userID);
+	}
 }
 
 void SpineLevel::addRanking(boost::property_tree::ptree & json) {
