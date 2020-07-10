@@ -30,6 +30,8 @@ namespace server {
 
 	class SpineLevel {
 	public:
+		static void init();
+		
 		static common::SendUserLevelMessage getLevel(int userID);
 		static void updateLevel(int userID);
 		static void clear(const std::vector<int> & userList);
@@ -37,18 +39,19 @@ namespace server {
 		static void addRanking(boost::property_tree::ptree & json);
 
 	private:
-		static std::recursive_mutex _lock;
-		static std::map<int, common::SendUserLevelMessage> _levels;
-		static boost::property_tree::ptree _rankingList;
-
-		static void cacheLevel(int userID);
-
 		typedef struct {
 			int userID;
 			std::string username;
 			uint32_t level;
 			uint32_t xp;
 		} RankingEntry;
+		
+		static std::recursive_mutex _lock;
+		static std::map<int, common::SendUserLevelMessage> _levels;
+		static std::vector<RankingEntry> _rankings;
+		static std::mutex _rankingLock;
+
+		static void cacheLevel(int userID);
 	};
 
 } /* namespace server */

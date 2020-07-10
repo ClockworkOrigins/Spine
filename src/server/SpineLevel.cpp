@@ -28,53 +28,11 @@ using namespace spine::server;
 
 std::recursive_mutex SpineLevel::_lock;
 std::map<int, SendUserLevelMessage> SpineLevel::_levels;
-ptree SpineLevel::_rankingList;
+std::vector<SpineLevel::RankingEntry> SpineLevel::_rankings;
+std::mutex SpineLevel::_rankingLock;
 
-SendUserLevelMessage SpineLevel::getLevel(int userID) {
-	std::lock_guard<std::recursive_mutex> lg(_lock);
-	auto it = _levels.find(userID);
-	
-	if (it != _levels.end()) return it->second;
-
-	cacheLevel(userID);
-
-	it = _levels.find(userID);
-	
-	return it->second;
-}
-
-void SpineLevel::updateLevel(int userID) {
-	std::lock_guard<std::recursive_mutex> lg(_lock);
-	const auto it = _levels.find(userID);
-
-	if (it != _levels.end()) {
-		_levels.erase(it);
-	}
-
-	cacheLevel(userID);
-
-	_rankingList.clear();
-}
-
-void SpineLevel::clear(const std::vector<int> & userList) {
-	std::lock_guard<std::recursive_mutex> lg(_lock);
-
-	for (int userID : userList) {
-		auto it = _levels.find(userID);
-
-		if (it == _levels.end()) continue;
-		
-		_levels.erase(it);
-	}
-
-	if (userList.empty()) return;
-	
-	_rankingList.clear();
-}
-
-void SpineLevel::addRanking(boost::property_tree::ptree & json) {
-	std::lock_guard<std::recursive_mutex> lg(_lock);
-	if (_rankingList.empty()) {
+void SpineLevel::init() {
+	std::thread([]() {
 		std::map<int, std::string> userList;
 
 		do {
@@ -101,50 +59,90 @@ void SpineLevel::addRanking(boost::property_tree::ptree & json) {
 			}
 		} while (false);
 		
-		std::vector<RankingEntry> levels(userList.size());
-		
-		do {
-			for (auto & p : userList) {
-				const auto sulm = getLevel(p.first);
-
-				RankingEntry re;
-				re.userID = p.first;
-				re.username = p.second;
-				re.level = sulm.level;
-				re.xp = sulm.currentXP;
-
-				levels.push_back(re);
-			}
-		} while (false);
-
-		std::sort(levels.begin(), levels.end(), [](const RankingEntry & a, const RankingEntry & b) {
-			return a.level > b.level || (a.level == b.level && a.xp > b.xp);
-		});
-
-		uint32_t rank = 0;
-		uint32_t lastXP = 0;
-		uint32_t realRank = 0;
-		
-		for (const auto & re : levels) {
-			realRank++;
-
-			if (re.xp != lastXP) {
-				rank = realRank;
-				lastXP = re.xp;
+		for (auto & p : userList) {
+			{
+				std::lock_guard<std::mutex> lg(_rankingLock);
+				
+				if (std::find_if(_rankings.begin(), _rankings.end(), [p](const RankingEntry & a) {
+						return p.first == a.userID;
+					}) != _rankings.end()) continue;
 			}
 			
-			ptree rankingEntry;
-			
-			rankingEntry.put("Name", re.username);
-			rankingEntry.put("Level", re.level);
-			rankingEntry.put("XP", re.xp);
-			rankingEntry.put("Rank", rank);
-
-			_rankingList.push_back(std::make_pair("", rankingEntry));
+			getLevel(p.first);
 		}
+	}).detach();
+}
+
+SendUserLevelMessage SpineLevel::getLevel(int userID) {
+	std::lock_guard<std::recursive_mutex> lg(_lock);
+	auto it = _levels.find(userID);
+	
+	if (it != _levels.end()) return it->second;
+
+	cacheLevel(userID);
+
+	it = _levels.find(userID);
+	
+	return it->second;
+}
+
+void SpineLevel::updateLevel(int userID) {
+	std::lock_guard<std::recursive_mutex> lg(_lock);
+	const auto it = _levels.find(userID);
+
+	if (it != _levels.end()) {
+		_levels.erase(it);
+	}
+
+	cacheLevel(userID);
+}
+
+void SpineLevel::clear(const std::vector<int> & userList) {
+	std::lock_guard<std::recursive_mutex> lg(_lock);
+
+	for (int userID : userList) {
+		auto it = _levels.find(userID);
+
+		if (it == _levels.end()) continue;
+		
+		_levels.erase(it);
+	}
+}
+
+void SpineLevel::addRanking(boost::property_tree::ptree & json) {
+	std::lock_guard<std::mutex> lg(_rankingLock);
+
+	std::cout << "Adding Ranking" << std::endl;
+	
+	std::sort(_rankings.begin(), _rankings.end(), [](const RankingEntry & a, const RankingEntry & b) {
+		return a.level > b.level || (a.level == b.level && a.xp > b.xp);
+	});
+
+	uint32_t rank = 0;
+	uint32_t lastXP = 0;
+	uint32_t realRank = 0;
+
+	ptree rankingList;
+	
+	for (const auto & re : _rankings) {
+		realRank++;
+
+		if (re.xp != lastXP) {
+			rank = realRank;
+			lastXP = re.xp;
+		}
+		
+		ptree rankingEntry;
+		
+		rankingEntry.put("Name", re.username);
+		rankingEntry.put("Level", re.level);
+		rankingEntry.put("XP", re.xp);
+		rankingEntry.put("Rank", rank);
+
+		rankingList.push_back(std::make_pair("", rankingEntry));
 	}
 	
-	json.add_child("Ranking", _rankingList);
+	json.add_child("Ranking", rankingList);
 }
 
 void SpineLevel::cacheLevel(int userID) {
@@ -369,4 +367,23 @@ void SpineLevel::cacheLevel(int userID) {
 	sulm.nextXP = nextXP;
 
 	_levels[userID] = sulm;
+
+	std::lock_guard<std::mutex> lg(_rankingLock);
+	
+	const auto it = std::find_if(_rankings.begin(), _rankings.end(), [userID](const RankingEntry & re) {
+		return re.userID == userID;
+	});
+	
+	if (it == _rankings.end()) {
+		RankingEntry re;
+		re.userID = userID;
+		re.xp = currentXP;
+		re.level = level;
+		re.username = ServerCommon::getUsername(userID);
+		
+		_rankings.push_back(re);
+	} else {
+		it->xp = currentXP;
+		it->level = level;
+	}
 }

@@ -51,6 +51,8 @@ static const std::string DEFAULTURL = "https://clockwork-origins.de/Gothic/downl
 
 Server::Server() : _listenClient(new clockUtils::sockets::TcpSocket()), _listenMPServer(new clockUtils::sockets::TcpSocket()), _downloadSizeChecker(new DownloadSizeChecker()), _matchmakingServer(new MatchmakingServer()), _gmpServer(new GMPServer()), _uploadServer(new UploadServer()), _databaseServer(new DatabaseServer()), _managementServer(new ManagementServer()) {
 	DatabaseCreator::createTables();
+
+	SpineLevel::init();
 }
 
 Server::~Server() {
