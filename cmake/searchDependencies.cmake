@@ -24,6 +24,9 @@ IF(WITH_CLIENT)
 	find_package(EasyFind REQUIRED COMPONENTS ${DISCORD_COMPONENT})
 	include_directories(SYSTEM ${DISCORD_INCLUDE_DIR})
 	LINK_DIRECTORIES(${DISCORD_ROOT}/lib)
+	IF(UNIX)
+		SET(DISCORD_LIBRARIES "${DISCORD_ROOT}/lib/discord_game_sdk.so")
+	ENDIF(UNIX)
 ENDIF(WITH_CLIENT)
 
 #----------------------------------------------------
