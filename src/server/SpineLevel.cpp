@@ -28,7 +28,7 @@ using namespace boost::property_tree;
 using namespace spine::common;
 using namespace spine::server;
 
-std::recursive_mutex SpineLevel::_lock;
+std::mutex SpineLevel::_lock;
 std::map<int, SendUserLevelMessage> SpineLevel::_levels;
 std::vector<SpineLevel::RankingEntry> SpineLevel::_rankings;
 std::mutex SpineLevel::_rankingLock;
@@ -76,26 +76,23 @@ void SpineLevel::init() {
 }
 
 SendUserLevelMessage SpineLevel::getLevel(int userID) {
-	std::lock_guard<std::recursive_mutex> lg(_lock);
-	auto it = _levels.find(userID);
-	
-	if (it != _levels.end()) return it->second;
+	{
+		std::lock_guard<std::mutex> lg(_lock);
+		const auto it = _levels.find(userID);
+		
+		if (it != _levels.end()) return it->second;
+	}
 
 	cacheLevel(userID);
-
-	it = _levels.find(userID);
+	
+	std::lock_guard<std::mutex> lg(_lock);
+	
+	const auto it = _levels.find(userID);
 	
 	return it->second;
 }
 
 void SpineLevel::updateLevel(int userID) {
-	std::lock_guard<std::recursive_mutex> lg(_lock);
-	const auto it = _levels.find(userID);
-
-	if (it != _levels.end()) {
-		_levels.erase(it);
-	}
-
 	cacheLevel(userID);
 }
 
@@ -362,24 +359,29 @@ void SpineLevel::cacheLevel(int userID) {
 	sulm.currentXP = currentXP;
 	sulm.nextXP = nextXP;
 
-	_levels[userID] = sulm;
+	{
+		std::lock_guard<std::mutex> lg(_lock);
+		_levels[userID] = sulm;
+	}
 
-	std::lock_guard<std::mutex> lg(_rankingLock);
-	
-	const auto it = std::find_if(_rankings.begin(), _rankings.end(), [userID](const RankingEntry & re) {
-		return re.userID == userID;
-	});
-	
-	if (it == _rankings.end()) {
-		RankingEntry re;
-		re.userID = userID;
-		re.xp = currentXP;
-		re.level = level;
-		re.username = ServerCommon::getUsername(userID);
+	{
+		std::lock_guard<std::mutex> lg(_rankingLock);
 		
-		_rankings.push_back(re);
-	} else {
-		it->xp = currentXP;
-		it->level = level;
+		const auto it = std::find_if(_rankings.begin(), _rankings.end(), [userID](const RankingEntry & re) {
+			return re.userID == userID;
+		});
+		
+		if (it == _rankings.end()) {
+			RankingEntry re;
+			re.userID = userID;
+			re.xp = currentXP;
+			re.level = level;
+			re.username = ServerCommon::getUsername(userID);
+			
+			_rankings.push_back(re);
+		} else {
+			it->xp = currentXP;
+			it->level = level;
+		}
 	}
 }

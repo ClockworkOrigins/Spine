@@ -46,7 +46,7 @@ namespace server {
 			uint32_t xp;
 		} RankingEntry;
 		
-		static std::recursive_mutex _lock;
+		static std::mutex _lock;
 		static std::map<int, common::SendUserLevelMessage> _levels;
 		static std::vector<RankingEntry> _rankings;
 		static std::mutex _rankingLock;
