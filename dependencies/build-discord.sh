@@ -29,6 +29,8 @@ cp ${BUILD_DIR}cpp/*.h "${PREFIX}include/"
 cp ${BUILD_DIR}cpp/*.cpp "${PREFIX}src/"
 cp ${BUILD_DIR}lib/x86_64/discord_game_sdk.so "${PREFIX}lib/"
 
+chmod 755 "${PREFIX}lib/*.so"
+
 status "Cleaning up"
 
 cd "${DEP_DIR}"

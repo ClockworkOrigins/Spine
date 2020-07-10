@@ -1872,7 +1872,7 @@
 		
 		<Enhancement language="English">Discord Rich Presence now is supported</Enhancement>
 		<Enhancement language="English">Added global ranking of Spine level</Enhancement>
-		<Bug language="English">Fixed bug during upload that cases file being deleted when changing language</Bug>
+		<Bug language="English">Fixed bug during upload that causes file being deleted when just changing language</Bug>
 		<Bug language="English">Increased font size of changelog</Bug>
 		<Bug language="English">Update dialog doesn't pup up twice anymore under certain circumstances</Bug>
 	</Version>
