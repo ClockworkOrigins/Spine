@@ -118,7 +118,7 @@ void SpineLevel::addRanking(boost::property_tree::ptree & json) {
 		} while (false);
 
 		std::sort(levels.begin(), levels.end(), [](const RankingEntry & a, const RankingEntry & b) {
-			return a.level > b.level || a.level == b.level && a.xp > b.xp;
+			return a.level > b.level || (a.level == b.level && a.xp > b.xp);
 		});
 
 		uint32_t rank = 0;
