@@ -258,6 +258,8 @@ void SpineLevel::cacheLevel(int userID) {
 		auto lastResults = database.getResults<std::vector<std::string>>();
 		if (!lastResults.empty()) {
 			currentXP += std::stoi(lastResults[0][0]) * 50; // 50 EP per achievement
+
+			noSpine = false;
 		}
 
 		// perfect games (all achievements)
@@ -287,6 +289,8 @@ void SpineLevel::cacheLevel(int userID) {
 
 			if (unlockedAchievementCount == achievementCount) {
 				currentXP += 1000; // 1000 EP for perfect games
+
+			noSpine = false;
 			}
 		}
 		
@@ -297,6 +301,8 @@ void SpineLevel::cacheLevel(int userID) {
 		lastResults = database.getResults<std::vector<std::string>>();
 		if (!lastResults.empty()) {
 			currentXP += std::stoi(lastResults[0][0]) * 100; // 100 EP per score
+
+			noSpine = false;
 		}
 		
 		if (!database.query("EXECUTE selectRatingsStmt USING @paramUserID;")) {
@@ -306,6 +312,8 @@ void SpineLevel::cacheLevel(int userID) {
 		lastResults = database.getResults<std::vector<std::string>>();
 		if (!lastResults.empty()) {
 			currentXP += std::stoi(lastResults[0][0]) * 250; // 250 EP per rating
+
+			noSpine = false;
 		}
 		
 		if (!database.query("EXECUTE selectCompatibilitiesStmt USING @paramUserID;")) {
@@ -315,6 +323,8 @@ void SpineLevel::cacheLevel(int userID) {
 		lastResults = database.getResults<std::vector<std::string>>();
 		if (!lastResults.empty()) {
 			currentXP += std::stoi(lastResults[0][0]) * 10; // 10 EP per compatibility list entry
+
+			noSpine = false;
 		}
 
 		// play time over median or even third quartile gives some bonus XP
