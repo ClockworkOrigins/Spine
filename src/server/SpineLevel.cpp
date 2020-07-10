@@ -428,7 +428,7 @@ void SpineLevel::cacheLevel(int userID) {
 		do {
 			CONNECTTODATABASE(__LINE__);
 			
-			if (!database.query("PREPARE insertStmt FROM \"INSERT INTO levels (UserID, Level, XP, NextXP, NoSpine) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE Level = ?, XP = ?, NextXP = ?, NoSpine = ?\";")) {
+			if (!database.query("PREPARE insertStmt FROM \"INSERT INTO levels (UserID, Level, XP, NextXP, NoSpine) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE Level = ?, XP = ?, NextXP = ?, NoSpine = ?\";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				break;
 			}
