@@ -531,7 +531,7 @@ void ProfileView::linkWithDiscord() {
 	QJsonObject requestData;
 	requestData["Username"] = Config::Username;
 	requestData["Password"] = Config::Password;
-	requestData["DiscordID"] = DiscordManager::instance()->getUserID();
+	requestData["DiscordID"] = static_cast<qint64>(DiscordManager::instance()->getUserID());
 	
 	https::Https::postAsync(SERVER_PORT, "linkToDiscord", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
 		if (statusCode != 200) return;
