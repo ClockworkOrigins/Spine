@@ -18,6 +18,8 @@
 
 #include "SpineLevel.h"
 
+#include <thread>
+
 #include "MariaDBWrapper.h"
 #include "ServerCommon.h"
 
