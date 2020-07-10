@@ -23,6 +23,7 @@ IF(WITH_CLIENT)
 
 	find_package(EasyFind REQUIRED COMPONENTS ${DISCORD_COMPONENT})
 	include_directories(SYSTEM ${DISCORD_INCLUDE_DIR})
+	LINK_DIRECTORIES(${DISCORD_ROOT}/lib)
 ENDIF(WITH_CLIENT)
 
 #----------------------------------------------------
