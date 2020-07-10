@@ -106,6 +106,8 @@ void SpineLevelRankingWidget::updateView(QList<RankingEntry> rankingEntries) {
 		_model->item(row, 1)->setTextAlignment(Qt::AlignCenter);
 		_model->item(row, 2)->setEnabled(re.username == Config::Username);
 		_model->item(row, 2)->setTextAlignment(Qt::AlignCenter);
+		_model->item(row, 3)->setEnabled(re.username == Config::Username);
+		_model->item(row, 3)->setTextAlignment(Qt::AlignCenter);
 		row++;
 	}
 }

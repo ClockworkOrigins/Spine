@@ -1876,4 +1876,9 @@
 		<Bug language="English">Increased font size of changelog</Bug>
 		<Bug language="English">Update dialog doesn't pup up twice anymore under certain circumstances</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="22" patchVersion="0">
+		<Bug language="Deutsch">Erfahrungsspalte im Ranking ist jetzt nur noch für den eigenen Account markiert</Bug>
+		
+		<Bug language="English">Experience column in ranking now is only marked for own account</Bug>
+	</Version>
 </Versions>
