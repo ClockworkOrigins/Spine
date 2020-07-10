@@ -37,6 +37,41 @@ std::mutex SpineLevel::_updateQueueLock;
 
 void SpineLevel::init() {
 	std::thread([]() {
+		std::map<int, std::tuple<int, int, int>> cachedEntries;
+		
+		do {
+			CONNECTTODATABASE(__LINE__);
+			
+			if (!database.query("PREPARE selectStmt FROM \"SELECT UserID, Level, XP, NextXP, NoSpine FROM levels\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("EXECUTE selectStmt;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			const auto results = database.getResults<std::vector<std::string>>();
+
+			std::lock_guard<std::mutex> lg(_lock);
+			
+			for (const auto & vec : results) {
+				const int userID = std::stoi(vec[0]);
+				const int level = std::stoi(vec[1]);
+				const int xp = std::stoi(vec[2]);
+				const int nextXP = std::stoi(vec[3]);
+				const int noSpine = std::stoi(vec[4]);
+				
+				cachedEntries.insert(std::make_pair(userID, std::make_tuple(level, xp, noSpine)));
+
+				SendUserLevelMessage sulm;
+				sulm.level = level;
+				sulm.currentXP = xp;
+				sulm.nextXP = nextXP;
+				
+				_levels[userID] = sulm;
+			}
+		} while (false);
+		
 		do {
 			MariaDBWrapper accountDatabase;
 			if (!accountDatabase.connect("localhost", DATABASEUSER, DATABASEPASSWORD, ACCOUNTSDATABASE, 0)) {
@@ -55,7 +90,7 @@ void SpineLevel::init() {
 
 			std::lock_guard<std::mutex> lg(_rankingLock);
 			std::lock_guard<std::mutex> lg2(_updateQueueLock);
-			
+
 			for (const auto & vec : results) {
 				const int id = std::stoi(vec[0]);
 				const std::string username = vec[1];
@@ -65,9 +100,21 @@ void SpineLevel::init() {
 				re.username = username;
 				re.level = 0;
 				re.xp = 0;
+
+				const auto it = cachedEntries.find(id);
+
+				if (it != cachedEntries.end()) {
+					re.level = std::get<0>(it->second);
+					re.xp = std::get<1>(it->second);
+
+					if (std::get<2>(it->second)) {
+						_updateQueue.insert(id);
+					}
+				} else {
+					_updateQueue.insert(id);
+				}
 				
 				_rankings.push_back(re);
-				_updateQueue.insert(id);
 			}
 		} while (false);
 		
@@ -157,6 +204,8 @@ void SpineLevel::cacheLevel(int userID) {
 
 	int level = 0;
 	uint32_t currentXP = 0;
+
+	bool noSpine = true;
 
 	do {
 		CONNECTTODATABASE(__LINE__);
@@ -297,6 +346,8 @@ void SpineLevel::cacheLevel(int userID) {
 			} else if (ownDuration > firstQuartile) {
 				currentXP += 50;
 			}
+
+			noSpine = false;
 		}
 
 		// bonus XP for people that support us by playing our games
@@ -372,6 +423,43 @@ void SpineLevel::cacheLevel(int userID) {
 	sulm.level = level;
 	sulm.currentXP = currentXP;
 	sulm.nextXP = nextXP;
+
+	{
+		do {
+			CONNECTTODATABASE(__LINE__);
+			
+			if (!database.query("PREPARE insertStmt FROM \"INSERT INTO levels (UserID, Level, XP, NextXP, NoSpine) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE Level = ?, XP = ?, NextXP = ?, NoSpine = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			
+			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramLevel=" + std::to_string(level) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramCurrentXP=" + std::to_string(currentXP) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramNextXP=" + std::to_string(nextXP) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			const std::string noSpineString = noSpine ? "1" : "0";
+			if (!database.query("SET @paramNoSpine=" + noSpineString + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("EXECUTE insertStmt USING @paramUserID, @paramLevel, @paramCurrentXP, @paramNextXP, @paramNoSpine, @paramLevel, @paramCurrentXP, @paramNextXP, @paramNoSpine;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+		} while (false);
+	}
 
 	{
 		std::lock_guard<std::mutex> lg(_lock);
