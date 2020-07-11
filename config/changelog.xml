@@ -1887,7 +1887,9 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="22" patchVersion="0">
 		<Enhancement language="Deutsch">Download-Sprache statt Client-Sprache wird jetzt für Updates genutzt</Enhancement>
+		<Enhancement language="Deutsch">Datenbank zeigt jetzt immer alle Projekte an unabhängig von der Sprache</Enhancement>
 		
 		<Enhancement language="English">Download language instead of client language now is used for updates</Enhancement>
+		<Enhancement language="English">Database now always displays all projects no matter what the language is</Enhancement>
 	</Version>
 </Versions>

@@ -385,7 +385,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 		std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
-	std::map<int32_t, std::string> teamMembers;
+	std::map<int32_t, std::string> teamNames;
 	{
 		if (!database.query(std::string("SELECT TeamID FROM teams;"))) {
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
@@ -400,8 +400,13 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			return;
 		}
+		if (!database.query("SET @paramFallbackLanguage='English';")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			return;
+		}
 		for (auto vec : lastResults) {
-			const int32_t id = int32_t(std::stoi(vec[0]));
+			const int32_t id = static_cast<int32_t>(std::stoi(vec[0]));
+			
 			if (!database.query("SET @paramTeamID=" + std::to_string(id) + ";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				return;
@@ -411,8 +416,17 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 				return;
 			}
 			auto results = database.getResults<std::vector<std::string>>();
-			if (results.size() == 1 && results[0].size() == 1) {
-				teamMembers.insert(std::make_pair(id, results[0][0]));
+			if (!results.empty()) {
+				teamNames.insert(std::make_pair(id, results[0][0]));
+			} else {
+				if (!database.query("EXECUTE selectTeamnameStmt USING @paramTeamID, @paramFallbackLanguage;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					return;
+				}
+				results = database.getResults<std::vector<std::string>>();
+				if (!results.empty()) {
+					teamNames.insert(std::make_pair(id, results[0][0]));
+				}
 			}
 		}
 	}
@@ -477,7 +491,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 		}
 	}
 	UpdateAllModsMessage uamm;
-	if (!database.query("PREPARE selectModnameStmt FROM \"SELECT CAST(Name AS BINARY) FROM modnames WHERE ModID = ? AND Language = ? LIMIT 1\";")) {
+	if (!database.query("PREPARE selectModnameStmt FROM \"SELECT CAST(Language AS BINARY), CAST(Name AS BINARY) FROM modnames WHERE ModID = ?\";")) {
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
@@ -490,6 +504,10 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 		return;
 	}
 	std::map<int32_t, uint32_t> versions;
+
+	const Language clientLanguage = LanguageConverter::convert(msg->language);
+	const Language defaultLanguage = Language::English;
+	
 	for (auto vec : enabledResults) {
 		Mod mod;
 		mod.id = std::stoi(vec[0]);
@@ -502,13 +520,32 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 			return;
 		}
 		auto results = database.getResults<std::vector<std::string>>();
-		if (results.empty() || results[0].empty()) {
-			continue;
+
+		if (results.empty()) continue;
+
+		std::map<Language, std::string> names;
+
+		for (const auto & vec2 : results) {
+			const auto l = static_cast<Language>(std::stoi(vec2[0]));
+			const auto n = vec2[1];
+
+			names.insert(std::make_pair(l, n));
 		}
-		mod.name = results[0][0];
+
+		auto nameIt = names.find(clientLanguage);
+
+		if (nameIt == names.end()) {
+			nameIt = names.find(defaultLanguage);
+		}
+
+		if (nameIt == names.end()) {
+			nameIt = names.begin();
+		}
+
+		mod.name = nameIt->second;
 		mod.teamID = std::stoi(vec[1]);
-		const auto it = teamMembers.find(mod.teamID);
-		if (it != teamMembers.end()) {
+		const auto it = teamNames.find(mod.teamID);
+		if (it != teamNames.end()) {
 			mod.teamName = it->second;
 		}
 		mod.gothic = GameType(std::stoi(vec[2]));
@@ -555,7 +592,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 		const uint32_t updateDate = results.empty() ? 0 : std::stoi(results[0][0]);
 		mod.updateDate = std::max(mod.releaseDate, updateDate);
 
-		mod.language = LanguageConverter::convert(msg->language);
+		mod.language = nameIt->first;
 		
 		uamm.mods.push_back(mod);
 		versions.insert(std::make_pair(mod.id, version));
