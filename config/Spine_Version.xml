@@ -52,8 +52,6 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="21" patchVersion="0">
 		<File Hash="8b192a0521df2d4e7805a4bd3975787e29546766d0472d5c011969207bc7aa30e78024acbac459424d86a5959fd0cb1c4b40615c4e0ab396a666f18c885b2333">styles.css.z</File>
-		<File Hash="c517ddb25e6330b06edacac7acb5eed6a2b3e7d7ae613010c8b6c147f847145fabc3853ecda79a62467161012e500a968651b6d7692c5b32935411042d25a49e">bin/changelog.xml.z</File>
-		<File Hash="dbdabbcc3a986b8b4ed4bd4a7a8172aff032d768f1d211a931c0a2a817d813ecc455663c2ca8566bdc7027769e8920626db1786dbea38edcccb8ac8b5cbc650f">bin/Spine.exe.z</File>
 		<File Hash="1b8c4e731f792ecc1df320500970c60383b0a37b19690dba2c8677ee5c993ba36f17b12a2746b524ba0c7f4d99166627cbfbcd20b4224493f8286afa7923b97e">bin/SpineAPI.dll.z</File>
 		<File Hash="d713919bd5c6287a4b93811477b6224d3108650938cb0f676b8a4c55d7877703fd5dee6519dda40ee9341a93937ef0f1a8599ddfb737a2c40b2984299845d7b1">bin/SpineAPI64.dll.z</File>
 		<File Hash="6b077ae45e7eed9623ba17d9b3324b3a25fd6eb7313cd1dda57a1419f3fd06cdac2cfdb287e052dc5154e2d142c6cd2ee815a42536439165fd1250020ed8fc31">bin/discord_game_sdk.dll.z</File>
@@ -61,5 +59,9 @@
 		<File Hash="d93b1afed4f3e5d4b27207273c310002cb07e34fbcc57aa811032e6552eb0ac52d224374cba2d7a7f7eff1d3d700a08ef5311865383da0648e00e259ce53cefe">bin/en_US.qm.z</File>
 		<File Hash="b36219fc54550be02b3abc48d9f04030a6e716ecb478d7bad1fc8def25beef7850c6385ae1eb82a70a44269f28118edbeced87b7364bbd3e8b39881616ab88a3">bin/po_PO.qm.z</File>
 		<File Hash="8d03282441c36810e9373dc1d56189864eb0a6cc35f1012d8e6c2bed240965c310259a0ea7daa68fa44c197d6bac0e8a3cd5db1e4f14f8fd6771d52ddae8283e">bin/ru_RU.qm.z</File>
+	</Version>
+	<Version majorVersion="1" minorVersion="21" patchVersion="1">
+		<File Hash="a93b4e0855989d37342493052bf440f652f6e385a304610c1a3b607379ee7f6980f34319b12db22dab40da6533ea467b8ea9ddd8112ba74d7f789754d020795a">bin/changelog.xml.z</File>
+		<File Hash="e097e213a078c8f2b96981b0e9c374ecc794639a663b2f2ec9947feaf3b7e4f234dd8627c98c9c79f20129490c0fa503714b5a60929b0d1bc1932e73174a73f8">bin/Spine.exe.z</File>
 	</Version>
 </Versions>
