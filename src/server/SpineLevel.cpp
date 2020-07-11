@@ -154,6 +154,8 @@ SendUserLevelMessage SpineLevel::getLevel(int userID) {
 }
 
 void SpineLevel::updateLevel(int userID) {
+	if (userID == -1) return;
+	
 	std::lock_guard<std::mutex> lg(_updateQueueLock);
 
 	const auto it = std::find_if(_updateQueue.begin(), _updateQueue.end(), [userID](int id) {
@@ -462,7 +464,9 @@ void SpineLevel::cacheLevel(int userID) {
 	sulm.currentXP = currentXP;
 	sulm.nextXP = nextXP;
 
-	{
+	const auto username = ServerCommon::getUsername(userID);;
+
+	if (!username.empty()) {
 		do {
 			CONNECTTODATABASE(__LINE__);
 			
@@ -504,7 +508,7 @@ void SpineLevel::cacheLevel(int userID) {
 		_levels[userID] = sulm;
 	}
 
-	{
+	if (!username.empty()) {
 		std::lock_guard<std::mutex> lg(_rankingLock);
 		
 		const auto it = std::find_if(_rankings.begin(), _rankings.end(), [userID](const RankingEntry & re) {
@@ -516,7 +520,7 @@ void SpineLevel::cacheLevel(int userID) {
 			re.userID = userID;
 			re.xp = currentXP;
 			re.level = level;
-			re.username = ServerCommon::getUsername(userID);
+			re.username = username;
 			
 			_rankings.push_back(re);
 		} else {

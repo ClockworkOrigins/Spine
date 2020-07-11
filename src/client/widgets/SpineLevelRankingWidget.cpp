@@ -65,7 +65,7 @@ void SpineLevelRankingWidget::requestUpdate() {
 	delete _waitSpinner;
 	_waitSpinner = new WaitSpinner(QApplication::tr("LoadingScores"), this);
 
-	https::Https::postAsync(DATABASESERVER_PORT, "getSpineLevelRanking", "", [this](const QJsonObject & json, int status) {
+	https::Https::postAsync(DATABASESERVER_PORT, "getSpineLevelRanking", "", [this](const QJsonObject & json, int) {
 		const auto it = json.find("Names");
 		
 		QList<RankingEntry> rankingEntries;
