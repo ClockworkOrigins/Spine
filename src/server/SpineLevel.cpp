@@ -32,7 +32,7 @@ std::mutex SpineLevel::_lock;
 std::map<int, SendUserLevelMessage> SpineLevel::_levels;
 std::vector<SpineLevel::RankingEntry> SpineLevel::_rankings;
 std::mutex SpineLevel::_rankingLock;
-std::set<int> SpineLevel::_updateQueue;
+std::list<int> SpineLevel::_updateQueue;
 std::mutex SpineLevel::_updateQueueLock;
 
 void SpineLevel::init() {
@@ -108,10 +108,10 @@ void SpineLevel::init() {
 					re.xp = std::get<1>(it->second);
 
 					if (std::get<2>(it->second)) {
-						_updateQueue.insert(id);
+						_updateQueue.push_back(id);
 					}
 				} else {
-					_updateQueue.insert(id);
+					_updateQueue.push_back(id);
 				}
 				
 				_rankings.push_back(re);
@@ -122,8 +122,8 @@ void SpineLevel::init() {
 			_updateQueueLock.lock();
 			
 			if (!_updateQueue.empty()) {
-				const int id = *_updateQueue.begin();
-				_updateQueue.erase(id);
+				const int id = _updateQueue.front();
+				_updateQueue.pop_front();
 
 				_updateQueueLock.unlock();
 
@@ -155,13 +155,26 @@ SendUserLevelMessage SpineLevel::getLevel(int userID) {
 
 void SpineLevel::updateLevel(int userID) {
 	std::lock_guard<std::mutex> lg(_updateQueueLock);
-	_updateQueue.insert(userID);
+
+	const auto it = std::find_if(_updateQueue.begin(), _updateQueue.end(), [userID](int id) {
+		return userID == id;
+	});
+
+	if (it != _updateQueue.end()) return; // already queued
+	
+	_updateQueue.push_back(userID);
 }
 
 void SpineLevel::clear(const std::vector<int> & userList) {
 	std::lock_guard<std::mutex> lg(_updateQueueLock);
 	for (int userID : userList) {
-		_updateQueue.insert(userID);
+		const auto it = std::find_if(_updateQueue.begin(), _updateQueue.end(), [userID](int id) {
+			return userID == id;
+		});
+
+		if (it != _updateQueue.end()) continue; // already queued
+		
+		_updateQueue.push_back(userID);
 	}
 }
 
@@ -257,9 +270,12 @@ void SpineLevel::cacheLevel(int userID) {
 		}
 		auto lastResults = database.getResults<std::vector<std::string>>();
 		if (!lastResults.empty()) {
-			currentXP += std::stoi(lastResults[0][0]) * 50; // 50 EP per achievement
+			const int count = std::stoi(lastResults[0][0]);
+			currentXP += count * 50; // 50 EP per achievement
 
-			noSpine = false;
+			if (count > 0) {
+				noSpine = false;
+			}
 		}
 
 		// perfect games (all achievements)
@@ -290,7 +306,7 @@ void SpineLevel::cacheLevel(int userID) {
 			if (unlockedAchievementCount == achievementCount) {
 				currentXP += 1000; // 1000 EP for perfect games
 
-			noSpine = false;
+				noSpine = false;
 			}
 		}
 		
@@ -300,9 +316,13 @@ void SpineLevel::cacheLevel(int userID) {
 		}
 		lastResults = database.getResults<std::vector<std::string>>();
 		if (!lastResults.empty()) {
-			currentXP += std::stoi(lastResults[0][0]) * 100; // 100 EP per score
+			const int count = std::stoi(lastResults[0][0]);
+			
+			currentXP += count * 100; // 100 EP per score
 
-			noSpine = false;
+			if (count > 0) {
+				noSpine = false;
+			}
 		}
 		
 		if (!database.query("EXECUTE selectRatingsStmt USING @paramUserID;")) {
@@ -311,9 +331,13 @@ void SpineLevel::cacheLevel(int userID) {
 		}
 		lastResults = database.getResults<std::vector<std::string>>();
 		if (!lastResults.empty()) {
-			currentXP += std::stoi(lastResults[0][0]) * 250; // 250 EP per rating
+			const int count = std::stoi(lastResults[0][0]);
+			
+			currentXP += count * 250; // 250 EP per rating
 
-			noSpine = false;
+			if (count > 0) {
+				noSpine = false;
+			}
 		}
 		
 		if (!database.query("EXECUTE selectCompatibilitiesStmt USING @paramUserID;")) {
@@ -322,9 +346,13 @@ void SpineLevel::cacheLevel(int userID) {
 		}
 		lastResults = database.getResults<std::vector<std::string>>();
 		if (!lastResults.empty()) {
-			currentXP += std::stoi(lastResults[0][0]) * 10; // 10 EP per compatibility list entry
+			const int count = std::stoi(lastResults[0][0]);
+			
+			currentXP += count * 10; // 10 EP per compatibility list entry
 
-			noSpine = false;
+			if (count > 0) {
+				noSpine = false;
+			}
 		}
 
 		// play time over median or even third quartile gives some bonus XP
