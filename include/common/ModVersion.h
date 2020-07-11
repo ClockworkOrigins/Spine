@@ -32,11 +32,12 @@ namespace common {
 		int8_t majorVersion;
 		int8_t minorVersion;
 		int8_t patchVersion;
+		int language;
 
 		ModVersion() {
 		}
 
-		ModVersion(int i1, int i2, int i3, int i4) : modID(int32_t(i1)), majorVersion(int8_t(i2)), minorVersion(int8_t(i3)), patchVersion(int8_t(i4)) {
+		ModVersion(int i1, int i2, int i3, int i4) : modID(static_cast<int32_t>(i1)), majorVersion(static_cast<int8_t>(i2)), minorVersion(static_cast<int8_t>(i3)), patchVersion(static_cast<int8_t>(i4)) {
 		}
 
 		template<class Archive>
@@ -45,6 +46,7 @@ namespace common {
 			ar & majorVersion;
 			ar & minorVersion;
 			ar & patchVersion;
+			ar & language;
 		}
 	};
 

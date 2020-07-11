@@ -1156,6 +1156,7 @@ void Server::handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, ModVer
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
+	
 	SendModsToUpdateMessage smtum;
 	for (const ModVersion & mv : msg->modVersions) {
 		if (!database.query("SET @paramModID=" + std::to_string(mv.modID) + ";")) {
@@ -1203,7 +1204,9 @@ void Server::handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, ModVer
 			}
 
 			if ((mv.majorVersion != majorVersion || mv.minorVersion != minorVersion || mv.patchVersion != patchVersion) && enabled) {
-				if (!database.query("SET @paramLanguage='" + msg->language + "';")) {
+				const auto language = LanguageConverter::convert(static_cast<Language>(mv.language));
+				
+				if (!database.query("SET @paramLanguage='" + language + "';")) {
 					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 					break;
 				}
@@ -1316,19 +1319,24 @@ void Server::handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, ModVer
 					lastResults = database.getResults<std::vector<std::string>>();
 
 					mu.savegameCompatible = lastResults.empty();
+	
+					if (!database.query("SET @paramClientLanguage='" + msg->language + "';")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						return;
+					}
 					
-					if (!database.query("EXECUTE selectChangelogStmt USING @paramNewsID, @paramLanguage;")) {
+					if (!database.query("EXECUTE selectChangelogStmt USING @paramNewsID, @paramClientLanguage;")) {
 						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 						return;
 					}
 					lastResults = database.getResults<std::vector<std::string>>();
 
 					if (lastResults.empty() && msg->language != "English") {
-						if (!database.query("SET @paramLanguage='English';")) {
+						if (!database.query("SET @paramClientLanguage='English';")) {
 							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 							return;
 						}
-						if (!database.query("EXECUTE selectChangelogStmt USING @paramNewsID, @paramLanguage;")) {
+						if (!database.query("EXECUTE selectChangelogStmt USING @paramNewsID, @paramClientLanguage;")) {
 							std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 							return;
 						}

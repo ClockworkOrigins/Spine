@@ -364,7 +364,7 @@ namespace common {
 		std::vector<ModVersion> modVersions;
 		std::string username;
 		std::string password;
-		ModVersionCheckMessage() : Message(), language(), modVersions(), username(), password() {
+		ModVersionCheckMessage() : Message() {
 			type = MessageType::MODVERSIONCHECK;
 		}
 		template<class Archive>

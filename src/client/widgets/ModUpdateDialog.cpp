@@ -437,9 +437,24 @@ void ModUpdateDialog::checkForUpdate() {
 	_running = true;
 	QtConcurrent::run([this]() {
 		Database::DBError err;
+
+		struct ProjectLanguage {
+			int id;
+			int language;
+		};
+		
 		std::vector<common::ModVersion> m = Database::queryAll<common::ModVersion, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, MajorVersion, MinorVersion, PatchVersion FROM mods;", err);
-		for (common::ModVersion mv : m) {
+		std::vector<ProjectLanguage> pl = Database::queryAll<ProjectLanguage, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ProjectID, Language FROM languages;", err);
+		for (common::ModVersion & mv : m) {
 			_oldVersions.insert(mv.modID, QString("%1.%2.%3").arg(static_cast<int>(mv.majorVersion)).arg(static_cast<int>(mv.minorVersion)).arg(static_cast<int>(mv.patchVersion)));
+
+			const auto it = std::find_if(pl.begin(), pl.end(), [mv](const ProjectLanguage & p) {
+				return p.id == mv.modID;
+			});
+
+			if (it == pl.end()) continue;
+
+			mv.language = it->language;
 		}
 		common::ModVersionCheckMessage mvcm;
 		mvcm.modVersions = m;

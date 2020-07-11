@@ -1885,4 +1885,9 @@
 		<Bug language="English">Vastly improved caching performance of Spine level</Bug>
 		<Bug language="English">Discord Rich Presence now really works</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="22" patchVersion="0">
+		<Enhancement language="Deutsch">Download-Sprache statt Client-Sprache wird jetzt für Updates genutzt</Enhancement>
+		
+		<Enhancement language="English">Download language instead of client language now is used for updates</Enhancement>
+	</Version>
 </Versions>
