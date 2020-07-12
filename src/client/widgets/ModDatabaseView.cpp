@@ -22,6 +22,7 @@
 
 #include "DatabaseFilterModel.h"
 #include "FontAwesome.h"
+#include "IconCache.h"
 #include "InstallMode.h"
 #include "SpineConfig.h"
 #include "Uninstaller.h"
@@ -35,9 +36,11 @@
 #include "utils/Database.h"
 #include "utils/DownloadQueue.h"
 #include "utils/FileDownloader.h"
+#include "utils/ImageMerger.h"
 #include "utils/LanguageConverter.h"
 #include "utils/MultiFileDownloader.h"
 
+#include "widgets/CenteredIconDelegate.h"
 #include "widgets/UpdateLanguage.h"
 
 #include "clockUtils/sockets/TcpSocket.h"
@@ -70,6 +73,9 @@ using namespace spine::widgets;
 
 namespace spine {
 namespace widgets {
+namespace {
+	QMap<int, QPixmap> languagePixmaps;
+}
 	
 	struct InstalledMod {
 		InstalledMod(const int i1, const int i2, const int i3, const int i4, const int i5) : id(i1), gothicVersion(common::GameType(i2)), majorVersion(i3), minorVersion(i4), patchVersion(i5) {
@@ -183,13 +189,14 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 	_treeView->header()->setStretchLastSection(true);
 	_treeView->header()->setDefaultAlignment(Qt::AlignHCenter);
 	_treeView->header()->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
-	_sourceModel->setHorizontalHeaderLabels(QStringList() << QApplication::tr("ID") << QApplication::tr("Name") << QApplication::tr("Author") << QApplication::tr("Type") << QApplication::tr("Game") << QApplication::tr("DevTime") << QApplication::tr("AvgTime") << QApplication::tr("ReleaseDate") << QApplication::tr("UpdateDate") << QApplication::tr("Version") << QApplication::tr("DownloadSize") << QString());
+	_sourceModel->setHorizontalHeaderLabels(QStringList() << QApplication::tr("ID") << QApplication::tr("Name") << QApplication::tr("Author") << QApplication::tr("Type") << QApplication::tr("Game") << QApplication::tr("DevTime") << QApplication::tr("AvgTime") << QApplication::tr("ReleaseDate") << QApplication::tr("UpdateDate") << QApplication::tr("Version") << QApplication::tr("Languages") << QApplication::tr("DownloadSize") << QString());
 	_treeView->setAlternatingRowColors(true);
 	_treeView->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
 	_treeView->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
 	_treeView->setMinimumWidth(800);
 	_treeView->setSortingEnabled(true);
 	_treeView->sortByColumn(DatabaseColumn::Release);
+	_treeView->setItemDelegate(new CenteredIconDelegate(_treeView));
 
 	connect(_treeView->header(), &QHeaderView::sectionClicked, this, &ModDatabaseView::sortByColumn);
 
@@ -402,12 +409,67 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "CREATE TABLE IF NOT EXISTS patches(ModID INT NOT NULL, Name TEXT NOT NULL);", err);
 	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "CREATE TABLE IF NOT EXISTS packages(ModID INT NOT NULL, PackageID INT NOT NULL, File TEXT NOT NULL);", err);
 	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "CREATE TABLE IF NOT EXISTS languages(ProjectID INT PRIMARY KEY, Language INT NOT NULL);", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "CREATE TABLE IF NOT EXISTS supportedLanguages(ProjectID INT PRIMARY KEY, Languages INT NOT NULL);", err);
 
 	_sortModel->setRendererAllowed(true);
 
 	updateDatabaseEntries();
 
 	updateModList(-1, -1, InstallMode::None);
+
+	const auto iconDE = IconCache::getInstance()->getOrLoadIcon(":/languages/de-DE.png");
+	const auto iconEN = IconCache::getInstance()->getOrLoadIcon(":/languages/en-US.png");
+	const auto iconPL = IconCache::getInstance()->getOrLoadIcon(":/languages/pl-PL.png");
+	const auto iconRU = IconCache::getInstance()->getOrLoadIcon(":/languages/ru-RU.png");
+	
+	auto pmDE = iconDE.pixmap(iconDE.availableSizes().first());
+	auto pmEN = iconEN.pixmap(iconEN.availableSizes().first());
+	auto pmPL = iconPL.pixmap(iconPL.availableSizes().first());
+	auto pmRU = iconRU.pixmap(iconRU.availableSizes().first());
+
+	pmDE = pmDE.scaled(25, 25, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	pmEN = pmEN.scaled(25, 25, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	pmPL = pmPL.scaled(25, 25, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	pmRU = pmRU.scaled(25, 25, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+	languagePixmaps.insert(common::German, pmDE);
+	languagePixmaps.insert(common::English, pmEN);
+	languagePixmaps.insert(common::Polish, pmPL);
+	languagePixmaps.insert(common::Russian, pmRU);
+
+	const QPixmap pmDEEN = ImageMerger::merge(pmDE, pmEN);
+	const QPixmap pmDEPL = ImageMerger::merge(pmDE, pmPL);
+	const QPixmap pmDERU = ImageMerger::merge(pmDE, pmRU);
+	
+	const QPixmap pmENPL = ImageMerger::merge(pmEN, pmPL);
+	const QPixmap pmENRU = ImageMerger::merge(pmEN, pmRU);
+	
+	const QPixmap pmPLRU = ImageMerger::merge(pmPL, pmRU);
+
+	languagePixmaps.insert(common::German | common::English, pmDEEN);
+	languagePixmaps.insert(common::German | common::Polish, pmDEPL);
+	languagePixmaps.insert(common::German | common::Russian, pmDERU);
+	
+	languagePixmaps.insert(common::English | common::Polish, pmENPL);
+	languagePixmaps.insert(common::English | common::Russian, pmENRU);
+	
+	languagePixmaps.insert(common::Polish | common::Russian, pmPLRU);
+
+	const QPixmap pmDEENPL = ImageMerger::merge(pmDE, pmEN, pmPL);
+	const QPixmap pmDEENRU = ImageMerger::merge(pmDE, pmEN, pmRU);
+	const QPixmap pmDEPLRU = ImageMerger::merge(pmDE, pmPL, pmRU);
+	
+	const QPixmap pmENPLRU = ImageMerger::merge(pmEN, pmPL, pmRU);
+	
+	languagePixmaps.insert(common::German | common::English | common::Polish, pmDEENPL);
+	languagePixmaps.insert(common::German | common::English | common::Russian, pmDEENRU);
+	languagePixmaps.insert(common::German | common::Polish | common::Russian, pmDEPLRU);
+	
+	languagePixmaps.insert(common::English | common::Polish | common::Russian, pmENPLRU);
+	
+	const QPixmap pmDEENPLRU = ImageMerger::merge(pmDE, pmEN, pmPL, pmRU);
+	
+	languagePixmaps.insert(common::German | common::English | common::Polish | common::Russian, pmDEENPLRU);
 }
 
 void ModDatabaseView::changeLanguage(QString) {
@@ -424,7 +486,7 @@ void ModDatabaseView::updateModList(int modID, int packageID, InstallMode mode) 
 	}
 	if (!_cached) {
 		_waitSpinner = new WaitSpinner(QApplication::tr("LoadingDatabase"), this);
-		_sourceModel->setHorizontalHeaderLabels(QStringList() << QApplication::tr("ID") << QApplication::tr("Name") << QApplication::tr("Author") << QApplication::tr("Type") << QApplication::tr("Game") << QApplication::tr("DevTime") << QApplication::tr("AvgTime") << QApplication::tr("ReleaseDate") << QApplication::tr("UpdateDate") << QApplication::tr("Version") << QApplication::tr("DownloadSize") << QString());
+		_sourceModel->setHorizontalHeaderLabels(QStringList() << QApplication::tr("ID") << QApplication::tr("Name") << QApplication::tr("Author") << QApplication::tr("Type") << QApplication::tr("Game") << QApplication::tr("DevTime") << QApplication::tr("AvgTime") << QApplication::tr("ReleaseDate") << QApplication::tr("UpdateDate") << QApplication::tr("Version") << QApplication::tr("Languages") << QApplication::tr("DownloadSize") << QString());
 	}
 	QtConcurrent::run([this, modID, packageID]() {
 		if (!_cached) {
@@ -648,7 +710,13 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 		QStandardItem * idItem = new IntItem(mod.id);
 		idItem->setEditable(false);
 
-		_sourceModel->appendRow(QList<QStandardItem *>() << idItem << nameItem << teamItem << typeItem << gameItem << devTimeItem << avgTimeItem << releaseDateItem << updateDateItem << versionItem << sizeItem << buttonItem);
+		QStandardItem * languagesItem = new QStandardItem();
+
+		const auto pm = languagePixmaps[mod.supportedLanguages];
+		
+		languagesItem->setData(QVariant(pm), Qt::DecorationRole);
+
+		_sourceModel->appendRow(QList<QStandardItem *>() << idItem << nameItem << teamItem << typeItem << gameItem << devTimeItem << avgTimeItem << releaseDateItem << updateDateItem << versionItem << languagesItem << sizeItem << buttonItem);
 		for (int i = 0; i < _sourceModel->columnCount(); i++) {
 			_sourceModel->setData(_sourceModel->index(row, i), Qt::AlignCenter, Qt::TextAlignmentRole);
 		}
@@ -663,13 +731,26 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 			releaseDateItem->setEnabled(false);
 			updateDateItem->setEnabled(false);
 			versionItem->setEnabled(false);
+			languagesItem->setEnabled(false);
 			sizeItem->setEnabled(false);
 			buttonItem->setEnabled(false);
 		}
+		
 		_parentMods.insert(mod.id, _sourceModel->index(row, 0));
 		row++;
 	}
 	_mods = mods;
+
+	QtConcurrent::run([mods]() {
+		for (const auto & mod : mods) {
+			Database::DBError err;
+			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO supportedLanguages (ProjectID, Languages) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(mod.supportedLanguages) + ");", err);
+
+			if (err.error) {
+				Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE supportedLanguages SET Languges = " + std::to_string(mod.supportedLanguages) + " WHERE ProjectID = " + std::to_string(mod.id) + ";", err);
+			}
+		}
+	});
 }
 
 void ModDatabaseView::selectedIndex(const QModelIndex & index) {
@@ -969,6 +1050,11 @@ void ModDatabaseView::updatePackageList(std::vector<common::UpdatePackageListMes
 					QStandardItem * itm = new QStandardItem();
 					itm->setEditable(false);
 					par->setChild(i, DatabaseColumn::Version, itm);
+				}
+				{
+					QStandardItem * itm = new QStandardItem();
+					itm->setEditable(false);
+					par->setChild(i, DatabaseColumn::Languages, itm);
 				}
 				break;
 			}

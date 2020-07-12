@@ -3228,5 +3228,9 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>SubscribeNewsletter</source>
         <translation>Für Newsletter anmelden</translation>
     </message>
+    <message>
+        <source>Languages</source>
+        <translation>Sprachen</translation>
+    </message>
 </context>
 </TS>

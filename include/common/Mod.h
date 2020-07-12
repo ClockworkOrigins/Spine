@@ -48,6 +48,7 @@ namespace common {
 		uint64_t downloadSize;
 		uint32_t updateDate;
 		Language language;
+		uint16_t supportedLanguages;
 
 		Mod() {}
 
@@ -68,6 +69,7 @@ namespace common {
 			ar & downloadSize;
 			ar & updateDate;
 			ar & language;
+			ar & supportedLanguages;
 		}
 	};
 

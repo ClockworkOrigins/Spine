@@ -32,5 +32,10 @@
 	<file alias="svg/star-half.svg">svg/star-half.svg</file>
 	<file alias="svg/star-edit.svg">svg/star-edit.svg</file>
 	<file alias="svg/star-edit-full.svg">svg/star-edit-full.svg</file>
+	
+	<file alias="languages/de-DE.png">languages/de-DE.png</file>
+	<file alias="languages/en-US.png">languages/en-US.png</file>
+	<file alias="languages/pl-PL.png">languages/pl-PL.png</file>
+	<file alias="languages/ru-RU.png">languages/ru-RU.png</file>
 </qresource>
 </RCC>

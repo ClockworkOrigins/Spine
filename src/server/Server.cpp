@@ -525,11 +525,15 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 
 		std::map<Language, std::string> names;
 
+		mod.supportedLanguages = 0;
+
 		for (const auto & vec2 : results) {
 			const auto l = static_cast<Language>(std::stoi(vec2[0]));
 			const auto n = vec2[1];
 
 			names.insert(std::make_pair(l, n));
+
+			mod.supportedLanguages |= l;
 		}
 
 		auto nameIt = names.find(clientLanguage);

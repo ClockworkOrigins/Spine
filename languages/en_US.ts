@@ -3236,5 +3236,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>SubscribeNewsletter</source>
         <translation>Subscribe for newsletter</translation>
     </message>
+    <message>
+        <source>Languages</source>
+        <translation>Languages</translation>
+    </message>
 </context>
 </TS>

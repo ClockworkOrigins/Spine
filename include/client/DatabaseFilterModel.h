@@ -33,6 +33,7 @@ namespace spine {
 		Release,
 		Update,
 		Version,
+		Languages,
 		Size,
 		Install
 	};

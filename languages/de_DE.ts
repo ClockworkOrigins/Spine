@@ -3228,5 +3228,9 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>SubscribeNewsletter</source>
         <translation>Für Newsletter anmelden</translation>
     </message>
+    <message>
+        <source>Languages</source>
+        <translation>Sprachen</translation>
+    </message>
 </context>
 </TS>
