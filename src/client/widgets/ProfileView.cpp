@@ -64,7 +64,7 @@ using namespace spine::https;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-ProfileView::ProfileView(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _nameLabel(nullptr), _timeLabel(nullptr), _backToProfileButton(nullptr), _modnameLabel(nullptr), _achievmentDescriptionLabel(nullptr), _scrollArea(nullptr), _mainWidget(nullptr), _scrollLayout(nullptr), _achievementsWidget(nullptr), _achievementsLayout(nullptr), _scoresWidget(nullptr), _mods(), _achievements(), _gothicDirectory(), _gothic2Directory(), _specialPage(false), _hidePatchesAndToolsBox(nullptr), _mainWindow(mainWindow), _waitSpinner(nullptr), _hiddenAchievementsView(nullptr) {
+ProfileView::ProfileView(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _nameLabel(nullptr), _timeLabel(nullptr), _backToProfileButton(nullptr), _modnameLabel(nullptr), _achievmentDescriptionLabel(nullptr), _scrollArea(nullptr), _mainWidget(nullptr), _scrollLayout(nullptr), _achievementsWidget(nullptr), _achievementsLayout(nullptr), _scoresWidget(nullptr), _specialPage(false), _hidePatchesAndToolsBox(nullptr), _mainWindow(mainWindow), _waitSpinner(nullptr), _hiddenAchievementsView(nullptr) {
 	QVBoxLayout * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
