@@ -38,17 +38,17 @@ namespace widgets {
 		ModUpdateDialog(QMainWindow * mainWindow);
 
 	signals:
-		void receivedMods(std::vector<common::ModUpdate>);
+		void receivedMods(std::vector<common::ModUpdate>, bool);
 		void updateStarted(int);
 		void updatedMod(int);
 
 	public slots:
 		void loginChanged();
 		void checkForUpdate();
-		void checkForUpdate(int32_t modID);
+		void checkForUpdate(int32_t modID, bool forceAccept);
 
 	private slots:
-		void updateModList(std::vector<common::ModUpdate> updates);
+		void updateModList(std::vector<common::ModUpdate> updates, bool);
 		void accept() override;
 		void reject() override;
 

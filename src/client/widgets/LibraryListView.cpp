@@ -18,17 +18,25 @@
 
 #include "widgets/LibraryListView.h"
 
+#include "SpineConfig.h"
+#include "IconCache.h"
 #include "LibraryFilterModel.h"
+
+#include "common/Language.h"
+
+#include "utils/Config.h"
+#include "utils/Database.h"
 
 #include <QApplication>
 #include <QContextMenuEvent>
 #include <QMenu>
 
-using namespace spine;
+using namespace spine::client;
+using namespace spine::common;
+using namespace spine::utils;
 using namespace spine::widgets;
 
-LibraryListView::LibraryListView(QWidget * par) : QListView(par) {
-}
+LibraryListView::LibraryListView(QWidget * par) : QListView(par) {}
 
 void LibraryListView::contextMenuEvent(QContextMenuEvent * evt) {
 	if (!selectedIndexes().empty()) {
@@ -44,10 +52,82 @@ void LibraryListView::contextMenuEvent(QContextMenuEvent * evt) {
 			}
 			QAction * uninstallModAction = menu->addAction(QApplication::tr("Uninstall"));
 			connect(uninstallModAction, &QAction::triggered, this, &LibraryListView::uninstallModTriggered);
+
+			const int projectID = idx.data(LibraryFilterModel::ModIDRole).toInt();
+
+			Database::DBError err;
+			auto l = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Languages FROM supportedLanguages WHERE ProjectID = " + std::to_string(projectID) + " LIMIT 1;", err);
+			auto cl = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Language FROM languages WHERE ProjectID = " + std::to_string(projectID) + " LIMIT 1;", err);
+
+			const int currentLanguage = cl.empty() ? English : cl[0];
+
+			if (!l.empty()) {
+				const int languages = l[0];
+				
+				menu->addSeparator();
+
+				QMenu * languageMenu = menu->addMenu(QApplication::tr("Language"));
+
+				if (languages & English) {
+					QAction * a = languageMenu->addAction(IconCache::getInstance()->getOrLoadIcon(":/languages/en-US.png"), QApplication::tr("English"));
+
+					if (currentLanguage != English) {
+						connect(a, &QAction::triggered, [this, projectID]() {
+							changeLanguage(projectID, English);
+						});
+					} else {
+						a->setChecked(true);
+					}
+				}
+
+				if (languages & German) {
+					QAction * a = languageMenu->addAction(IconCache::getInstance()->getOrLoadIcon(":/languages/de-DE.png"), QApplication::tr("German"));
+
+					if (currentLanguage != German) {
+						connect(a, &QAction::triggered, [this, projectID]() {
+							changeLanguage(projectID, German);
+						});
+					} else {
+						a->setChecked(true);
+					}
+				}
+
+				if (languages & Polish) {
+					QAction * a = languageMenu->addAction(IconCache::getInstance()->getOrLoadIcon(":/languages/pl-PL.png"), QApplication::tr("Polish"));
+
+					if (currentLanguage != Polish) {
+						connect(a, &QAction::triggered, [this, projectID]() {
+							changeLanguage(projectID, Polish);
+						});
+					} else {
+						a->setChecked(true);
+					}
+				}
+
+				if (languages & Russian) {
+					QAction * a = languageMenu->addAction(IconCache::getInstance()->getOrLoadIcon(":/languages/ru-RU.png"), QApplication::tr("Russian"));
+
+					if (currentLanguage != Russian) {
+						connect(a, &QAction::triggered, [this, projectID]() {
+							changeLanguage(projectID, Russian);
+						});
+					} else {
+						a->setChecked(true);
+					}
+				}
+			}
+			
 			menu->popup(viewport()->mapToGlobal(evt->pos()));
 			menu->exec();
 			delete menu;
 		}
 	}
 	evt->accept();
+}
+
+void LibraryListView::changeLanguage(int projectID, int language) {
+	Database::DBError err;
+	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE languages SET Language = " + std::to_string(language) + " WHERE ProjectID = " + std::to_string(projectID) + ";", err);
+
+	emit forceUpdate(projectID, true);
 }

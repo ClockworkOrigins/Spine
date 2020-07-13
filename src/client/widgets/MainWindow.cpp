@@ -757,6 +757,8 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 
 		connect(_modUpdateDialog, &ModUpdateDialog::updatedMod, LauncherFactory::getInstance(), &LauncherFactory::updateFinished);
 		connect(_modUpdateDialog, &ModUpdateDialog::updatedMod, _modInfoPage, &ModInfoPage::updateFinished);
+
+		connect(_modListView, &LibraryListView::forceUpdate, _modUpdateDialog, static_cast<void(ModUpdateDialog::*)(int32_t, bool)>(&ModUpdateDialog::checkForUpdate));
 	}
 }
 
@@ -1014,7 +1016,7 @@ void MainWindow::execManagement() {
 	connect(&dlg, &client::widgets::ManagementDialog::triggerInfoPage, _modInfoPage, &ModInfoPage::loadPage);
 	connect(&dlg, &client::widgets::ManagementDialog::triggerInfoPage, this, &MainWindow::changeToInfoTab);
 	connect(&dlg, &client::widgets::ManagementDialog::triggerInfoPage, _modInfoPage, &ModInfoPage::forceEditPage);
-	connect(&dlg, &client::widgets::ManagementDialog::checkForUpdate, _modUpdateDialog, static_cast<void(ModUpdateDialog::*)(int32_t)>(&ModUpdateDialog::checkForUpdate));
+	connect(&dlg, &client::widgets::ManagementDialog::checkForUpdate, _modUpdateDialog, static_cast<void(ModUpdateDialog::*)(int32_t, bool)>(&ModUpdateDialog::checkForUpdate));
 	dlg.exec();
 }
 

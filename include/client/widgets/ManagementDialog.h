@@ -50,7 +50,7 @@ namespace widgets {
 	signals:
 		void receivedMods(QList<ManagementMod>);
 		void triggerInfoPage(int32_t);
-		void checkForUpdate(int32_t);
+		void checkForUpdate(int32_t, bool);
 
 	private slots:
 		void updateModList(QList<client::ManagementMod> modList);

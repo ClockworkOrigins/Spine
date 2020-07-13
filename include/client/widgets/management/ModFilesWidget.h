@@ -57,7 +57,7 @@ namespace widgets {
 	signals:
 		void finishedUpload(bool, int);
 		void updateUploadText(QString);
-		void checkForUpdate(int32_t);
+		void checkForUpdate(int32_t, bool);
 		void updateProgress(int);
 		void updateProgressMax(int);
 		void removeSpinner();

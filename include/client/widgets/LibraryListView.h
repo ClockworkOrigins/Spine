@@ -33,6 +33,10 @@ namespace widgets {
 		void hideModTriggered();
 		void showModTriggered();
 		void uninstallModTriggered();
+		void forceUpdate(int projectID, bool forceAccept);
+
+	private slots:
+		void changeLanguage(int projectID, int language);
 
 	private:
 		void contextMenuEvent(QContextMenuEvent * evt) override;

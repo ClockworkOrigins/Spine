@@ -48,6 +48,7 @@
 #include <QVBoxLayout>
 
 using namespace spine;
+using namespace spine::common;
 using namespace spine::gui;
 using namespace spine::utils;
 using namespace spine::widgets;
@@ -109,7 +110,7 @@ void ModUpdateDialog::loginChanged() {
 	}
 }
 
-void ModUpdateDialog::updateModList(std::vector<common::ModUpdate> updates) {
+void ModUpdateDialog::updateModList(std::vector<common::ModUpdate> updates, bool forceAccept) {
 	if (updates.empty()) {
 		_infoLabel->setText(QApplication::tr("NoModUpdates"));
 		_running = false;
@@ -171,7 +172,7 @@ void ModUpdateDialog::updateModList(std::vector<common::ModUpdate> updates) {
 			}
 		}
 		if (!_updates.empty()) {
-			if (visibleCount > 0) {
+			if (visibleCount > 0 && !forceAccept) {
 				exec();
 			} else {
 				accept();
@@ -471,17 +472,17 @@ void ModUpdateDialog::checkForUpdate() {
 					if (msg) {
 						const common::SendModsToUpdateMessage * smtum = dynamic_cast<common::SendModsToUpdateMessage *>(msg);
 						if (smtum) {
-							emit receivedMods(smtum->updates);
+							emit receivedMods(smtum->updates, false);
 						} else {
 							qDebug() << static_cast<int>(msg->type);
-							emit receivedMods(std::vector<common::ModUpdate>());
+							emit receivedMods(std::vector<common::ModUpdate>(), false);
 						}
 					} else {
-						emit receivedMods(std::vector<common::ModUpdate>());
+						emit receivedMods(std::vector<common::ModUpdate>(), false);
 					}
 					delete msg;
 				} catch (...) {
-					emit receivedMods(std::vector<common::ModUpdate>());
+					emit receivedMods(std::vector<common::ModUpdate>(), false);
 					return;
 				}
 			}
@@ -489,13 +490,17 @@ void ModUpdateDialog::checkForUpdate() {
 	});
 }
 
-void ModUpdateDialog::checkForUpdate(int32_t modID) {
+void ModUpdateDialog::checkForUpdate(int32_t modID, bool forceAccept) {
 	_running = true;
-	QtConcurrent::run([this, modID]() {
+	QtConcurrent::run([this, modID, forceAccept]() {
 		std::vector<common::ModVersion> m = { common::ModVersion(modID, 0, 0, 0) };
-		for (common::ModVersion mv : m) {
-			_oldVersions.insert(mv.modID, QString("%1.%2.%3").arg(static_cast<int>(mv.majorVersion)).arg(static_cast<int>(mv.minorVersion)).arg(static_cast<int>(mv.patchVersion)));
-		}
+		Database::DBError err;
+		std::vector<common::ModVersion> m2 = Database::queryAll<common::ModVersion, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, MajorVersion, MinorVersion, PatchVersion FROM mods WHERE ModID = " + std::to_string(modID) + " LIMIT 1;", err);
+		std::vector<int> cl = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Language FROM languages WHERE ProjectID = " + std::to_string(modID) + " LIMIT 1;", err);
+		
+		_oldVersions.insert(modID, QString("%1.%2.%3").arg(static_cast<int>(m2.empty() ? m[0].majorVersion : m2[0].majorVersion)).arg(static_cast<int>(m2.empty() ? m[0].minorVersion : m2[0].minorVersion)).arg(static_cast<int>(m2.empty() ? m[0].patchVersion : m2[0].patchVersion)));
+		m[0].language = cl.empty() ? English : cl[0];
+		
 		common::ModVersionCheckMessage mvcm;
 		mvcm.modVersions = m;
 		mvcm.language = Config::Language.toStdString();
@@ -511,17 +516,17 @@ void ModUpdateDialog::checkForUpdate(int32_t modID) {
 					if (msg) {
 						common::SendModsToUpdateMessage * smtum = dynamic_cast<common::SendModsToUpdateMessage *>(msg);
 						if (smtum) {
-							emit receivedMods(smtum->updates);
+							emit receivedMods(smtum->updates, forceAccept);
 						} else {
 							qDebug() << static_cast<int>(msg->type);
-							emit receivedMods(std::vector<common::ModUpdate>());
+							emit receivedMods(std::vector<common::ModUpdate>(), forceAccept);
 						}
 					} else {
-						emit receivedMods(std::vector<common::ModUpdate>());
+						emit receivedMods(std::vector<common::ModUpdate>(), forceAccept);
 					}
 					delete msg;
 				} catch (...) {
-					emit receivedMods(std::vector<common::ModUpdate>());
+					emit receivedMods(std::vector<common::ModUpdate>(), forceAccept);
 					return;
 				}
 			}

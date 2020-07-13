@@ -507,7 +507,7 @@ void ModFilesWidget::finishUpload(bool success, int updatedCount) {
 void ModFilesWidget::testUpdate() {
 	if (_modIndex == -1) return;
 
-	emit checkForUpdate(_mods[_modIndex].id);
+	emit checkForUpdate(_mods[_modIndex].id, false);
 }
 
 void ModFilesWidget::addFile(QString fullPath, QString relativePath, QString file) {
