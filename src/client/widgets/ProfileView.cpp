@@ -529,11 +529,14 @@ void ProfileView::linkWithDiscord() {
 	if (!DiscordManager::instance()->isConnected()) return;
 
 	QJsonObject requestData;
-	requestData["Username"] = Config::Username;
-	requestData["Password"] = Config::Password;
-	requestData["DiscordID"] = static_cast<qint64>(DiscordManager::instance()->getUserID());
+	requestData["username"] = Config::Username;
+	requestData["password"] = Config::Password;
+
+	const qint64 discordID = static_cast<qint64>(DiscordManager::instance()->getUserID());
 	
-	https::Https::postAsync(SERVER_PORT, "linkToDiscord", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+	requestData["DiscordID"] = QString::number(discordID);
+	
+	https::Https::postAsync(19101, "linkToDiscord", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
 		if (statusCode != 200) return;
 		
 		if (!json.contains("Linked")) return;
@@ -550,10 +553,10 @@ void ProfileView::unlinkFromDiscord() {
 	if (!DiscordManager::instance()->isConnected()) return;
 
 	QJsonObject requestData;
-	requestData["Username"] = Config::Username;
-	requestData["Password"] = Config::Password;
+	requestData["username"] = Config::Username;
+	requestData["password"] = Config::Password;
 	
-	https::Https::postAsync(SERVER_PORT, "unlinkFromDiscord", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+	https::Https::postAsync(19101, "unlinkFromDiscord", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
 		if (statusCode != 200) return;
 		
 		if (!json.contains("Linked")) return;
@@ -570,10 +573,10 @@ void ProfileView::requestDiscordLinkage() {
 	if (!DiscordManager::instance()->isConnected()) return;
 
 	QJsonObject requestData;
-	requestData["Username"] = Config::Username;
-	requestData["Password"] = Config::Password;
+	requestData["username"] = Config::Username;
+	requestData["password"] = Config::Password;
 	
-	https::Https::postAsync(SERVER_PORT, "isLinkedWithDiscord", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+	https::Https::postAsync(19101, "isLinkedWithDiscord", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
 		if (statusCode != 200) return;
 		
 		if (!json.contains("Linked")) return;
