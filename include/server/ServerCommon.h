@@ -46,6 +46,8 @@ namespace server {
 		static void sendMail(const std::string & subject, const std::string & body, const std::string & replyTo);
 		static void sendMail(const std::string & subject, const std::string & body, const std::string & replyTo, const std::string & receiver);
 		static bool isValidUserID(int userID);
+
+		static std::string getProjectName(int projectID, int preferredLanguage);
 	};
 
 } /* namespace server */

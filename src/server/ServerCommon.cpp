@@ -23,10 +23,14 @@
 #include <regex>
 #include <thread>
 
+#include "LanguageConverter.h"
 #include "MariaDBWrapper.h"
 #include "SpineServerConfig.h"
 #include "Smtp.h"
 
+#include "common/Language.h"
+
+using namespace spine::common;
 using namespace spine::server;
 
 std::string ServerCommon::convertString(const std::string & str) {
@@ -218,4 +222,57 @@ bool ServerCommon::isValidUserID(int userID) {
 	const auto results = accountDatabase.getResults<std::vector<std::string>>();
 
 	return !results.empty();
+}
+
+std::string ServerCommon::getProjectName(int projectID, int preferredLanguage) {
+	do {
+		CONNECTTODATABASE(__LINE__);
+		
+		if (!database.query("PREPARE selectProjectNameStmt FROM \"SELECT CAST(Name AS BINARY) FROM projectNames WHERE ProjectID = ? AND Language & ? LIMIT 1\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("SET @paramProjectID=" + std::to_string(projectID) + ";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("SET @paramLanguage=" + std::to_string(preferredLanguage) + ";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("SET @paramEnglishLanguage=" + std::to_string(English) + ";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("SET @paramFallbackLanguage=0;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("EXECUTE selectProjectNameStmt USING @paramProjectID, @paramLanguage;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			break;
+		}
+		auto results = database.getResults<std::vector<std::string>>();
+		if (results.empty()) {
+			if (!database.query("EXECUTE selectProjectNameStmt USING @paramProjectID, @paramEnglishLanguage;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			results = database.getResults<std::vector<std::string>>();
+			
+			if (results.empty()) {
+				if (!database.query("EXECUTE selectProjectNameStmt USING @paramProjectID, @paramFallbackLanguage;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					break;
+				}
+				results = database.getResults<std::vector<std::string>>();
+				
+				if (results.empty()) break;
+			}
+		}
+
+		return results[0][0];
+	} while (false);
+
+	return "";
 }

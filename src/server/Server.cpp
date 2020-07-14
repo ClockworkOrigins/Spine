@@ -392,15 +392,15 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 			return;
 		}
 		auto lastResults = database.getResults<std::vector<std::string>>();
-		if (!database.query("PREPARE selectTeamnameStmt FROM \"SELECT CAST(Name AS BINARY) FROM teamnames WHERE TeamID = ? AND Language = ? LIMIT 1\";")) {
+		if (!database.query("PREPARE selectTeamnameStmt FROM \"SELECT CAST(Name AS BINARY) FROM teamNames WHERE TeamID = ? AND Languages & ? LIMIT 1\";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			return;
 		}
-		if (!database.query("SET @paramLanguage='" + msg->language + "';")) {
+		if (!database.query("SET @paramLanguage=" + std::to_string(LanguageConverter::convert(msg->language)) + ";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			return;
 		}
-		if (!database.query("SET @paramFallbackLanguage='English';")) {
+		if (!database.query("SET @paramFallbackLanguage=" + std::to_string(English) + ";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			return;
 		}
@@ -491,7 +491,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 		}
 	}
 	UpdateAllModsMessage uamm;
-	if (!database.query("PREPARE selectModnameStmt FROM \"SELECT CAST(Language AS BINARY), CAST(Name AS BINARY) FROM modnames WHERE ModID = ?\";")) {
+	if (!database.query("PREPARE selectModnameStmt FROM \"SELECT Languages, CAST(Name AS BINARY) FROM projectNames WHERE ProjectID = ?\";")) {
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
@@ -515,7 +515,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			return;
 		}
-		if (!database.query("EXECUTE selectModnameStmt USING @paramModID, @paramLanguage;")) {
+		if (!database.query("EXECUTE selectModnameStmt USING @paramModID;")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
@@ -523,7 +523,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 
 		if (results.empty()) continue;
 
-		std::map<Language, std::string> names;
+		std::map<int, std::string> names;
 
 		mod.supportedLanguages = 0;
 
@@ -536,14 +536,26 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 			mod.supportedLanguages |= l;
 		}
 
-		auto nameIt = names.find(clientLanguage);
+		Language l = Language::None;
+		
+		auto nameIt = std::find_if(names.begin(), names.end(), [clientLanguage](const std::pair<int, std::string> & p) {
+			return p.first & clientLanguage;
+		});
 
 		if (nameIt == names.end()) {
-			nameIt = names.find(defaultLanguage);
-		}
+			nameIt = std::find_if(names.begin(), names.end(), [defaultLanguage](const std::pair<int, std::string> & p) {
+				return p.first & defaultLanguage;
+			});
 
-		if (nameIt == names.end()) {
-			nameIt = names.begin();
+			if (nameIt == names.end()) {
+				nameIt = names.begin();
+
+				l = nameIt->first & German ? German : nameIt->first & English ? English : nameIt->first & Polish ? Polish : nameIt->first & Russian ? Russian : None;
+			} else {
+				l = defaultLanguage;
+			}
+		} else {
+			l = clientLanguage;
 		}
 
 		mod.name = nameIt->second;
@@ -552,12 +564,12 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 		if (it != teamNames.end()) {
 			mod.teamName = it->second;
 		}
-		mod.gothic = GameType(std::stoi(vec[2]));
+		mod.gothic = static_cast<GameType>(std::stoi(vec[2]));
 		mod.releaseDate = std::stoi(vec[3]);
-		mod.type = ModType(std::stoi(vec[4]));
-		mod.majorVersion = int8_t(std::stoi(vec[5]));
-		mod.minorVersion = int8_t(std::stoi(vec[6]));
-		mod.patchVersion = int8_t(std::stoi(vec[7]));
+		mod.type = static_cast<ModType>(std::stoi(vec[4]));
+		mod.majorVersion = static_cast<int8_t>(std::stoi(vec[5]));
+		mod.minorVersion = static_cast<int8_t>(std::stoi(vec[6]));
+		mod.patchVersion = static_cast<int8_t>(std::stoi(vec[7]));
 		if (!database.query("EXECUTE selectDevtimeStmt USING @paramModID;")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			continue;
@@ -596,7 +608,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 		const uint32_t updateDate = results.empty() ? 0 : std::stoi(results[0][0]);
 		mod.updateDate = std::max(mod.releaseDate, updateDate);
 
-		mod.language = nameIt->first;
+		mod.language = l;
 		
 		uamm.mods.push_back(mod);
 		versions.insert(std::make_pair(mod.id, version));
@@ -1181,10 +1193,6 @@ void Server::handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, ModVer
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
-	if (!database.query("PREPARE selectNameStmt FROM \"SELECT CAST(Name AS BINARY) FROM modnames WHERE ModID = ? AND Language = ? LIMIT 1\";")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-		return;
-	}
 	if (!database.query("PREPARE selectNewsIDStmt FROM \"SELECT NewsID FROM newsticker WHERE ProjectID = ? AND Type = ? ORDER BY NewsID DESC LIMIT 1\";")) {
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
@@ -1251,15 +1259,8 @@ void Server::handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, ModVer
 					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 					break;
 				}
-				if (!database.query("EXECUTE selectNameStmt USING @paramModID, @paramLanguage;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-					break;
-				}
-				auto lastNameResults = database.getResults<std::vector<std::string>>();
-				std::string name;
-				if (!lastNameResults.empty()) {
-					name = lastNameResults[0][0];
-				}
+				std::string name = ServerCommon::getProjectName(mv.modID, LanguageConverter::convert(language));
+				
 				ModUpdate mu;
 				mu.modID = mv.modID;
 				mu.name = name;
@@ -1452,7 +1453,7 @@ void Server::handleFeedback(clockUtils::sockets::TcpSocket * sock, FeedbackMessa
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				break;
 			}
-			if (!accountDatabase.query("PREPARE selectProjectNameStmt FROM \"SELECT Name FROM modnames WHERE ModID = ? LIMIT 1\";")) {
+			if (!accountDatabase.query("PREPARE selectProjectNameStmt FROM \"SELECT Name FROM projectNames WHERE ProjectID = ? LIMIT 1\";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				break;
 			}
@@ -1686,10 +1687,6 @@ void Server::handleRequestAllModStats(clockUtils::sockets::TcpSocket * sock, Req
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			return;
 		}
-		if (!database.query("PREPARE selectModNameStmt FROM \"SELECT CAST(Name AS BINARY) FROM modnames WHERE ModID = ? AND Language = ? LIMIT 1\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			return;
-		}
 		if (!database.query("PREPARE selectLastTimePlayedStmt FROM \"SELECT Timestamp FROM lastPlayTimes WHERE ModID = ? AND UserID = ? LIMIT 1\";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			return;
@@ -1714,7 +1711,15 @@ void Server::handleRequestAllModStats(clockUtils::sockets::TcpSocket * sock, Req
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			return;
 		}
-		if (!database.query("SET @paramLanguage='" + msg->language + "';")) {
+		if (!database.query("SET @paramLanguage=" + std::to_string(LanguageConverter::convert(msg->language)) + ";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			return;
+		}
+		if (!database.query("SET @paramEnglishLanguage=" + std::to_string(English) + ";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			return;
+		}
+		if (!database.query("SET @paramFallbackLanguage=0;")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			return;
 		}
@@ -1729,7 +1734,7 @@ void Server::handleRequestAllModStats(clockUtils::sockets::TcpSocket * sock, Req
 		auto lastResults = database.getResults<std::vector<std::string>>();
 		SendAllModStatsMessage samsm;
 		for (auto vec : lastResults) {
-			// get mod name in current language
+			// get mod name in current language if available
 			ModStats ms;
 			ms.modID = std::stoi(vec[0]);
 			ms.duration = std::stoi(vec[1]);
@@ -1738,23 +1743,14 @@ void Server::handleRequestAllModStats(clockUtils::sockets::TcpSocket * sock, Req
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				continue;
 			}
-			if (!database.query("EXECUTE selectModNameStmt USING @paramModID, @paramLanguage;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-				continue;
-			}
-			auto results = database.getResults<std::vector<std::string>>();
-			if (results.empty()) {
-				continue;
-			}
-			ms.name = results[0][0];
+			ms.name = ServerCommon::getProjectName(std::stoi(vec[0]), LanguageConverter::convert(msg->language));
 			if (!database.query("EXECUTE selectModTypeStmt USING @paramModID;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				continue;
 			}
-			results = database.getResults<std::vector<std::string>>();
-			if (results.empty()) {
-				continue;
-			}
+			auto results = database.getResults<std::vector<std::string>>();
+			if (results.empty()) continue;
+
 			ms.type = ModType(std::stoi(results[0][0]));
 			if (!database.query("EXECUTE selectLastTimePlayedStmt USING @paramModID, @paramUserID;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
@@ -2306,14 +2302,6 @@ void Server::handleRequestAllNews(clockUtils::sockets::TcpSocket * sock, Request
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
-	if (!database.query("PREPARE selectModnameStmt FROM \"SELECT CAST(Name AS BINARY) FROM modnames WHERE ModID = ? AND Language = ? LIMIT 1\";")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-		return;
-	}
-	if (!database.query("PREPARE selectSomeNameStmt FROM \"SELECT CAST(Name AS BINARY) FROM modnames WHERE ModID = ? LIMIT 1\";")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-		return;
-	}
 	if (!database.query("PREPARE selectNewsTicker FROM \"SELECT NewsID, Type, ProjectID, Date FROM newsticker ORDER BY NewsID DESC\";")) {
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
@@ -2323,6 +2311,18 @@ void Server::handleRequestAllNews(clockUtils::sockets::TcpSocket * sock, Request
 		return;
 	}
 	if (!database.query("SET @paramLanguage='" + msg->language + "';")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return;
+	}
+	if (!database.query("SET @paramLanguageI=" + std::to_string(LanguageConverter::convert(msg->language)) + ";")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return;
+	}
+	if (!database.query("SET @paramEnglishLanguageI=" + std::to_string(English) + ";")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return;
+	}
+	if (!database.query("SET @paramFallbackLanguageI=0;")) {
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
@@ -2357,18 +2357,7 @@ void Server::handleRequestAllNews(clockUtils::sockets::TcpSocket * sock, Request
 		}
 		auto results = database.getResults<std::vector<std::string>>();
 		for (auto modID : results) {
-			if (!database.query("SET @paramModID=" + modID[0] + ";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				continue;
-			}
-			if (!database.query("EXECUTE selectModnameStmt USING @paramModID, @paramLanguage;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-				continue;
-			}
-			auto modname = database.getResults<std::vector<std::string>>();
-			if (!modname.empty()) {
-				news.referencedMods.emplace_back(std::stoi(modID[0]), modname[0][0]);
-			}
+			news.referencedMods.emplace_back(std::stoi(modID[0]), ServerCommon::getProjectName(std::stoi(modID[0]), LanguageConverter::convert(msg->language)));
 		}
 		if (!database.query("EXECUTE selectImagesStmt USING @paramNewsID;")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
@@ -2396,36 +2385,10 @@ void Server::handleRequestAllNews(clockUtils::sockets::TcpSocket * sock, Request
 		nt.type = type;
 		nt.projectID = projectID;
 		nt.timestamp = timestamp;
-		
-		if (!database.query("SET @paramProjectID=" + vec[2] + ";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			continue;
-		}
-		if (!database.query("EXECUTE selectModnameStmt USING @paramProjectID, @paramLanguage;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-			continue;
-		}
-		auto r = database.getResults<std::vector<std::string>>();
 
-		if (r.empty()) {
-			if (!database.query("EXECUTE selectModnameStmt USING @paramProjectID, @paramFallbackLanguage;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-				continue;
-			}
-			r = database.getResults<std::vector<std::string>>();
-		}
+		nt.name = ServerCommon::getProjectName(std::stoi(vec[2]), LanguageConverter::convert(msg->language));
 
-		if (r.empty()) {
-			if (!database.query("EXECUTE selectSomeNameStmt USING @paramProjectID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-				continue;
-			}
-			r = database.getResults<std::vector<std::string>>();
-		}
-
-		if (r.empty()) continue; // this mustn't happen, but let's be cautious
-
-		nt.name = r[0][0];
+		if (nt.name.empty()) continue;
 
 		if (type == NewsTickerType::Update) {		
 			if (!database.query("SET @paramNewsID=" + vec[0] + ";")) {
@@ -2436,7 +2399,7 @@ void Server::handleRequestAllNews(clockUtils::sockets::TcpSocket * sock, Request
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				continue;
 			}
-			r = database.getResults<std::vector<std::string>>();
+			const auto r = database.getResults<std::vector<std::string>>();
 
 			if (r.empty()) continue; // this mustn't happen, but let's be cautious
 
@@ -2902,10 +2865,6 @@ void Server::handleRequestInfoPage(clockUtils::sockets::TcpSocket * sock, Reques
 		std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
-	if (!database.query("PREPARE selectModnameStmt FROM \"SELECT CAST(Name AS BINARY) FROM modnames WHERE ModID = ? AND Language = ? LIMIT 1\";")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-		return;
-	}
 	if (!database.query("PREPARE selectScreensStmt FROM \"SELECT Image, Hash FROM screens WHERE ModID = ?\";")) {
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
@@ -2978,19 +2937,17 @@ void Server::handleRequestInfoPage(clockUtils::sockets::TcpSocket * sock, Reques
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
-	if (!database.query("EXECUTE selectModnameStmt USING @paramModID, @paramLanguage;")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-		return;
-	}
-	auto lastResults = database.getResults<std::vector<std::string>>();
+
+	const auto projectName = ServerCommon::getProjectName(msg->modID, LanguageConverter::convert(msg->language));
+	
 	SendInfoPageMessage sipm;
-	if (!lastResults.empty()) {
-		sipm.modname = lastResults[0][0];
+	if (!projectName.empty()) {
+		sipm.modname = projectName;
 		if (!database.query("EXECUTE selectScreensStmt USING @paramModID;")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
-		lastResults = database.getResults<std::vector<std::string>>();
+		auto lastResults = database.getResults<std::vector<std::string>>();
 		for (auto p : lastResults) {
 			sipm.screenshots.emplace_back(p[0], p[1]);
 		}
@@ -3434,11 +3391,11 @@ void Server::handleRequestRandomMod(clockUtils::sockets::TcpSocket * sock, Reque
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
-		if (!database.query("PREPARE selectLanguageStmt FROM \"SELECT ModID FROM modnames WHERE ModID = ? AND Language = ? LIMIT 1\";")) {
+		if (!database.query("PREPARE selectLanguageStmt FROM \"SELECT ProjectID FROM projectNames WHERE ModID = ? AND Languages & ? LIMIT 1\";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
-		if (!database.query("PREPARE selectRandomModStmt FROM \"SELECT ModID FROM modnames WHERE Language = ?\";")) {
+		if (!database.query("PREPARE selectRandomModStmt FROM \"SELECT ProjectID FROM projectNames WHERE Languages & ?\";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
@@ -3450,7 +3407,7 @@ void Server::handleRequestRandomMod(clockUtils::sockets::TcpSocket * sock, Reque
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
-		if (!database.query("SET @paramLanguage='" + msg->language + "';")) {
+		if (!database.query("SET @paramLanguage=" + std::to_string(LanguageConverter::convert(msg->language)) + ";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
@@ -3975,10 +3932,6 @@ void Server::handleRequestModsForEditor(clockUtils::sockets::TcpSocket * sock, R
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
-		if (!database.query("PREPARE selectModNameStmt FROM \"SELECT CAST(Name AS BINARY) FROM modnames WHERE ModID = ? AND Language = ? LIMIT 1\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			break;
-		}
 		if (!database.query("PREPARE selectLockedAchievementImagesStmt FROM \"SELECT LockedIcon, LockedHash FROM modAchievementIcons WHERE ModID = ?\";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
@@ -4015,15 +3968,12 @@ void Server::handleRequestModsForEditor(clockUtils::sockets::TcpSocket * sock, R
 					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 					break;
 				}
-				if (!database.query("EXECUTE selectModNameStmt USING @paramModID, @paramLanguage;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-					break;
-				}
-				auto nameResults = database.getResults<std::vector<std::string>>();
-				if (!nameResults.empty()) {
+				const auto projectName = ServerCommon::getProjectName(std::stoi(mod[0]), LanguageConverter::convert(msg->language));
+				
+				if (!projectName.empty()) {
 					SendModsForEditorMessage::ModForEditor mfe;
 					mfe.modID = std::stoi(mod[0]);
-					mfe.name = nameResults[0][0];
+					mfe.name = projectName;
 					if (!database.query("EXECUTE selectLockedAchievementImagesStmt USING @paramModID;")) {
 						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 						break;

@@ -18,6 +18,7 @@
 
 #include "ManagementServer.h"
 
+#include "LanguageConverter.h"
 #include "MariaDBWrapper.h"
 #include "ServerCommon.h"
 #include "SpineServerConfig.h"
@@ -126,17 +127,7 @@ void ManagementServer::getMods(std::shared_ptr<HttpsServer::Response> response, 
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			if (!database.query("PREPARE selectModNameStmt FROM \"SELECT CAST(Name AS BINARY) FROM modnames WHERE ModID = ? AND Language = CONVERT(? USING BINARY) LIMIT 1\";")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
-				code = SimpleWeb::StatusCode::client_error_failed_dependency;
-				break;
-			}
 			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
-				code = SimpleWeb::StatusCode::client_error_failed_dependency;
-				break;
-			}
-			if (!database.query("SET @paramLanguage='" + language + "';")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
@@ -170,22 +161,12 @@ void ManagementServer::getMods(std::shared_ptr<HttpsServer::Response> response, 
 				}
 				auto results = database.getResults<std::vector<std::string>>();
 				for (auto mod : results) {
-					if (!database.query("SET @paramModID=" + mod[0] + ";")) {
-						std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
-						code = SimpleWeb::StatusCode::client_error_failed_dependency;
-						break;
-					}
-					if (!database.query("EXECUTE selectModNameStmt USING @paramModID, @paramLanguage;")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-						code = SimpleWeb::StatusCode::client_error_failed_dependency;
-						break;
-					}
-					auto nameResults = database.getResults<std::vector<std::string>>();
+					const auto projectName = ServerCommon::getProjectName(std::stoi(mod[0]), LanguageConverter::convert(language));
 
-					if (nameResults.empty()) continue;
+					if (projectName.empty()) continue;
 
 					ptree modNode;
-					modNode.put("Name", nameResults[0][0]);
+					modNode.put("Name", projectName);
 					modNode.put("ID", std::stoi(mod[0]));
 					modNodes.push_back(std::make_pair("", modNode));
 				}
