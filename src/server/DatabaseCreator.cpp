@@ -322,4 +322,16 @@ void DatabaseCreator::createTables() {
 		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
+	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS projectPrivileges (ProjectID INT NOT NULL, UserID INT NOT NULL, Privileges BIGINT NOT NULL, PRIMARY KEY (ProjectID, UserID));"))) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS userPrivileges (UserID INT PRIMARY KEY, Privileges BIGINT NOT NULL);"))) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS teamPrivileges (TeamID INT NOT NULL, UserID INT NOT NULL, Privileges BIGINT NOT NULL, PRIMARY KEY (TeamID, UserID));"))) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
 }
