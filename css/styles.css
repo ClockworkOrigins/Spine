@@ -183,6 +183,10 @@ QTabBar {
 	font-size: 14px;
 }
 
+QTabBar::tab:!selected {
+	background: #F6F6F6;
+}
+
 QTabBar::tab:hover {
 	background: #808080;
 	color: #FFFFFF;
@@ -379,4 +383,8 @@ QPushButton[newsTicker=true] {
 
 QPushButton::hover[newsTicker=true] {
 	background-color: #EEEEEE;
+}
+
+QProgressBar::chunk {
+    background-color: #800000;
 }

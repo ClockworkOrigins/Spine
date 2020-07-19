@@ -26,7 +26,6 @@ namespace widgets {
 	class AchievementOrientationPreview : public QDialog {
 	public:
 		AchievementOrientationPreview(int type, QWidget * parent);
-		~AchievementOrientationPreview();
 
 	private:
 		int _type;

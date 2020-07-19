@@ -24,6 +24,7 @@
 #include <QFontMetrics>
 #include <QHBoxLayout>
 #include <QPainter>
+#include <QPainterPath>
 #include <QStyleOption>
 
 using namespace spine;

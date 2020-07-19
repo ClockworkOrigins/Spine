@@ -207,9 +207,12 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 
 		Config::IniParser->setValue("MISC/Version", QString::fromStdString(VERSION_STRING));
 	}
+	
+	setProperty("default", true);
 
 	_tabWidget = new QTabWidget(this);
-	_tabWidget->setProperty("library", true);
+	_tabWidget->setProperty("library", true);	
+	_tabWidget->setProperty("default", true);
 
 	StartPageWidget * startPage = new StartPageWidget(_tabWidget);
 	connect(_settingsDialog->getGeneralSettingsWidget(), &GeneralSettingsWidget::languageChanged, startPage, &StartPageWidget::setLanguage);

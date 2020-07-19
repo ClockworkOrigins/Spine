@@ -21,10 +21,18 @@ mkdir "%PREFIX%\include"
 mkdir "%PREFIX%\lib"
 mkdir "%PREFIX%\src"
 
+IF [%VSSOLUTIONARCH%] == [x86] (
+	SET ARCHFOLDER=x86
+)
+
+IF [%VSSOLUTIONARCH%] == [x64] (
+	SET ARCHFOLDER=x86_64
+)
+
 xcopy /S /Y "%BUILD_DIR%\cpp\*.h" "%PREFIX%\include\"
 xcopy /S /Y "%BUILD_DIR%\cpp\*.cpp" "%PREFIX%\src\"
-xcopy /F "%BUILD_DIR%/lib/x86/discord_game_sdk.dll" "%PREFIX%/lib/discord_game_sdk.dll*"
-xcopy /F "%BUILD_DIR%/lib/x86/discord_game_sdk.dll.lib" "%PREFIX%/lib/discord_game_sdk.dll.lib*"
+xcopy /F "%BUILD_DIR%/lib/%ARCHFOLDER%/discord_game_sdk.dll" "%PREFIX%/lib/discord_game_sdk.dll*"
+xcopy /F "%BUILD_DIR%/lib/%ARCHFOLDER%/discord_game_sdk.dll.lib" "%PREFIX%/lib/discord_game_sdk.dll.lib*"
 
 echo "Cleaning up"
 

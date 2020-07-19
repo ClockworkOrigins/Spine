@@ -175,6 +175,8 @@ namespace {
 ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _mainWindow(mainWindow), _treeView(nullptr), _sourceModel(nullptr), _sortModel(nullptr), _gothicValid(false), _gothic2Valid(false), _waitSpinner(nullptr), _allowRenderer(false), _cached(false) {
 	QVBoxLayout * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
+	
+	setProperty("default", true);
 
 	_treeView = new QTreeView(this);
 	_sourceModel = new QStandardItemModel(this);
@@ -195,7 +197,7 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 	_treeView->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
 	_treeView->setMinimumWidth(800);
 	_treeView->setSortingEnabled(true);
-	_treeView->sortByColumn(DatabaseColumn::Release);
+	_treeView->sortByColumn(DatabaseColumn::Release, Qt::DescendingOrder);
 	_treeView->setItemDelegate(new CenteredIconDelegate(_treeView));
 
 	connect(_treeView->header(), &QHeaderView::sectionClicked, this, &ModDatabaseView::sortByColumn);

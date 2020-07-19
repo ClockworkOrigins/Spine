@@ -129,6 +129,7 @@ namespace widgets {
 
 		struct Rating {
 			QProgressBar * shareView;
+			QLabel * text;
 		};
 
 		QList<Rating> _ratings;

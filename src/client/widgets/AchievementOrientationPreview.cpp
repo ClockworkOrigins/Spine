@@ -21,6 +21,7 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QPainter>
+#include <QPainterPath>
 
 using namespace spine;
 using namespace spine::widgets;
@@ -29,12 +30,9 @@ AchievementOrientationPreview::AchievementOrientationPreview(int type, QWidget *
 	setWindowState(windowState() | Qt::WindowState::WindowFullScreen);
 }
 
-AchievementOrientationPreview::~AchievementOrientationPreview() {
-}
-
 void AchievementOrientationPreview::paintEvent(QPaintEvent *) {
 	QPainter p(this);
-	p.setRenderHints(QPainter::HighQualityAntialiasing);
+	p.setRenderHints(QPainter::Antialiasing);
 	QColor backgroundColor;
 	backgroundColor.setNamedColor("#000000");
 

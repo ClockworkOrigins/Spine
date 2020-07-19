@@ -20,6 +20,8 @@
 
 #include <memory>
 
+#include "utils/Conversion.h"
+
 #include <QCryptographicHash>
 #include <QDebug>
 #include <QDir>
@@ -37,91 +39,12 @@
 using namespace spine::security;
 
 #ifdef Q_OS_WIN
-DWORD __forceinline IsInsideVPC_exceptionFilter(LPEXCEPTION_POINTERS ep) {
-	PCONTEXT ctx = ep->ContextRecord;
-
-	ctx->Ebx = -1; // Not running VPC
-	ctx->Eip += 4; // skip past the "call VPC" opcodes
-	return EXCEPTION_CONTINUE_EXECUTION;
-	// we can safely resume execution since we skipped faulty instruction
-}
-
-// High level language friendly version of IsInsideVPC()
-bool isInsideVpc() {
-	const bool rc = false;
-
-	/*__try {
-		_asm push ebx
-		_asm mov  ebx, 0 // It will stay ZERO if VPC is running
-		_asm mov  eax, 1 // VPC function number
-
-		// call VPC 
-		_asm __emit 0Fh
-		_asm __emit 3Fh
-		_asm __emit 07h
-		_asm __emit 0Bh
-
-		_asm test ebx, ebx
-		_asm setz[rc]
-			_asm pop ebx
-	}
-	// The except block shouldn't get triggered if VPC is running!!
-	__except (IsInsideVPC_exceptionFilter(GetExceptionInformation())) {
-	}*/
-
-	return rc;
-}
-
-bool IsInsideVMWare() {
-	bool rc = true;
-
-	__try {
-		__asm
-		{
-			push   edx
-				push   ecx
-				push   ebx
-
-				mov    eax, 'VMXh'
-				mov    ebx, 0 // any value but not the MAGIC VALUE
-				mov    ecx, 10 // get VMWare version
-				mov    edx, 'VX' // port number
-
-				in     eax, dx // read port
-				// on return EAX returns the VERSION
-				cmp    ebx, 'VMXh' // is it a reply from VMWare?
-				setz[rc] // set return value
-
-				pop    ebx
-				pop    ecx
-				pop    edx
-		}
-	} __except (EXCEPTION_EXECUTE_HANDLER) {
-		rc = false;
-	}
-
-	return rc;
-}
-
-bool isInsideVM() {
-	unsigned char m[2 + 4], rpill[] = "\x0f\x01\x0d\x00\x00\x00\x00\xc3";
-	*reinterpret_cast<unsigned*>(&rpill[3]) = unsigned(m);
-	reinterpret_cast<void(*)()>(&rpill)();
-	return m[5] > 0xd0;
-}
-
-bool isGuestOSVM() {
-	unsigned int cpuInfo[4];
-	__cpuid(reinterpret_cast<int*>(cpuInfo), 1);
-	return ((cpuInfo[2] >> 31) & 1) == 1;
-}
-
 std::string exec(const char* cmd) {
     QProcess execProcess;
-	execProcess.start(cmd);
+	execProcess.start(s2q(cmd), {}, QIODevice::ReadWrite);
 	execProcess.waitForFinished();
 	const QByteArray arr = execProcess.readAll();
-	const std::string result = arr.toStdString();
+	std::string result = arr.toStdString();
 
     return result;
 }
@@ -131,9 +54,6 @@ QString Hash::calculateSystemHash() {
 	const std::string serialnumber = exec("wmic DISKDRIVE get SerialNumber");
 	QString clearString = getProductID() + getHarddriveNumber() /*+ getProcessorID()*/;
 	clearString = QString::fromStdString(uuid) + QString::fromStdString(serialnumber);
-	if (IsInsideVMWare() || isInsideVpc() || isGuestOSVM()) {
-		clearString = "Virtual Machine";
-	}
 	
 	clearString.remove("UUID", Qt::CaseInsensitive);
 	clearString.remove("SerialNumber", Qt::CaseInsensitive);
@@ -163,9 +83,9 @@ QString Hash::getMAC() {
 	QString mac;
 
 	for (IP_ADAPTER_INFO * pos = info; pos != nullptr;) {
-		mac = QString("%1").arg(int(pos->Address[0]), 2, 16, QChar('0'));
+		mac = QString("%1").arg(static_cast<int>(pos->Address[0]), 2, 16, QChar('0'));
 		for (UINT i = 1; i < pos->AddressLength; i++) {
-			mac += QString(":%1").arg(int(pos->Address[i]), 2, 16, QChar('0'));
+			mac += QString(":%1").arg(static_cast<int>(pos->Address[i]), 2, 16, QChar('0'));
 		}
 		break;
 	}

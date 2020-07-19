@@ -54,6 +54,8 @@ using namespace spine::widgets;
 StartPageWidget::StartPageWidget(QWidget * par) : QWidget(par) {
 	QVBoxLayout * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
+	
+	setProperty("default", true);
 
 	QLabel * welcomeLabel = new QLabel(QApplication::tr("WelcomeText"), this);
 	welcomeLabel->setWordWrap(true);

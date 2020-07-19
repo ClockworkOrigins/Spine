@@ -131,12 +131,13 @@ LoginDialog::LoginDialog(QWidget *) : QDialog(nullptr), _connected(false), _dont
 		memcpy(buf, arr.data(), std::min(bytesRead, quint64(4098)));
 
 		if (bytesRead) {
-			int pathLength;
-			int pathLengthCompressed;
-			memcpy(&pathLength, buf, sizeof(int));
-			memcpy(&pathLengthCompressed, buf + sizeof(int), sizeof(int));
-			const std::string compressedPath = std::string(buf + 2 * sizeof(int), pathLengthCompressed);
-			std::string d = std::string(buf + 2 * sizeof(int) + pathLengthCompressed, bytesRead - 2 * sizeof(int) - pathLengthCompressed);
+			int32_t pathLength;
+			int32_t pathLengthCompressed;
+			memcpy(&pathLength, buf, sizeof(int32_t));
+			memcpy(&pathLengthCompressed, buf + sizeof(int32_t), sizeof(int32_t));
+			
+			const std::string compressedPath = std::string(buf + 2 * sizeof(int32_t), pathLengthCompressed);
+			std::string d = std::string(buf + 2 * sizeof(int32_t) + pathLengthCompressed, bytesRead - 2 * sizeof(int32_t) - pathLengthCompressed);
 
 			if (!d.empty()) {
 				QDir homeDir = QDir::home();
@@ -147,12 +148,15 @@ LoginDialog::LoginDialog(QWidget *) : QDialog(nullptr), _connected(false), _dont
 						if (homeDir.absolutePath() == QString::fromStdString(path)) {
 							std::string decompressed;
 							if (clockUtils::ClockError::SUCCESS == dec.decompress(d, decompressed)) {
-								size_t usernameLength;
-								memcpy(&usernameLength, decompressed.c_str(), sizeof(size_t));
-								username.append(decompressed, sizeof(size_t), usernameLength);
-								size_t passwordLength;
-								memcpy(&passwordLength, decompressed.c_str() + sizeof(size_t) + usernameLength, sizeof(size_t));
-								password.append(decompressed, sizeof(size_t) * 2 + usernameLength, passwordLength);
+								uint32_t usernameLength;
+								memcpy(&usernameLength, decompressed.c_str(), sizeof(uint32_t));
+
+								username.append(decompressed, sizeof(uint32_t), usernameLength);
+
+								uint32_t passwordLength;
+								memcpy(&passwordLength, decompressed.c_str() + sizeof(uint32_t) + usernameLength, sizeof(uint32_t));
+
+								password.append(decompressed, sizeof(uint32_t) * 2 + usernameLength, passwordLength);
 							}
 						}
 					}

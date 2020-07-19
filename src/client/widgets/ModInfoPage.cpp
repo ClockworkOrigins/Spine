@@ -301,8 +301,11 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 			r.shareView->setValue(0);
 			r.shareView->setFormat("(%v)");
 			r.shareView->setFixedWidth(300);
+			r.shareView->setTextVisible(false);
+			r.text = new QLabel(_ratingsBox);
 
 			horiLayout->addWidget(r.shareView);
+			horiLayout->addWidget(r.text);
 
 			horiLayout->addStretch(1);
 
@@ -887,18 +890,23 @@ void ModInfoPage::updateRatings(int rating1, int rating2, int rating3, int ratin
 
 	_ratings[4].shareView->setMaximum(sum);
 	_ratings[4].shareView->setValue(rating1);
+	_ratings[4].text->setText(QString("(%1)").arg(rating1));
 
 	_ratings[3].shareView->setMaximum(sum);
 	_ratings[3].shareView->setValue(rating2);
+	_ratings[3].text->setText(QString("(%1)").arg(rating2));
 
 	_ratings[2].shareView->setMaximum(sum);
 	_ratings[2].shareView->setValue(rating3);
+	_ratings[2].text->setText(QString("(%1)").arg(rating3));
 
 	_ratings[1].shareView->setMaximum(sum);
 	_ratings[1].shareView->setValue(rating4);
+	_ratings[1].text->setText(QString("(%1)").arg(rating4));
 
 	_ratings[0].shareView->setMaximum(sum);
 	_ratings[0].shareView->setValue(rating5);
+	_ratings[0].text->setText(QString("(%1)").arg(rating5));
 
 	_ratingsBox->show();
 }
