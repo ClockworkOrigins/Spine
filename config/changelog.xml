@@ -1890,12 +1890,14 @@
 		<Enhancement language="Deutsch">Datenbank zeigt jetzt immer alle Projekte an unabhängig von der Sprache</Enhancement>
 		<Enhancement language="Deutsch">Unterstützte Sprachen pro Projekt werden jetzt in der Datenbank angezeigt</Enhancement>
 		<Enhancement language="Deutsch">Unterstützt ein Projekt verschiedene Sprachen, kann in der Bibliothek jetzt die Sprache der Installation gewechselt werden</Enhancement>
+		<Enhancement language="Deutsch">Qt auf 5.15.0 aktualisiert und auf 64bit umgestellt</Enhancement>
 		<Bug language="Deutsch">Discord-Account-Linking korrigiert</Bug>
 		
 		<Enhancement language="English">Download language instead of client language now is used for updates</Enhancement>
 		<Enhancement language="English">Database now always displays all projects no matter what the language is</Enhancement>
 		<Enhancement language="English">Supported languages of each project now are displayed in database</Enhancement>
 		<Enhancement language="English">When a project supports multiple languages the language now can be switched in the library</Enhancement>
+		<Enhancement language="English">Updated to Qt 5.15.0 and switched to 64bit</Enhancement>
 		<Bug language="English">Fixed Discord account linking</Bug>
 	</Version>
 </Versions>
