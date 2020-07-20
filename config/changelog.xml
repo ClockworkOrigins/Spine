@@ -1892,6 +1892,7 @@
 		<Enhancement language="Deutsch">Unterstützt ein Projekt verschiedene Sprachen, kann in der Bibliothek jetzt die Sprache der Installation gewechselt werden</Enhancement>
 		<Enhancement language="Deutsch">Qt auf 5.15.0 aktualisiert und auf 64bit umgestellt</Enhancement>
 		<Bug language="Deutsch">Discord-Account-Linking korrigiert</Bug>
+		<Bug language="Deutsch">Upload von lediglich geänderter Sprache funktioniert jetzt</Bug>
 		
 		<Enhancement language="English">Download language instead of client language now is used for updates</Enhancement>
 		<Enhancement language="English">Database now always displays all projects no matter what the language is</Enhancement>
@@ -1899,5 +1900,6 @@
 		<Enhancement language="English">When a project supports multiple languages the language now can be switched in the library</Enhancement>
 		<Enhancement language="English">Updated to Qt 5.15.0 and switched to 64bit</Enhancement>
 		<Bug language="English">Fixed Discord account linking</Bug>
+		<Bug language="English">Fixed upload of only changed language</Bug>
 	</Version>
 </Versions>

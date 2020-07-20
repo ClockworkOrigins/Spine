@@ -183,6 +183,7 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 							error = true;
 							break;
 						}
+						currentIndex++;
 					} else {
 						// now we have to receive a new file, so set currentSize and go on
 						currentSize = mf.size;
