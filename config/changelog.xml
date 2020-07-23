@@ -1885,6 +1885,11 @@
 		<Bug language="English">Vastly improved caching performance of Spine level</Bug>
 		<Bug language="English">Discord Rich Presence now really works</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="21" patchVersion="2">
+		<Bug language="Deutsch">Kompatibilitätsproblem mit Union behoben</Bug>
+		
+		<Bug language="English">Fixed compatibility issue with Union</Bug>
+	</Version>
 	<Version majorVersion="1" minorVersion="22" patchVersion="0">
 		<Enhancement language="Deutsch">Download-Sprache statt Client-Sprache wird jetzt für Updates genutzt</Enhancement>
 		<Enhancement language="Deutsch">Datenbank zeigt jetzt immer alle Projekte an unabhängig von der Sprache</Enhancement>

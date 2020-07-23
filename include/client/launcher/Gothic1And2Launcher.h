@@ -136,7 +136,7 @@ namespace launcher {
 		
 		QMap<QString, std::tuple<QString, int32_t>> _parsedInis;
 
-		bool _running;
+		bool _running = false;
 
 		void start() override;
 		
