@@ -1435,7 +1435,10 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 			for (const std::pair<std::string, std::string> & file : patchFiles) {
 				QString filename = QString::fromStdString(file.first);
 
-				 if (canSkipFile(filename)) continue;
+				if (canSkipFile(filename)) continue;
+
+				if (patchID == 320 && getGothicVersion() == common::GameType::Gothic2 && filename.contains("binkw32.dll", Qt::CaseInsensitive)) continue;
+				
 #ifdef Q_OS_WIN
 				if (IsRunAsAdmin()) {
 					if (!QDir().exists(_directory + "/System/GD3D11/textures/replacements")) {
