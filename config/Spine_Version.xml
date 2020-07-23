@@ -60,8 +60,8 @@
 		<File Hash="b36219fc54550be02b3abc48d9f04030a6e716ecb478d7bad1fc8def25beef7850c6385ae1eb82a70a44269f28118edbeced87b7364bbd3e8b39881616ab88a3">bin/po_PO.qm.z</File>
 		<File Hash="8d03282441c36810e9373dc1d56189864eb0a6cc35f1012d8e6c2bed240965c310259a0ea7daa68fa44c197d6bac0e8a3cd5db1e4f14f8fd6771d52ddae8283e">bin/ru_RU.qm.z</File>
 	</Version>
-	<Version majorVersion="1" minorVersion="21" patchVersion="1">
-		<File Hash="a93b4e0855989d37342493052bf440f652f6e385a304610c1a3b607379ee7f6980f34319b12db22dab40da6533ea467b8ea9ddd8112ba74d7f789754d020795a">bin/changelog.xml.z</File>
-		<File Hash="e097e213a078c8f2b96981b0e9c374ecc794639a663b2f2ec9947feaf3b7e4f234dd8627c98c9c79f20129490c0fa503714b5a60929b0d1bc1932e73174a73f8">bin/Spine.exe.z</File>
+	<Version majorVersion="1" minorVersion="21" patchVersion="2">
+		<File Hash="5993898b1ac3236227de5b29be079e39bf7a5d0844fd76806d10a54447183bd731a8136c8d72f3e1bc3ff632231b2d159a0b4ab057447ea9db0a7a2c0addfbe8">bin/changelog.xml.z</File>
+		<File Hash="f438c4b1d1aca0cf91d9655d6aeca29fb737b67961e5d6536b8ebcd4b69058aaccdba1c4ad3b0688a63fdb2bd1e8a7ebc5e2e6c7d7215c4b28e74373298a71f1">bin/Spine.exe.z</File>
 	</Version>
 </Versions>
