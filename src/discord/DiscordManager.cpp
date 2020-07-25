@@ -38,8 +38,8 @@ void DiscordManager::updatePresence(const QString & details, const QString & sta
 	if (!_core) return;
 	
 	Activity activity {};
-	activity.SetDetails(q2s(details).c_str());
-	activity.SetState(q2s(state).c_str());
+	activity.SetDetails(details.toStdString().c_str());
+	activity.SetState(state.toStdString().c_str());
 	activity.SetInstance(false);
 	activity.GetAssets().SetLargeImage("spine_1024x1024");
 	activity.SetType(ActivityType::Playing);
