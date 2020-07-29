@@ -718,7 +718,7 @@ void Gothic1And2Launcher::start() {
 	bool newGMP = false;
 	bool renderer = false;
 
-	QTime t;
+	QElapsedTimer t;
 	t.start();
 	QFuture<bool> future = QtConcurrent::run<bool>(this, &Gothic1And2Launcher::prepareModStart, &usedExecutable, &backgroundExecutables, &newGMP, &dependencies, &renderer);
 	watcher.setFuture(future);
@@ -726,7 +726,7 @@ void Gothic1And2Launcher::start() {
 	if (!future.result()) {
 		splash.hide();
 		if (!dependencies.isEmpty()) {
-			https::Https::postAsync(DATABASESERVER_PORT, "getModnameForIDs", QString("{ \"Language\": \"%1\", \"ModIDs\": [ %2 ] }").arg(Config::Language).arg(dependencies.toList().join(',')), [this, dependencies](const QJsonObject & json, int status) {
+			https::Https::postAsync(DATABASESERVER_PORT, "getModnameForIDs", QString("{ \"Language\": \"%1\", \"ModIDs\": [ %2 ] }").arg(Config::Language).arg(dependencies.values().join(',')), [this, dependencies](const QJsonObject & json, int status) {
 				QString msg = QApplication::tr("DependenciesMissing");
 				if (status != 200) {
 					for (const auto & p : dependencies) {
@@ -1649,7 +1649,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 			QDir sd = fi.absolutePath() + "/..";
 			sourceDir = sd.absolutePath();
 		}
-		QStringList l = modFiles.split(" ", QString::SplitBehavior::SkipEmptyParts);
+		QStringList l = modFiles.split(" ", Qt::SkipEmptyParts);
 		for (const QString & s : l) {
 			linkOrCopyFile(sourceDir + "/Data/modvdf/" + s, _directory + "/Data/" + s);
 			_copiedFiles.append("Data/" + s);
@@ -1877,7 +1877,7 @@ void Gothic1And2Launcher::collectDependencies(int modID, QSet<QString> * depende
 
 			auto required = configParser.value("DEPENDENCIES/Required", "").toString();
 			
-			auto split = required.split(',', QString::SkipEmptyParts);
+			auto split = required.split(',', Qt::SkipEmptyParts);
 			for (const auto & s : split) {
 				if (dependencies->contains(s)) continue;
 				
@@ -1887,7 +1887,7 @@ void Gothic1And2Launcher::collectDependencies(int modID, QSet<QString> * depende
 			
 			auto blocked = configParser.value("DEPENDENCIES/Blocked", "").toString();
 			
-			split = blocked.split(',', QString::SkipEmptyParts);
+			split = blocked.split(',', Qt::SkipEmptyParts);
 			for (const auto & s : split) {
 				forbidden->insert(s);
 			}
@@ -1919,7 +1919,7 @@ void Gothic1And2Launcher::updatePlugins(int modID) {
 	{
 		const auto systempackEntries = configParser.value("LOADER/SPpreload", "").toString();
 				
-		const auto split = systempackEntries.split(',', QString::SkipEmptyParts);
+		const auto split = systempackEntries.split(',', Qt::SkipEmptyParts);
 
 		QFile f(_directory + "/System/pre.load");
 		f.open(QIODevice::Append);
@@ -1932,7 +1932,7 @@ void Gothic1And2Launcher::updatePlugins(int modID) {
 	{
 		const auto unionEntries = configParser.value("LOADER/UnionIni", "").toString();
 				
-		const auto split = unionEntries.split(',', QString::SkipEmptyParts);
+		const auto split = unionEntries.split(',', Qt::SkipEmptyParts);
 
 		_unionPlugins << split;
 
@@ -2199,7 +2199,7 @@ void Gothic1And2Launcher::parseIni(QString file) {
 	QString modIDString = fi.absolutePath();
 	QDir md(Config::DOWNLOADDIR + "/mods");
 	modIDString.replace(md.absolutePath(), "");
-	modIDString = modIDString.split("/", QString::SplitBehavior::SkipEmptyParts).front();
+	modIDString = modIDString.split("/", Qt::SkipEmptyParts).front();
 	int32_t modID = modIDString.toInt();
 	
 	if (!IconCache::getInstance()->hasIcon(modID)) {

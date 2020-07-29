@@ -29,7 +29,7 @@ bool MariaDBWrapper::connect(const std::string & host, const std::string & user,
 }
 
 bool MariaDBWrapper::query(const std::string & q) const {
-	return _database && mysql_real_query(_database, q.c_str(), q.size()) == 0;
+	return _database && mysql_real_query(_database, q.c_str(), static_cast<unsigned long>(q.size())) == 0;
 }
 
 void MariaDBWrapper::close() {

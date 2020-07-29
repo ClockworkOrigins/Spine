@@ -64,7 +64,7 @@ void ILauncher::init() {
 	_modID = -1;
 	_showAchievements = true;
 
-	_timer = new QTime();
+	_timer = new QElapsedTimer();
 
 	_socket = nullptr;
 	_listenSocket = nullptr;

@@ -175,7 +175,7 @@ void ModFilesWidget::addFile() {
 	if (path.isEmpty()) return;
 
 	const QString mapping = QInputDialog::getText(this, QApplication::tr("PathInDirectoryStructure"), QApplication::tr("PathInDirectoryStructureDescription"));
-	QStringList realMappingSplit = mapping.split("/", QString::SplitBehavior::SkipEmptyParts);
+	QStringList realMappingSplit = mapping.split("/", Qt::SkipEmptyParts);
 	QString realMapping;
 	for (const QString & rm : realMappingSplit) {
 		if (!realMapping.isEmpty()) {
@@ -287,7 +287,7 @@ void ModFilesWidget::uploadCurrentMod() {
 		clockUtils::sockets::TcpSocket sock;
 		const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", UPLOADSERVER_PORT, 10000);
 		if (clockUtils::ClockError::SUCCESS == cErr) {
-			QTime startTime;
+			QElapsedTimer startTime;
 			startTime.start();
 			qint64 writtenBytes = 0;
 			int size = serialized.size();

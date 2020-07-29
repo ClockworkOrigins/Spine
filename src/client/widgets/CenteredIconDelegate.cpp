@@ -32,7 +32,7 @@ void CenteredIconDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 	if (index.column() == DatabaseColumn::Languages) {
 		Q_ASSERT(index.isValid());
 
-	    QStyleOptionViewItemV4 opt = option;
+	    QStyleOptionViewItem opt = option;
 	    initStyleOption(&opt, index);
 	    // disable default icon
 	    opt.icon = QIcon();

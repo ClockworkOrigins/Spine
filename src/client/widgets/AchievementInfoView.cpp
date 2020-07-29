@@ -75,7 +75,7 @@ void AchievementInfoView::paintEvent(QPaintEvent *) {
 			QColor ownProgressColor;
 			ownProgressColor.setNamedColor("#B0B0B0");
 			QPainterPath path;
-			path.addRect(QRectF(21, 50, (800 - 2 * 70 - 42) * _currentProgress / double(_maxProgress), 16));
+			path.addRect(QRectF(21, 50, (800 - 2 * 70 - 42) * _currentProgress / static_cast<double>(_maxProgress), 16));
 			p.fillPath(path, QBrush(ownProgressColor));
 			p.drawPath(path);
 		}
@@ -87,7 +87,7 @@ void AchievementInfoView::paintEvent(QPaintEvent *) {
 			const QString progressString = QString("%1 / %2").arg(_currentProgress).arg(_maxProgress);
 			QFontMetrics fm(f);
 			p.setPen(QColor(255, 255, 255));
-			p.drawText((800 - 2 * 70) / 2 - fm.width(progressString) / 2, 50 + 14 /*- fm.height() / 2*/, progressString);
+			p.drawText((800 - 2 * 70) / 2 - fm.horizontalAdvance(progressString) / 2, 50 + 14 /*- fm.height() / 2*/, progressString);
 		}
 	}
 
@@ -108,7 +108,7 @@ void AchievementInfoView::paintEvent(QPaintEvent *) {
 	while (idx < lines.count()) {
 		QString line = lines[idx];
 		QString nextLine;
-		while (fm.width(line) > 500) {
+		while (fm.horizontalAdvance(line) > 500) {
 			QStringList split = line.split(' ');
 			if (split.count() <= 1) break;
 

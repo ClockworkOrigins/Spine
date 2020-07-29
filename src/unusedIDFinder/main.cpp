@@ -23,7 +23,7 @@
 #include <QTextStream>
 
 int main(int, char ** argv) {
-	QRegularExpression regEx(R"(INSTANCE[\s\S]+id[\s]*=[\s]*(\d+)[^\d+][\s\S]+)", QRegularExpression::PatternOption::CaseInsensitiveOption);
+	const QRegularExpression regEx(R"(INSTANCE[\s\S]+id[\s]*=[\s]*(\d+)[^\d+][\s\S]+)", QRegularExpression::PatternOption::CaseInsensitiveOption);
 
 	QList<int> idList;
 
@@ -41,7 +41,7 @@ int main(int, char ** argv) {
 			}
 		}
 	}
-	qSort(idList);
+	std::sort(idList.begin(), idList.end());
 	const int minimumID = 500;
 	int lastID = 0;
 	for (int i : idList) {

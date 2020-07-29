@@ -41,7 +41,7 @@ WaitSpinner::WaitSpinner(QString text, QWidget * par) : QWidget(par) {
 	connect(this, &WaitSpinner::setText, lbl, &QLabel::setText);
 
 	const QFontMetrics fm(lbl->font());
-	_textWidth = fm.width(text) * 2 + 10;
+	_textWidth = fm.horizontalAdvance(text) * 2 + 10;
 
 	l->addWidget(svgWidget);
 	l->addWidget(lbl, 0, Qt::AlignCenter);

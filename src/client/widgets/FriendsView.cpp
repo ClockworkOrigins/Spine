@@ -97,9 +97,8 @@ FriendsView::FriendsView(QWidget * par) : QWidget(par), _friendsList(nullptr), _
 }
 
 void FriendsView::updateFriendList() {
-	if (Config::Username.isEmpty()) {
-		return;
-	}
+	if (Config::Username.isEmpty()) return;
+
 	delete _waitSpinner;
 	_waitSpinner = new WaitSpinner(QApplication::tr("LoadingFriends"), this);
 	_users.clear();

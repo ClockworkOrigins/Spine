@@ -167,7 +167,7 @@ void NewsWriterDialog::accept() {
 	news.body = q2s(_bodyEdit->toPlainText());
 	news.timestamp = QDate(2000, 1, 1).daysTo(_dateEdit->date());
 
-	for (QString imageFile : _imageReferencesEdit->text().split(";", QString::SplitBehavior::SkipEmptyParts)) {
+	for (QString imageFile : _imageReferencesEdit->text().split(";", Qt::SkipEmptyParts)) {
 		Database::DBError err;
 		std::vector<std::string> images = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT Hash FROM newsImageReferences WHERE File = '" + imageFile.toStdString() + ".z' LIMIT 1;", err);
 		if (images.empty()) {

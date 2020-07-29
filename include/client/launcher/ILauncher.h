@@ -26,11 +26,11 @@
 #include <QSharedPointer>
 #include <QtPlugin>
 
+class QElapsedTimer;
 class QHBoxLayout;
 class QLabel;
 class QPushButton;
 class QStandardItemModel;
-class QTimer;
 class QVBoxLayout;
 
 namespace clockUtils {
@@ -110,7 +110,7 @@ namespace launcher {
 
 		QString _iniFile;
 
-		QTime * _timer = nullptr;
+		QElapsedTimer * _timer = nullptr;
 
 		QStandardItemModel * _model = nullptr;
 
