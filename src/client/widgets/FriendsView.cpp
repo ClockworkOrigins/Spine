@@ -138,6 +138,8 @@ void FriendsView::updateFriendList() {
 
 void FriendsView::loginChanged() {
 	_sendRequestButton->setVisible(!Config::Username.isEmpty());
+
+	updateFriendList();
 }
 
 void FriendsView::updateFriendsList(std::vector<common::Friend> friends, std::vector<common::Friend> friendRequests) {

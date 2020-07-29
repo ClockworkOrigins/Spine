@@ -3232,5 +3232,13 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>Languages</source>
         <translation>Sprachen</translation>
     </message>
+    <message>
+        <source>Request</source>
+        <translation>Anfrage</translation>
+    </message>
+    <message>
+        <source>Requests</source>
+        <translation>Anfragen</translation>
+    </message>
 </context>
 </TS>

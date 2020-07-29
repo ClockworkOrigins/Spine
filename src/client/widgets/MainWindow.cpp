@@ -402,6 +402,14 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		_tabWidget->addTab(_friendsView, QApplication::tr("Friends"));
 		UPDATELANGUAGESETTABTEXT(_tabWidget, MainTabsOnline::Friends, "Friends");
 
+		connect(_friendsView, &FriendsView::receivedFriends, [this](std::vector<common::Friend>, std::vector<common::Friend> friendRequests) {
+			if (friendRequests.empty()) {
+				_tabWidget->setTabText(MainTabsOnline::Friends, QApplication::tr("Friends"));
+			} else {
+				_tabWidget->setTabText(MainTabsOnline::Friends, QString("%1 (%2 %3)").arg(QApplication::tr("Friends")).arg(friendRequests.size()).arg(QApplication::tr(friendRequests.size() == 1 ? "Request" : "Requests")));
+			}
+		});
+
 		_spineLevelRankingWidget = new SpineLevelRankingWidget(_tabWidget);
 
 		_tabWidget->addTab(_spineLevelRankingWidget, QApplication::tr("Ranking"));

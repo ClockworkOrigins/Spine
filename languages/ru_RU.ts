@@ -3237,5 +3237,13 @@ You can revoke your permission at every point in time. All necessary information
         <source>Languages</source>
         <translation>Languages</translation>
     </message>
+    <message>
+        <source>Request</source>
+        <translation>Request</translation>
+    </message>
+    <message>
+        <source>Requests</source>
+        <translation>Requests</translation>
+    </message>
 </context>
 </TS>
