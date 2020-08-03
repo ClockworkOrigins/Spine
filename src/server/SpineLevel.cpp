@@ -37,12 +37,12 @@ std::mutex SpineLevel::_updateQueueLock;
 
 void SpineLevel::init() {
 	std::thread([]() {
-		std::map<int, std::tuple<int, int, int>> cachedEntries;
+		std::map<int, std::tuple<int, int>> cachedEntries;
 		
 		do {
 			CONNECTTODATABASE(__LINE__);
 			
-			if (!database.query("PREPARE selectStmt FROM \"SELECT UserID, Level, XP, NextXP, NoSpine FROM levels\";")) {
+			if (!database.query("PREPARE selectStmt FROM \"SELECT UserID, Level, XP, NextXP FROM levels\";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				break;
 			}
@@ -59,9 +59,8 @@ void SpineLevel::init() {
 				const int level = std::stoi(vec[1]);
 				const int xp = std::stoi(vec[2]);
 				const int nextXP = std::stoi(vec[3]);
-				const int noSpine = std::stoi(vec[4]);
 				
-				cachedEntries.insert(std::make_pair(userID, std::make_tuple(level, xp, noSpine)));
+				cachedEntries.insert(std::make_pair(userID, std::make_tuple(level, xp)));
 
 				SendUserLevelMessage sulm;
 				sulm.level = level;
@@ -106,14 +105,9 @@ void SpineLevel::init() {
 				if (it != cachedEntries.end()) {
 					re.level = std::get<0>(it->second);
 					re.xp = std::get<1>(it->second);
-
-					if (std::get<2>(it->second)) {
-						_updateQueue.push_back(id);
-					}
-				} else {
-					_updateQueue.push_back(id);
 				}
 				
+				_updateQueue.push_back(id);
 				_rankings.push_back(re);
 			}
 		} while (false);
@@ -220,8 +214,6 @@ void SpineLevel::cacheLevel(int userID) {
 	int level = 0;
 	uint32_t currentXP = 0;
 
-	bool noSpine = true;
-
 	do {
 		CONNECTTODATABASE(__LINE__);
 		
@@ -261,6 +253,10 @@ void SpineLevel::cacheLevel(int userID) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
+		if (!database.query("PREPARE selectDonationStmt FROM \"SELECT Amount FROM donations WHERE UserID = ? LIMIT 1\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
 		
 		if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
@@ -274,10 +270,6 @@ void SpineLevel::cacheLevel(int userID) {
 		if (!lastResults.empty()) {
 			const int count = std::stoi(lastResults[0][0]);
 			currentXP += count * 50; // 50 EP per achievement
-
-			if (count > 0) {
-				noSpine = false;
-			}
 		}
 
 		// perfect games (all achievements)
@@ -307,8 +299,6 @@ void SpineLevel::cacheLevel(int userID) {
 
 			if (unlockedAchievementCount == achievementCount) {
 				currentXP += 1000; // 1000 EP for perfect games
-
-				noSpine = false;
 			}
 		}
 		
@@ -321,10 +311,6 @@ void SpineLevel::cacheLevel(int userID) {
 			const int count = std::stoi(lastResults[0][0]);
 			
 			currentXP += count * 100; // 100 EP per score
-
-			if (count > 0) {
-				noSpine = false;
-			}
 		}
 		
 		if (!database.query("EXECUTE selectRatingsStmt USING @paramUserID;")) {
@@ -336,10 +322,6 @@ void SpineLevel::cacheLevel(int userID) {
 			const int count = std::stoi(lastResults[0][0]);
 			
 			currentXP += count * 250; // 250 EP per rating
-
-			if (count > 0) {
-				noSpine = false;
-			}
 		}
 		
 		if (!database.query("EXECUTE selectCompatibilitiesStmt USING @paramUserID;")) {
@@ -351,10 +333,6 @@ void SpineLevel::cacheLevel(int userID) {
 			const int count = std::stoi(lastResults[0][0]);
 			
 			currentXP += count * 10; // 10 EP per compatibility list entry
-
-			if (count > 0) {
-				noSpine = false;
-			}
 		}
 
 		// play time over median or even third quartile gives some bonus XP
@@ -386,8 +364,14 @@ void SpineLevel::cacheLevel(int userID) {
 			} else if (ownDuration > firstQuartile) {
 				currentXP += 50;
 			}
-
-			noSpine = false;
+		}
+		if (!database.query("EXECUTE selectDonationStmt USING @paramUserID;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			break;
+		}
+		lastResults = database.getResults<std::vector<std::string>>();
+		if (!lastResults.empty()) {
+			currentXP += std::stoi(lastResults[0][0]);
 		}
 
 		// bonus XP for people that support us by playing our games
@@ -470,7 +454,7 @@ void SpineLevel::cacheLevel(int userID) {
 		do {
 			CONNECTTODATABASE(__LINE__);
 			
-			if (!database.query("PREPARE insertStmt FROM \"INSERT INTO levels (UserID, Level, XP, NextXP, NoSpine) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE Level = ?, XP = ?, NextXP = ?, NoSpine = ?\";")) {
+			if (!database.query("PREPARE insertStmt FROM \"INSERT INTO levels (UserID, Level, XP, NextXP) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE Level = ?, XP = ?, NextXP = ?\";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				break;
 			}
@@ -491,12 +475,7 @@ void SpineLevel::cacheLevel(int userID) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				break;
 			}
-			const std::string noSpineString = noSpine ? "1" : "0";
-			if (!database.query("SET @paramNoSpine=" + noSpineString + ";")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("EXECUTE insertStmt USING @paramUserID, @paramLevel, @paramCurrentXP, @paramNextXP, @paramNoSpine, @paramLevel, @paramCurrentXP, @paramNextXP, @paramNoSpine;")) {
+			if (!database.query("EXECUTE insertStmt USING @paramUserID, @paramLevel, @paramCurrentXP, @paramNextXP, @paramLevel, @paramCurrentXP, @paramNextXP;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				break;
 			}

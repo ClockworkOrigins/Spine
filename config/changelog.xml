@@ -1897,6 +1897,7 @@
 		<Enhancement language="Deutsch">Unterstützt ein Projekt verschiedene Sprachen, kann in der Bibliothek jetzt die Sprache der Installation gewechselt werden</Enhancement>
 		<Enhancement language="Deutsch">Qt auf 5.15.0 aktualisiert und auf 64bit umgestellt</Enhancement>
 		<Enhancement language="Deutsch">Hinweis für ausstehende Freundschaftsanfragen eingebaut</Enhancement>
+		<Enhancement language="Deutsch">Spenden geben jetzt einen Bonus auf das Spine-Level</Enhancement>
 		<Bug language="Deutsch">Discord-Account-Linking korrigiert</Bug>
 		<Bug language="Deutsch">Upload von lediglich geänderter Sprache funktioniert jetzt</Bug>
 		
@@ -1906,6 +1907,7 @@
 		<Enhancement language="English">When a project supports multiple languages the language now can be switched in the library</Enhancement>
 		<Enhancement language="English">Updated to Qt 5.15.0 and switched to 64bit</Enhancement>
 		<Enhancement language="English">Added hint for outstanding friend requests</Enhancement>
+		<Enhancement language="English">Donations now give a bonus on the Spine level</Enhancement>
 		<Bug language="English">Fixed Discord account linking</Bug>
 		<Bug language="English">Fixed upload of only changed language</Bug>
 	</Version>
