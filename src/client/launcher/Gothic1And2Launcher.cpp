@@ -184,6 +184,9 @@ bool Gothic1And2Launcher::supportsModAndIni(int32_t modID, const QString & iniFi
 
 void Gothic1And2Launcher::setDirectory(const QString & directory) {
 	_directory = directory;
+
+	QSettings systempackIni(QString("%1/system/Systempack.ini").arg(_directory), QSettings::IniFormat);
+	systempackIni.setValue("GAME/SaveDATinASCII", 0);
 }
 
 void Gothic1And2Launcher::setHideIncompatible(bool enabled) {

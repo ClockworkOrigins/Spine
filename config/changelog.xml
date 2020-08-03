@@ -1900,6 +1900,7 @@
 		<Enhancement language="Deutsch">Spenden geben jetzt einen Bonus auf das Spine-Level</Enhancement>
 		<Bug language="Deutsch">Discord-Account-Linking korrigiert</Bug>
 		<Bug language="Deutsch">Upload von lediglich geänderter Sprache funktioniert jetzt</Bug>
+		<Bug language="Deutsch">Kompatibilität von Union mit Spielstand-Editor gewährleistet</Bug>
 		
 		<Enhancement language="English">Download language instead of client language now is used for updates</Enhancement>
 		<Enhancement language="English">Database now always displays all projects no matter what the language is</Enhancement>
@@ -1910,5 +1911,6 @@
 		<Enhancement language="English">Donations now give a bonus on the Spine level</Enhancement>
 		<Bug language="English">Fixed Discord account linking</Bug>
 		<Bug language="English">Fixed upload of only changed language</Bug>
+		<Bug language="English">Ensured compatibility between Union and Savegame Editor is given</Bug>
 	</Version>
 </Versions>
