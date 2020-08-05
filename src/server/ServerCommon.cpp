@@ -137,7 +137,7 @@ std::string ServerCommon::getUsername(const int id) {
 	}
 	const auto results = accountDatabase.getResults<std::vector<std::string>>();
 
-	return results.empty() ? "" : results[0][0];
+	return results.empty() ? "" : filterUsername(results[0][0]);
 }
 
 std::vector<std::string> ServerCommon::getUserList() {
@@ -159,7 +159,7 @@ std::vector<std::string> ServerCommon::getUserList() {
 	std::map<std::string, std::string> userMap;
 	
 	for (auto vec : results) {
-		userMap.insert(std::make_pair(vec[0], vec[1]));
+		userMap.insert(std::make_pair(vec[0], filterUsername(vec[1])));
 	}
 
 	std::vector<std::string> users;
@@ -275,4 +275,29 @@ std::string ServerCommon::getProjectName(int projectID, int preferredLanguage) {
 	} while (false);
 
 	return "";
+}
+
+std::string ServerCommon::filterUsername(const std::string & username) {
+	MariaDBWrapper accountDatabase;
+	if (!accountDatabase.connect("localhost", DATABASEUSER, DATABASEPASSWORD, ACCOUNTSDATABASE, 0)) {
+		return username;
+	}
+
+	if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT Filter FROM textFilters\";")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return username;
+	}
+	if (!accountDatabase.query("EXECUTE selectStmt;")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return username;
+	}
+	const auto results = accountDatabase.getResults<std::vector<std::string>>();
+
+	auto result = username;
+
+	for (const auto & vec : results) {
+		result = std::regex_replace(result, std::regex(vec[0]), "***");
+	}
+	
+	return result;
 }
