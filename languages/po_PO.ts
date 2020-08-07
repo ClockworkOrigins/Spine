@@ -3240,5 +3240,17 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>Requests</source>
         <translation>Anfragen</translation>
     </message>
+    <message>
+        <source>VersionUpdate</source>
+        <translation>Versions-Update</translation>
+    </message>
+    <message>
+        <source>VersionUpdateSuccess</source>
+        <translation>Versionsnummer wurde erfolgreich aktualisiert.</translation>
+    </message>
+    <message>
+        <source>VersionUpdateFailed</source>
+        <translation>Versionsnummer konnte nicht aktualisiert werden. Versuche es später noch einmal. Wenn der Fehler immer noch besteht, kontaktiere uns.</translation>
+    </message>
 </context>
 </TS>

@@ -154,6 +154,8 @@ ModFilesWidget::ModFilesWidget(QWidget * par) : QWidget(par), _fileList(nullptr)
 
 	connect(this, &ModFilesWidget::loadedData, this, &ModFilesWidget::updateData);
 
+	connect(this, &ModFilesWidget::versionUpdated, this, &ModFilesWidget::showVersionUpdate);
+
 #ifdef Q_OS_WIN
 	QWinTaskbarButton * button = new QWinTaskbarButton(this);
 	button->setWindow(spine::widgets::MainWindow::getInstance()->windowHandle());
@@ -430,6 +432,13 @@ void ModFilesWidget::addFolder() {
 	}
 }
 
+void ModFilesWidget::showVersionUpdate(bool success) {
+	QMessageBox resultMsg(success ? QMessageBox::Icon::NoIcon : QMessageBox::Icon::Critical, QApplication::tr("VersionUpdate"), QApplication::tr(success ? "VersionUpdateSuccess" : "VersionUpdateFailed"), QMessageBox::StandardButton::Ok);
+	resultMsg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
+	resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+	resultMsg.exec();
+}
+
 void ModFilesWidget::changedLanguage(QStandardItem * itm) {
 	const QVariant v = itm->data(PathRole);
 	if (!v.isValid()) return;
@@ -483,8 +492,8 @@ void ModFilesWidget::updateVersion() {
 	}
 	json["Changelogs"] = changelogsArray;
 	
-	https::Https::postAsync(MANAGEMENTSERVER_PORT, "updateModVersion", QJsonDocument(json).toJson(QJsonDocument::Compact), [](const QJsonObject &, int) {
-		// error handling
+	https::Https::postAsync(MANAGEMENTSERVER_PORT, "updateModVersion", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject &, int statusCode) {
+		emit versionUpdated(statusCode == 200);
 	});
 }
 

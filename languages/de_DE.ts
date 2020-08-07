@@ -3240,5 +3240,17 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>Requests</source>
         <translation>Anfragen</translation>
     </message>
+    <message>
+        <source>VersionUpdate</source>
+        <translation>Versions-Update</translation>
+    </message>
+    <message>
+        <source>VersionUpdateSuccess</source>
+        <translation>Versionsnummer wurde erfolgreich aktualisiert.</translation>
+    </message>
+    <message>
+        <source>VersionUpdateFailed</source>
+        <translation>Versionsnummer konnte nicht aktualisiert werden. Versuche es später noch einmal. Wenn der Fehler immer noch besteht, kontaktiere uns.</translation>
+    </message>
 </context>
 </TS>

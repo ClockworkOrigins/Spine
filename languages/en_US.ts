@@ -3248,5 +3248,17 @@ You can revoke your permission at every point in time. All necessary information
         <source>Requests</source>
         <translation>Requests</translation>
     </message>
+    <message>
+        <source>VersionUpdate</source>
+        <translation>Version Update</translation>
+    </message>
+    <message>
+        <source>VersionUpdateSuccess</source>
+        <translation>Version number has been updated successfully.</translation>
+    </message>
+    <message>
+        <source>VersionUpdateFailed</source>
+        <translation>Version number couldn't be updated. Try again later. When the error persists, please contact us.</translation>
+    </message>
 </context>
 </TS>

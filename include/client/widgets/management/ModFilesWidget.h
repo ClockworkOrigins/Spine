@@ -64,6 +64,7 @@ namespace widgets {
 		void updateProgressMax(int);
 		void removeSpinner();
 		void loadedData(ManagementModFilesData);
+		void versionUpdated(bool success);
 
 	private slots:
 		void addFile();
@@ -75,6 +76,7 @@ namespace widgets {
 		void testUpdate();
 		void updateData(ManagementModFilesData content);
 		void addFolder();
+		void showVersionUpdate(bool success);
 
 	private:
 		QStandardItemModel * _fileList;
