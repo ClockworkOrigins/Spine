@@ -112,6 +112,7 @@ UserManagementWidget::UserManagementWidget(QWidget * par) : QWidget(par), _mods(
 }
 
 UserManagementWidget::~UserManagementWidget() {
+	_futureWatcher.waitForFinished();
 }
 
 void UserManagementWidget::updateModList(QList<ManagementMod> modList) {
@@ -135,7 +136,7 @@ void UserManagementWidget::updateView() {
 	requestData["Password"] = Config::Password;
 	requestData["ModID"] = _mods[_modIndex].id;
 	
-	https::Https::postAsync(MANAGEMENTSERVER_PORT, "getUsers", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+	const auto f = https::Https::postAsync(MANAGEMENTSERVER_PORT, "getUsers", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
 		if (statusCode != 200) {
 			emit removeSpinner();
 			return;
@@ -163,6 +164,7 @@ void UserManagementWidget::updateView() {
 		emit loadedData(unlockedUserList);
 		emit removeSpinner();
 	});
+	_futureWatcher.setFuture(f);
 }
 
 void UserManagementWidget::updateData(QStringList users) {

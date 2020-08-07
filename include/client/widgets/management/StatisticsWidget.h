@@ -22,6 +22,7 @@
 
 #include "widgets/management/IManagementWidget.h"
 
+#include <QFutureWatcher>
 #include <QModelIndex>
 #include <QWidget>
 
@@ -62,6 +63,8 @@ namespace widgets {
 		QVBoxLayout * _playtimesLayout;
 		QVBoxLayout * _achievementsLayout;
 		gui::WaitSpinner * _waitSpinner;
+
+		QFutureWatcher<void> _futureWatcher;
 	};
 
 } /* namespace widgets */

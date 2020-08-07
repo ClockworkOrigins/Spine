@@ -23,6 +23,7 @@
 #include "common/MessageStructs.h"
 
 #include <QDialog>
+#include <QFutureWatcher>
 
 class QStandardItemModel;
 class QTabWidget;
@@ -70,6 +71,8 @@ namespace widgets {
 		CustomStatisticsWidget * _customStatisticsWidget;
 		SurveyWidget * _surveyWidget;
 		QTabWidget * _tabWidget;
+
+		QFutureWatcher<void> _futureWatcher;
 
 		void loadModList();
 		void restoreSettings();

@@ -22,6 +22,7 @@
 
 #include "widgets/management/IManagementWidget.h"
 
+#include <QFutureWatcher>
 #include <QWidget>
 
 class QGridLayout;
@@ -61,6 +62,8 @@ namespace widgets {
 		int _rowCount;
 		QList<std::tuple<QLineEdit *, QLineEdit *, QLineEdit *, QLineEdit *>> _scoreEdits;
 		gui::WaitSpinner * _waitSpinner;
+
+		QFutureWatcher<void> _futureWatcher;
 	};
 
 } /* namespace widgets */

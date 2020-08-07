@@ -1901,6 +1901,7 @@
 		<Bug language="Deutsch">Discord-Account-Linking korrigiert</Bug>
 		<Bug language="Deutsch">Upload von lediglich geänderter Sprache funktioniert jetzt</Bug>
 		<Bug language="Deutsch">Kompatibilität von Union mit Spielstand-Editor gewährleistet</Bug>
+		<Bug language="Deutsch">Crash beim Beenden des Management-Dialogs während Daten geladen werden behoben</Bug>
 		
 		<Enhancement language="English">Download language instead of client language now is used for updates</Enhancement>
 		<Enhancement language="English">Database now always displays all projects no matter what the language is</Enhancement>
@@ -1912,5 +1913,6 @@
 		<Bug language="English">Fixed Discord account linking</Bug>
 		<Bug language="English">Fixed upload of only changed language</Bug>
 		<Bug language="English">Ensured compatibility between Union and Savegame Editor is given</Bug>
+		<Bug language="English">Fixed crash when exiting management dialog while loading data</Bug>
 	</Version>
 </Versions>

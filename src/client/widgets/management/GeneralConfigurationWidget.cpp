@@ -167,6 +167,7 @@ GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(
 }
 
 GeneralConfigurationWidget::~GeneralConfigurationWidget() {
+	_futureWatcher.waitForFinished();
 }
 
 void GeneralConfigurationWidget::updateModList(QList<client::ManagementMod> modList) {
@@ -188,7 +189,7 @@ void GeneralConfigurationWidget::updateView() {
 	requestData["Password"] = Config::Password;
 	requestData["ModID"] = _mods[_modIndex].id;
 	
-	https::Https::postAsync(MANAGEMENTSERVER_PORT, "getGeneralConfiguration", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+	const auto f = https::Https::postAsync(MANAGEMENTSERVER_PORT, "getGeneralConfiguration", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
 		if (statusCode != 200) {
 			emit removeSpinner();
 			return;
@@ -199,6 +200,7 @@ void GeneralConfigurationWidget::updateView() {
 		emit loadedData(content);
 		emit removeSpinner();
 	});
+	_futureWatcher.setFuture(f);
 }
 
 void GeneralConfigurationWidget::updateMod() {

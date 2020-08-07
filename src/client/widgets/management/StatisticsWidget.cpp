@@ -106,6 +106,7 @@ StatisticsWidget::StatisticsWidget(QWidget * par) : QWidget(par), _mods(), _modI
 }
 
 StatisticsWidget::~StatisticsWidget() {
+	_futureWatcher.waitForFinished();
 }
 
 void StatisticsWidget::updateModList(QList<ManagementMod> modList) {
@@ -131,7 +132,7 @@ void StatisticsWidget::updateView() {
 	requestData["Language"] = Config::Language;
 	requestData["ModID"] = _mods[_modIndex].id;
 	
-	https::Https::postAsync(MANAGEMENTSERVER_PORT, "getStatistics", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+	const auto f = https::Https::postAsync(MANAGEMENTSERVER_PORT, "getStatistics", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
 		if (statusCode != 200) {
 			emit removeSpinner();
 			return;
@@ -142,6 +143,7 @@ void StatisticsWidget::updateView() {
 		emit loadedData(ms);
 		emit removeSpinner();
 	});
+	_futureWatcher.setFuture(f);
 }
 
 void StatisticsWidget::updateData(ManagementStatistics content) {

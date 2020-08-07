@@ -50,6 +50,7 @@ void Https::post(uint16_t port, const QString & f, const QString & data, const s
 	client.io_service->run();
 }
 
-void Https::postAsync(uint16_t port, const QString & f, const QString & data, const std::function<void(const QJsonObject &, int statusCode)> & callback) {
-	QtConcurrent::run(post, port, f, data, callback);
+QFuture<void> Https::postAsync(uint16_t port, const QString & f, const QString & data, const std::function<void(const QJsonObject &, int statusCode)> & callback) {
+	auto future = QtConcurrent::run(post, port, f, data, callback);
+	return future;
 }

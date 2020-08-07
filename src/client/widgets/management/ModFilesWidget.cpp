@@ -169,6 +169,10 @@ ModFilesWidget::ModFilesWidget(QWidget * par) : QWidget(par), _fileList(nullptr)
 #endif
 }
 
+ModFilesWidget::~ModFilesWidget() {
+	_futureWatcher.waitForFinished();
+}
+
 void ModFilesWidget::addFile() {
 	// adds a file... if already existing => just update internally
 	const QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectFile"));
@@ -354,7 +358,7 @@ void ModFilesWidget::updateView() {
 	requestData["Password"] = Config::Password;
 	requestData["ModID"] = _mods[_modIndex].id;
 	
-	https::Https::postAsync(MANAGEMENTSERVER_PORT, "getModFiles", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+	const auto f = https::Https::postAsync(MANAGEMENTSERVER_PORT, "getModFiles", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
 		if (statusCode != 200) {
 			emit removeSpinner();
 			return;
@@ -365,6 +369,7 @@ void ModFilesWidget::updateView() {
 		emit loadedData(mmdfd);
 		emit removeSpinner();
 	});
+	_futureWatcher.setFuture(f);
 }
 
 void ModFilesWidget::updateData(ManagementModFilesData content) {

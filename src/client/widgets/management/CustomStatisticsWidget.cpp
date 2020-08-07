@@ -108,6 +108,10 @@ CustomStatisticsWidget::CustomStatisticsWidget(QWidget * par) : QWidget(par), _m
 	setLayout(l);
 }
 
+CustomStatisticsWidget::~CustomStatisticsWidget() {
+	_futureWatcher.waitForFinished();
+}
+
 void CustomStatisticsWidget::updateModList(QList<client::ManagementMod> modList) {
 	_mods = modList;
 }
@@ -133,7 +137,7 @@ void CustomStatisticsWidget::updateView() {
 	requestData["Password"] = Config::Password;
 	requestData["ModID"] = _mods[_modIndex].id;
 	
-	https::Https::postAsync(MANAGEMENTSERVER_PORT, "getCustomStatistics", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+	const auto f = https::Https::postAsync(MANAGEMENTSERVER_PORT, "getCustomStatistics", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
 		if (statusCode != 200) {
 			emit removeSpinner();
 			return;
@@ -144,6 +148,7 @@ void CustomStatisticsWidget::updateView() {
 		emit loadedData(mcs);
 		emit removeSpinner();
 	});
+	_futureWatcher.setFuture(f);
 }
 
 void CustomStatisticsWidget::updateData(ManagementCustomStatistics content) {

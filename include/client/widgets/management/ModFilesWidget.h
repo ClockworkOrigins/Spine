@@ -22,6 +22,7 @@
 
 #include "widgets/management/IManagementWidget.h"
 
+#include <QFutureWatcher>
 #include <QMap>
 #include <QWidget>
 
@@ -49,6 +50,7 @@ namespace widgets {
 
 	public:
 		explicit ModFilesWidget(QWidget * par);
+		~ModFilesWidget();
 
 		void updateModList(QList<client::ManagementMod> modList);
 		void selectedMod(int index);
@@ -87,6 +89,8 @@ namespace widgets {
 		gui::WaitSpinner * _waitSpinner;
 		QWinTaskbarProgress * _taskbarProgress;
 		ManagementModFilesData _data;
+
+		QFutureWatcher<void> _futureWatcher;
 
 		void addFile(QString fullPath, QString relativePath, QString file);
 		void addFile(QStandardItem * itm, QString file, QString language);

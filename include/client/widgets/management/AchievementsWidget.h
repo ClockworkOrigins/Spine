@@ -22,6 +22,7 @@
 
 #include "widgets/management/IManagementWidget.h"
 
+#include <QFutureWatcher>
 #include <QWidget>
 
 class QVBoxLayout;
@@ -40,6 +41,7 @@ namespace widgets {
 
 	public:
 		AchievementsWidget(QWidget * par);
+		~AchievementsWidget();
 
 		void updateModList(QList<ManagementMod> modList);
 		void selectedMod(int index);
@@ -60,6 +62,8 @@ namespace widgets {
 		QVBoxLayout * _layout;
 		QList<AchievementWidget *> _achievementEdits;
 		gui::WaitSpinner * _waitSpinner;
+
+		QFutureWatcher<void> _futureWatcher;
 	};
 
 } /* namespace widgets */

@@ -97,12 +97,16 @@ AchievementsWidget::AchievementsWidget(QWidget * par) : QWidget(par), _mods(), _
 	setLayout(vl);
 }
 
+AchievementsWidget::~AchievementsWidget() {
+	_futureWatcher.waitForFinished();
+}
+
 void AchievementsWidget::updateModList(QList<client::ManagementMod> modList) {
 	_mods = modList;
 }
 
 void AchievementsWidget::selectedMod(int index) {
-	Q_ASSERT(index < int(_mods.size()));
+	Q_ASSERT(index < static_cast<int>(_mods.size()));
 	_modIndex = index;
 	
 	for (AchievementWidget * aw : _achievementEdits) {
@@ -122,7 +126,7 @@ void AchievementsWidget::updateView() {
 	requestData["Password"] = Config::Password;
 	requestData["ModID"] = _mods[_modIndex].id;
 	
-	https::Https::postAsync(MANAGEMENTSERVER_PORT, "getAchievements", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+	const auto f = https::Https::postAsync(MANAGEMENTSERVER_PORT, "getAchievements", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
 		if (statusCode != 200) {
 			emit removeSpinner();
 			return;
@@ -147,6 +151,7 @@ void AchievementsWidget::updateView() {
 		emit loadedAchievements(achievementList);
 		emit removeSpinner();
 	});
+	_futureWatcher.setFuture(f);
 }
 
 void AchievementsWidget::updateAchievements() {
@@ -161,7 +166,7 @@ void AchievementsWidget::updateAchievements() {
 	uaim.modID = _mods[_modIndex].id;
 
 	QJsonArray achievementArray;
-	for (auto achievementEdit : _achievementEdits) {
+	for (auto* achievementEdit : _achievementEdits) {
 		const auto achievement = achievementEdit->getAchievement();
 
 		if (achievement.isValid()) {

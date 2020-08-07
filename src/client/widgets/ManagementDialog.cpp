@@ -105,6 +105,8 @@ ManagementDialog::ManagementDialog(QWidget * par) : QDialog(par), _modList(nullp
 
 ManagementDialog::~ManagementDialog() {
 	saveSettings();
+
+	_futureWatcher.waitForFinished();
 }
 
 void ManagementDialog::updateModList(QList<ManagementMod> modList) {
@@ -149,7 +151,7 @@ void ManagementDialog::loadModList() {
 	requestData["Password"] = Config::Password;
 	requestData["Language"] = Config::Language;
 	
-	https::Https::postAsync(MANAGEMENTSERVER_PORT, "getMods", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+	const auto f = https::Https::postAsync(MANAGEMENTSERVER_PORT, "getMods", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
 		if (statusCode != 200) return;
 		
 		const auto it = json.find("Mods");
@@ -171,6 +173,7 @@ void ManagementDialog::loadModList() {
 
 		emit receivedMods(modList);
 	});
+	_futureWatcher.setFuture(f);
 }
 
 void ManagementDialog::restoreSettings() {

@@ -22,6 +22,7 @@
 
 #include "widgets/management/IManagementWidget.h"
 
+#include <QFutureWatcher>
 #include <QModelIndex>
 #include <QWidget>
 
@@ -40,6 +41,7 @@ namespace widgets {
 
 	public:
 		CustomStatisticsWidget(QWidget * par);
+		~CustomStatisticsWidget();
 
 		void updateModList(QList<ManagementMod> modList);
 		void selectedMod(int index);
@@ -90,6 +92,8 @@ namespace widgets {
 		QComboBox * _nameBox;
 		QMap<StatTuple, int> _stats;
 		gui::WaitSpinner * _waitSpinner;
+
+		QFutureWatcher<void> _futureWatcher;
 	};
 
 } /* namespace widgets */

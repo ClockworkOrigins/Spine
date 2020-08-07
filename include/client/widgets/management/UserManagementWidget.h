@@ -22,6 +22,7 @@
 
 #include "widgets/management/IManagementWidget.h"
 
+#include <QFutureWatcher>
 #include <QModelIndex>
 #include <QWidget>
 
@@ -76,6 +77,8 @@ namespace widgets {
 		QPushButton * _addUserButton;
 		QPushButton * _removeUserButton;
 		gui::WaitSpinner * _waitSpinner;
+
+		QFutureWatcher<void> _futureWatcher;
 
 		void changeAccessRight(QString username, bool enabled);
 	};

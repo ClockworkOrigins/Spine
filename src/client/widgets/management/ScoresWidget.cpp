@@ -92,6 +92,7 @@ ScoresWidget::ScoresWidget(QWidget * par) : QWidget(par), _mods(), _modIndex(-1)
 }
 
 ScoresWidget::~ScoresWidget() {
+	_futureWatcher.waitForFinished();
 }
 
 void ScoresWidget::updateModList(QList<client::ManagementMod> modList) {
@@ -131,7 +132,7 @@ void ScoresWidget::updateView() {
 	requestData["Password"] = Config::Password;
 	requestData["ModID"] = _mods[_modIndex].id;
 	
-	https::Https::postAsync(MANAGEMENTSERVER_PORT, "getScores", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+	const auto f = https::Https::postAsync(MANAGEMENTSERVER_PORT, "getScores", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
 		if (statusCode != 200) {
 			emit removeSpinner();
 			return;
@@ -156,6 +157,7 @@ void ScoresWidget::updateView() {
 		emit loadedData(scoreList);
 		emit removeSpinner();
 	});
+	_futureWatcher.setFuture(f);
 }
 
 void ScoresWidget::updateData(QList<ManagementScore> scores) {		

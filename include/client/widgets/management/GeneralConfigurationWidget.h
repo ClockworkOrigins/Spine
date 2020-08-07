@@ -22,6 +22,7 @@
 
 #include "widgets/management/IManagementWidget.h"
 
+#include <QFutureWatcher>
 #include <QModelIndex>
 #include <QWidget>
 
@@ -70,6 +71,8 @@ namespace widgets {
 		QLineEdit * _feedbackMailEdit;
 		QLineEdit * _discussionUrlEdit;
 		gui::WaitSpinner * _waitSpinner;
+
+		QFutureWatcher<void> _futureWatcher;
 	};
 
 } /* namespace widgets */
