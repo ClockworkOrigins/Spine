@@ -59,9 +59,9 @@
 		<File Hash="7789eabb6dd4a159bb899d2e6d6df70addb3df239bda6f9ead8c1d2a2ac2062fce3a495814b48a3c2bec12f13800ad0703e2c61c35158b0912011b914f098011">vcredist_x64.exe.z</File>
 	</Version>
 	<Version majorVersion="1" minorVersion="22" patchVersion="1">
-		<File Hash="40d5312b9277859b872ee9c49c9e28b6fc2a3cee43fa0944b632c9796f289f5376648cae4122fc8deb3195fb6d0566dd53fd48666d76058522ab830d1aeb9503">bin/changelog.xml.z</File>
-		<File Hash="6200ef15c3f95522e3a4b2284aff57a47140570fe462070bcea40a7681154ae8423f7009f8776ebb3e45e551c34cc78d657b1dc23915d8c576abd91a5cb9519e">bin/Spine.exe.z</File>
-		<File Hash="6200ef15c3f95522e3a4b2284aff57a47140570fe462070bcea40a7681154ae8423f7009f8776ebb3e45e551c34cc78d657b1dc23915d8c576abd91a5cb9519e">bin/libcrypto-1_1-x64.dll.z</File>
-		<File Hash="6200ef15c3f95522e3a4b2284aff57a47140570fe462070bcea40a7681154ae8423f7009f8776ebb3e45e551c34cc78d657b1dc23915d8c576abd91a5cb9519e">bin/libssl-1_1-x64.dll.z</File>
+		<File Hash="d3fa2ae4ca9409e5239debf48a778f3ca029a51d8a32865c8bfba17a7442b0675ef5b84bdf4345d9a4b350f455ca2f02cb0b560295148d8ac1f9349b3b940cee">bin/changelog.xml.z</File>
+		<File Hash="3e6b4d511fdefb3e9ca062a4db9506825ec64f1993334c1ae07fdf09a92b937bc279509fe3527ae4bd1cb58fcad9066f6f8197f9fe45f4f9d0f9bf6abac89fd3">bin/Spine.exe.z</File>
+		<File Hash="7f8a2e061be53f6e811ab89554aa541261a0ae59452d1a675df43b2f2e39b0685b453a74a77cd7d292245ae5ea26c59443cacaf91d770cdb7cf88cb9ffe7ee33">bin/libcrypto-1_1-x64.dll.z</File>
+		<File Hash="85b557aa5d48e01f1e8056b0c4c5ee99b1305ad351143d11e028b8d16b7be523cd837106f3510016298fe350f3fcd79018cee3b975886e6d8dc59dd1a836245a">bin/libssl-1_1-x64.dll.z</File>
 	</Version>
 </Versions>

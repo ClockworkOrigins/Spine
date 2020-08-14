@@ -1919,7 +1919,9 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="22" patchVersion="1">
 		<Bug language="Deutsch">Breite der Datenbank korrigiert</Bug>
+		<Bug language="Deutsch">SSL-Fehler behoben</Bug>
 		
 		<Bug language="English">Fixed width of database</Bug>
+		<Bug language="English">Fixed SSL bug</Bug>
 	</Version>
 </Versions>
