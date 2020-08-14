@@ -600,7 +600,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 			mod.avgDuration = -1;
 		}
 		uint32_t version = (mod.majorVersion << 16) + (mod.minorVersion << 8) + mod.patchVersion;
-		mod.downloadSize = _downloadSizeChecker->getBytes(mod.id, msg->language, version);
+		mod.downloadSize = _downloadSizeChecker->getBytes(mod.id, LanguageConverter::convert(l), version);
 
 		if (!database.query("EXECUTE selectUpdateDateStmt USING @paramModID;")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
