@@ -1251,7 +1251,7 @@ void ModDatabaseView::selectedModIndex(const QModelIndex & index) {
 			QtConcurrent::run([this, mod]() {
 				common::RequestModFilesMessage rmfm;
 				rmfm.modID = mod.id;
-				rmfm.language = Config::Language.toStdString();
+				rmfm.language = q2s(LanguageConverter::convert(mod.language));
 				std::string serialized = rmfm.SerializePublic();
 				clockUtils::sockets::TcpSocket sock;
 				if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
