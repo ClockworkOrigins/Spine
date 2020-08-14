@@ -142,7 +142,7 @@ void DatabaseMigrator::migrate() {
 						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 						break;
 					}
-					if (!database.query("EXECUTE insertTeamNameStmt USING @paramProjectID, @paramName, @paramLanguages;")) {
+					if (!database.query("EXECUTE insertTeamNameStmt USING @paramTeamID, @paramName, @paramLanguages;")) {
 						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 						break;
 					}
