@@ -661,6 +661,11 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
+	
+	if (!database.query("SET @paramLanguage='" + LanguageConverter::convert(msg->language) + "';")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return;
+	}
 
 	for (auto vec : enabledResults) {
 		UpdatePackageListMessage::Package package;

@@ -487,6 +487,7 @@ void ModDatabaseView::updateModList(int modID, int packageID, InstallMode mode) 
 		_installSilently.insert(modID);
 	}
 	if (!_cached) {
+		delete _waitSpinner;
 		_waitSpinner = new WaitSpinner(QApplication::tr("LoadingDatabase"), this);
 		_sourceModel->setHorizontalHeaderLabels(QStringList() << QApplication::tr("ID") << QApplication::tr("Name") << QApplication::tr("Author") << QApplication::tr("Type") << QApplication::tr("Game") << QApplication::tr("DevTime") << QApplication::tr("AvgTime") << QApplication::tr("ReleaseDate") << QApplication::tr("UpdateDate") << QApplication::tr("Version") << QApplication::tr("Languages") << QApplication::tr("DownloadSize") << QString());
 	}
@@ -591,9 +592,12 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 	for (InstalledMod im : ims) {
 		installedMods.insert(im.id);
 	}
+
+	const QFontMetrics fm(_treeView->font());
+	
 	for (const common::Mod & mod : mods) {
 		const QString modname = s2q(mod.name);
-		QStandardItem * nameItem = new TextItem(modname);
+		QStandardItem * nameItem = new TextItem(fm.elidedText(modname, Qt::ElideRight, 300));
 		nameItem->setData(modname, DatabaseRole::FilterRole);
 		nameItem->setEditable(false);
 		{
@@ -602,7 +606,7 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 			nameItem->setFont(f);
 		}
 		const QString teamname = s2q(mod.teamName);
-		QStandardItem * teamItem = new TextItem(teamname);
+		QStandardItem * teamItem = new TextItem(fm.elidedText(teamname, Qt::ElideRight, 200));
 		teamItem->setEditable(false);
 		QString typeName;
 		switch (mod.type) {
@@ -966,12 +970,15 @@ void ModDatabaseView::updatePackageList(std::vector<common::UpdatePackageListMes
 	for (const InstalledPackage & im : ips) {
 		installedPackages.insert(im.packageID);
 	}
+
+	const QFontMetrics fm(_treeView->font());
+	
 	for (const common::UpdatePackageListMessage::Package & package : packages) {
 		if (_parentMods.find(package.modID) == _parentMods.end()) { // hidden parent or bug, don't crash in this case
 			continue;
 		}
 		const QString packageName = s2q(package.name);
-		QStandardItem * nameItem = new TextItem(packageName);
+		QStandardItem * nameItem = new TextItem(fm.elidedText(packageName, Qt::ElideRight, 300));
 		nameItem->setData(s2q(_mods[_parentMods[package.modID].row()].name), DatabaseRole::FilterRole);
 		nameItem->setData(package.packageID, DatabaseRole::PackageIDRole);
 		nameItem->setEditable(false);
