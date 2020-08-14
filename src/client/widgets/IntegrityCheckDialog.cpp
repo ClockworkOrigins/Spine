@@ -93,10 +93,18 @@ void IntegrityCheckDialog::setText(QString text) {
 }
 
 void IntegrityCheckDialog::setValue(int value) {
+	static bool b = false;
+
+	if (b) return;
+	
+	b = true;
+
 	QProgressDialog::setValue(value);
 #ifdef Q_OS_WIN
 	_taskbarProgress->setValue(value);
 #endif
+
+	b = false;
 }
 
 void IntegrityCheckDialog::setMaximum(int max) {

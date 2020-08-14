@@ -1927,8 +1927,10 @@
 	<Version majorVersion="1" minorVersion="22" patchVersion="2">
 		<Bug language="Deutsch">Falsche Größenberechnung in Datenbank für Mods in anderen Sprachen behoben</Bug>
 		<Bug language="Deutsch">Download fremdsprachiger Mods funktioniert jetzt richtig</Bug>
+		<Bug language="Deutsch">Absturz bei Integritätsprüfung behoben</Bug>
 		
 		<Bug language="English">Fixed wrong size calculation for mods in different languages</Bug>
 		<Bug language="English">Fixed download of mods in foreign languages</Bug>
+		<Bug language="English">Fixed crash during integrity check</Bug>
 	</Version>
 </Versions>
