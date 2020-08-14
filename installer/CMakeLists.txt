@@ -1,5 +1,5 @@
 IF(WIN32)
-	SET(VCREDIST "vcredist_x86.exe")
+	SET(VCREDIST "vcredist_x64.exe")
 
 	configure_file(${CMAKE_SOURCE_DIR}/config/setup.nsi.in ${CMAKE_BINARY_DIR}/installer/Windows/setup.nsi @ONLY)
 
