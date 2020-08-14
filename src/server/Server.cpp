@@ -662,7 +662,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 		return;
 	}
 	
-	if (!database.query("SET @paramLanguage='" + LanguageConverter::convert(msg->language) + "';")) {
+	if (!database.query("SET @paramLanguage='" + msg->language + "';")) {
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
