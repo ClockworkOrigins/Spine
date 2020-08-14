@@ -42,7 +42,7 @@
 
 Name "${GAME_NAME} ${VER_TEXT}"
 OutFile "${GAME_NAME} ${VER_TEXT}.exe"
-InstallDir "$PROGRAMFILES\Clockwork Origins\"
+InstallDir "$PROGRAMFILES64\Clockwork Origins\"
 !define GAME_RKEY "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${GAME_FILE}"
 InstallDirRegKey HKLM "${GAME_RKEY}" "InstallLocation"
 AllowRootDirInstall true

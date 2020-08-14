@@ -105,7 +105,7 @@ ELSEIF(WIN32)
 	SET(LIBNAME "OPENSSL")
 	SET(LIBHEADER "openssl/rsa.h")
 	SET(OPENSSL_ROOT ${SPINE_DEP_DIR}/openSSL)
-	find_package(EasyFind REQUIRED COMPONENTS libeay32 ssleay32)
+	find_package(EasyFind REQUIRED COMPONENTS libcrypto libssl)
 ENDIF()
 include_directories(SYSTEM ${OPENSSL_INCLUDE_DIR})
 #----------------------------------------------------

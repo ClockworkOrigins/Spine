@@ -33,6 +33,7 @@
 #include "models/SpineEditorModel.h"
 
 #include "utils/Config.h"
+#include "utils/Conversion.h"
 #include "utils/Database.h"
 #include "utils/DownloadQueue.h"
 #include "utils/FileDownloader.h"
@@ -133,6 +134,8 @@ MainWindow * MainWindow::instance = nullptr;
 
 MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par), _modListView(nullptr), _modInfoView(nullptr), _profileView(nullptr), _friendsView(nullptr), _spineLevelRankingWidget(nullptr), _settingsDialog(nullptr), _autoUpdateDialog(), _changelogDialog(nullptr), _modListModel(nullptr), _loginDialog(nullptr), _modUpdateDialog(nullptr), _installGothic2FromCDDialog(nullptr), _feedbackDialog(nullptr), _developerModeActive(false), _devModeAction(nullptr), _modDatabaseView(nullptr), _tabWidget(nullptr), _spineEditorAction(nullptr), _spineEditor(nullptr), _modInfoPage(nullptr) {
 	instance = this;
+
+	LOGINFO(QSslSocket::supportsSsl() << q2s(QSslSocket::sslLibraryBuildVersionString()) << q2s(QSslSocket::sslLibraryVersionString()));
 
 	connect(DiscordManager::instance(), &DiscordManager::connected, []() {
 		DiscordManager::instance()->updatePresence(QApplication::tr("Browsing"), "");

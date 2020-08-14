@@ -139,6 +139,7 @@ void FileDownloader::startDownload() {
 	connect(reply, &QNetworkReply::readyRead, this, &FileDownloader::writeToFile);
 	connect(reply, &QNetworkReply::finished, this, &FileDownloader::fileDownloaded);
 	connect(reply, &QNetworkReply::errorOccurred, this, &FileDownloader::networkError);
+	connect(reply, &QNetworkReply::sslErrors, this, &FileDownloader::sslErrors);
 	connect(this, &FileDownloader::abort, reply, &QNetworkReply::abort);
 	emit startedDownload(_fileName);
 }
@@ -204,6 +205,12 @@ void FileDownloader::networkError(QNetworkReply::NetworkError err) {
 		emit fileFailed(DownloadError::CanceledError);
 	} else {
 		emit fileFailed(DownloadError::NetworkError);
+	}
+}
+
+void FileDownloader::sslErrors(const QList<QSslError> & errors) {
+	for (const auto & err : errors) {
+		LOGINFO(err.error() << " - " << q2s(err.errorString()));
 	}
 }
 

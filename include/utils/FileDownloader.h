@@ -65,6 +65,7 @@ namespace utils {
 		void determineFileSize();
 		void writeToFile();
 		void networkError(QNetworkReply::NetworkError err);
+		void sslErrors(const QList<QSslError> & errors);
 
 	private:
 		QNetworkAccessManager * _webAccessManager;
