@@ -1917,4 +1917,9 @@
 		<Bug language="English">Ensured compatibility between Union and Savegame Editor is given</Bug>
 		<Bug language="English">Fixed crash when exiting management dialog while loading data</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="22" patchVersion="1">
+		<Bug language="Deutsch">Breite der Datenbank korrigiert</Bug>
+		
+		<Bug language="English">Fixed width of database</Bug>
+	</Version>
 </Versions>
