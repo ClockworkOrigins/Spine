@@ -3202,55 +3202,55 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
     </message>
     <message>
         <source>Browsing</source>
-        <translation>Browsen</translation>
+        <translation>Przeglądanie</translation>
     </message>
     <message>
         <source>InGame</source>
-        <translation>Im Spiel</translation>
+        <translation>W grze</translation>
     </message>
     <message>
         <source>LinkDiscord</source>
-        <translation>Mit Discord verknüpfen</translation>
+        <translation>Link do Discorda</translation>
     </message>
     <message>
         <source>UnlinkDiscord</source>
-        <translation>Verknüpfung mit Discord lösen</translation>
+        <translation>Odłącz się od Discorda</translation>
     </message>
     <message>
         <source>Experience</source>
-        <translation>Erfahrung</translation>
+        <translation>Doświadczenie</translation>
     </message>
     <message>
         <source>Ranking</source>
-        <translation>Ranking</translation>
+        <translation>Zaszeregowanie</translation>
     </message>
     <message>
         <source>SubscribeNewsletter</source>
-        <translation>Für Newsletter anmelden</translation>
+        <translation>Zarejestruj się aby otrzymać newsletter</translation>
     </message>
     <message>
         <source>Languages</source>
-        <translation>Sprachen</translation>
+        <translation>Języki</translation>
     </message>
     <message>
         <source>Request</source>
-        <translation>Anfrage</translation>
+        <translation>Zapytanie ofertowe</translation>
     </message>
     <message>
         <source>Requests</source>
-        <translation>Anfragen</translation>
+        <translation>Upraszanie</translation>
     </message>
     <message>
         <source>VersionUpdate</source>
-        <translation>Versions-Update</translation>
+        <translation>Aktualizacja wersji</translation>
     </message>
     <message>
         <source>VersionUpdateSuccess</source>
-        <translation>Versionsnummer wurde erfolgreich aktualisiert.</translation>
+        <translation>Numer wersji został pomyślnie zaktualizowany.</translation>
     </message>
     <message>
         <source>VersionUpdateFailed</source>
-        <translation>Versionsnummer konnte nicht aktualisiert werden. Versuche es später noch einmal. Wenn der Fehler immer noch besteht, kontaktiere uns.</translation>
+        <translation>Nie można zaktualizować numeru wersji. Spróbuj ponownie później. Jeśli błąd będzie się powtarzał, skontaktuj się z nami.</translation>
     </message>
 </context>
 </TS>
