@@ -228,7 +228,7 @@ std::string ServerCommon::getProjectName(int projectID, int preferredLanguage) {
 	do {
 		CONNECTTODATABASE(__LINE__);
 		
-		if (!database.query("PREPARE selectProjectNameStmt FROM \"SELECT CAST(Name AS BINARY) FROM projectNames WHERE ProjectID = ? AND Language & ? LIMIT 1\";")) {
+		if (!database.query("PREPARE selectProjectNameStmt FROM \"SELECT CAST(Name AS BINARY) FROM projectNames WHERE ProjectID = ? AND Languages & ? LIMIT 1\";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
