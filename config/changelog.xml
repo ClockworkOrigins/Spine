@@ -1933,4 +1933,9 @@
 		<Bug language="English">Fixed download of mods in foreign languages</Bug>
 		<Bug language="English">Fixed crash during integrity check</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="23" patchVersion="0">
+		<Enhancement language="Deutsch">Sprachfilter in Datenbank eingeführt</Enhancement>
+		
+		<Enhancement language="English">Added language filter in database</Enhancement>
+	</Version>
 </Versions>

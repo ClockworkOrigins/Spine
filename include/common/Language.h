@@ -27,7 +27,9 @@ namespace common {
 		German = 1 << 0,
 		English = 1 << 1,
 		Polish = 1 << 2,
-		Russian = 1 << 3
+		Russian = 1 << 3,
+
+		Count = 1 << 4
 	};
 
 } /* namespace common */

@@ -204,6 +204,60 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 
 	connect(generalSettingsWidget, &GeneralSettingsWidget::languageChanged, this, &ModDatabaseView::changeLanguage);
 
+	const auto iconDE = IconCache::getInstance()->getOrLoadIcon(":/languages/de-DE.png");
+	const auto iconEN = IconCache::getInstance()->getOrLoadIcon(":/languages/en-US.png");
+	const auto iconPL = IconCache::getInstance()->getOrLoadIcon(":/languages/pl-PL.png");
+	const auto iconRU = IconCache::getInstance()->getOrLoadIcon(":/languages/ru-RU.png");
+	
+	auto pmDE = iconDE.pixmap(iconDE.availableSizes().first());
+	auto pmEN = iconEN.pixmap(iconEN.availableSizes().first());
+	auto pmPL = iconPL.pixmap(iconPL.availableSizes().first());
+	auto pmRU = iconRU.pixmap(iconRU.availableSizes().first());
+
+	pmDE = pmDE.scaled(25, 25, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	pmEN = pmEN.scaled(25, 25, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	pmPL = pmPL.scaled(25, 25, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	pmRU = pmRU.scaled(25, 25, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+	languagePixmaps.insert(common::German, pmDE);
+	languagePixmaps.insert(common::English, pmEN);
+	languagePixmaps.insert(common::Polish, pmPL);
+	languagePixmaps.insert(common::Russian, pmRU);
+
+	const QPixmap pmDEEN = ImageMerger::merge(pmDE, pmEN);
+	const QPixmap pmDEPL = ImageMerger::merge(pmDE, pmPL);
+	const QPixmap pmDERU = ImageMerger::merge(pmDE, pmRU);
+	
+	const QPixmap pmENPL = ImageMerger::merge(pmEN, pmPL);
+	const QPixmap pmENRU = ImageMerger::merge(pmEN, pmRU);
+	
+	const QPixmap pmPLRU = ImageMerger::merge(pmPL, pmRU);
+
+	languagePixmaps.insert(common::German | common::English, pmDEEN);
+	languagePixmaps.insert(common::German | common::Polish, pmDEPL);
+	languagePixmaps.insert(common::German | common::Russian, pmDERU);
+	
+	languagePixmaps.insert(common::English | common::Polish, pmENPL);
+	languagePixmaps.insert(common::English | common::Russian, pmENRU);
+	
+	languagePixmaps.insert(common::Polish | common::Russian, pmPLRU);
+
+	const QPixmap pmDEENPL = ImageMerger::merge(pmDE, pmEN, pmPL);
+	const QPixmap pmDEENRU = ImageMerger::merge(pmDE, pmEN, pmRU);
+	const QPixmap pmDEPLRU = ImageMerger::merge(pmDE, pmPL, pmRU);
+	
+	const QPixmap pmENPLRU = ImageMerger::merge(pmEN, pmPL, pmRU);
+	
+	languagePixmaps.insert(common::German | common::English | common::Polish, pmDEENPL);
+	languagePixmaps.insert(common::German | common::English | common::Russian, pmDEENRU);
+	languagePixmaps.insert(common::German | common::Polish | common::Russian, pmDEPLRU);
+	
+	languagePixmaps.insert(common::English | common::Polish | common::Russian, pmENPLRU);
+	
+	const QPixmap pmDEENPLRU = ImageMerger::merge(pmDE, pmEN, pmPL, pmRU);
+	
+	languagePixmaps.insert(common::German | common::English | common::Polish | common::Russian, pmDEENPLRU);
+
 	{
 		QWidget * filterWidget = new QWidget(this);
 		QHBoxLayout * hl = new QHBoxLayout();
@@ -214,6 +268,67 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 		connect(le, &QLineEdit::textChanged, this, &ModDatabaseView::changedFilterExpression);
 
 		hl->addWidget(le);
+
+		{
+			QGroupBox * gbLanguages = new QGroupBox(QApplication::tr("Languages"), filterWidget);
+			UPDATELANGUAGESETTITLE(gbLanguages, "Languages");
+			
+			QGridLayout * gl = new QGridLayout();
+
+			QCheckBox * cbGerman = new QCheckBox(QApplication::tr("German"), filterWidget);
+			cbGerman->setChecked(_sortModel->isLanguageActive(common::German));
+			UPDATELANGUAGESETTEXT(cbGerman, "German");
+			connect(cbGerman, &QCheckBox::stateChanged, [this](int state) {
+				_sortModel->languageChanged(common::German, state);
+			});
+
+			QCheckBox * cbEnglish = new QCheckBox(QApplication::tr("English"), filterWidget);
+			cbEnglish->setChecked(_sortModel->isLanguageActive(common::English));
+			UPDATELANGUAGESETTEXT(cbEnglish, "English");
+			connect(cbEnglish, &QCheckBox::stateChanged, [this](int state) {
+				_sortModel->languageChanged(common::English, state);
+			});
+
+			QCheckBox * cbPolish = new QCheckBox(QApplication::tr("Polish"), filterWidget);
+			cbPolish->setChecked(_sortModel->isLanguageActive(common::Polish));
+			UPDATELANGUAGESETTEXT(cbPolish, "Polish");
+			connect(cbPolish, &QCheckBox::stateChanged, [this](int state) {
+				_sortModel->languageChanged(common::Polish, state);
+			});
+
+			QCheckBox * cbRussian = new QCheckBox(QApplication::tr("Russian"), filterWidget);
+			cbRussian->setChecked(_sortModel->isLanguageActive(common::Russian));
+			UPDATELANGUAGESETTEXT(cbRussian, "Russian");
+			connect(cbRussian, &QCheckBox::stateChanged, [this](int state) {
+				_sortModel->languageChanged(common::Russian, state);
+			});
+
+			QLabel * lblGerman = new QLabel(gbLanguages);
+			lblGerman->setPixmap(languagePixmaps[common::German]);
+
+			QLabel * lblEnglish = new QLabel(gbLanguages);
+			lblEnglish->setPixmap(languagePixmaps[common::English]);
+
+			QLabel * lblPolish = new QLabel(gbLanguages);
+			lblPolish->setPixmap(languagePixmaps[common::Polish]);
+
+			QLabel * lblRussian = new QLabel(gbLanguages);
+			lblRussian->setPixmap(languagePixmaps[common::Russian]);
+
+			gl->addWidget(cbGerman, 0, 0);
+			gl->addWidget(lblGerman, 0, 1);
+			gl->addWidget(cbEnglish, 1, 0);
+			gl->addWidget(lblEnglish, 1, 1);
+			gl->addWidget(cbPolish, 2, 0);
+			gl->addWidget(lblPolish, 2, 1);
+			gl->addWidget(cbRussian, 3, 0);
+			gl->addWidget(lblRussian, 3, 1);
+			gl->setRowStretch(4, 1);
+
+			gbLanguages->setLayout(gl);
+
+			hl->addWidget(gbLanguages);
+		}
 
 		{
 			QGroupBox * gb = new QGroupBox(QApplication::tr("Type"), filterWidget);
@@ -350,7 +465,7 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 			QGroupBox * gb = new QGroupBox(QApplication::tr("DevTime"), filterWidget);
 			UPDATELANGUAGESETTITLE(gb, "DevTime");
 
-			QGridLayout * vbl = new QGridLayout();
+			QGridLayout * gl = new QGridLayout();
 
 			QSpinBox * sb1 = new QSpinBox(gb);
 			sb1->setMinimum(0);
@@ -369,12 +484,13 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 			QLabel * l2 = new QLabel(QApplication::tr("MaxDurationHours"), gb);
 			UPDATELANGUAGESETTEXT(l2, "MaxDurationHours");
 
-			vbl->addWidget(l1, 0, 0);
-			vbl->addWidget(sb1, 0, 1);
-			vbl->addWidget(l2, 1, 0);
-			vbl->addWidget(sb2, 1, 1);
+			gl->addWidget(l1, 0, 0);
+			gl->addWidget(sb1, 0, 1);
+			gl->addWidget(l2, 1, 0);
+			gl->addWidget(sb2, 1, 1);
+			gl->setRowStretch(2, 1);
 
-			gb->setLayout(vbl);
+			gb->setLayout(gl);
 
 			hl->addWidget(gb);
 		}
@@ -418,60 +534,6 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 	updateDatabaseEntries();
 
 	updateModList(-1, -1, InstallMode::None);
-
-	const auto iconDE = IconCache::getInstance()->getOrLoadIcon(":/languages/de-DE.png");
-	const auto iconEN = IconCache::getInstance()->getOrLoadIcon(":/languages/en-US.png");
-	const auto iconPL = IconCache::getInstance()->getOrLoadIcon(":/languages/pl-PL.png");
-	const auto iconRU = IconCache::getInstance()->getOrLoadIcon(":/languages/ru-RU.png");
-	
-	auto pmDE = iconDE.pixmap(iconDE.availableSizes().first());
-	auto pmEN = iconEN.pixmap(iconEN.availableSizes().first());
-	auto pmPL = iconPL.pixmap(iconPL.availableSizes().first());
-	auto pmRU = iconRU.pixmap(iconRU.availableSizes().first());
-
-	pmDE = pmDE.scaled(25, 25, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-	pmEN = pmEN.scaled(25, 25, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-	pmPL = pmPL.scaled(25, 25, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-	pmRU = pmRU.scaled(25, 25, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-
-	languagePixmaps.insert(common::German, pmDE);
-	languagePixmaps.insert(common::English, pmEN);
-	languagePixmaps.insert(common::Polish, pmPL);
-	languagePixmaps.insert(common::Russian, pmRU);
-
-	const QPixmap pmDEEN = ImageMerger::merge(pmDE, pmEN);
-	const QPixmap pmDEPL = ImageMerger::merge(pmDE, pmPL);
-	const QPixmap pmDERU = ImageMerger::merge(pmDE, pmRU);
-	
-	const QPixmap pmENPL = ImageMerger::merge(pmEN, pmPL);
-	const QPixmap pmENRU = ImageMerger::merge(pmEN, pmRU);
-	
-	const QPixmap pmPLRU = ImageMerger::merge(pmPL, pmRU);
-
-	languagePixmaps.insert(common::German | common::English, pmDEEN);
-	languagePixmaps.insert(common::German | common::Polish, pmDEPL);
-	languagePixmaps.insert(common::German | common::Russian, pmDERU);
-	
-	languagePixmaps.insert(common::English | common::Polish, pmENPL);
-	languagePixmaps.insert(common::English | common::Russian, pmENRU);
-	
-	languagePixmaps.insert(common::Polish | common::Russian, pmPLRU);
-
-	const QPixmap pmDEENPL = ImageMerger::merge(pmDE, pmEN, pmPL);
-	const QPixmap pmDEENRU = ImageMerger::merge(pmDE, pmEN, pmRU);
-	const QPixmap pmDEPLRU = ImageMerger::merge(pmDE, pmPL, pmRU);
-	
-	const QPixmap pmENPLRU = ImageMerger::merge(pmEN, pmPL, pmRU);
-	
-	languagePixmaps.insert(common::German | common::English | common::Polish, pmDEENPL);
-	languagePixmaps.insert(common::German | common::English | common::Russian, pmDEENRU);
-	languagePixmaps.insert(common::German | common::Polish | common::Russian, pmDEPLRU);
-	
-	languagePixmaps.insert(common::English | common::Polish | common::Russian, pmENPLRU);
-	
-	const QPixmap pmDEENPLRU = ImageMerger::merge(pmDE, pmEN, pmPL, pmRU);
-	
-	languagePixmaps.insert(common::German | common::English | common::Polish | common::Russian, pmDEENPLRU);
 }
 
 void ModDatabaseView::changeLanguage(QString) {
@@ -721,6 +783,7 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 		const auto pm = languagePixmaps[mod.supportedLanguages];
 		
 		languagesItem->setData(QVariant(pm), Qt::DecorationRole);
+		languagesItem->setData(static_cast<qint32>(mod.supportedLanguages), LanguagesRole);
 
 		_sourceModel->appendRow(QList<QStandardItem *>() << idItem << nameItem << teamItem << typeItem << gameItem << devTimeItem << avgTimeItem << releaseDateItem << updateDateItem << versionItem << languagesItem << sizeItem << buttonItem);
 		for (int i = 0; i < _sourceModel->columnCount(); i++) {

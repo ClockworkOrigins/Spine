@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "common/Language.h"
+
 #include <QSortFilterProxyModel>
 
 namespace spine {
@@ -41,7 +43,8 @@ namespace spine {
 	enum DatabaseRole {
 		SortRole = Qt::UserRole,
 		FilterRole,
-		PackageIDRole
+		PackageIDRole,
+		LanguagesRole
 	};
 
 	class DatabaseFilterModel : public QSortFilterProxyModel {
@@ -114,6 +117,10 @@ namespace spine {
 			_rendererAllowed = allowed;
 		}
 
+		bool isLanguageActive(common::Language language) const {
+			return _languages & language;
+		}
+
 	public slots:
 		void gamesChanged(int state);
 		void demosChanged(int state);
@@ -130,6 +137,7 @@ namespace spine {
 		void gmpChanged(int state);
 		void minDurationChanged(int);
 		void maxDurationChanged(int);
+		void languageChanged(common::Language language, int state);
 
 	private:
 		bool _gamesActive;
@@ -148,6 +156,7 @@ namespace spine {
 		int _minDuration;
 		int _maxDuration;
 		bool _rendererAllowed;
+		int _languages;
 
 		bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const override;
 	};
