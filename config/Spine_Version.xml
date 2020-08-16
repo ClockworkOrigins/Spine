@@ -61,9 +61,9 @@
 		<File Hash="85b557aa5d48e01f1e8056b0c4c5ee99b1305ad351143d11e028b8d16b7be523cd837106f3510016298fe350f3fcd79018cee3b975886e6d8dc59dd1a836245a">bin/libssl-1_1-x64.dll.z</File>
 	</Version>
 	<Version majorVersion="1" minorVersion="22" patchVersion="2">
-		<File Hash="d3fa2ae4ca9409e5239debf48a778f3ca029a51d8a32865c8bfba17a7442b0675ef5b84bdf4345d9a4b350f455ca2f02cb0b560295148d8ac1f9349b3b940cee">bin/changelog.xml.z</File>
-		<File Hash="3e6b4d511fdefb3e9ca062a4db9506825ec64f1993334c1ae07fdf09a92b937bc279509fe3527ae4bd1cb58fcad9066f6f8197f9fe45f4f9d0f9bf6abac89fd3">bin/Spine.exe.z</File>
-		<File Hash="79b292997b59cfe709fa6ef71dc0fe77c8607911c68a6b5903581ef4e12d624e23a7766ff95ae783a9ae255cdcc72ac8f68b628a7acbf05bbcf76ecbcc1551ed">bin/TranslatorAPI.dll.z</File>
-		<File Hash="a9fbf1c34b39d74c241efdc8b06319189d4a0537fcc203c95bb01ca969e65ab04a2ccab80eaf8252581984bcb5cbf9cf1e0d3d43b0dee80a483feaa23da3462f">bin/TranslatorCommon.dll.z</File>
+		<File Hash="eefba04306cce2e38827b378dedd3366fa812ad14c94435758685a99ffccd7ac906e7fd880e30b1ff58737790f4bf34255896a54af80412541590c73b30d4506">bin/changelog.xml.z</File>
+		<File Hash="efb87b39be5adfe541043068b159f519a83b6c7aa3fcc314e404c5751f39f8300dcb2be1d29a3ebfa3681e7f546b98f183042a141d1d4e3d21b6910f8184dfc2">bin/Spine.exe.z</File>
+		<File Hash="89692bebb0a9264b5a2102b73201aa3b0034648a639ff812e640a653613a37bbbc792b4f68560fbc2a6ebd3befa98e4a3eba1a79d8fec2817c02f2b5328cd517">bin/TranslatorAPI.dll.z</File>
+		<File Hash="58406e08ce732069027cb27bfb1c5c8e26d195b57f027011eeaeb0941b9e1de2e45c2bd1cfc0ae0088141fb6eb9e6cad0cdeb4344a67c4fd1939cb53c80b814d">bin/TranslatorCommon.dll.z</File>
 	</Version>
 </Versions>
