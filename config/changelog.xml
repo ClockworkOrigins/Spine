@@ -1935,7 +1935,9 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="23" patchVersion="0">
 		<Enhancement language="Deutsch">Sprachfilter in Datenbank eingeführt</Enhancement>
+		<Bug language="Deutsch">Hängen bei Integritätsprüfung behoben</Bug>
 		
 		<Enhancement language="English">Added language filter in database</Enhancement>
+		<Bug language="English">Fixed hang during integrity check</Bug>
 	</Version>
 </Versions>

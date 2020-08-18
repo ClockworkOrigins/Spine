@@ -39,12 +39,11 @@ namespace widgets {
 			QString file;
 			QString hash;
 
-			ModFile() : modID(), file(), hash() {
-			}
-			ModFile(std::string s1, std::string s2, std::string s3) : modID(std::stoi(s1)), file(QString::fromStdString(s2)), hash(QString::fromStdString(s3)) {
-			}
-			ModFile(QString s1, QString s2) : modID(-1), file(s1), hash(s2) {
-			}
+			ModFile() : modID() {}
+			
+			ModFile(std::string s1, std::string s2, std::string s3) : modID(std::stoi(s1)), file(QString::fromStdString(s2)), hash(QString::fromStdString(s3)) {}
+			
+			ModFile(QString s1, QString s2) : modID(-1), file(s1), hash(s2) {}
 		};
 
 		IntegrityCheckDialog(QMainWindow * mainWindow, QWidget * par);
@@ -73,9 +72,7 @@ namespace widgets {
 
 	private slots:
 		void setText(QString text);
-		void setValue(int value);
-		void setMaximum(int max);
-		void cancel();
+		void cancelCheck();
 
 	private:
 		QWinTaskbarProgress * _taskbarProgress;

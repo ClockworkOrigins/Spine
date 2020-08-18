@@ -32,6 +32,7 @@
 #include <QApplication>
 #include <QDirIterator>
 #include <QFileInfo>
+#include <QFutureWatcher>
 #include <QMainWindow>
 #include <QtConcurrentRun>
 
@@ -44,11 +45,11 @@ using namespace spine;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-IntegrityCheckDialog::IntegrityCheckDialog(QMainWindow * mainWindow,  QWidget * par) : QProgressDialog(QApplication::tr("CheckIntegrityChecking").arg("-"), QApplication::tr("Cancel"), 0, 100, par), _taskbarProgress(nullptr), _running(false), _corruptFiles(), _corruptGothicFiles(), _corruptGothic2Files(), _gothicDirectory(), _gothic2Directory() {
-	connect(this, &IntegrityCheckDialog::updateText, this, &IntegrityCheckDialog::setText);
-	connect(this, &IntegrityCheckDialog::updateValue, this, &IntegrityCheckDialog::setValue);
-	connect(this, &IntegrityCheckDialog::updateCount, this, &IntegrityCheckDialog::setMaximum);
-	connect(this, &IntegrityCheckDialog::canceled, this, &IntegrityCheckDialog::cancel);
+IntegrityCheckDialog::IntegrityCheckDialog(QMainWindow * mainWindow,  QWidget * par) : QProgressDialog(QApplication::tr("CheckIntegrityChecking").arg("-"), QApplication::tr("Cancel"), 0, 100, par), _taskbarProgress(nullptr), _running(false) {
+	connect(this, &IntegrityCheckDialog::updateText, this, &IntegrityCheckDialog::setText, Qt::BlockingQueuedConnection);
+	connect(this, &IntegrityCheckDialog::updateValue, this, &IntegrityCheckDialog::setValue, Qt::BlockingQueuedConnection);
+	connect(this, &IntegrityCheckDialog::updateCount, this, &IntegrityCheckDialog::setMaximum, Qt::BlockingQueuedConnection);
+	connect(this, &IntegrityCheckDialog::canceled, this, &IntegrityCheckDialog::cancelCheck);
 
 #ifdef Q_OS_WIN
 	QWinTaskbarButton * button = new QWinTaskbarButton(this);
@@ -58,6 +59,9 @@ IntegrityCheckDialog::IntegrityCheckDialog(QMainWindow * mainWindow,  QWidget * 
 	_taskbarProgress->setMinimum(0);
 	_taskbarProgress->setMaximum(100);
 	_taskbarProgress->setValue(0);
+	
+	connect(this, &IntegrityCheckDialog::updateValue, _taskbarProgress, &QWinTaskbarProgress::setValue, Qt::BlockingQueuedConnection);
+	connect(this, &IntegrityCheckDialog::updateCount, _taskbarProgress, &QWinTaskbarProgress::setMaximum, Qt::BlockingQueuedConnection);
 #endif
 
 	setWindowTitle(QApplication::tr("CheckIntegrity"));
@@ -69,9 +73,12 @@ int IntegrityCheckDialog::exec() {
 #ifdef Q_OS_WIN
 	_taskbarProgress->show();
 #endif
+	QFutureWatcher<void> watcher;
 	QFuture<void> f = QtConcurrent::run([this]() {
 		process();
 	});
+	connect(&watcher, &QFutureWatcher<void>::finished, this, &QProgressDialog::accept);
+	watcher.setFuture(f);
 	QProgressDialog::exec();
 	f.waitForFinished();
 #ifdef Q_OS_WIN
@@ -92,29 +99,7 @@ void IntegrityCheckDialog::setText(QString text) {
 	setLabelText(QApplication::tr("CheckIntegrityChecking").arg(text));
 }
 
-void IntegrityCheckDialog::setValue(int value) {
-	static bool b = false;
-
-	if (b) return;
-	
-	b = true;
-
-	QProgressDialog::setValue(value);
-#ifdef Q_OS_WIN
-	_taskbarProgress->setValue(value);
-#endif
-
-	b = false;
-}
-
-void IntegrityCheckDialog::setMaximum(int max) {
-	QProgressDialog::setMaximum(max);
-#ifdef Q_OS_WIN
-	_taskbarProgress->setMaximum(max);
-#endif
-}
-
-void IntegrityCheckDialog::cancel() {
+void IntegrityCheckDialog::cancelCheck() {
 	_running = false;
 }
 
@@ -197,9 +182,10 @@ void IntegrityCheckDialog::process() {
 	if (!_gothic2Directory.isEmpty()) {
 		amount += gothic2FileList.size();
 	}
-	emit updateCount(amount);
+	emit updateCount(amount + 1);
 	int count = 0;
 	int step = amount / 200;
+	step = 1;
 	if (step == 0) {
 		step = 1;
 	}
