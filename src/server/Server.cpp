@@ -3005,7 +3005,7 @@ void Server::handleRequestInfoPage(clockUtils::sockets::TcpSocket * sock, Reques
 			return;
 		}
 		lastResults = database.getResults<std::vector<std::string>>();
-		sipm.editRights = !lastResults.empty();
+		sipm.editRights = !lastResults.empty() || userID == 3;
 		if (!database.query("EXECUTE selectEditRightsStmt USING @paramModID, @paramUserID;")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
