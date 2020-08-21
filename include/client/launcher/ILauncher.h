@@ -89,6 +89,7 @@ namespace launcher {
 		void openAchievementView(int32_t, QString);
 		void openScoreView(int32_t, QString);
 		void loadedSurvey(widgets::Survey survey, int versionMajor, int versionMinor, int versionPatch);
+		void syncedNewStats();
 
 	public slots:
 		virtual void finishedInstallation(int modID, int packageID, bool success) = 0;

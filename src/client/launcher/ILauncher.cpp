@@ -128,6 +128,8 @@ void ILauncher::createWidget() {
 			_upperLayout->addWidget(_ratingWidget, 1, Qt::AlignRight);
 			_ratingWidget->setEditable(true);
 			_ratingWidget->setVisible(false);
+
+			connect(this, &ILauncher::syncedNewStats, _ratingWidget, &RatingWidget::loginChanged);
 		}
 
 		_layout->addLayout(_upperLayout);
@@ -378,6 +380,8 @@ void ILauncher::stopCommon() {
 			syncAdditionalTimes(duration);
 			
 			updateModStats();
+
+			emit syncedNewStats();
 		}
 	});
 
