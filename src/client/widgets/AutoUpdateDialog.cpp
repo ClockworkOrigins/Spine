@@ -34,6 +34,7 @@
 #include <QAbstractButton>
 #include <QApplication>
 #include <QDir>
+#include <QDirIterator>
 #include <QLabel>
 #include <QMessageBox>
 #include <QProcess>
@@ -71,6 +72,8 @@ int AutoUpdateDialog::exec() {
 }
 
 void AutoUpdateDialog::checkForUpdate() {
+	cleanup();
+	
 	clockUtils::sockets::TcpSocket sock;
 	if (sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000) != clockUtils::ClockError::SUCCESS) {
 		accept();
@@ -153,7 +156,7 @@ void AutoUpdateDialog::checkForUpdate() {
 		}
 		QFile f(qApp->applicationDirPath() + "/../" + filename);
 		QString shortFilename = filename;
-		shortFilename.resize(shortFilename.length() - 1);
+		shortFilename += ".old";
 		if (QFileInfo::exists(qApp->applicationDirPath() + "/../" + shortFilename)) {
 			QFile(qApp->applicationDirPath() + "/../" + shortFilename).remove();
 		}
@@ -188,5 +191,14 @@ void AutoUpdateDialog::checkForUpdate() {
 				f.rename(qApp->applicationDirPath() + "/../" + filename);
 			}
 		}
+	}
+}
+
+void AutoUpdateDialog::cleanup() {
+	QDirIterator it(qApp->applicationDirPath(), QStringList() << "*.old" << "*.dl" << ".ex" << "*.q" << "*.xm" << "*.ba" << "*.vd", QDir::Filter::Files, QDirIterator::IteratorFlag::Subdirectories);
+	while (it.hasNext()) {
+		it.next();
+		const auto filePath = it.filePath();
+		QFile::remove(filePath);
 	}
 }

@@ -41,6 +41,8 @@ namespace widgets {
 	private:
 		QMainWindow * _mainWindow;
 		bool _manuallyChecking;
+
+		void cleanup();
 	};
 
 } /* namespace widgets */
