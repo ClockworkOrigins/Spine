@@ -53,7 +53,7 @@ using namespace spine::gui;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-ModUpdateDialog::ModUpdateDialog(QMainWindow * mainWindow) : QDialog(nullptr), _mainWindow(mainWindow), _infoLabel(nullptr), _checkBoxLayout(nullptr), _running(false), _lastTimeRejected(false) {
+ModUpdateDialog::ModUpdateDialog(QMainWindow * mainWindow) : QDialog(nullptr), _mainWindow(mainWindow), _infoLabel(nullptr), _checkBoxLayout(nullptr), _running(false), _lastTimeRejected(false), _loginChecked(false), _spineUpdateChecked(false) {
 	QVBoxLayout * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
@@ -99,6 +99,22 @@ ModUpdateDialog::ModUpdateDialog(QMainWindow * mainWindow) : QDialog(nullptr), _
 }
 
 void ModUpdateDialog::loginChanged() {
+	_loginChecked = true;
+	
+	if (_lastTimeRejected) {
+		_lastTimeRejected = false;
+		return;
+	}
+	if (_running) {
+		QTimer::singleShot(1000, [this] { loginChanged(); });
+	} else {
+		checkForUpdate();
+	}
+}
+
+void ModUpdateDialog::spineUpToDate() {
+	_spineUpdateChecked = true;
+	
 	if (_lastTimeRejected) {
 		_lastTimeRejected = false;
 		return;
@@ -435,6 +451,10 @@ void ModUpdateDialog::reject() {
 }
 
 void ModUpdateDialog::checkForUpdate() {
+	if (!_loginChecked) return;
+
+	if (!_spineUpdateChecked) return;
+	
 	_running = true;
 	QtConcurrent::run([this]() {
 		Database::DBError err;

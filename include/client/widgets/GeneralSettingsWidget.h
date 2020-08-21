@@ -57,7 +57,6 @@ namespace widgets {
 	private:
 		QComboBox * _languageComboBox;
 		QComboBox * _styleComboBox;
-		QCheckBox * _autoUpdateBox;
 		QSpinBox * _downloadRateSpinBox;
 		QCheckBox * _hideIncompatibleCheckBox;
 		QCheckBox * _extendedLoggingCheckBox;

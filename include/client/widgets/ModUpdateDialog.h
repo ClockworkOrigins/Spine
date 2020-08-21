@@ -44,6 +44,7 @@ namespace widgets {
 
 	public slots:
 		void loginChanged();
+		void spineUpToDate();
 		void checkForUpdate();
 		void checkForUpdate(int32_t modID, bool forceAccept);
 
@@ -62,7 +63,7 @@ namespace widgets {
 
 			ModFile() {}
 			
-			ModFile(std::string i, std::string s1, std::string s2) : packageID(-1), modID(std::stoi(i)), file(s1), hash(s2) {}
+			ModFile(std::string i, std::string s1, std::string s2) : modID(std::stoi(i)), file(s1), hash(s2) {}
 			
 			ModFile(int i, std::string s1, std::string s2, int32_t p, QString fs) : packageID(p), modID(int32_t(i)), file(s1), hash(s2), fileserver(fs) {}
 		};
@@ -76,6 +77,8 @@ namespace widgets {
 		bool _running;
 		bool _lastTimeRejected;
 		QMap<int32_t, QString> _oldVersions;
+		bool _loginChecked;
+		bool _spineUpdateChecked;
 
 		void hideUpdates(QList<common::ModUpdate> hides) const;
 		bool hasChanges(common::ModUpdate mu) const;

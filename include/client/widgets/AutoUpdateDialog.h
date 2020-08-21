@@ -31,6 +31,9 @@ namespace widgets {
 	public:
 		AutoUpdateDialog(QMainWindow * mainWindow);
 
+	signals:
+		void upToDate();
+
 	public slots:
 		int exec() override;
 		void checkForUpdate();

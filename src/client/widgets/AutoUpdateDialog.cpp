@@ -74,6 +74,9 @@ void AutoUpdateDialog::checkForUpdate() {
 	clockUtils::sockets::TcpSocket sock;
 	if (sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000) != clockUtils::ClockError::SUCCESS) {
 		accept();
+
+		emit upToDate();
+		
 		return;
 	}
 
@@ -86,16 +89,25 @@ void AutoUpdateDialog::checkForUpdate() {
 	std::string serialized = urm.SerializeBlank();
 	if (sock.writePacket(serialized) != clockUtils::ClockError::SUCCESS) {
 		accept();
+
+		emit upToDate();
+		
 		return;
 	}
 	if (sock.receivePacket(serialized) != clockUtils::ClockError::SUCCESS) {
 		accept();
+
+		emit upToDate();
+		
 		return;
 	}
 	common::Message * m = common::Message::DeserializeBlank(serialized);
 	if (!m || m->type != common::MessageType::UPDATEFILES) {
 		delete m;
 		accept();
+
+		emit upToDate();
+		
 		return;
 	}
 	common::UpdateFilesMessage * ufm = dynamic_cast<common::UpdateFilesMessage *>(m);
@@ -109,6 +121,9 @@ void AutoUpdateDialog::checkForUpdate() {
 		}
 		delete ufm;
 		accept();
+
+		emit upToDate();
+		
 		return;
 	}
 	QString exeFileName = qApp->applicationDirPath() + "/" + qApp->applicationName();

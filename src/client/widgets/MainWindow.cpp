@@ -751,10 +751,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	}
 
 	if (Config::OnlineMode) {
-		const bool checkForUpdate = Config::IniParser->value("MISC/checkForUpdate", true).toBool();
-		if (checkForUpdate) {
-			QTimer::singleShot(0, _autoUpdateDialog, &AutoUpdateDialog::checkForUpdate);
-		}
+		QTimer::singleShot(0, _autoUpdateDialog, &AutoUpdateDialog::checkForUpdate);
 	}
 
 	if (Config::OnlineMode) {
@@ -762,7 +759,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		connect(_loginDialog, &LoginDialog::loggedIn, _modUpdateDialog, &ModUpdateDialog::loginChanged);
 		connect(_loginDialog, &LoginDialog::notLoggedIn, _modUpdateDialog, &ModUpdateDialog::loginChanged);
 
-		connect(_settingsDialog->getGeneralSettingsWidget(), &GeneralSettingsWidget::resetModUpdates, _modUpdateDialog, static_cast<void(ModUpdateDialog::*)()>(&ModUpdateDialog::checkForUpdate));
+		connect(_settingsDialog->getGeneralSettingsWidget(), &GeneralSettingsWidget::resetModUpdates, _modUpdateDialog, QOverload<>::of(&ModUpdateDialog::checkForUpdate));
 
 		connect(_modUpdateDialog, &ModUpdateDialog::updatedMod, _modInfoView, &ModInfoView::updatedMod);
 
@@ -772,7 +769,9 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		connect(_modUpdateDialog, &ModUpdateDialog::updatedMod, LauncherFactory::getInstance(), &LauncherFactory::updateFinished);
 		connect(_modUpdateDialog, &ModUpdateDialog::updatedMod, _modInfoPage, &ModInfoPage::updateFinished);
 
-		connect(_modListView, &LibraryListView::forceUpdate, _modUpdateDialog, static_cast<void(ModUpdateDialog::*)(int32_t, bool)>(&ModUpdateDialog::checkForUpdate));
+		connect(_modListView, &LibraryListView::forceUpdate, _modUpdateDialog, QOverload<int32_t, bool>::of(&ModUpdateDialog::checkForUpdate));
+
+		connect(_autoUpdateDialog, &AutoUpdateDialog::upToDate, _modUpdateDialog, &ModUpdateDialog::spineUpToDate);
 	}
 }
 
@@ -1030,7 +1029,7 @@ void MainWindow::execManagement() {
 	connect(&dlg, &client::widgets::ManagementDialog::triggerInfoPage, _modInfoPage, &ModInfoPage::loadPage);
 	connect(&dlg, &client::widgets::ManagementDialog::triggerInfoPage, this, &MainWindow::changeToInfoTab);
 	connect(&dlg, &client::widgets::ManagementDialog::triggerInfoPage, _modInfoPage, &ModInfoPage::forceEditPage);
-	connect(&dlg, &client::widgets::ManagementDialog::checkForUpdate, _modUpdateDialog, static_cast<void(ModUpdateDialog::*)(int32_t, bool)>(&ModUpdateDialog::checkForUpdate));
+	connect(&dlg, &client::widgets::ManagementDialog::checkForUpdate, _modUpdateDialog, QOverload<int32_t, bool>::of(&ModUpdateDialog::checkForUpdate));
 	dlg.exec();
 }
 

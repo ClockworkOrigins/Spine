@@ -1937,9 +1937,11 @@
 		<Enhancement language="Deutsch">Sprachfilter in Datenbank eingeführt</Enhancement>
 		<Bug language="Deutsch">Hängen bei Integritätsprüfung behoben</Bug>
 		<Bug language="Deutsch">Möglichkeit Projekt zu bewerten wird jetzt direkt nach dem Spielen aktualisiert</Bug>
+		<Bug language="Deutsch">Verhindert, dass Projekt-Updates Spine-Updates überlagern</Bug>
 		
 		<Enhancement language="English">Added language filter in database</Enhancement>
 		<Bug language="English">Fixed hang during integrity check</Bug>
 		<Bug language="English">Possibility to rate a project now gets updated directly after playing</Bug>
+		<Bug language="English">Avoided project updates blocking Spine updates</Bug>
 	</Version>
 </Versions>

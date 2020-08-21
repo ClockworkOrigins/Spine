@@ -46,7 +46,7 @@ using namespace spine::widgets;
 bool GeneralSettingsWidget::skipExitCheckbox = false;
 GeneralSettingsWidget * GeneralSettingsWidget::instance = nullptr;
 
-GeneralSettingsWidget::GeneralSettingsWidget(QWidget * par) : QWidget(par), _languageComboBox(nullptr), _styleComboBox(nullptr), _autoUpdateBox(nullptr), _hideIncompatibleCheckBox(nullptr), _extendedLoggingCheckBox(nullptr) {
+GeneralSettingsWidget::GeneralSettingsWidget(QWidget * par) : QWidget(par), _languageComboBox(nullptr), _styleComboBox(nullptr), _hideIncompatibleCheckBox(nullptr), _extendedLoggingCheckBox(nullptr) {
 	instance = this;
 	
 	QVBoxLayout * l = new QVBoxLayout();
@@ -107,19 +107,7 @@ GeneralSettingsWidget::GeneralSettingsWidget(QWidget * par) : QWidget(par), _lan
 
 		l->addSpacing(10);
 
-		connect(_styleComboBox, static_cast<void(QComboBox::*)(const QString&)>(&QComboBox::currentIndexChanged), this, &GeneralSettingsWidget::changedStyle);
-	}
-	{
-		_autoUpdateBox = new QCheckBox(QApplication::tr("AutoUpdateCheck"), this);;
-
-		const bool checkForUpdates = Config::IniParser->value("MISC/checkForUpdates", true).toBool();
-		_autoUpdateBox->setChecked(checkForUpdates);
-
-		l->addWidget(_autoUpdateBox);
-
-		UPDATELANGUAGESETTEXT(_autoUpdateBox, "AutoUpdateCheck");
-
-		l->addSpacing(10);
+		connect(_styleComboBox, QOverload<const QString&>::of(&QComboBox::currentIndexChanged), this, &GeneralSettingsWidget::changedStyle);
 	}
 	{
 		QPushButton * pb = new QPushButton(QApplication::tr("ReactivateModUpdates"), this);
@@ -240,7 +228,6 @@ void GeneralSettingsWidget::saveSettings() {
 		}
 	}
 
-	Config::IniParser->setValue("checkForUpdates", _autoUpdateBox->isChecked());
 	{
 		Config::downloadRate = _downloadRateSpinBox->value();
 		Config::IniParser->setValue("kbps", Config::downloadRate);
@@ -266,8 +253,6 @@ void GeneralSettingsWidget::rejectSettings() {
 	const QString style = Config::IniParser->value("style", "Default").toString();
 	_styleComboBox->setCurrentText(style);
 
-	const bool checkForUpdates = Config::IniParser->value("checkForUpdates", true).toBool();
-	_autoUpdateBox->setChecked(checkForUpdates);
 	{
 		int kbps = Config::IniParser->value("kbps", 5120).toInt();
 		if (kbps > 5120) {
