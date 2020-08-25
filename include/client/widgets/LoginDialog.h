@@ -82,6 +82,7 @@ namespace widgets {
 
 		void handleLogin();
 		void closeEvent(QCloseEvent * evt) override;
+		void saveCredentials(const QString & username, const QString & passwd);
 	};
 
 } /* namespace widgets */

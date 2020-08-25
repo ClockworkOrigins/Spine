@@ -444,37 +444,7 @@ void LoginDialog::loginUser() {
 			handleLogin();
 
 			if (stayLoggedIn) {
-				QFile f(Config::BASEDIR + "/databases/Login.bin");
-				if (f.open(QIODevice::WriteOnly)) {
-					const QDir homeDir = QDir::home();
-					int pathLength = homeDir.absolutePath().length();
-					char pl[sizeof(int)];
-					memcpy(pl, &pathLength, sizeof(int));
-					f.write(pl, sizeof(int));
-					clockUtils::compression::Compression<clockUtils::compression::algorithm::HuffmanGeneric> c;
-					std::string compressedPath;
-					clockUtils::ClockError cErr = c.compress(homeDir.absolutePath().toStdString(), compressedPath);
-					Q_UNUSED(cErr);
-					pathLength = static_cast<int>(compressedPath.length());
-					memcpy(pl, &pathLength, sizeof(int));
-					f.write(pl, sizeof(int));
-					f.write(compressedPath.c_str(), pathLength);
-					std::string compressed;
-					std::string uncompressed;
-					char usernameLength[sizeof(size_t)];
-					char passwordLength[sizeof(size_t)];
-					size_t l = username.toStdString().length();
-					memcpy(usernameLength, &l, sizeof(size_t));
-					l = passwd.toStdString().length();
-					memcpy(passwordLength, &l, sizeof(size_t));
-					uncompressed.append(usernameLength, sizeof(size_t));
-					uncompressed.append(username.toStdString());
-					uncompressed.append(passwordLength, sizeof(size_t));
-					uncompressed.append(passwd.toStdString());
-					if (clockUtils::ClockError::SUCCESS == c.compress(uncompressed, compressed)) {
-						f.write(compressed.c_str(), compressed.length());
-					}
-				}
+				saveCredentials(username, passwd);
 			}
 
 			Config::Username = username;
@@ -546,37 +516,7 @@ void LoginDialog::registerUser() {
 			handleLogin();
 
 			if (stayLoggedIn) {
-				QFile f(Config::BASEDIR + "/databases/Login.bin");
-				if (f.open(QIODevice::WriteOnly)) {
-					const QDir homeDir = QDir::home();
-					int pathLength = homeDir.absolutePath().length();
-					char pl[sizeof(int)];
-					memcpy(pl, &pathLength, sizeof(int));
-					f.write(pl, sizeof(int));
-					const clockUtils::compression::Compression<clockUtils::compression::algorithm::HuffmanGeneric> c;
-					std::string compressedPath;
-					clockUtils::ClockError cErr = c.compress(homeDir.absolutePath().toStdString(), compressedPath);
-					Q_UNUSED(cErr);
-					pathLength = static_cast<int>(compressedPath.length());
-					memcpy(pl, &pathLength, sizeof(int));
-					f.write(pl, sizeof(int));
-					f.write(compressedPath.c_str(), pathLength);
-					std::string compressed;
-					std::string uncompressed;
-					char usernameLength[sizeof(size_t)];
-					char passwordLength[sizeof(size_t)];
-					size_t l = username.toStdString().length();
-					memcpy(usernameLength, &l, sizeof(size_t));
-					l = passwd.toStdString().length();
-					memcpy(passwordLength, &l, sizeof(size_t));
-					uncompressed.append(usernameLength, sizeof(size_t));
-					uncompressed.append(username.toStdString());
-					uncompressed.append(passwordLength, sizeof(size_t));
-					uncompressed.append(passwd.toStdString());
-					if (clockUtils::ClockError::SUCCESS == c.compress(uncompressed, compressed)) {
-						f.write(compressed.c_str(), compressed.length());
-					}
-				}
+				saveCredentials(username, passwd);
 			}
 
 			Config::Username = username;
@@ -691,4 +631,39 @@ void LoginDialog::closeEvent(QCloseEvent *) {
 	if (_connected) return;
 
 	emit notLoggedIn();
+}
+
+void LoginDialog::saveCredentials(const QString & username, const QString & passwd) {
+	QFile f(Config::BASEDIR + "/databases/Login.bin");
+	
+	if (!f.open(QIODevice::WriteOnly)) return;
+	
+	const QDir homeDir = QDir::home();
+	int32_t pathLength = homeDir.absolutePath().length();
+	char pl[sizeof(int32_t)];
+	memcpy(pl, &pathLength, sizeof(int32_t));
+	f.write(pl, sizeof(int32_t));
+	const clockUtils::compression::Compression<clockUtils::compression::algorithm::HuffmanGeneric> c;
+	std::string compressedPath;
+	clockUtils::ClockError cErr = c.compress(homeDir.absolutePath().toStdString(), compressedPath);
+	Q_UNUSED(cErr);
+	pathLength = static_cast<int32_t>(compressedPath.length());
+	memcpy(pl, &pathLength, sizeof(int32_t));
+	f.write(pl, sizeof(int32_t));
+	f.write(compressedPath.c_str(), pathLength);
+	std::string compressed;
+	std::string uncompressed;
+	char usernameLength[sizeof(uint32_t)];
+	char passwordLength[sizeof(uint32_t)];
+	size_t l = username.toStdString().length();
+	memcpy(usernameLength, &l, sizeof(uint32_t));
+	l = passwd.toStdString().length();
+	memcpy(passwordLength, &l, sizeof(uint32_t));
+	uncompressed.append(usernameLength, sizeof(uint32_t));
+	uncompressed.append(username.toStdString());
+	uncompressed.append(passwordLength, sizeof(uint32_t));
+	uncompressed.append(passwd.toStdString());
+	if (clockUtils::ClockError::SUCCESS == c.compress(uncompressed, compressed)) {
+		f.write(compressed.c_str(), compressed.length());
+	}
 }
