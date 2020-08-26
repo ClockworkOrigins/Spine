@@ -546,7 +546,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 		});
 
 		if (nameIt == names.end()) {
-			nameIt = std::find_if(names.begin(), names.end(), [defaultLanguage](const std::pair<int, std::string> & p) {
+			nameIt = std::find_if(names.begin(), names.end(), [=](const std::pair<int, std::string> & p) {
 				return p.first & defaultLanguage;
 			});
 
