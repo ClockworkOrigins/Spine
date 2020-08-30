@@ -635,7 +635,9 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		checkIntegrityAction->setToolTip(QApplication::tr("CheckIntegrityTooltip"));
 		UPDATELANGUAGESETTEXT(checkIntegrityAction, "CheckIntegrity");
 		UPDATELANGUAGESETTOOLTIP(checkIntegrityAction, "CheckIntegrityTooltip");
-		connect(checkIntegrityAction, &QAction::triggered, this, &MainWindow::checkIntegrity);
+		connect(checkIntegrityAction, &QAction::triggered, this, [this]() {
+			checkIntegrity(-1);
+		});
 	}
 	QAction * generateReportAction = helpMenu->addAction(QApplication::tr("GenerateReport"));
 	UPDATELANGUAGESETTEXT(generateReportAction, "GenerateReport");
@@ -770,6 +772,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		connect(_modUpdateDialog, &ModUpdateDialog::updatedMod, _modInfoPage, &ModInfoPage::updateFinished);
 
 		connect(_modListView, &LibraryListView::forceUpdate, _modUpdateDialog, QOverload<int32_t, bool>::of(&ModUpdateDialog::checkForUpdate));
+		connect(_modListView, &LibraryListView::checkIntegrity, this, &MainWindow::checkIntegrity);
 
 		connect(_autoUpdateDialog, &AutoUpdateDialog::upToDate, _modUpdateDialog, &ModUpdateDialog::spineUpToDate);
 	}
@@ -852,7 +855,7 @@ void MainWindow::setDeveloperMode(bool devMode) {
 	pathChanged();
 }
 
-void MainWindow::checkIntegrity() {
+void MainWindow::checkIntegrity(int projectID) {
 	IntegrityCheckDialog dlg(this, this);
 	if (_settingsDialog->getLocationSettingsWidget()->isGothicValid(true)) {
 		dlg.setGothicDirectory(_gothicDirectory);
@@ -860,7 +863,7 @@ void MainWindow::checkIntegrity() {
 	if (_settingsDialog->getLocationSettingsWidget()->isGothic2Valid(true)) {
 		dlg.setGothic2Directory(_gothic2Directory);
 	}
-	if (dlg.exec() == QDialog::Accepted) {
+	if (dlg.exec(projectID) == QDialog::Accepted) {
 		QList<IntegrityCheckDialog::ModFile> corruptFiles = dlg.getCorruptFiles();
 		QList<IntegrityCheckDialog::ModFile> corruptGothicFiles = dlg.getCorruptGothicFiles();
 		QList<IntegrityCheckDialog::ModFile> corruptGothic2Files = dlg.getCorruptGothic2Files();

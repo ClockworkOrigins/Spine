@@ -50,10 +50,17 @@ void LibraryListView::contextMenuEvent(QContextMenuEvent * evt) {
 				QAction * hideModAction = menu->addAction(QApplication::tr("Hide"));
 				connect(hideModAction, &QAction::triggered, this, &LibraryListView::hideModTriggered);
 			}
-			QAction * uninstallModAction = menu->addAction(QApplication::tr("Uninstall"));
-			connect(uninstallModAction, &QAction::triggered, this, &LibraryListView::uninstallModTriggered);
 
 			const int projectID = idx.data(LibraryFilterModel::ModIDRole).toInt();
+			QAction * checkIntegrityAction = menu->addAction(QApplication::tr("CheckIntegrity"));
+			connect(checkIntegrityAction, &QAction::triggered, this, [this, projectID]() {
+				emit checkIntegrity(projectID);
+			});
+
+			menu->addSeparator();
+			
+			QAction * uninstallModAction = menu->addAction(QApplication::tr("Uninstall"));
+			connect(uninstallModAction, &QAction::triggered, this, &LibraryListView::uninstallModTriggered);
 
 			Database::DBError err;
 			auto l = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Languages FROM supportedLanguages WHERE ProjectID = " + std::to_string(projectID) + " LIMIT 1;", err);

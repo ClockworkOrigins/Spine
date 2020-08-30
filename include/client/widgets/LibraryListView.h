@@ -34,6 +34,7 @@ namespace widgets {
 		void showModTriggered();
 		void uninstallModTriggered();
 		void forceUpdate(int projectID, bool forceAccept);
+		void checkIntegrity(int projectID);
 
 	private slots:
 		void changeLanguage(int projectID, int language);

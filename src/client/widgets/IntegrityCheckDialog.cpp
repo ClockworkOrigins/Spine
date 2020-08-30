@@ -68,14 +68,14 @@ IntegrityCheckDialog::IntegrityCheckDialog(QMainWindow * mainWindow,  QWidget * 
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 }
 
-int IntegrityCheckDialog::exec() {
+int IntegrityCheckDialog::exec(int projectID) {
 	_running = true;
 #ifdef Q_OS_WIN
 	_taskbarProgress->show();
 #endif
 	QFutureWatcher<void> watcher;
-	QFuture<void> f = QtConcurrent::run([this]() {
-		process();
+	QFuture<void> f = QtConcurrent::run([this, projectID]() {
+		process(projectID);
 	});
 	connect(&watcher, &QFutureWatcher<void>::finished, this, &QProgressDialog::accept);
 	watcher.setFuture(f);
@@ -108,7 +108,7 @@ void IntegrityCheckDialog::closeEvent(QCloseEvent * evt) {
 	QProgressDialog::closeEvent(evt);
 }
 
-void IntegrityCheckDialog::process() {
+void IntegrityCheckDialog::process(int projectID) {
 	QMap<QString, QString> gothicFileList;
 	gothicFileList.insert("system/Autopan.flt", "3b72d25d0ddeb6085657ec74b51cf5c03dc61c9f26ed75faa6ed4033ab051082e3b232b310f67bbc1e9eaf063451fe098da456e8a89699e49abbca99ac1005cb");
 	gothicFileList.insert("system/BugslayerUtil.dll", "c0dec407fa0d8d16cfbae351646651932ae91310b29e569b3dfd044629228e1ce43d4dd1871686958b37db67e9f3a344812e79efd6e67696b9d9d765797bcddf");
@@ -174,7 +174,14 @@ void IntegrityCheckDialog::process() {
 	gothic2FileList.insert("Miles/MssRSX.m3d", "cf58176faa0429a40dc641609eeb297665752c226cf7d1dd58120365964727ba827be9771698e2137df555c99c6ea72b3d4a190ac0082afe383aec20f309a6b1");
 	gothic2FileList.insert("Miles/MssSoft.m3d", "949ce71af730262719ba6c442df07e3074ee512a2c55560ce5d09de9d5de179c08fba485317a508ea887b7ecc9278b1b1fd4a1cf728cfb7a2ff3f602660406c2");
 	Database::DBError err;
-	std::vector<ModFile> files = Database::queryAll<ModFile, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, File, Hash FROM modfiles;", err);
+
+	std::string statement = "SELECT ModID, File, Hash FROM modfiles;";
+
+	if (projectID > 0) {
+		statement = "SELECT ModID, File, Hash FROM modfiles WHERE ModID = " + std::to_string(projectID) + ";";
+	}
+	
+	std::vector<ModFile> files = Database::queryAll<ModFile, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, statement, err);
 	int amount = files.size();
 	if (!_gothicDirectory.isEmpty()) {
 		amount += gothicFileList.size();
@@ -190,7 +197,14 @@ void IntegrityCheckDialog::process() {
 		step = 1;
 	}
 	QSet<QString> allFiles;
-	QDirIterator it(Config::DOWNLOADDIR + "/mods/", QDir::Files, QDirIterator::Subdirectories);
+
+	auto projectDir = Config::DOWNLOADDIR + "/mods/";
+
+	if (projectID > 0) {
+		projectDir += QString::number(projectID) + "/";
+	}
+	
+	QDirIterator it(projectDir, QDir::Files, QDirIterator::Subdirectories);
 	while (it.hasNext()) {
 		QString path = it.next();
 		if (!path.contains(".spsav")) {

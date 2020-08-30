@@ -66,7 +66,7 @@ namespace widgets {
 		void pathChanged();
 		void tabChanged(int index);
 		void setDeveloperMode(bool devMode);
-		void checkIntegrity();
+		void checkIntegrity(int projectID);
 		void openSpecialProfileView();
 		void changeToInfoTab();
 		void openIniConfigurator();

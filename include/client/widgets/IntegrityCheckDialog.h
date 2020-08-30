@@ -66,7 +66,7 @@ namespace widgets {
 		void updateCount(int);
 
 	public slots:
-		int exec() override;
+		int exec(int projectID);
 		void setGothicDirectory(QString path);
 		void setGothic2Directory(QString path);
 
@@ -84,7 +84,7 @@ namespace widgets {
 		QString _gothic2Directory;
 
 		void closeEvent(QCloseEvent * evt) override;
-		void process();
+		void process(int projectID);
 	};
 
 } /* namespace widgets */
