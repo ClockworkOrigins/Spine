@@ -219,7 +219,7 @@ void ProfileView::updateList() {
 						return;
 					}
 				} else {
-					qDebug() << "Error occurred: " << int(cErr);
+					qDebug() << "Error occurred: " << static_cast<int>(cErr);
 				}
 			}
 			{
@@ -241,7 +241,7 @@ void ProfileView::updateList() {
 						return;
 					}
 				} else {
-					qDebug() << "Error occurred: " << int(cErr);
+					qDebug() << "Error occurred: " << static_cast<int>(cErr);
 				}
 			}
 		}
@@ -314,7 +314,7 @@ void ProfileView::openAchievementView(int32_t modID, QString modName) {
 					return;
 				}
 			} else {
-				qDebug() << "Error occurred: " << int(cErr);
+				qDebug() << "Error occurred: " << static_cast<int>(cErr);
 			}
 		}
 	});
@@ -359,7 +359,7 @@ void ProfileView::openScoreView(int32_t modID, QString modName) {
 					return;
 				}
 			} else {
-				qDebug() << "Error occurred: " << int(cErr);
+				qDebug() << "Error occurred: " << static_cast<int>(cErr);
 			}
 		}
 	});

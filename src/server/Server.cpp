@@ -1838,7 +1838,11 @@ void Server::handleRequestAllModStats(clockUtils::sockets::TcpSocket * sock, Req
 							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 							continue;
 						}
-						if (!database.query("EXECUTE selectScoreNameStmt USING @paramModID, @paramIdentifier, @paramLanguage;")) {
+						if (!database.query("SET @paramScoreLanguage='" + msg->language + "';")) {
+							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+							return;
+						}
+						if (!database.query("EXECUTE selectScoreNameStmt USING @paramModID, @paramIdentifier, @paramScoreLanguage;")) {
 							std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 							continue;
 						}
