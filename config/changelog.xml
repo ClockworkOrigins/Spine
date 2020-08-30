@@ -1941,6 +1941,7 @@
 		<Bug language="Deutsch">Alte Dateien werden nach Auto-Update jetzt zuverlässig gelöscht</Bug>
 		<Bug language="Deutsch">Fehler beim lokalen Speichern der Logindaten behoben</Bug>
 		<Bug language="Deutsch">Bester Score wird im Profil wieder angezeigt</Bug>
+		<Bug language="Deutsch">Diverse Fehler bei Integritätsprüfung korrigiert</Bug>
 		
 		<Enhancement language="English">Added language filter in database</Enhancement>
 		<Bug language="English">Fixed hang during integrity check</Bug>
@@ -1949,5 +1950,6 @@
 		<Bug language="English">Old files now are properly deleted after auto update</Bug>
 		<Bug language="English">Fixed bug when storing login data locally</Bug>
 		<Bug language="English">Best score is displayed again in profile</Bug>
+		<Bug language="English">Fixed different bugs with integrity check</Bug>
 	</Version>
 </Versions>

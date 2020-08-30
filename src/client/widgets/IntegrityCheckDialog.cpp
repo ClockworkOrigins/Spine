@@ -197,13 +197,9 @@ void IntegrityCheckDialog::process() {
 			allFiles.insert(path);
 		}
 	}
-	QDirIterator gamesIt(Config::DOWNLOADDIR + "/games/", QDir::Files, QDirIterator::Subdirectories);
-	while (gamesIt.hasNext()) {
-		QString path = gamesIt.next();
-		if (!path.contains(".spsav")) {
-			allFiles.insert(path);
-		}
-	}
+
+	QSet<int> d3d11Versions;
+	
 	for (const ModFile & file : files) {
 		QFileInfo fi(file.file);
 		if (count % step == 0) {
@@ -213,9 +209,35 @@ void IntegrityCheckDialog::process() {
 		const bool b = utils::Hashing::checkHash(Config::DOWNLOADDIR + "/mods/" + QString::number(file.modID) + "/" + file.file, file.hash);
 		if (!b && !file.file.contains("directx_Jun2010_redist.exe", Qt::CaseInsensitive)) {
 			_corruptFiles.append(file);
+
+			if (file.file.contains("GD3D11", Qt::CaseInsensitive) && !d3d11Versions.contains(file.modID)) {
+				d3d11Versions.insert(file.modID);
+
+				{
+					ModFile mf;
+					mf.modID = file.modID;
+					mf.file = "D3D11.zip";
+					_corruptFiles.append(mf);
+				}
+				{
+					ModFile mf;
+					mf.modID = file.modID;
+					mf.file = "archive.zip";
+					_corruptFiles.append(mf);
+				}
+			}
 		}
-		
-		allFiles.remove(Config::DOWNLOADDIR + "/mods/" + QString::number(file.modID) + "/" + file.file);
+
+		for (auto it2 = allFiles.begin(); it2 != allFiles.end(); ++it2) {
+			const auto path = Config::DOWNLOADDIR + "/mods/" + QString::number(file.modID) + "/" + file.file;
+			const auto refPath = *it2;
+
+			if (refPath.compare(path, Qt::CaseInsensitive) != 0) continue;
+			
+			allFiles.erase(it2);
+
+			break;
+		}
 		count++;
 		if (count % step == 0) {
 			emit updateValue(count);
