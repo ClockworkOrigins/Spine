@@ -779,6 +779,7 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 		idItem->setEditable(false);
 
 		QStandardItem * languagesItem = new QStandardItem();
+		languagesItem->setEditable(false);
 
 		const auto pm = languagePixmaps[mod.supportedLanguages];
 		
