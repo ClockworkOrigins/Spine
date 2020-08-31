@@ -3222,7 +3222,7 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
     </message>
     <message>
         <source>Ranking</source>
-        <translation>Zaszeregowanie</translation>
+        <translation>Ranking</translation>
     </message>
     <message>
         <source>SubscribeNewsletter</source>
