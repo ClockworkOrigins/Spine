@@ -34,6 +34,7 @@
 #include <QFileInfo>
 #include <QFutureWatcher>
 #include <QMainWindow>
+#include <QProgressBar>
 #include <QtConcurrentRun>
 
 #ifdef Q_OS_WIN
@@ -50,6 +51,10 @@ IntegrityCheckDialog::IntegrityCheckDialog(QMainWindow * mainWindow,  QWidget * 
 	connect(this, &IntegrityCheckDialog::updateValue, this, &IntegrityCheckDialog::setValue, Qt::BlockingQueuedConnection);
 	connect(this, &IntegrityCheckDialog::updateCount, this, &IntegrityCheckDialog::setMaximum, Qt::BlockingQueuedConnection);
 	connect(this, &IntegrityCheckDialog::canceled, this, &IntegrityCheckDialog::cancelCheck);
+
+	auto* pb = new QProgressBar(this);
+	pb->setAlignment(Qt::AlignCenter);
+	setBar(pb);
 
 #ifdef Q_OS_WIN
 	QWinTaskbarButton * button = new QWinTaskbarButton(this);
