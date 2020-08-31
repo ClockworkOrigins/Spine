@@ -180,6 +180,8 @@ namespace launcher {
 		void updateModel(QStandardItemModel * model) override;
 
 		void finishedInstallation(int modID, int packageID, bool success) override;
+
+		void updatedProject(int projectID) override;
 	};
 
 } /* namespace launcher */

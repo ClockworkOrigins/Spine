@@ -25,6 +25,7 @@
 
 #include "client/widgets/UpdateLanguage.h"
 
+#include "common/GameType.h"
 #include "common/MessageStructs.h"
 
 #include "https/Https.h"
@@ -2268,4 +2269,21 @@ void Gothic1And2Launcher::finishedInstallation(int modID, int packageID, bool su
 	
 	parseMod(QString("%1/mods/%2").arg(Config::DOWNLOADDIR).arg(modID));
 	updateModStats();
+}
+
+void Gothic1And2Launcher::updatedProject(int projectID) {
+	Database::DBError err;
+	const auto mods = Database::queryAll<std::vector<int>, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, GothicVersion FROM mods WHERE (GothicVersion = " + std::to_string(static_cast<int>(common::GameType::Gothic)) + " OR GothicVersion = " + std::to_string(static_cast<int>(common::GameType::Gothic2)) + " OR GothicVersion = " + std::to_string(static_cast<int>(common::GameType::Gothic1And2)) + " OR GothicVersion = " + std::to_string(static_cast<int>(common::GameType::GothicInGothic2)) + ") AND ModID = " + std::to_string(projectID) + ";", err);
+
+	if (mods.empty()) return;
+
+	const auto mod = mods[0];
+
+	const auto idxList = _model->match(_model->index(0, 0), LibraryFilterModel::ModIDRole, QVariant::fromValue(projectID), 2, Qt::MatchRecursive);
+
+	if (!idxList.empty()) {
+		_model->removeRow(idxList[0].row(), idxList[0].parent());
+	}
+
+	parseMod(QString("%1/mods/%2").arg(Config::DOWNLOADDIR).arg(projectID));
 }

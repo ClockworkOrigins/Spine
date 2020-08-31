@@ -1944,6 +1944,7 @@
 		<Bug language="Deutsch">Bester Score wird im Profil wieder angezeigt</Bug>
 		<Bug language="Deutsch">Diverse Fehler bei Integritätsprüfung korrigiert</Bug>
 		<Bug language="Deutsch">Style der Progressbar beim Integrity Check behoben</Bug>
+		<Bug language="Deutsch">Bei Sprachwechsel eines Projekts wird die Bibliothek jetzt direkt aktualisiert</Bug>
 		
 		<Enhancement language="English">Added language filter in database</Enhancement>
 		<Enhancement language="English">Integrity check now can be performed for each single project</Enhancement>
@@ -1955,5 +1956,6 @@
 		<Bug language="English">Best score is displayed again in profile</Bug>
 		<Bug language="English">Fixed different bugs with integrity check</Bug>
 		<Bug language="English">Fixed style of progress bar in integrity check</Bug>
+		<Bug language="English">Switching language of a project now directly updates the library</Bug>
 	</Version>
 </Versions>

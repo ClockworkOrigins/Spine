@@ -150,9 +150,7 @@ void ModInfoView::setHideIncompatible(bool enabled) {
 }
 
 void ModInfoView::updatedMod(int modID) {
-	if (!_currentLauncher) return;
-	
-	_currentLauncher->refresh(modID);
+	LauncherFactory::getInstance()->updatedProject(modID);
 }
 
 void ModInfoView::restartSpineAsAdmin() {

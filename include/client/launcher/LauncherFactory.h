@@ -44,6 +44,8 @@ namespace launcher {
 
 		void updateModel(QStandardItemModel * model);
 
+		void updatedProject(int projectID);
+
 	signals:
 		void restartAsAdmin();
 		void errorMessage(QString);

@@ -196,6 +196,23 @@ void GameLauncher::updateModel(QStandardItemModel * model) {
 	}
 }
 
+void GameLauncher::updatedProject(int projectID) {
+	Database::DBError err;
+	const auto games = Database::queryAll<std::vector<int>, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, GothicVersion FROM mods WHERE GothicVersion = " + std::to_string(static_cast<int>(GameType::Game)) + " AND ModID = " + std::to_string(projectID) + ";", err);
+
+	if (games.empty()) return;
+
+	const auto game = games[0];
+
+	const auto idxList = _model->match(_model->index(0, 0), LibraryFilterModel::ModIDRole, QVariant::fromValue(projectID), 2, Qt::MatchRecursive);
+
+	if (!idxList.empty()) {
+		_model->removeRow(idxList[0].row(), idxList[0].parent());
+	}
+
+	parseGame(game[0], game[1]);
+}
+
 void GameLauncher::finishedInstallation(int gameID, int packageID, bool success) {
 	if (!success) return;
 

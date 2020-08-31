@@ -96,6 +96,7 @@ void LibraryListView::contextMenuEvent(QContextMenuEvent * evt) {
 						});
 					} else {
 						a->setChecked(true);
+						languageMenu->setActiveAction(a);
 					}
 				}
 

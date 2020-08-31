@@ -82,6 +82,8 @@ namespace launcher {
 
 		virtual void updateModel(QStandardItemModel * model) = 0;
 
+		virtual void updatedProject(int projectID) = 0;
+
 	signals:
 		void restartAsAdmin();
 		void receivedModStats(common::ModStats);

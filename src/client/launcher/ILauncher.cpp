@@ -47,6 +47,7 @@
 #include <QJsonDocument>
 #include <QLabel>
 #include <QPushButton>
+#include <QStandardItemModel>
 #include <QtConcurrentRun>
 #include <QUrl>
 #include <QVBoxLayout>

@@ -102,6 +102,12 @@ void LauncherFactory::updateModel(QStandardItemModel * model) {
 	}
 }
 
+void LauncherFactory::updatedProject(int projectID) {
+	for (const auto & l : _launchers) {
+		l->updatedProject(projectID);
+	}
+}
+
 void LauncherFactory::initLauncher(ILauncherPtr launcher) const {
 	if (!launcher) return;
 	

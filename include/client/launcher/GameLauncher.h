@@ -59,6 +59,8 @@ namespace launcher {
 		void createWidget() override;
 
 		void parseGame(int gameID, int gameType);
+
+		void updatedProject(int projectID) override;
 	};
 
 } /* namespace launcher */
