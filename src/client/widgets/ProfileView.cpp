@@ -24,13 +24,13 @@
 
 #include "discord/DiscordManager.h"
 
+#include "gui/DownloadQueueWidget.h"
 #include "gui/WaitSpinner.h"
 
 #include "https/Https.h"
 
 #include "utils/Config.h"
 #include "utils/Conversion.h"
-#include "utils/DownloadQueue.h"
 #include "utils/FileDownloader.h"
 #include "utils/MultiFileDownloader.h"
 
@@ -447,7 +447,7 @@ void ProfileView::updateAchievements(int32_t modID, std::vector<common::SendAllA
 
 		connect(mfd, &MultiFileDownloader::downloadSucceeded, this, &ProfileView::updateAchievementIcons);
 
-		DownloadQueue::getInstance()->add(mfd);
+		DownloadQueueWidget::getInstance()->addDownload(QApplication::tr("AchievementIcons"), mfd);
 	}
 	int32_t counter = 0;
 	for (const auto & as : achievementStats) {

@@ -22,9 +22,10 @@
 #include "SpineConfig.h"
 #include "SteamProcess.h"
 
+#include "gui/DownloadQueueWidget.h"
+
 #include "utils/Config.h"
 #include "utils/Database.h"
-#include "utils/DownloadQueue.h"
 #include "utils/FileDownloader.h"
 #include "utils/Hashing.h"
 #include "utils/MultiFileDownloader.h"
@@ -44,6 +45,7 @@
 
 using namespace spine::client;
 using namespace spine::common;
+using namespace spine::gui;
 using namespace spine::launcher;
 using namespace spine::utils;
 using namespace spine::widgets;
@@ -156,6 +158,8 @@ void Gothic1Launcher::patchCheck() {
 
 	MultiFileDownloader * mfd = new MultiFileDownloader(this);
 
+	bool empty = true;
+
 	for (auto it = fileList.begin(); it != fileList.end(); ++it) {
 		QFile f(_directory + "/" + it.key());
 		if (Config::extendedLogging) {
@@ -166,13 +170,18 @@ void Gothic1Launcher::patchCheck() {
 			QFileInfo fi(it.key());
 			FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/g1/" + it.key()), _directory + "/" + fi.path(), fi.fileName(), it.value(), mfd);
 			mfd->addFileDownloader(fd);
+			empty = false;
 			if (Config::extendedLogging) {
 				LOGWARN("Hashcheck failed");
 			}
 		}
 	}
 
-	DownloadQueue::getInstance()->add(mfd);
+	if (empty) {
+		delete mfd;
+	} else {
+		DownloadQueueWidget::getInstance()->addDownload(QApplication::tr("Gothic"), mfd);
+	}
 
 	Database::DBError err;
 	const auto ids = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID FROM mods WHERE ModID = 57 OR ModID = 37;", err);

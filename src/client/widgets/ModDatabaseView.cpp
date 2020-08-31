@@ -29,6 +29,7 @@
 
 #include "common/MessageStructs.h"
 
+#include "gui/DownloadQueueWidget.h"
 #include "gui/WaitSpinner.h"
 
 #include "utils/Config.h"
@@ -1014,7 +1015,7 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, QSharedPointer<QList<QPa
 	});
 
 	mfd->setSize(mod.downloadSize);
-	DownloadQueue::getInstance()->add(mfd);
+	DownloadQueueWidget::getInstance()->addDownload(s2q(mod.name), mfd);
 }
 
 void ModDatabaseView::sortByColumn(int column) {
@@ -1211,8 +1212,8 @@ void ModDatabaseView::downloadPackageFiles(common::Mod mod, common::UpdatePackag
 		msg.exec();
 		emit finishedInstallation(mod.id, package.packageID, false);
 	});
-
-	DownloadQueue::getInstance()->add(mfd);
+	
+	DownloadQueueWidget::getInstance()->addDownload(s2q(package.name), mfd);
 }
 
 void ModDatabaseView::installMod(int modID) {

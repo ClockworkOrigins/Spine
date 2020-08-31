@@ -24,6 +24,7 @@
 
 #include "common/SpineModules.h"
 
+#include "gui/DownloadQueueWidget.h"
 #include "gui/FullscreenPreview.h"
 #include "gui/Spoiler.h"
 #include "gui/WaitSpinner.h"
@@ -34,7 +35,6 @@
 #include "utils/Config.h"
 #include "utils/Conversion.h"
 #include "utils/Database.h"
-#include "utils/DownloadQueue.h"
 #include "utils/FileDownloader.h"
 #include "utils/Hashing.h"
 #include "utils/MultiFileDownloader.h"
@@ -469,44 +469,29 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 			images.append(qMakePair(QString::fromStdString(p.first), QString::fromStdString(p.second)));
 		}
 		if (!images.empty()) {
+			auto empty = true;
+			
 			MultiFileDownloader * mfd = new MultiFileDownloader(this);
 			for (const auto & p : images) {
 				QString filename = p.first;
 				filename.chop(2); // every image is compressed, so it has a .z at the end
 				if (!QFileInfo::exists(Config::DOWNLOADDIR + "/screens/" + QString::number(_modID) + "/" + filename)) {
+					empty = false;
+					
 					QFileInfo fi(p.first);
 					FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(_modID) + "/screens/" + p.first), Config::DOWNLOADDIR + "/screens/" + QString::number(_modID) + "/" + fi.path(), fi.fileName(), p.second, mfd);
 					mfd->addFileDownloader(fd);
 				}
 			}
 
-			connect(mfd, &MultiFileDownloader::downloadSucceeded, [this]() {
-				int minWidth = std::numeric_limits<int>::max();
-				int maxWidth = 0;
-				
-				QString filename = QString::fromStdString(_screens[0].first);
-				filename.chop(2);
-				const QPixmap preview(Config::DOWNLOADDIR + "/screens/" + QString::number(_modID) + "/" + filename);
-				_previewImageLabel->setPixmap(preview.scaled(QSize(640, 480), Qt::KeepAspectRatio, Qt::SmoothTransformation));
-				for (const auto & p : _screens) {
-					QString fn = QString::fromStdString(p.first);
-					fn.chop(2); // .z
-					QStandardItem * itm = new QStandardItem();
-					QPixmap thumb(Config::DOWNLOADDIR + "/screens/" + QString::number(_modID) + "/" + fn);
-					QPixmap scaledThumb = thumb.scaled(QSize(300, 100), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-					itm->setIcon(scaledThumb);
-					minWidth = std::min(minWidth, scaledThumb.width());
-					maxWidth = std::max(maxWidth, scaledThumb.width());
-					_thumbnailModel->appendRow(itm);
-				}
-				_previewImageLabel->setVisible(!_screens.empty());
-				if (minWidth != std::numeric_limits<int>::max()) {
-					_thumbnailView->setFixedWidth(std::min(width() - 50, static_cast<int>(_screens.size()) * (maxWidth + 15)));
-				}
-				_thumbnailView->setVisible(!_screens.empty());
-			});
-			
-			DownloadQueue::getInstance()->add(mfd);
+			connect(mfd, &MultiFileDownloader::downloadSucceeded, this, &ModInfoPage::showScreens);
+
+			if (empty) {
+				delete mfd;
+				showScreens();
+			} else {
+				DownloadQueueWidget::getInstance()->addDownload(QApplication::tr("ScreensFor").arg(s2q(sipm->modname)), mfd);
+			}
 		}
 	} else {
 		_previewImageLabel->setPixmap(QPixmap());
@@ -927,4 +912,30 @@ void ModInfoPage::showEvent(QShowEvent * evt) {
 			requestRandomMod();
 		}
 	}
+}
+
+void ModInfoPage::showScreens() {
+	int minWidth = std::numeric_limits<int>::max();
+	int maxWidth = 0;
+	
+	QString filename = QString::fromStdString(_screens[0].first);
+	filename.chop(2);
+	const QPixmap preview(Config::DOWNLOADDIR + "/screens/" + QString::number(_modID) + "/" + filename);
+	_previewImageLabel->setPixmap(preview.scaled(QSize(640, 480), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+	for (const auto & p : _screens) {
+		QString fn = QString::fromStdString(p.first);
+		fn.chop(2); // .z
+		QStandardItem * itm = new QStandardItem();
+		QPixmap thumb(Config::DOWNLOADDIR + "/screens/" + QString::number(_modID) + "/" + fn);
+		QPixmap scaledThumb = thumb.scaled(QSize(300, 100), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+		itm->setIcon(scaledThumb);
+		minWidth = std::min(minWidth, scaledThumb.width());
+		maxWidth = std::max(maxWidth, scaledThumb.width());
+		_thumbnailModel->appendRow(itm);
+	}
+	_previewImageLabel->setVisible(!_screens.empty());
+	if (minWidth != std::numeric_limits<int>::max()) {
+		_thumbnailView->setFixedWidth(std::min(width() - 50, static_cast<int>(_screens.size()) * (maxWidth + 15)));
+	}
+	_thumbnailView->setVisible(!_screens.empty());
 }

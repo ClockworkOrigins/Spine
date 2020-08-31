@@ -28,6 +28,8 @@
 
 #include "discord/DiscordManager.h"
 
+#include "gui/DownloadQueueWidget.h"
+
 #include "launcher/LauncherFactory.h"
 
 #include "models/SpineEditorModel.h"
@@ -110,6 +112,7 @@
 using namespace spine;
 using namespace spine::client;
 using namespace spine::discord;
+using namespace spine::gui;
 using namespace spine::launcher;
 using namespace spine::translator;
 using namespace spine::utils;
@@ -120,6 +123,7 @@ enum MainTabsOnline {
 	Info,
 	Database,
 	LibraryOnline,
+	Downloads,
 	Profile,
 	Friends,
 	SpineLevelRanking
@@ -395,6 +399,11 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	UPDATELANGUAGESETTABTEXT(_tabWidget, Config::OnlineMode ? static_cast<int>(MainTabsOnline::LibraryOnline) : static_cast<int>(MainTabsOffline::LibraryOffline), "Library");
 
 	if (Config::OnlineMode) {
+		auto * dqw = new DownloadQueueWidget(_tabWidget);
+
+		_tabWidget->addTab(dqw, QApplication::tr("Downloads"));
+		UPDATELANGUAGESETTABTEXT(_tabWidget, MainTabsOnline::Downloads, "Downloads");
+		
 		_profileView = new ProfileView(this, _settingsDialog->getGeneralSettingsWidget(), _tabWidget);
 
 		_tabWidget->addTab(_profileView, QApplication::tr("Profile"));
@@ -419,6 +428,10 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		UPDATELANGUAGESETTABTEXT(_tabWidget, MainTabsOnline::SpineLevelRanking, "Ranking");
 
 		connect(_modInfoView, &ModInfoView::installMod, _modDatabaseView, static_cast<void(ModDatabaseView::*)(int, int, InstallMode)>(&ModDatabaseView::updateModList));
+
+		connect(GeneralSettingsWidget::getInstance(), &GeneralSettingsWidget::languageChanged, dqw, [dqw]() {
+			dqw->setTitle(QApplication::tr("Downloads"));
+		});
 	}
 
 	_tabWidget->setCurrentWidget(startPage);

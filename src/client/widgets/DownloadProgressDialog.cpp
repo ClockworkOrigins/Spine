@@ -80,18 +80,18 @@ int DownloadProgressDialog::exec() {
 }
 
 void DownloadProgressDialog::setValue(qint64 value) {
-	QProgressDialog::setValue(int(value / 1024));
+	QProgressDialog::setValue(static_cast<int>(value / 1024));
 #ifdef Q_OS_WIN
-	_taskbarProgress->setValue(int(value / 1024));
+	_taskbarProgress->setValue(static_cast<int>(value / 1024));
 #endif
 	_currentValue = utils::byteToString(value);
 	setLabelText(QApplication::tr(_labelText.toStdString().c_str()).arg(_currentFileName) + "\n" + QApplication::tr("DownloadedBytes").arg(_currentValue, _maximumValue));
 }
 
 void DownloadProgressDialog::setMaximum(qint64 max) {
-	QProgressDialog::setMaximum(int(max / 1024) + 1);
+	QProgressDialog::setMaximum(static_cast<int>(max / 1024) + 1);
 #ifdef Q_OS_WIN
-	_taskbarProgress->setMaximum(int(max / 1024) + 1);
+	_taskbarProgress->setMaximum(static_cast<int>(max / 1024) + 1);
 #endif
 	_maximumValue = utils::byteToString(max);
 	setLabelText(QApplication::tr(_labelText.toStdString().c_str()).arg(_currentFileName) + "\n" + QApplication::tr("DownloadedBytes").arg(_currentValue, _maximumValue));

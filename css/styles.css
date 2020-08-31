@@ -385,6 +385,16 @@ QPushButton::hover[newsTicker=true] {
 	background-color: #EEEEEE;
 }
 
+QProgressBar {
+    background-color: #AAAAAA;
+    color: #FFFFFF;
+}
+
 QProgressBar::chunk {
     background-color: #800000;
+}
+
+QWidget#DownloadEntryWidget {
+	border: 1px solid #4f4f51;
+	border-radius: 6px;
 }

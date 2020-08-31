@@ -22,12 +22,12 @@
 
 #include "common/MessageStructs.h"
 
+#include "gui/DownloadQueueWidget.h"
 #include "gui/Spoiler.h"
 
 #include "utils/Config.h"
 #include "utils/Conversion.h"
 #include "utils/Database.h"
-#include "utils/DownloadQueue.h"
 #include "utils/FileDownloader.h"
 #include "utils/MultiFileDownloader.h"
 
@@ -438,7 +438,7 @@ void ModUpdateDialog::accept() {
 		hideUpdates(hides);
 	});
 
-	DownloadQueue::getInstance()->add(mfd);
+	DownloadQueueWidget::getInstance()->addDownload(QApplication::tr("Patching"), mfd);
 	
 	QDialog::accept();
 }

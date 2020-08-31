@@ -3252,5 +3252,25 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>VersionUpdateFailed</source>
         <translation>Versionsnummer konnte nicht aktualisiert werden. Versuche es später noch einmal. Wenn der Fehler immer noch besteht, kontaktiere uns.</translation>
     </message>
+    <message>
+        <source>Downloads</source>
+        <translation>Downloads</translation>
+    </message>
+    <message>
+        <source>ScreensFor</source>
+        <translation>Screenshots für %1</translation>
+    </message>
+    <message>
+        <source>Patching</source>
+        <translation>Patchen</translation>
+    </message>
+    <message>
+        <source>AchievementIcons</source>
+        <translation>Erfolg-Icons</translation>
+    </message>
+    <message>
+        <source>NewsImages</source>
+        <translation>News-Bilder</translation>
+    </message>
 </context>
 </TS>

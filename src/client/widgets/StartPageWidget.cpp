@@ -21,10 +21,11 @@
 #include "IconCache.h"
 #include "SpineConfig.h"
 
+#include "gui/DownloadQueueWidget.h"
+
 #include "utils/Config.h"
 #include "utils/Conversion.h"
 #include "utils/Database.h"
-#include "utils/DownloadQueue.h"
 #include "utils/FileDownloader.h"
 #include "utils/MultiFileDownloader.h"
 #include "utils/WindowsExtensions.h"
@@ -48,6 +49,7 @@
 
 using namespace spine;
 using namespace spine::client;
+using namespace spine::gui;
 using namespace spine::utils;
 using namespace spine::widgets;
 
@@ -204,9 +206,10 @@ void StartPageWidget::updateNews() {
 
 		if (download) {
 			connect(mfd, &MultiFileDownloader::downloadSucceeded, this, &StartPageWidget::updateNews);
-		}
-		
-		DownloadQueue::getInstance()->add(mfd);
+			DownloadQueueWidget::getInstance()->addDownload(QApplication::tr("NewsImages"), mfd);
+		} else {
+			delete mfd;
+		}		
 	}
 	for (common::SendAllNewsMessage::News n : news) {
 		const auto mods = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT DISTINCT ModID, Name FROM newsModReferences WHERE NewsID = " + std::to_string(n.id) + " AND Language = '" + Config::Language.toStdString() + "';", err);

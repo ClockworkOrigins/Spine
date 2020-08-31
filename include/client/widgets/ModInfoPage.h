@@ -136,6 +136,8 @@ namespace widgets {
 
 		void mouseDoubleClickEvent(QMouseEvent * evt) override;
 		void showEvent(QShowEvent * evt) override;
+
+		void showScreens();
 	};
 
 } /* namespace widgets */

@@ -8,7 +8,7 @@ FILE(GLOB SpineHttpsHeader ${includedir}/*.h)
 
 ADD_LIBRARY(SpineHttps STATIC ${SpineHttpsSrc} ${SpineHttpsHeader})
 
-target_link_libraries(SpineHttps ${BOOST_LIBRARIES})
+target_link_libraries(SpineHttps ${BOOST_LIBRARIES} ${OPENSSL_LIBRARIES})
 
 set_target_properties(
 	SpineHttps PROPERTIES FOLDER Libraries

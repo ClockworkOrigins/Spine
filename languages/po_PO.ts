@@ -3252,5 +3252,25 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>VersionUpdateFailed</source>
         <translation>Nie można zaktualizować numeru wersji. Spróbuj ponownie później. Jeśli błąd będzie się powtarzał, skontaktuj się z nami.</translation>
     </message>
+    <message>
+        <source>Downloads</source>
+        <translation>Pliki do pobrania</translation>
+    </message>
+    <message>
+        <source>ScreensFor</source>
+        <translation>Zrzuty ekranu dla %1</translation>
+    </message>
+    <message>
+        <source>Patching</source>
+        <translation>Poprawianie</translation>
+    </message>
+    <message>
+        <source>AchievementIcons</source>
+        <translation>Ikony sukcesu</translation>
+    </message>
+    <message>
+        <source>NewsImages</source>
+        <translation>Zdjęcia wiadomości</translation>
+    </message>
 </context>
 </TS>

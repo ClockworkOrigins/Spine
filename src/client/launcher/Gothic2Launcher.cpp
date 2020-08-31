@@ -22,9 +22,10 @@
 #include "SpineConfig.h"
 #include "SteamProcess.h"
 
+#include "gui/DownloadQueueWidget.h"
+
 #include "utils/Config.h"
 #include "utils/Database.h"
-#include "utils/DownloadQueue.h"
 #include "utils/FileDownloader.h"
 #include "utils/Hashing.h"
 #include "utils/MultiFileDownloader.h"
@@ -43,6 +44,7 @@
 
 using namespace spine::client;
 using namespace spine::common;
+using namespace spine::gui;
 using namespace spine::launcher;
 using namespace spine::utils;
 using namespace spine::widgets;
@@ -129,6 +131,8 @@ void Gothic2Launcher::patchCheck() {
 
 	MultiFileDownloader * mfd = new MultiFileDownloader(this);
 
+	auto empty = true;
+
 	for (auto it = fileList.begin(); it != fileList.end(); ++it) {
 		if (Config::extendedLogging) {
 			LOGINFO("Checking G2 file " << it.key().toStdString());
@@ -138,12 +142,19 @@ void Gothic2Launcher::patchCheck() {
 			if (Config::extendedLogging) {
 				LOGWARN("Hashcheck failed");
 			}
+			empty = false;
+			
 			QFileInfo fi(it.key());
 			FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/g2/" + it.key()), _directory + "/" + fi.path(), fi.fileName(), it.value(), mfd);
 			mfd->addFileDownloader(fd);
 		}
 	}
-	DownloadQueue::getInstance()->add(mfd);
+
+	if (empty) {
+		delete mfd;
+	} else {
+		DownloadQueueWidget::getInstance()->addDownload(QApplication::tr("Gothic"), mfd);
+	}
 
 	Database::DBError err;
 	const auto ids = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID FROM mods WHERE ModID = 40 OR ModID = 36 OR ModID = 116 OR ModID = 314;", err);

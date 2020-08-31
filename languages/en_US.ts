@@ -3260,5 +3260,25 @@ You can revoke your permission at every point in time. All necessary information
         <source>VersionUpdateFailed</source>
         <translation>Version number couldn't be updated. Try again later. When the error persists, please contact us.</translation>
     </message>
+    <message>
+        <source>Downloads</source>
+        <translation>Downloads</translation>
+    </message>
+    <message>
+        <source>ScreensFor</source>
+        <translation>Screenshots for %1</translation>
+    </message>
+    <message>
+        <source>Patching</source>
+        <translation>Patching</translation>
+    </message>
+    <message>
+        <source>AchievementIcons</source>
+        <translation>Achievement Icons</translation>
+    </message>
+    <message>
+        <source>NewsImages</source>
+        <translation>News Images</translation>
+    </message>
 </context>
 </TS>
