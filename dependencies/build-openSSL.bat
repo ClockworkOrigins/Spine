@@ -27,14 +27,17 @@ IF [%BOOSTARCH%] == [64] (
 echo "Building OpenSSL"
 
 IF [%BOOSTARCH%] == [32] (
-	call ms\do_ms.bat
-	nmake -f ms\ntdll.mak
+	powershell -ExecutionPolicy RemoteSigned -File %DEP_DIR%\build.ps1 -openssl_release 1.1.1d -vs_version 140 -config release -platform Win32 -library shared
+
+	mkdir %PREFIX%
+	mkdir %PREFIX%\bin
+	mkdir %PREFIX%\lib
+
+	xcopy /I /S /Y %DEP_DIR%\VS_140\include %PREFIX%\include
+	xcopy /S /Y %DEP_DIR%\VS_140\win32\bin\release\*.dll %PREFIX%\bin\
+	xcopy /S /Y %DEP_DIR%\VS_140\win32\bin\release\*.lib %PREFIX%\lib\
 
 	echo "Installing OpenSSL"
-
-	xcopy /I /S /Y %BUILD_DIR%\inc32 %PREFIX%\include
-	xcopy /S /Y %BUILD_DIR%\out32dll\*.dll %PREFIX%\bin\
-	xcopy /S /Y %BUILD_DIR%\out32dll\*.lib %PREFIX%\lib\
 
 	echo "Cleaning up"
 
@@ -60,10 +63,6 @@ IF [%BOOSTARCH%] == [64] (
 	xcopy /S /Y %DEP_DIR%\VS_140\win64\bin\release\*.lib %PREFIX%\lib\
 
 	echo "Installing OpenSSL"
-	
-	REM nmake install_sw
-	
-	
 
 	echo "Cleaning up"
 
