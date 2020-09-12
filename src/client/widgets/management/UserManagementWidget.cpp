@@ -168,6 +168,9 @@ void UserManagementWidget::updateView() {
 }
 
 void UserManagementWidget::updateData(QStringList users) {
+	_unlockedListModel->clear();
+	_userListModel->clear();
+	
 	QSet<QString> unlockedUsers;
 	for (const auto & s : users) {
 		unlockedUsers.insert(s);

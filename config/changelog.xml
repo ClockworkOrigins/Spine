@@ -1960,4 +1960,9 @@
 		<Bug language="English">Fixed style of progress bar in integrity check</Bug>
 		<Bug language="English">Switching language of a project now directly updates the library</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="24" patchVersion="0">
+		<Bug language="Deutsch">Benutzerverwaltung im Management-Bereich wird bei Tab-Wechsel jetzt korrekt aktualisiert</Bug>
+		
+		<Bug language="English">User management in management area gets correctly updated now when switching tabs</Bug>
+	</Version>
 </Versions>
