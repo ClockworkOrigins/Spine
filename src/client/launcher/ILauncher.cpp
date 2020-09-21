@@ -338,7 +338,7 @@ void ILauncher::startCommon() {
 	_listenSocket = new clockUtils::sockets::TcpSocket();
 	_listenSocket->listen(LOCAL_PORT, 1, true, std::bind(&ILauncher::acceptedConnection, this, std::placeholders::_1, std::placeholders::_2));
 	
-	_timer->start();
+	_timer->restart();
 	
 	if (Config::OnlineMode) {
 		QtConcurrent::run([]() {
@@ -1103,9 +1103,9 @@ bool ILauncher::linkOrCopyFile(QString sourcePath, QString destinationPath) {
 	const auto suffix = QFileInfo(sourcePath).suffix();
 	if (IsRunAsAdmin() && isAllowedSymlinkSuffix(suffix)) {
 		const bool linked = makeSymlink(sourcePath, destinationPath);
-		return linked;
+		if (linked) return true;
 	}
-
+	
 	const bool linked = CreateHardLinkW(destinationPath.toStdWString().c_str(), sourcePath.toStdWString().c_str(), nullptr);
 	if (!linked) {
 		const bool copied = QFile::copy(sourcePath, destinationPath);

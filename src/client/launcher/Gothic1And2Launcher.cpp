@@ -827,6 +827,7 @@ void Gothic1And2Launcher::start() {
 		if (QFileInfo::exists(_directory + "/" + usedExecutable) && QFileInfo(_directory + "/" + usedExecutable).isExecutable()) {
 			process->start("\"" + _directory + "/" + usedExecutable + "\"", args);
 		} else {
+			startCommon();
 			finishedMod(0, QProcess::CrashExit);
 			return;
 		}
@@ -841,6 +842,7 @@ void Gothic1And2Launcher::start() {
 			if (QFileInfo::exists(_directory + "/System/" + usedExecutable) && QFileInfo(_directory + "/System/" + usedExecutable).isExecutable()) {
 				process->start("\"" + _directory + "/System/" + usedExecutable + "\"", args);
 			} else {
+				startCommon();
 				finishedMod(0, QProcess::CrashExit);
 				return;
 			}

@@ -87,7 +87,7 @@ namespace utils {
 		p.setWorkingDirectory(qApp->applicationDirPath() + "/..");
 		p.start("cmd.exe", QStringList() << "/c" << "makeSymlink.bat");
 		const bool b = p.waitForFinished();
-		return b;
+		return b && QFileInfo::exists(targetFile);
 	}
 
 	bool makeSymlinkFolder(QString sourceDir, QString targetDir) {
