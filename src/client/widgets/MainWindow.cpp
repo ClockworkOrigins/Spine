@@ -1090,9 +1090,9 @@ void MainWindow::showMod() {
 
 void MainWindow::uninstallMod() {
 	const QModelIndexList idxList = _modListView->selectionModel()->selectedIndexes();
-	if (idxList.empty()) {
-		return;
-	}
+	
+	if (idxList.empty()) return;
+
 	const QModelIndex idx = idxList.constFirst();
 	const int modId = idx.data(LibraryFilterModel::ModIDRole).toInt();
 	const common::GameType gothicVersion = common::GameType(idx.data(LibraryFilterModel::GameRole).toInt());
@@ -1100,13 +1100,16 @@ void MainWindow::uninstallMod() {
 	_modListView->clearSelection();
 
 	const bool uninstalled = client::Uninstaller::uninstall(modId, idx.data(Qt::DisplayRole).toString(), directory);
-	if (uninstalled) {
-		const auto match = _modListModel->match(_modListModel->index(0, 0), LibraryFilterModel::ModIDRole, modId);
-		
-		if (!match.isEmpty()) {
-			_modListModel->removeRows(match[0].row(), match.count());
-		}
+	
+	if (!uninstalled) return;
+	
+	const auto match = _modListModel->match(_modListModel->index(0, 0), LibraryFilterModel::ModIDRole, modId);
+	
+	if (!match.isEmpty()) {
+		_modListModel->removeRows(match[0].row(), match.count());
 	}
+
+	_modDatabaseView->updateModList(-1, -1, InstallMode::None);
 }
 
 void MainWindow::openTranslator() {
