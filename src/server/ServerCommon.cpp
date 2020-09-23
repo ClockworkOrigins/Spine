@@ -296,7 +296,7 @@ std::string ServerCommon::filterUsername(const std::string & username) {
 	auto result = username;
 
 	for (const auto & vec : results) {
-		result = std::regex_replace(result, std::regex(vec[0]), "***");
+		result = std::regex_replace(result, std::regex(vec[0]), "******");
 	}
 	
 	return result;
