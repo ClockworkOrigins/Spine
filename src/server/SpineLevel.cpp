@@ -257,16 +257,27 @@ void SpineLevel::cacheLevel(int userID) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
+		if (!database.query("PREPARE selectCheaterStmt FROM \"SELECT UserID FROM cheaters WHERE UserID = ? LIMIT 1\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
 		
 		if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
-		if (!database.query("EXECUTE selectAchievementsStmt USING @paramUserID;")) {
+		if (!database.query("EXECUTE selectCheaterStmt USING @paramUserID;")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			break;
 		}
 		auto lastResults = database.getResults<std::vector<std::string>>();
+		const bool cheater = !lastResults.empty();
+		
+		if (!database.query("EXECUTE selectAchievementsStmt USING @paramUserID;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			break;
+		}
+		lastResults = database.getResults<std::vector<std::string>>();
 		if (!lastResults.empty()) {
 			const int count = std::stoi(lastResults[0][0]);
 			currentXP += count * 50; // 50 EP per achievement
@@ -307,7 +318,7 @@ void SpineLevel::cacheLevel(int userID) {
 			break;
 		}
 		lastResults = database.getResults<std::vector<std::string>>();
-		if (!lastResults.empty()) {
+		if (!lastResults.empty() && !cheater) {
 			const int count = std::stoi(lastResults[0][0]);
 			
 			currentXP += count * 100; // 100 EP per score
