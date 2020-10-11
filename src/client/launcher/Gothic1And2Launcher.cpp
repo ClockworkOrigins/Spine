@@ -173,7 +173,13 @@ void Gothic1And2Launcher::init() {
 
 bool Gothic1And2Launcher::supportsModAndIni(int32_t modID, const QString & iniFile) const {
 	if (modID == -1) {
-		return !_directory.isEmpty() && iniFile.contains(_directory, Qt::CaseInsensitive);
+		auto dir = _directory;
+
+		if (!dir.endsWith("/") && !dir.endsWith("\\")) {
+			dir += "/";
+		}
+		
+		return !_directory.isEmpty() && iniFile.contains(dir, Qt::CaseInsensitive);
 	}
 
 	Database::DBError err;
