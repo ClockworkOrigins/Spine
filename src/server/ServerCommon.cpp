@@ -248,10 +248,6 @@ std::string ServerCommon::getProjectName(int projectID, int preferredLanguage) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
-		if (!database.query("SET @paramFallbackLanguage=0;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			break;
-		}
 		if (!database.query("EXECUTE selectProjectNameStmt USING @paramProjectID, @paramLanguage;")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			break;
