@@ -1964,9 +1964,11 @@
 		<Bug language="Deutsch">Benutzerverwaltung im Management-Bereich wird bei Tab-Wechsel jetzt korrekt aktualisiert</Bug>
 		<Bug language="Deutsch">Fehler bei Modstart behoben, wenn als Admin gestartet wurde und Symlinks in Windows deaktiviert sind</Bug>
 		<Bug language="Deutsch">Deinstallation eines Projekts in der Bibliothek aktualisiert den Status jetzt in der Datenbank</Bug>
+		<Bug language="Deutsch">Neue Screenshots mit gleichem Namen werden jetzt korrekt aktualisiert</Bug>
 		
 		<Bug language="English">User management in management area gets correctly updated now when switching tabs</Bug>
 		<Bug language="English">Fixed problem with mod start when starting as admin and having symlinks disabled in Windows</Bug>
 		<Bug language="English">Uninstalling a project via the library now updates the status in the database</Bug>
+		<Bug language="English">New screenshots with same name now are updated correctly</Bug>
 	</Version>
 </Versions>

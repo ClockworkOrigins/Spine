@@ -475,7 +475,10 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 			for (const auto & p : images) {
 				QString filename = p.first;
 				filename.chop(2); // every image is compressed, so it has a .z at the end
-				if (!QFileInfo::exists(Config::DOWNLOADDIR + "/screens/" + QString::number(_modID) + "/" + filename)) {
+
+				const auto targetFile = Config::DOWNLOADDIR + "/screens/" + QString::number(_modID) + "/" + filename;
+				
+				if (!QFileInfo::exists(targetFile) || !Hashing::checkHash(targetFile, p.second)) {
 					empty = false;
 					
 					QFileInfo fi(p.first);
