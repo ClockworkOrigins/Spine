@@ -1166,43 +1166,44 @@ void MainWindow::openPublishingTutorial() {
 }
 
 void MainWindow::findGothic() {
-	{
-		QDialog dlg;
-		dlg.setWindowFlags(dlg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-		QVBoxLayout * l = new QVBoxLayout();
-		QLabel * descriptionLabel = new QLabel(QApplication::tr("SetGothicPathText"), &dlg);
-		descriptionLabel->setWordWrap(true);
-		LocationSettingsWidget * lsw = new LocationSettingsWidget(true, &dlg);
-		QDialogButtonBox * db = new QDialogButtonBox(QDialogButtonBox::StandardButton::Ok, &dlg);
-		QPushButton * pb = db->button(QDialogButtonBox::StandardButton::Ok);
-		connect(pb, &QPushButton::released, &dlg, &QDialog::accept);
-		connect(pb, &QPushButton::released, &dlg, &QDialog::hide);
-		l->addWidget(descriptionLabel);
-		l->addWidget(lsw);
-		l->addWidget(db);
-		dlg.setLayout(l);
+	QDialog dlg;
+	dlg.setWindowFlags(dlg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+	QVBoxLayout * l = new QVBoxLayout();
+	QLabel * descriptionLabel = new QLabel(QApplication::tr("SetGothicPathText"), &dlg);
+	descriptionLabel->setWordWrap(true);
+	LocationSettingsWidget * lsw = new LocationSettingsWidget(true, &dlg);
+	QDialogButtonBox * db = new QDialogButtonBox(QDialogButtonBox::StandardButton::Ok, &dlg);
+	QPushButton * pb = db->button(QDialogButtonBox::StandardButton::Ok);
+	connect(pb, &QPushButton::released, &dlg, &QDialog::accept);
+	connect(pb, &QPushButton::released, &dlg, &QDialog::hide);
+	l->addWidget(descriptionLabel);
+	l->addWidget(lsw);
+	l->addWidget(db);
+	dlg.setLayout(l);
 
-		const QSettings steamSettings(R"(HKEY_CURRENT_USER\SOFTWARE\Valve\Steam)", QSettings::NativeFormat);
-		if (steamSettings.value("SteamPath").isValid()) {
-			const QString steamDir = steamSettings.value("SteamPath").toString();
-			const QString gothicDir = steamDir + "/SteamApps/common/Gothic";
-			if (QFileInfo::exists(gothicDir + "/System/Gothic.exe")) {
-				lsw->setGothicDirectory(gothicDir);
-			}
-			const QString gothic2Dir = steamDir + "/SteamApps/common/Gothic II";
-			if (QFileInfo::exists(gothic2Dir + "/System/Gothic2.exe")) {
-				lsw->setGothic2Directory(gothic2Dir);
-			}
+	const QSettings steamSettings(R"(HKEY_CURRENT_USER\SOFTWARE\Valve\Steam)", QSettings::NativeFormat);
+	if (steamSettings.value("SteamPath").isValid()) {
+		const QString steamDir = steamSettings.value("SteamPath").toString();
+		const QString gothicDir = steamDir + "/SteamApps/common/Gothic";
+		if (QFileInfo::exists(gothicDir + "/System/Gothic.exe")) {
+			lsw->setGothicDirectory(gothicDir);
 		}
-
-		dlg.exec();
-		lsw->saveSettings();
-		_gothicDirectory = lsw->getGothicDirectory();
-		_gothic2Directory = lsw->getGothic2Directory();
-		_settingsDialog->getLocationSettingsWidget()->setGothicDirectory(_gothicDirectory);
-		_settingsDialog->getLocationSettingsWidget()->setGothic2Directory(_gothic2Directory);
-		return;
+		const QString gothic2Dir = steamDir + "/SteamApps/common/Gothic II";
+		if (QFileInfo::exists(gothic2Dir + "/System/Gothic2.exe")) {
+			lsw->setGothic2Directory(gothic2Dir);
+		}
 	}
+
+	dlg.exec();
+	lsw->saveSettings();
+	_gothicDirectory = lsw->getGothicDirectory();
+	_gothic2Directory = lsw->getGothic2Directory();
+
+	lsw->saveSettings();
+
+	auto* mainLsw = _settingsDialog->getLocationSettingsWidget();
+	
+	mainLsw->rejectSettings();
 }
 
 void MainWindow::restoreSettings() {

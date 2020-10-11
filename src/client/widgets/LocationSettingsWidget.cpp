@@ -51,7 +51,9 @@ using namespace spine::widgets;
 LocationSettingsWidget * LocationSettingsWidget::instance = nullptr;
 
 LocationSettingsWidget::LocationSettingsWidget(bool temporary, QWidget * par) : QWidget(par), _gothicPathLineEdit(nullptr), _gothic2PathLineEdit(nullptr), _downloadPathLineEdit(nullptr), _screenshotPathLineEdit(nullptr), _futureCounter(0), _cancelSearch(false), _gothicSteam(nullptr), _gothic2Steam(nullptr) {
-	instance = this;
+	if (!instance) { // LocationSettingsWidget is created twice!
+		instance = this;
+	}
 	
 	QVBoxLayout * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
