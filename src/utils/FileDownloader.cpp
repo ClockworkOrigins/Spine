@@ -116,6 +116,14 @@ void FileDownloader::startDownload() {
 	}
 
 	if (_fileName.contains("directx_Jun2010_redist.exe", Qt::CaseInsensitive) && Config::IniParser->value("INSTALLATION/DirectX", true).toBool()) {
+		if (_filesize == -1) {
+			_finished = true;
+			
+			QEventLoop loop;
+			connect(this, &FileDownloader::fileSizeDetermined, &loop, &QEventLoop::quit);
+			requestFileSize();
+			loop.exec();
+		}
 		emit downloadProgress(_filesize);
 
 		emit downloadFinished();

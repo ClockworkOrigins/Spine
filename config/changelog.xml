@@ -1967,6 +1967,7 @@
 		<Bug language="Deutsch">Neue Screenshots mit gleichem Namen werden jetzt korrekt aktualisiert</Bug>
 		<Bug language="Deutsch">Initiales Konfigurieren von Screenshot- und Download-Pfad wird jetzt korrekt gespeichert</Bug>
 		<Bug language="Deutsch">Projects, die weder in der UI-Sprache noch in Englisch einen Titel haben, können jetzt im Management trotzdem bearbeitet werden</Bug>
+		<Bug language="Deutsch">Downloadfortschritt zeigt jetzt auch das übersprungene DirectX Redistributable an</Bug>
 		
 		<Bug language="English">User management in management area gets correctly updated now when switching tabs</Bug>
 		<Bug language="English">Fixed problem with mod start when starting as admin and having symlinks disabled in Windows</Bug>
@@ -1974,5 +1975,6 @@
 		<Bug language="English">New screenshots with same name now are updated correctly</Bug>
 		<Bug language="English">Initial setup of screenshot and download path now gets stored correctly</Bug>
 		<Bug language="English">Projects that don't have a name in the UI language or in English now still can be edited in management</Bug>
+		<Bug language="English">Download progress now also shows the skipped DirectX redistributable</Bug>
 	</Version>
 </Versions>

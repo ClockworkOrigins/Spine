@@ -67,6 +67,9 @@ DownloadEntryWidget::DownloadEntryWidget(QString name, QWidget * par) : QWidget(
 	connect(_removeButton, &QPushButton::released, this, &QObject::deleteLater);
 
 	setProperty("DownloadEntryWidget", true);
+
+	setTotalBytes(0);
+	setCurrentBytes(0);
 }
 
 void DownloadEntryWidget::setTotalBytes(qint64 bytes) {
