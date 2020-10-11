@@ -232,6 +232,10 @@ std::string ServerCommon::getProjectName(int projectID, int preferredLanguage) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
+		if (!database.query("PREPARE selectFallbackProjectNameStmt FROM \"SELECT CAST(Name AS BINARY) FROM projectNames WHERE ProjectID = ? LIMIT 1\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
 		if (!database.query("SET @paramProjectID=" + std::to_string(projectID) + ";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
@@ -261,7 +265,7 @@ std::string ServerCommon::getProjectName(int projectID, int preferredLanguage) {
 			results = database.getResults<std::vector<std::string>>();
 			
 			if (results.empty()) {
-				if (!database.query("EXECUTE selectProjectNameStmt USING @paramProjectID, @paramFallbackLanguage;")) {
+				if (!database.query("EXECUTE selectFallbackProjectNameStmt USING @paramProjectID;")) {
 					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					break;
 				}
