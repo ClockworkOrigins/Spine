@@ -369,10 +369,12 @@ void SpineLevel::cacheLevel(int userID) {
 			const int thirdQuartile = std::stoi(r[(r.size() * 3) / 4][0]);
 
 			if (ownDuration > thirdQuartile) {
-				currentXP += 250;
+				currentXP += 500;
 			} else if (ownDuration > median) {
-				currentXP += 100;
+				currentXP += 300;
 			} else if (ownDuration > firstQuartile) {
+				currentXP += 150;
+			} else {
 				currentXP += 50;
 			}
 		}
