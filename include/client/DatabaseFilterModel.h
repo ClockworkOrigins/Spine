@@ -44,7 +44,8 @@ namespace spine {
 		SortRole = Qt::UserRole,
 		FilterRole,
 		PackageIDRole,
-		LanguagesRole
+		LanguagesRole,
+		Installed
 	};
 
 	class DatabaseFilterModel : public QSortFilterProxyModel {
@@ -121,6 +122,10 @@ namespace spine {
 			return _languages & language;
 		}
 
+		bool isInstalledProjectsActive() {
+			return _installedProjectsActive;
+		}
+
 	public slots:
 		void gamesChanged(int state);
 		void demosChanged(int state);
@@ -138,6 +143,7 @@ namespace spine {
 		void minDurationChanged(int);
 		void maxDurationChanged(int);
 		void languageChanged(common::Language language, int state);
+		void installedProjectsChanged(int state);
 
 	private:
 		bool _gamesActive;
@@ -157,6 +163,7 @@ namespace spine {
 		int _maxDuration;
 		bool _rendererAllowed;
 		int _languages;
+		bool _installedProjectsActive;
 
 		bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const override;
 	};

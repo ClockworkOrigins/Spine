@@ -27,7 +27,7 @@
 using namespace spine;
 using namespace spine::utils;
 
-DatabaseFilterModel::DatabaseFilterModel(QObject * par) : QSortFilterProxyModel(par), _gamesActive(true), _demosActive(true), _fullVersionsActive(true), _playTestingActive(true), _gothicActive(true), _gothic2Active(true), _gothicAndGothic2Active(true), _totalConversionActive(true), _enhancementActive(true), _patchActive(true), _toolActive(true), _originalActive(true), _gmpActive(true), _minDuration(0), _maxDuration(1000), _rendererAllowed(false), _languages(0) {
+DatabaseFilterModel::DatabaseFilterModel(QObject * par) : QSortFilterProxyModel(par), _gamesActive(true), _demosActive(true), _fullVersionsActive(true), _playTestingActive(true), _gothicActive(true), _gothic2Active(true), _gothicAndGothic2Active(true), _totalConversionActive(true), _enhancementActive(true), _patchActive(true), _toolActive(true), _originalActive(true), _gmpActive(true), _minDuration(0), _maxDuration(1000), _rendererAllowed(false), _languages(0), _installedProjectsActive(true) {
 	Config::IniParser->beginGroup("DATABASEFILTER");
 	_gamesActive = Config::IniParser->value("Games", true).toBool();
 	_demosActive = Config::IniParser->value("Demos", true).toBool();
@@ -45,6 +45,7 @@ DatabaseFilterModel::DatabaseFilterModel(QObject * par) : QSortFilterProxyModel(
 	_minDuration = Config::IniParser->value("MinDuration", 0).toInt();
 	_maxDuration = Config::IniParser->value("MaxDuration", 1000).toInt();
 	_languages = Config::IniParser->value("Languages", common::Language::German | common::Language::English | common::Language::Polish | common::Language::Russian).toInt();
+	_installedProjectsActive = Config::IniParser->value("InstalledProjects", true).toBool();
 	Config::IniParser->endGroup();
 }
 
@@ -148,6 +149,12 @@ void DatabaseFilterModel::languageChanged(common::Language language, int state) 
 	invalidateFilter();
 }
 
+void DatabaseFilterModel::installedProjectsChanged(int state) {
+	_installedProjectsActive = state == Qt::Checked;
+	Config::IniParser->setValue("DATABASEFILTER/InstalledProjects", _installedProjectsActive);
+	invalidateFilter();
+}
+
 bool DatabaseFilterModel::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const {
 	bool result = true;
 	QStandardItemModel * model = dynamic_cast<QStandardItemModel *>(sourceModel());
@@ -156,10 +163,12 @@ bool DatabaseFilterModel::filterAcceptsRow(int source_row, const QModelIndex & s
 		const auto gameText = model->item(source_row, DatabaseColumn::Game)->text();
 		const int devDuration = model->item(source_row, DatabaseColumn::DevDuration)->data(Qt::UserRole).toInt();
 		const int languages = model->item(source_row, DatabaseColumn::Languages)->data(LanguagesRole).toInt();
+		const bool installed = model->item(source_row, DatabaseColumn::Install)->data(Installed).toBool();
 		
 		result = result && ((typeText == QApplication::tr("TotalConversion") && _totalConversionActive) || (typeText == QApplication::tr("Enhancement") && _enhancementActive) || (typeText == QApplication::tr("Patch") && _patchActive) || (typeText == QApplication::tr("Tool") && _toolActive) || (typeText == QApplication::tr("Original") && _originalActive) || (typeText == QApplication::tr("GothicMultiplayer") && _gmpActive) || (typeText == QApplication::tr("FullVersion") && _gamesActive) || (typeText == QApplication::tr("Demo") && _demosActive) || (typeText == QApplication::tr("PlayTesting") && _playTestingActive));
 		result = result && ((gameText == QApplication::tr("Gothic") && _gothicActive) || (gameText == QApplication::tr("Gothic2") && _gothic2Active) || (gameText == QApplication::tr("GothicAndGothic2_2") && _gothicAndGothic2Active) || (gameText == QApplication::tr("Game") && _gamesActive));
 		result = result && (typeText == QApplication::tr("Patch") || typeText == QApplication::tr("Tool") || (devDuration / 60 >= _minDuration && devDuration / 60 <= _maxDuration));
+		result = result && (!installed || _installedProjectsActive);
 
 		bool languageMatch = false;
 		for (int i = 1; i < common::Language::Count; i *= 2) {

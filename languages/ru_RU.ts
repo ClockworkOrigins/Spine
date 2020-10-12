@@ -3277,5 +3277,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>NewsImages</source>
         <translation>News Images</translation>
     </message>
+    <message>
+        <source>InstalledFilter</source>
+        <translation>Установлен</translation>
+    </message>
 </context>
 </TS>

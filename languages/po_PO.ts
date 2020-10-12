@@ -3272,5 +3272,9 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>NewsImages</source>
         <translation>Zdjęcia wiadomości</translation>
     </message>
+    <message>
+        <source>InstalledFilter</source>
+        <translation>Zainstalowano</translation>
+    </message>
 </context>
 </TS>

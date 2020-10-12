@@ -3272,5 +3272,9 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>NewsImages</source>
         <translation>News-Bilder</translation>
     </message>
+    <message>
+        <source>InstalledFilter</source>
+        <translation>Installiert</translation>
+    </message>
 </context>
 </TS>

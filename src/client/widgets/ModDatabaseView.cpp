@@ -463,6 +463,26 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 		}
 
 		{
+			QGroupBox * gb = new QGroupBox(QApplication::tr("General"), filterWidget);
+			UPDATELANGUAGESETTITLE(gb, "General");
+
+			QVBoxLayout * vbl = new QVBoxLayout();
+
+			QCheckBox * cb1 = new QCheckBox(QApplication::tr("InstalledFilter"), filterWidget);
+			cb1->setChecked(_sortModel->isInstalledProjectsActive());
+			UPDATELANGUAGESETTEXT(cb1, "InstalledFilter");
+			connect(cb1, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::installedProjectsChanged);
+
+			vbl->addWidget(cb1);
+
+			vbl->addStretch(1);
+
+			gb->setLayout(vbl);
+
+			hl->addWidget(gb);
+		}
+
+		{
 			QGroupBox * gb = new QGroupBox(QApplication::tr("DevTime"), filterWidget);
 			UPDATELANGUAGESETTITLE(gb, "DevTime");
 
@@ -763,12 +783,15 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 		if (_downloadingList.contains(mod.id)) {
 			buttonItem = new TextItem(QApplication::tr("InQueue"));
 			buttonItem->setToolTip(QApplication::tr("InQueue"));
+			buttonItem->setData(false, Installed);
 		} else if (installedMods.find(mod.id) == installedMods.end()) {
 			buttonItem = new TextItem(QChar(static_cast<int>(FontAwesome::downloado)));
 			buttonItem->setToolTip(QApplication::tr("Install"));
+			buttonItem->setData(false, Installed);
 		} else {
 			buttonItem = new TextItem(QChar(static_cast<int>(FontAwesome::trasho)));
 			buttonItem->setToolTip(QApplication::tr("Uninstall"));
+			buttonItem->setData(true, Installed);
 		}
 		QFont f = buttonItem->font();
 		f.setPointSize(13);
@@ -892,6 +915,7 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, QSharedPointer<QList<QPa
 		TextItem * buttonItem = dynamic_cast<TextItem *>(_sourceModel->item(row, DatabaseColumn::Install));
 		buttonItem->setText(QApplication::tr("InQueue"));
 		buttonItem->setToolTip(QApplication::tr("InQueue"));
+		buttonItem->setData(false, Installed);
 	}
 
 	connect(mfd, &MultiFileDownloader::downloadProgressPercent, [this, mod](qreal progress) {
@@ -904,6 +928,7 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, QSharedPointer<QList<QPa
 		TextItem * buttonItem = dynamic_cast<TextItem *>(_sourceModel->item(row, DatabaseColumn::Install));
 		buttonItem->setText(QString("%1: %2%").arg(QApplication::tr("Downloading")).arg(static_cast<int>(progress * 100)));
 		buttonItem->setToolTip(QApplication::tr("Downloading"));
+		buttonItem->setData(false, Installed);
 	});
 
 	connect(mfd, &MultiFileDownloader::downloadSucceeded, [this, mod, fileList]() {
@@ -918,6 +943,7 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, QSharedPointer<QList<QPa
 		TextItem * buttonItem = dynamic_cast<TextItem *>(_sourceModel->item(row, DatabaseColumn::Install));
 		buttonItem->setText(QChar(static_cast<int>(FontAwesome::trasho)));
 		buttonItem->setToolTip(QApplication::tr("Uninstall"));
+		buttonItem->setData(true, Installed);
 		Database::DBError err;
 		Database::open(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, err);
 		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "BEGIN TRANSACTION;", err);
@@ -1057,12 +1083,15 @@ void ModDatabaseView::updatePackageList(std::vector<common::UpdatePackageListMes
 		if (_downloadingPackageList.contains(package.packageID)) {
 			buttonItem = new TextItem(QApplication::tr("InQueue"));
 			buttonItem->setToolTip(QApplication::tr("InQueue"));
+			buttonItem->setData(false, Installed);
 		} else if (installedPackages.find(package.packageID) == installedPackages.end()) {
 			buttonItem = new TextItem(QChar(static_cast<int>(FontAwesome::downloado)));
 			buttonItem->setToolTip(QApplication::tr("Install"));
+			buttonItem->setData(false, Installed);
 		} else {
 			buttonItem = new TextItem(QChar(static_cast<int>(FontAwesome::trasho)));
 			buttonItem->setToolTip(QApplication::tr("Uninstall"));
+			buttonItem->setData(true, Installed);
 		}
 		_packageIDIconMapping.insert(package.packageID, buttonItem);
 		QFont f = buttonItem->font();
@@ -1355,6 +1384,7 @@ void ModDatabaseView::selectedModIndex(const QModelIndex & index) {
 			TextItem * buttonItem = dynamic_cast<TextItem *>(_sourceModel->item(row, DatabaseColumn::Install));
 			buttonItem->setText(QChar(static_cast<int>(FontAwesome::downloado)));
 			buttonItem->setToolTip(QApplication::tr("Install"));
+			buttonItem->setData(false, Installed);
 		}
 	}
 }
