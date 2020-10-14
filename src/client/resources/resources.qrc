@@ -25,6 +25,7 @@
 	<file alias="svg/close.svg">svg/close.svg</file>
 	<file alias="svg/download.svg">svg/download.svg</file>
 	<file alias="svg/edit.svg">svg/edit.svg</file>
+	<file alias="svg/flag.svg">svg/flag.svg</file>
 	<file alias="svg/loading.svg">svg/loading.svg</file>
 	<file alias="svg/remove.svg">svg/remove.svg</file>
 	<file alias="svg/star.svg">svg/star.svg</file>

@@ -3284,5 +3284,21 @@ You can revoke your permission at every point in time. All necessary information
         <source>InstalledFilter</source>
         <translation>Installed</translation>
     </message>
+    <message>
+        <source>ReportContentDescription</source>
+        <translation>Please enter the content you find inappropriate and why that's the case.</translation>
+    </message>
+    <message>
+        <source>ReportedContent</source>
+        <translation>We received your report and will take care of it as soon as possible.</translation>
+    </message>
+    <message>
+        <source>ReportedContentLoggedIn</source>
+        <translation>We will send you an email after your report has been processed.</translation>
+    </message>
+    <message>
+        <source>ReportContent</source>
+        <translation>Report content</translation>
+    </message>
 </context>
 </TS>

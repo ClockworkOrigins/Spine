@@ -26,6 +26,7 @@
 
 #include "gui/DownloadQueueWidget.h"
 #include "gui/FullscreenPreview.h"
+#include "gui/ReportContentDialog.h"
 #include "gui/Spoiler.h"
 #include "gui/WaitSpinner.h"
 
@@ -319,12 +320,30 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 	
 	scrollLayout->addWidget(_ratingsBox);
 
-	_editInfoPageButton = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/edit.svg"), "", this);
-	_editInfoPageButton->setToolTip(QApplication::tr("EditInfoPageTooltip"));
-	UPDATELANGUAGESETTOOLTIP(_editInfoPageButton, "EditInfoPageTooltip");
-	l->addWidget(_editInfoPageButton, 0, Qt::AlignBottom | Qt::AlignRight);
-	_editInfoPageButton->hide();
-	connect(_editInfoPageButton, &QPushButton::released, this, &ModInfoPage::switchToEdit);
+	{
+		QHBoxLayout * hlBottom = new QHBoxLayout();
+
+		hlBottom->addStretch(1);
+
+		QPushButton * reportContentBtn = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/flag.svg"), "", this);
+		reportContentBtn->setToolTip(QApplication::tr("ReportContent"));
+
+		connect(reportContentBtn, &QPushButton::released, this, [this]() {
+			ReportContentDialog dlg(QApplication::tr("InfoPage"), this);
+			dlg.exec();
+		});
+
+		hlBottom->addWidget(reportContentBtn);
+		
+		_editInfoPageButton = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/edit.svg"), "", this);
+		_editInfoPageButton->setToolTip(QApplication::tr("EditInfoPageTooltip"));
+		UPDATELANGUAGESETTOOLTIP(_editInfoPageButton, "EditInfoPageTooltip");
+		hlBottom->addWidget(_editInfoPageButton, 0, Qt::AlignBottom | Qt::AlignRight);
+		_editInfoPageButton->hide();
+		connect(_editInfoPageButton, &QPushButton::released, this, &ModInfoPage::switchToEdit);
+
+		l->addLayout(hlBottom);
+	}
 
 	_applyButton = new QPushButton(QApplication::tr("Apply"), this);
 	UPDATELANGUAGESETTEXT(_applyButton, "Apply");

@@ -3281,5 +3281,21 @@ You can revoke your permission at every point in time. All necessary information
         <source>InstalledFilter</source>
         <translation>Установлен</translation>
     </message>
+    <message>
+        <source>ReportContentDescription</source>
+        <translation>Укажите, какой контент вы считаете неприемлемым и почему.</translation>
+    </message>
+    <message>
+        <source>ReportedContent</source>
+        <translation>Мы получили ваше сообщение и постараемся обработать его как можно скорее.</translation>
+    </message>
+    <message>
+        <source>ReportedContentLoggedIn</source>
+        <translation>Мы уведомим вас по электронной почте после обработки вашего сообщения.</translation>
+    </message>
+    <message>
+        <source>ReportContent</source>
+        <translation>Сообщить о содержании</translation>
+    </message>
 </context>
 </TS>

@@ -3276,5 +3276,21 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>InstalledFilter</source>
         <translation>Installiert</translation>
     </message>
+    <message>
+        <source>ReportContentDescription</source>
+        <translation>Bitte gib den Inhalt an, den du für unangemessen hältst, und auch, warum das der Fall ist.</translation>
+    </message>
+    <message>
+        <source>ReportedContent</source>
+        <translation>Wir haben deine Nachricht erhalten und werden uns so bald wie möglich darum kümmern.</translation>
+    </message>
+    <message>
+        <source>ReportedContentLoggedIn</source>
+        <translation>Wir werden dich per E-Mail informieren, nachdem deine Nachricht bearbeitet wurde.</translation>
+    </message>
+    <message>
+        <source>ReportContent</source>
+        <translation>Inhalt melden</translation>
+    </message>
 </context>
 </TS>

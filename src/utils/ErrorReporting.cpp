@@ -22,6 +22,7 @@
 
 #include "https/Https.h"
 
+#include "utils/Config.h"
 #include "utils/Conversion.h"
 
 #include <QJsonDocument>
@@ -44,7 +45,7 @@ void ErrorReporting::report(const QString & message) {
 	errorList.insert(errorMessage);
 
 	QJsonObject json;
-	json["project"] = 0;
+	json["project"] = Config::ProjectID;
 	json["version"] = s2q(VERSION_STRING);
 	json["report"] = errorMessage;
 

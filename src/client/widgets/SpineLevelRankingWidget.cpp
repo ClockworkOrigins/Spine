@@ -20,6 +20,9 @@
 
 #include "SpineConfig.h"
 
+#include "client/IconCache.h"
+
+#include "gui/ReportContentDialog.h"
 #include "gui/WaitSpinner.h"
 
 #include "https/Https.h"
@@ -30,10 +33,12 @@
 #include <QHeaderView>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QPushButton>
 #include <QStandardItemModel>
 #include <QTableView>
 #include <QVBoxLayout>
 
+using namespace spine::client;
 using namespace spine::gui;
 using namespace spine::utils;
 using namespace spine::widgets;
@@ -53,6 +58,23 @@ SpineLevelRankingWidget::SpineLevelRankingWidget(QWidget * par) : QWidget(par), 
 	_tableView->setProperty("score", true);
 
 	l->addWidget(_tableView);
+
+	{
+		QHBoxLayout* hl = new QHBoxLayout();
+		
+		QPushButton * reportContentBtn = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/flag.svg"), "", this);
+		reportContentBtn->setToolTip(QApplication::tr("ReportContent"));
+
+		connect(reportContentBtn, &QPushButton::released, this, [this]() {
+			ReportContentDialog dlg(QApplication::tr("Ranking"), this);
+			dlg.exec();
+		});
+
+		hl->addStretch(1);
+		hl->addWidget(reportContentBtn);
+
+		l->addLayout(hl);
+	}
 
 	setLayout(l);
 

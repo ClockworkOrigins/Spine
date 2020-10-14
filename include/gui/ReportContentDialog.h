@@ -14,41 +14,37 @@
     You should have received a copy of the GNU General Public License
     along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
-// Copyright 2018 Clockwork Origins
+// Copyright 2020 Clockwork Origins
 
 #pragma once
 
-#include <QString>
+#include <QDialog>
 
-class QSettings;
+class QTextEdit;
 
 namespace spine {
-namespace utils {
+namespace gui {
 
-	class Config {
+	class ReportContentDialog : public QDialog {
+		Q_OBJECT
+
 	public:
-		/**
-		* \brief always call after creation of QApplication in main and before creating MainWindow
-		*/
-		static int Init();
+		ReportContentDialog(QString context, QWidget * par);
 
-		static QString BASEDIR;
-		static QString DOWNLOADDIR;
-		static QString NEWSIMAGEDIR;
-		static QString STYLESDIR;
-		static QSettings * IniParser;
+	signals:
+		void error();
+		void success();
 
-		static bool OnlineMode;
-		static QString Username;
-		static QString Password;
-		static QString Language;
-		static int UserID;
+	private slots:
+		void submit();
+		void showError();
+		void showSuccess();
 
-		static int downloadRate;
-		static bool extendedLogging;
+	private:
+		QString _context;
 
-		static const int ProjectID = 0;
+		QTextEdit * _textEdit;
 	};
 
-} /* namespace utils */
+} /* namespace gui */
 } /* namespace spine */

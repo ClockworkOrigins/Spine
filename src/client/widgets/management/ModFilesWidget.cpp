@@ -296,7 +296,7 @@ void ModFilesWidget::uploadCurrentMod() {
 			QElapsedTimer startTime;
 			startTime.start();
 			qint64 writtenBytes = 0;
-			int size = serialized.size();
+			int32_t size = static_cast<int32_t>(serialized.size()); // TODO: support 64bit files in the future!
 			sock.write(&size, 4);
 			sock.write(serialized);
 			for (const QString & file : uploadFiles) {

@@ -1963,6 +1963,7 @@
 	<Version majorVersion="1" minorVersion="24" patchVersion="0">
 		<Enhancement language="Deutsch">Es gibt jetzt auch für Projekte, die mnan nicht lang gespielt hat, Erfahrungspunkte</Enhancement>
 		<Enhancement language="Deutsch">Filter für installierte Projekte in der Datenbank eingeführt</Enhancement>
+		<Enhancement language="Deutsch">Möglichkeit eingebaut, unangemessene Inhalte zu melden</Enhancement>
 		<Bug language="Deutsch">Benutzerverwaltung im Management-Bereich wird bei Tab-Wechsel jetzt korrekt aktualisiert</Bug>
 		<Bug language="Deutsch">Fehler bei Modstart behoben, wenn als Admin gestartet wurde und Symlinks in Windows deaktiviert sind</Bug>
 		<Bug language="Deutsch">Deinstallation eines Projekts in der Bibliothek aktualisiert den Status jetzt in der Datenbank</Bug>
@@ -1974,6 +1975,7 @@
 		
 		<Enhancement language="English">One now also gets experience points for projects that haven't been played long</Enhancement>
 		<Enhancement language="English">Added filter for installed projects in database</Enhancement>
+		<Enhancement language="English">Added possibility to report inappropriate content</Enhancement>
 		<Bug language="English">User management in management area gets correctly updated now when switching tabs</Bug>
 		<Bug language="English">Fixed problem with mod start when starting as admin and having symlinks disabled in Windows</Bug>
 		<Bug language="English">Uninstalling a project via the library now updates the status in the database</Bug>

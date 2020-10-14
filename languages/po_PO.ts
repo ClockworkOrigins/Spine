@@ -3276,5 +3276,21 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>InstalledFilter</source>
         <translation>Zainstalowano</translation>
     </message>
+    <message>
+        <source>ReportContentDescription</source>
+        <translation>Dołącz, jakie treści uważasz za nieodpowiednie i dlaczego tak jest.</translation>
+    </message>
+    <message>
+        <source>ReportedContent</source>
+        <translation>Otrzymaliśmy Twoją wiadomość i zajmiemy się nią jak najszybciej.</translation>
+    </message>
+    <message>
+        <source>ReportedContentLoggedIn</source>
+        <translation>Powiadomimy Cię e-mailem o przetworzeniu Twojej wiadomości.</translation>
+    </message>
+    <message>
+        <source>ReportContent</source>
+        <translation>Zgłoś treść</translation>
+    </message>
 </context>
 </TS>
