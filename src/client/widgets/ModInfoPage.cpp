@@ -329,7 +329,7 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 		reportContentBtn->setToolTip(QApplication::tr("ReportContent"));
 
 		connect(reportContentBtn, &QPushButton::released, this, [this]() {
-			ReportContentDialog dlg(QApplication::tr("InfoPage"), this);
+			ReportContentDialog dlg("InfoPage_" + QString::number(_modID), this);
 			dlg.exec();
 		});
 

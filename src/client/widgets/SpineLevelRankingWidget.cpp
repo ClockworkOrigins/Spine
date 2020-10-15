@@ -66,7 +66,7 @@ SpineLevelRankingWidget::SpineLevelRankingWidget(QWidget * par) : QWidget(par), 
 		reportContentBtn->setToolTip(QApplication::tr("ReportContent"));
 
 		connect(reportContentBtn, &QPushButton::released, this, [this]() {
-			ReportContentDialog dlg(QApplication::tr("Ranking"), this);
+			ReportContentDialog dlg("Ranking", this);
 			dlg.exec();
 		});
 
