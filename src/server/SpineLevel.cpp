@@ -215,7 +215,7 @@ void SpineLevel::cacheLevel(int userID) {
 	uint32_t currentXP = 0;
 
 	do {
-		CONNECTTODATABASE(__LINE__);
+		CONNECTTODATABASE(__LINE__)
 		
 		if (!database.query("PREPARE selectAchievementsStmt FROM \"SELECT COUNT(*) FROM modAchievements WHERE UserID = ?\";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
@@ -461,11 +461,11 @@ void SpineLevel::cacheLevel(int userID) {
 	sulm.currentXP = currentXP;
 	sulm.nextXP = nextXP;
 
-	const auto username = ServerCommon::getUsername(userID);;
+	const auto username = ServerCommon::getUsername(userID);
 
 	if (!username.empty()) {
 		do {
-			CONNECTTODATABASE(__LINE__);
+			CONNECTTODATABASE(__LINE__)
 			
 			if (!database.query("PREPARE insertStmt FROM \"INSERT INTO levels (UserID, Level, XP, NextXP) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE Level = ?, XP = ?, NextXP = ?\";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
