@@ -1985,4 +1985,9 @@
 		<Bug language="English">Download progress now also shows the skipped DirectX redistributable</Bug>
 		<Bug language="English">Fixed bug starting mods that haven't been installed via Spine when paths match except for Gothic version</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="25" patchVersion="0">
+		<Bug language="Deutsch">Einfluss der Spielzeit auf Spine-Level reduziert</Bug>
+		
+		<Bug language="English">Reduced impact of playtime on Spine level</Bug>
+	</Version>
 </Versions>

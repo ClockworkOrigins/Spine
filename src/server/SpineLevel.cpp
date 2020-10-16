@@ -369,13 +369,13 @@ void SpineLevel::cacheLevel(int userID) {
 			const int thirdQuartile = std::stoi(r[(r.size() * 3) / 4][0]);
 
 			if (ownDuration > thirdQuartile) {
-				currentXP += 500;
+				currentXP += 100;
 			} else if (ownDuration > median) {
-				currentXP += 300;
-			} else if (ownDuration > firstQuartile) {
-				currentXP += 150;
-			} else {
 				currentXP += 50;
+			} else if (ownDuration > firstQuartile) {
+				currentXP += 25;
+			} else {
+				currentXP += 10;
 			}
 		}
 		if (!database.query("EXECUTE selectDonationStmt USING @paramUserID;")) {
