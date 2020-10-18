@@ -107,23 +107,24 @@ void Gothic1IniWidget::backup() {
 
 void Gothic1IniWidget::restore() {
 	const QString backupFile = QFileDialog::getOpenFileName(this, QApplication::tr("SelectBackupFile"), QString(), "Gothic.ini");
-	if (!backupFile.isEmpty()) {
-		delete _iniParser;
+	
+	if (backupFile.isEmpty()) return;
+	
+	delete _iniParser;
 
-		if (QFileInfo::exists(_directory + "/System/Gothic.ini")) {
-			QFile::remove(_directory + "/System/Gothic.ini");
-		}
-		
-		QFile::copy(backupFile, _directory + "/System/Gothic.ini");
-		
-		_iniParser = new QSettings(_directory + "/System/Gothic.ini", QSettings::IniFormat);
-		
-		_gamePage->updateSettings(_iniParser);
-		_performancePage->updateSettings(_iniParser);
-		_enginePage->updateSettings(_iniParser);
-		_visualizationPage->updateSettings(_iniParser);
-		_videoPage->updateSettings(_iniParser);
-		_soundPage->updateSettings(_iniParser);
-		_controlsPage->updateSettings(_iniParser);
+	if (QFileInfo::exists(_directory + "/System/Gothic.ini")) {
+		QFile::remove(_directory + "/System/Gothic.ini");
 	}
+	
+	QFile::copy(backupFile, _directory + "/System/Gothic.ini");
+	
+	_iniParser = new QSettings(_directory + "/System/Gothic.ini", QSettings::IniFormat);
+	
+	_gamePage->updateSettings(_iniParser);
+	_performancePage->updateSettings(_iniParser);
+	_enginePage->updateSettings(_iniParser);
+	_visualizationPage->updateSettings(_iniParser);
+	_videoPage->updateSettings(_iniParser);
+	_soundPage->updateSettings(_iniParser);
+	_controlsPage->updateSettings(_iniParser);
 }

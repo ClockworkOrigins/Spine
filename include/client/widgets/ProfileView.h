@@ -46,7 +46,6 @@ namespace widgets {
 
 	public:
 		ProfileView(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QWidget * par);
-		~ProfileView();
 
 		void setGothicDirectory(QString path);
 		void setGothic2Directory(QString path);

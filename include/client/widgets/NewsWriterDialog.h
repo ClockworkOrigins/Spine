@@ -39,7 +39,6 @@ namespace widgets {
 
 	public:
 		NewsWriterDialog(QWidget * par);
-		~NewsWriterDialog();
 
 	signals:
 		void receivedModList(std::vector<common::Mod>);

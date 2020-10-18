@@ -30,7 +30,6 @@ namespace widgets {
 
 	public:
 		UninstallDialog(QString title, QString text, QString path);
-		~UninstallDialog();
 
 		bool keepSavegame() const;
 

@@ -79,7 +79,7 @@ namespace {
 }
 	
 	struct InstalledMod {
-		InstalledMod(const int i1, const int i2, const int i3, const int i4, const int i5) : id(i1), gothicVersion(common::GameType(i2)), majorVersion(i3), minorVersion(i4), patchVersion(i5) {
+		InstalledMod(const int i1, const int i2, const int i3, const int i4, const int i5) : id(i1), gothicVersion(static_cast<common::GameType>(i2)), majorVersion(static_cast<int8_t>(i3)), minorVersion(static_cast<int8_t>(i4)), patchVersion(static_cast<int8_t>(i5)) {
 		}
 
 		int32_t id;
@@ -152,14 +152,14 @@ namespace {
 				sizeString = QString::number(dSize, 'f', 1) + " " + unit;
 			}
 			setText(sizeString);
-			setData(quint64(size), Qt::UserRole);
+			setData(static_cast<quint64>(size), Qt::UserRole);
 		}
 	};
 
 	class VersionItem : public QStandardItem {
 	public:
 		VersionItem(const uint8_t majorVersion, const uint8_t minorVersion, const uint8_t patchVersion) : QStandardItem(QString::number(static_cast<int>(majorVersion)) + "." + QString::number(static_cast<int>(minorVersion)) + "." + QString::number(static_cast<int>(patchVersion))) {
-			QStandardItem::setData(quint64(majorVersion * 256 * 256 + minorVersion * 256 + patchVersion), Qt::UserRole);
+			QStandardItem::setData(static_cast<quint64>(majorVersion * 256 * 256 + minorVersion * 256 + patchVersion), Qt::UserRole);
 		}
 	};
 
@@ -733,6 +733,10 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 			typeName = QApplication::tr("Demo");
 			break;
 		}
+		case common::ModType::PLAYTESTING: {
+			typeName = QApplication::tr("PlayTesting");
+			break;
+		}
 		default: {
 			break;
 		}
@@ -759,9 +763,6 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 		}
 		case common::GameType::Game: {
 			gameName = QApplication::tr("Game");
-			break;
-		}
-		default: {
 			break;
 		}
 		}
@@ -845,11 +846,11 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 
 	QtConcurrent::run([mods]() {
 		for (const auto & mod : mods) {
-			Database::DBError err;
-			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO supportedLanguages (ProjectID, Languages) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(mod.supportedLanguages) + ");", err);
+			Database::DBError err2;
+			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO supportedLanguages (ProjectID, Languages) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(mod.supportedLanguages) + ");", err2);
 
-			if (err.error) {
-				Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE supportedLanguages SET Languges = " + std::to_string(mod.supportedLanguages) + " WHERE ProjectID = " + std::to_string(mod.id) + ";", err);
+			if (err2.error) {
+				Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE supportedLanguages SET Languges = " + std::to_string(mod.supportedLanguages) + " WHERE ProjectID = " + std::to_string(mod.id) + ";", err2);
 			}
 		}
 	});
@@ -885,7 +886,7 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, QSharedPointer<QList<QPa
 	const QDir dir(Config::DOWNLOADDIR + "/mods/" + QString::number(mod.id));
 	if (!dir.exists()) {
 		bool b = dir.mkpath(dir.absolutePath());
-		Q_UNUSED(b);
+		Q_UNUSED(b)
 	}
 	MultiFileDownloader * mfd = new MultiFileDownloader(this);
 	for (const auto & p : *fileList) {
@@ -1180,7 +1181,7 @@ void ModDatabaseView::downloadPackageFiles(common::Mod mod, common::UpdatePackag
 	const QDir dir(Config::DOWNLOADDIR + "/mods/" + QString::number(mod.id));
 	if (!dir.exists()) {
 		bool b = dir.mkpath(dir.absolutePath());
-		Q_UNUSED(b);
+		Q_UNUSED(b)
 	}
 	MultiFileDownloader * mfd = new MultiFileDownloader(this);
 	for (const auto & p : *fileList) {

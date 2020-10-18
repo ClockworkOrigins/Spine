@@ -28,7 +28,6 @@ namespace widgets {
 
 	public:
 		FriendRequestView(QString friendname, uint32_t level, QWidget * par);
-		~FriendRequestView();
 
 	signals:
 		void accepted();

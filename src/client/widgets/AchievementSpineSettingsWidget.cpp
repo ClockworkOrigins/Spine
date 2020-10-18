@@ -41,7 +41,7 @@ using namespace spine;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-AchievementSpineSettingsWidget::AchievementSpineSettingsWidget(models::SpineEditorModel * model, QWidget * par) : QWidget(par), _model(model), _orientationLabel(nullptr), _orientationComboBox(nullptr), _displayDurationLabel(nullptr), _displayDurationSpinBox(nullptr), _achievements() {
+AchievementSpineSettingsWidget::AchievementSpineSettingsWidget(models::SpineEditorModel * model, QWidget * par) : QWidget(par), _model(model), _orientationLabel(nullptr), _orientationComboBox(nullptr), _displayDurationLabel(nullptr), _displayDurationSpinBox(nullptr) {
 	QVBoxLayout * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
@@ -100,11 +100,8 @@ AchievementSpineSettingsWidget::AchievementSpineSettingsWidget(models::SpineEdit
 	addNewAchievement();
 }
 
-AchievementSpineSettingsWidget::~AchievementSpineSettingsWidget() {
-}
-
 void AchievementSpineSettingsWidget::save() {
-	_model->setAchievementOrientation(models::AchievementOrientation(_orientationComboBox->currentIndex()));
+	_model->setAchievementOrientation(static_cast<models::AchievementOrientation>(_orientationComboBox->currentIndex()));
 	_model->setAchievementDisplayDuration(_displayDurationSpinBox->value());
 	QList<models::AchievementModel> achievements;
 	for (Achievement a : _achievements) {

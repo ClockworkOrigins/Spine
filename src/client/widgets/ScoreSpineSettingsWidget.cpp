@@ -33,16 +33,13 @@ using namespace spine;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-ScoreSpineSettingsWidget::ScoreSpineSettingsWidget(models::SpineEditorModel * model, QWidget * par) : QWidget(par), _model(model), _scores() {
+ScoreSpineSettingsWidget::ScoreSpineSettingsWidget(models::SpineEditorModel * model, QWidget * par) : QWidget(par), _model(model) {
 	QVBoxLayout * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
 	setLayout(l);
 
 	addNewScore();
-}
-
-ScoreSpineSettingsWidget::~ScoreSpineSettingsWidget() {
 }
 
 void ScoreSpineSettingsWidget::save() {
@@ -81,9 +78,9 @@ void ScoreSpineSettingsWidget::addNewScore() {
 				dynamic_cast<QVBoxLayout *>(layout())->insertLayout(index + 1, s.layout);
 				_scores.insert(index + 1, s);
 				break;
-			} else {
-				index++;
 			}
+			
+			index++;
 		}
 	} else {
 		dynamic_cast<QVBoxLayout *>(layout())->addLayout(s.layout);
@@ -110,9 +107,9 @@ void ScoreSpineSettingsWidget::removeScore() {
 				s.removeButton->deleteLater();
 				s.lineEdit->deleteLater();
 				break;
-			} else {
-				index++;
 			}
+			
+			index++;
 		}
 	}
 

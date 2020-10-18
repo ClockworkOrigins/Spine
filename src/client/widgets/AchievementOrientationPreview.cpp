@@ -22,6 +22,7 @@
 #include <QDesktopWidget>
 #include <QPainter>
 #include <QPainterPath>
+#include <QScreen>
 
 using namespace spine;
 using namespace spine::widgets;
@@ -36,9 +37,13 @@ void AchievementOrientationPreview::paintEvent(QPaintEvent *) {
 	QColor backgroundColor;
 	backgroundColor.setNamedColor("#000000");
 
+	const auto screens = QGuiApplication::screens();
+	const auto * screen = screens.front();
+	const auto screenGeometry = screen->geometry();
+
 	{
 		QPainterPath path;
-		path.addRect(QApplication::desktop()->screenGeometry());
+		path.addRect(screenGeometry);
 		p.fillPath(path, QBrush(backgroundColor));
 		p.drawPath(path);
 	}
@@ -48,11 +53,11 @@ void AchievementOrientationPreview::paintEvent(QPaintEvent *) {
 		if (_type == 0) {
 			area = QRect(0, 0, 400, 80);
 		} else if (_type == 1) {
-			area = QRect(QApplication::desktop()->screenGeometry().width() - 400, 0, 400, 80);
+			area = QRect(screenGeometry.width() - 400, 0, 400, 80);
 		} else if (_type == 2) {
-			area = QRect(0, QApplication::desktop()->screenGeometry().height() - 80, 400, 80);
+			area = QRect(0, screenGeometry.height() - 80, 400, 80);
 		} else if (_type == 3) {
-			area = QRect(QApplication::desktop()->screenGeometry().width() - 400, QApplication::desktop()->screenGeometry().height() - 80, 400, 80);
+			area = QRect(screenGeometry.width() - 400, screenGeometry.height() - 80, 400, 80);
 		}
 		QPainterPath path;
 		path.addRect(area);

@@ -48,7 +48,7 @@ using namespace spine::widgets;
 SubmitCompatibilityDialog::SubmitCompatibilityDialog() : SubmitCompatibilityDialog(-1, -1, common::GameType::Gothic2) {
 }
 
-SubmitCompatibilityDialog::SubmitCompatibilityDialog(int32_t modID, int32_t patchID, common::GameType gothicVersion) : QDialog(nullptr), _g1Button(nullptr), _g2Button(nullptr), _modView(nullptr), _patchView(nullptr), _compatibleButton(nullptr), _notCompatibleButton(nullptr), _modList(nullptr), _patchList(nullptr), _submitButton(nullptr), _g1Mods(), _g1Patches(), _g2Mods(), _g2Patches(), _currentPatches(), _filteredPatches(), _showSubmitted(false), _modID(modID), _patchID(patchID), _gothicVersion(gothicVersion) {
+SubmitCompatibilityDialog::SubmitCompatibilityDialog(int32_t modID, int32_t patchID, common::GameType gothicVersion) : QDialog(nullptr), _g1Button(nullptr), _g2Button(nullptr), _modView(nullptr), _patchView(nullptr), _compatibleButton(nullptr), _notCompatibleButton(nullptr), _modList(nullptr), _patchList(nullptr), _submitButton(nullptr), _showSubmitted(false), _modID(modID), _patchID(patchID), _gothicVersion(gothicVersion) {
 	QVBoxLayout * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
@@ -169,7 +169,7 @@ SubmitCompatibilityDialog::SubmitCompatibilityDialog(int32_t modID, int32_t patc
 						return;
 					}
 				} else {
-					qDebug() << "Error occurred: " << int(cErr);
+					qDebug() << "Error occurred: " << static_cast<int>(cErr);
 					return;
 				}
 			}
@@ -194,16 +194,13 @@ SubmitCompatibilityDialog::SubmitCompatibilityDialog(int32_t modID, int32_t patc
 						return;
 					}
 				} else {
-					qDebug() << "Error occurred: " << int(cErr);
+					qDebug() << "Error occurred: " << static_cast<int>(cErr);
 				}
 			}
 		} else {
-			qDebug() << "Error occurred: " << int(cErr);
+			qDebug() << "Error occurred: " << static_cast<int>(cErr);
 		}
 	});
-}
-
-SubmitCompatibilityDialog::~SubmitCompatibilityDialog() {
 }
 
 void SubmitCompatibilityDialog::updateModList(std::vector<common::Mod> mods) {
@@ -326,7 +323,7 @@ void SubmitCompatibilityDialog::accept() {
 		if (clockUtils::ClockError::SUCCESS == err) {
 			sock.writePacket(serialized);
 		} else {
-			qDebug() << "Error occurred: " << int(err);
+			qDebug() << "Error occurred: " << static_cast<int>(err);
 		}
 		Database::DBError dbErr;
 		Database::execute(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, "INSERT INTO ownCompatibilityVotes (ModID, PatchID, Compatible) VALUES (" + std::to_string(modID) + ", " + std::to_string(patchID) + ", " + std::to_string(compatible) + ");", dbErr);

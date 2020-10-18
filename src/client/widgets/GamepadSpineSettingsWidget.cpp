@@ -49,9 +49,6 @@ GamepadSpineSettingsWidget::GamepadSpineSettingsWidget(models::SpineEditorModel 
 	setLayout(l);
 }
 
-GamepadSpineSettingsWidget::~GamepadSpineSettingsWidget() {
-}
-
 void GamepadSpineSettingsWidget::save() {
 	_model->setEarthquakeVibration(_earthquakeVibrationCheckBox->isChecked());
 }

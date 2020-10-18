@@ -39,7 +39,7 @@ using namespace spine;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-DeveloperSettingsWidget::DeveloperSettingsWidget(QWidget * par) : QWidget(par), _developerModeCheckbox(nullptr), _zSpyCheckbox(nullptr), _devPaths() {
+DeveloperSettingsWidget::DeveloperSettingsWidget(QWidget * par) : QWidget(par), _developerModeCheckbox(nullptr), _zSpyCheckbox(nullptr) {
 	QVBoxLayout * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
@@ -72,7 +72,7 @@ DeveloperSettingsWidget::DeveloperSettingsWidget(QWidget * par) : QWidget(par), 
 		QGridLayout * hl = new QGridLayout();
 
 		const QString path = Config::IniParser->value("DEVELOPER/Path_" + QString::number(i), "").toString();
-		const common::GameType gv = common::GameType(Config::IniParser->value("DEVELOPER/Gothic_" + QString::number(i), int(common::GameType::Gothic2)).toInt());
+		const common::GameType gv = static_cast<common::GameType>(Config::IniParser->value("DEVELOPER/Gothic_" + QString::number(i), static_cast<int>(common::GameType::Gothic2)).toInt());
 
 		QLabel * gothicPathLabel = new QLabel(QApplication::tr("DevPath").arg(i), this);
 		UPDATELANGUAGESETTEXTARG(gothicPathLabel, "DevPath", i);
@@ -113,7 +113,7 @@ void DeveloperSettingsWidget::saveSettings() {
 	Config::IniParser->setValue("DEVELOPER/ZSpy", _zSpyCheckbox->isChecked());
 	for (int i = 0; i < _devPaths.size(); i++) {
 		Config::IniParser->setValue("DEVELOPER/Path_" + QString::number(i), _devPaths[i].lineEdit->text());
-		Config::IniParser->setValue("DEVELOPER/Gothic_" + QString::number(i), _devPaths[i].g1Box->isChecked() ? int(common::GameType::Gothic) : int(common::GameType::Gothic2));
+		Config::IniParser->setValue("DEVELOPER/Gothic_" + QString::number(i), _devPaths[i].g1Box->isChecked() ? static_cast<int>(common::GameType::Gothic) : static_cast<int>(common::GameType::Gothic2));
 	}
 	emit developerModeChanged(_developerModeCheckbox->isChecked());
 	emit zSpyChanged(_zSpyCheckbox->isChecked());
@@ -130,7 +130,7 @@ void DeveloperSettingsWidget::rejectSettings() {
 	}
 	for (int i = 0; i < _devPaths.size(); i++) {
 		const QString path = Config::IniParser->value("DEVELOPER/Path_" + QString::number(i), "").toString();
-		const common::GameType gv = common::GameType(Config::IniParser->value("DEVELOPER/Gothic_" + QString::number(i), int(common::GameType::Gothic2)).toInt());
+		const common::GameType gv = static_cast<common::GameType>(Config::IniParser->value("DEVELOPER/Gothic_" + QString::number(i), static_cast<int>(common::GameType::Gothic2)).toInt());
 
 		_devPaths[i].lineEdit->setText(path);
 		_devPaths[i].g1Box->setChecked(gv == common::GameType::Gothic);

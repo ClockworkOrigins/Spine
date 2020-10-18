@@ -156,7 +156,7 @@ void ModInfoView::updatedMod(int modID) {
 void ModInfoView::restartSpineAsAdmin() {
 #ifdef Q_OS_WIN
 	const QString exeFileName = qApp->applicationDirPath() + "/" + qApp->applicationName();
-	const int result = int(::ShellExecuteA(nullptr, "runas", exeFileName.toUtf8().constData(), nullptr, nullptr, SW_SHOWNORMAL));
+	const int result = reinterpret_cast<int>(::ShellExecuteA(nullptr, "runas", exeFileName.toUtf8().constData(), nullptr, nullptr, SW_SHOWNORMAL));
 	if (result > 32) { // no error
 		qApp->quit();
 	}

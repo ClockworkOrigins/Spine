@@ -31,7 +31,6 @@ namespace widgets {
 
 	public:
 		ExportDialog(QWidget * par);
-		~ExportDialog();
 
 	signals:
 		void updateProgress(int);

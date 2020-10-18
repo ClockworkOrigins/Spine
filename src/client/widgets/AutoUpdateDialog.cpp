@@ -33,7 +33,6 @@
 
 #include <QAbstractButton>
 #include <QApplication>
-#include <QDir>
 #include <QDirIterator>
 #include <QLabel>
 #include <QMessageBox>
@@ -137,7 +136,7 @@ void AutoUpdateDialog::checkForUpdate() {
 		resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
 		resultMsg.exec();
 
-		const int result = int(::ShellExecuteA(nullptr, "runas", exeFileName.toUtf8().constData(), nullptr, nullptr, SW_SHOWNORMAL));
+		const int result = reinterpret_cast<int>(::ShellExecuteA(nullptr, "runas", exeFileName.toUtf8().constData(), nullptr, nullptr, SW_SHOWNORMAL));
 		if (result > 32) { // no error
 			qApp->quit();
 		}
@@ -194,7 +193,7 @@ void AutoUpdateDialog::checkForUpdate() {
 	}
 }
 
-void AutoUpdateDialog::cleanup() {
+void AutoUpdateDialog::cleanup() const {
 	QDirIterator it(qApp->applicationDirPath(), QStringList() << "*.old" << "*.dl" << ".ex" << "*.q" << "*.xm" << "*.ba" << "*.vd", QDir::Filter::Files, QDirIterator::IteratorFlag::Subdirectories);
 	while (it.hasNext()) {
 		it.next();

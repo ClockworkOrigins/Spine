@@ -139,7 +139,7 @@ MainWindow * MainWindow::instance = nullptr;
 MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par), _modListView(nullptr), _modInfoView(nullptr), _profileView(nullptr), _friendsView(nullptr), _spineLevelRankingWidget(nullptr), _settingsDialog(nullptr), _autoUpdateDialog(), _changelogDialog(nullptr), _modListModel(nullptr), _loginDialog(nullptr), _modUpdateDialog(nullptr), _installGothic2FromCDDialog(nullptr), _feedbackDialog(nullptr), _developerModeActive(false), _devModeAction(nullptr), _modDatabaseView(nullptr), _tabWidget(nullptr), _spineEditorAction(nullptr), _spineEditor(nullptr), _modInfoPage(nullptr) {
 	instance = this;
 
-	LOGINFO(QSslSocket::supportsSsl() << q2s(QSslSocket::sslLibraryBuildVersionString()) << q2s(QSslSocket::sslLibraryVersionString()));
+	LOGINFO(QSslSocket::supportsSsl() << q2s(QSslSocket::sslLibraryBuildVersionString()) << q2s(QSslSocket::sslLibraryVersionString()))
 
 	connect(DiscordManager::instance(), &DiscordManager::connected, []() {
 		DiscordManager::instance()->updatePresence(QApplication::tr("Browsing"), "");
@@ -190,8 +190,8 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 				clockUtils::sockets::TcpSocket sock;
 				if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 5000)) {
 					common::UpdateStartTimeMessage ustm;
-					ustm.dayOfTheWeek = QDate::currentDate().dayOfWeek();
-					ustm.hour = QTime::currentTime().hour();
+					ustm.dayOfTheWeek = static_cast<int16_t>(QDate::currentDate().dayOfWeek());
+					ustm.hour = static_cast<int16_t>(QTime::currentTime().hour());
 					const std::string serialized = ustm.SerializePublic();
 					sock.writePacket(serialized);
 				}
@@ -1095,7 +1095,7 @@ void MainWindow::uninstallMod() {
 
 	const QModelIndex idx = idxList.constFirst();
 	const int modId = idx.data(LibraryFilterModel::ModIDRole).toInt();
-	const common::GameType gothicVersion = common::GameType(idx.data(LibraryFilterModel::GameRole).toInt());
+	const common::GameType gothicVersion = static_cast<common::GameType>(idx.data(LibraryFilterModel::GameRole).toInt());
 	const QString directory = gothicVersion == common::GameType::Gothic ? _gothicDirectory : _gothic2Directory;
 	_modListView->clearSelection();
 
@@ -1230,7 +1230,7 @@ void MainWindow::changedOnlineMode() {
 	Config::IniParser->setValue("MISC/OnlineMode", Config::OnlineMode);
 	const QString exeFileName = qApp->applicationDirPath() + "/" + qApp->applicationName();
 #ifdef Q_OS_WIN
-	const int result = int(::ShellExecuteA(0, "runas", exeFileName.toUtf8().constData(), 0, 0, SW_SHOWNORMAL));
+	const int result = reinterpret_cast<int>(::ShellExecuteA(0, "runas", exeFileName.toUtf8().constData(), 0, 0, SW_SHOWNORMAL));
 	if (result > 32) { // no error
 		qApp->quit();
 	}

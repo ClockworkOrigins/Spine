@@ -31,7 +31,6 @@ namespace widgets {
 
 	public:
 		AddFriendDialog(QStringList users, QWidget * par);
-		~AddFriendDialog();
 
 	private slots:
 		void sendRequest();

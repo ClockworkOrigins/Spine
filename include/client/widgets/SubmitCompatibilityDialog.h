@@ -35,7 +35,6 @@ namespace widgets {
 	public:
 		SubmitCompatibilityDialog();
 		SubmitCompatibilityDialog(int32_t modID, int32_t patchID, common::GameType gothicVersion);
-		~SubmitCompatibilityDialog();
 
 	signals:
 		void receivedModList(std::vector<common::Mod>);

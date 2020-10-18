@@ -70,9 +70,6 @@ UninstallDialog::UninstallDialog(QString title, QString text, QString path) : QD
 	setWindowTitle(title);
 }
 
-UninstallDialog::~UninstallDialog() {
-}
-
 bool UninstallDialog::keepSavegame() const {
 	return _savegameCheckbox->isChecked();
 }

@@ -37,7 +37,6 @@ namespace widgets {
 
 	public:
 		GeneralSpineSettingsWidget(models::SpineEditorModel * model, QWidget * par);
-		~GeneralSpineSettingsWidget();
 
 		void save();
 

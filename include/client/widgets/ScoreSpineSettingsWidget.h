@@ -35,7 +35,6 @@ namespace widgets {
 
 	public:
 		ScoreSpineSettingsWidget(models::SpineEditorModel * model, QWidget * par);
-		~ScoreSpineSettingsWidget();
 
 		void save();
 

@@ -309,7 +309,7 @@ void IntegrityCheckDialog::process(int projectID) {
 
 		if (Config::extendedLogging) {
 			for (const auto & mf : _corruptFiles) {
-				LOGINFO("Integrity Check - Hash invalid: " << q2s(mf.file) << " (" << mf.modID << ")");
+				LOGINFO("Integrity Check - Hash invalid: " << q2s(mf.file) << " (" << mf.modID << ")")
 			}
 		}
 	}

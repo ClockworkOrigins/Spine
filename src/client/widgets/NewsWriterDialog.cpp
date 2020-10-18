@@ -36,12 +36,12 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDateEdit>
-#include <QDesktopWidget>
 #include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QScreen>
 #include <QScrollArea>
 #include <QtConcurrentRun>
 #include <QTextBrowser>
@@ -141,9 +141,6 @@ NewsWriterDialog::NewsWriterDialog(QWidget * par) : QDialog(par), _newsPreviewWi
 	requestMods();
 }
 
-NewsWriterDialog::~NewsWriterDialog() {
-}
-
 void NewsWriterDialog::changedNews() {
 	common::SendAllNewsMessage::News news;
 
@@ -155,9 +152,8 @@ void NewsWriterDialog::changedNews() {
 }
 
 void NewsWriterDialog::accept() {
-	if (_titleEdit->text().isEmpty() || _bodyEdit->toPlainText().isEmpty() || Config::Username.isEmpty()) {
-		return;
-	}
+	if (_titleEdit->text().isEmpty() || _bodyEdit->toPlainText().isEmpty() || Config::Username.isEmpty()) return;
+
 	common::SubmitNewsMessage snm;
 	snm.username = Config::Username.toStdString();
 	snm.password = Config::Password.toStdString();
@@ -230,7 +226,7 @@ void NewsWriterDialog::updateModList(std::vector<common::Mod> mods) {
 	int counter = 0;
 	for (const common::Mod & mod : mods) {
 		QCheckBox * cb = new QCheckBox(s2q(mod.name), this);
-		cb->setProperty("modid", int(mod.id));
+		cb->setProperty("modid", static_cast<int>(mod.id));
 		_modListLayout->addWidget(cb, counter / 3, counter % 3);
 		_mods.append(cb);
 		counter++;
@@ -252,7 +248,9 @@ void NewsWriterDialog::addImage() {
 void NewsWriterDialog::showEvent(QShowEvent * evt) {
 	QDialog::showEvent(evt);
 
-	const QRect scr = QApplication::desktop()->screenGeometry();
+	const auto screens = QGuiApplication::screens();
+	const auto * screen = screens[0];
+	const QRect scr = screen->geometry();
 	move(scr.center() - rect().center());
 }
 
@@ -281,7 +279,7 @@ void NewsWriterDialog::requestMods() {
 					return;
 				}
 			} else {
-				qDebug() << "Error occurred: " << int(err);
+				qDebug() << "Error occurred: " << static_cast<int>(err);
 			}
 		}
 	});

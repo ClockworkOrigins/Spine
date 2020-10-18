@@ -37,7 +37,7 @@ void CenteredIconDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 	    // disable default icon
 	    opt.icon = QIcon();
 	    // draw default item
-	    QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &opt, painter, 0);
+	    QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &opt, painter, nullptr);
 
 	    const QRect r = option.rect;
 
@@ -45,7 +45,7 @@ void CenteredIconDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 	    const QPixmap pix = qvariant_cast<QPixmap>(index.data(Qt::DecorationRole));
 
 	    // draw pixmap at center of item
-	    const QPoint p = QPoint((r.width() - pix.width())/2, (r.height() - pix.height())/2);
+	    const QPoint p = QPoint((r.width() - pix.width()) / 2, (r.height() - pix.height()) / 2);
 	    painter->drawPixmap(r.topLeft() + p, pix);
 	} else {
 		QStyledItemDelegate::paint(painter, option, index);

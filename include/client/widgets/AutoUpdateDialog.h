@@ -42,7 +42,7 @@ namespace widgets {
 		QMainWindow * _mainWindow;
 		bool _manuallyChecking;
 
-		void cleanup();
+		void cleanup() const;
 	};
 
 } /* namespace widgets */

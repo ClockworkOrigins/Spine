@@ -77,17 +77,12 @@ AddFriendDialog::AddFriendDialog(QStringList users, QWidget * par) : QDialog(par
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 }
 
-AddFriendDialog::~AddFriendDialog() {
-}
-
 void AddFriendDialog::sendRequest() {
-	if (Config::Username.isEmpty()) {
-		return;
-	}
+	if (Config::Username.isEmpty()) return;
+
 	const QString friendname = _comboBox->currentText();
-	if (friendname.isEmpty()) {
-		return;
-	}
+	if (friendname.isEmpty()) return;
+
 	QtConcurrent::run([friendname]() {
 		common::SendFriendRequestMessage sfrm;
 		sfrm.username = Config::Username.toStdString();

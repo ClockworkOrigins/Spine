@@ -47,9 +47,6 @@ GameSettingsWidget::GameSettingsWidget(QWidget * par) : QWidget(par), _showAchie
 	setLayout(l);
 }
 
-GameSettingsWidget::~GameSettingsWidget() {
-}
-
 void GameSettingsWidget::saveSettings() {
 	const bool b = Config::IniParser->value("GAME/showAchievements", true).toBool();
 	if (b != _showAchievementsCheckBox->isChecked()) {

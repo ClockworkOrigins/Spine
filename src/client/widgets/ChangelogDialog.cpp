@@ -23,7 +23,6 @@
 
 #include "utils/Config.h"
 #include "utils/Conversion.h"
-#include "utils/WindowsExtensions.h"
 
 #include <QApplication>
 #include <QCheckBox>
@@ -112,9 +111,9 @@ int ChangelogDialog::exec() {
 		if (node->Attribute("majorVersion") == nullptr || node->Attribute("minorVersion") == nullptr || node->Attribute("patchVersion") == nullptr) {
 			continue;
 		}
-		const uint8_t majorVersion = uint8_t(std::stoi(node->Attribute("majorVersion")));
-		const uint8_t minorVersion = uint8_t(std::stoi(node->Attribute("minorVersion")));
-		const uint8_t patchVersion = uint8_t(std::stoi(node->Attribute("patchVersion")));
+		const uint8_t majorVersion = static_cast<uint8_t>(std::stoi(node->Attribute("majorVersion")));
+		const uint8_t minorVersion = static_cast<uint8_t>(std::stoi(node->Attribute("minorVersion")));
+		const uint8_t patchVersion = static_cast<uint8_t>(std::stoi(node->Attribute("patchVersion")));
 		uint32_t version = (majorVersion << 16) + (minorVersion << 8) + patchVersion;
 		versions.insert(std::make_pair(version, std::make_pair(QStringList(), QStringList())));
 		for (tinyxml2::XMLElement * enhancement = node->FirstChildElement("Enhancement"); enhancement != nullptr; enhancement = enhancement->NextSiblingElement("Enhancement")) {

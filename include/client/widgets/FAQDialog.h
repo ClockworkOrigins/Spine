@@ -29,7 +29,8 @@ namespace widgets {
 		~FAQDialog();
 
 	private:
-		void initEntries(QWidget * par, QLayout * l);
+		static void initEntries(QWidget * par, QLayout * l);
+		
 		void restoreSettings();
 		void saveSettings();
 	};

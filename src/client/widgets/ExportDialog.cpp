@@ -75,9 +75,6 @@ ExportDialog::ExportDialog(QWidget * par) : QDialog(par), _exportPathLineEdit(nu
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 }
 
-ExportDialog::~ExportDialog() {
-}
-
 void ExportDialog::openExportPathDialog() {
 	const QString path = QFileDialog::getExistingDirectory(this, QApplication::tr("SelectExportDir"), _exportPathLineEdit->text());
 	if (!path.isEmpty()) {
@@ -91,15 +88,12 @@ void ExportDialog::openExportPathDialog() {
 }
 
 void ExportDialog::exportMods() {
-	if (_exportPathLineEdit->text().isEmpty() || !QDir(_exportPathLineEdit->text()).exists()) {
-		return;
-	}
+	if (_exportPathLineEdit->text().isEmpty() || !QDir(_exportPathLineEdit->text()).exists()) return;
+
 	Database::DBError dbErr;
 	std::vector<std::vector<std::string>> modfiles = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, File, Hash FROM modfiles;", dbErr);
 
-	if (modfiles.empty()) {
-		return;
-	}
+	if (modfiles.empty()) return;
 
 	QProgressDialog dlg(QApplication::tr("Exporting").arg(QString::fromStdString(modfiles[0][1])), QApplication::tr("Cancel"), 0, modfiles.size(), this);
 	dlg.setWindowFlags(dlg.windowFlags() & ~Qt::WindowContextHelpButtonHint);

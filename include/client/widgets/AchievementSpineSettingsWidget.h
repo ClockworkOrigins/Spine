@@ -39,7 +39,6 @@ namespace widgets {
 
 	public:
 		AchievementSpineSettingsWidget(models::SpineEditorModel * model, QWidget * par);
-		~AchievementSpineSettingsWidget();
 
 		void save();
 

@@ -35,7 +35,6 @@ namespace widgets {
 
 	public:
 		GamepadSpineSettingsWidget(models::SpineEditorModel * model, QWidget * par);
-		~GamepadSpineSettingsWidget();
 
 		void save();
 

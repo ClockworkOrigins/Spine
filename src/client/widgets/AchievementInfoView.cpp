@@ -30,11 +30,8 @@
 using namespace spine;
 using namespace spine::widgets;
 
-AchievementInfoView::AchievementInfoView(common::SendAllAchievementStatsMessage::AchievementStats as, QWidget * par) : QWidget(par), _name(s2q(as.name)), _description(s2q(as.description)), _progress(as.unlockedPercent), _currentProgress(as.currentProgress), _maxProgress(as.maxProgress), _unlocked(as.unlocked) {
+AchievementInfoView::AchievementInfoView(const common::SendAllAchievementStatsMessage::AchievementStats & as, QWidget * par) : QWidget(par), _name(s2q(as.name)), _description(s2q(as.description)), _progress(as.unlockedPercent), _currentProgress(as.currentProgress), _maxProgress(as.maxProgress), _unlocked(as.unlocked) {
 	setFixedSize(AchievementInfoView::sizeHint());
-}
-
-AchievementInfoView::~AchievementInfoView() {
 }
 
 QSize AchievementInfoView::sizeHint() const {
@@ -43,7 +40,7 @@ QSize AchievementInfoView::sizeHint() const {
 
 void AchievementInfoView::paintEvent(QPaintEvent *) {
 	QPainter p(this);
-	p.setRenderHints(QPainter::HighQualityAntialiasing | QPainter::TextAntialiasing);
+	p.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
 	QColor backgroundColor;
 	backgroundColor.setNamedColor("#808080");
 	{

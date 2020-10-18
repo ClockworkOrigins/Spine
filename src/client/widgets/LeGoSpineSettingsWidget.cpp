@@ -30,7 +30,7 @@
 using namespace spine;
 using namespace spine::widgets;
 
-LeGoSpineSettingsWidget::LeGoSpineSettingsWidget(models::SpineEditorModel * model, QWidget * par) : QWidget(par), _model(model), _legoModuleCheckBoxes(), _achievementsEnabled(false), _gamepadEnabled(false) {
+LeGoSpineSettingsWidget::LeGoSpineSettingsWidget(models::SpineEditorModel * model, QWidget * par) : QWidget(par), _model(model), _achievementsEnabled(false), _gamepadEnabled(false) {
 	QVBoxLayout * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
@@ -170,9 +170,6 @@ LeGoSpineSettingsWidget::LeGoSpineSettingsWidget(models::SpineEditorModel * mode
 	}
 
 	setLayout(l);
-}
-
-LeGoSpineSettingsWidget::~LeGoSpineSettingsWidget() {
 }
 
 void LeGoSpineSettingsWidget::save() {

@@ -267,7 +267,7 @@ void LocationSettingsWidget::saveSettings() {
 					QDir newDir(dir.absolutePath() + fi.absolutePath().replace(oldDir.absolutePath(), ""));
 					if (!newDir.exists()) {
 						bool b = newDir.mkpath(newDir.absolutePath());
-						Q_UNUSED(b);
+						Q_UNUSED(b)
 					}
 					QFile copyFile(file);
 					copyFile.rename(dir.absolutePath() + file.replace(oldDir.absolutePath(), ""));
@@ -276,7 +276,7 @@ void LocationSettingsWidget::saveSettings() {
 			}
 			if (!dir.exists()) {
 				bool b = dir.mkpath(dir.absolutePath());
-				Q_UNUSED(b);
+				Q_UNUSED(b)
 			}
 		}
 		Config::DOWNLOADDIR = _downloadPathLineEdit->text();

@@ -53,7 +53,7 @@ using namespace spine::client;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-NewsWidget::NewsWidget(common::SendAllNewsMessage::News news, bool onlineMode, QWidget * par) : QWidget(par), _titleLabel(nullptr), _textBrowser(nullptr), _timestampLabel(nullptr), _newsID(news.id), _installButtons() {
+NewsWidget::NewsWidget(common::SendAllNewsMessage::News news, bool onlineMode, QWidget * par) : QWidget(par), _titleLabel(nullptr), _textBrowser(nullptr), _timestampLabel(nullptr), _newsID(news.id) {
 	setObjectName("NewsWidget");
 
 	QVBoxLayout * l = new QVBoxLayout();
@@ -87,7 +87,6 @@ NewsWidget::NewsWidget(common::SendAllNewsMessage::News news, bool onlineMode, Q
 		Database::DBError err;
 		const bool installed = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM mods WHERE ModID = " + std::to_string(mod.first) + " LIMIT 1;", err) > 0;
 		if (!installed && onlineMode) {
-			//QPushButton * installButton = new QPushButton(QIcon(":/svg/download.svg"), s2q(mod.second), this);
 			QPushButton * installButton = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/download.svg"), s2q(mod.second), this);
 			l->addWidget(installButton, 0, Qt::AlignLeft);
 			installButtonSize += installButton->height();
@@ -109,9 +108,9 @@ NewsWidget::NewsWidget(common::SendAllNewsMessage::News news, bool onlineMode, Q
 
 	const int height = _textBrowser->document()->size().height();
 	const double percent = additionalPercentage.upperBound(height).value();
-	_textBrowser->setMinimumHeight(height + int(percent * height));
+	_textBrowser->setMinimumHeight(height + static_cast<int>(percent * height));
 	_textBrowser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-	setMinimumSize(800, std::max(_titleLabel->size().height(), _timestampLabel->size().height()) + height + installButtonSize + int(percent * height) + 50);
+	setMinimumSize(800, std::max(_titleLabel->size().height(), _timestampLabel->size().height()) + height + installButtonSize + static_cast<int>(percent * height) + 50);
 	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
 }
 

@@ -95,7 +95,7 @@ ProfileModView::ProfileModView(common::ModStats ms, QString gothicDirectory, QSt
 			common::GameType mid = common::GameType::Gothic2;
 			bool found = false;
 			if (Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + modIDString.toStdString() + " LIMIT 1;", err) > 0) {
-				mid = common::GameType(Database::queryNth<std::vector<int>, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + modIDString.toStdString() + " LIMIT 1;", err, 0).front());
+				mid = static_cast<common::GameType>(Database::queryNth<std::vector<int>, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + modIDString.toStdString() + " LIMIT 1;", err, 0).front());
 				found = true;
 			}
 			if (pixmap.isNull()) {
@@ -156,9 +156,6 @@ ProfileModView::ProfileModView(common::ModStats ms, QString gothicDirectory, QSt
 	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
 	setLayout(l);
-}
-
-ProfileModView::~ProfileModView() {
 }
 
 bool ProfileModView::isPatchOrTool() const {

@@ -29,8 +29,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		AchievementInfoView(common::SendAllAchievementStatsMessage::AchievementStats as, QWidget * par);
-		~AchievementInfoView();
+		AchievementInfoView(const common::SendAllAchievementStatsMessage::AchievementStats & as, QWidget * par);
 
 	private:
 		QString _name;

@@ -77,23 +77,19 @@ ImportDialog::ImportDialog(QWidget * par) : QDialog(par), _importPathLineEdit(nu
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 }
 
-ImportDialog::~ImportDialog() {
-}
-
 void ImportDialog::openImportPathDialog() {
 	const QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectImportDir"), _importPathLineEdit->text(), ".spex");
-	if (!path.isEmpty()) {
-		if (_importPathLineEdit->text() != path) {
-			_importPathLineEdit->setText(path);
-			_importPushButton->setEnabled(!_importPathLineEdit->text().isEmpty() && QFile(_importPathLineEdit->text()).exists());
-		}
+	if (path.isEmpty()) return;
+	
+	if (_importPathLineEdit->text() != path) {
+		_importPathLineEdit->setText(path);
+		_importPushButton->setEnabled(!_importPathLineEdit->text().isEmpty() && QFile(_importPathLineEdit->text()).exists());
 	}
 }
 
 void ImportDialog::importMods() {
-	if (_importPathLineEdit->text().isEmpty() || !QFile(_importPathLineEdit->text()).exists()) {
-		return;
-	}
+	if (_importPathLineEdit->text().isEmpty() || !QFile(_importPathLineEdit->text()).exists()) return;
+
 	Database::DBError dbErr;
 	auto mods = Database::queryAll<int, int>(_importPathLineEdit->text().toStdString(), "SELECT ModID FROM mods;", dbErr);
 	const auto installedMods = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID FROM mods;", dbErr);

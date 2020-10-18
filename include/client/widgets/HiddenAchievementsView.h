@@ -28,7 +28,6 @@ namespace widgets {
 	class HiddenAchievementsView : public QWidget {
 	public:
 		HiddenAchievementsView(int32_t count, QWidget * par);
-		~HiddenAchievementsView();
 
 	private:
 		QSize sizeHint() const override;

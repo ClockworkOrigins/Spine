@@ -31,7 +31,6 @@ namespace widgets {
 
 	public:
 		ImportDialog(QWidget * par);
-		~ImportDialog();
 
 	signals:
 		void updateProgress(int);

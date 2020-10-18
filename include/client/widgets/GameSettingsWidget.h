@@ -32,7 +32,6 @@ namespace widgets {
 		static int downloadRate;
 
 		GameSettingsWidget(QWidget * par);
-		~GameSettingsWidget();
 
 		void saveSettings();
 		void rejectSettings();

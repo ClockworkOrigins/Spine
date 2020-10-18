@@ -308,7 +308,7 @@ void ModUpdateDialog::accept() {
 		QDir dir(Config::DOWNLOADDIR + "/mods/" + QString::number(mf.modID));
 		if (!dir.exists()) {
 			bool b = dir.mkpath(dir.absolutePath());
-			Q_UNUSED(b);
+			Q_UNUSED(b)
 		}
 		QFileInfo fi(QString::fromStdString(mf.file));
 		FileDownloader * fd = new FileDownloader(QUrl(mf.fileserver + QString::number(mf.modID) + "/" + QString::fromStdString(mf.file)), dir.absolutePath() + "/" + fi.path(), fi.fileName(), QString::fromStdString(mf.hash), mfd);
@@ -321,7 +321,7 @@ void ModUpdateDialog::accept() {
 
 		// 1. if it is a zip, register new signal. FileDownloader will send signal after extracting the archive reporting the files with hashes it contained
 		// 2. reported files need to be added to filelist and archive must be removed
-		connect(fd, &FileDownloader::unzippedArchive, [this, mf, installFiles, newFiles, removeFiles](QString archive, QList<QPair<QString, QString>> files) {
+		connect(fd, &FileDownloader::unzippedArchive, [this, mf, installFiles, newFiles, removeFiles](const QString & archive, const QList<QPair<QString, QString>> & files) {
 			unzippedArchive(archive, files, mf, installFiles, newFiles, removeFiles);
 		});
 	}
@@ -329,7 +329,7 @@ void ModUpdateDialog::accept() {
 		QDir dir(Config::DOWNLOADDIR + "/mods/" + QString::number(mf.modID));
 		if (!dir.exists()) {
 			bool b = dir.mkpath(dir.absolutePath());
-			Q_UNUSED(b);
+			Q_UNUSED(b)
 		}
 		QFileInfo fi(QString::fromStdString(mf.file));
 		FileDownloader * fd = new FileDownloader(QUrl(mf.fileserver + QString::number(mf.modID) + "/" + QString::fromStdString(mf.file)), dir.absolutePath() + "/" + fi.path(), fi.fileName(), QString::fromStdString(mf.hash), mfd);
@@ -342,7 +342,7 @@ void ModUpdateDialog::accept() {
 
 		// 1. if it is a zip, register new signal. FileDownloader will send signal after extracting the archive reporting the files with hashes it contained
 		// 2. reported files need to be added to filelist and archive must be removed
-		connect(fd, &FileDownloader::unzippedArchive, [this, mf, installFiles, newFiles, removeFiles](QString archive, QList<QPair<QString, QString>> files) {
+		connect(fd, &FileDownloader::unzippedArchive, [this, mf, installFiles, newFiles, removeFiles](const QString & archive, const QList<QPair<QString, QString>> & files) {
 			unzippedArchive(archive, files, mf, installFiles, newFiles, removeFiles);
 		});
 	}
@@ -452,7 +452,7 @@ void ModUpdateDialog::accept() {
 }
 
 void ModUpdateDialog::reject() {
-	hideUpdates(QList<common::ModUpdate>::fromVector(QVector<common::ModUpdate>::fromStdVector(_updates)));
+	hideUpdates(QList<common::ModUpdate>(_updates.begin(), _updates.end()));
 	_lastTimeRejected = true;
 	_running = false;
 	QDialog::reject();
@@ -563,9 +563,8 @@ void ModUpdateDialog::checkForUpdate(int32_t modID, bool forceAccept) {
 }
 
 void ModUpdateDialog::hideUpdates(QList<common::ModUpdate> hides) const {
-	if (!_dontShowAgain->isChecked()) {
-		return;
-	}
+	if (!_dontShowAgain->isChecked()) return;
+
 	for (const common::ModUpdate & mu : hides) {
 		Database::DBError err;
 		Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "INSERT INTO updates (ModID, Name, MajorVersion, MinorVersion, PatchVersion, SpineVersion) VALUES (" + std::to_string(mu.modID) + ", '" + mu.name + "', " + std::to_string(static_cast<int>(mu.majorVersion)) + ", " + std::to_string(static_cast<int>(mu.minorVersion)) + "," + std::to_string(static_cast<int>(mu.patchVersion)) + "," + std::to_string(static_cast<int>(mu.spineVersion)) + ");", err);

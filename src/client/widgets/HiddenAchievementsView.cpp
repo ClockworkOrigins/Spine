@@ -52,7 +52,7 @@ HiddenAchievementsView::HiddenAchievementsView(int32_t count, QWidget * par) : Q
 	}
 	{
 		QLabel * lbl = new QLabel(this);
-		QPixmap achievementPixmap(iconLocked);
+		const QPixmap achievementPixmap(iconLocked);
 		const QPixmap pixmap = achievementPixmap.scaled(64, 64, Qt::KeepAspectRatio, Qt::TransformationMode::SmoothTransformation);
 		lbl->setFixedSize(64, 64);
 		lbl->setPixmap(pixmap);
@@ -71,9 +71,6 @@ HiddenAchievementsView::HiddenAchievementsView(int32_t count, QWidget * par) : Q
 	l->setSizeConstraint(QLayout::SizeConstraint::SetFixedSize);
 
 	setProperty("score", true);
-}
-
-HiddenAchievementsView::~HiddenAchievementsView() {
 }
 
 QSize HiddenAchievementsView::sizeHint() const {

@@ -32,7 +32,6 @@
 #include <QApplication>
 #include <QLabel>
 #include <QPushButton>
-#include <QStandardItemModel>
 #include <QVBoxLayout>
 
 using namespace spine;
@@ -67,9 +66,6 @@ FriendRequestView::FriendRequestView(QString friendname, uint32_t level, QWidget
 	setFixedWidth(500);
 
 	setLayout(l);
-}
-
-FriendRequestView::~FriendRequestView() {
 }
 
 void FriendRequestView::accept() {

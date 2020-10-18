@@ -32,7 +32,6 @@ namespace widgets {
 
 	public:
 		AchievementView(int32_t modID, common::SendAllAchievementStatsMessage::AchievementStats as, QWidget * par);
-		~AchievementView();
 
 		void updateIcons();
 

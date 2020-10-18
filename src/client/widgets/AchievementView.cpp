@@ -77,9 +77,6 @@ AchievementView::AchievementView(int32_t modID, common::SendAllAchievementStatsM
 	updateIcons();
 }
 
-AchievementView::~AchievementView() {
-}
-
 void AchievementView::updateIcons() {
 	if (_achievement.iconUnlocked.empty() && _achievement.iconLocked.empty()) return;
 	

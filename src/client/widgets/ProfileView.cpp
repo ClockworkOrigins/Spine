@@ -69,7 +69,7 @@ ProfileView::ProfileView(QMainWindow * mainWindow, GeneralSettingsWidget * gener
 	l->setAlignment(Qt::AlignTop);
 
 	_nameLabel = new QLabel(QApplication::tr("NotLoggedIn"), this);
-	connect(generalSettingsWidget, &GeneralSettingsWidget::languageChanged, [this](QString) {
+	connect(generalSettingsWidget, &GeneralSettingsWidget::languageChanged, [this]() {
 		if (Config::Username.isEmpty()) {
 			_nameLabel->setText(QApplication::tr("NotLoggedIn"));
 		}
@@ -177,9 +177,6 @@ ProfileView::ProfileView(QMainWindow * mainWindow, GeneralSettingsWidget * gener
 	connect(DiscordManager::instance(), &DiscordManager::connected, this, &ProfileView::requestDiscordLinkage);
 
 	loginChanged();
-}
-
-ProfileView::~ProfileView() {
 }
 
 void ProfileView::updateList() {
@@ -408,7 +405,7 @@ void ProfileView::updateUserLevel(uint32_t level, uint32_t currentXP, uint32_t n
 }
 
 void ProfileView::updateAchievements(int32_t modID, std::vector<common::SendAllAchievementStatsMessage::AchievementStats> achievementStats) {
-	std::sort(achievementStats.begin(), achievementStats.end(), [](common::SendAllAchievementStatsMessage::AchievementStats a, common::SendAllAchievementStatsMessage::AchievementStats b) {
+	std::sort(achievementStats.begin(), achievementStats.end(), [](const common::SendAllAchievementStatsMessage::AchievementStats & a, const common::SendAllAchievementStatsMessage::AchievementStats & b) {
 		return a.unlockedPercent > b.unlockedPercent;
 	});
 	for (AchievementView * av : _achievements) {

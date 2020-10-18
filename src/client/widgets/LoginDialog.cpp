@@ -119,7 +119,7 @@ LoginDialog::LoginDialog(QWidget *) : QDialog(nullptr), _connected(false), _dont
 	QDir dir(Config::BASEDIR + "/databases");
 	if (!dir.exists()) {
 		bool b = dir.mkpath(dir.absolutePath());
-		Q_UNUSED(b);
+		Q_UNUSED(b)
 	}
 	std::string username;
 	std::string password;
@@ -128,7 +128,7 @@ LoginDialog::LoginDialog(QWidget *) : QDialog(nullptr), _connected(false), _dont
 		char buf[4098];
 		QByteArray arr = f.readAll();
 		const quint64 bytesRead = arr.length();
-		memcpy(buf, arr.data(), std::min(bytesRead, quint64(4098)));
+		memcpy(buf, arr.data(), std::min(bytesRead, static_cast<quint64>(4098)));
 
 		if (bytesRead) {
 			int32_t pathLength;
@@ -280,7 +280,7 @@ LoginDialog::LoginDialog(QWidget *) : QDialog(nullptr), _connected(false), _dont
 		gl->addWidget(l2, 1, 0);
 		gl->addWidget(_loginPasswordEdit, 1, 1);
 		gl->addWidget(_loginStayBox, 2, 1);
-		gl->addWidget(_loginButton, 3, 1);;
+		gl->addWidget(_loginButton, 3, 1);
 		gl->addWidget(resetPasswordButton, 3, 0);
 
 		w->setLayout(gl);
@@ -421,7 +421,7 @@ void LoginDialog::loginUser() {
 				return;
 			}
 			const QString code = QString::fromStdString(response->status_code).split(" ")[0];
-			const clockwork::login::Response rp = statusCodeToResponse(SimpleWeb::StatusCode(code.toInt()));
+			const clockwork::login::Response rp = statusCodeToResponse(static_cast<SimpleWeb::StatusCode>(code.toInt()));
 
 			switch (rp) {
 			case clockwork::login::Response::SUCCESS: {
@@ -485,7 +485,7 @@ void LoginDialog::registerUser() {
 
 		// Synchronous request examples
 		client.request("POST", "/json", content.toStdString(), [this, username, passwd, stayLoggedIn](std::shared_ptr<HttpsClient::Response> response, const SimpleWeb::error_code &) {
-			const clockwork::login::Response rp = statusCodeToResponse(SimpleWeb::StatusCode(std::stoi(response->status_code)));
+			const clockwork::login::Response rp = statusCodeToResponse(static_cast<SimpleWeb::StatusCode>(std::stoi(response->status_code)));
 
 			switch (rp) {
 			case clockwork::login::Response::SUCCESS: {
@@ -569,7 +569,7 @@ void LoginDialog::resetPassword() {
 
 	// Synchronous request examples
 	client.request("POST", "/json", content.toStdString(), [this](std::shared_ptr<HttpsClient::Response> response, const SimpleWeb::error_code &) {
-		const clockwork::login::Response rp = statusCodeToResponse(SimpleWeb::StatusCode(std::stoi(response->status_code)));
+		const clockwork::login::Response rp = statusCodeToResponse(static_cast<SimpleWeb::StatusCode>(std::stoi(response->status_code)));
 
 		switch (rp) {
 		case clockwork::login::Response::SUCCESS: {
@@ -646,7 +646,7 @@ void LoginDialog::saveCredentials(const QString & username, const QString & pass
 	const clockUtils::compression::Compression<clockUtils::compression::algorithm::HuffmanGeneric> c;
 	std::string compressedPath;
 	clockUtils::ClockError cErr = c.compress(homeDir.absolutePath().toStdString(), compressedPath);
-	Q_UNUSED(cErr);
+	Q_UNUSED(cErr)
 	pathLength = static_cast<int32_t>(compressedPath.length());
 	memcpy(pl, &pathLength, sizeof(int32_t));
 	f.write(pl, sizeof(int32_t));

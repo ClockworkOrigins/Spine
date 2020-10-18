@@ -42,10 +42,10 @@ using namespace spine::widgets;
 
 RatingWidget::RatingWidget(RatingMode mode, QWidget * par) : QWidget(par), _svgs(), _modID(), _allowedToRate(false), _editable(true), _visible(false), _mode(mode) {
 	QHBoxLayout * l = new QHBoxLayout();
-	for (size_t i = 0; i < _svgs.size(); i++) {
-		_svgs[i] = new QSvgWidget(":/svg/star.svg", this);
-		_svgs[i]->setFixedSize(QSize(25, 25));
-		l->addWidget(_svgs[i]);
+	for (auto & svg : _svgs) {
+		svg = new QSvgWidget(":/svg/star.svg", this);
+		svg->setFixedSize(QSize(25, 25));
+		l->addWidget(svg);
 	}
 	setLayout(l);
 
@@ -80,13 +80,13 @@ void RatingWidget::updateRating(int32_t modID, qreal rating, int32_t count, bool
 	
 	_allowedToRate = allowedToRate;
 	for (size_t i = 0; i < _svgs.size(); i++) {
-		if (std::floor(rating) > i) {
+		if (std::floor(rating) > static_cast<qreal>(i)) {
 			if (_editable) {
 				_svgs[i]->load(QString(":/svg/star-edit-full.svg"));
 			} else {
 				_svgs[i]->load(QString(":/svg/star-full.svg"));
 			}
-		} else if (rating - i >= 0.5) {
+		} else if (rating - static_cast<qreal>(i) >= 0.5) {
 			_svgs[i]->load(QString(":/svg/star-half.svg"));
 		} else {
 			if (_editable) {
@@ -109,7 +109,7 @@ void RatingWidget::mousePressEvent(QMouseEvent * evt) {
 
 	double value = std::ceil((static_cast<double>(evt->localPos().x()) / width()) * 5);
 	for (size_t i = 0; i < _svgs.size(); i++) {
-		if (value > i) {
+		if (value > static_cast<qreal>(i)) {
 			_svgs[i]->load(QString(":/svg/star-edit-full.svg"));
 		} else {
 			_svgs[i]->load(QString(":/svg/star-edit.svg"));
@@ -120,7 +120,7 @@ void RatingWidget::mousePressEvent(QMouseEvent * evt) {
 		srm.username = Config::Username.toStdString();
 		srm.password = Config::Password.toStdString();
 		srm.modID = _modID;
-		srm.rating = value;
+		srm.rating = static_cast<int32_t>(value);
 		const std::string serialized = srm.SerializePublic();
 		clockUtils::sockets::TcpSocket sock;
 		if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
@@ -183,9 +183,6 @@ void RatingWidget::requestRating() {
 
 			emit receivedRating(projectID, rating, 1, allowedToRate);
 		});
-		break;
-	}
-	default: {
 		break;
 	}
 	}

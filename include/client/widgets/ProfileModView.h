@@ -32,7 +32,6 @@ namespace widgets {
 
 	public:
 		ProfileModView(common::ModStats ms, QString gothicDirectory, QString gothic2Directory, QWidget * par);
-		~ProfileModView();
 
 		bool isPatchOrTool() const;
 		QSize sizeHint() const override;

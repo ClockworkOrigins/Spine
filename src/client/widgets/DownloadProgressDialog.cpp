@@ -34,7 +34,7 @@
 using namespace spine::utils;
 using namespace spine::widgets;
 
-DownloadProgressDialog::DownloadProgressDialog(MultiFileDownloader * downloader, QString labelText, qint64 min, qint64 max, qint64 maxSize, QMainWindow * mainWindow) : QProgressDialog(QApplication::tr(labelText.toStdString().c_str()), QApplication::tr("Cancel"), min, max), _downloadSuccessful(false), _finished(false), _downloader(downloader), _taskbarProgress(nullptr), _labelText(labelText), _currentValue("0 B"), _maximumValue("0 B"), _maxSize(maxSize), _currentFileName(), _lastError(DownloadError::NoError) {
+DownloadProgressDialog::DownloadProgressDialog(MultiFileDownloader * downloader, QString labelText, qint64 min, qint64 max, qint64 maxSize, QMainWindow * mainWindow) : QProgressDialog(QApplication::tr(labelText.toStdString().c_str()), QApplication::tr("Cancel"), min, max), _downloadSuccessful(false), _finished(false), _downloader(downloader), _taskbarProgress(nullptr), _labelText(labelText), _currentValue("0 B"), _maximumValue("0 B"), _maxSize(maxSize), _lastError(DownloadError::NoError) {
 	connect(downloader, &MultiFileDownloader::totalBytes, this, &DownloadProgressDialog::setMaximum);
 	connect(downloader, &MultiFileDownloader::downloadProgress, this, &DownloadProgressDialog::setValue);
 	connect(downloader, &MultiFileDownloader::downloadSucceeded, this, &DownloadProgressDialog::downloadSucceeded);

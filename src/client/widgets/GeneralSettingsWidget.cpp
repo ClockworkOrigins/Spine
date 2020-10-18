@@ -141,7 +141,7 @@ GeneralSettingsWidget::GeneralSettingsWidget(QWidget * par) : QWidget(par), _lan
 		l->addLayout(hl);
 	}
 	{
-		const bool hideIncompatible = Config::IniParser->value("MISC/hideIncompatible", true).toBool();;
+		const bool hideIncompatible = Config::IniParser->value("MISC/hideIncompatible", true).toBool();
 		_hideIncompatibleCheckBox = new QCheckBox(QApplication::tr("HideIncompatiblePatches"), this);
 		UPDATELANGUAGESETTEXT(_hideIncompatibleCheckBox, "HideIncompatiblePatches");
 		_hideIncompatibleCheckBox->setChecked(hideIncompatible);

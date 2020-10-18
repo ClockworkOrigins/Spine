@@ -37,7 +37,7 @@ using namespace spine;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-GeneralSpineSettingsWidget::GeneralSpineSettingsWidget(models::SpineEditorModel * model, QWidget * par) : QWidget(par), _model(model), _spineModuleCheckBoxes() {
+GeneralSpineSettingsWidget::GeneralSpineSettingsWidget(models::SpineEditorModel * model, QWidget * par) : QWidget(par), _model(model) {
 	QVBoxLayout * vl = new QVBoxLayout();
 	vl->setAlignment(Qt::AlignTop);
 
@@ -106,9 +106,6 @@ GeneralSpineSettingsWidget::GeneralSpineSettingsWidget(models::SpineEditorModel 
 	}
 
 	setLayout(vl);
-}
-
-GeneralSpineSettingsWidget::~GeneralSpineSettingsWidget() {
 }
 
 void GeneralSpineSettingsWidget::save() {

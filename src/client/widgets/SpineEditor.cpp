@@ -76,7 +76,7 @@ enum EditorTabs {
 	Gamepad
 };
 
-SpineEditor::SpineEditor(QMainWindow * mainWindow) : QDialog(nullptr), _model(new models::SpineEditorModel(this)), _tabWidget(nullptr), _generalSpineSettingsWidget(nullptr), _achievementSpineSettingsWidget(nullptr), _scoreSpineSettingsWidget(nullptr), _gamepadSpineSettingsWidget(nullptr), _legoSpineSettingsWidget(nullptr), _installSpineButton(nullptr), _updateSpineButton(nullptr), _installIkarusButton(nullptr), _updateIkarusButton(nullptr), _installLeGoButton(nullptr), _updateLeGoButton(nullptr), _mainWindow(mainWindow), _modList() {
+SpineEditor::SpineEditor(QMainWindow * mainWindow) : QDialog(nullptr), _model(new models::SpineEditorModel(this)), _tabWidget(nullptr), _generalSpineSettingsWidget(nullptr), _achievementSpineSettingsWidget(nullptr), _scoreSpineSettingsWidget(nullptr), _gamepadSpineSettingsWidget(nullptr), _legoSpineSettingsWidget(nullptr), _installSpineButton(nullptr), _updateSpineButton(nullptr), _installIkarusButton(nullptr), _updateIkarusButton(nullptr), _installLeGoButton(nullptr), _updateLeGoButton(nullptr), _mainWindow(mainWindow) {
 	QVBoxLayout * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
@@ -818,7 +818,7 @@ void SpineEditor::loadMods() {
 					return;
 				}
 			} else {
-				qDebug() << "Error occurred: " << int(cErr);
+				qDebug() << "Error occurred: " << static_cast<int>(cErr);
 			}
 		}
 	});

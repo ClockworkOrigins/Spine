@@ -33,7 +33,6 @@ namespace widgets {
 
 	public:
 		LeGoSpineSettingsWidget(models::SpineEditorModel * model, QWidget * par);
-		~LeGoSpineSettingsWidget();
 
 		void save();
 
