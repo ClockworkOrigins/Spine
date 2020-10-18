@@ -40,7 +40,6 @@
 #include "utils/Hashing.h"
 #include "utils/MultiFileDownloader.h"
 
-#include "widgets/LoginDialog.h"
 #include "widgets/NewsWidget.h"
 #include "widgets/ProjectInfoBoxWidget.h"
 #include "widgets/RatingWidget.h"
@@ -717,27 +716,27 @@ void ModInfoPage::updateFinished(int modID) {
 }
 
 void ModInfoPage::addImage() {
-	if (_screens.size() == 10 && Config::Username != "Bonne") {
-		return;
-	}
+	if (_screens.size() == 10 && Config::Username != "Bonne") return;
+
 	const QString folder = Config::IniParser->value("PATH/Images", ".").toString();
-	const QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectImage"), folder, "Images (*.png *.jpg)");
-	if (path.isEmpty()) {
-		return;
+	const QStringList paths = QFileDialog::getOpenFileNames(this, QApplication::tr("SelectImage"), folder, "Images (*.png *.jpg)");
+	
+	if (paths.isEmpty()) return;
+
+	for (const auto & path : paths) {
+		Config::IniParser->setValue("PATH/Images", QFileInfo(path).absolutePath());
+		QStandardItem * itm = new QStandardItem();
+		const QPixmap thumb(path);
+		itm->setIcon(thumb.scaled(QSize(300, 100), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+		_thumbnailModel->appendRow(itm);
+		_screens.emplace_back(path.toStdString(), "");
+		_addImageButton->setEnabled(_screens.size() < 10 || Config::Username == "Bonne");
 	}
-	Config::IniParser->setValue("PATH/Images", QFileInfo(path).absolutePath());
-	QStandardItem * itm = new QStandardItem();
-	const QPixmap thumb(path);
-	itm->setIcon(thumb.scaled(QSize(300, 100), Qt::KeepAspectRatio, Qt::SmoothTransformation));
-	_thumbnailModel->appendRow(itm);
-	_screens.emplace_back(path.toStdString(), "");
-	_addImageButton->setEnabled(_screens.size() < 10 || Config::Username == "Bonne");
 }
 
 void ModInfoPage::removeImage() {
-	if (!_thumbnailView->currentIndex().isValid()) {
-		return;
-	}
+	if (!_thumbnailView->currentIndex().isValid()) return;
+
 	const int row = _thumbnailView->currentIndex().row();
 	_thumbnailModel->removeRow(row);
 	_screens.erase(_screens.begin() + row);
