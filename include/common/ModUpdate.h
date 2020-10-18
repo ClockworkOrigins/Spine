@@ -36,6 +36,7 @@ namespace common {
 		int8_t majorVersion;
 		int8_t minorVersion;
 		int8_t patchVersion;
+		int8_t spineVersion;
 		std::vector<std::pair<std::string, std::string>> files;
 		std::vector<std::pair<int32_t, std::vector<std::pair<std::string, std::string>>>> packageFiles;
 		std::string fileserver;
@@ -43,7 +44,7 @@ namespace common {
 		bool savegameCompatible;
 		std::string changelog;
 
-		ModUpdate() : modID(0), majorVersion(0), minorVersion(0), patchVersion(0), gothicVersion(GameType::Gothic), savegameCompatible(false) {
+		ModUpdate() : modID(0), majorVersion(0), minorVersion(0), patchVersion(0), spineVersion(0), gothicVersion(GameType::Gothic), savegameCompatible(false) {
 		}
 
 		template<class Archive>
@@ -53,6 +54,7 @@ namespace common {
 			ar & majorVersion;
 			ar & minorVersion;
 			ar & patchVersion;
+			ar & spineVersion;
 			ar & files;
 			ar & packageFiles;
 			ar & fileserver;

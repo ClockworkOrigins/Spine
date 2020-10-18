@@ -144,8 +144,8 @@ void ImportDialog::importMods() {
 
 		const std::string targetDatabase = Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE;
 		for (int mod : mods) {
-			const auto modinfos = Database::queryNth<std::vector<std::string>, std::string, std::string, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, GothicVersion, MajorVersion, MinorVersion, PatchVersion FROM mods WHERE ModID = " + std::to_string(mod) + " LIMIT 1;", err, 0);
-			Database::execute(targetDatabase, "INSERT INTO mods (ModID, GothicVersion, MajorVersion, MinorVersion, PatchVersion) VALUES (" + modinfos[0] + ", " + modinfos[1] + ", " + modinfos[2] + ", " + modinfos[3] + ", " + modinfos[4] + ");", err);
+			const auto modinfos = Database::queryNth<std::vector<std::string>, std::string, std::string, std::string, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, GothicVersion, MajorVersion, MinorVersion, PatchVersion, SpineVersion FROM mods WHERE ModID = " + std::to_string(mod) + " LIMIT 1;", err, 0);
+			Database::execute(targetDatabase, "INSERT INTO mods (ModID, GothicVersion, MajorVersion, MinorVersion, PatchVersion, SpineVersion) VALUES (" + modinfos[0] + ", " + modinfos[1] + ", " + modinfos[2] + ", " + modinfos[3] + ", " + modinfos[4] + ", " + modinfos[5] + ");", err);
 
 			const auto patch = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, Name FROM patches WHERE ModID = " + std::to_string(mod) + " LIMIT 1;", err);
 			if (!patch.empty()) {

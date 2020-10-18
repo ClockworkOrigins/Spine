@@ -43,6 +43,7 @@ namespace common {
 		int8_t majorVersion;
 		int8_t minorVersion;
 		int8_t patchVersion;
+		int8_t spineVersion;
 		int32_t devDuration;
 		int32_t avgDuration;
 		uint64_t downloadSize;

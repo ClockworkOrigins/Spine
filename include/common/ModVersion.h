@@ -28,16 +28,17 @@ namespace spine {
 namespace common {
 
 	struct ModVersion {
-		int32_t modID;
-		int8_t majorVersion;
-		int8_t minorVersion;
-		int8_t patchVersion;
-		int language;
+		int32_t modID = -1;
+		int8_t majorVersion = 0;
+		int8_t minorVersion = 0;
+		int8_t patchVersion = 0;
+		int8_t spineVersion = 0;
+		int language = 0;
 
 		ModVersion() {
 		}
 
-		ModVersion(int i1, int i2, int i3, int i4) : modID(static_cast<int32_t>(i1)), majorVersion(static_cast<int8_t>(i2)), minorVersion(static_cast<int8_t>(i3)), patchVersion(static_cast<int8_t>(i4)) {
+		ModVersion(int i1, int i2, int i3, int i4, int i5) : modID(static_cast<int32_t>(i1)), majorVersion(static_cast<int8_t>(i2)), minorVersion(static_cast<int8_t>(i3)), patchVersion(static_cast<int8_t>(i4)), spineVersion(static_cast<int8_t>(i5)) {
 		}
 
 		template<class Archive>
@@ -46,6 +47,7 @@ namespace common {
 			ar & majorVersion;
 			ar & minorVersion;
 			ar & patchVersion;
+			ar & spineVersion;
 			ar & language;
 		}
 	};

@@ -389,7 +389,7 @@ void Gothic1And2Launcher::updateCompatibilityList(int modID, std::vector<int32_t
 
 	const auto patches = Database::queryAll<Patch, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, Name FROM patches WHERE ModID != 228 ORDER BY Name ASC;", err);
 	for (const Patch & p : patches) {
-		const common::GameType gv = common::GameType(std::stoi(Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + std::to_string(p.modID) + " LIMIT 1;", err, 0)));
+		const common::GameType gv = static_cast<common::GameType>(std::stoi(Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + std::to_string(p.modID) + " LIMIT 1;", err, 0)));
 		if ((gv == modGv.gothicVersion || ((modGv.gothicVersion == common::GameType::Gothic || modGv.gothicVersion == common::GameType::Gothic2 || modGv.gothicVersion == common::GameType::GothicInGothic2) && gv == common::GameType::Gothic1And2)) && (!contains(incompatiblePatches, p.modID) || !_hideIncompatible) && !contains(forbiddenPatches, p.modID)) {
 			QCheckBox * cb = new QCheckBox(s2q(p.name), _widget);
 			cb->setProperty("library", true);

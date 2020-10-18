@@ -543,12 +543,20 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 	connect(this, &ModDatabaseView::triggerInstallPackage, this, &ModDatabaseView::installPackage);
 
 	Database::DBError err;
-	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "CREATE TABLE IF NOT EXISTS mods(ModID INT NOT NULL, GothicVersion INT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL);", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "CREATE TABLE IF NOT EXISTS mods(ModID INT NOT NULL, GothicVersion INT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL, SpineVersion INT NOT NULL);", err);
 	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "CREATE TABLE IF NOT EXISTS modfiles(ModID INT NOT NULL, File TEXT NOT NULL, Hash TEXT NOT NULL);", err);
 	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "CREATE TABLE IF NOT EXISTS patches(ModID INT NOT NULL, Name TEXT NOT NULL);", err);
 	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "CREATE TABLE IF NOT EXISTS packages(ModID INT NOT NULL, PackageID INT NOT NULL, File TEXT NOT NULL);", err);
 	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "CREATE TABLE IF NOT EXISTS languages(ProjectID INT PRIMARY KEY, Language INT NOT NULL);", err);
 	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "CREATE TABLE IF NOT EXISTS supportedLanguages(ProjectID INT PRIMARY KEY, Languages INT NOT NULL);", err);
+
+	err.error = false;
+	Database::queryAll<std::vector<int>, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT SpineVersion FROM mods LIMIT 1;", err);
+
+	if (err.error) {
+		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "ALTER TABLE mods ADD SpineVersion INT NOT NULL;", err);
+		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE mods SET SpineVersion = 0;", err);
+	}
 
 	_sortModel->setRendererAllowed(true);
 
@@ -947,7 +955,7 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, QSharedPointer<QList<QPa
 		Database::DBError err;
 		Database::open(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, err);
 		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "BEGIN TRANSACTION;", err);
-		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO mods (ModID, GothicVersion, MajorVersion, MinorVersion, PatchVersion) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(static_cast<int>(mod.gothic)) + ", " + std::to_string(static_cast<int>(_mods[row].majorVersion)) + ", " + std::to_string(static_cast<int>(_mods[row].minorVersion)) + ", " + std::to_string(static_cast<int>(_mods[row].patchVersion)) + ");", err);
+		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO mods (ModID, GothicVersion, MajorVersion, MinorVersion, PatchVersion, SpineVersion) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(static_cast<int>(mod.gothic)) + ", " + std::to_string(static_cast<int>(_mods[row].majorVersion)) + ", " + std::to_string(static_cast<int>(_mods[row].minorVersion)) + ", " + std::to_string(static_cast<int>(_mods[row].patchVersion)) + ", " + std::to_string(static_cast<int>(_mods[row].spineVersion)) + ");", err);
 		for (const auto & p : *fileList) {
 			QString fileName = p.first;
 			QFileInfo fi(fileName);

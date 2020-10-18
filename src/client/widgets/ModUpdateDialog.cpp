@@ -95,7 +95,15 @@ ModUpdateDialog::ModUpdateDialog(QMainWindow * mainWindow) : QDialog(nullptr), _
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
 	Database::DBError err;
-	Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "CREATE TABLE IF NOT EXISTS updates (ModID INT PRIMARY KEY, Name TEXT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL);", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "CREATE TABLE IF NOT EXISTS updates (ModID INT PRIMARY KEY, Name TEXT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL, SpineVersion INT NOT NULL);", err);
+
+	err.error = false;
+	Database::queryAll<std::vector<int>, int>(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "SELECT SpineVersion FROM updates LIMIT 1;", err);
+
+	if (err.error) {
+		Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "ALTER TABLE updates ADD SpineVersion INT NOT NULL;", err);
+		Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "UPDATE updates SET SpineVersion = 0;", err);
+	}
 }
 
 void ModUpdateDialog::loginChanged() {
@@ -141,8 +149,8 @@ void ModUpdateDialog::updateModList(std::vector<common::ModUpdate> updates, bool
 		int visibleCount = 0;
 		for (const common::ModUpdate & u : updates) {
 			Database::DBError err;
-			Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "DELETE FROM updates WHERE ModID = " + std::to_string(u.modID) + " AND MajorVersion != " + std::to_string(static_cast<int>(u.majorVersion)) + " AND MinorVersion != " + std::to_string(static_cast<int>(u.minorVersion)) + " AND PatchVersion != " + std::to_string(static_cast<int>(u.patchVersion)) + " LIMIT 1;", err);
-			std::vector<int> result = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "SELECT ModID FROM updates WHERE ModID = " + std::to_string(u.modID) + " AND MajorVersion = " + std::to_string(static_cast<int>(u.majorVersion)) + " AND MinorVersion = " + std::to_string(static_cast<int>(u.minorVersion)) + " AND PatchVersion = " + std::to_string(static_cast<int>(u.patchVersion)) + " LIMIT 1;", err);
+			Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "DELETE FROM updates WHERE ModID = " + std::to_string(u.modID) + " AND MajorVersion != " + std::to_string(static_cast<int>(u.majorVersion)) + " AND MinorVersion != " + std::to_string(static_cast<int>(u.minorVersion)) + " AND PatchVersion != " + std::to_string(static_cast<int>(u.patchVersion)) + " AND SpineVersion != " + std::to_string(static_cast<int>(u.spineVersion)) + " LIMIT 1;", err);
+			std::vector<int> result = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "SELECT ModID FROM updates WHERE ModID = " + std::to_string(u.modID) + " AND MajorVersion = " + std::to_string(static_cast<int>(u.majorVersion)) + " AND MinorVersion = " + std::to_string(static_cast<int>(u.minorVersion)) + " AND PatchVersion = " + std::to_string(static_cast<int>(u.patchVersion)) + " AND SpineVersion = " + std::to_string(static_cast<int>(u.spineVersion)) + " LIMIT 1;", err);
 			
 			if (!result.empty()) continue;
 
@@ -401,7 +409,7 @@ void ModUpdateDialog::accept() {
 				if (!_checkBoxes[i]->isChecked()) {
 					continue;
 				}
-				Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE mods SET MajorVersion = " + std::to_string(static_cast<int>(_updates[i].majorVersion)) + ", MinorVersion = " + std::to_string(static_cast<int>(_updates[i].minorVersion)) + ", PatchVersion = " + std::to_string(static_cast<int>(_updates[i].patchVersion)) + " WHERE ModID = " + std::to_string(_updates[i].modID) + ";", err);
+				Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE mods SET MajorVersion = " + std::to_string(static_cast<int>(_updates[i].majorVersion)) + ", MinorVersion = " + std::to_string(static_cast<int>(_updates[i].minorVersion)) + ", PatchVersion = " + std::to_string(static_cast<int>(_updates[i].patchVersion)) + ", SpineVersion = " + std::to_string(static_cast<int>(_updates[i].spineVersion)) + " WHERE ModID = " + std::to_string(_updates[i].modID) + ";", err);
 				success = success && !err.error;
 				if (success) {
 					usm.modID = _updates[i].modID;
@@ -464,7 +472,7 @@ void ModUpdateDialog::checkForUpdate() {
 			int language;
 		};
 		
-		std::vector<common::ModVersion> m = Database::queryAll<common::ModVersion, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, MajorVersion, MinorVersion, PatchVersion FROM mods;", err);
+		std::vector<common::ModVersion> m = Database::queryAll<common::ModVersion, int, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, MajorVersion, MinorVersion, PatchVersion, SpineVersion FROM mods;", err);
 		std::vector<ProjectLanguage> pl = Database::queryAll<ProjectLanguage, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ProjectID, Language FROM languages;", err);
 		for (common::ModVersion & mv : m) {
 			_oldVersions.insert(mv.modID, QString("%1.%2.%3").arg(static_cast<int>(mv.majorVersion)).arg(static_cast<int>(mv.minorVersion)).arg(static_cast<int>(mv.patchVersion)));
@@ -513,9 +521,9 @@ void ModUpdateDialog::checkForUpdate() {
 void ModUpdateDialog::checkForUpdate(int32_t modID, bool forceAccept) {
 	_running = true;
 	QtConcurrent::run([this, modID, forceAccept]() {
-		std::vector<common::ModVersion> m = { common::ModVersion(modID, 0, 0, 0) };
+		std::vector<common::ModVersion> m = { common::ModVersion(modID, 0, 0, 0, 0) };
 		Database::DBError err;
-		std::vector<common::ModVersion> m2 = Database::queryAll<common::ModVersion, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, MajorVersion, MinorVersion, PatchVersion FROM mods WHERE ModID = " + std::to_string(modID) + " LIMIT 1;", err);
+		std::vector<common::ModVersion> m2 = Database::queryAll<common::ModVersion, int, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, MajorVersion, MinorVersion, PatchVersion, SpineVersion FROM mods WHERE ModID = " + std::to_string(modID) + " LIMIT 1;", err);
 		std::vector<int> cl = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Language FROM languages WHERE ProjectID = " + std::to_string(modID) + " LIMIT 1;", err);
 		
 		_oldVersions.insert(modID, QString("%1.%2.%3").arg(static_cast<int>(m2.empty() ? m[0].majorVersion : m2[0].majorVersion)).arg(static_cast<int>(m2.empty() ? m[0].minorVersion : m2[0].minorVersion)).arg(static_cast<int>(m2.empty() ? m[0].patchVersion : m2[0].patchVersion)));
@@ -560,7 +568,7 @@ void ModUpdateDialog::hideUpdates(QList<common::ModUpdate> hides) const {
 	}
 	for (const common::ModUpdate & mu : hides) {
 		Database::DBError err;
-		Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "INSERT INTO updates (ModID, Name, MajorVersion, MinorVersion, PatchVersion) VALUES (" + std::to_string(mu.modID) + ", '" + mu.name + "', " + std::to_string(static_cast<int>(mu.majorVersion)) + ", " + std::to_string(static_cast<int>(mu.minorVersion)) + "," + std::to_string(static_cast<int>(mu.patchVersion)) + ");", err);
+		Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "INSERT INTO updates (ModID, Name, MajorVersion, MinorVersion, PatchVersion, SpineVersion) VALUES (" + std::to_string(mu.modID) + ", '" + mu.name + "', " + std::to_string(static_cast<int>(mu.majorVersion)) + ", " + std::to_string(static_cast<int>(mu.minorVersion)) + "," + std::to_string(static_cast<int>(mu.patchVersion)) + "," + std::to_string(static_cast<int>(mu.spineVersion)) + ");", err);
 	}
 }
 

@@ -379,7 +379,7 @@ namespace common {
 
 	struct SendModsToUpdateMessage : public Message {
 		std::vector<ModUpdate> updates;
-		SendModsToUpdateMessage() : Message(), updates() {
+		SendModsToUpdateMessage() : Message() {
 			type = MessageType::SENDMODSTOUPDATE;
 		}
 		template<class Archive>

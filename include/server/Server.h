@@ -20,7 +20,6 @@
 
 #include <cstdint>
 #include <mutex>
-#include <string>
 #include <vector>
 
 namespace clockUtils {

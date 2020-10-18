@@ -113,16 +113,16 @@ void ExportDialog::exportMods() {
 	const QFuture<void> future = QtConcurrent::run([this, modfiles, exportPath, &running]() {
 		const std::string database = exportPath.toStdString() + "/backup.spex";
 		Database::DBError err;
-		Database::execute(database, "CREATE TABLE IF NOT EXISTS mods(ModID INT NOT NULL, GothicVersion INT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL);", err);
+		Database::execute(database, "CREATE TABLE IF NOT EXISTS mods(ModID INT NOT NULL, GothicVersion INT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL, SpineVersion INT NOT NULL);", err);
 		Database::execute(database, "CREATE TABLE IF NOT EXISTS modfiles(ModID INT NOT NULL, File TEXT NOT NULL, Hash TEXT NOT NULL);", err);
 		Database::execute(database, "CREATE TABLE IF NOT EXISTS patches(ModID INT NOT NULL, Name TEXT NOT NULL);", err);
 		Database::execute(database, "CREATE TABLE IF NOT EXISTS packages(ModID INT NOT NULL, PackageID INT NOT NULL, File TEXT NOT NULL);", err);
 
-		const auto mods = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, GothicVersion, MajorVersion, MinorVersion, PatchVersion FROM mods;", err);
+		const auto mods = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, GothicVersion, MajorVersion, MinorVersion, PatchVersion, SpineVersion FROM mods;", err);
 		Database::open(database, err);
 		Database::execute(database, "BEGIN TRANSACTION;", err);
 		for (auto vec : mods) {
-			Database::execute(database, "INSERT INTO mods (ModID, GothicVersion, MajorVersion, MinorVersion, PatchVersion) VALUES (" + vec[0] + ", " + vec[1] + ", " + vec[2] + ", " + vec[3] + ", " + vec[4] + ");", err);
+			Database::execute(database, "INSERT INTO mods (ModID, GothicVersion, MajorVersion, MinorVersion, PatchVersion, SpineVersion) VALUES (" + vec[0] + ", " + vec[1] + ", " + vec[2] + ", " + vec[3] + ", " + vec[4] + ", " + vec[5] + ");", err);
 		}
 		Database::execute(database, "END TRANSACTION;", err);
 		Database::close(database, err);

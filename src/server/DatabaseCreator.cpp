@@ -33,7 +33,7 @@ void DatabaseCreator::createTables() {
 	}
 
 	// ModID | ID of the team | Enabled in GUI or only internal | 1 or 2 either if the mod is for Gothic 1 or 2 | Release date encoded as integer in days | one of Mod or Patch encoded as integer
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS mods (ModID INT AUTO_INCREMENT PRIMARY KEY, TeamID INT NOT NULL, Enabled INT NOT NULL, Gothic INT NOT NULL, ReleaseDate INT NOT NULL, Type INT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL);"))) {
+	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS mods (ModID INT AUTO_INCREMENT PRIMARY KEY, TeamID INT NOT NULL, Enabled INT NOT NULL, Gothic INT NOT NULL, ReleaseDate INT NOT NULL, Type INT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL, SpineVersion INT NOT NULL);"))) {
 		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}

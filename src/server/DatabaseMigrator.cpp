@@ -31,7 +31,7 @@ using namespace spine::server;
 
 void DatabaseMigrator::migrate() {
 	do {
-		CONNECTTODATABASE(__LINE__);
+		CONNECTTODATABASE(__LINE__)
 
 		if (!database.query("PREPARE selectProjectNamesStmt FROM \"SELECT * FROM projectNames\";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
@@ -82,17 +82,17 @@ void DatabaseMigrator::migrate() {
 				nameMap[projectID][name] |= language;
 			}
 
-			for (auto it = nameMap.begin(); it != nameMap.end(); ++it) {
-				if (!database.query("SET @paramProjectID=" + std::to_string(it->first) + ";")) {
+			for (auto & it : nameMap) {
+				if (!database.query("SET @paramProjectID=" + std::to_string(it.first) + ";")) {
 					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 					break;
 				}
-				for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
-					if (!database.query("SET @paramName='" + it2->first + "';")) {
+				for (auto & it2 : it.second) {
+					if (!database.query("SET @paramName='" + it2.first + "';")) {
 						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 						break;
 					}
-					if (!database.query("SET @paramLanguages=" + std::to_string(it2->second) + ";")) {
+					if (!database.query("SET @paramLanguages=" + std::to_string(it2.second) + ";")) {
 						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 						break;
 					}
@@ -128,17 +128,17 @@ void DatabaseMigrator::migrate() {
 				nameMap[teamID][name] |= language;
 			}
 
-			for (auto it = nameMap.begin(); it != nameMap.end(); ++it) {
-				if (!database.query("SET @paramTeamID=" + std::to_string(it->first) + ";")) {
+			for (auto & it : nameMap) {
+				if (!database.query("SET @paramTeamID=" + std::to_string(it.first) + ";")) {
 					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 					break;
 				}
-				for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
-					if (!database.query("SET @paramName='" + it2->first + "';")) {
+				for (auto & it2 : it.second) {
+					if (!database.query("SET @paramName='" + it2.first + "';")) {
 						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 						break;
 					}
-					if (!database.query("SET @paramLanguages=" + std::to_string(it2->second) + ";")) {
+					if (!database.query("SET @paramLanguages=" + std::to_string(it2.second) + ";")) {
 						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 						break;
 					}
@@ -148,6 +148,35 @@ void DatabaseMigrator::migrate() {
 					}
 				}
 			}
+		}
+	} while (false);
+	
+	do {
+		CONNECTTODATABASE(__LINE__)
+
+		if (!database.query("PREPARE selectVersionStmt FROM \"SELECT SpineVersion FROM mods LIMIT 1\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("PREPARE addColumnStmt FROM \"ALTER TABLE mods ADD SpineVersion INT NOT NULL\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("PREPARE updateStmt FROM \"UPDATE mods SET SpineVersion = 0\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		
+		if (database.query("EXECUTE selectVersionStmt;")) break;
+
+		if (!database.query("EXECUTE addColumnStmt;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+
+		if (!database.query("EXECUTE updateStmt;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
 		}
 	} while (false);
 }

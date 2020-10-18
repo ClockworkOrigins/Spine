@@ -440,7 +440,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 	}
 	
 	// ModID | Name of the Mod shown in GUI | ID of the team | Enabled in GUI or only internal | 1 or 2 either if the mod is for Gothic 1 or 2 | Release date encoded as integer in days | one of Mod or Patch encoded as integer | major version | minor version | patch version
-	if (!database.query(std::string("SELECT ModID, TeamID, Gothic, ReleaseDate, Type, MajorVersion, MinorVersion, PatchVersion FROM mods WHERE Enabled = 1;"))) {
+	if (!database.query(std::string("SELECT ModID, TeamID, Gothic, ReleaseDate, Type, MajorVersion, MinorVersion, PatchVersion, SpineVersion FROM mods WHERE Enabled = 1;"))) {
 		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
@@ -448,7 +448,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 	auto enabledResults = database.getResults<std::vector<std::string>>();
 	const int userID = ServerCommon::getUserID(msg->username, msg->password);
 	if (userID != -1) {
-		if (!database.query(std::string("SELECT ModID, TeamID, Gothic, ReleaseDate, Type, MajorVersion, MinorVersion, PatchVersion FROM mods WHERE Enabled = 0;"))) {
+		if (!database.query(std::string("SELECT ModID, TeamID, Gothic, ReleaseDate, Type, MajorVersion, MinorVersion, PatchVersion, SpineVersion FROM mods WHERE Enabled = 0;"))) {
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
@@ -573,6 +573,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 		mod.majorVersion = static_cast<int8_t>(std::stoi(vec[5]));
 		mod.minorVersion = static_cast<int8_t>(std::stoi(vec[6]));
 		mod.patchVersion = static_cast<int8_t>(std::stoi(vec[7]));
+		mod.spineVersion = static_cast<int8_t>(std::stoi(vec[8]));
 		if (!database.query("EXECUTE selectDevtimeStmt USING @paramModID;")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			continue;
@@ -599,7 +600,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 		} else {
 			mod.avgDuration = -1;
 		}
-		uint32_t version = (mod.majorVersion << 16) + (mod.minorVersion << 8) + mod.patchVersion;
+		uint32_t version = (mod.majorVersion << 24) + (mod.minorVersion << 16) + (mod.patchVersion << 8) + mod.spineVersion;
 		mod.downloadSize = _downloadSizeChecker->getBytes(mod.id, LanguageConverter::convert(l), version);
 
 		if (!database.query("EXECUTE selectUpdateDateStmt USING @paramModID;")) {
@@ -1152,7 +1153,7 @@ void Server::handleUnlockAchievement(clockUtils::sockets::TcpSocket *, UnlockAch
 		lastResults = database.getResults<std::vector<std::string>>();
 		uint32_t duration = 0;
 		if (!lastResults.empty()) {
-			duration = uint32_t(std::stoi(lastResults[0][0]));
+			duration = static_cast<uint32_t>(std::stoi(lastResults[0][0]));
 		}
 		if (!database.query("SET @paramDuration=" + std::to_string(msg->duration + duration) + ";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
@@ -1173,7 +1174,7 @@ void Server::handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, ModVer
 		std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
-	if (!database.query("PREPARE selectModStmt FROM \"SELECT MajorVersion, MinorVersion, PatchVersion, Enabled, TeamID, Gothic FROM mods WHERE ModID = ? LIMIT 1\";")) {
+	if (!database.query("PREPARE selectModStmt FROM \"SELECT MajorVersion, MinorVersion, PatchVersion, SpineVersion, Enabled, TeamID, Gothic FROM mods WHERE ModID = ? LIMIT 1\";")) {
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
@@ -1216,6 +1217,8 @@ void Server::handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, ModVer
 	
 	SendModsToUpdateMessage smtum;
 	for (const ModVersion & mv : msg->modVersions) {
+		if (mv.language >= Language::Count || mv.language == 0) break; // for compatibility with older clients
+		
 		if (!database.query("SET @paramModID=" + std::to_string(mv.modID) + ";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
@@ -1226,12 +1229,13 @@ void Server::handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, ModVer
 		}
 		auto lastResults = database.getResults<std::vector<std::string>>();
 		if (!lastResults.empty()) {
-			const int8_t majorVersion = int8_t(std::stoi(lastResults[0][0]));
-			const int8_t minorVersion = int8_t(std::stoi(lastResults[0][1]));
-			const int8_t patchVersion = int8_t(std::stoi(lastResults[0][2]));
-			bool enabled = std::stoi(lastResults[0][3]) == 1;
-			const int teamID = std::stoi(lastResults[0][4]);
-			const int gothicVersion = std::stoi(lastResults[0][5]);
+			const int8_t majorVersion = static_cast<int8_t>(std::stoi(lastResults[0][0]));
+			const int8_t minorVersion = static_cast<int8_t>(std::stoi(lastResults[0][1]));
+			const int8_t patchVersion = static_cast<int8_t>(std::stoi(lastResults[0][2]));
+			const int8_t spineVersion = static_cast<int8_t>(std::stoi(lastResults[0][3]));
+			bool enabled = std::stoi(lastResults[0][4]) == 1;
+			const int teamID = std::stoi(lastResults[0][5]);
+			const int gothicVersion = std::stoi(lastResults[0][6]);
 
 			if (!enabled) {
 				const int userID = ServerCommon::getUserID(msg->username, msg->password);
@@ -1260,7 +1264,7 @@ void Server::handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, ModVer
 				}
 			}
 
-			if ((mv.majorVersion != majorVersion || mv.minorVersion != minorVersion || mv.patchVersion != patchVersion) && enabled) {
+			if ((mv.majorVersion != majorVersion || mv.minorVersion != minorVersion || mv.patchVersion != patchVersion || mv.spineVersion != spineVersion) && enabled) {
 				const auto language = LanguageConverter::convert(static_cast<Language>(mv.language));
 				
 				if (!database.query("SET @paramLanguage='" + language + "';")) {
@@ -1275,7 +1279,8 @@ void Server::handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, ModVer
 				mu.majorVersion = majorVersion;
 				mu.minorVersion = minorVersion;
 				mu.patchVersion = patchVersion;
-				mu.gothicVersion = GameType(gothicVersion);
+				mu.spineVersion = spineVersion;
+				mu.gothicVersion = static_cast<GameType>(gothicVersion);
 
 				if (!database.query("EXECUTE selectFilesStmt USING @paramModID, @paramLanguage;")) {
 					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
@@ -3024,9 +3029,9 @@ void Server::handleRequestInfoPage(clockUtils::sockets::TcpSocket * sock, Reques
 		if (lastResults.empty()) {
 			return;
 		}
-		sipm.majorVersion = uint8_t(std::stoi(lastResults[0][0]));
-		sipm.minorVersion = uint8_t(std::stoi(lastResults[0][1]));
-		sipm.patchVersion = uint8_t(std::stoi(lastResults[0][2]));
+		sipm.majorVersion = static_cast<uint8_t>(std::stoi(lastResults[0][0]));
+		sipm.minorVersion = static_cast<uint8_t>(std::stoi(lastResults[0][1]));
+		sipm.patchVersion = static_cast<uint8_t>(std::stoi(lastResults[0][2]));
 		sipm.gameType = static_cast<GameType>(std::stoi(lastResults[0][3]));
 		
 		if (!database.query("EXECUTE selectUpdateDateStmt USING @paramModID;")) {

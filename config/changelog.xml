@@ -1986,8 +1986,10 @@
 		<Bug language="English">Fixed bug starting mods that haven't been installed via Spine when paths match except for Gothic version</Bug>
 	</Version>
 	<Version majorVersion="1" minorVersion="25" patchVersion="0">
+		<Enhancement language="Deutsch">Neue Spine-spezifische Versionsnummer eingeführt, um Verwirrung bei Versionsnummern mit Nicht-Spine-Versionen zu vermeiden</Enhancement>
 		<Bug language="Deutsch">Einfluss der Spielzeit auf Spine-Level reduziert</Bug>
 		
+		<Enhancement language="English">Added new Spine specific version number to avoid confusion with non-Spine versions</Enhancement>
 		<Bug language="English">Reduced impact of playtime on Spine level</Bug>
 	</Version>
 </Versions>
