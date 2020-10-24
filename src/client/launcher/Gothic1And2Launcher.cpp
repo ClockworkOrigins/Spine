@@ -82,7 +82,7 @@ namespace {
 		int patchVersion;
 		ModVersion() : gothicVersion(), majorVersion(), minorVersion(), patchVersion() {
 		}
-		ModVersion(int i1, int i2, int i3, int i4) : gothicVersion(common::GameType(i1)), majorVersion(i2), minorVersion(i3), patchVersion(i4) {
+		ModVersion(int i1, int i2, int i3, int i4) : gothicVersion(static_cast<common::GameType>(i1)), majorVersion(i2), minorVersion(i3), patchVersion(i4) {
 		}
 	};
 
@@ -664,7 +664,7 @@ void Gothic1And2Launcher::updateView(int modID, const QString & iniFile) {
 		const auto gothicVersion = getGothicVersion();
 		
 		for (const Patch & p : patches) {
-			const common::GameType gv = common::GameType(std::stoi(Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + std::to_string(p.modID) + " LIMIT 1;", err, 0)));
+			const common::GameType gv = static_cast<common::GameType>(std::stoi(Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + std::to_string(p.modID) + " LIMIT 1;", err, 0)));
 			if (gv == gothicVersion || ((gothicVersion == common::GameType::Gothic || gothicVersion == common::GameType::Gothic2 || gothicVersion == common::GameType::GothicInGothic2) && gv == common::GameType::Gothic1And2)) {
 				QCheckBox * cb = new QCheckBox(s2q(p.name), _widget);
 				cb->setProperty("library", true);
@@ -854,7 +854,7 @@ void Gothic1And2Launcher::start() {
 			}
 		}
 	}
-	LOGINFO("Started " << usedExecutable.toStdString());
+	LOGINFO("Started " << usedExecutable.toStdString())
 
 	startCommon();
 }
@@ -930,7 +930,7 @@ void Gothic1And2Launcher::finishedMod(int, QProcess::ExitStatus status) {
 		const QRegularExpression regExp("(PluginList\\s=[^\n]*)\n");
 		const QRegularExpressionMatch match = regExp.match(text);
 		QString replaceText = match.captured(1);
-		LOGINFO("Replacing #2: " << q2s(replaceText));
+		LOGINFO("Replacing #2: " << q2s(replaceText))
 		replaceText = replaceText.trimmed();
 		if (!replaceText.isEmpty()) {
 			text = text.replace(replaceText, "PluginList =");
@@ -954,7 +954,7 @@ void Gothic1And2Launcher::finishedMod(int, QProcess::ExitStatus status) {
 		const QRegularExpression regExp("(PluginList\\s=[^\n]*)\n");
 		const QRegularExpressionMatch match = regExp.match(text);
 		QString replaceText = match.captured(1);
-		LOGINFO("Replacing #2: " << q2s(replaceText));
+		LOGINFO("Replacing #2: " << q2s(replaceText))
 		replaceText = replaceText.trimmed();
 		if (!replaceText.isEmpty()) {
 			text = text.replace(replaceText, "PluginList =");
@@ -1052,7 +1052,7 @@ void Gothic1And2Launcher::removeModFiles() {
 					Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "DELETE FROM usedFiles WHERE File = '" + file.toStdString() + "';", err);
 					removed.insert(file);
 					if (Config::extendedLogging) {
-						LOGINFO("Removed file " << file.toStdString());
+						LOGINFO("Removed file " << file.toStdString())
 					}
 				} else {
 #ifdef Q_OS_WIN
@@ -1061,7 +1061,7 @@ void Gothic1And2Launcher::removeModFiles() {
 					}
 #endif
 					if (Config::extendedLogging) {
-						LOGINFO("Couldn't remove file " << file.toStdString());
+						LOGINFO("Couldn't remove file " << file.toStdString())
 					}
 				}
 			} else if (QDir(_lastBaseDir + "/" + file).exists()) {
@@ -1069,15 +1069,15 @@ void Gothic1And2Launcher::removeModFiles() {
 					Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "DELETE FROM usedFiles WHERE File = '" + file.toStdString() + "';", err);
 					removed.insert(file);
 					if (Config::extendedLogging) {
-						LOGINFO("Removed file " << file.toStdString());
+						LOGINFO("Removed file " << file.toStdString())
 					}
 				} else {
 					if (Config::extendedLogging) {
-						LOGINFO("Couldn't remove file " << file.toStdString());
+						LOGINFO("Couldn't remove file " << file.toStdString())
 					}
 				}
 			} else {
-				LOGINFO("Couldn't remove file " << file.toStdString());
+				LOGINFO("Couldn't remove file " << file.toStdString())
 			}
 		}
 		Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "END TRANSACTION;", err);
@@ -1087,7 +1087,7 @@ void Gothic1And2Launcher::removeModFiles() {
 		}
 
 		if (Config::extendedLogging) {
-			LOGINFO("Not removed files: " << _copiedFiles.size());
+			LOGINFO("Not removed files: " << _copiedFiles.size())
 		}
 
 		removeEmptyDirs();
@@ -1106,7 +1106,7 @@ void Gothic1And2Launcher::removeModFiles() {
 			backupFile.chop(6);
 			bool b = f.rename(backupFile);
 			if (!b) {
-				LOGINFO("Couldn't rename file: " << q2s(backupFile));
+				LOGINFO("Couldn't rename file: " << q2s(backupFile))
 			}
 		}
 	}
@@ -1161,7 +1161,7 @@ void Gothic1And2Launcher::updateModStats() {
 						return;
 					}
 				} else {
-					qDebug() << "Error occurred: " << int(cErr);
+					qDebug() << "Error occurred: " << static_cast<int>(cErr);
 				}
 			}
 			{
@@ -1182,7 +1182,7 @@ void Gothic1And2Launcher::updateModStats() {
 						return;
 					}
 				} else {
-					qDebug() << "Error occurred: " << int(cErr);
+					qDebug() << "Error occurred: " << static_cast<int>(cErr);
 				}
 			}
 		} else {
@@ -1197,7 +1197,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 	QSet<QString> forbidden;
 	collectDependencies(_modID, dependencies, &forbidden);
 
-	LOGINFO("Starting Ini: " << _iniFile.toStdString());
+	LOGINFO("Starting Ini: " << _iniFile.toStdString())
 	emitSplashMessage(QApplication::tr("RemovingOldFiles"));
 	for (const QString & f : _copiedFiles) {
 		QFile(_lastBaseDir + "/" + f).remove();
@@ -1260,7 +1260,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 	if (_modID != -1) {
 		emitSplashMessage(QApplication::tr("DetermingCorrectGothicPath"));
 		if (Config::extendedLogging) {
-			LOGINFO("Installed Mod");
+			LOGINFO("Installed Mod")
 		}
 		bool success = true;
 
@@ -1276,7 +1276,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 			itBackup.next();
 			QFile(itBackup.filePath()).remove();
 		}
-		LOGINFO("Starting " << usedExecutable->toStdString() << " in " << _directory.toStdString());
+		LOGINFO("Starting " << usedExecutable->toStdString() << " in " << _directory.toStdString())
 		if (!usedExecutable->isEmpty() && success) {
 			emitSplashMessage(QApplication::tr("CopyingModfiles"));
 			std::vector<std::pair<std::string, std::string>> files = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT File, Hash FROM modfiles WHERE ModID = " + std::to_string(_modID) + ";", err);
@@ -1290,13 +1290,13 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 					continue;
 				}
 				if (Config::extendedLogging) {
-					LOGINFO("Copying file " << file.first);
+					LOGINFO("Copying file " << file.first)
 				}
 #ifdef Q_OS_WIN
 				if (IsRunAsAdmin()) {
 					if (!QDir().exists(_directory + "/System/GD3D11/textures/replacements")) {
 						bool b = QDir().mkpath(_directory + "/System/GD3D11/textures/replacements");
-						Q_UNUSED(b);
+						Q_UNUSED(b)
 					}
 					// D3D11 special treatment... don't set symlink for every file, but set symlink to base dir
 					const QString checkPath = "System/GD3D11/textures/replacements/Normalmaps_";
@@ -1317,11 +1317,11 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 #endif
 					if (!QDir().exists(_directory + "/System/GD3D11/textures/replacements")) {
 						bool b = QDir().mkpath(_directory + "/System/GD3D11/textures/replacements");
-						Q_UNUSED(b);
+						Q_UNUSED(b)
 					}
 					if (!QDir().exists(_directory + "/System/GD3D11/textures/replacements/Normalmaps_Original")) {
 						bool b = QDir().mkpath(_directory + "/System/GD3D11/textures/replacements/Normalmaps_Original");
-						Q_UNUSED(b);
+						Q_UNUSED(b)
 					}
 					// D3D11 special treatment... don't set symlink for every file, but set symlink to base dir
 					const QString checkPath = "System/GD3D11/textures/replacements/Normalmaps_";
@@ -1342,7 +1342,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 							if (b) {
 								copy = false;
 								if (Config::extendedLogging) {
-									LOGINFO("Skipping file");
+									LOGINFO("Skipping file")
 								}
 								_skippedFiles.append(filename);
 							}
@@ -1364,7 +1364,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 							success = linkOrCopyFile(Config::DOWNLOADDIR + "/mods/" + QString::number(_modID) + "/" + filename, _directory + "/" + changedFile);
 						}
 						if (!success) {
-							LOGERROR("Couldn't copy file: " << filename.toStdString() << " " << f.errorString().toStdString());
+							LOGERROR("Couldn't copy file: " << filename.toStdString() << " " << f.errorString().toStdString())
 							break;
 						}
 						if (copy) {
@@ -1379,7 +1379,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 				QDir dir = fi.absoluteDir();
 				success = dir.mkpath(dir.absolutePath());
 				if (!success) {
-					LOGERROR("Couldn't create dir: " << dir.absolutePath().toStdString());
+					LOGERROR("Couldn't create dir: " << dir.absolutePath().toStdString())
 					break;
 				}
 				// backup old file
@@ -1389,7 +1389,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 					if (b) {
 						copy = false;
 						if (Config::extendedLogging) {
-							LOGINFO("Skipping file");
+							LOGINFO("Skipping file")
 						}
 						_skippedFiles.append(filename);
 					}
@@ -1405,7 +1405,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 					success = linkOrCopyFile(Config::DOWNLOADDIR + "/mods/" + QString::number(_modID) + "/" + filename, _directory + "/" + filename);
 				}
 				if (!success) {
-					LOGERROR("Couldn't copy file: " << filename.toStdString());
+					LOGERROR("Couldn't copy file: " << filename.toStdString())
 					break;
 				}
 				if (copy) {
@@ -1414,7 +1414,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 			}
 			if (!success) {
 				removeModFiles();
-				LOGERROR("Failed copying mod data");
+				LOGERROR("Failed copying mod data")
 				return false;
 			}
 			checkToolCfg(Config::DOWNLOADDIR + "/mods/" + QString::number(_modID), backgroundExecutables, newGMP);
@@ -1422,7 +1422,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 		}
 	} else {
 		_lastBaseDir = _directory;
-		LOGERROR("Starting " << usedExecutable->toStdString() << " in " << _directory.toStdString());
+		LOGERROR("Starting " << usedExecutable->toStdString() << " in " << _directory.toStdString())
 	}
 	if (systempack) {
 		if (QFileInfo::exists(_directory + "/System/vdfs32g.exe")) {
@@ -1440,7 +1440,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 				continue;
 			}
 			if (Config::extendedLogging) {
-				LOGINFO("Applying patch " << patchID);
+				LOGINFO("Applying patch " << patchID)
 			}
 			bool raisedNormalCounter = false;
 			QSet<QString> skippedBases;
@@ -1455,7 +1455,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 				if (IsRunAsAdmin()) {
 					if (!QDir().exists(_directory + "/System/GD3D11/textures/replacements")) {
 						bool b = QDir().mkpath(_directory + "/System/GD3D11/textures/replacements");
-						Q_UNUSED(b);
+						Q_UNUSED(b)
 					}
 					// D3D11 special treatment... don't set symlink for every file, but set symlink to base dir
 					QString checkPath = "System/GD3D11/Data";
@@ -1537,11 +1537,11 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 #endif
 					if (!QDir().exists(_directory + "/System/GD3D11/textures/replacements")) {
 						bool b = QDir().mkpath(_directory + "/System/GD3D11/textures/replacements");
-						Q_UNUSED(b);
+						Q_UNUSED(b)
 					}
 					if (!QDir().exists(_directory + "/System/GD3D11/textures/replacements/Normalmaps_Original")) {
 						bool b = QDir().mkpath(_directory + "/System/GD3D11/textures/replacements/Normalmaps_Original");
-						Q_UNUSED(b);
+						Q_UNUSED(b)
 					}
 					// D3D11 special treatment... don't set symlink for every file, but set symlink to base dir
 					const QString checkPath = "System/GD3D11/textures/replacements/Normalmaps_";
@@ -1568,7 +1568,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 							if (b) {
 								copy = false;
 								if (Config::extendedLogging) {
-									LOGINFO("Skipping file");
+									LOGINFO("Skipping file")
 								}
 							}
 							if (copy) {
@@ -1594,13 +1594,13 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 				QDir dir = fi.absoluteDir();
 				bool success = dir.mkpath(dir.absolutePath());
 				if (!success) {
-					LOGERROR("Couldn't create dir: " << dir.absolutePath().toStdString());
+					LOGERROR("Couldn't create dir: " << dir.absolutePath().toStdString())
 					break;
 				}
 				// backup old file, if already backed up, don't patch
 				if (!_copiedFiles.contains(filename, Qt::CaseInsensitive) && !_skippedFiles.contains(filename, Qt::CaseInsensitive) && ((QFileInfo::exists(_directory + "/" + filename) && !QFileInfo::exists(_directory + "/" + filename + ".spbak")) || !QFileInfo::exists(_directory + "/" + filename))) {
 					if (Config::extendedLogging) {
-						LOGINFO("Copying file " << file.first);
+						LOGINFO("Copying file " << file.first)
 					}
 					bool copy = true;
 					if (QFileInfo::exists(_directory + "/" + filename)) {
@@ -1631,7 +1631,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 	}
 	if (usedExecutable->isEmpty()) {
 		removeModFiles();
-		LOGERROR("No executable found");
+		LOGERROR("No executable found")
 		return false;
 	}
 	emitSplashMessage(QApplication::tr("RemovingOldFiles"));
@@ -1739,7 +1739,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 		QDir saveDirectory(saveDir);
 		if (!saveDirectory.exists()) {
 			bool b = saveDirectory.mkpath(saveDirectory.absolutePath());
-			Q_UNUSED(b);
+			Q_UNUSED(b)
 		}
 	}
 	{
@@ -1762,7 +1762,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 			QDir skoOptionsDir(skoOptionsPath);
 			if (!skoOptionsDir.exists()) {
 				bool b = skoOptionsDir.mkpath(skoOptionsDir.absolutePath());
-				Q_UNUSED(b);
+				Q_UNUSED(b)
 			}
 			if (!QFileInfo::exists(skoOptions)) {
 				QFile skoOptionsFile(skoOptions);
@@ -1959,7 +1959,7 @@ void Gothic1And2Launcher::updatePlugins(int modID) {
 			const QRegularExpression regExp("(PluginList\\s=[^\n]*)\n");
 			const QRegularExpressionMatch match = regExp.match(text);
 			QString replaceText = match.captured(1);
-			LOGINFO("Replacing #1: " << q2s(replaceText));
+			LOGINFO("Replacing #1: " << q2s(replaceText))
 			replaceText = replaceText.trimmed();
 			if (replaceText.isEmpty()) {
 				text += "\n[PLUGINS]\nPluginList = " + _unionPlugins.join(',') + "\n";
@@ -1985,7 +1985,7 @@ void Gothic1And2Launcher::updatePlugins(int modID) {
 			const QRegularExpression regExp("(PluginList\\s=[^\n]*)\n");
 			const QRegularExpressionMatch match = regExp.match(text);
 			QString replaceText = match.captured(1);
-			LOGINFO("Replacing #1: " << q2s(replaceText));
+			LOGINFO("Replacing #1: " << q2s(replaceText))
 			replaceText = replaceText.trimmed();
 			if (replaceText.isEmpty()) {
 				text += "\n[PLUGINS]\nPluginList = " + _unionPlugins.join(',') + "\n";
@@ -2028,9 +2028,9 @@ void Gothic1And2Launcher::emitSplashMessage(QString message) {
 
 void Gothic1And2Launcher::errorOccurred(QProcess::ProcessError error) {
 	QProcess * process = dynamic_cast<QProcess *>(sender());
-	LOGERROR("Error Code: " << error);
+	LOGERROR("Error Code: " << error)
 	if (process) {
-		LOGERROR("Some error occurred: " << process->errorString().toStdString());
+		LOGERROR("Some error occurred: " << process->errorString().toStdString())
 	}
 }
 
@@ -2071,19 +2071,19 @@ void Gothic1And2Launcher::setZSpyActivated(bool enabled) {
 
 void Gothic1And2Launcher::parseMods() {
 	if (Config::extendedLogging) {
-		LOGINFO("Parsing Mods");
+		LOGINFO("Parsing Mods")
 	}
 
 	_parsedInis.clear();
 	if (!_developerModeActive) {
 		if (Config::extendedLogging) {
-			LOGINFO("Parsing Installed Mods");
+			LOGINFO("Parsing Installed Mods")
 		}
 		parseInstalledMods();
 	}
 
 	if (Config::extendedLogging) {
-		LOGINFO("Parsing Mods in Gothic 1 Folder");
+		LOGINFO("Parsing Mods in Gothic 1 Folder")
 	}
 	parseMods(_directory);
 }
@@ -2171,7 +2171,7 @@ void Gothic1And2Launcher::parseMods(QString baseDir) {
 
 void Gothic1And2Launcher::parseInstalledMods() {
 	if (Config::extendedLogging) {
-		LOGINFO("Checking Files in " << Config::DOWNLOADDIR.toStdString());
+		LOGINFO("Checking Files in " << Config::DOWNLOADDIR.toStdString())
 	}
 	QDirIterator it(Config::DOWNLOADDIR + "/mods", QStringList() << "*.ini", QDir::Files, QDirIterator::Subdirectories);
 	while (it.hasNext()) {
@@ -2200,7 +2200,7 @@ void Gothic1And2Launcher::parseIni(QString file) {
 	QString title = iniParser.value("INFO/Title", "").toString();
 	if (title.isEmpty()) {
 		if (Config::extendedLogging) {
-			LOGINFO("No title set in " << file.toStdString());
+			LOGINFO("No title set in " << file.toStdString())
 		}
 		return;
 	}
@@ -2260,7 +2260,7 @@ void Gothic1And2Launcher::parseIni(QString file) {
 		_parsedInis.insert(fi.fileName(), std::make_tuple(hashSum, modID));
 	}
 	if (Config::extendedLogging) {
-		LOGINFO("Listing Mod: " << title.toStdString());
+		LOGINFO("Listing Mod: " << title.toStdString())
 	}
 }
 
