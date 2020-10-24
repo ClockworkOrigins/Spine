@@ -1988,10 +1988,12 @@
 	<Version majorVersion="1" minorVersion="25" patchVersion="0">
 		<Enhancement language="Deutsch">Neue Spine-spezifische Versionsnummer eingeführt, um Verwirrung bei Versionsnummern mit Nicht-Spine-Versionen zu vermeiden</Enhancement>
 		<Enhancement language="Deutsch">Es können jetzt mehrere Screenshots auf einmal zur Infoseite hinzugefügt werden</Enhancement>
+		<Enhancement language="Deutsch">Abhängigkeiten von Mods werden jetzt auch direkt in der GUI aktualisiert</Enhancement>
 		<Bug language="Deutsch">Einfluss der Spielzeit auf Spine-Level reduziert</Bug>
 		
 		<Enhancement language="English">Added new Spine specific version number to avoid confusion with non-Spine versions</Enhancement>
 		<Enhancement language="English">It's possible now to add multiple screenshots at once</Enhancement>
+		<Enhancement language="English">Dependencies of mods now are also directly updated in the UI</Enhancement>
 		<Bug language="English">Reduced impact of playtime on Spine level</Bug>
 	</Version>
 </Versions>

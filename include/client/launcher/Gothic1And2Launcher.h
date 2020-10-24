@@ -182,6 +182,8 @@ namespace launcher {
 		void finishedInstallation(int modID, int packageID, bool success) override;
 
 		void updatedProject(int projectID) override;
+
+		void updatePatchCheckboxes();
 	};
 
 } /* namespace launcher */

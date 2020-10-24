@@ -399,12 +399,15 @@ void Gothic1And2Launcher::updateCompatibilityList(int modID, std::vector<int32_t
 			const int count = Database::queryCount(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT Enabled FROM patchConfigs WHERE ModID = " + std::to_string(_modID) + " AND PatchID = " + std::to_string(p.modID) + " LIMIT 1;", err);
 			cb->setChecked(count);
 			_checkboxPatchIDMapping.insert(cb, p.modID);
-			connect(cb, &QCheckBox::stateChanged, this, &Gothic1And2Launcher::changedPatchState);
+			connect(cb, &QCheckBox::stateChanged, this, &Gothic1And2Launcher::changedPatchState, Qt::QueuedConnection);
 			cb->setProperty("patchID", p.modID);
 		} else if (contains(forbiddenPatches, p.modID)) {
 			Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "DELETE FROM patchConfigs WHERE ModID = " + std::to_string(_modID) + " AND PatchID = " + std::to_string(p.modID) + ";", err);
 		}
 	}
+
+	updatePatchCheckboxes();
+	
 	if (_patchCounter % 2 == 1) {
 		++_patchCounter;
 	}
@@ -673,14 +676,16 @@ void Gothic1And2Launcher::updateView(int modID, const QString & iniFile) {
 				const int count = Database::queryCount(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT Enabled FROM patchConfigs WHERE ModID = " + std::to_string(_modID) + " AND PatchID = " + std::to_string(p.modID) + " LIMIT 1;", err);
 				cb->setChecked(count);
 				_checkboxPatchIDMapping.insert(cb, p.modID);
-				connect(cb, &QCheckBox::stateChanged, this, &Gothic1And2Launcher::changedPatchState);
+				connect(cb, &QCheckBox::stateChanged, this, &Gothic1And2Launcher::changedPatchState, Qt::QueuedConnection);
 				_patchGroup->show();
 				_patchGroup->setToolTip(QApplication::tr("PatchesAndToolsTooltip").arg(_nameLabel->text()));
 				_pdfGroup->hide();
 			}
 		}
-	}
 
+		updatePatchCheckboxes();
+	}
+	
 	if (_modID == 36 || _modID == 37 || _modID == 116) {
 		_startButton->setText(QApplication::tr("StartGame"));
 		UPDATELANGUAGESETTEXT(_startButton, "StartGame");
@@ -930,7 +935,6 @@ void Gothic1And2Launcher::finishedMod(int, QProcess::ExitStatus status) {
 		const QRegularExpression regExp("(PluginList\\s=[^\n]*)\n");
 		const QRegularExpressionMatch match = regExp.match(text);
 		QString replaceText = match.captured(1);
-		LOGINFO("Replacing #2: " << q2s(replaceText))
 		replaceText = replaceText.trimmed();
 		if (!replaceText.isEmpty()) {
 			text = text.replace(replaceText, "PluginList =");
@@ -1038,6 +1042,8 @@ void Gothic1And2Launcher::changedPatchState() {
 			Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "DELETE FROM patchConfigs WHERE ModID = " + std::to_string(_modID) + " AND PatchID = " + std::to_string(_checkboxPatchIDMapping[cb]) + ";", err);
 		}
 	}
+
+	updatePatchCheckboxes();
 }
 
 void Gothic1And2Launcher::removeModFiles() {
@@ -2294,4 +2300,27 @@ void Gothic1And2Launcher::updatedProject(int projectID) {
 	}
 
 	parseMod(QString("%1/mods/%2").arg(Config::DOWNLOADDIR).arg(projectID));
+}
+
+void Gothic1And2Launcher::updatePatchCheckboxes() {
+	QSet<QString> dependencies;
+	QSet<QString> forbidden;
+	collectDependencies(_modID, &dependencies, &forbidden);
+
+	for (auto it = _checkboxPatchIDMapping.begin(); it != _checkboxPatchIDMapping.end(); ++it) {
+		const auto idString = QString::number(it.value());
+
+		if (forbidden.contains(idString)) {
+			if (it.key()->isChecked()) {
+				it.key()->setChecked(false);
+			}
+			it.key()->setEnabled(false);
+		} else {
+			it.key()->setEnabled(true);
+		}
+
+		if (dependencies.contains(idString) && !it.key()->isChecked()) {
+			it.key()->setChecked(true);
+		}
+	}
 }
