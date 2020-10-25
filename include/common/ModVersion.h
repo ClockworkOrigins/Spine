@@ -35,11 +35,9 @@ namespace common {
 		int8_t spineVersion = 0;
 		int language = 0;
 
-		ModVersion() {
-		}
+		ModVersion() {}
 
-		ModVersion(int i1, int i2, int i3, int i4, int i5) : modID(static_cast<int32_t>(i1)), majorVersion(static_cast<int8_t>(i2)), minorVersion(static_cast<int8_t>(i3)), patchVersion(static_cast<int8_t>(i4)), spineVersion(static_cast<int8_t>(i5)) {
-		}
+		ModVersion(int i1, int i2, int i3, int i4, int i5) : modID(static_cast<int32_t>(i1)), majorVersion(static_cast<int8_t>(i2)), minorVersion(static_cast<int8_t>(i3)), patchVersion(static_cast<int8_t>(i4)), spineVersion(static_cast<int8_t>(i5)) {}
 
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int /* file_version */) {

@@ -70,7 +70,7 @@ QString FileDownloader::getFileName() const {
 
 void FileDownloader::startDownload() {
 	if (Config::extendedLogging) {
-		LOGINFO("Starting Download of file " << _fileName.toStdString() << " from " << _url.toString().toStdString());
+		LOGINFO("Starting Download of file " << _fileName.toStdString() << " from " << _url.toString().toStdString())
 	}
 	QDir dir(_targetDirectory);
 	if (!dir.exists()) {
@@ -97,7 +97,7 @@ void FileDownloader::startDownload() {
 		
 		if (f.result()) {
 			if (Config::extendedLogging) {
-				LOGINFO("Skipping file as it already exists");
+				LOGINFO("Skipping file as it already exists")
 			}
 			if (_filesize == -1) {
 				_finished = true;
@@ -133,7 +133,7 @@ void FileDownloader::startDownload() {
 	_outputFile = new QFile(_targetDirectory + "/" + _fileName);
 	if (!_outputFile->open(QIODevice::WriteOnly)) {
 		if (Config::extendedLogging) {
-			LOGINFO("Can't open file for output");
+			LOGINFO("Can't open file for output")
 		}
 
 		emit downloadFinished();
@@ -163,7 +163,7 @@ void FileDownloader::fileDownloaded() {
 	
 	if (reply->error() == QNetworkReply::NetworkError::NoError) {
 		if (Config::extendedLogging) {
-			LOGINFO("Uncompressing file");
+			LOGINFO("Uncompressing file")
 		}
 		const QByteArray data = reply->readAll(); // the rest
 		_outputFile->write(data);
@@ -173,7 +173,7 @@ void FileDownloader::fileDownloaded() {
 	} else {
 		_outputFile->close();
 		_outputFile->remove();
-		LOGERROR("Unknown Error: " << reply->error() << ", " << q2s(reply->errorString()));
+		LOGERROR("Unknown Error: " << reply->error() << ", " << q2s(reply->errorString()))
 		if (reply->error() != QNetworkReply::OperationCanceledError) {
 			utils::ErrorReporting::report(QString("Unknown Error during download: %1, %2 (%3)").arg(reply->error()).arg(reply->errorString()).arg(_url.toString()));
 		}
@@ -218,7 +218,7 @@ void FileDownloader::networkError(QNetworkReply::NetworkError err) {
 
 void FileDownloader::sslErrors(const QList<QSslError> & errors) {
 	for (const auto & err : errors) {
-		LOGINFO(err.error() << " - " << q2s(err.errorString()));
+		LOGINFO(err.error() << " - " << q2s(err.errorString()))
 	}
 }
 
@@ -235,7 +235,7 @@ void FileDownloader::uncompressAndHash() {
 			try {
 				utils::Compression::uncompress(_targetDirectory + "/" + _fileName, true); // remove compressed download now
 			} catch (boost::iostreams::zlib_error & e) {
-				LOGERROR("Exception: " << e.what());
+				LOGERROR("Exception: " << e.what())
 				utils::ErrorReporting::report(QString("Uncompressing of %1 failed: %2 (%3)").arg(_fileName).arg(e.what()).arg(_url.toString()));
 			}
 			_fileName.chop(2);
@@ -261,7 +261,7 @@ void FileDownloader::uncompressAndHash() {
 				emit fileSucceeded();
 			}
 		} else {
-			LOGERROR("Hash invalid: " << _fileName.toStdString());
+			LOGERROR("Hash invalid: " << _fileName.toStdString())
 			emit fileFailed(DownloadError::HashError);
 			utils::ErrorReporting::report(QString("Hash invalid: %1 (%2)").arg(_fileName).arg(_url.toString()));
 		}
@@ -273,7 +273,7 @@ void FileDownloader::handleZip() {
 	{
 		const bool b = utils::Hashing::checkHash(fullPath, _hash);
 		if (!b) {
-			LOGERROR("Hash invalid: " << _fileName.toStdString());
+			LOGERROR("Hash invalid: " << _fileName.toStdString())
 			emit fileFailed(DownloadError::HashError);
 			utils::ErrorReporting::report(QString("Hash invalid: %1 (%2)").arg(_fileName).arg(_url.toString()));
 			return;
@@ -284,7 +284,7 @@ void FileDownloader::handleZip() {
 		zipper::Unzipper unzipper(q2s(fullPath));
 		const bool b = unzipper.extract(q2s(_targetDirectory));
 		if (!b) {
-			LOGERROR("Unzipping failed: " << _fileName.toStdString());
+			LOGERROR("Unzipping failed: " << _fileName.toStdString())
 			emit fileFailed(DownloadError::UnknownError);
 			utils::ErrorReporting::report(QString("Unzipping failed: %1 (%2)").arg(_fileName).arg(_url.toString()));
 			return;
@@ -294,7 +294,7 @@ void FileDownloader::handleZip() {
 	QFile(fullPath).remove();
 
 	if (!QFileInfo::exists(_targetDirectory + "/.manifest")) {
-		LOGERROR("Archive doesn't contain manifest: " << _fileName.toStdString());
+		LOGERROR("Archive doesn't contain manifest: " << _fileName.toStdString())
 		emit fileFailed(DownloadError::UnknownError);
 		utils::ErrorReporting::report(QString("Archive doesn't contain manifest: %1 (%2)").arg(_fileName).arg(_url.toString()));
 		return;
@@ -302,7 +302,7 @@ void FileDownloader::handleZip() {
 
 	QFile manifest(_targetDirectory + "/.manifest");
 	if (!manifest.open(QIODevice::ReadOnly)) {
-		LOGERROR("Manifest can't be opened: " << _fileName.toStdString());
+		LOGERROR("Manifest can't be opened: " << _fileName.toStdString())
 		emit fileFailed(DownloadError::UnknownError);
 		return;
 	}
@@ -333,7 +333,7 @@ void FileDownloader::handleZip() {
 void FileDownloader::handleVcRedist() {
 #ifdef Q_OS_WIN
 	if (Config::extendedLogging) {
-		LOGINFO("Starting Visual Studio Redistributable");
+		LOGINFO("Starting Visual Studio Redistributable")
 	}
 	SHELLEXECUTEINFO shExecInfo = { 0 };
 	shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
@@ -354,11 +354,11 @@ void FileDownloader::handleVcRedist() {
 	ShellExecuteEx(&shExecInfo);
 	const int result = WaitForSingleObject(shExecInfo.hProcess, INFINITE);
 	if (result != 0) {
-		LOGERROR("Execute failed: " << _fileName.toStdString());
+		LOGERROR("Execute failed: " << _fileName.toStdString())
 		emit fileFailed(DownloadError::UnknownError);
 	} else {
 		if (Config::extendedLogging) {
-			LOGINFO("Download succeeded");
+			LOGINFO("Download succeeded")
 		}
 		emit fileSucceeded();
 	}
@@ -368,7 +368,7 @@ void FileDownloader::handleVcRedist() {
 void FileDownloader::handleDirectX() {
 #ifdef Q_OS_WIN
 	if (Config::extendedLogging) {
-		LOGINFO("Starting DirectX Redistributable");
+		LOGINFO("Starting DirectX Redistributable")
 	}
 	bool dxSuccess = true;
 	{
@@ -383,7 +383,7 @@ void FileDownloader::handleDirectX() {
 		strcpy(file, qf.toUtf8().constData());
 		shExecInfo.lpFile = file;
 		char parameters[1024];
-		qf = ("/Q /T:\"" + _targetDirectory + "/directX\"");
+		qf = "/Q /T:\"" + _targetDirectory + "/directX\"";
 		qf = qf.replace("\0", "");
 		strcpy(parameters, qf.toUtf8().constData());
 		shExecInfo.lpParameters = parameters;
@@ -396,7 +396,7 @@ void FileDownloader::handleDirectX() {
 		const int result = WaitForSingleObject(shExecInfo.hProcess, INFINITE);
 		if (result != 0) {
 			dxSuccess = false;
-			LOGERROR("Execute failed: " << _fileName.toStdString());
+			LOGERROR("Execute failed: " << _fileName.toStdString())
 			emit fileFailed(DownloadError::UnknownError);
 		}
 	}
@@ -407,13 +407,13 @@ void FileDownloader::handleDirectX() {
 		shExecInfo.hwnd = nullptr;
 		shExecInfo.lpVerb = "runas";
 		char file[1024];
-		QString qf = (_targetDirectory + "/directX/DXSETUP.exe");
+		QString qf = _targetDirectory + "/directX/DXSETUP.exe";
 		qf = qf.replace("\0", "");
 		strcpy(file, qf.toUtf8().constData());
 		shExecInfo.lpFile = file;
 		shExecInfo.lpParameters = "/silent";
 		char directory[1024];
-		qf = (_targetDirectory + "/directX");
+		qf = _targetDirectory + "/directX";
 		qf = qf.replace("\0", "");
 		strcpy(directory, qf.toUtf8().constData());
 		shExecInfo.lpDirectory = directory;
@@ -423,13 +423,13 @@ void FileDownloader::handleDirectX() {
 		const int result = WaitForSingleObject(shExecInfo.hProcess, INFINITE);
 		if (result != 0) {
 			dxSuccess = false;
-			LOGERROR("Execute failed: " << _fileName.toStdString());
+			LOGERROR("Execute failed: " << _fileName.toStdString())
 			emit fileFailed(DownloadError::UnknownError);
 		}
 	}
 	if (dxSuccess) {
 		if (Config::extendedLogging) {
-			LOGINFO("Download succeeded");
+			LOGINFO("Download succeeded")
 		}
 		emit fileSucceeded();
 	}

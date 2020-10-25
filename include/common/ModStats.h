@@ -44,8 +44,7 @@ namespace common {
 		bool feedbackMailAvailable;
 		std::string discussionUrl;
 
-		ModStats() : modID(-1), type(ModType::TOTALCONVERSION), lastTimePlayed(0), duration(0), achievedAchievements(0), allAchievements(0), bestScoreRank(0), bestScore(0), feedbackMailAvailable(false) {
-		}
+		ModStats() : modID(-1), type(ModType::TOTALCONVERSION), lastTimePlayed(0), duration(0), achievedAchievements(0), allAchievements(0), bestScoreRank(0), bestScore(0), feedbackMailAvailable(false) {}
 
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int /* file_version */) {

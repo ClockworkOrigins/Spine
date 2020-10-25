@@ -33,7 +33,7 @@ namespace gui {
 		Q_OBJECT
 
 	public:
-		Spoiler(const QString & text, QWidget * par);
+		Spoiler(const QString & title, QWidget * par);
 
 		void setAnimationDuration(int animationDuration);
 

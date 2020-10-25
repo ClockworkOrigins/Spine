@@ -74,7 +74,7 @@ void GMPServer::handleRequestUserInfosMP(clockUtils::sockets::TcpSocket * sock) 
 	int ipLength = 0;
 	int macLength = 0;
 	std::string buffer;
-	while (buffer.length() < size_t(8 + ipLength + macLength)) {
+	while (buffer.length() < static_cast<size_t>(8 + ipLength + macLength)) {
 		if (clockUtils::ClockError::SUCCESS != sock->read(serialized)) {
 			delete sock;
 			return;
@@ -83,7 +83,7 @@ void GMPServer::handleRequestUserInfosMP(clockUtils::sockets::TcpSocket * sock) 
 		if (buffer.length() >= 4) {
 			memcpy(&ipLength, buffer.c_str(), 4);
 		}
-		if (buffer.length() >= size_t(4 + 4 + ipLength)) {
+		if (buffer.length() >= static_cast<size_t>(4 + 4 + ipLength)) {
 			memcpy(&macLength, buffer.c_str() + 4 + ipLength, 4);
 		}
 		//std::cout << "Lengths: " << ipLength << " " << macLength << std::endl;
@@ -256,10 +256,10 @@ void GMPServer::handleRequestUserInfosMP(clockUtils::sockets::TcpSocket * sock) 
 	sock->write(&errorCode, 4);
 	if (errorCode == Success) {
 		sock->write(&userID, 4);
-		int hashLength = systemHash.length();
+		int hashLength = static_cast<int>(systemHash.length());
 		sock->write(&hashLength, 4);
 		sock->write(systemHash);
-		int settingsHashLength = settingsHash.length();
+		int settingsHashLength = static_cast<int>(settingsHash.length());
 		sock->write(&settingsHashLength, 4);
 		sock->write(settingsHash);
 		buffer.clear();
@@ -273,7 +273,7 @@ void GMPServer::handleRequestUserInfosMP(clockUtils::sockets::TcpSocket * sock) 
 		}
 		//std::cout << "MPCode: " << mpCode << std::endl;
 		if (mpCode == MPCode::SendSettings) {
-			int length = settings.length();
+			int length = static_cast<int>(settings.length());
 			sock->write(&length, 4);
 			sock->write(settings);
 		}

@@ -44,8 +44,7 @@ namespace common {
 		bool savegameCompatible;
 		std::string changelog;
 
-		ModUpdate() : modID(0), majorVersion(0), minorVersion(0), patchVersion(0), spineVersion(0), gothicVersion(GameType::Gothic), savegameCompatible(false) {
-		}
+		ModUpdate() : modID(0), majorVersion(0), minorVersion(0), patchVersion(0), spineVersion(0), gothicVersion(GameType::Gothic), savegameCompatible(false) {}
 
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int /* file_version */) {

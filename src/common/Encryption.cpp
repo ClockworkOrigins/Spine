@@ -33,11 +33,10 @@ using namespace common;
 using namespace spine::common;
 
 bool Encryption::encryptPublic(const std::string & in, std::string & out) {
-	int completeLength = int(in.length());
+	int completeLength = static_cast<int>(in.length());
 
-	if (completeLength == 0) {
-		return false;
-	}
+	if (completeLength == 0) return false;
+
 	RSA * publicKey = nullptr;
 	BIO * bufio = BIO_new_mem_buf(reinterpret_cast<void *>(RSA_PUB_KEY), -1);
 	PEM_read_bio_RSA_PUBKEY(bufio, &publicKey, nullptr, nullptr);
@@ -68,11 +67,10 @@ bool Encryption::encryptPublic(const std::string & in, std::string & out) {
 }
 
 bool Encryption::encryptPrivate(const std::string & in, std::string & out) {
-	int completeLength = int(in.length());
+	int completeLength = static_cast<int>(in.length());
 
-	if (completeLength == 0) {
-		return false;
-	}
+	if (completeLength == 0) return false;
+
 	RSA * privateKey = nullptr;
 	FILE * f = fopen(SPINE_PRIVATE_KEY, "r");
 	if (f != nullptr) {
@@ -105,11 +103,10 @@ bool Encryption::encryptPrivate(const std::string & in, std::string & out) {
 }
 
 bool Encryption::decryptPublic(const std::string & in, std::string & out) {
-	int completeLength = int(in.length());
+	int completeLength = static_cast<int>(in.length());
 
-	if (completeLength == 0) {
-		return false;
-	}
+	if (completeLength == 0) return false;
+
 	RSA * publicKey = nullptr;
 	BIO * bufio = BIO_new_mem_buf(reinterpret_cast<void *>(RSA_PUB_KEY), -1);
 	PEM_read_bio_RSA_PUBKEY(bufio, &publicKey, nullptr, nullptr);
@@ -144,11 +141,9 @@ bool Encryption::decryptPublic(const std::string & in, std::string & out) {
 }
 
 bool Encryption::decryptPrivate(const std::string & in, std::string & out) {
-	int completeLength = int(in.length());
+	int completeLength = static_cast<int>(in.length());
 
-	if (completeLength == 0) {
-		return false;
-	}
+	if (completeLength == 0) return false;
 
 	RSA * privateKey = nullptr;
 	FILE * f = fopen(SPINE_PRIVATE_KEY, "r");

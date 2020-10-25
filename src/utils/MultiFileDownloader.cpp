@@ -92,7 +92,7 @@ void MultiFileDownloader::updateDownloadProgress(qint64 bytesReceived) {
 		sum += downloadStat.first;
 	}
 	emit downloadProgress(sum);
-	emit downloadProgressPercent(sum / static_cast<qreal>(_maxSize));
+	emit downloadProgressPercent(static_cast<qreal>(sum) / static_cast<qreal>(_maxSize));
 }
 
 void MultiFileDownloader::updateDownloadMax(qint64 bytesTotal) {

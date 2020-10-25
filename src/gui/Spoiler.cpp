@@ -21,7 +21,6 @@
 #include "utils/Config.h"
 #include "utils/Database.h"
 
-#include <QFrame>
 #include <QGridLayout>
 #include <QParallelAnimationGroup>
 #include <QPropertyAnimation>
@@ -30,7 +29,7 @@
 
 using namespace spine::gui;
 
-Spoiler::Spoiler(const QString & title, QWidget * parent) : QWidget(parent), _animationDuration(300) {
+Spoiler::Spoiler(const QString & title, QWidget * par) : QWidget(par), _animationDuration(300) {
 	_toggleButton = new QToolButton(this);
 	
     _toggleButton->setStyleSheet("QToolButton { border: none; }");

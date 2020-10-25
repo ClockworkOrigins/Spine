@@ -88,16 +88,16 @@ int Config::Init() {
 	if (!regEx.exactMatch(BASEDIR)) {
 		BASEDIR = BASEDIR[0] + ":/Users/Public";
 	}
-	if (BASEDIR.isEmpty()) {
-		return -1;
-	}
+	
+	if (BASEDIR.isEmpty()) return -1;
+
 	BASEDIR = BASEDIR.replace("\\", "/");
 	BASEDIR += "/Clockwork Origins/Spine";
 	{
 		QDir baseDir(BASEDIR);
 		if (!baseDir.exists()) {
 			bool b = baseDir.mkpath(baseDir.absolutePath());
-			Q_UNUSED(b);
+			Q_UNUSED(b)
 		}
 		Q_ASSERT(baseDir.exists());
 	}
@@ -111,7 +111,7 @@ int Config::Init() {
 		QDir stylesDir(STYLESDIR);
 		if (!stylesDir.exists()) {
 			bool b = stylesDir.mkpath(stylesDir.absolutePath());
-			Q_UNUSED(b);
+			Q_UNUSED(b)
 		}
 	}
 	NEWSIMAGEDIR = BASEDIR + "/news/images/";
@@ -119,7 +119,7 @@ int Config::Init() {
 		QDir newsDir(NEWSIMAGEDIR);
 		if (!newsDir.exists()) {
 			bool b = newsDir.mkpath(NEWSIMAGEDIR);
-			Q_UNUSED(b);
+			Q_UNUSED(b)
 		}
 	}
 	const QString logDir = BASEDIR + "/logs/";
@@ -127,7 +127,7 @@ int Config::Init() {
 		QDir ld(logDir);
 		if (!ld.exists()) {
 			bool b = ld.mkpath(logDir);
-			Q_UNUSED(b);
+			Q_UNUSED(b)
 		}
 	}
 	QFile oldIni(qApp->applicationDirPath() + "/Spine.ini");
@@ -226,7 +226,7 @@ int Config::Init() {
 				QDir newDir(dir.absolutePath() + fi.absolutePath().replace(oldDir.absolutePath(), ""));
 				if (!newDir.exists()) {
 					bool b = newDir.mkpath(newDir.absolutePath());
-					Q_UNUSED(b);
+					Q_UNUSED(b)
 				}
 				QFile copyFile(file);
 				copyFile.rename(dir.absolutePath() + file.replace(oldDir.absolutePath(), ""));
@@ -235,7 +235,7 @@ int Config::Init() {
 		}
 		if (!dir.exists()) {
 			bool b = dir.mkpath(dir.absolutePath());
-			Q_UNUSED(b);
+			Q_UNUSED(b)
 		}
 	}
 	{
@@ -257,7 +257,7 @@ int Config::Init() {
 				QDir newDir(dir.absolutePath() + fi.absolutePath().replace(oldDir.absolutePath(), ""));
 				if (!newDir.exists()) {
 					bool b = newDir.mkpath(newDir.absolutePath());
-					Q_UNUSED(b);
+					Q_UNUSED(b)
 				}
 				QFile copyFile(file);
 				copyFile.rename(dir.absolutePath() + file.replace(oldDir.absolutePath(), ""));
@@ -266,7 +266,7 @@ int Config::Init() {
 		}
 		if (!dir.exists()) {
 			bool b = dir.mkpath(dir.absolutePath());
-			Q_UNUSED(b);
+			Q_UNUSED(b)
 		}
 	}
 	return 0;

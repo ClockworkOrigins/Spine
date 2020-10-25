@@ -33,23 +33,23 @@ namespace spine {
 namespace common {
 
 	struct Mod {
-		int32_t id;
+		int32_t id = -1;
 		std::string name;
-		int32_t teamID;
+		int32_t teamID = -1;
 		std::string teamName;
-		GameType gothic;
-		uint32_t releaseDate;
-		ModType type;
-		int8_t majorVersion;
-		int8_t minorVersion;
-		int8_t patchVersion;
-		int8_t spineVersion;
-		int32_t devDuration;
-		int32_t avgDuration;
-		uint64_t downloadSize;
-		uint32_t updateDate;
-		Language language;
-		uint16_t supportedLanguages;
+		GameType gothic = GameType::Gothic;
+		uint32_t releaseDate = 0;
+		ModType type = ModType::TOTALCONVERSION;
+		int8_t majorVersion = 0;
+		int8_t minorVersion = 0;
+		int8_t patchVersion = 0;
+		int8_t spineVersion = 0;
+		int32_t devDuration = 0;
+		int32_t avgDuration = 0;
+		uint64_t downloadSize = 0;
+		uint32_t updateDate = 0;
+		Language language = Language::None;
+		uint16_t supportedLanguages = 0;
 
 		Mod() {}
 
