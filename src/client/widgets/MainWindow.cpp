@@ -420,7 +420,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		_tabWidget->addTab(_friendsView, QApplication::tr("Friends"));
 		UPDATELANGUAGESETTABTEXT(_tabWidget, MainTabsOnline::Friends, "Friends");
 
-		connect(_friendsView, &FriendsView::receivedFriends, [this](std::vector<common::Friend>, std::vector<common::Friend> friendRequests) {
+		connect(_friendsView, &FriendsView::receivedFriends, [this](const std::vector<common::Friend> &, const std::vector<common::Friend> & friendRequests) {
 			if (friendRequests.empty()) {
 				_tabWidget->setTabText(MainTabsOnline::Friends, QApplication::tr("Friends"));
 			} else {
@@ -802,6 +802,18 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		connect(_modListView, &LibraryListView::checkIntegrity, this, &MainWindow::checkIntegrity);
 
 		connect(_autoUpdateDialog, &AutoUpdateDialog::upToDate, _modUpdateDialog, &ModUpdateDialog::spineUpToDate);
+
+		_updateCheckTimer = new QTimer(this);
+		connect(_updateCheckTimer, &QTimer::timeout, [this]() {
+			if (LauncherFactory::getInstance()->isRunning()) return;
+
+			if (_modUpdateDialog->isVisible()) return;
+
+			if (_autoUpdateDialog->isVisible()) return;
+
+			_autoUpdateDialog->checkForUpdate();
+		});
+		_updateCheckTimer->start(600000);
 	}
 }
 
@@ -858,21 +870,21 @@ void MainWindow::pathChanged() {
 }
 
 void MainWindow::tabChanged(int index) {
-	if (Config::OnlineMode) {
-		if (index == MainTabsOnline::Database) {
-			_modDatabaseView->updateModList(-1, -1, InstallMode::None);
-			_profileView->reset();
-		} else if (index == MainTabsOnline::Profile) {
-			_profileView->updateList();
-		} else if (index == MainTabsOnline::LibraryOnline) {
-			_profileView->reset();
-		} else if (index == MainTabsOnline::Friends) {
-			_friendsView->updateFriendList();
-		} else if (index == MainTabsOnline::SpineLevelRanking) {
-			_spineLevelRankingWidget->requestUpdate();
-		} else {
-			_profileView->reset();
-		}
+	if (!Config::OnlineMode) return;
+	
+	if (index == MainTabsOnline::Database) {
+		_modDatabaseView->updateModList(-1, -1, InstallMode::None);
+		_profileView->reset();
+	} else if (index == MainTabsOnline::Profile) {
+		_profileView->updateList();
+	} else if (index == MainTabsOnline::LibraryOnline) {
+		_profileView->reset();
+	} else if (index == MainTabsOnline::Friends) {
+		_friendsView->updateFriendList();
+	} else if (index == MainTabsOnline::SpineLevelRanking) {
+		_spineLevelRankingWidget->requestUpdate();
+	} else {
+		_profileView->reset();
 	}
 }
 
@@ -1081,9 +1093,9 @@ void MainWindow::switchToOffline() {
 
 void MainWindow::hideMod() {
 	const QModelIndexList idxList = _modListView->selectionModel()->selectedIndexes();
-	if (idxList.empty()) {
-		return;
-	}
+	
+	if (idxList.empty()) return;
+
 	const QModelIndex idx = idxList.constFirst();
 	const int modId = idx.data(LibraryFilterModel::ModIDRole).toInt();
 	_modListView->model()->setData(idx, true, LibraryFilterModel::HiddenRole);
@@ -1094,9 +1106,9 @@ void MainWindow::hideMod() {
 
 void MainWindow::showMod() {
 	const QModelIndexList idxList = _modListView->selectionModel()->selectedIndexes();
-	if (idxList.empty()) {
-		return;
-	}
+	
+	if (idxList.empty()) return;
+
 	const QModelIndex idx = idxList.constFirst();
 	const int modId = idx.data(LibraryFilterModel::ModIDRole).toInt();
 	_modListView->model()->setData(idx, false, LibraryFilterModel::HiddenRole);
@@ -1247,7 +1259,7 @@ void MainWindow::changedOnlineMode() {
 	Config::IniParser->setValue("MISC/OnlineMode", Config::OnlineMode);
 	const QString exeFileName = qApp->applicationDirPath() + "/" + qApp->applicationName();
 #ifdef Q_OS_WIN
-	const int result = reinterpret_cast<int>(::ShellExecuteA(0, "runas", exeFileName.toUtf8().constData(), 0, 0, SW_SHOWNORMAL));
+	const int result = reinterpret_cast<int>(::ShellExecuteA(nullptr, "runas", exeFileName.toUtf8().constData(), nullptr, nullptr, SW_SHOWNORMAL));
 	if (result > 32) { // no error
 		qApp->quit();
 	}

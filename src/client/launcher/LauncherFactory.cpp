@@ -40,9 +40,9 @@ LauncherFactory::LauncherFactory() {
 	}
 }
 
-ILauncherPtr LauncherFactory::getLauncher(GameType gothic) const {
+ILauncherPtr LauncherFactory::getLauncher(GameType gameType) const {
 	for (const auto & l : _launchers) {
-		if (!l->supportsGame(gothic)) continue;
+		if (!l->supportsGame(gameType)) continue;
 
 		return l;
 	}
@@ -108,7 +108,15 @@ void LauncherFactory::updatedProject(int projectID) {
 	}
 }
 
-void LauncherFactory::initLauncher(ILauncherPtr launcher) const {
+bool LauncherFactory::isRunning() const {
+	bool running = false;
+	for (const auto & l : _launchers) {
+		running |= l->isRunning();
+	}
+	return running;
+}
+
+void LauncherFactory::initLauncher(const ILauncherPtr & launcher) const {
 	if (!launcher) return;
 	
 	launcher->init();

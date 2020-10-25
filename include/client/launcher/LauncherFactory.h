@@ -46,6 +46,8 @@ namespace launcher {
 
 		void updatedProject(int projectID);
 
+		bool isRunning() const;
+
 	signals:
 		void restartAsAdmin();
 		void errorMessage(QString);
@@ -61,7 +63,7 @@ namespace launcher {
 		
 		LauncherFactory();
 		
-		void initLauncher(ILauncherPtr launcher) const;
+		void initLauncher(const ILauncherPtr & launcher) const;
 	};
 
 } /* namespace launcher */

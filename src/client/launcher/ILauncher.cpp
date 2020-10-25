@@ -233,6 +233,10 @@ void ILauncher::refresh(int modID) {
 	updateView(_modID, _iniFile);
 }
 
+bool ILauncher::isRunning() const {
+	return _running;
+}
+
 void ILauncher::updateStarted(int modID) {
 	_runningUpdates.append(modID);
 
@@ -337,6 +341,8 @@ void ILauncher::startCommon() {
 
 	_listenSocket = new clockUtils::sockets::TcpSocket();
 	_listenSocket->listen(LOCAL_PORT, 1, true, std::bind(&ILauncher::acceptedConnection, this, std::placeholders::_1, std::placeholders::_2));
+
+	_running = true;
 	
 	_timer->restart();
 	
@@ -358,6 +364,8 @@ void ILauncher::startCommon() {
 
 void ILauncher::stopCommon() {
 	DiscordManager::instance()->updatePresence(QApplication::tr("Browsing"), "");
+
+	_running = false;
 	
 	int duration = _timer->elapsed();
 	duration = duration / 1000; // to seconds
@@ -453,10 +461,10 @@ void ILauncher::acceptedConnection(clockUtils::sockets::TcpSocket * sock, clockU
 	}
 }
 
-void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::sockets::TcpSocket * socket, clockUtils::ClockError err) {
+void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets::TcpSocket * socket, clockUtils::ClockError err) {
 	if (err == clockUtils::ClockError::SUCCESS) {
 		try {
-			std::string serialized(message.begin(), message.end());
+			std::string serialized(packet.begin(), packet.end());
 			Message * msg = Message::DeserializeBlank(serialized);
 			if (msg) {
 				if (msg->type == MessageType::REQUESTUSERNAME) {
@@ -496,9 +504,9 @@ void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::socket
 								SendScoresMessage ssm;
 								std::map<int, std::vector<std::pair<std::string, int32_t>>> scores;
 								for (auto vec : lastResults) {
-									int32_t identifier = int32_t(std::stoi(vec[0]));
+									int32_t identifier = static_cast<int32_t>(std::stoi(vec[0]));
 									std::string username = vec[1];
-									int32_t score = int32_t(std::stoi(vec[2]));
+									int32_t score = static_cast<int32_t>(std::stoi(vec[2]));
 									if (!username.empty()) {
 										scores[identifier].push_back(std::make_pair(username, score));
 									}
@@ -577,7 +585,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> message, clockUtils::socket
 
 							SendAchievementsMessage sam;
 							for (const std::string & s : lastResults) {
-								int32_t identifier = int32_t(std::stoi(s));
+								int32_t identifier = static_cast<int32_t>(std::stoi(s));
 								sam.achievements.push_back(identifier);
 							}
 							auto lastResultsVec = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier, Max FROM modAchievementProgressMax WHERE ModID = " + std::to_string(_modID) + ";", dbErr);
@@ -1122,7 +1130,7 @@ bool ILauncher::isAllowedSymlinkSuffix(QString suffix) const {
 	suffix = suffix.toLower();
 	const bool canSymlink = suffix == "mod" || suffix == "vdf" || suffix == "sty" || suffix == "sgt" || suffix == "dls" || suffix == "bik" || suffix == "dds" || suffix == "jpg" || suffix == "png" || suffix == "mi" || suffix == "hlsl" || suffix == "h" || suffix == "vi" || suffix == "exe" || suffix == "dll" || suffix == "bin" || suffix == "mtl" || suffix == "obj" || suffix == "txt" || suffix == "rtf" || suffix == "obj" || suffix == "ico" || suffix == "ini" || suffix == "bak" || suffix == "gsp" || suffix == "pdb" || suffix == "config" || suffix == "fx" || suffix == "3ds" || suffix == "mcache" || suffix == "fxh";
 	if (!canSymlink) {
-		LOGINFO("Copying extension: " << suffix.toStdString());
+		LOGINFO("Copying extension: " << suffix.toStdString())
 	}
 	return canSymlink;
 }

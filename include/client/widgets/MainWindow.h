@@ -21,7 +21,6 @@
 #include <cstdint>
 
 #include <QMainWindow>
-#include <QMap>
 
 class QListView;
 class QStandardItemModel;
@@ -57,7 +56,7 @@ namespace widgets {
 
 	public:
 		MainWindow(bool showChangelog, QMainWindow * par = nullptr);
-		~MainWindow();
+		~MainWindow() override;
 
 		static MainWindow * getInstance() { return instance; }
 
@@ -118,6 +117,7 @@ namespace widgets {
 		SpineEditor * _spineEditor;
 		ModInfoPage * _modInfoPage;
 		utils::DownloadQueue * _downloadQueue;
+		QTimer * _updateCheckTimer = nullptr;
 
 		static MainWindow * instance;
 

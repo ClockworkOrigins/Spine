@@ -23,7 +23,6 @@
 #include "common/GameType.h"
 #include "common/ModStats.h"
 
-#include <QSharedPointer>
 #include <QtPlugin>
 
 class QElapsedTimer;
@@ -57,7 +56,7 @@ namespace launcher {
 		Q_OBJECT
 		
 	public:
-		virtual ~ILauncher() {}
+		virtual ~ILauncher() = default;
 
 		virtual void init();
 
@@ -83,6 +82,8 @@ namespace launcher {
 		virtual void updateModel(QStandardItemModel * model) = 0;
 
 		virtual void updatedProject(int projectID) = 0;
+
+		bool isRunning() const;
 
 	signals:
 		void restartAsAdmin();
@@ -159,6 +160,8 @@ namespace launcher {
 		QString _discussionUrl;
 
 		bool _showAchievements = true;
+
+		bool _running = false;
 
 		void prepareAchievementView();
 		void prepareScoreView();
