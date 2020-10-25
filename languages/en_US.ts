@@ -3300,5 +3300,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>ReportContent</source>
         <translation>Report content</translation>
     </message>
+    <message>
+        <source>PlayedFilter</source>
+        <translation>Already played</translation>
+    </message>
 </context>
 </TS>

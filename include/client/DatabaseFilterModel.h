@@ -20,6 +20,7 @@
 
 #include "common/Language.h"
 
+#include <QSet>
 #include <QSortFilterProxyModel>
 
 namespace spine {
@@ -122,9 +123,15 @@ namespace spine {
 			return _languages & language;
 		}
 
-		bool isInstalledProjectsActive() {
+		bool isInstalledProjectsActive() const {
 			return _installedProjectsActive;
 		}
+
+		bool isPlayedProjectsActive() const {
+			return _playedProjectsActive;
+		}
+
+		void setPlayedProjects(const QSet<int32_t> & playedProjects);
 
 	public slots:
 		void gamesChanged(int state);
@@ -144,6 +151,7 @@ namespace spine {
 		void maxDurationChanged(int);
 		void languageChanged(common::Language language, int state);
 		void installedProjectsChanged(int state);
+		void playedProjectsChanged(int state);
 
 	private:
 		bool _gamesActive;
@@ -164,6 +172,9 @@ namespace spine {
 		bool _rendererAllowed;
 		int _languages;
 		bool _installedProjectsActive;
+		bool _playedProjectsActive;
+
+		QSet<int32_t> _playedProjects;
 
 		bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const override;
 	};

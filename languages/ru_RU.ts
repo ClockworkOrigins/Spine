@@ -3297,5 +3297,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>ReportContent</source>
         <translation>Сообщить о содержании</translation>
     </message>
+    <message>
+        <source>PlayedFilter</source>
+        <translation>Уже играл</translation>
+    </message>
 </context>
 </TS>

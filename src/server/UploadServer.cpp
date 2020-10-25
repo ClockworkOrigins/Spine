@@ -138,7 +138,7 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 			}
 		}
 		if (state == Metadata) {
-			if (unreadBuffer.size() >= size_t(currentSize)) {
+			if (unreadBuffer.size() >= static_cast<size_t>(currentSize)) {
 				const std::string serialized = unreadBuffer.substr(0, currentSize);
 				unreadBuffer = unreadBuffer.substr(currentSize);
 				common::Message * msg = common::Message::DeserializePrivate(serialized);
@@ -206,7 +206,7 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 		if (state == File) {
 			while (!unreadBuffer.empty()) {
 				if (currentSize > 0) {
-					const size_t diff = std::min(unreadBuffer.size(), size_t(currentSize));
+					const size_t diff = std::min(unreadBuffer.size(), static_cast<size_t>(currentSize));
 					fs.write(unreadBuffer.c_str(), diff);
 					currentSize -= diff;
 					unreadBuffer = unreadBuffer.substr(diff);
@@ -282,9 +282,8 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 				}
 			}
 		}
-		if (umm && currentIndex == int(umm->files.size())) {
-			break; // finished uploadss
-		}
+		
+		if (umm && currentIndex == static_cast<int>(umm->files.size())) break; // finished uploadss
 	}
 	std::cout << "Finished Upload: " << !error << std::endl;
 	delete umm;

@@ -61,6 +61,7 @@ namespace widgets {
 		void triggerInstallPackage(int, int);
 		void loadPage(int32_t);
 		void finishedInstallation(int, int, bool);
+		void receivedPlayedProjects(const QSet<int32_t> & playedProjects);
 
 	public slots:
 		void changeLanguage(QString language);

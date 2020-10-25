@@ -3292,5 +3292,9 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>ReportContent</source>
         <translation>Zgłoś treść</translation>
     </message>
+    <message>
+        <source>PlayedFilter</source>
+        <translation>Już grałem</translation>
+    </message>
 </context>
 </TS>

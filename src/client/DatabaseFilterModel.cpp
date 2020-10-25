@@ -27,7 +27,7 @@
 using namespace spine;
 using namespace spine::utils;
 
-DatabaseFilterModel::DatabaseFilterModel(QObject * par) : QSortFilterProxyModel(par), _gamesActive(true), _demosActive(true), _fullVersionsActive(true), _playTestingActive(true), _gothicActive(true), _gothic2Active(true), _gothicAndGothic2Active(true), _totalConversionActive(true), _enhancementActive(true), _patchActive(true), _toolActive(true), _originalActive(true), _gmpActive(true), _minDuration(0), _maxDuration(1000), _rendererAllowed(false), _languages(0), _installedProjectsActive(true) {
+DatabaseFilterModel::DatabaseFilterModel(QObject * par) : QSortFilterProxyModel(par), _gamesActive(true), _demosActive(true), _fullVersionsActive(true), _playTestingActive(true), _gothicActive(true), _gothic2Active(true), _gothicAndGothic2Active(true), _totalConversionActive(true), _enhancementActive(true), _patchActive(true), _toolActive(true), _originalActive(true), _gmpActive(true), _minDuration(0), _maxDuration(1000), _rendererAllowed(false), _languages(0), _installedProjectsActive(true), _playedProjectsActive(true) {
 	Config::IniParser->beginGroup("DATABASEFILTER");
 	_gamesActive = Config::IniParser->value("Games", true).toBool();
 	_demosActive = Config::IniParser->value("Demos", true).toBool();
@@ -46,7 +46,13 @@ DatabaseFilterModel::DatabaseFilterModel(QObject * par) : QSortFilterProxyModel(
 	_maxDuration = Config::IniParser->value("MaxDuration", 1000).toInt();
 	_languages = Config::IniParser->value("Languages", common::Language::German | common::Language::English | common::Language::Polish | common::Language::Russian).toInt();
 	_installedProjectsActive = Config::IniParser->value("InstalledProjects", true).toBool();
+	_playedProjectsActive = Config::IniParser->value("PlayedProjects", true).toBool();
 	Config::IniParser->endGroup();
+}
+
+void DatabaseFilterModel::setPlayedProjects(const QSet<int32_t> & playedProjects) {
+	_playedProjects = playedProjects;
+	invalidateFilter();
 }
 
 void DatabaseFilterModel::gamesChanged(int state) {
@@ -155,10 +161,17 @@ void DatabaseFilterModel::installedProjectsChanged(int state) {
 	invalidateFilter();
 }
 
+void DatabaseFilterModel::playedProjectsChanged(int state) {
+	_playedProjectsActive = state == Qt::Checked;
+	Config::IniParser->setValue("DATABASEFILTER/PlayedProjects", _playedProjectsActive);
+	invalidateFilter();
+}
+
 bool DatabaseFilterModel::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const {
 	bool result = true;
 	QStandardItemModel * model = dynamic_cast<QStandardItemModel *>(sourceModel());
 	if (!source_parent.isValid() && !model->item(source_row, DatabaseColumn::Name)->data(PackageIDRole).isValid()) {
+		const auto projectID = model->item(source_row, DatabaseColumn::ModID)->text().toInt();
 		const auto typeText = model->item(source_row, DatabaseColumn::Type)->text();
 		const auto gameText = model->item(source_row, DatabaseColumn::Game)->text();
 		const int devDuration = model->item(source_row, DatabaseColumn::DevDuration)->data(Qt::UserRole).toInt();
@@ -169,6 +182,7 @@ bool DatabaseFilterModel::filterAcceptsRow(int source_row, const QModelIndex & s
 		result = result && ((gameText == QApplication::tr("Gothic") && _gothicActive) || (gameText == QApplication::tr("Gothic2") && _gothic2Active) || (gameText == QApplication::tr("GothicAndGothic2_2") && _gothicAndGothic2Active) || (gameText == QApplication::tr("Game") && _gamesActive));
 		result = result && (typeText == QApplication::tr("Patch") || typeText == QApplication::tr("Tool") || (devDuration / 60 >= _minDuration && devDuration / 60 <= _maxDuration));
 		result = result && (!installed || _installedProjectsActive);
+		result = result && (_playedProjectsActive || !_playedProjects.contains(projectID));
 
 		bool languageMatch = false;
 		for (int i = 1; i < common::Language::Count; i *= 2) {

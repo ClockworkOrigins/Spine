@@ -473,7 +473,13 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 			UPDATELANGUAGESETTEXT(cb1, "InstalledFilter");
 			connect(cb1, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::installedProjectsChanged);
 
+			QCheckBox * cb2 = new QCheckBox(QApplication::tr("PlayedFilter"), filterWidget);
+			cb2->setChecked(_sortModel->isPlayedProjectsActive());
+			UPDATELANGUAGESETTEXT(cb2, "PlayedFilter");
+			connect(cb2, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::playedProjectsChanged);
+
 			vbl->addWidget(cb1);
+			vbl->addWidget(cb2);
 
 			vbl->addStretch(1);
 
@@ -541,6 +547,7 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 	connect(this, &ModDatabaseView::receivedPackageFilesList, this, &ModDatabaseView::downloadPackageFiles);
 	connect(this, &ModDatabaseView::triggerInstallMod, this, &ModDatabaseView::installMod);
 	connect(this, &ModDatabaseView::triggerInstallPackage, this, &ModDatabaseView::installPackage);
+	connect(this, &ModDatabaseView::receivedPlayedProjects, _sortModel, &DatabaseFilterModel::setPlayedProjects);
 
 	Database::DBError err;
 	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "CREATE TABLE IF NOT EXISTS mods(ModID INT NOT NULL, GothicVersion INT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL, SpineVersion INT NOT NULL);", err);
@@ -601,6 +608,9 @@ void ModDatabaseView::updateModList(int modID, int packageID, InstallMode mode) 
 							if (uamm) {
 								_cached = true;
 								emit receivedModList(uamm->mods);
+
+								const QSet<int32_t> playedProjects(uamm->playedProjects.begin(), uamm->playedProjects.end());
+								emit receivedPlayedProjects(playedProjects);
 							}
 						}
 						delete m;

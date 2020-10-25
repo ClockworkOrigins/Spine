@@ -3292,5 +3292,9 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>ReportContent</source>
         <translation>Inhalt melden</translation>
     </message>
+    <message>
+        <source>PlayedFilter</source>
+        <translation>Bereits gespielt</translation>
+    </message>
 </context>
 </TS>

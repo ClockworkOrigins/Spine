@@ -125,13 +125,15 @@ namespace common {
 
 	struct UpdateAllModsMessage : public Message {
 		std::vector<Mod> mods;
-		UpdateAllModsMessage() : Message(), mods() {
+		std::vector<int32_t> playedProjects;
+		UpdateAllModsMessage() : Message() {
 			type = MessageType::UPDATEALLMODS;
 		}
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int /* file_version */) {
 			ar & boost::serialization::base_object<Message>(*this);
 			ar & mods;
+			ar & playedProjects;
 		}
 	};
 

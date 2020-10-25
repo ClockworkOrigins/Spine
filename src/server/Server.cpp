@@ -438,6 +438,10 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
+	if (!database.query("PREPARE selectPlayedProjectsStmt FROM \"SELECT ModID FROM playtimes WHERE Duration > AND UserID = ? AND UserID != -1\";")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return;
+	}
 	
 	// ModID | Name of the Mod shown in GUI | ID of the team | Enabled in GUI or only internal | 1 or 2 either if the mod is for Gothic 1 or 2 | Release date encoded as integer in days | one of Mod or Patch encoded as integer | major version | minor version | patch version
 	if (!database.query(std::string("SELECT ModID, TeamID, Gothic, ReleaseDate, Type, MajorVersion, MinorVersion, PatchVersion, SpineVersion FROM mods WHERE Enabled = 1;"))) {
@@ -617,6 +621,19 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 		uamm.mods.push_back(mod);
 		versions.insert(std::make_pair(mod.id, version));
 	}
+	
+	if (!database.query("EXECUTE selectPlayedProjectsStmt USING @paramUserID")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	const auto results = database.getResults<std::vector<std::string>>();
+
+	for (const auto & vec : results) {
+		const int32_t projectID = std::stoi(vec[0]);
+		
+		uamm.playedProjects.push_back(projectID);
+	}
+	
 	std::string serialized = uamm.SerializePrivate();
 	sock->writePacket(serialized);
 
@@ -688,6 +705,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 		package.downloadSize = _downloadSizeChecker->getBytesForPackage(package.modID, package.packageID, msg->language, versions[package.modID]);
 		uplm.packages.push_back(package);
 	}
+	
 	serialized = uplm.SerializePrivate();
 	sock->writePacket(serialized);
 }
