@@ -370,15 +370,21 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	_modInfoView = new ModInfoView(_settingsDialog->getGeneralSettingsWidget(), topWidget);
 	_modInfoView->setProperty("library", true);
 
-	_modInfoView->setDeveloperMode(_settingsDialog->getDeveloperSettingsWidget()->isDeveloperModeActive());
-	_modInfoView->setZSpyActivated(_settingsDialog->getDeveloperSettingsWidget()->isZSpyActive());
-	_modInfoView->setShowAchievements(_settingsDialog->getGameSettingsWidget()->getShowAchievements());
-	_developerModeActive = _settingsDialog->getDeveloperSettingsWidget()->isDeveloperModeActive();
+	const auto devEnabled = Config::IniParser->value("DEVELOPER/Enabled", false).toBool();
+
+	if (devEnabled) {
+		_modInfoView->setDeveloperMode(_settingsDialog->getDeveloperSettingsWidget()->isDeveloperModeActive());
+		_modInfoView->setZSpyActivated(_settingsDialog->getDeveloperSettingsWidget()->isZSpyActive());
+		_modInfoView->setShowAchievements(_settingsDialog->getGameSettingsWidget()->getShowAchievements());
+		
+		_developerModeActive = _settingsDialog->getDeveloperSettingsWidget()->isDeveloperModeActive();
+		
+		connect(_settingsDialog->getDeveloperSettingsWidget(), &DeveloperSettingsWidget::developerModeChanged, _modInfoView, &ModInfoView::setDeveloperMode);
+		connect(_settingsDialog->getDeveloperSettingsWidget(), &DeveloperSettingsWidget::zSpyChanged, _modInfoView, &ModInfoView::setZSpyActivated);
+		connect(_settingsDialog->getDeveloperSettingsWidget(), &DeveloperSettingsWidget::developerModeChanged, this, &MainWindow::setDeveloperMode);
+	}
 
 	connect(_modListView, &LibraryListView::doubleClicked, _modInfoView, &ModInfoView::start);
-	connect(_settingsDialog->getDeveloperSettingsWidget(), &DeveloperSettingsWidget::developerModeChanged, _modInfoView, &ModInfoView::setDeveloperMode);
-	connect(_settingsDialog->getDeveloperSettingsWidget(), &DeveloperSettingsWidget::zSpyChanged, _modInfoView, &ModInfoView::setZSpyActivated);
-	connect(_settingsDialog->getDeveloperSettingsWidget(), &DeveloperSettingsWidget::developerModeChanged, this, &MainWindow::setDeveloperMode);
 	connect(_settingsDialog->getGameSettingsWidget(), &GameSettingsWidget::showAchievementsChanged, _modInfoView, &ModInfoView::setShowAchievements);
 
 	_modListView->setFixedWidth(400);
@@ -543,8 +549,54 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	UPDATELANGUAGESETTITLE(fileMenu, "File");
 	QMenu * toolsMenu = new QMenu(QApplication::tr("Tools"), this);
 	UPDATELANGUAGESETTITLE(toolsMenu, "Tools");
-	QMenu * developerMenu = new QMenu(QApplication::tr("Developer"), this);
-	UPDATELANGUAGESETTITLE(developerMenu, "Developer");
+
+	QMenu * developerMenu = nullptr;
+	if (devEnabled) {
+		developerMenu = new QMenu(QApplication::tr("Developer"), this);
+		UPDATELANGUAGESETTITLE(developerMenu, "Developer");
+
+		QAction * translationRequestAction = developerMenu->addAction(QApplication::tr("RequestTranslation"));
+		UPDATELANGUAGESETTEXT(translationRequestAction, "RequestTranslation");
+		translationRequestAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
+		connect(translationRequestAction, &QAction::triggered, this, &MainWindow::openTranslationRequest);
+
+		QAction * translatorAction = developerMenu->addAction(QApplication::tr("Translator"));
+		UPDATELANGUAGESETTEXT(translatorAction, "Translator");
+		translatorAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
+		connect(translatorAction, &QAction::triggered, this, &MainWindow::openTranslator);
+
+		_devModeAction = developerMenu->addAction(QApplication::tr("ActivateDeveloperMode"));
+		UPDATELANGUAGESETTEXT(_devModeAction, "ActivateDeveloperMode");
+		_devModeAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_D));
+		connect(_devModeAction, &QAction::triggered, _settingsDialog->getDeveloperSettingsWidget(), &DeveloperSettingsWidget::changedDeveloperMode);
+		_devModeAction->setCheckable(true);
+		_devModeAction->setChecked(_settingsDialog->getDeveloperSettingsWidget()->isDeveloperModeActive());
+
+		_spineEditorAction = developerMenu->addAction(QApplication::tr("SpineEditor"));
+		UPDATELANGUAGESETTEXT(_spineEditorAction, "SpineEditor");
+		_spineEditorAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S));
+		connect(_spineEditorAction, &QAction::triggered, _spineEditor, &SpineEditor::exec);
+		_spineEditorAction->setEnabled(_settingsDialog->getDeveloperSettingsWidget()->isDeveloperModeActive());
+		connect(_settingsDialog->getDeveloperSettingsWidget(), &DeveloperSettingsWidget::developerModeChanged, _spineEditorAction, &QAction::setEnabled);
+
+		if (Config::OnlineMode) {
+			QAction * managementAction = developerMenu->addAction(QApplication::tr("Management"));
+			UPDATELANGUAGESETTEXT(managementAction, "Management");
+			managementAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_M));
+			connect(managementAction, &QAction::triggered, this, &MainWindow::execManagement);
+		}
+
+		developerMenu->addSeparator();
+
+		for (int i = 0; i < 10; i++) {
+			QAction * devPathAction = developerMenu->addAction(QApplication::tr("DevPath").arg(i));
+			UPDATELANGUAGESETTEXTARG(devPathAction, "DevPath", i);
+			devPathAction->setShortcut(QKeySequence(Qt::CTRL + (Qt::Key_0 + i)));
+			devPathAction->setProperty("id", i);
+			connect(devPathAction, &QAction::triggered, this, &MainWindow::setDevPath);
+		}
+	}
+	
 	QMenu * helpMenu = new QMenu(QApplication::tr("Help"), this);
 	UPDATELANGUAGESETTITLE(helpMenu, "Help");
 
@@ -594,47 +646,6 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	QAction * settingsAction = toolsMenu->addAction(QApplication::tr("Settings"));
 	settingsAction->setShortcut(QKeySequence(Qt::Key::Key_O));
 	UPDATELANGUAGESETTEXT(settingsAction, "Settings");
-
-	QAction * translationRequestAction = developerMenu->addAction(QApplication::tr("RequestTranslation"));
-	UPDATELANGUAGESETTEXT(translationRequestAction, "RequestTranslation");
-	translationRequestAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
-	connect(translationRequestAction, &QAction::triggered, this, &MainWindow::openTranslationRequest);
-
-	QAction * translatorAction = developerMenu->addAction(QApplication::tr("Translator"));
-	UPDATELANGUAGESETTEXT(translatorAction, "Translator");
-	translatorAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
-	connect(translatorAction, &QAction::triggered, this, &MainWindow::openTranslator);
-
-	_devModeAction = developerMenu->addAction(QApplication::tr("ActivateDeveloperMode"));
-	UPDATELANGUAGESETTEXT(_devModeAction, "ActivateDeveloperMode");
-	_devModeAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_D));
-	connect(_devModeAction, &QAction::triggered, _settingsDialog->getDeveloperSettingsWidget(), &DeveloperSettingsWidget::changedDeveloperMode);
-	_devModeAction->setCheckable(true);
-	_devModeAction->setChecked(_settingsDialog->getDeveloperSettingsWidget()->isDeveloperModeActive());
-
-	_spineEditorAction = developerMenu->addAction(QApplication::tr("SpineEditor"));
-	UPDATELANGUAGESETTEXT(_spineEditorAction, "SpineEditor");
-	_spineEditorAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S));
-	connect(_spineEditorAction, &QAction::triggered, _spineEditor, &SpineEditor::exec);
-	_spineEditorAction->setEnabled(_settingsDialog->getDeveloperSettingsWidget()->isDeveloperModeActive());
-	connect(_settingsDialog->getDeveloperSettingsWidget(), &DeveloperSettingsWidget::developerModeChanged, _spineEditorAction, &QAction::setEnabled);
-
-	if (Config::OnlineMode) {
-		QAction * managementAction = developerMenu->addAction(QApplication::tr("Management"));
-		UPDATELANGUAGESETTEXT(managementAction, "Management");
-		managementAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_M));
-		connect(managementAction, &QAction::triggered, this, &MainWindow::execManagement);
-	}
-
-	developerMenu->addSeparator();
-
-	for (int i = 0; i < 10; i++) {
-		QAction * devPathAction = developerMenu->addAction(QApplication::tr("DevPath").arg(i));
-		UPDATELANGUAGESETTEXTARG(devPathAction, "DevPath", i);
-		devPathAction->setShortcut(QKeySequence(Qt::CTRL + (Qt::Key_0 + i)));
-		devPathAction->setProperty("id", i);
-		connect(devPathAction, &QAction::triggered, this, &MainWindow::setDevPath);
-	}
 
 	_autoUpdateDialog = new AutoUpdateDialog(this);
 
@@ -710,7 +721,10 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 
 	menuBar()->addMenu(fileMenu);
 	menuBar()->addMenu(toolsMenu);
-	menuBar()->addMenu(developerMenu);
+
+	if (developerMenu) {
+		menuBar()->addMenu(developerMenu);
+	}
 	menuBar()->addMenu(helpMenu);
 
 	if (Config::OnlineMode) {
@@ -982,11 +996,14 @@ void MainWindow::openIniConfigurator() {
 void MainWindow::setDevPath() {
 	QAction * action = qobject_cast<QAction *>(sender());
 	const int id = action->property("id").toInt();
+
+	if (!_settingsDialog->getDeveloperSettingsWidget()) return;
+	
 	const QString path = _settingsDialog->getDeveloperSettingsWidget()->getPath(id);
 	const common::GameType gv = _settingsDialog->getDeveloperSettingsWidget()->getGothicVersion(id);
-	if (path.isEmpty()) {
-		return;
-	}
+	
+	if (path.isEmpty()) return;
+
 	if (!_developerModeActive) {
 		_devModeAction->trigger();
 	}
@@ -1009,10 +1026,10 @@ void MainWindow::setDevPath() {
 }
 
 void MainWindow::submitCompatibility() {
-	if (!Config::Username.isEmpty()) {
-		SubmitCompatibilityDialog dlg;
-		dlg.exec();
-	}
+	if (Config::Username.isEmpty()) return;
+	
+	SubmitCompatibilityDialog dlg;
+	dlg.exec();
 }
 
 void MainWindow::triggerModStart(int modID, QString iniFile) {

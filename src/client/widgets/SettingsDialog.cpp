@@ -35,11 +35,10 @@
 #include <QVBoxLayout>
 
 using namespace spine;
-using namespace spine::gamepad;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-SettingsDialog::SettingsDialog(QWidget * par) : QDialog(par), _developerSettingsWidget(nullptr), _gameSettingsWidget(nullptr), _gamepadSettingsWidget(nullptr), _generalSettingsWidget(nullptr), _locationSettingsWidget(nullptr) {
+SettingsDialog::SettingsDialog(QWidget * par) : QDialog(par), _developerSettingsWidget(nullptr), _gameSettingsWidget(nullptr), _generalSettingsWidget(nullptr), _locationSettingsWidget(nullptr) {
 	QVBoxLayout * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
@@ -60,12 +59,17 @@ SettingsDialog::SettingsDialog(QWidget * par) : QDialog(par), _developerSettings
 	tabWidget->addTab(_locationSettingsWidget, QApplication::tr("Locations"));
 	UPDATELANGUAGESETTABTEXT(tabWidget, tabCounter, "Locations");
 	++tabCounter;
+	
+	const auto devEnabled = Config::IniParser->value("DEVELOPER/Enabled", false).toBool();
 
-	_developerSettingsWidget = new DeveloperSettingsWidget(tabWidget);
-	tabWidget->addTab(_developerSettingsWidget, QApplication::tr("Developer"));
-	UPDATELANGUAGESETTABTEXT(tabWidget, tabCounter, "Developer");
+	if (devEnabled) {
+		_developerSettingsWidget = new DeveloperSettingsWidget(tabWidget);
+		tabWidget->addTab(_developerSettingsWidget, QApplication::tr("Developer"));
+		UPDATELANGUAGESETTABTEXT(tabWidget, tabCounter, "Developer");
+		++tabCounter;
+	}
+	
 	l->addWidget(tabWidget);
-	++tabCounter;
 
 	QDialogButtonBox * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Apply | QDialogButtonBox::StandardButton::Discard, Qt::Orientation::Horizontal, this);
 	l->addWidget(dbb);
@@ -100,14 +104,20 @@ SettingsDialog::~SettingsDialog() {
 }
 
 void SettingsDialog::accept() {
-	_developerSettingsWidget->saveSettings();
+	if (_developerSettingsWidget) {
+		_developerSettingsWidget->saveSettings();
+	}
+	
 	_gameSettingsWidget->saveSettings();
 	_generalSettingsWidget->saveSettings();
 	_locationSettingsWidget->saveSettings();
 }
 
 void SettingsDialog::reject() {
-	_developerSettingsWidget->rejectSettings();
+	if (_developerSettingsWidget) {
+		_developerSettingsWidget->rejectSettings();
+	}
+	
 	_gameSettingsWidget->rejectSettings();
 	_generalSettingsWidget->rejectSettings();
 	_locationSettingsWidget->rejectSettings();
@@ -121,9 +131,10 @@ void SettingsDialog::closeEvent(QCloseEvent * evt) {
 
 void SettingsDialog::restoreSettings() {
 	const QByteArray arr = Config::IniParser->value("WINDOWGEOMETRY/SettingsDialogGeometry", QByteArray()).toByteArray();
-	if (!restoreGeometry(arr)) {
-		Config::IniParser->remove("WINDOWGEOMETRY/SettingsDialogGeometry");
-	}
+	
+	if (restoreGeometry(arr)) return;
+	
+	Config::IniParser->remove("WINDOWGEOMETRY/SettingsDialogGeometry");
 }
 
 void SettingsDialog::saveSettings() {
