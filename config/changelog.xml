@@ -1993,6 +1993,7 @@
 		<Enhancement language="Deutsch">Automatischen Update-Check alle 10 Minuten eingebaut, um Updates auch während Nutzung mitzukriegen</Enhancement>
 		<Enhancement language="Deutsch">Filter für gespielte Projekte in Datenbank eingeführt</Enhancement>
 		<Bug language="Deutsch">Einfluss der Spielzeit auf Spine-Level reduziert</Bug>
+		<Bug language="Deutsch">Abbrechen des Hinzufügens einer neuen Datei im Management während der relativen Pfadeingabe funktioniert jetzt</Bug>
 		
 		<Enhancement language="English">Added new Spine specific version number to avoid confusion with non-Spine versions</Enhancement>
 		<Enhancement language="English">It's possible now to add multiple screenshots at once</Enhancement>
@@ -2002,5 +2003,6 @@
 		<Enhancement language="English">Added periodic update check every 10 minutes in order to receive updates also while Spine is in use</Enhancement>
 		<Enhancement language="English">Added filter for played projects to database</Enhancement>
 		<Bug language="English">Reduced impact of playtime on Spine level</Bug>
+		<Bug language="English">Cancelling adding new file in Management when entering relative path works now</Bug>
 	</Version>
 </Versions>

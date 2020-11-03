@@ -180,7 +180,15 @@ void ModFilesWidget::addFile() {
 	const QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectFile"));
 	if (path.isEmpty()) return;
 
-	const QString mapping = QInputDialog::getText(this, QApplication::tr("PathInDirectoryStructure"), QApplication::tr("PathInDirectoryStructureDescription"));
+	QInputDialog dlg(this);
+	dlg.setInputMode(QInputDialog::TextInput);
+	dlg.setWindowTitle(QApplication::tr("PathInDirectoryStructure"));
+	dlg.setLabelText(QApplication::tr("PathInDirectoryStructureDescription"));
+
+	if (dlg.exec() == QDialog::Rejected) return;
+	
+	const QString mapping = dlg.textValue();
+	
 	QStringList realMappingSplit = mapping.split("/", Qt::SkipEmptyParts);
 	QString realMapping;
 	for (const QString & rm : realMappingSplit) {
