@@ -697,11 +697,11 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
-		auto results = database.getResults<std::vector<std::string>>();
-		if (results.empty() || results[0].empty()) {
+		const auto nameResults = database.getResults<std::vector<std::string>>();
+		if (nameResults.empty() || nameResults[0].empty()) {
 			continue;
 		}
-		package.name = results[0][0];
+		package.name = nameResults[0][0];
 		package.downloadSize = _downloadSizeChecker->getBytesForPackage(package.modID, package.packageID, msg->language, versions[package.modID]);
 		uplm.packages.push_back(package);
 	}
