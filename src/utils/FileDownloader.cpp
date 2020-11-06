@@ -49,7 +49,8 @@
 
 using namespace spine::utils;
 
-FileDownloader::FileDownloader(QUrl url, QString targetDirectory, QString fileName, QString hash, QObject * par) : QObject(par), _webAccessManager(new QNetworkAccessManager(this)), _url(url), _targetDirectory(targetDirectory), _fileName(fileName), _hash(hash), _filesize(-1), _outputFile(nullptr), _finished(false) {
+FileDownloader::FileDownloader(QUrl url, QString targetDirectory, QString fileName, QString hash, QObject * par) : QObject(par), _webAccessManager(new QNetworkAccessManager(this)), _url(url), _targetDirectory(targetDirectory), _fileName(fileName), _hash(hash), _filesize(-1), _outputFile(nullptr), _finished(false), _retried(false), _blockErrors(false) {
+	connect(this, &FileDownloader::retry, this, &FileDownloader::startDownload, Qt::QueuedConnection); // queue to process potential errors earlier so they get blocked
 }
 
 FileDownloader::~FileDownloader() {
@@ -69,6 +70,8 @@ QString FileDownloader::getFileName() const {
 }
 
 void FileDownloader::startDownload() {
+	_blockErrors = false;
+	
 	if (Config::extendedLogging) {
 		LOGINFO("Starting Download of file " << _fileName.toStdString() << " from " << _url.toString().toStdString())
 	}
@@ -171,13 +174,32 @@ void FileDownloader::fileDownloaded() {
 
 		uncompressAndHash();		
 	} else {
+		const auto fileSize = _outputFile->size();
+
 		_outputFile->close();
+		
 		_outputFile->remove();
-		LOGERROR("Unknown Error: " << reply->error() << ", " << q2s(reply->errorString()))
-		if (reply->error() != QNetworkReply::OperationCanceledError) {
-			utils::ErrorReporting::report(QString("Unknown Error during download: %1, %2 (%3)").arg(reply->error()).arg(reply->errorString()).arg(_url.toString()));
+		
+		if (_retried) {
+			LOGERROR("Unknown Error: " << reply->error() << ", " << q2s(reply->errorString()))
+			if (reply->error() != QNetworkReply::OperationCanceledError) {
+				utils::ErrorReporting::report(QString("Unknown Error during download: %1, %2 (%3)").arg(reply->error()).arg(reply->errorString()).arg(_url.toString()));
+			}
+			emit fileFailed(DownloadError::UnknownError);
+		} else {
+			delete _outputFile;
+			_outputFile = nullptr;
+			
+			_retried = true;
+			_blockErrors = true;
+			
+			emit downloadProgress(-fileSize);
+
+			delete _webAccessManager;
+			_webAccessManager = new QNetworkAccessManager(this);
+
+			emit retry();
 		}
-		emit fileFailed(DownloadError::UnknownError);
 	}
 	reply->deleteLater();
 }
@@ -202,11 +224,13 @@ void FileDownloader::writeToFile() {
 	if (err != QFileDevice::NoError) {
 		reply->abort();
 		emit downloadFinished();
-		emit fileFailed((err == QFileDevice::ResizeError || err == QFileDevice::ResourceError) ? DownloadError::DiskSpaceError : DownloadError::UnknownError);
+		emit fileFailed(err == QFileDevice::ResizeError || err == QFileDevice::ResourceError ? DownloadError::DiskSpaceError : DownloadError::UnknownError);
 	}
 }
 
 void FileDownloader::networkError(QNetworkReply::NetworkError err) {
+	if (_blockErrors) return;
+	
 	emit downloadFinished();
 	
 	if (err == QNetworkReply::NetworkError::OperationCanceledError) {
