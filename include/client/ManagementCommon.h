@@ -98,7 +98,7 @@ namespace client {
 		void read(const QJsonObject &json);
 	} ManagementCustomStatistics;
 
-	typedef struct {
+	typedef struct ManagementModFile {
 		QString filename;
 		QString hash;
 		QString language;
@@ -108,6 +108,8 @@ namespace client {
 		bool newFile = false;
 
 		void read(const QJsonObject &json);
+
+		bool operator==(const ManagementModFile& other) const;
 	} ManagementModFile;
 
 	typedef struct {

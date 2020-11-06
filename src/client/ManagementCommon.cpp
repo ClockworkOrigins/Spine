@@ -254,6 +254,10 @@ void ManagementModFile::read(const QJsonObject & json) {
 	size = 0;
 }
 
+bool ManagementModFile::operator==(const ManagementModFile & other) const {
+	return filename == other.filename;
+}
+
 void ManagementModFilesData::read(const QJsonObject & json) {
 	if (!json.contains("VersionMajor")) return;
 	
