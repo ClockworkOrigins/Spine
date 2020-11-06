@@ -105,6 +105,7 @@ namespace client {
 		bool changed = false;
 		bool deleted = false;
 		int32_t size = 0;
+		bool newFile = false;
 
 		void read(const QJsonObject &json);
 	} ManagementModFile;

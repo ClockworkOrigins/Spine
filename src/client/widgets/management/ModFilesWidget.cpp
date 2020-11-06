@@ -574,6 +574,7 @@ void ModFilesWidget::addFile(QString fullPath, QString relativePath, QString fil
 		mf.language = "All";
 		mf.changed = true;
 		mf.deleted = false;
+		mf.newFile = true;
 		_data.files.append(mf);
 		_fileMap.insert(fullRelativePath, fullPath);
 	}
@@ -625,6 +626,11 @@ void ModFilesWidget::deleteFile(const QModelIndex & idx) {
 		}
 		if (path == currentFileName) {
 			file.deleted = true;
+
+			if (file.newFile) {
+				_data.files.removeAll(file);
+			}
+			
 			break;
 		}
 	}
