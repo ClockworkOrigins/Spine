@@ -295,7 +295,7 @@ void SubmitCompatibilityDialog::selectIndex(const QModelIndex & idx) {
 		_patchList->appendRow(itm);
 	}
 	if (!_filteredPatches.empty()) {
-		_patchView->setCurrentIndex(_modList->index(row, 0));
+		_patchView->setCurrentIndex(_patchList->index(row, 0));
 	}
 }
 
