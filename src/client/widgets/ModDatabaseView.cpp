@@ -999,10 +999,14 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, QSharedPointer<QList<QPa
 				sock.writePacket(serialized);
 			}
 		});
-		QMessageBox msg(QMessageBox::Icon::Information, QApplication::tr("InstallationSuccessful"), QApplication::tr("InstallationSuccessfulText").arg(s2q(mod.name)), QMessageBox::StandardButton::Ok);
-		msg.setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-		msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
-		msg.exec();
+
+		if (!_installSilently.contains(mod.id)) {
+			QMessageBox msg(QMessageBox::Icon::Information, QApplication::tr("InstallationSuccessful"), QApplication::tr("InstallationSuccessfulText").arg(s2q(mod.name)), QMessageBox::StandardButton::Ok);
+			msg.setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+			msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
+			msg.exec();
+		}
+		
 		emit finishedInstallation(mod.id, -1, true);
 
 		if (mod.type == common::ModType::GMP) {
