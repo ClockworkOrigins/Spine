@@ -41,11 +41,25 @@ QSize AchievementInfoView::sizeHint() const {
 void AchievementInfoView::paintEvent(QPaintEvent *) {
 	QPainter p(this);
 	p.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
+
+	int additionalBackgroundOffset = 0;
+	
+	if (_unlocked) {
+		QColor unlockedColor;
+		unlockedColor.setNamedColor("#D4AF37");
+		QPainterPath path;
+		path.addRect(QRectF(0, 0, 800 - 2 * 70, 70));
+		p.fillPath(path, QBrush(unlockedColor));
+		p.drawPath(path);
+
+		additionalBackgroundOffset = 5;
+	}
+	
 	QColor backgroundColor;
 	backgroundColor.setNamedColor("#808080");
 	{
 		QPainterPath path;
-		path.addRect(QRectF(0, 0, 800 - 2 * 70, 70));
+		path.addRect(QRectF(additionalBackgroundOffset, additionalBackgroundOffset, 800 - 2 * 70 - 2 * additionalBackgroundOffset, 70 - 2 * additionalBackgroundOffset));
 		p.fillPath(path, QBrush(backgroundColor));
 		p.drawPath(path);
 	}

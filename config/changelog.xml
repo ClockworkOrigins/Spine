@@ -1993,6 +1993,7 @@
 		<Enhancement language="Deutsch">Automatischen Update-Check alle 10 Minuten eingebaut, um Updates auch während Nutzung mitzukriegen</Enhancement>
 		<Enhancement language="Deutsch">Filter für gespielte Projekte in Datenbank eingeführt</Enhancement>
 		<Enhancement language="Deutsch">Downloads verbessert, so dass sie versuchen Fehler auszugleichen</Enhancement>
+		<Enhancement language="Deutsch">Freigeschaltete Erfolge werden etwas besser markiert</Enhancement>
 		<Bug language="Deutsch">Einfluss der Spielzeit auf Spine-Level reduziert</Bug>
 		<Bug language="Deutsch">Abbrechen des Hinzufügens einer neuen Datei im Management während der relativen Pfadeingabe funktioniert jetzt</Bug>
 		<Bug language="Deutsch">Neu hinzugefügte Datei im Management kann jetzt komplett wieder gelöscht werden</Bug>
@@ -2006,6 +2007,7 @@
 		<Enhancement language="English">Added periodic update check every 10 minutes in order to receive updates also while Spine is in use</Enhancement>
 		<Enhancement language="English">Added filter for played projects to database</Enhancement>
 		<Enhancement language="Deutsch">Improved downloads in order to compensate errors</Enhancement>
+		<Enhancement language="Deutsch">Unlocked achievements are highlighted a little better</Enhancement>
 		<Bug language="English">Reduced impact of playtime on Spine level</Bug>
 		<Bug language="English">Cancelling adding new file in Management when entering relative path works now</Bug>
 		<Bug language="English">Newly added file in Management now can be deleted again properly</Bug>
