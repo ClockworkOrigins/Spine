@@ -2003,7 +2003,6 @@
 		<Enhancement language="English">It's possible now to add multiple screenshots at once</Enhancement>
 		<Enhancement language="English">Dependencies of mods now are also directly updated in the UI</Enhancement>
 		<Enhancement language="English">Developer options now are hidden by default</Enhancement>
-		<Enhancement language="English">Developer options now are hidden by default</Enhancement>
 		<Enhancement language="English">Added periodic update check every 10 minutes in order to receive updates also while Spine is in use</Enhancement>
 		<Enhancement language="English">Added filter for played projects to database</Enhancement>
 		<Enhancement language="Deutsch">Improved downloads in order to compensate errors</Enhancement>
