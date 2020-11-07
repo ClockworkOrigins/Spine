@@ -88,6 +88,7 @@ namespace widgets {
 		QSpinBox * _majorVersionBox;
 		QSpinBox * _minorVersionBox;
 		QSpinBox * _patchVersionBox;
+		QSpinBox * _spineVersionBox;
 		gui::WaitSpinner * _waitSpinner;
 		QWinTaskbarProgress * _taskbarProgress;
 		ManagementModFilesData _data;

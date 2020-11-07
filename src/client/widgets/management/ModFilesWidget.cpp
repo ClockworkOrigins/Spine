@@ -73,7 +73,7 @@ namespace {
 	};
 }
 
-ModFilesWidget::ModFilesWidget(QWidget * par) : QWidget(par), _fileList(nullptr), _fileTreeView(nullptr), _modIndex(-1), _majorVersionBox(nullptr), _minorVersionBox(nullptr), _patchVersionBox(nullptr), _waitSpinner(nullptr) {
+ModFilesWidget::ModFilesWidget(QWidget * par) : QWidget(par), _fileList(nullptr), _fileTreeView(nullptr), _modIndex(-1), _majorVersionBox(nullptr), _minorVersionBox(nullptr), _patchVersionBox(nullptr), _spineVersionBox(nullptr), _waitSpinner(nullptr) {
 	QVBoxLayout * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
@@ -88,12 +88,17 @@ ModFilesWidget::ModFilesWidget(QWidget * par) : QWidget(par), _fileList(nullptr)
 		_patchVersionBox = new QSpinBox(this);
 		_patchVersionBox->setMinimum(0);
 		_patchVersionBox->setMaximum(127);
+		_spineVersionBox = new QSpinBox(this);
+		_spineVersionBox->setMinimum(0);
+		_spineVersionBox->setMaximum(127);
 		_majorVersionBox->setToolTip(QApplication::tr("VersionNumberTooltip"));
 		_minorVersionBox->setToolTip(QApplication::tr("VersionNumberTooltip"));
 		_patchVersionBox->setToolTip(QApplication::tr("VersionNumberTooltip"));
+		_spineVersionBox->setToolTip(QApplication::tr("VersionNumberTooltip"));
 		hl2->addWidget(_majorVersionBox);
 		hl2->addWidget(_minorVersionBox);
 		hl2->addWidget(_patchVersionBox);
+		hl2->addWidget(_spineVersionBox);
 		QPushButton * submitButton = new QPushButton(QApplication::tr("Submit"), this);
 		submitButton->setToolTip(QApplication::tr("UpdateVersionNumberTooltip"));
 		hl2->addWidget(submitButton);
@@ -475,6 +480,7 @@ void ModFilesWidget::updateVersion() {
 	json["VersionMajor"] = _majorVersionBox->value();
 	json["VersionMinor"] = _minorVersionBox->value();
 	json["VersionPatch"] = _patchVersionBox->value();
+	json["VersionSpine"] = _spineVersionBox->value();
 
 	const QDate date(2000, 1, 1);
 	
