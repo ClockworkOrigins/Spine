@@ -1201,7 +1201,9 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 	_gmpCounterBackup = -1;
 
 	QSet<QString> forbidden;
-	collectDependencies(_modID, dependencies, &forbidden);
+	QMap<QString, QStringList> dependencyMap;
+	QMap<QString, QStringList> overrideFiles;
+	collectDependencies(_modID, dependencies, &forbidden, &dependencyMap, &overrideFiles);
 
 	LOGINFO("Starting Ini: " << _iniFile.toStdString())
 	emitSplashMessage(QApplication::tr("RemovingOldFiles"));
@@ -1244,6 +1246,8 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 		}
 	}
 	if (!dependencies->isEmpty()) return false; // not all dependencies are met and can't automatically be enabled
+
+	sortPatches(dependencyMap, patches);
 
 	for (const std::string & patchID : patches) {
 		const std::string patchName = Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Name FROM patches WHERE ModID = " + patchID + " LIMIT 1;", err);
@@ -1603,6 +1607,17 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 					LOGERROR("Couldn't create dir: " << dir.absolutePath().toStdString())
 					break;
 				}
+
+				if (overrideFiles[s2q(patchIDString)].contains(filename, Qt::CaseInsensitive)) {
+					const auto it = std::find_if(_copiedFiles.begin(), _copiedFiles.end(), [filename](const QString & f) {
+						return f.compare(filename, Qt::CaseInsensitive) == 0;
+					});
+
+					if (it != _copiedFiles.end()) {
+						_copiedFiles.erase(it);
+					}
+				}
+				
 				// backup old file, if already backed up, don't patch
 				if (!_copiedFiles.contains(filename, Qt::CaseInsensitive) && !_skippedFiles.contains(filename, Qt::CaseInsensitive) && ((QFileInfo::exists(_directory + "/" + filename) && !QFileInfo::exists(_directory + "/" + filename + ".spbak")) || !QFileInfo::exists(_directory + "/" + filename))) {
 					if (Config::extendedLogging) {
@@ -1876,7 +1891,7 @@ void Gothic1And2Launcher::checkToolCfg(QString path, QStringList * backgroundExe
 	}
 }
 
-void Gothic1And2Launcher::collectDependencies(int modID, QSet<QString> * dependencies, QSet<QString> * forbidden) {
+void Gothic1And2Launcher::collectDependencies(int modID, QSet<QString> * dependencies, QSet<QString> * forbidden, QMap<QString, QStringList> * dependencyMap, QMap<QString, QStringList> * overrideFiles) const {
 	QQueue<QString> toCheck;
 	toCheck.enqueue(QString::number(modID));
 
@@ -1897,6 +1912,8 @@ void Gothic1And2Launcher::collectDependencies(int modID, QSet<QString> * depende
 			
 			auto split = required.split(',', Qt::SkipEmptyParts);
 			for (const auto & s : split) {
+				(*dependencyMap)[id].append(required);
+				
 				if (dependencies->contains(s)) continue;
 				
 				dependencies->insert(s);
@@ -1908,6 +1925,13 @@ void Gothic1And2Launcher::collectDependencies(int modID, QSet<QString> * depende
 			split = blocked.split(',', Qt::SkipEmptyParts);
 			for (const auto & s : split) {
 				forbidden->insert(s);
+			}
+			
+			auto overrides = configParser.value("DEPENDENCIES/Overrides", "").toString();
+			
+			split = overrides.split(',', Qt::SkipEmptyParts);
+			for (const auto & s : split) {
+				(*overrideFiles)[id].append(s);
 			}
 		}			
 	}
@@ -2003,6 +2027,32 @@ void Gothic1And2Launcher::updatePlugins(int modID) {
 				f.open(QIODevice::WriteOnly);
 				QTextStream ts(&f);
 				ts << text;
+			}
+		}
+	}
+}
+
+void Gothic1And2Launcher::sortPatches(const QMap<QString, QStringList> & dependencyMap, std::vector<std::string> & patches) const {
+	for (auto it = dependencyMap.begin(); it != dependencyMap.end(); ++it) {
+		const auto & currentID = it.key();
+		const auto & dependencies = it.value();
+
+		for (const auto & dependency : dependencies) {
+			size_t currentIndex = std::numeric_limits<size_t>::max();
+			for (size_t i = 0; i < patches.size(); i++) {
+				const auto patchID = s2q(patches[i]);
+				
+				if (patchID == currentID) {
+					currentIndex = i;
+				}
+
+				if (patchID == dependency) {
+					if (currentIndex == std::numeric_limits<size_t>::max()) break; // patch is in front of dependent project
+
+					std::swap(patches[i], patches[currentIndex]);
+
+					break;
+				}
 			}
 		}
 	}
@@ -2305,7 +2355,9 @@ void Gothic1And2Launcher::updatedProject(int projectID) {
 void Gothic1And2Launcher::updatePatchCheckboxes() {
 	QSet<QString> dependencies;
 	QSet<QString> forbidden;
-	collectDependencies(_modID, &dependencies, &forbidden);
+	QMap<QString, QStringList> dependencyMap;
+	QMap<QString, QStringList> overrideFiles;
+	collectDependencies(_modID, &dependencies, &forbidden, &dependencyMap, &overrideFiles);
 
 	for (auto it = _checkboxPatchIDMapping.begin(); it != _checkboxPatchIDMapping.end(); ++it) {
 		const auto idString = QString::number(it.value());

@@ -1994,6 +1994,7 @@
 		<Enhancement language="Deutsch">Filter für gespielte Projekte in Datenbank eingeführt</Enhancement>
 		<Enhancement language="Deutsch">Downloads verbessert, so dass sie versuchen Fehler auszugleichen</Enhancement>
 		<Enhancement language="Deutsch">Freigeschaltete Erfolge werden etwas besser markiert</Enhancement>
+		<Enhancement language="Deutsch">Möglichkeit eingebaut, mit Patches Dateien anderer Patches zu überschreiben</Enhancement>
 		<Bug language="Deutsch">Einfluss der Spielzeit auf Spine-Level reduziert</Bug>
 		<Bug language="Deutsch">Abbrechen des Hinzufügens einer neuen Datei im Management während der relativen Pfadeingabe funktioniert jetzt</Bug>
 		<Bug language="Deutsch">Neu hinzugefügte Datei im Management kann jetzt komplett wieder gelöscht werden</Bug>
@@ -2008,6 +2009,7 @@
 		<Enhancement language="English">Added filter for played projects to database</Enhancement>
 		<Enhancement language="Deutsch">Improved downloads in order to compensate errors</Enhancement>
 		<Enhancement language="Deutsch">Unlocked achievements are highlighted a little better</Enhancement>
+		<Enhancement language="Deutsch">Added possibility for patches to override other patches files</Enhancement>
 		<Bug language="English">Reduced impact of playtime on Spine level</Bug>
 		<Bug language="English">Cancelling adding new file in Management when entering relative path works now</Bug>
 		<Bug language="English">Newly added file in Management now can be deleted again properly</Bug>
