@@ -188,15 +188,17 @@ void SpineLevel::addRanking(boost::property_tree::ptree & json) {
 	ptree rankingList;
 	
 	for (const auto & re : _rankings) {
+		if (re.xp == 0) break;
+
 		realRank++;
 
 		if (re.xp != lastXP) {
 			rank = realRank;
 			lastXP = re.xp;
 		}
-		
+
 		ptree rankingEntry;
-		
+
 		rankingEntry.put("Name", re.username);
 		rankingEntry.put("Level", re.level);
 		rankingEntry.put("XP", re.xp);
@@ -204,7 +206,7 @@ void SpineLevel::addRanking(boost::property_tree::ptree & json) {
 
 		rankingList.push_back(std::make_pair("", rankingEntry));
 	}
-	
+
 	json.add_child("Names", rankingList);
 }
 
