@@ -158,7 +158,7 @@ void DatabaseMigrator::migrate() {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
-		if (!database.query("PREPARE addColumnStmt FROM \"ALTER TABLE mods ADD SpineVersion INT NOT NULL\";")) {
+		if (!database.query("PREPARE addColumnStmt FROM \"ALTER TABLE mods ADD SpineVersion INT NOT NULL DEFAULT 0\";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}

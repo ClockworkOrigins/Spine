@@ -538,6 +538,7 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 	qRegisterMetaType<std::vector<common::UpdatePackageListMessage::Package>>("std::vector<common::UpdatePackageListMessage::Package>");
 	qRegisterMetaType<std::vector<std::pair<std::string, std::string>>>("std::vector<std::pair<std::string, std::string>>");
 	qRegisterMetaType<QSharedPointer<QList<QPair<QString, QString>>>>("QSharedPointer<QList<QPair<QString, QString>>>");
+	qRegisterMetaType<QSet<int32_t>>("QSet<int32_t>");
 
 	connect(this, &ModDatabaseView::receivedModList, this, static_cast<void(ModDatabaseView::*)(std::vector<common::Mod>)>(&ModDatabaseView::updateModList));
 	connect(this, &ModDatabaseView::receivedModFilesList, this, &ModDatabaseView::downloadModFiles);
@@ -561,8 +562,8 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 	Database::queryAll<std::vector<int>, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT SpineVersion FROM mods LIMIT 1;", err);
 
 	if (err.error) {
-		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "ALTER TABLE mods ADD SpineVersion INT NOT NULL;", err);
-		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE mods SET SpineVersion = 0;", err);
+		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "ALTER TABLE mods ADD SpineVersion INT NOT NULL DEFAULT 0;", err);
+		//Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE mods SET SpineVersion = 0;", err);
 	}
 
 	_sortModel->setRendererAllowed(true);

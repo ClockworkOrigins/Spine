@@ -376,6 +376,7 @@ void Gothic1And2Launcher::updateCompatibilityList(int modID, std::vector<int32_t
 		delete cb;
 	}
 	_patchList.clear();
+	_checkboxPatchIDMapping.clear();
 
 	Database::DBError err;
 	const ModVersion modGv = Database::queryNth<ModVersion, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion, MajorVersion, MinorVersion, PatchVersion FROM mods WHERE ModID = " + std::to_string(_modID) + " LIMIT 1;", err, 0);
