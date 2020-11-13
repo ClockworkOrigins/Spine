@@ -158,19 +158,10 @@ void DatabaseMigrator::migrate() {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
-		if (!database.query("PREPARE updateStmt FROM \"UPDATE mods SET SpineVersion = 0\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			break;
-		}
 		
 		if (database.query("SELECT SpineVersion FROM mods LIMIT 1;")) break;
 
-		if (!database.query("EXECUTE addColumnStmt;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			break;
-		}
-
-		if (!database.query("EXECUTE updateStmt;")) {
+		if (!database.query("ALTER TABLE mods ADD SpineVersion INT NOT NULL DEFAULT 0;")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
