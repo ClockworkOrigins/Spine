@@ -149,7 +149,7 @@ void FileDownloader::startDownload() {
 	connect(reply, &QNetworkReply::downloadProgress, this, &FileDownloader::updateDownloadProgress);
 	connect(reply, &QNetworkReply::readyRead, this, &FileDownloader::writeToFile);
 	connect(reply, &QNetworkReply::finished, this, &FileDownloader::fileDownloaded);
-	connect(reply, &QNetworkReply::errorOccurred, this, &FileDownloader::networkError);
+	connect(reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::error), this, &FileDownloader::networkError);
 	connect(reply, &QNetworkReply::sslErrors, this, &FileDownloader::sslErrors);
 	connect(this, &FileDownloader::abort, reply, &QNetworkReply::abort);
 	emit startedDownload(_fileName);

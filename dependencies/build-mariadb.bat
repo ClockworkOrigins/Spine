@@ -2,7 +2,7 @@
 
 call build-common.bat %1 %2
 
-Set ARCHIVE=mariadb-connector-c-2.3.1.tar.gz
+Set ARCHIVE=v2.3.1.zip
 Set BUILD_DIR=%TMP_DIR%/mariadb-connector-c-2.3.1
 Set PREFIX=%DEP_DIR%/%ARCH_DIR%/mariadb
 
@@ -12,12 +12,12 @@ echo "Compile MariaDB"
 
 echo "Extracting MariaDB"
 
-call build-common.bat downloadAndUnpack %ARCHIVE% %BUILD_DIR%
+call build-common.bat downloadAndUnpack %ARCHIVE% %BUILD_DIR% https://github.com/mariadb-corporation/mariadb-connector-c/archive/
 
 echo "Configuring MariaDB"
 
 cd %BUILD_DIR%
-cmake -DCMAKE_INSTALL_PREFIX=%PREFIX% -G "%VSCOMPILER%%VSARCH%" .
+cmake -DCMAKE_INSTALL_PREFIX=%PREFIX% -G "%VSCOMPILER%" -A "%VSARCH%" .
 
 echo "Building MariaDB"
 
@@ -36,4 +36,3 @@ echo "Cleaning up"
 
 cd %DEP_DIR%
 RD /S /Q "%TMP_DIR%"
-

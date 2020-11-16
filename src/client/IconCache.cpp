@@ -48,7 +48,7 @@ void IconCache::cacheIcon(int32_t projectID, const QString & icon) {
 	QFile::copy(icon, QString("%1/icons/%2.%3").arg(Config::DOWNLOADDIR).arg(projectID).arg(fi.suffix()));
 	
 	const auto fileName = fi.fileName();
-	const auto split = fileName.split('.', Qt::SkipEmptyParts);
+	const auto split = fileName.split('.', QString::SkipEmptyParts);
 	if (!fileName.isEmpty() && split.count() == 2) {
 		_iconCache[projectID] = QPixmap(icon);
 	}
@@ -79,7 +79,7 @@ void IconCache::loadCache() {
 		it.next();
 		const QString filePath = it.filePath();
 		const QString fileName = it.fileName();
-		const auto split = fileName.split('.', Qt::SkipEmptyParts);
+		const auto split = fileName.split('.', QString::SkipEmptyParts);
 		if (!filePath.isEmpty() && !fileName.isEmpty() && split.count() == 2) {
 			_iconCache[split[0].toInt()] = QPixmap(filePath);
 		}

@@ -12,61 +12,30 @@ echo "Compile OpenSSL"
 
 echo "Extracting OpenSSL"
 
-REM call build-common.bat downloadAndUnpack %ARCHIVE% %BUILD_DIR% https://www.openssl.org/source/
+call build-common.bat downloadAndUnpack %ARCHIVE% %BUILD_DIR% https://www.openssl.org/source/
 
 echo "Configuring OpenSSL"
 
-REM cd %BUILD_DIR%
+pushd %BUILD_DIR%
+
 IF [%BOOSTARCH%] == [32] (
-	REM perl Configure VC-WIN32 no-asm shared --prefix=%PREFIX%
+	perl Configure VC-WIN32 no-asm shared --prefix=%PREFIX%
 )
 IF [%BOOSTARCH%] == [64] (
-	REM perl Configure VC-WIN64A no-asm shared --prefix=%PREFIX%
+	perl Configure VC-WIN64A no-asm shared --prefix=%PREFIX%
 )
 
 echo "Building OpenSSL"
 
-IF [%BOOSTARCH%] == [32] (
-	powershell -ExecutionPolicy RemoteSigned -File %DEP_DIR%\build.ps1 -openssl_release 1.1.1d -vs_version 140 -config release -platform Win32 -library shared
+nmake
+nmake install
 
-	mkdir %PREFIX%
-	mkdir %PREFIX%\bin
-	mkdir %PREFIX%\lib
+echo "Installing OpenSSL"
 
-	xcopy /I /S /Y %DEP_DIR%\VS_140\include %PREFIX%\include
-	xcopy /S /Y %DEP_DIR%\VS_140\win32\bin\release\*.dll %PREFIX%\bin\
-	xcopy /S /Y %DEP_DIR%\VS_140\win32\bin\release\*.lib %PREFIX%\lib\
+echo "Cleaning up"
 
-	echo "Installing OpenSSL"
+popd
 
-	echo "Cleaning up"
-
-	cd %DEP_DIR%
-	RD /S /Q "%TMP_DIR%"
-)
-IF [%BOOSTARCH%] == [64] (
-	REM call ms\do_win64a.bat
-	
-	REM do this programatically in the future instead of using a fix file
-	REM xcopy %DEP_DIR%\..\ext\build.info %BUILD_DIR%\build.info* /Y
-	
-	REM nmake
-	
-	powershell -ExecutionPolicy RemoteSigned -File %DEP_DIR%\build.ps1 -openssl_release 1.1.1d -vs_version 140 -config release -platform x64 -library shared
-
-	mkdir %PREFIX%
-	mkdir %PREFIX%\bin
-	mkdir %PREFIX%\lib
-
-	xcopy /I /S /Y %DEP_DIR%\VS_140\include %PREFIX%\include
-	xcopy /S /Y %DEP_DIR%\VS_140\win64\bin\release\*.dll %PREFIX%\bin\
-	xcopy /S /Y %DEP_DIR%\VS_140\win64\bin\release\*.lib %PREFIX%\lib\
-
-	echo "Installing OpenSSL"
-
-	echo "Cleaning up"
-
-	cd %DEP_DIR%
-	RD /S /Q "%TMP_DIR%"
-)
+cd %DEP_DIR%
+RD /S /Q "%TMP_DIR%"
 

@@ -14,7 +14,6 @@ IF(WIN32)
 	configure_file(${CMAKE_SOURCE_DIR}/installer/Windows/Gothic2-Setup.bat ${CMAKE_BINARY_DIR}/installer/Windows/Gothic2-Setup.bat COPYONLY)
 	configure_file(${CMAKE_SOURCE_DIR}/installer/Windows/Gothic2-Addon-Setup.bat ${CMAKE_BINARY_DIR}/installer/Windows/Gothic2-Addon-Setup.bat COPYONLY)
 	configure_file(${VCREDIST_PATH} ${CMAKE_BINARY_DIR}/installer/Windows/${VCREDIST} COPYONLY)
-	configure_file(${DXREDIST_PATH} ${CMAKE_BINARY_DIR}/installer/Windows/directx_Jun2010_redist.exe COPYONLY)
 
 	configure_file($ENV{Qt5_DIR}/bin/libEGL.dll ${CMAKE_BINARY_DIR}/installer/Qt/libEGL.dll COPYONLY)
 	configure_file($ENV{Qt5_DIR}/bin/libGLESv2.dll ${CMAKE_BINARY_DIR}/installer/Qt/libGLESv2.dll COPYONLY)

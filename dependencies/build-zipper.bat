@@ -15,14 +15,14 @@ IF NOT EXIST %TMP_DIR% MKDIR %TMP_DIR%
 
 pushd %TMP_DIR%
 
-git clone --recursive https://github.com/sebastiandev/zipper.git zipper
+git clone --branch v1.0.1 --recursive https://github.com/sebastiandev/zipper.git zipper
 
 popd
 
 echo "Configuring zipper"
 
 cd %BUILD_DIR%
-cmake -DBUILD_SHARED_VERSION=OFF -DBUILD_STATIC_VERSION=ON -DBUILD_TEST=OFF -DBUILD_TESTING=OFF -DLIBZ_INCLUDE_DIR=%DEP_DIR%/%ARCH_DIR%/zlib/include -DLIBZ_LIBRARY=%DEP_DIR%/%ARCH_DIR%/zlib/lib/zlibstatic.lib -DCMAKE_INSTALL_PREFIX=%PREFIX% -G "%VSCOMPILER%%VSARCH%" .
+cmake -DBUILD_SHARED_VERSION=OFF -DBUILD_STATIC_VERSION=ON -DBUILD_TEST=OFF -DLIBZ_INCLUDE_DIR=%DEP_DIR%/%ARCH_DIR%/zlib/include -DLIBZ_LIBRARY=%DEP_DIR%/%ARCH_DIR%/zlib/lib/zlibstatic.lib -DCMAKE_INSTALL_PREFIX=%PREFIX% -G "%VSCOMPILER%" -A "%VSARCH%" .
 
 echo "Building zipper"
 
@@ -36,4 +36,3 @@ echo "Cleaning up"
 
 cd %DEP_DIR%
 RD /S /Q "%TMP_DIR%"
-

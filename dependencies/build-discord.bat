@@ -38,4 +38,3 @@ echo "Cleaning up"
 
 cd %DEP_DIR%
 RD /S /Q "%TMP_DIR%"
-

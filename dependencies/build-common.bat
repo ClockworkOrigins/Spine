@@ -26,7 +26,7 @@ IF [%2] == [32] (
 	SET VSSOLUTIONARCH=Win32
 )
 IF [%2] == [64] (
-	SET VSARCH= Win64
+	SET VSARCH=x64
 	SET BOOSTARCH=64
 	SET ARCH_DIR=%ARCH_DIR%64
 	SET VSBATARCH=amd64
@@ -47,19 +47,31 @@ EXIT /B
 SET DOWNLOAD_URL=%4
 IF [%4] == [] Set DOWNLOAD_URL=http://www.clockwork-origins.de/dependencies/
 IF NOT EXIST %TMP_DIR% (mkdir %TMP_DIR%)
-IF NOT EXIST %TMP_DIR%\%2 (bitsadmin /transfer "myDownloadJob%2" /download /priority normal %DOWNLOAD_URL%%2 %TMP_DIR%\%2)
-CD %TMP_DIR%
-IF EXIST %3 RD /S /Q "%2"
-winrar.exe x -ibck %2
-IF NOT EXIST %3 (
+REM IF NOT EXIST %TMP_DIR%\%2 (bitsadmin /transfer "myDownloadJob%2" /download /priority normal %DOWNLOAD_URL%%2 %TMP_DIR%\%2)
+pushd %TMP_DIR%
+
+SETLOCAL EnableDelayedExpansion
+SET DOWNLOADEDARCHIVE=%2
+
+IF NOT EXIST %TMP_DIR%\%DOWNLOADEDARCHIVE% (curl -OL %DOWNLOAD_URL%%DOWNLOADEDARCHIVE% --output %DOWNLOADEDARCHIVE%)
+
+echo "Downloaded %DOWNLOADEDARCHIVE%"
+
+IF EXIST %3 RD /S /Q "%DOWNLOADEDARCHIVE%"
+winrar.exe x -ibck %DOWNLOADEDARCHIVE%
+IF NOT "%ERRORLEVEL%" == "0" (
+	
 	if "%%2:~-6%" neq "tar.gz" (
-		SET ARCHIVE=%2
-		SET NEXTARCHIVE=%ARCHIVE:~0,-3%
-		7z x %ARCHIVE% && 7z x %NEXTARCHIVE%
+		echo "Trying unzip tar for %DOWNLOADEDARCHIVE%"
+		SET NEXTDOWNLOADEDARCHIVE=!DOWNLOADEDARCHIVE:~0,-3!
+		7z x %DOWNLOADEDARCHIVE%
+		7z x !NEXTDOWNLOADEDARCHIVE!
 	) else (
-		7z x %2
+		echo "Trying unzip other for %DOWNLOADEDARCHIVE%"
+		7z x %DOWNLOADEDARCHIVE%
 	)
 )
+popd
 IF NOT EXIST %3 EXIT /B
 EXIT /B 0
 

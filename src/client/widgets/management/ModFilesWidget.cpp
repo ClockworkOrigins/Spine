@@ -41,6 +41,7 @@
 
 #include <QApplication>
 #include <QDirIterator>
+#include <QElapsedTimer>
 #include <QFileDialog>
 #include <QHeaderView>
 #include <QInputDialog>
@@ -194,7 +195,7 @@ void ModFilesWidget::addFile() {
 	
 	const QString mapping = dlg.textValue();
 	
-	QStringList realMappingSplit = mapping.split("/", Qt::SkipEmptyParts);
+	QStringList realMappingSplit = mapping.split("/", QString::SkipEmptyParts);
 	QString realMapping;
 	for (const QString & rm : realMappingSplit) {
 		if (!realMapping.isEmpty()) {

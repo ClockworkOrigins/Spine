@@ -50,7 +50,7 @@ bool DiscordManager::isConnected() const {
 	return _core && _currentUser->GetId() > 0;
 }
 
-int64_t spine::discord::DiscordManager::getUserID() const {
+int64_t DiscordManager::getUserID() const {
 	return _currentUser->GetId();
 }
 

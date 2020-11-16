@@ -17,7 +17,7 @@ call build-common.bat downloadAndUnpack %ARCHIVE% %BUILD_DIR%
 echo "Configuring tinyxml2"
 
 cd %BUILD_DIR%
-cmake -DBUILD_SHARED_LIBS=OFF -DBUILD_STATIC_LIBS=ON -DCMAKE_INSTALL_PREFIX=%PREFIX% -G "%VSCOMPILER%%VSARCH%" .
+cmake -DBUILD_SHARED_LIBS=OFF -DBUILD_STATIC_LIBS=ON -DCMAKE_INSTALL_PREFIX=%PREFIX% -G "%VSCOMPILER%" -A "%VSARCH%" .
 
 echo "Building tinyxml2"
 

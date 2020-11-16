@@ -114,9 +114,12 @@ using namespace spine::client;
 using namespace spine::discord;
 using namespace spine::gui;
 using namespace spine::launcher;
-using namespace spine::translator;
 using namespace spine::utils;
 using namespace spine::widgets;
+
+#ifdef WITH_TRANLSATOR
+using namespace spine::translator;
+#endif
 
 enum MainTabsOnline {
 	StartOnline,

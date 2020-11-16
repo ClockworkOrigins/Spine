@@ -452,7 +452,11 @@ void ModUpdateDialog::accept() {
 }
 
 void ModUpdateDialog::reject() {
-	hideUpdates(QList<common::ModUpdate>(_updates.begin(), _updates.end()));
+	QList<ModUpdate> list;
+	for (const auto & mu : _updates) {
+		list << mu;
+	}
+	hideUpdates(list);
 	_lastTimeRejected = true;
 	_running = false;
 	QDialog::reject();

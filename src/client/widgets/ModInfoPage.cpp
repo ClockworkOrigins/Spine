@@ -752,7 +752,7 @@ void ModInfoPage::submitChanges() {
 	std::string language = Config::Language.toStdString();
 	std::string description = q2s(_descriptionEdit->toPlainText());
 	std::vector<std::string> features;
-	for (const QString & s : _featuresEdit->text().split(";", Qt::SkipEmptyParts)) {
+	for (const QString & s : _featuresEdit->text().split(";", QString::SkipEmptyParts)) {
 		features.push_back(q2s(s));
 	}
 	int32_t modules = 0;

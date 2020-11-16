@@ -610,7 +610,10 @@ void ModDatabaseView::updateModList(int modID, int packageID, InstallMode mode) 
 								_cached = true;
 								emit receivedModList(uamm->mods);
 
-								const QSet<int32_t> playedProjects(uamm->playedProjects.begin(), uamm->playedProjects.end());
+								QSet<int32_t> playedProjects;
+								for (const auto id : uamm->playedProjects) {
+									playedProjects << id;
+								}
 								emit receivedPlayedProjects(playedProjects);
 							}
 						}

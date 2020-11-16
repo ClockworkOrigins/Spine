@@ -17,7 +17,7 @@ call build-common.bat downloadAndUnpack %ARCHIVE% %BUILD_DIR%
 echo "Configuring GoogleMock with GoogleTest"
 
 cd %BUILD_DIR%
-cmake -DCMAKE_INSTALL_PREFIX=%PREFIX% -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -G "%VSCOMPILER%%VSARCH%" .
+cmake -DCMAKE_INSTALL_PREFIX=%PREFIX% -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -G "%VSCOMPILER%" -A "%VSARCH%" .
 
 echo "Building GoogleMock with GoogleTest"
 
