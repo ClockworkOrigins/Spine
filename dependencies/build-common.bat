@@ -17,6 +17,12 @@ IF [%1] == [msvc15] (
 	SET ARCH_DIR=msvc15_
 	SET CONFIG_BAT_PATH="%VS15%"
 )
+IF [%1] == [msvc17] (
+	SET VSCOMPILER=Visual Studio 15 2017
+	SET BOOSTCOMPILER=msvc-14.0
+	SET ARCH_DIR=msvc17_
+	SET CONFIG_BAT_PATH="%VS17%"
+)
 
 IF [%2] == [32] (
 	SET VSARCH=

@@ -16,7 +16,6 @@
 		<File Hash="4325f649f56f2773b3bea2ca00639878caaa272f801be3931835a58ef313c397aa39e5b164e4006127b9061492e9350501c2756c6514e99f4612bba4fa663b0e">directx_Jun2010_redist.exe.z</File>
 	</Version>
 	<Version majorVersion="1" minorVersion="22" patchVersion="0">
-		<File Hash="eed4e39e7d2f0fc51786e0b451d447bce7b9c6137c52467b19692736d10d4a1f7213ac6042f70b210fd239609a5133c43930058a27e4573925cb368dd75d7cc7">bin/cleanup.exe.z</File>
 		<File Hash="65f2842a575ae391ad6eebc81e95357924cc08d08200bb17d5550c51139139a45b996c6405e33abe97836f1517002bac76ffbea6f034e8b35ea95087b88c889e">bin/discord_game_sdk.dll.z</File>
 		<File Hash="b66d29548b0bb603e10c5341d5911262a37617c0c749485b92dd429d8707f00ac4365617f7900b85290af64b574e1dfaa15afea0ea9e733dd9b3519403d23e85">bin/4758cca.dll.z</File>
 		<File Hash="c018547f0f790a6fee13607545896eb7e8d248f79fb9cc25247a1584b99e93b1b172be401de52777baa7757e6152c0935391404ce01e897f0c9e818f48d051ef">bin/aep.dll.z</File>
@@ -26,27 +25,12 @@
 		<File Hash="7b67c2a5aa56601a89b604beb288ab6b94ab223f8d3dd8bd7b1ec629d12bc90f86a4ce22d22fd3dc400dcc2b2143e1ddff7dc8976caea1a138db7c21870108f0">bin/cswift.dll.z</File>
 		<File Hash="a3427cf9da002a87e3f3f44edeb216823340bb1e4a7c763f233b033a255cd04721ba08c21645fec83cb9da507f6b19c08185f9405c65a5c91488cee14e8dc88f">bin/gmp.dll.z</File>
 		<File Hash="6674d3f6df40219ab4212eaba21034022e55c0fdd5b815530259f66f4e4f5de48a0d206113ed68c43e2b8c2bc83d8ea7aa406da5a996f3701c2852d1738d8614">bin/gost.dll.z</File>
-		<File Hash="b4e67792e2d0f3dd01ab5b110d65422f80197e00b4d7791657ade6342399718d10e2553eecf67fc329291164396d7f82dda1cc1ba5de07b22986fa525e43e44c">bin/libeay32.dll.z</File>
-		<File Hash="27c6896026dd19c20131cda5650bc47b3146f51b06a1bc4538129b939f0093b0979d7aec625bb4efacfeaa721136e36a864bbaaaaed4173e31f4f458ea03dd66">bin/libEGL.dll.z</File>
-		<File Hash="46544f6c79b03dc4dbc61613c58ad3a8fa4d4dd8a690c0c91d7ed007e5aa0d4198b221e19f2b95afe64eef366b57567c6a3267cbcf54310c173eb76b2a08819a">bin/libGLESv2.dll.z</File>
 		<File Hash="d012b081b0e356ccd07f2a38f2417b025778eb5bbe7584bcb9a5d596d6cd70fe30c8455822d13e06c0bf61f4b5bfcecdebb8bcf52e8c5aeabd99c8f4f913cd85">bin/nuron.dll.z</File>
 		<File Hash="dcb7855171c3fea85dec8aa147ce0e68876735acf55225bdb41f676fcf92c9dc617b4fa4a90318fd6b4948ac00f97d9cdcdc0f643724a40eacffc646555330fe">bin/padlock.dll.z</File>
-		<File Hash="a92b8017a95a7d035b0d48c805658c551d5ff80129e80a06cc909ed174e6703e0ca2adbf1deced2a5d7faec95cc3dd5a462895eb9d7ba883bff5e7ccd2661b8f">bin/Qt5Concurrent.dll.z</File>
-		<File Hash="d535ffbdeaa2941fce7156bfc3a1d23bb6a18518862fbd70a01e5f73095843f0ab78d64d0d1a1fed70802a6ca1a46b159a3939a65887bbbf855296bebb7a02b5">bin/Qt5Core.dll.z</File>
-		<File Hash="7fb5e4fa9e273db9ceb3bcde076818be80e71ad275f5c4ef8ab9f64c2d22760466d383b5433df17a3b0db0170a71bcce4630e5a54c1be0ef97aa3bfcf1ee6b4c">bin/Qt5Gui.dll.z</File>
-		<File Hash="53ef54e95df8872efe88682a8dfe9cb643456d11bd1a2c842aa57665b25b2d90a631e5e6923778642035edd7487b3c8beada9edb661b5f9426c24882896aabc5">bin/Qt5Network.dll.z</File>
-		<File Hash="bf9ec1cc8f7edb5d8f08af1b0d77c773e8067e143bc59d8a213a4070c22174475f9371a306c5f3fa48c3c96c34c7a815a10acd1b2cfede18a1e744fda2ae626e">bin/Qt5Svg.dll.z</File>
-		<File Hash="a4d67d544d40136f5e3ed325afd7b8161fa37d7c28f91314457ad88d3d0000c92e1d57a9791bf10ea1ce4550f591354d08164b85549f4dbd13f0b9dfa3e68e31">bin/Qt5Widgets.dll.z</File>
-		<File Hash="83aa6c057c497c875fa9c15d1afa9accc39f9501c49afddf9fcb594c8d60ae162b93185d50e8c4cc14aee9db95bda8aae160af04aa3c72c1164f8f6543b36241">bin/Qt5WinExtras.dll.z</File>
 		<File Hash="246e6495d5918a38bfb46c2c6ace5962715eabe566c5c4667ac0cfd00714227115671d47dcb89f76721a9edfe9564d78fd26a2acd998d642d3ed9d1bcf38227d">bin/sqlite3.dll.z</File>
 		<File Hash="9954d4541ddc0aa37d2d62176a05a23c65a26e21f609d6baf97f16acdcc95d822749ac82eeaf8aa35bc9e1968504412e4737178393f2f3af848ec56464e91555">bin/ssleay32.dll.z</File>
 		<File Hash="500cacb7b12b91a401ede0d44f352e1eac7f9e632dffd4fc01757e1b59e652f5183e8600f4ceb90ddd3c7df5b5cd3c18dd56aade0664586f672f669d99100934">bin/sureware.dll.z</File>
 		<File Hash="bce10540491f2d76dbfeb8fd9ba4f46508d5e88896a9847b5ca2522ef7e476fe3567f6c32eaeb6e2e5188d1862ea35d18dec0d986f6f7154ef38a54169d0b21c">bin/ubsec.dll.z</File>
-		<File Hash="70f515a75c6bfa0a9ae0b8a93abfa6ec95700d3b163c5d23cb28459c70a9f05666c08bd74332abbbdd8929ad98b60ff4dcd4d18729f8928f17ff6d6e335377bf">bin/zlib.dll.z</File>
-		<File Hash="c22939819a10f6082d1efe618feecb509392210d1411c41c6494d082f3b8dc1de6f61f1c31a5b412cf30388f4900469224def8937ebb7d62ed90d02e32f76dab">bin/plugins/imageformats/qico.dll.z</File>
-		<File Hash="61ebb52e6e6efeba62836879bd49f7f88649217212cba6572e57b6201be656fb50c4870ce65fefc00f529e7ad590bb8d4b7a7874396b2f1c350ed10251ab0244">bin/plugins/imageformats/qjpeg.dll.z</File>
-		<File Hash="f2e344131dd44f3b7b56fd3494c86e0dcbac713c997c58b579833e3b9b5f3a78d1a45b042f5e2b2722cb006e93522546aa0242f8ff2c1f5982bf1d5ce2a384d1">bin/plugins/imageformats/qsvg.dll.z</File>
-		<File Hash="c4e320d9921b7a70b4dfec55b06a5f5a393abfe3ba424ba99fec9dc9ea6e20060c6af5f92c33b3b4a8a8e9783863267ba5a3a1f144f74b00c7ff1b364aa3a1d7">bin/plugins/platforms/qwindows.dll.z</File>
 		<File Hash="7789eabb6dd4a159bb899d2e6d6df70addb3df239bda6f9ead8c1d2a2ac2062fce3a495814b48a3c2bec12f13800ad0703e2c61c35158b0912011b914f098011">vcredist_x64.exe.z</File>
 	</Version>
 	<Version majorVersion="1" minorVersion="22" patchVersion="1">
@@ -60,7 +44,8 @@
 	<Version majorVersion="1" minorVersion="23" patchVersion="0">
 		<File Hash="f4046d3b38adacf9cb6150c687f5a3fc38d8eb265bb78d9a4205a84b9fec634c0118388f2457c8568c54a52bbfc3114d7f850fb95caa35c2fec698d78bac786e">styles.css.z</File>
 	</Version>
-	<Version majorVersion="1" minorVersion="25" patchVersion="0">
+	<Version majorVersion="1" minorVersion="26" patchVersion="0">
+		<File Hash="eed4e39e7d2f0fc51786e0b451d447bce7b9c6137c52467b19692736d10d4a1f7213ac6042f70b210fd239609a5133c43930058a27e4573925cb368dd75d7cc7">bin/cleanup.exe.z</File>
 		<File Hash="cb9788e30ae1483b5c1afccd4cfea441609dc88ab71fcd79e7cd6c9c381d45523e62cef467e5427443a16638df99201875a7ac9ad6d6caf560bb7faafc9383dd">bin/changelog.xml.z</File>
 		<File Hash="934626db1bfaf5f3657fc25d2d4b4e9c2fe8423bcc256746834acd794ea00af0a29991fec45f9c704033f276e863c9b7ed584567454b86a41780b426cf3d75c6">bin/Spine.exe.z</File>
 		<File Hash="f3b1f006fccddd68e5d8bb341b78d50cf2b957af09a268d1a430ca66fed948949c09b77383f15cec6647c610f65a74d6f86a3d079fa27edf9cac0f489b2a86f5">bin/SpineAPI.dll.z</File>
@@ -69,5 +54,20 @@
 		<File Hash="c2a8964ad6818db8bd75f61d95dd469ee466dbb837830a2e38e6e574184225a880fb3c56d9f9b7e8ccca8874eb1cf8048173a201cefcfaba785de055e96f31e0">bin/en_US.qm.z</File>
 		<File Hash="1b4846a5239602c98fa901f1c245975cfb82a293b9a2e678d241c117319527195bd099fc89f6c5df7c9ab4761a742d816e19a266d1aac48a453050a19e66d0db">bin/po_PO.qm.z</File>
 		<File Hash="83a7286a5301b750ada5b1e187fb7b447cae85396a1deec58ea1ab0dda5454ee848ca069f3819aa4f081c58e816c4356c5770896d6b06a3b639115f08d48ef32">bin/ru_RU.qm.z</File>
+		<File Hash="b4e67792e2d0f3dd01ab5b110d65422f80197e00b4d7791657ade6342399718d10e2553eecf67fc329291164396d7f82dda1cc1ba5de07b22986fa525e43e44c">bin/libeay32.dll.z</File>
+		<File Hash="27c6896026dd19c20131cda5650bc47b3146f51b06a1bc4538129b939f0093b0979d7aec625bb4efacfeaa721136e36a864bbaaaaed4173e31f4f458ea03dd66">bin/libEGL.dll.z</File>
+		<File Hash="46544f6c79b03dc4dbc61613c58ad3a8fa4d4dd8a690c0c91d7ed007e5aa0d4198b221e19f2b95afe64eef366b57567c6a3267cbcf54310c173eb76b2a08819a">bin/libGLESv2.dll.z</File>
+		<File Hash="a92b8017a95a7d035b0d48c805658c551d5ff80129e80a06cc909ed174e6703e0ca2adbf1deced2a5d7faec95cc3dd5a462895eb9d7ba883bff5e7ccd2661b8f">bin/Qt5Concurrent.dll.z</File>
+		<File Hash="d535ffbdeaa2941fce7156bfc3a1d23bb6a18518862fbd70a01e5f73095843f0ab78d64d0d1a1fed70802a6ca1a46b159a3939a65887bbbf855296bebb7a02b5">bin/Qt5Core.dll.z</File>
+		<File Hash="7fb5e4fa9e273db9ceb3bcde076818be80e71ad275f5c4ef8ab9f64c2d22760466d383b5433df17a3b0db0170a71bcce4630e5a54c1be0ef97aa3bfcf1ee6b4c">bin/Qt5Gui.dll.z</File>
+		<File Hash="53ef54e95df8872efe88682a8dfe9cb643456d11bd1a2c842aa57665b25b2d90a631e5e6923778642035edd7487b3c8beada9edb661b5f9426c24882896aabc5">bin/Qt5Network.dll.z</File>
+		<File Hash="bf9ec1cc8f7edb5d8f08af1b0d77c773e8067e143bc59d8a213a4070c22174475f9371a306c5f3fa48c3c96c34c7a815a10acd1b2cfede18a1e744fda2ae626e">bin/Qt5Svg.dll.z</File>
+		<File Hash="a4d67d544d40136f5e3ed325afd7b8161fa37d7c28f91314457ad88d3d0000c92e1d57a9791bf10ea1ce4550f591354d08164b85549f4dbd13f0b9dfa3e68e31">bin/Qt5Widgets.dll.z</File>
+		<File Hash="83aa6c057c497c875fa9c15d1afa9accc39f9501c49afddf9fcb594c8d60ae162b93185d50e8c4cc14aee9db95bda8aae160af04aa3c72c1164f8f6543b36241">bin/Qt5WinExtras.dll.z</File>
+		<File Hash="70f515a75c6bfa0a9ae0b8a93abfa6ec95700d3b163c5d23cb28459c70a9f05666c08bd74332abbbdd8929ad98b60ff4dcd4d18729f8928f17ff6d6e335377bf">bin/zlib.dll.z</File>
+		<File Hash="c22939819a10f6082d1efe618feecb509392210d1411c41c6494d082f3b8dc1de6f61f1c31a5b412cf30388f4900469224def8937ebb7d62ed90d02e32f76dab">bin/plugins/imageformats/qico.dll.z</File>
+		<File Hash="61ebb52e6e6efeba62836879bd49f7f88649217212cba6572e57b6201be656fb50c4870ce65fefc00f529e7ad590bb8d4b7a7874396b2f1c350ed10251ab0244">bin/plugins/imageformats/qjpeg.dll.z</File>
+		<File Hash="f2e344131dd44f3b7b56fd3494c86e0dcbac713c997c58b579833e3b9b5f3a78d1a45b042f5e2b2722cb006e93522546aa0242f8ff2c1f5982bf1d5ce2a384d1">bin/plugins/imageformats/qsvg.dll.z</File>
+		<File Hash="c4e320d9921b7a70b4dfec55b06a5f5a393abfe3ba424ba99fec9dc9ea6e20060c6af5f92c33b3b4a8a8e9783863267ba5a3a1f144f74b00c7ff1b364aa3a1d7">bin/plugins/platforms/qwindows.dll.z</File>
 	</Version>
 </Versions>

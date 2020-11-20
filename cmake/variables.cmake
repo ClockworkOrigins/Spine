@@ -26,6 +26,11 @@ ELSEIF(WIN32)
 		SET(VS_TOOLCHAIN "msvc15")
 		SET(VSENV VS15)
 		SET(Qt5_Platform msvc2015)
+	ELSEIF(CMAKE_GENERATOR MATCHES "Visual Studio 15 2017")
+		SET(DEP_DIR_BUILD "msvc17")
+		SET(VS_TOOLCHAIN "msvc17")
+		SET(VSENV VS17)
+		SET(Qt5_Platform msvc2017)
 	ENDIF()
 	
 	MESSAGE(STATUS "${CMAKE_GENERATOR_PLATFORM}")
@@ -63,7 +68,7 @@ ENDIF(NOT CMAKE_BUILD_TYPE)
 
 # Sets appropriate Compilerflags
 
-SET(CXX_FLAGS "-pedantic -Wall -Wextra -Woverloaded-virtual -Wnon-virtual-dtor -Wformat=2 -Winit-self -Wswitch-default -Wfloat-equal -Wshadow -Wredundant-decls -Wctor-dtor-privacy -Wno-sign-conversion -Wno-unused-parameter -Wno-long-long -fPIC -std=c++11")
+SET(CXX_FLAGS "-pedantic -Wall -Wextra -Woverloaded-virtual -Wnon-virtual-dtor -Wformat=2 -Winit-self -Wswitch-default -Wfloat-equal -Wshadow -Wredundant-decls -Wctor-dtor-privacy -Wno-sign-conversion -Wno-unused-parameter -Wno-long-long -fPIC")
 SET(CLANG_FLAGS "-Wstring-plus-int")
 
 IF(${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
