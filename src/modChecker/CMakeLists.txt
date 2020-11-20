@@ -12,10 +12,6 @@ IF(UNIX)
 	target_link_libraries(ModChecker pthread)
 ENDIF(UNIX)
 
-IF(WIN32)
-	add_custom_command(TARGET ModChecker POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_BINARY_DIR}/bin/$<CONFIGURATION>/ModChecker.exe ${CMAKE_BINARY_DIR}/bin)
-ENDIF(WIN32)
-
 set_target_properties(
 	ModChecker PROPERTIES FOLDER Tools
 )

@@ -38,6 +38,7 @@ SET(VERSION_PATCH 0)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+INCLUDE(cmake/common.cmake)
 INCLUDE(cmake/variables.cmake)
 
 IF(DXPATH)
@@ -46,6 +47,9 @@ IF(DXPATH)
 ENDIF(DXPATH)
 
 execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin)
+execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/Debug)
+execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/RelWithDebInfo)
+execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/Release)
 
 IF(TEST_CONFIG)
 	SET(SERVER_PORT 19184)
@@ -81,8 +85,10 @@ INCLUDE(cmake/searchDependencies.cmake)
 
 configure_file(${CMAKE_SOURCE_DIR}/config/Config.h.in ${CMAKE_BINARY_DIR}/include/SpineConfig.h @ONLY)
 configure_file(${CMAKE_SOURCE_DIR}/config/ServerConfig.h.in ${CMAKE_BINARY_DIR}/include/SpineServerConfig.h @ONLY)
-configure_file(${CMAKE_SOURCE_DIR}/config/changelog.xml ${CMAKE_BINARY_DIR}/bin/changelog.xml COPYONLY)
-configure_file(${CMAKE_SOURCE_DIR}/config/Spine_Version.xml ${CMAKE_BINARY_DIR}/bin/Spine_Version.xml COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/config/changelog.xml ${CMAKE_BINARY_DIR}/bin/Debug/changelog.xml COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/config/changelog.xml ${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/changelog.xml COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/config/changelog.xml ${CMAKE_BINARY_DIR}/bin/Release/changelog.xml COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/config/Spine_Version.xml ${CMAKE_BINARY_DIR}/bin/Spine_Version.xml COPYONLY) # Linux only, so can stay in bin
 configure_file(${CMAKE_SOURCE_DIR}/installer/Windows/makeSymlink.bat ${CMAKE_BINARY_DIR}/makeSymlink.bat COPYONLY)
 configure_file(${CMAKE_SOURCE_DIR}/installer/Windows/removeSymlink.bat ${CMAKE_BINARY_DIR}/removeSymlink.bat COPYONLY)
 configure_file(${CMAKE_SOURCE_DIR}/installer/Windows/Gothic2-Setup.bat ${CMAKE_BINARY_DIR}/Gothic2-Setup.bat COPYONLY)

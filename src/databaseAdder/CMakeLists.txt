@@ -15,10 +15,6 @@ IF(UNIX)
 	target_link_libraries(DatabaseAdder pthread)
 ENDIF(UNIX)
 
-IF(WIN32)
-	add_custom_command(TARGET DatabaseAdder POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_BINARY_DIR}/bin/$<CONFIGURATION>/DatabaseAdder.exe ${CMAKE_BINARY_DIR}/bin)
-ENDIF(WIN32)
-
 set_target_properties(
 	DatabaseAdder PROPERTIES FOLDER Tools
 )
