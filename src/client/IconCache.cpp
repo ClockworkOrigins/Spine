@@ -21,6 +21,7 @@
 #include "utils/Config.h"
 
 #include <QDirIterator>
+#include <QPainter>
 
 using namespace spine::client;
 using namespace spine::utils;
@@ -63,6 +64,12 @@ QIcon IconCache::getOrLoadIcon(const QString & path) {
 	_pathIconCache.insert(path, icon);
 
 	return icon;
+}
+
+QImage IconCache::getOrLoadIconAsImage(const QString & path) {
+	const auto icon = getOrLoadIcon(path);
+	const auto pixmap = icon.pixmap(icon.availableSizes()[0]);
+	return pixmap.toImage();
 }
 
 IconCache::IconCache() {

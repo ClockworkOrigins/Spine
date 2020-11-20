@@ -37,6 +37,7 @@ namespace client {
 		void cacheIcon(int32_t projectID, const QString & icon);
 
 		QIcon getOrLoadIcon(const QString & path);
+		QImage getOrLoadIconAsImage(const QString & path);
 
 	private:
 		QMap<int32_t, QPixmap> _iconCache;

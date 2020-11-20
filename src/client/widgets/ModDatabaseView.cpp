@@ -30,6 +30,7 @@
 #include "common/MessageStructs.h"
 
 #include "gui/DownloadQueueWidget.h"
+#include "gui/OverlayMessageHandler.h"
 #include "gui/WaitSpinner.h"
 
 #include "utils/Config.h"
@@ -1005,10 +1006,7 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, QSharedPointer<QList<QPa
 		});
 
 		if (!_installSilently.contains(mod.id)) {
-			QMessageBox msg(QMessageBox::Icon::Information, QApplication::tr("InstallationSuccessful"), QApplication::tr("InstallationSuccessfulText").arg(s2q(mod.name)), QMessageBox::StandardButton::Ok);
-			msg.setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-			msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
-			msg.exec();
+			OverlayMessageHandler::getInstance()->showMessage(IconCache::getInstance()->getOrLoadIconAsImage(":/svg/download.svg"), QApplication::tr("InstallationSuccessfulText").arg(s2q(mod.name)));
 		}
 		
 		emit finishedInstallation(mod.id, -1, true);

@@ -18,11 +18,13 @@
 
 #include "widgets/ModUpdateDialog.h"
 
+#include "IconCache.h"
 #include "SpineConfig.h"
 
 #include "common/MessageStructs.h"
 
 #include "gui/DownloadQueueWidget.h"
+#include "gui/OverlayMessageHandler.h"
 #include "gui/Spoiler.h"
 
 #include "utils/Config.h"
@@ -48,6 +50,7 @@
 #include <QVBoxLayout>
 
 using namespace spine;
+using namespace spine::client;
 using namespace spine::common;
 using namespace spine::gui;
 using namespace spine::utils;
@@ -422,25 +425,17 @@ void ModUpdateDialog::accept() {
 		}
 		if (success) {
 			if (!installFiles->empty() || !newFiles->empty() || !removeFiles->empty()) {
-				QMessageBox msg(QMessageBox::Icon::Information, QApplication::tr("UpdateSuccessful"), QApplication::tr("UpdateSuccessfulText"), QMessageBox::StandardButton::Ok);
-				msg.setWindowFlags(msg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-				msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
-				msg.exec();
+				OverlayMessageHandler::getInstance()->showMessage(IconCache::getInstance()->getOrLoadIconAsImage(":/svg/download.svg"), QApplication::tr("UpdateSuccessful"));
 			}
 		} else {
-			QMessageBox msg(QMessageBox::Icon::Warning, QApplication::tr("UpdateUnsuccessful"), QApplication::tr("UpdateUnsuccessfulText"), QMessageBox::StandardButton::Ok);
-			msg.setWindowFlags(msg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-			msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
-			msg.exec();
+			OverlayMessageHandler::getInstance()->showMessage(IconCache::getInstance()->getOrLoadIconAsImage(":/svg/download.svg"), QApplication::tr("UpdateUnsuccessful"));
 		}
 		_running = false;
 		hideUpdates(hides);
 	});
 
 	connect(mfd, &MultiFileDownloader::downloadFailed, [this, hides]() {
-		QMessageBox msg(QMessageBox::Icon::Warning, QApplication::tr("UpdateUnsuccessful"), QApplication::tr("UpdateUnsuccessfulText"), QMessageBox::StandardButton::Ok);
-		msg.setWindowFlags(msg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-		msg.exec();
+		OverlayMessageHandler::getInstance()->showMessage(IconCache::getInstance()->getOrLoadIconAsImage(":/svg/download.svg"), QApplication::tr("UpdateUnsuccessful"));
 
 		_running = false;
 		hideUpdates(hides);
@@ -546,7 +541,7 @@ void ModUpdateDialog::checkForUpdate(int32_t modID, bool forceAccept) {
 				try {
 					common::Message * msg = common::Message::DeserializePublic(serialized);
 					if (msg) {
-						common::SendModsToUpdateMessage * smtum = dynamic_cast<common::SendModsToUpdateMessage *>(msg);
+						auto * smtum = dynamic_cast<common::SendModsToUpdateMessage *>(msg);
 						if (smtum) {
 							emit receivedMods(smtum->updates, forceAccept);
 						} else {

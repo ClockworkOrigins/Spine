@@ -2019,8 +2019,10 @@
 	<Version majorVersion="1" minorVersion="26" patchVersion="0">
 		<Bug language="Deutsch">Zahlenformatierung optimiert</Bug>
 		<Bug language="Deutsch">Minimum von Statistiken entfernt, weil es nahezu immer 0 war</Bug>
+		<Bug language="Deutsch">Downloadbenachrichtigungen vorübergehend deaktiviert</Bug>
 		
 		<Bug language="English">Optimized number formatting</Bug>
 		<Bug language="English">Removed minimum from stats as it's almost always 0</Bug>
+		<Bug language="English">Temporarily disabled download notifications</Bug>
 	</Version>
 </Versions>
