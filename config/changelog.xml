@@ -2016,4 +2016,9 @@
 		<Bug language="English">Disabled popup for automatically installed projects</Bug>
 		<Bug language="English">Preselection in compatibility report for patches works now</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="26" patchVersion="0">
+		<Bug language="Deutsch">Zahlenformatierung optimiert</Bug>
+		
+		<Bug language="English">Optimized number formatting</Bug>
+	</Version>
 </Versions>

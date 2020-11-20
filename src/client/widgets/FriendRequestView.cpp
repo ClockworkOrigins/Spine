@@ -26,6 +26,7 @@
 #include "common/MessageStructs.h"
 
 #include "utils/Config.h"
+#include "utils/Conversion.h"
 
 #include "clockUtils/sockets/TcpSocket.h"
 
@@ -43,7 +44,7 @@ FriendRequestView::FriendRequestView(QString friendname, uint32_t level, QWidget
 	QHBoxLayout * l = new QHBoxLayout();
 	l->setAlignment(Qt::AlignCenter);
 
-	QLabel * nameLabel = new QLabel(friendname + " (" + QApplication::tr("Level") + " " + QString::number(_level) + ")", this);
+	QLabel * nameLabel = new QLabel(friendname + " (" + QApplication::tr("Level") + " " + i2s(_level) + ")", this);
 	nameLabel->setProperty("requestName", true);
 	nameLabel->setAlignment(Qt::AlignCenter);
 	l->addWidget(nameLabel, 1, Qt::AlignLeft);

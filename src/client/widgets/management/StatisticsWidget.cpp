@@ -149,7 +149,7 @@ void StatisticsWidget::updateView() {
 void StatisticsWidget::updateData(ManagementStatistics content) {
 	{
 		QLabel * overallDownloadsLabel = new QLabel(QApplication::tr("OverallDownloads"), this);
-		QLabel * overallDownloadsCountLabel = new QLabel(QString::number(content.overallDownloads), this);
+		QLabel * overallDownloadsCountLabel = new QLabel(i2s(content.overallDownloads), this);
 		QHBoxLayout * hl = new QHBoxLayout();
 		hl->addWidget(overallDownloadsLabel, 0, Qt::AlignLeft);
 		hl->addWidget(overallDownloadsCountLabel, 0, Qt::AlignRight);
@@ -162,7 +162,7 @@ void StatisticsWidget::updateData(ManagementStatistics content) {
 		const auto m = content.downloadsPerVersion;
 		for (const auto & it : m) {
 			QLabel * downloadsLabel = new QLabel(QApplication::tr("DownloadsForVersion").arg(it.version), this);
-			QLabel * downloadsCountLabel = new QLabel(QString::number(it.downloads), this);
+			QLabel * downloadsCountLabel = new QLabel(i2s(it.downloads), this);
 			QHBoxLayout * hl = new QHBoxLayout();
 			hl->addWidget(downloadsLabel, 0, Qt::AlignLeft);
 			hl->addWidget(downloadsCountLabel, 0, Qt::AlignRight);
@@ -174,7 +174,7 @@ void StatisticsWidget::updateData(ManagementStatistics content) {
 	}
 	{
 		QLabel * playersLabel = new QLabel(QApplication::tr("PlayersOverall"), this);
-		QLabel * playersCountLabel = new QLabel(QString::number(content.overallPlayerCount), this);
+		QLabel * playersCountLabel = new QLabel(i2s(content.overallPlayerCount), this);
 		QHBoxLayout * hl = new QHBoxLayout();
 		hl->addWidget(playersLabel, 0, Qt::AlignLeft);
 		hl->addWidget(playersCountLabel, 0, Qt::AlignRight);
@@ -185,7 +185,7 @@ void StatisticsWidget::updateData(ManagementStatistics content) {
 	}
 	{
 		QLabel * playersLabel = new QLabel(QApplication::tr("Players24Hours"), this);
-		QLabel * playersCountLabel = new QLabel(QString::number(content.last24HoursPlayerCount), this);
+		QLabel * playersCountLabel = new QLabel(i2s(content.last24HoursPlayerCount), this);
 		QHBoxLayout * hl = new QHBoxLayout();
 		hl->addWidget(playersLabel, 0, Qt::AlignLeft);
 		hl->addWidget(playersCountLabel, 0, Qt::AlignRight);
@@ -196,7 +196,7 @@ void StatisticsWidget::updateData(ManagementStatistics content) {
 	}
 	{
 		QLabel * playersLabel = new QLabel(QApplication::tr("Players7Days"), this);
-		QLabel * playersCountLabel = new QLabel(QString::number(content.last7DaysPlayerCount), this);
+		QLabel * playersCountLabel = new QLabel(i2s(content.last7DaysPlayerCount), this);
 		QHBoxLayout * hl = new QHBoxLayout();
 		hl->addWidget(playersLabel, 0, Qt::AlignLeft);
 		hl->addWidget(playersCountLabel, 0, Qt::AlignRight);
@@ -207,7 +207,7 @@ void StatisticsWidget::updateData(ManagementStatistics content) {
 	}
 	{
 		QLabel * minPlaytimeLabel = new QLabel(QApplication::tr("MinPlaytime"), this);
-		QLabel * minPlaytimeCountLabel = new QLabel(utils::timeToString(content.playTime.minimum), this);
+		QLabel * minPlaytimeCountLabel = new QLabel(timeToString(content.playTime.minimum), this);
 		QHBoxLayout * hl = new QHBoxLayout();
 		hl->addWidget(minPlaytimeLabel, 0, Qt::AlignLeft);
 		hl->addWidget(minPlaytimeCountLabel, 0, Qt::AlignRight);
@@ -218,7 +218,7 @@ void StatisticsWidget::updateData(ManagementStatistics content) {
 	}
 	{
 		QLabel * maxPlaytimeLabel = new QLabel(QApplication::tr("MaxPlaytime"), this);
-		QLabel * maxPlaytimeCountLabel = new QLabel(utils::timeToString(content.playTime.maximum), this);
+		QLabel * maxPlaytimeCountLabel = new QLabel(timeToString(content.playTime.maximum), this);
 		QHBoxLayout * hl = new QHBoxLayout();
 		hl->addWidget(maxPlaytimeLabel, 0, Qt::AlignLeft);
 		hl->addWidget(maxPlaytimeCountLabel, 0, Qt::AlignRight);
@@ -229,7 +229,7 @@ void StatisticsWidget::updateData(ManagementStatistics content) {
 	}
 	{
 		QLabel * medianPlaytimeLabel = new QLabel(QApplication::tr("MedianPlaytime"), this);
-		QLabel * medianPlaytimeCountLabel = new QLabel(utils::timeToString(content.playTime.median), this);
+		QLabel * medianPlaytimeCountLabel = new QLabel(timeToString(content.playTime.median), this);
 		QHBoxLayout * hl = new QHBoxLayout();
 		hl->addWidget(medianPlaytimeLabel, 0, Qt::AlignLeft);
 		hl->addWidget(medianPlaytimeCountLabel, 0, Qt::AlignRight);
@@ -240,7 +240,7 @@ void StatisticsWidget::updateData(ManagementStatistics content) {
 	}
 	{
 		QLabel * avgPlaytimeLabel = new QLabel(QApplication::tr("AvgPlaytime"), this);
-		QLabel * avgPlaytimeCountLabel = new QLabel(utils::timeToString(content.playTime.average), this);
+		QLabel * avgPlaytimeCountLabel = new QLabel(timeToString(content.playTime.average), this);
 		QHBoxLayout * hl = new QHBoxLayout();
 		hl->addWidget(avgPlaytimeLabel, 0, Qt::AlignLeft);
 		hl->addWidget(avgPlaytimeCountLabel, 0, Qt::AlignRight);
@@ -251,7 +251,7 @@ void StatisticsWidget::updateData(ManagementStatistics content) {
 	}
 	{
 		QLabel * minSessiontimeLabel = new QLabel(QApplication::tr("MinSessiontime"), this);
-		QLabel * minSessiontimeCountLabel = new QLabel(utils::timeToString(content.sessionTime.minimum), this);
+		QLabel * minSessiontimeCountLabel = new QLabel(timeToString(content.sessionTime.minimum), this);
 		QHBoxLayout * hl = new QHBoxLayout();
 		hl->addWidget(minSessiontimeLabel, 0, Qt::AlignLeft);
 		hl->addWidget(minSessiontimeCountLabel, 0, Qt::AlignRight);
@@ -262,7 +262,7 @@ void StatisticsWidget::updateData(ManagementStatistics content) {
 	}
 	{
 		QLabel * maxSessiontimeLabel = new QLabel(QApplication::tr("MaxSessiontime"), this);
-		QLabel * maxSessiontimeCountLabel = new QLabel(utils::timeToString(content.sessionTime.maximum), this);
+		QLabel * maxSessiontimeCountLabel = new QLabel(timeToString(content.sessionTime.maximum), this);
 		QHBoxLayout * hl = new QHBoxLayout();
 		hl->addWidget(maxSessiontimeLabel, 0, Qt::AlignLeft);
 		hl->addWidget(maxSessiontimeCountLabel, 0, Qt::AlignRight);
@@ -273,7 +273,7 @@ void StatisticsWidget::updateData(ManagementStatistics content) {
 	}
 	{
 		QLabel * medianSessiontimeLabel = new QLabel(QApplication::tr("MedianSessiontime"), this);
-		QLabel * medianSessiontimeCountLabel = new QLabel(utils::timeToString(content.sessionTime.median), this);
+		QLabel * medianSessiontimeCountLabel = new QLabel(timeToString(content.sessionTime.median), this);
 		QHBoxLayout * hl = new QHBoxLayout();
 		hl->addWidget(medianSessiontimeLabel, 0, Qt::AlignLeft);
 		hl->addWidget(medianSessiontimeCountLabel, 0, Qt::AlignRight);
@@ -284,7 +284,7 @@ void StatisticsWidget::updateData(ManagementStatistics content) {
 	}
 	{
 		QLabel * avgSessiontimeLabel = new QLabel(QApplication::tr("AvgSessiontime"), this);
-		QLabel * avgSessiontimeCountLabel = new QLabel(utils::timeToString(content.sessionTime.average), this);
+		QLabel * avgSessiontimeCountLabel = new QLabel(timeToString(content.sessionTime.average), this);
 		QHBoxLayout * hl = new QHBoxLayout();
 		hl->addWidget(avgSessiontimeLabel, 0, Qt::AlignLeft);
 		hl->addWidget(avgSessiontimeCountLabel, 0, Qt::AlignRight);
@@ -298,7 +298,7 @@ void StatisticsWidget::updateData(ManagementStatistics content) {
 		for (const auto & it : m) {
 			{
 				QLabel * achievementLabel = new QLabel(QApplication::tr("MinAchievementTime").arg(it.name), this);
-				QLabel * achievementCountLabel = new QLabel(utils::timeToString(it.statistic.minimum), this);
+				QLabel * achievementCountLabel = new QLabel(timeToString(it.statistic.minimum), this);
 				QHBoxLayout * hl = new QHBoxLayout();
 				hl->addWidget(achievementLabel, 0, Qt::AlignLeft);
 				hl->addWidget(achievementCountLabel, 0, Qt::AlignRight);
@@ -309,7 +309,7 @@ void StatisticsWidget::updateData(ManagementStatistics content) {
 			}
 			{
 				QLabel * achievementLabel = new QLabel(QApplication::tr("MaxAchievementTime").arg(it.name), this);
-				QLabel * achievementCountLabel = new QLabel(utils::timeToString(it.statistic.maximum), this);
+				QLabel * achievementCountLabel = new QLabel(timeToString(it.statistic.maximum), this);
 				QHBoxLayout * hl = new QHBoxLayout();
 				hl->addWidget(achievementLabel, 0, Qt::AlignLeft);
 				hl->addWidget(achievementCountLabel, 0, Qt::AlignRight);
@@ -320,7 +320,7 @@ void StatisticsWidget::updateData(ManagementStatistics content) {
 			}
 			{
 				QLabel * achievementLabel = new QLabel(QApplication::tr("MedianAchievementTime").arg(it.name), this);
-				QLabel * achievementCountLabel = new QLabel(utils::timeToString(it.statistic.median), this);
+				QLabel * achievementCountLabel = new QLabel(timeToString(it.statistic.median), this);
 				QHBoxLayout * hl = new QHBoxLayout();
 				hl->addWidget(achievementLabel, 0, Qt::AlignLeft);
 				hl->addWidget(achievementCountLabel, 0, Qt::AlignRight);
@@ -331,7 +331,7 @@ void StatisticsWidget::updateData(ManagementStatistics content) {
 			}
 			{
 				QLabel * achievementLabel = new QLabel(QApplication::tr("AvgAchievementTime").arg(it.name), this);
-				QLabel * achievementCountLabel = new QLabel(utils::timeToString(it.statistic.average), this);
+				QLabel * achievementCountLabel = new QLabel(timeToString(it.statistic.average), this);
 				QHBoxLayout * hl = new QHBoxLayout();
 				hl->addWidget(achievementLabel, 0, Qt::AlignLeft);
 				hl->addWidget(achievementCountLabel, 0, Qt::AlignRight);

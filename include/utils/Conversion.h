@@ -31,10 +31,11 @@ namespace utils {
 #define s2q(str) QString::fromUtf8(std::string(str).c_str()).replace("&apos;", "'")
 #define q2s(str) QString(str).replace("'", "&apos;").trimmed().toUtf8().toStdString()
 #define q2ws(str) QString(str).replace("'", "&apos;").trimmed().toStdWString()
+#define i2s(number) QLocale::system().toString(number)
 
 	inline QString byteToString(qint64 value) {
 		QString unit = "B";
-		double dSize = double(value);
+		double dSize = static_cast<double>(value);
 		while (dSize > 1024 && unit != "GB") {
 			dSize /= 1024.0;
 			if (unit == "B") {
@@ -66,13 +67,13 @@ namespace utils {
 
 	inline QString timeToString(double duration) {
 		QString timeString;
-		if (std::abs(duration + 1) < DBL_EPSILON || std::abs(duration) < DBL_EPSILON) {
+		if (std::abs(duration + 1) < std::numeric_limits<double>::epsilon() || std::abs(duration) < std::numeric_limits<double>::epsilon()) {
 			timeString = "-";
 		} else {
 			if (duration > 90) {
-				timeString = QString::number((int(duration) + 30) / 60) + " " + ((duration >= 90) ? QApplication::tr("Hours") : QApplication::tr("Hour"));
+				timeString = i2s((static_cast<int>(duration) + 30) / 60) + " " + (duration >= 90 ? QApplication::tr("Hours") : QApplication::tr("Hour"));
 			} else {
-				timeString = QString::number(int(duration)) + " " + ((duration > 1 || std::abs(duration) < DBL_EPSILON) ? QApplication::tr("Minutes") : QApplication::tr("Minute"));
+				timeString = QString::number(static_cast<int>(duration)) + " " + ((duration > 1 || std::abs(duration) < std::numeric_limits<double>::epsilon()) ? QApplication::tr("Minutes") : QApplication::tr("Minute"));
 			}
 		}
 		return timeString;

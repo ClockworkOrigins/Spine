@@ -389,7 +389,7 @@ void ProfileView::updateModList(std::vector<common::ModStats> mods) {
 		timeString = "-";
 	} else {
 		if (overallDuration > 90) {
-			timeString = QString::number((overallDuration + 30) / 60) + " " + ((overallDuration >= 90) ? QApplication::tr("Hours") : QApplication::tr("Hour"));
+			timeString = i2s((overallDuration + 30) / 60) + " " + ((overallDuration >= 90) ? QApplication::tr("Hours") : QApplication::tr("Hour"));
 		} else {
 			timeString = QString::number(overallDuration) + " " + ((overallDuration > 1 || overallDuration == 0) ? QApplication::tr("Minutes") : QApplication::tr("Minute"));
 		}
@@ -401,7 +401,7 @@ void ProfileView::updateModList(std::vector<common::ModStats> mods) {
 }
 
 void ProfileView::updateUserLevel(uint32_t level, uint32_t currentXP, uint32_t nextXP) {
-	_nameLabel->setText(Config::Username + " - " + QApplication::tr("Level") + " " + QString::number(level) + " (" + QString::number(currentXP) + " / " + QString::number(nextXP) + ")");
+	_nameLabel->setText(Config::Username + " - " + QApplication::tr("Level") + " " + i2s(level) + " (" + i2s(currentXP) + " / " + i2s(nextXP) + ")");
 }
 
 void ProfileView::updateAchievements(int32_t modID, std::vector<common::SendAllAchievementStatsMessage::AchievementStats> achievementStats) {
@@ -480,7 +480,7 @@ void ProfileView::updateScores(std::vector<common::SendAllScoreStatsMessage::Sco
 			if (lastScore != p.second) {
 				rank = lastRank;
 			}
-			m->appendRow(QList<QStandardItem *>() << new QStandardItem(QString::number(rank)) << new QStandardItem(QString::fromLatin1(p.first.c_str())) << new QStandardItem(QString::number(p.second)));
+			m->appendRow(QList<QStandardItem *>() << new QStandardItem(i2s(rank)) << new QStandardItem(QString::fromLatin1(p.first.c_str())) << new QStandardItem(i2s(p.second)));
 			m->item(row, 0)->setEnabled(QString::fromLatin1(p.first.c_str()) == Config::Username);
 			m->item(row, 0)->setTextAlignment(Qt::AlignCenter);
 			m->item(row, 1)->setEnabled(QString::fromLatin1(p.first.c_str()) == Config::Username);

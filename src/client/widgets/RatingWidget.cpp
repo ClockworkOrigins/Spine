@@ -25,6 +25,7 @@
 #include "https/Https.h"
 
 #include "utils/Config.h"
+#include "utils/Conversion.h"
 
 #include "clockUtils/sockets/TcpSocket.h"
 
@@ -100,7 +101,7 @@ void RatingWidget::updateRating(int32_t modID, qreal rating, int32_t count, bool
 	if (_editable) {
 		setToolTip(QApplication::tr("OwnRatingTooltip").arg(_modname));
 	} else {
-		setToolTip(QApplication::tr("AvgRatingTooltip").arg(rating, 0, 'f', 1).arg(count).arg(_modname));
+		setToolTip(QApplication::tr("AvgRatingTooltip").arg(rating, 0, 'f', 1).arg(i2s(count)).arg(_modname));
 	}
 }
 

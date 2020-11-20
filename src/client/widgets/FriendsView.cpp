@@ -144,7 +144,7 @@ void FriendsView::loginChanged() {
 void FriendsView::updateFriendsList(std::vector<common::Friend> friends, std::vector<common::Friend> friendRequests) {
 	_model->clear();
 	for (const common::Friend & s : friends) {
-		_model->appendRow(new QStandardItem(s2q(s.name) + " (" + QApplication::tr("Level") + " " + QString::number(s.level) + ")"));
+		_model->appendRow(new QStandardItem(s2q(s.name) + " (" + QApplication::tr("Level") + " " + i2s(s.level) + ")"));
 	}
 
 	for (FriendRequestView * frv : _friendRequests) {

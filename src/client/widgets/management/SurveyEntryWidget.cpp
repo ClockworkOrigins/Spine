@@ -25,6 +25,7 @@
 
 #include "utils/Compression.h"
 #include "utils/Config.h"
+#include "utils/Conversion.h"
 #include "utils/FileDownloader.h"
 
 #include <QApplication>
@@ -56,10 +57,10 @@ SurveyEntryWidget::SurveyEntryWidget(int projectID, ManagementSurvey survey, QWi
 	QLabel * languageValueLbl = new QLabel(survey.language, this);
 
 	QLabel * questionCountLbl = new QLabel(QApplication::tr("Questions") + ":", this);
-	QLabel * questionCountValueLbl = new QLabel(QString::number(survey.questionCount), this);
+	QLabel * questionCountValueLbl = new QLabel(i2s(survey.questionCount), this);
 
 	QLabel * answerCountLbl = new QLabel(QApplication::tr("Answers") + ":", this);
-	QLabel * answerCountValueLbl = new QLabel(QString::number(survey.answerCount), this);
+	QLabel * answerCountValueLbl = new QLabel(i2s(survey.answerCount), this);
 
 	hl->addWidget(deleteButton);
 	

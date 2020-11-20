@@ -104,7 +104,6 @@ int Config::Init() {
 	
 	Database::DBError err;
 	Database::execute(Config::BASEDIR.toStdString() + "/" + BACKUP_DATABASE, "CREATE TABLE IF NOT EXISTS downloadPath(Path TEXT NOT NULL PRIMARY KEY);", err);
-
 	
 	STYLESDIR = BASEDIR + "/styles/";
 	{

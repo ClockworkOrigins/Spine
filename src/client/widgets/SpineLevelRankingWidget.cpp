@@ -28,6 +28,7 @@
 #include "https/Https.h"
 
 #include "utils/Config.h"
+#include "utils/Conversion.h"
 
 #include <QApplication>
 #include <QHeaderView>
@@ -44,7 +45,7 @@ using namespace spine::utils;
 using namespace spine::widgets;
 
 SpineLevelRankingWidget::SpineLevelRankingWidget(QWidget * par) : QWidget(par), _waitSpinner(nullptr) {
-	QVBoxLayout * l = new QVBoxLayout();
+	auto * l = new QVBoxLayout();
 
 	_tableView = new QTableView(this);
 	_model = new QStandardItemModel(_tableView);
@@ -60,9 +61,9 @@ SpineLevelRankingWidget::SpineLevelRankingWidget(QWidget * par) : QWidget(par), 
 	l->addWidget(_tableView);
 
 	{
-		QHBoxLayout* hl = new QHBoxLayout();
+		auto * hl = new QHBoxLayout();
 		
-		QPushButton * reportContentBtn = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/flag.svg"), "", this);
+		auto * reportContentBtn = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/flag.svg"), "", this);
 		reportContentBtn->setToolTip(QApplication::tr("ReportContent"));
 
 		connect(reportContentBtn, &QPushButton::released, this, [this]() {
@@ -121,7 +122,7 @@ void SpineLevelRankingWidget::updateView(QList<RankingEntry> rankingEntries) {
 	int row = 0;
 	
 	for (const auto & re : rankingEntries) {
-		_model->appendRow({ new QStandardItem(QString::number(re.rank)), new QStandardItem(re.username), new QStandardItem(QString::number(re.level)), new QStandardItem(QString::number(re.xp)) });
+		_model->appendRow({ new QStandardItem(i2s(re.rank)), new QStandardItem(re.username), new QStandardItem(i2s(re.level)), new QStandardItem(i2s(re.xp)) });
 		_model->item(row, 0)->setEnabled(re.username == Config::Username);
 		_model->item(row, 0)->setTextAlignment(Qt::AlignCenter);
 		_model->item(row, 1)->setEnabled(re.username == Config::Username);

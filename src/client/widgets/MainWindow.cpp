@@ -916,7 +916,7 @@ void MainWindow::checkIntegrity(int projectID) {
 			if (QMessageBox::StandardButton::Ok == msg.exec()) {
 			}
 		} else {
-			QString text = QApplication::tr("CheckIntegrityFailed") + "\n" + QApplication::tr("CorruptedFiles") + ": " + QString::number(corruptFiles.count() + corruptGothicFiles.count() + corruptGothic2Files.count());
+			QString text = QApplication::tr("CheckIntegrityFailed") + "\n" + QApplication::tr("CorruptedFiles") + ": " + i2s(corruptFiles.count() + corruptGothicFiles.count() + corruptGothic2Files.count());
 			
 			QMessageBox msg(QMessageBox::Icon::Critical, QApplication::tr("CheckIntegrity"), text, QMessageBox::StandardButton::Ok | QMessageBox::StandardButton::Cancel);
 			msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
