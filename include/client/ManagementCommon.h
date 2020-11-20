@@ -130,7 +130,6 @@ namespace client {
 	} ManagementVersionDownload;
 
 	typedef struct {
-		int32_t minimum = 0;
 		int32_t maximum = 0;
 		int32_t average = 0;
 		int32_t median = 0;

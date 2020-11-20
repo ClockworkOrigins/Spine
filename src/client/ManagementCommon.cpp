@@ -292,15 +292,12 @@ void ManagementVersionDownload::read(const QJsonObject & json) {
 }
 
 void ManagementStatistic::read(const QJsonObject & json) {
-	if (!json.contains("Minimum")) return;
-	
 	if (!json.contains("Maximum")) return;
 	
 	if (!json.contains("Median")) return;
 	
 	if (!json.contains("Average")) return;
 
-	minimum = json["Minimum"].toString().toInt();
 	maximum = json["Maximum"].toString().toInt();
 	median = json["Median"].toString().toInt();
 	average = json["Average"].toString().toInt();

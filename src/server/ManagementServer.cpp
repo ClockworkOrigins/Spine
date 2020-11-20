@@ -1362,16 +1362,12 @@ void ManagementServer::getStatistics(std::shared_ptr<HttpsServer::Response> resp
 			}
 			results = database.getResults<std::vector<std::string>>();
 
-			uint32_t min = std::numeric_limits<uint32_t>::max();
 			uint32_t max = 0;
 			uint64_t count = 0;
 			uint32_t medianPlaytime = 0;
 			for (size_t i = 0; i < results.size(); i++) {
 				const auto vec = results[i];
 				const uint32_t current = static_cast<uint32_t>(std::stoi(vec[0]));
-				if (current < min) {
-					min = current;
-				}
 				if (current > max) {
 					max = current;
 				}
@@ -1382,7 +1378,6 @@ void ManagementServer::getStatistics(std::shared_ptr<HttpsServer::Response> resp
 			}
 			ptree playTimeNode;
 			{
-				playTimeNode.put("Minimum", min);
 				playTimeNode.put("Maximum", max);
 				playTimeNode.put("Median", medianPlaytime);
 				playTimeNode.put("Average", results.empty() ? 0 : static_cast<int32_t>(count / results.size()));
@@ -1397,16 +1392,12 @@ void ManagementServer::getStatistics(std::shared_ptr<HttpsServer::Response> resp
 			}
 			results = database.getResults<std::vector<std::string>>();
 
-			min = std::numeric_limits<uint32_t>::max();
 			max = 0;
 			count = 0;
 			medianPlaytime = 0;
 			for (size_t i = 0; i < results.size(); i++) {
 				const auto vec = results[i];
 				const uint32_t current = static_cast<uint32_t>(std::stoi(vec[0]));
-				if (current < min) {
-					min = current;
-				}
 				if (current > max) {
 					max = current;
 				}
@@ -1417,7 +1408,6 @@ void ManagementServer::getStatistics(std::shared_ptr<HttpsServer::Response> resp
 			}
 			ptree sessionTimeNode;
 			{
-				sessionTimeNode.put("Minimum", min);
 				sessionTimeNode.put("Maximum", max);
 				sessionTimeNode.put("Median", medianPlaytime);
 				sessionTimeNode.put("Average", results.empty() ? 0 : static_cast<int32_t>(count / results.size()));
@@ -1479,16 +1469,12 @@ void ManagementServer::getStatistics(std::shared_ptr<HttpsServer::Response> resp
 				}
 				const auto results2 = database.getResults<std::vector<std::string>>();
 
-				min = std::numeric_limits<uint32_t>::max();
 				max = 0;
 				count = 0;
 				medianPlaytime = 0;
 				for (size_t i = 0; i < results2.size(); i++) {
 					const auto vec2 = results2[i];
 					const uint32_t current = static_cast<uint32_t>(std::stoi(vec2[0]));
-					if (current < min) {
-						min = current;
-					}
 					if (current > max) {
 						max = current;
 					}
@@ -1497,7 +1483,6 @@ void ManagementServer::getStatistics(std::shared_ptr<HttpsServer::Response> resp
 						medianPlaytime = current;
 					}
 				}
-				achievementStatisticNode.put("Minimum", min);
 				achievementStatisticNode.put("Maximum", max);
 				achievementStatisticNode.put("Median", medianPlaytime);
 				achievementStatisticNode.put("Average", results2.empty() ? 0 : static_cast<int32_t>(count / results2.size()));

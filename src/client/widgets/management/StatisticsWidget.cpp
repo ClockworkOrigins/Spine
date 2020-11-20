@@ -206,17 +206,6 @@ void StatisticsWidget::updateData(ManagementStatistics content) {
 		_labelList.append(playersCountLabel);
 	}
 	{
-		QLabel * minPlaytimeLabel = new QLabel(QApplication::tr("MinPlaytime"), this);
-		QLabel * minPlaytimeCountLabel = new QLabel(timeToString(content.playTime.minimum), this);
-		QHBoxLayout * hl = new QHBoxLayout();
-		hl->addWidget(minPlaytimeLabel, 0, Qt::AlignLeft);
-		hl->addWidget(minPlaytimeCountLabel, 0, Qt::AlignRight);
-		_playtimesLayout->addLayout(hl);
-
-		_labelList.append(minPlaytimeLabel);
-		_labelList.append(minPlaytimeCountLabel);
-	}
-	{
 		QLabel * maxPlaytimeLabel = new QLabel(QApplication::tr("MaxPlaytime"), this);
 		QLabel * maxPlaytimeCountLabel = new QLabel(timeToString(content.playTime.maximum), this);
 		QHBoxLayout * hl = new QHBoxLayout();
@@ -248,17 +237,6 @@ void StatisticsWidget::updateData(ManagementStatistics content) {
 
 		_labelList.append(avgPlaytimeLabel);
 		_labelList.append(avgPlaytimeCountLabel);
-	}
-	{
-		QLabel * minSessiontimeLabel = new QLabel(QApplication::tr("MinSessiontime"), this);
-		QLabel * minSessiontimeCountLabel = new QLabel(timeToString(content.sessionTime.minimum), this);
-		QHBoxLayout * hl = new QHBoxLayout();
-		hl->addWidget(minSessiontimeLabel, 0, Qt::AlignLeft);
-		hl->addWidget(minSessiontimeCountLabel, 0, Qt::AlignRight);
-		_playtimesLayout->addLayout(hl);
-
-		_labelList.append(minSessiontimeLabel);
-		_labelList.append(minSessiontimeCountLabel);
 	}
 	{
 		QLabel * maxSessiontimeLabel = new QLabel(QApplication::tr("MaxSessiontime"), this);
@@ -296,17 +274,6 @@ void StatisticsWidget::updateData(ManagementStatistics content) {
 	{
 		const auto m = content.achievementStatistics;
 		for (const auto & it : m) {
-			{
-				QLabel * achievementLabel = new QLabel(QApplication::tr("MinAchievementTime").arg(it.name), this);
-				QLabel * achievementCountLabel = new QLabel(timeToString(it.statistic.minimum), this);
-				QHBoxLayout * hl = new QHBoxLayout();
-				hl->addWidget(achievementLabel, 0, Qt::AlignLeft);
-				hl->addWidget(achievementCountLabel, 0, Qt::AlignRight);
-				_achievementsLayout->addLayout(hl);
-
-				_labelList.append(achievementLabel);
-				_labelList.append(achievementCountLabel);
-			}
 			{
 				QLabel * achievementLabel = new QLabel(QApplication::tr("MaxAchievementTime").arg(it.name), this);
 				QLabel * achievementCountLabel = new QLabel(timeToString(it.statistic.maximum), this);
