@@ -1017,7 +1017,7 @@ namespace common {
 		}
 	};
 
-	struct SendUserInfosMessage : public Message {
+	struct [[deprecated("Usage of this struct is deprecated. Will be removed in Spine 1.28.0")]] SendUserInfosMessage : public Message {
 		std::string username;
 		std::string password;
 		std::string hash;

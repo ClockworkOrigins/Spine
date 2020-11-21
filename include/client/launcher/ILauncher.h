@@ -143,6 +143,8 @@ namespace launcher {
 		bool isAllowedSymlinkSuffix(QString suffix) const;
 		bool linkOrCopyFile(QString sourcePath, QString destinationPath);
 
+		void sendUserInfos(QJsonObject json) const;
+
 	private:
 		QLabel * _playTimeLabel = nullptr;
 		widgets::RatingWidget * _ratingWidget = nullptr;

@@ -30,6 +30,8 @@
 
 #include "https/Https.h"
 
+#include "security/Hash.h"
+
 #include "utils/Config.h"
 #include "utils/Conversion.h"
 #include "utils/Database.h"
@@ -56,7 +58,9 @@
 
 using namespace spine::common;
 using namespace spine::discord;
+using namespace spine::https;
 using namespace spine::launcher;
+using namespace spine::security;
 using namespace spine::utils;
 using namespace spine::widgets;
 
@@ -1111,6 +1115,15 @@ void ILauncher::synchronizeOfflineData() {
 	});
 }
 
+bool ILauncher::isAllowedSymlinkSuffix(QString suffix) const {
+	suffix = suffix.toLower();
+	const bool canSymlink = suffix == "mod" || suffix == "vdf" || suffix == "sty" || suffix == "sgt" || suffix == "dls" || suffix == "bik" || suffix == "dds" || suffix == "jpg" || suffix == "png" || suffix == "mi" || suffix == "hlsl" || suffix == "h" || suffix == "vi" || suffix == "exe" || suffix == "dll" || suffix == "bin" || suffix == "mtl" || suffix == "obj" || suffix == "txt" || suffix == "rtf" || suffix == "obj" || suffix == "ico" || suffix == "ini" || suffix == "bak" || suffix == "gsp" || suffix == "pdb" || suffix == "config" || suffix == "fx" || suffix == "3ds" || suffix == "mcache" || suffix == "fxh";
+	if (!canSymlink) {
+		LOGINFO("Copying extension: " << suffix.toStdString())
+	}
+	return canSymlink;
+}
+
 bool ILauncher::linkOrCopyFile(QString sourcePath, QString destinationPath) {
 #ifdef Q_OS_WIN
 	const auto suffix = QFileInfo(sourcePath).suffix();
@@ -1131,11 +1144,14 @@ bool ILauncher::linkOrCopyFile(QString sourcePath, QString destinationPath) {
 #endif
 }
 
-bool ILauncher::isAllowedSymlinkSuffix(QString suffix) const {
-	suffix = suffix.toLower();
-	const bool canSymlink = suffix == "mod" || suffix == "vdf" || suffix == "sty" || suffix == "sgt" || suffix == "dls" || suffix == "bik" || suffix == "dds" || suffix == "jpg" || suffix == "png" || suffix == "mi" || suffix == "hlsl" || suffix == "h" || suffix == "vi" || suffix == "exe" || suffix == "dll" || suffix == "bin" || suffix == "mtl" || suffix == "obj" || suffix == "txt" || suffix == "rtf" || suffix == "obj" || suffix == "ico" || suffix == "ini" || suffix == "bak" || suffix == "gsp" || suffix == "pdb" || suffix == "config" || suffix == "fx" || suffix == "3ds" || suffix == "mcache" || suffix == "fxh";
-	if (!canSymlink) {
-		LOGINFO("Copying extension: " << suffix.toStdString())
-	}
-	return canSymlink;
+void ILauncher::sendUserInfos(QJsonObject json) const {
+	json["Username"] = Config::Username;
+	json["Password"] = Config::Password;
+	json["Hash"] = Hash::calculateSystemHash();
+	json["Mac"] = Hash::getMAC();
+	json["Language"] = Config::Language;
+	json["Count"] = 1;
+
+	Https::postAsync(DATABASESERVER_PORT, "sendUserInfos", QJsonDocument(json).toJson(QJsonDocument::Compact), [](const QJsonObject &, int) {});
 }
+

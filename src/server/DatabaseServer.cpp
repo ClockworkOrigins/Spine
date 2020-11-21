@@ -30,8 +30,7 @@ using namespace boost::property_tree;
 
 using namespace spine::server;
 
-DatabaseServer::DatabaseServer() : _server(nullptr), _runner(nullptr) {
-}
+DatabaseServer::DatabaseServer() : _server(nullptr), _runner(nullptr) {}
 
 DatabaseServer::~DatabaseServer() {
 	delete _server;
@@ -51,6 +50,7 @@ int DatabaseServer::run() {
 	_server->resource["^/unlockAchievement"]["POST"] = std::bind(&DatabaseServer::unlockAchievement, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/getUserIDForDiscordID"]["POST"] = std::bind(&DatabaseServer::getUserIDForDiscordID, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/getSpineLevelRanking"]["POST"] = std::bind(&DatabaseServer::getSpineLevelRanking, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/sendUserInfos"]["POST"] = std::bind(&DatabaseServer::sendUserInfos, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -441,9 +441,9 @@ void DatabaseServer::unlockAchievement(std::shared_ptr<HttpsServer::Response> re
 		ptree pt;
 		read_json(ss, pt);
 		
-		const int32_t projectID = pt.get<int32_t>("ProjectID");
-		const int32_t userID = pt.get<int32_t>("UserID");
-		const int32_t achievementID = pt.get<int32_t>("AchievementID");
+		const auto projectID = pt.get<int32_t>("ProjectID");
+		const auto userID = pt.get<int32_t>("UserID");
+		const auto achievementID = pt.get<int32_t>("AchievementID");
 
 		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
 
@@ -605,6 +605,135 @@ void DatabaseServer::getSpineLevelRanking(std::shared_ptr<HttpsServer::Response>
 
 		response->write(SimpleWeb::StatusCode::success_ok, responseStream.str());
 	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::sendUserInfos(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		const std::string username = pt.get<std::string>("Username");
+		const std::string password = pt.get<std::string>("Password");
+		const std::string hash = pt.get<std::string>("Hash");
+		const std::string mac = pt.get<std::string>("Mac");
+		const std::string language = pt.get<std::string>("Language");
+		
+		const int userID = ServerCommon::getUserID(username, password);
+
+		if (userID == -1) {
+			response->write(code);
+			return;
+		}
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+			
+			if (!database.query("PREPARE insertHashStmt FROM \"INSERT IGNORE INTO userHashes (UserID, Hash) VALUES (?, ?)\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("PREPARE updateSessionInfosStmt FROM \"INSERT INTO userSessionInfos (UserID, Mac, IP, Hash) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE Mac = ?, IP = ?, Hash = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("PREPARE updateUserSettingsStmt FROM \"INSERT INTO userSettings (UserID, Entry, Value) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE Value = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("PREPARE updateUserLanguageStmt FROM \"INSERT INTO userLanguages (UserID, Language) VALUES (?, ?) ON DUPLICATE KEY UPDATE Language = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("PREPARE insertBanStmt FROM \"INSERT IGNORE INTO provisoricalBans (UserID) VALUES (?)\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("PREPARE selectSessionInfoMatchStmt FROM \"SELECT * FROM userSessionInfos WHERE UserID = ? AND Mac = ? AND Hash = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramHash='" + hash + "';")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramMac='" + mac + "';")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramIP='" + request->remote_endpoint_address() + "';")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramLanguage='" + language + "';")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("EXECUTE updateUserLanguageStmt USING @paramUserID, @paramLanguage, @paramLanguage;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			if (pt.count("Launch") == 1) { // in this case settings have to be empty
+				if (!database.query("EXECUTE selectSessionInfoMatchStmt USING @paramUserID, @paramMac, @paramHash;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					break;
+				}
+				const auto lastResults = database.getResults<std::vector<std::string>>();
+				if (lastResults.empty()) { // if current mac doesn't match the mac from startup => ban
+					if (!database.query("EXECUTE insertBanStmt USING @paramUserID;")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						break;
+					}
+					break;
+				}
+			}
+			if (!database.query("EXECUTE insertHashStmt USING @paramUserID, @paramHash;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			if (!database.query("EXECUTE updateSessionInfosStmt USING @paramUserID, @paramMac, @paramIP, @paramHash, @paramMac, @paramIP, @paramHash;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			if (pt.count("Settings") == 1) {
+				for (const auto & v : pt.get_child("Settings")) {
+					const auto data = v.second;
+					const std::string entry = data.get<std::string>("Entry");
+					const std::string value = data.get<std::string>("Value");
+					
+					if (!database.query("SET @paramEntry='" + entry + "';")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						continue;
+					}
+					if (!database.query("SET @paramValue='" + value + "';")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						continue;
+					}
+					if (!database.query("EXECUTE updateUserSettingsStmt USING @paramUserID, @paramEntry, @paramValue, @paramValue;")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						continue;
+					}
+				}
+			}
+		} while (false);
+
+		response->write(code);
+	}
+	catch (...) {
 		response->write(SimpleWeb::StatusCode::client_error_bad_request);
 	}
 }

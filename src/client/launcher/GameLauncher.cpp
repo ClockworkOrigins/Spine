@@ -97,32 +97,22 @@ void GameLauncher::start() {
 
 	if (!QFileInfo::exists(executablePath)) return;
 
-	widgets::MainWindow::getInstance()->setDisabled(true);
-	_oldWindowState = widgets::MainWindow::getInstance()->windowState();
-	widgets::MainWindow::getInstance()->setWindowState(Qt::WindowState::WindowMinimized);
+	MainWindow::getInstance()->setDisabled(true);
+	_oldWindowState = MainWindow::getInstance()->windowState();
+	MainWindow::getInstance()->setWindowState(Qt::WindowState::WindowMinimized);
 	
 	auto * process = new QProcess(this);
-	connect(process, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), this, &GameLauncher::finishedGame);
+	connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &GameLauncher::finishedGame);
 	process->setWorkingDirectory(_directory);
 	
-	QStringList args;
 	if (!Config::Username.isEmpty() && Config::OnlineMode) {
-		clockUtils::sockets::TcpSocket sock;
-		if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 5000)) {
-			common::SendUserInfosMessage suim;
-			suim.username = Config::Username.toStdString();
-			suim.password = Config::Password.toStdString();
-			suim.hash = security::Hash::calculateSystemHash().toStdString();
-			suim.mac = security::Hash::getMAC().toStdString();
-
-			const std::string serialized = suim.SerializePublic();
-			sock.writePacket(serialized);
-		}
+		sendUserInfos(QJsonObject());
 	}
 
 	linkOrCopyFile(qApp->applicationDirPath() + "/SpineAPI.dll", _directory + "/SpineAPI.dll");
 	linkOrCopyFile(qApp->applicationDirPath() + "/SpineAPI64.dll", _directory + "/SpineAPI64.dll");
 
+	const QStringList args;
 	process->start(QString("\"%1\"").arg(executablePath), args);
 
 	startCommon();

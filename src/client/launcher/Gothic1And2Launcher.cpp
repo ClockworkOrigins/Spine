@@ -294,7 +294,7 @@ void Gothic1And2Launcher::createWidget() {
 		gothicLauncher->_noMusic->setChecked(_noMusic->isChecked());
 	});
 
-	QHBoxLayout * hl = new QHBoxLayout();
+	auto * hl = new QHBoxLayout();
 	{
 		_patchGroup = new QGroupBox(QApplication::tr("PatchesAndTools"), _widget);
 		UPDATELANGUAGESETTITLE(_patchGroup, "PatchesAndTools");
@@ -305,8 +305,8 @@ void Gothic1And2Launcher::createWidget() {
 			_patchLayout->setColumnStretch(2, 1);
 
 			auto * vb = new QVBoxLayout();
-			QScrollArea * sa = new QScrollArea(_patchGroup);
-			QWidget * cw = new QWidget(sa);
+			auto * sa = new QScrollArea(_patchGroup);
+			auto * cw = new QWidget(sa);
 			vb->setAlignment(Qt::AlignTop);
 			cw->setLayout(_patchLayout);
 			sa->setWidget(cw);
@@ -330,7 +330,7 @@ void Gothic1And2Launcher::createWidget() {
 		hl->addWidget(_patchGroup);
 		hl->addWidget(_pdfGroup);
 	}
-	QHBoxLayout * zSpyLayout = new QHBoxLayout();
+	auto * zSpyLayout = new QHBoxLayout();
 	{
 		_zSpyLabel = new QLabel(QApplication::tr("zSpyLevel"), _widget);
 		_zSpyLabel->setProperty("library", true);
@@ -392,7 +392,7 @@ void Gothic1And2Launcher::updateCompatibilityList(int modID, std::vector<int32_t
 	for (const Patch & p : patches) {
 		const common::GameType gv = static_cast<common::GameType>(std::stoi(Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + std::to_string(p.modID) + " LIMIT 1;", err, 0)));
 		if ((gv == modGv.gothicVersion || ((modGv.gothicVersion == common::GameType::Gothic || modGv.gothicVersion == common::GameType::Gothic2 || modGv.gothicVersion == common::GameType::GothicInGothic2) && gv == common::GameType::Gothic1And2)) && (!contains(incompatiblePatches, p.modID) || !_hideIncompatible) && !contains(forbiddenPatches, p.modID)) {
-			QCheckBox * cb = new QCheckBox(s2q(p.name), _widget);
+			auto * cb = new QCheckBox(s2q(p.name), _widget);
 			cb->setProperty("library", true);
 			_patchLayout->addWidget(cb, _patchCounter / 2, _patchCounter % 2);
 			++_patchCounter;
@@ -467,7 +467,7 @@ void Gothic1And2Launcher::startSpacer() {
 		}
 		iniParser.endGroup();
 	}
-	QProcess * process = new QProcess(this);
+	auto * process = new QProcess(this);
 	connect(process, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), this, &Gothic1And2Launcher::finishedSpacer);
 	connect(process, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), process, &Gothic1And2Launcher::deleteLater);
 	process->setWorkingDirectory(_directory + "/System/");
@@ -643,7 +643,7 @@ void Gothic1And2Launcher::updateView(int modID, const QString & iniFile) {
 			QDirIterator it(Config::DOWNLOADDIR + "/mods/" + QString::number(_modID) + "/", QStringList() << "*.pdf", QDir::Filter::Files);
 			while (it.hasNext()) {
 				it.next();
-				QLabel * l = new QLabel("<a href=\"file:///" + it.filePath().toHtmlEscaped() + R"(" style="color: #181C22">)" + QFileInfo(it.fileName()).fileName() + "</a>", _pdfGroup);
+				auto * l = new QLabel("<a href=\"file:///" + it.filePath().toHtmlEscaped() + R"(" style="color: #181C22">)" + QFileInfo(it.fileName()).fileName() + "</a>", _pdfGroup);
 				l->setProperty("library", true);
 				l->setOpenExternalLinks(true);
 				_pdfLayout->addWidget(l);
@@ -651,7 +651,7 @@ void Gothic1And2Launcher::updateView(int modID, const QString & iniFile) {
 			}
 		}
 		if (!_pdfList.empty()) {
-			QLabel * l = new QLabel(_pdfGroup);
+			auto * l = new QLabel(_pdfGroup);
 			l->setProperty("library", true);
 			_pdfLayout->addWidget(l);
 			_pdfLayout->setStretchFactor(l, 1);
@@ -670,7 +670,7 @@ void Gothic1And2Launcher::updateView(int modID, const QString & iniFile) {
 		for (const Patch & p : patches) {
 			const common::GameType gv = static_cast<common::GameType>(std::stoi(Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + std::to_string(p.modID) + " LIMIT 1;", err, 0)));
 			if (gv == gothicVersion || ((gothicVersion == common::GameType::Gothic || gothicVersion == common::GameType::Gothic2 || gothicVersion == common::GameType::GothicInGothic2) && gv == common::GameType::Gothic1And2)) {
-				QCheckBox * cb = new QCheckBox(s2q(p.name), _widget);
+				auto * cb = new QCheckBox(s2q(p.name), _widget);
 				cb->setProperty("library", true);
 				_patchLayout->addWidget(cb);
 				_patchList.append(cb);
@@ -764,9 +764,9 @@ void Gothic1And2Launcher::start() {
 		widgets::MainWindow::getInstance()->setWindowState(_oldWindowState);
 		return;
 	}
-	QProcess * process = new QProcess(this);
+	auto * process = new QProcess(this);
 	for (const QString & backgroundProcess : backgroundExecutables) {
-		QProcess * bp = new QProcess(process);
+		auto * bp = new QProcess(process);
 		connect(process, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), bp, &QProcess::terminate);
 		bp->setWorkingDirectory(_directory + "/" + QFileInfo(backgroundProcess).path());
 		bp->start("\"" + _directory + "/" + backgroundProcess + "\"");
@@ -775,7 +775,7 @@ void Gothic1And2Launcher::start() {
 	connect(process, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), this, &Gothic1And2Launcher::finishedMod);
 	process->setWorkingDirectory(_directory + "/System/");
 	if (Config::extendedLogging) {
-		LOGINFO("Preparation duration: " << t.elapsed());
+		LOGINFO("Preparation duration: " << t.elapsed())
 	}
 	QStringList args;
 	args << "-game:" + _iniFile.split("/").back();
@@ -785,32 +785,45 @@ void Gothic1And2Launcher::start() {
 		LOGINFO("Started zSpy");
 	}
 	if (!Config::Username.isEmpty() && Config::OnlineMode) {
-		clockUtils::sockets::TcpSocket sock;
-		if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 5000)) {
-			common::SendUserInfosMessage suim;
-			suim.username = Config::Username.toStdString();
-			suim.password = Config::Password.toStdString();
-			suim.hash = security::Hash::calculateSystemHash().toStdString();
-			suim.mac = security::Hash::getMAC().toStdString();
-			QSettings gothicIniParser(_directory + "/System/Gothic.ini", QSettings::IniFormat);
+		QJsonObject json;
+		QJsonArray jsonArray;
+		
+		QSettings gothicIniParser(_directory + "/System/Gothic.ini", QSettings::IniFormat);
+		{
+			QString zVidResFullscreenX = gothicIniParser.value("VIDEO/zVidResFullscreenX", "0").toString();
+			QString zVidResFullscreenY = gothicIniParser.value("VIDEO/zVidResFullscreenY", "0").toString();
+
 			{
-				QString zVidResFullscreenX = gothicIniParser.value("VIDEO/zVidResFullscreenX", "0").toString();
-				QString zVidResFullscreenY = gothicIniParser.value("VIDEO/zVidResFullscreenY", "0").toString();
-				suim.settings.emplace_back("zVidResFullscreenX", zVidResFullscreenX.toStdString());
-				suim.settings.emplace_back("zVidResFullscreenY", zVidResFullscreenY.toStdString());
-				gothicIniParser.beginGroup("KEYS");
-				QStringList entries = gothicIniParser.allKeys();
-				for (const QString & s : entries) {
-					QString value = gothicIniParser.value(s, "").toString();
-					if (!value.isEmpty()) {
-						suim.settings.emplace_back(s.toStdString(), value.toStdString());
-					}
-				}
-				gothicIniParser.endGroup();
+				QJsonObject entry;
+				entry["Entry"] = "zVidResFullscreenX";
+				entry["Value"] = zVidResFullscreenX;
+
+				jsonArray << entry;
 			}
-			const std::string serialized = suim.SerializePublic();
-			sock.writePacket(serialized);
+			{
+				QJsonObject entry;
+				entry["Entry"] = "zVidResFullscreenY";
+				entry["Value"] = zVidResFullscreenY;
+
+				jsonArray << entry;
+			}
+			
+			gothicIniParser.beginGroup("KEYS");
+			QStringList entries = gothicIniParser.allKeys();
+			for (const QString & s : entries) {
+				QString value = gothicIniParser.value(s, "").toString();
+				if (!value.isEmpty()) {
+					QJsonObject entry;
+					entry["Entry"] = s;
+					entry["Value"] = value;
+
+					jsonArray << entry;
+				}
+			}
+			gothicIniParser.endGroup();
 		}
+		json["Settings"] = jsonArray;
+		sendUserInfos(json);
 	}
 	if (_developerMode && _compileScripts->isChecked()) {
 		args << "-zreparse";
@@ -868,9 +881,9 @@ void Gothic1And2Launcher::start() {
 void Gothic1And2Launcher::finishedMod(int, QProcess::ExitStatus status) {
 	_running = false;
 	
-	LOGINFO("Finished Mod");
+	LOGINFO("Finished Mod")
 	if (Config::extendedLogging) {
-		LOGINFO("Resetting ini files");
+		LOGINFO("Resetting ini files")
 	}
 	{
 		QSettings gothicIniParser(_directory + "/System/Gothic.ini", QSettings::IniFormat);
@@ -1033,7 +1046,7 @@ void Gothic1And2Launcher::finishedMod(int, QProcess::ExitStatus status) {
 }
 
 void Gothic1And2Launcher::changedPatchState() {
-	QCheckBox * cb = dynamic_cast<QCheckBox *>(sender());
+	auto * cb = dynamic_cast<QCheckBox *>(sender());
 	assert(cb);
 	if (cb) {
 		Database::DBError err;
@@ -1159,7 +1172,7 @@ void Gothic1And2Launcher::updateModStats() {
 					try {
 						common::Message * m = common::Message::DeserializePublic(serialized);
 						if (m) {
-							common::SendSingleModStatMessage * ssmsm = dynamic_cast<common::SendSingleModStatMessage *>(m);
+							auto * ssmsm = dynamic_cast<common::SendSingleModStatMessage *>(m);
 							emit receivedModStats(ssmsm->mod);
 						}
 						delete m;
@@ -1180,7 +1193,7 @@ void Gothic1And2Launcher::updateModStats() {
 					try {
 						common::Message * m = common::Message::DeserializePublic(serialized);
 						if (m) {
-							common::SendCompatibilityListMessage * sclm = dynamic_cast<common::SendCompatibilityListMessage *>(m);
+							auto * sclm = dynamic_cast<common::SendCompatibilityListMessage *>(m);
 							emit receivedCompatibilityList(modID, sclm->impossiblePatches, sclm->forbiddenPatches);
 						}
 						delete m;
@@ -2084,7 +2097,7 @@ void Gothic1And2Launcher::emitSplashMessage(QString message) {
 }
 
 void Gothic1And2Launcher::errorOccurred(QProcess::ProcessError error) {
-	QProcess * process = dynamic_cast<QProcess *>(sender());
+	auto * process = dynamic_cast<QProcess *>(sender());
 	LOGERROR("Error Code: " << error)
 	if (process) {
 		LOGERROR("Some error occurred: " << process->errorString().toStdString())
@@ -2214,7 +2227,7 @@ void Gothic1And2Launcher::parseMods(QString baseDir) {
 		while (title.startsWith(' ') || title.startsWith('\t')) {
 			title = title.remove(0, 1);
 		}
-		QStandardItem * item = new QStandardItem(QIcon(pixmap), title);
+		auto * item = new QStandardItem(QIcon(pixmap), title);
 		item->setData(s, LibraryFilterModel::IniFileRole);
 		item->setData(false, LibraryFilterModel::InstalledRole);
 		item->setData(false, LibraryFilterModel::HiddenRole);
@@ -2298,7 +2311,7 @@ void Gothic1And2Launcher::parseIni(QString file) {
 	while (title.startsWith(' ') || title.startsWith('\t')) {
 		title = title.remove(0, 1);
 	}
-	QStandardItem * item = new QStandardItem(QIcon(pixmap), title);
+	auto * item = new QStandardItem(QIcon(pixmap), title);
 	item->setData(file, LibraryFilterModel::IniFileRole);
 	item->setData(true, LibraryFilterModel::InstalledRole);
 	item->setData(modID, LibraryFilterModel::ModIDRole);
@@ -2312,7 +2325,7 @@ void Gothic1And2Launcher::parseIni(QString file) {
 	_model->appendRow(item);
 
 	QString hashSum;
-	const bool b = utils::Hashing::hash(file, hashSum);
+	const bool b = Hashing::hash(file, hashSum);
 	if (b) {
 		_parsedInis.insert(fi.fileName(), std::make_tuple(hashSum, modID));
 	}

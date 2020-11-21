@@ -43,6 +43,7 @@
 #include <QDir>
 #include <QFile>
 #include <QInputDialog>
+#include <QJsonDocument>
 #include <QJsonObject>
 #include <QLabel>
 #include <QLineEdit>
@@ -79,6 +80,7 @@ namespace login {
 
 using namespace spine;
 using namespace spine::https;
+using namespace spine::security;
 using namespace spine::utils;
 using namespace spine::widgets;
 
@@ -609,14 +611,14 @@ void LoginDialog::handleLogin() {
 				sock.writePacket(serialized);
 			}
 			{
-				common::SendUserInfosMessage suim;
-				suim.username = Config::Username.toStdString();
-				suim.password = Config::Password.toStdString();
-				suim.hash = security::Hash::calculateSystemHash().toStdString();
-				suim.mac = security::Hash::getMAC().toStdString();
-				suim.language = Config::Language.toStdString();
-				const std::string serialized = suim.SerializePublic();
-				sock.writePacket(serialized);
+				QJsonObject json;
+				json["Username"] = Config::Username;
+				json["Password"] = Config::Password;
+				json["Hash"] = Hash::calculateSystemHash();
+				json["Mac"] = Hash::getMAC();
+				json["Language"] = Config::Language;
+
+				Https::postAsync(DATABASESERVER_PORT, "sendUserInfos", QJsonDocument(json).toJson(QJsonDocument::Compact), [](const QJsonObject &, int) {});
 			}
 			Https::postAsync(DATABASESERVER_PORT, "getUserID", QString("{ \"Username\": \"%1\", \"Password\": \"%2\" }").arg(Config::Username).arg(Config::Password), [](const QJsonObject & json, int) {
 				if (!json.contains("ID")) return;
