@@ -129,23 +129,23 @@ void Gothic2Launcher::patchCheck() {
 	fileList.insert("Miles/MssSoft.m3d", "949ce71af730262719ba6c442df07e3074ee512a2c55560ce5d09de9d5de179c08fba485317a508ea887b7ecc9278b1b1fd4a1cf728cfb7a2ff3f602660406c2");
 	fileList.insert("_work/data/Video/Portal_Raven.bik", "9d4f6dc897ce5db1737bfcdf10d792dc324130ff5c9e42fa1d4d36d1909b3f15822b0595607add4fccc48cf3edebf9fcb7ac8278fb0a08cc27a3aa6db0b4a17e");
 
-	MultiFileDownloader * mfd = new MultiFileDownloader(this);
+	auto * mfd = new MultiFileDownloader(this);
 
 	auto empty = true;
 
 	for (auto it = fileList.begin(); it != fileList.end(); ++it) {
 		if (Config::extendedLogging) {
-			LOGINFO("Checking G2 file " << it.key().toStdString());
+			LOGINFO("Checking G2 file " << it.key().toStdString())
 		}
-		const bool b = utils::Hashing::checkHash(_directory + "/" + it.key(), it.value()); // TODO: hash check is performed twice, here and in FileDownloader
+		const bool b = Hashing::checkHash(_directory + "/" + it.key(), it.value()); // TODO: hash check is performed twice, here and in FileDownloader
 		if (!b) {
 			if (Config::extendedLogging) {
-				LOGWARN("Hashcheck failed");
+				LOGWARN("Hashcheck failed")
 			}
 			empty = false;
 			
 			QFileInfo fi(it.key());
-			FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/g2/" + it.key()), _directory + "/" + fi.path(), fi.fileName(), it.value(), mfd);
+			auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/g2/" + it.key()), _directory + "/" + fi.path(), fi.fileName(), it.value(), mfd);
 			mfd->addFileDownloader(fd);
 		}
 	}
@@ -183,7 +183,7 @@ QString Gothic2Launcher::getExecutable() const {
 
 bool Gothic2Launcher::canBeStartedWithSteam() const {
 #ifdef Q_OS_WIN
-	return LocationSettingsWidget::getInstance()->startGothic2WithSteam() && !_developerModeActive;
+	return LocationSettingsWidget::getInstance()->startGothic2WithSteam() && !_developerMode;
 #else
 	return false;
 #endif
@@ -191,7 +191,7 @@ bool Gothic2Launcher::canBeStartedWithSteam() const {
 
 void Gothic2Launcher::startViaSteam(QStringList arguments) {
 #ifdef Q_OS_WIN
-	SteamProcess * sp = new SteamProcess(39510, getExecutable(), arguments);
+	auto * sp = new SteamProcess(39510, getExecutable(), arguments);
 	connect(sp, &SteamProcess::finished, this, &Gothic2Launcher::finishedMod);
 	connect(sp, &SteamProcess::finished, sp, &SteamProcess::deleteLater);
 	sp->start(5);

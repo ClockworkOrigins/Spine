@@ -101,7 +101,7 @@ void GameLauncher::start() {
 	_oldWindowState = widgets::MainWindow::getInstance()->windowState();
 	widgets::MainWindow::getInstance()->setWindowState(Qt::WindowState::WindowMinimized);
 	
-	QProcess * process = new QProcess(this);
+	auto * process = new QProcess(this);
 	connect(process, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), this, &GameLauncher::finishedGame);
 	process->setWorkingDirectory(_directory);
 	
@@ -137,7 +137,7 @@ void GameLauncher::updateModStats() {
 		const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
 		if (clockUtils::ClockError::SUCCESS == cErr) {
 			{
-				common::RequestSingleModStatMessage rsmsm;
+				RequestSingleModStatMessage rsmsm;
 				rsmsm.modID = gameID;
 				rsmsm.username = Config::Username.toStdString();
 				rsmsm.password = Config::Password.toStdString();
@@ -146,9 +146,9 @@ void GameLauncher::updateModStats() {
 				sock.writePacket(serialized);
 				if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
 					try {
-						common::Message * m = common::Message::DeserializePublic(serialized);
+						Message * m = Message::DeserializePublic(serialized);
 						if (m) {
-							common::SendSingleModStatMessage * ssmsm = dynamic_cast<common::SendSingleModStatMessage *>(m);
+							auto * ssmsm = dynamic_cast<SendSingleModStatMessage *>(m);
 							emit receivedModStats(ssmsm->mod);
 						}
 						delete m;
@@ -188,6 +188,8 @@ QString GameLauncher::getOverallSavePath() const {
 void GameLauncher::updateModel(QStandardItemModel * model) {
 	_model = model;
 
+	if (_developerMode) return;
+
 	Database::DBError err;
 	const auto games = Database::queryAll<std::vector<int>, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, GothicVersion FROM mods WHERE GothicVersion = " + std::to_string(static_cast<int>(GameType::Game)) + ";", err);
 
@@ -197,12 +199,14 @@ void GameLauncher::updateModel(QStandardItemModel * model) {
 }
 
 void GameLauncher::updatedProject(int projectID) {
+	if (_developerMode) return;
+	
 	Database::DBError err;
 	const auto games = Database::queryAll<std::vector<int>, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, GothicVersion FROM mods WHERE GothicVersion = " + std::to_string(static_cast<int>(GameType::Game)) + " AND ModID = " + std::to_string(projectID) + ";", err);
 
 	if (games.empty()) return;
 
-	const auto game = games[0];
+	const auto game = games[0];	
 
 	const auto idxList = _model->match(_model->index(0, 0), LibraryFilterModel::ModIDRole, QVariant::fromValue(projectID), 2, Qt::MatchRecursive);
 
@@ -217,6 +221,8 @@ void GameLauncher::finishedInstallation(int gameID, int packageID, bool success)
 	if (!success) return;
 
 	if (packageID != -1) return;
+
+	if (_developerMode) return;
 
 	Database::DBError err;
 	const auto gameType = Database::queryNth<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + std::to_string(gameID) + " LIMIT 1;", err);
@@ -259,7 +265,7 @@ void GameLauncher::parseGame(int gameID, int gameType) {
 	while (title.startsWith(' ') || title.startsWith('\t')) {
 		title = title.remove(0, 1);
 	}
-	QStandardItem * item = new QStandardItem(QIcon(pixmap), title);
+	auto * item = new QStandardItem(QIcon(pixmap), title);
 	item->setData(cfgPath, LibraryFilterModel::IniFileRole);
 	item->setData(true, LibraryFilterModel::InstalledRole);
 	item->setData(gameID, LibraryFilterModel::ModIDRole);

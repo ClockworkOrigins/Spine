@@ -102,7 +102,6 @@ namespace {
 void Gothic1And2Launcher::init() {
 	ILauncher::init();
 
-	_developerModeActive = false;
 	_patchCounter = 0;
 	_hideIncompatible = true;
 	_gmpCounterBackup = -1;
@@ -357,7 +356,7 @@ void Gothic1And2Launcher::createWidget() {
 }
 
 void Gothic1And2Launcher::setDeveloperMode(bool enabled) {
-	_developerModeActive = enabled;
+	ILauncher::setDeveloperMode(enabled);
 	
 	_compileScripts->setVisible(enabled);
 	_startupWindowed->setVisible(enabled);
@@ -813,19 +812,19 @@ void Gothic1And2Launcher::start() {
 			sock.writePacket(serialized);
 		}
 	}
-	if (_developerModeActive && _compileScripts->isChecked()) {
+	if (_developerMode && _compileScripts->isChecked()) {
 		args << "-zreparse";
 	}
-	if (_developerModeActive && _startupWindowed->isChecked()) {
+	if (_developerMode && _startupWindowed->isChecked()) {
 		args << "-zwindow";
 	}
-	if (_developerModeActive && _convertTextures->isChecked()) {
+	if (_developerMode && _convertTextures->isChecked()) {
 		args << "-ztexconvert";
 	}
-	if (_developerModeActive && _noSound->isChecked()) {
+	if (_developerMode && _noSound->isChecked()) {
 		args << "-znosound";
 	}
-	if (_developerModeActive && _noMusic->isChecked()) {
+	if (_developerMode && _noMusic->isChecked()) {
 		args << "-znomusic";
 	}
 #ifdef Q_OS_WIN
@@ -1131,7 +1130,7 @@ void Gothic1And2Launcher::removeModFiles() {
 			}
 		}
 		// if mod is installed or developer mode is active, remove SpineAPI.dll from modification dir
-		if (_modID != -1 || _developerModeActive) {
+		if (_modID != -1 || _developerMode) {
 			QFile(_directory + "/System/SpineAPI.dll").remove();
 			QFile(_directory + "/Data/Spine.vdf").remove();
 		}
@@ -1732,7 +1731,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 		}
 	}
 	// if mod is installed or developer mode is active, copy SpineAPI.dll to modification dir
-	if (_modID != -1 || _developerModeActive) {
+	if (_modID != -1 || _developerMode) {
 		QFile(_directory + "/System/SpineAPI.dll").remove();
 		QFile(_directory + "/Data/Spine.vdf").remove();
 		{
@@ -2133,7 +2132,7 @@ void Gothic1And2Launcher::parseMods() {
 	}
 
 	_parsedInis.clear();
-	if (!_developerModeActive) {
+	if (!_developerMode) {
 		if (Config::extendedLogging) {
 			LOGINFO("Parsing Installed Mods")
 		}
@@ -2333,11 +2332,15 @@ void Gothic1And2Launcher::finishedInstallation(int modID, int packageID, bool su
 
 	if (packageID != -1) return;
 	
+	if (_developerMode) return;
+	
 	parseMod(QString("%1/mods/%2").arg(Config::DOWNLOADDIR).arg(modID));
 	updateModStats();
 }
 
 void Gothic1And2Launcher::updatedProject(int projectID) {
+	if (_developerMode) return;
+	
 	Database::DBError err;
 	const auto mods = Database::queryAll<std::vector<int>, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, GothicVersion FROM mods WHERE (GothicVersion = " + std::to_string(static_cast<int>(common::GameType::Gothic)) + " OR GothicVersion = " + std::to_string(static_cast<int>(common::GameType::Gothic2)) + " OR GothicVersion = " + std::to_string(static_cast<int>(common::GameType::Gothic1And2)) + " OR GothicVersion = " + std::to_string(static_cast<int>(common::GameType::GothicInGothic2)) + ") AND ModID = " + std::to_string(projectID) + ";", err);
 

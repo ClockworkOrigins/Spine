@@ -87,7 +87,7 @@ void Gothic1Launcher::setDirectory(const QString & directory) {
 
 	if (!QDir(_directory + "/saves").exists()) {
 		bool b = QDir(_directory).mkdir("saves");
-		Q_UNUSED(b);
+		Q_UNUSED(b)
 	}
 
 	// fix Union.ini
@@ -156,23 +156,23 @@ void Gothic1Launcher::patchCheck() {
 	fileList.insert("system/Mss32.dll", "feaa427b8ea557979a3325c07d552162b74380216b70aff8b865514822c2e4da68fea94159b22d2bb75cbec935d9502cee4ee655fa3908ffae1de065e107717e");
 	fileList.insert("system/paths.d", "4e239ae79b6039f55ba4fec21a66becc36a2a53148a8d78ebb0232af01ec22db63645c6d717c4165f591dd76d18ebb1a5f27d9789ffae2632f644d420c810252");
 
-	MultiFileDownloader * mfd = new MultiFileDownloader(this);
+	auto * mfd = new MultiFileDownloader(this);
 
 	bool empty = true;
 
 	for (auto it = fileList.begin(); it != fileList.end(); ++it) {
 		QFile f(_directory + "/" + it.key());
 		if (Config::extendedLogging) {
-			LOGINFO("Checking G1 file " << it.key().toStdString());
+			LOGINFO("Checking G1 file " << it.key().toStdString())
 		}
-		const bool b = utils::Hashing::checkHash(_directory + "/" + it.key(), it.value()); // TODO: hash check is performed twice, here and in FileDownloader
+		const bool b = Hashing::checkHash(_directory + "/" + it.key(), it.value()); // TODO: hash check is performed twice, here and in FileDownloader
 		if (!b) {
 			QFileInfo fi(it.key());
-			FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/g1/" + it.key()), _directory + "/" + fi.path(), fi.fileName(), it.value(), mfd);
+			auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/g1/" + it.key()), _directory + "/" + fi.path(), fi.fileName(), it.value(), mfd);
 			mfd->addFileDownloader(fd);
 			empty = false;
 			if (Config::extendedLogging) {
-				LOGWARN("Hashcheck failed");
+				LOGWARN("Hashcheck failed")
 			}
 		}
 	}
@@ -202,7 +202,7 @@ QString Gothic1Launcher::getExecutable() const {
 }
 
 bool Gothic1Launcher::canBeStartedWithSteam() const {
-	return LocationSettingsWidget::getInstance()->startGothicWithSteam() && !_developerModeActive; // can't start Gothic with Steam yet
+	return LocationSettingsWidget::getInstance()->startGothicWithSteam() && !_developerMode; // can't start Gothic with Steam yet
 }
 
 void Gothic1Launcher::startViaSteam(QStringList arguments) {
@@ -213,7 +213,7 @@ void Gothic1Launcher::startViaSteam(QStringList arguments) {
 
 	_startedWithSteam = true;
 	
-	SteamProcess * sp = new SteamProcess(65540, "Gothic.exe", arguments);
+	auto * sp = new SteamProcess(65540, "Gothic.exe", arguments);
 	connect(sp, &SteamProcess::finished, this, &Gothic1Launcher::finishedMod);
 	connect(sp, &SteamProcess::finished, sp, &SteamProcess::deleteLater);
 	sp->start(5);

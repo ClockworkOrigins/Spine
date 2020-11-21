@@ -66,7 +66,7 @@ namespace launcher {
 		QWidget * getLibraryWidget() const;
 
 		virtual void loginChanged();
-		virtual void setDeveloperMode(bool) {}
+		virtual void setDeveloperMode(bool enabled);
 		void setShowAchievements(bool enabled);
 		virtual void setZSpyActivated(bool) {}
 
@@ -119,6 +119,8 @@ namespace launcher {
 		QStandardItemModel * _model = nullptr;
 
 		QList<int> _runningUpdates;
+
+		bool _developerMode = false;
 
 		virtual void createWidget();
 

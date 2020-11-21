@@ -95,6 +95,10 @@ void ILauncher::loginChanged() {
 	}
 }
 
+void ILauncher::setDeveloperMode(bool enabled) {
+	_developerMode = enabled;
+}
+
 void ILauncher::setShowAchievements(bool enabled) {
 	_showAchievements = enabled;
 }
