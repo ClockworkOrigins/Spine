@@ -60,7 +60,7 @@ void GameLauncher::finishedGame(int, QProcess::ExitStatus) {
 
 	Database::DBError err;
 	Database::execute(Config::BASEDIR.toStdString() + "/" + LASTPLAYED_DATABASE, "DELETE FROM lastPlayed;", err);
-	Database::execute(Config::BASEDIR.toStdString() + "/" + LASTPLAYED_DATABASE, "INSERT INTO lastPlayed (ModID, Ini) VALUES (" + std::to_string(_modID) + ", '" + _iniFile.toStdString() + "');", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + LASTPLAYED_DATABASE, "INSERT INTO lastPlayed (ModID, Ini) VALUES (" + std::to_string(_projectID) + ", '" + _iniFile.toStdString() + "');", err);
 
 	QFile(_directory + "/SpineAPI.dll").remove();
 	QFile(_directory + "/SpineAPI64.dll").remove();
@@ -136,7 +136,7 @@ void GameLauncher::updateView(int gameID, const QString & configFile) {
 
 	_startButton->setText(QApplication::tr("StartGame"));
 	UPDATELANGUAGESETTEXT(_startButton, "StartGame");
-	_startButton->setEnabled(!_runningUpdates.contains(_modID));	
+	_startButton->setEnabled(!_runningUpdates.contains(_projectID));	
 }
 
 QString GameLauncher::getOverallSavePath() const {

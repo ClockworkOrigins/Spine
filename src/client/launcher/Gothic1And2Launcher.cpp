@@ -369,7 +369,7 @@ void Gothic1And2Launcher::setDeveloperMode(bool enabled) {
 }
 
 void Gothic1And2Launcher::updateCompatibilityList(int modID, std::vector<int32_t> incompatiblePatches, std::vector<int32_t> forbiddenPatches) {
-	if (_modID != modID) return;
+	if (_projectID != modID) return;
 
 	for (QCheckBox * cb : _patchList) {
 		_patchLayout->removeWidget(cb);
@@ -379,7 +379,7 @@ void Gothic1And2Launcher::updateCompatibilityList(int modID, std::vector<int32_t
 	_checkboxPatchIDMapping.clear();
 
 	Database::DBError err;
-	const ModVersion modGv = Database::queryNth<ModVersion, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion, MajorVersion, MinorVersion, PatchVersion FROM mods WHERE ModID = " + std::to_string(_modID) + " LIMIT 1;", err, 0);
+	const ModVersion modGv = Database::queryNth<ModVersion, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion, MajorVersion, MinorVersion, PatchVersion FROM mods WHERE ModID = " + std::to_string(_projectID) + " LIMIT 1;", err, 0);
 
 	const auto contains = [](const std::vector<int32_t> & list, int32_t id) {
 		const auto it = std::find_if(list.begin(), list.end(), [id](const int32_t & a) {
@@ -397,13 +397,13 @@ void Gothic1And2Launcher::updateCompatibilityList(int modID, std::vector<int32_t
 			_patchLayout->addWidget(cb, _patchCounter / 2, _patchCounter % 2);
 			++_patchCounter;
 			_patchList.append(cb);
-			const int count = Database::queryCount(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT Enabled FROM patchConfigs WHERE ModID = " + std::to_string(_modID) + " AND PatchID = " + std::to_string(p.modID) + " LIMIT 1;", err);
+			const int count = Database::queryCount(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT Enabled FROM patchConfigs WHERE ModID = " + std::to_string(_projectID) + " AND PatchID = " + std::to_string(p.modID) + " LIMIT 1;", err);
 			cb->setChecked(count);
 			_checkboxPatchIDMapping.insert(cb, p.modID);
 			connect(cb, &QCheckBox::stateChanged, this, &Gothic1And2Launcher::changedPatchState, Qt::QueuedConnection);
 			cb->setProperty("patchID", p.modID);
 		} else if (contains(forbiddenPatches, p.modID)) {
-			Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "DELETE FROM patchConfigs WHERE ModID = " + std::to_string(_modID) + " AND PatchID = " + std::to_string(p.modID) + ";", err);
+			Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "DELETE FROM patchConfigs WHERE ModID = " + std::to_string(_projectID) + " AND PatchID = " + std::to_string(p.modID) + ";", err);
 		}
 	}
 
@@ -607,15 +607,15 @@ void Gothic1And2Launcher::updateView(int modID, const QString & iniFile) {
 	programFilesx86 = programFilesx86.replace("\\", "/");
 	if (_iniFile.contains(programFiles, Qt::CaseInsensitive) || _iniFile.contains(programFilesx86, Qt::CaseInsensitive) || requiresAdmin) {
 #ifdef Q_OS_WIN
-		_startButton->setEnabled(IsRunAsAdmin() && !_runningUpdates.contains(_modID));
+		_startButton->setEnabled(IsRunAsAdmin() && !_runningUpdates.contains(_projectID));
 		_adminInfoLabel->setVisible(!IsRunAsAdmin());
 #else
-		_startButton->setEnabled(!_runningUpdates.contains(_modID));
+		_startButton->setEnabled(!_runningUpdates.contains(_projectID));
 		_adminInfoLabel->setVisible(false);
 #endif
 		_adminInfoLabel->setText(requiresAdmin ? QApplication::tr("GothicAdminInfoRequiresAdmin").arg(title) : QApplication::tr("GothicAdminInfo").arg(title));
 	} else {
-		_startButton->setEnabled(!_runningUpdates.contains(_modID));
+		_startButton->setEnabled(!_runningUpdates.contains(_projectID));
 		_adminInfoLabel->hide();
 	}
 
@@ -635,12 +635,12 @@ void Gothic1And2Launcher::updateView(int modID, const QString & iniFile) {
 	_patchGroup->hide();
 	_pdfGroup->hide();
 
-	if (_modID != -1) {
+	if (_projectID != -1) {
 		Database::DBError err;
-		const ModVersion modGv = Database::queryNth<ModVersion, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion, MajorVersion, MinorVersion, PatchVersion FROM mods WHERE ModID = " + std::to_string(_modID) + " LIMIT 1;", err, 0);
+		const ModVersion modGv = Database::queryNth<ModVersion, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion, MajorVersion, MinorVersion, PatchVersion FROM mods WHERE ModID = " + std::to_string(_projectID) + " LIMIT 1;", err, 0);
 		
 		{
-			QDirIterator it(Config::DOWNLOADDIR + "/mods/" + QString::number(_modID) + "/", QStringList() << "*.pdf", QDir::Filter::Files);
+			QDirIterator it(Config::DOWNLOADDIR + "/mods/" + QString::number(_projectID) + "/", QStringList() << "*.pdf", QDir::Filter::Files);
 			while (it.hasNext()) {
 				it.next();
 				auto * l = new QLabel("<a href=\"file:///" + it.filePath().toHtmlEscaped() + R"(" style="color: #181C22">)" + QFileInfo(it.fileName()).fileName() + "</a>", _pdfGroup);
@@ -660,7 +660,7 @@ void Gothic1And2Launcher::updateView(int modID, const QString & iniFile) {
 		}
 		_versionLabel->setText(QString("%1.%2.%3").arg(modGv.majorVersion).arg(modGv.minorVersion).arg(modGv.patchVersion));
 
-		updateCompatibilityList(_modID, {}, {});
+		updateCompatibilityList(_projectID, {}, {});
 	} else {
 		Database::DBError err;
 		const auto patches = Database::queryAll<Patch, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, Name FROM patches;", err);
@@ -674,7 +674,7 @@ void Gothic1And2Launcher::updateView(int modID, const QString & iniFile) {
 				cb->setProperty("library", true);
 				_patchLayout->addWidget(cb);
 				_patchList.append(cb);
-				const int count = Database::queryCount(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT Enabled FROM patchConfigs WHERE ModID = " + std::to_string(_modID) + " AND PatchID = " + std::to_string(p.modID) + " LIMIT 1;", err);
+				const int count = Database::queryCount(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT Enabled FROM patchConfigs WHERE ModID = " + std::to_string(_projectID) + " AND PatchID = " + std::to_string(p.modID) + " LIMIT 1;", err);
 				cb->setChecked(count);
 				_checkboxPatchIDMapping.insert(cb, p.modID);
 				connect(cb, &QCheckBox::stateChanged, this, &Gothic1And2Launcher::changedPatchState, Qt::QueuedConnection);
@@ -687,7 +687,7 @@ void Gothic1And2Launcher::updateView(int modID, const QString & iniFile) {
 		updatePatchCheckboxes();
 	}
 	
-	if (_modID == 36 || _modID == 37 || _modID == 116) {
+	if (_projectID == 36 || _projectID == 37 || _projectID == 116) {
 		_startButton->setText(QApplication::tr("StartGame"));
 		UPDATELANGUAGESETTEXT(_startButton, "StartGame");
 	} else {
@@ -1000,17 +1000,17 @@ void Gothic1And2Launcher::finishedMod(int, QProcess::ExitStatus status) {
 	stopCommon();
 
 	if (duration > 0) {
-		if (Config::OnlineMode && _modID != -1) {
+		if (Config::OnlineMode && _projectID != -1) {
 			Database::DBError err;
-			const auto patches = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT PatchID FROM patchConfigs WHERE ModID = " + std::to_string(_modID) + ";", err);
+			const auto patches = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT PatchID FROM patchConfigs WHERE ModID = " + std::to_string(_projectID) + ";", err);
 			for (const std::string & patchIDString : patches) {
-				const auto res = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, "SELECT Compatible FROM ownCompatibilityVotes WHERE ModID = " + std::to_string(_modID) + " AND PatchID = " + patchIDString + " LIMIT 1;", err);
+				const auto res = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, "SELECT Compatible FROM ownCompatibilityVotes WHERE ModID = " + std::to_string(_projectID) + " AND PatchID = " + patchIDString + " LIMIT 1;", err);
 				if (res.empty()) {
 					const std::string patchName = Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Name FROM patches WHERE ModID = " + patchIDString + " LIMIT 1;", err);
 					widgets::NewCombinationDialog dlg(QApplication::tr("NewCombinationDetected"), QApplication::tr("NewCombinationDetectedText").arg(_nameLabel->text()).arg(s2q(patchName)), _widget);
 					if (dlg.canShow()) {
 						if (dlg.exec() == QDialog::Accepted) {
-							widgets::SubmitCompatibilityDialog submitDlg(_modID, std::stoi(patchIDString), getGothicVersion());
+							widgets::SubmitCompatibilityDialog submitDlg(_projectID, std::stoi(patchIDString), getGothicVersion());
 							submitDlg.exec();
 						}
 					}
@@ -1019,9 +1019,9 @@ void Gothic1And2Launcher::finishedMod(int, QProcess::ExitStatus status) {
 			}
 		} else {
 			Database::DBError err;
-			Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO playTimes (ModID, Username, Duration) VALUES (" + std::to_string(_modID) + ", '" + Config::Username.toStdString() + "', " + std::to_string(duration) + ");", err);
+			Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO playTimes (ModID, Username, Duration) VALUES (" + std::to_string(_projectID) + ", '" + Config::Username.toStdString() + "', " + std::to_string(duration) + ");", err);
 			if (err.error) {
-				Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "UPDATE playTimes SET Duration = Duration + " + std::to_string(duration) + " WHERE ModID = " + std::to_string(_modID) + " AND Username = '" + Config::Username.toStdString() + "';", err);
+				Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "UPDATE playTimes SET Duration = Duration + " + std::to_string(duration) + " WHERE ModID = " + std::to_string(_projectID) + " AND Username = '" + Config::Username.toStdString() + "';", err);
 			}
 		}
 	}
@@ -1042,7 +1042,7 @@ void Gothic1And2Launcher::finishedMod(int, QProcess::ExitStatus status) {
 
 	Database::DBError err;
 	Database::execute(Config::BASEDIR.toStdString() + "/" + LASTPLAYED_DATABASE, "DELETE FROM lastPlayed;", err);
-	Database::execute(Config::BASEDIR.toStdString() + "/" + LASTPLAYED_DATABASE, "INSERT INTO lastPlayed (ModID, Ini) VALUES (" + std::to_string(_modID) + ", '" + _iniFile.toStdString() + "');", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + LASTPLAYED_DATABASE, "INSERT INTO lastPlayed (ModID, Ini) VALUES (" + std::to_string(_projectID) + ", '" + _iniFile.toStdString() + "');", err);
 }
 
 void Gothic1And2Launcher::changedPatchState() {
@@ -1051,9 +1051,9 @@ void Gothic1And2Launcher::changedPatchState() {
 	if (cb) {
 		Database::DBError err;
 		if (cb->isChecked()) {
-			Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "INSERT INTO patchConfigs (ModID, PatchID, Enabled) VALUES (" + std::to_string(_modID) + ", " + std::to_string(_checkboxPatchIDMapping[cb]) + ", 1);", err);
+			Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "INSERT INTO patchConfigs (ModID, PatchID, Enabled) VALUES (" + std::to_string(_projectID) + ", " + std::to_string(_checkboxPatchIDMapping[cb]) + ", 1);", err);
 		} else {
-			Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "DELETE FROM patchConfigs WHERE ModID = " + std::to_string(_modID) + " AND PatchID = " + std::to_string(_checkboxPatchIDMapping[cb]) + ";", err);
+			Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "DELETE FROM patchConfigs WHERE ModID = " + std::to_string(_projectID) + " AND PatchID = " + std::to_string(_checkboxPatchIDMapping[cb]) + ";", err);
 		}
 	}
 
@@ -1143,7 +1143,7 @@ void Gothic1And2Launcher::removeModFiles() {
 			}
 		}
 		// if mod is installed or developer mode is active, remove SpineAPI.dll from modification dir
-		if (_modID != -1 || _developerMode) {
+		if (_projectID != -1 || _developerMode) {
 			QFile(_directory + "/System/SpineAPI.dll").remove();
 			QFile(_directory + "/Data/Spine.vdf").remove();
 		}
@@ -1152,10 +1152,10 @@ void Gothic1And2Launcher::removeModFiles() {
 
 void Gothic1And2Launcher::updateModStats() {
 	if (!Config::OnlineMode) {
-		emit receivedCompatibilityList(_modID, {}, {});
+		emit receivedCompatibilityList(_projectID, {}, {});
 		return;
 	}
-	int modID = _modID;
+	int modID = _projectID;
 	requestSingleProjectStats([this, modID](bool b) {
 		if (b) {
 			QJsonObject json;
@@ -1192,7 +1192,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 	QSet<QString> forbidden;
 	QMap<QString, QStringList> dependencyMap;
 	QMap<QString, QStringList> overrideFiles;
-	collectDependencies(_modID, dependencies, &forbidden, &dependencyMap, &overrideFiles);
+	collectDependencies(_projectID, dependencies, &forbidden, &dependencyMap, &overrideFiles);
 
 	LOGINFO("Starting Ini: " << _iniFile.toStdString())
 	emitSplashMessage(QApplication::tr("RemovingOldFiles"));
@@ -1204,7 +1204,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 	_copiedFiles.clear();
 
 	Database::DBError err;
-	std::vector<std::string> patches = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT PatchID FROM patchConfigs WHERE ModID = " + std::to_string(_modID) + ";", err);
+	std::vector<std::string> patches = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT PatchID FROM patchConfigs WHERE ModID = " + std::to_string(_projectID) + ";", err);
 	bool clockworkRenderer = false;
 	bool systempack = false;
 	bool ninja = false;
@@ -1256,7 +1256,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 
 	*usedExecutable = getExecutable();
 	
-	if (_modID != -1) {
+	if (_projectID != -1) {
 		emitSplashMessage(QApplication::tr("DetermingCorrectGothicPath"));
 		if (Config::extendedLogging) {
 			LOGINFO("Installed Mod")
@@ -1278,7 +1278,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 		LOGINFO("Starting " << usedExecutable->toStdString() << " in " << _directory.toStdString())
 		if (!usedExecutable->isEmpty() && success) {
 			emitSplashMessage(QApplication::tr("CopyingModfiles"));
-			std::vector<std::pair<std::string, std::string>> files = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT File, Hash FROM modfiles WHERE ModID = " + std::to_string(_modID) + ";", err);
+			std::vector<std::pair<std::string, std::string>> files = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT File, Hash FROM modfiles WHERE ModID = " + std::to_string(_projectID) + ";", err);
 			if (err.error || files.empty()) {
 				return false;
 			}
@@ -1308,7 +1308,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 						QRegularExpression regex("System/GD3D11/textures/replacements/(Normalmaps_[^/]+)/", QRegularExpression::CaseInsensitiveOption);
 						QRegularExpressionMatch match = regex.match(filename);
 						const QString targetName = clockworkRenderer ? _directory + "/" + checkPath + QString::number(normalsCounter) : "/System/GD3D11/textures/replacements/" + match.captured(1);
-						makeSymlinkFolder(Config::DOWNLOADDIR + "/mods/" + QString::number(_modID) + "/System/GD3D11/textures/replacements/" + match.captured(1), targetName);
+						makeSymlinkFolder(Config::DOWNLOADDIR + "/mods/" + QString::number(_projectID) + "/System/GD3D11/textures/replacements/" + match.captured(1), targetName);
 						_copiedFiles.append("/System/GD3D11/textures/replacements/" + match.captured(1));
 						continue;
 					}
@@ -1335,9 +1335,9 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 						QRegularExpressionMatch match = regex.match(filename);
 						// backup old file
 						bool copy = true;
-						QFile f(Config::DOWNLOADDIR + "/mods/" + QString::number(_modID) + "/" + filename);
+						QFile f(Config::DOWNLOADDIR + "/mods/" + QString::number(_projectID) + "/" + filename);
 						if (QFileInfo::exists(_directory + "/" + filename)) {
-							const bool b = utils::Hashing::checkHash(Config::DOWNLOADDIR + "/mods/" + QString::number(_modID) + "/" + filename, QString::fromStdString(file.second));
+							const bool b = utils::Hashing::checkHash(Config::DOWNLOADDIR + "/mods/" + QString::number(_projectID) + "/" + filename, QString::fromStdString(file.second));
 							if (b) {
 								copy = false;
 								if (Config::extendedLogging) {
@@ -1360,7 +1360,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 						}
 						if (copy) {
 							f.close();
-							success = linkOrCopyFile(Config::DOWNLOADDIR + "/mods/" + QString::number(_modID) + "/" + filename, _directory + "/" + changedFile);
+							success = linkOrCopyFile(Config::DOWNLOADDIR + "/mods/" + QString::number(_projectID) + "/" + filename, _directory + "/" + changedFile);
 						}
 						if (!success) {
 							LOGERROR("Couldn't copy file: " << filename.toStdString() << " " << f.errorString().toStdString())
@@ -1401,7 +1401,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 					}
 				}
 				if (copy) {
-					success = linkOrCopyFile(Config::DOWNLOADDIR + "/mods/" + QString::number(_modID) + "/" + filename, _directory + "/" + filename);
+					success = linkOrCopyFile(Config::DOWNLOADDIR + "/mods/" + QString::number(_projectID) + "/" + filename, _directory + "/" + filename);
 				}
 				if (!success) {
 					LOGERROR("Couldn't copy file: " << filename.toStdString())
@@ -1416,8 +1416,8 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 				LOGERROR("Failed copying mod data")
 				return false;
 			}
-			checkToolCfg(Config::DOWNLOADDIR + "/mods/" + QString::number(_modID), backgroundExecutables, newGMP);
-			updatePlugins(_modID);
+			checkToolCfg(Config::DOWNLOADDIR + "/mods/" + QString::number(_projectID), backgroundExecutables, newGMP);
+			updatePlugins(_projectID);
 		}
 	} else {
 		_lastBaseDir = _directory;
@@ -1666,7 +1666,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 			*usedExecutable = executable;
 		}
 		QString sourceDir = _directory;
-		if (_modID != -1) {
+		if (_projectID != -1) {
 			QFileInfo fi(_iniFile);
 			QDir sd = fi.absolutePath() + "/..";
 			sourceDir = sd.absolutePath();
@@ -1719,7 +1719,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 		}
 	}
 	// if mod is installed or developer mode is active, copy SpineAPI.dll to modification dir
-	if (_modID != -1 || _developerMode) {
+	if (_projectID != -1 || _developerMode) {
 		QFile(_directory + "/System/SpineAPI.dll").remove();
 		QFile(_directory + "/Data/Spine.vdf").remove();
 		{
@@ -1766,7 +1766,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 	}
 	{
 		// SKO needs Options file in LocalAppData
-		if (_modID == 218) {
+		if (_projectID == 218) {
 			const QString skoOptionsPath = QProcessEnvironment::systemEnvironment().value("LOCALAPPDATA") + "/SKOLauncher/";
 			const QString skoOptions = skoOptionsPath + "Options.json";
 			QDir skoOptionsDir(skoOptionsPath);
@@ -2080,8 +2080,8 @@ void Gothic1And2Launcher::errorOccurred(QProcess::ProcessError error) {
 }
 
 QString Gothic1And2Launcher::getOverallSavePath() const {
-	if (_modID != -1) {
-		return _directory + "/saves_" + QFileInfo(_iniFile).baseName() + "/" + QString::number(_modID) + ".spsav";
+	if (_projectID != -1) {
+		return _directory + "/saves_" + QFileInfo(_iniFile).baseName() + "/" + QString::number(_projectID) + ".spsav";
 	}
 
 	return _directory + "/saves_" + QFileInfo(_iniFile).baseName() + "/spineTest.spsav";
@@ -2327,7 +2327,7 @@ void Gothic1And2Launcher::updatePatchCheckboxes() {
 	QSet<QString> forbidden;
 	QMap<QString, QStringList> dependencyMap;
 	QMap<QString, QStringList> overrideFiles;
-	collectDependencies(_modID, &dependencies, &forbidden, &dependencyMap, &overrideFiles);
+	collectDependencies(_projectID, &dependencies, &forbidden, &dependencyMap, &overrideFiles);
 
 	for (auto it = _checkboxPatchIDMapping.begin(); it != _checkboxPatchIDMapping.end(); ++it) {
 		const auto idString = QString::number(it.value());
@@ -2351,7 +2351,7 @@ QList<int32_t> Gothic1And2Launcher::getActiveProjects() const {
 	auto activeProjects = ILauncher::getActiveProjects();
 	
 	Database::DBError dbErr;
-	const auto patches = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT PatchID FROM patchConfigs WHERE ModID = " + std::to_string(_modID) + ";", dbErr);
+	const auto patches = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT PatchID FROM patchConfigs WHERE ModID = " + std::to_string(_projectID) + ";", dbErr);
 	for (const std::string & patchIDString : patches) {
 		const int count = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Name FROM patches WHERE ModID = " + patchIDString + " LIMIT 1;", dbErr);
 		if (count == 0) continue;

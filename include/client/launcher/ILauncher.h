@@ -73,11 +73,11 @@ namespace launcher {
 		virtual void restoreSettings() {}
 		virtual void saveSettings() {}
 
-		virtual void updateView(int modID, const QString & iniFile) = 0;
+		virtual void updateView(int projectID, const QString & iniFile) = 0;
 
 		virtual void start() = 0;
 
-		void refresh(int modID);
+		void refresh(int projectID);
 
 		virtual void updateModel(QStandardItemModel * model) = 0;
 
@@ -95,9 +95,9 @@ namespace launcher {
 		void syncedNewStats();
 
 	public slots:
-		virtual void finishedInstallation(int modID, int packageID, bool success) = 0;
-		void updateStarted(int modID);
-		void updateFinished(int modID);
+		virtual void finishedInstallation(int projectID, int packageID, bool success) = 0;
+		void updateStarted(int projectID);
+		void updateFinished(int projectID);
 
 	private slots:
 		void feedbackClicked();
@@ -110,7 +110,7 @@ namespace launcher {
 		QPushButton * _startButton = nullptr;
 
 		QString _name;
-		int32_t _modID = -1;
+		int32_t _projectID = -1;
 
 		QString _iniFile;
 
@@ -124,11 +124,11 @@ namespace launcher {
 
 		virtual void createWidget();
 
-		void updateCommonView(int modID, const QString & name);
+		void updateCommonView(int projectID, const QString & name);
 
 		void updateModInfoView(common::ProjectStats ms);
 
-		void startScreenshotManager(int modID);
+		void startScreenshotManager(int projectID);
 		void stopScreenshotManager();
 
 		void startCommon();
@@ -151,7 +151,7 @@ namespace launcher {
 
 		/**
 		 * \brief returns a list of all projects active for the current selection
-		 * default implementation will just return _modID as in most cases that's true
+		 * default implementation will just return _projectID as in most cases that's true
 		 */
 		virtual QList<int32_t> getActiveProjects() const;
 

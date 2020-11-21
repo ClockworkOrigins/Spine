@@ -67,7 +67,7 @@ using namespace spine::widgets;
 void ILauncher::init() {
 	createWidget();
 
-	_modID = -1;
+	_projectID = -1;
 	_showAchievements = true;
 
 	_timer = new QElapsedTimer();
@@ -91,7 +91,7 @@ QWidget * ILauncher::getLibraryWidget() const {
 void ILauncher::loginChanged() {
 	_ratingWidget->loginChanged();
 
-	updateView(_modID, _iniFile);
+	updateView(_projectID, _iniFile);
 	
 	if (!Config::Username.isEmpty()) {
 		tryCleanCaches();
@@ -229,44 +229,44 @@ void ILauncher::createWidget() {
 }
 
 void ILauncher::prepareAchievementView() {
-	emit openAchievementView(_modID, _name);
+	emit openAchievementView(_projectID, _name);
 }
 
 void ILauncher::prepareScoreView() {
-	emit openScoreView(_modID, _name);
+	emit openScoreView(_projectID, _name);
 }
 
-void ILauncher::refresh(int modID) {
-	if (modID != _modID) return;
+void ILauncher::refresh(int projectID) {
+	if (projectID != _projectID) return;
 
-	updateView(_modID, _iniFile);
+	updateView(_projectID, _iniFile);
 }
 
 bool ILauncher::isRunning() const {
 	return _running;
 }
 
-void ILauncher::updateStarted(int modID) {
-	_runningUpdates.append(modID);
+void ILauncher::updateStarted(int projectID) {
+	_runningUpdates.append(projectID);
 
-	refresh(modID);
+	refresh(projectID);
 }
 
-void ILauncher::updateFinished(int modID) {
-	_runningUpdates.removeAll(modID);
+void ILauncher::updateFinished(int projectID) {
+	_runningUpdates.removeAll(projectID);
 
-	refresh(modID);
+	refresh(projectID);
 }
 
 void ILauncher::feedbackClicked() {
 	Database::DBError err;
-	const auto version = Database::queryNth<std::vector<int>, int, int, int>(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "SELECT MajorVersion, MinorVersion, PatchVersion FROM updates WHERE ModID = " + std::to_string(_modID) + " LIMIT 1;", err);
+	const auto version = Database::queryNth<std::vector<int>, int, int, int>(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "SELECT MajorVersion, MinorVersion, PatchVersion FROM updates WHERE ModID = " + std::to_string(_projectID) + " LIMIT 1;", err);
 
 	const uint8_t versionMajor = version.empty() ? 0 : static_cast<uint8_t>(version[0]);
 	const uint8_t versionMinor = version.empty() ? 0 : static_cast<uint8_t>(version[1]);
 	const uint8_t versionPatch = version.empty() ? 0 : static_cast<uint8_t>(version[2]);
 	
-	FeedbackDialog dlg(_modID, FeedbackDialog::Type::Project, versionMajor, versionMinor, versionPatch);
+	FeedbackDialog dlg(_projectID, FeedbackDialog::Type::Project, versionMajor, versionMinor, versionPatch);
 	dlg.exec();
 }
 
@@ -276,8 +276,8 @@ void ILauncher::openDiscussionsUrl() {
 	QDesktopServices::openUrl(QUrl(_discussionUrl));
 }
 
-void ILauncher::updateCommonView(int modID, const QString & name) {
-	_modID = modID;
+void ILauncher::updateCommonView(int projectID, const QString & name) {
+	_projectID = projectID;
 	_name = name;
 	
 	_installDate->hide();
@@ -286,21 +286,21 @@ void ILauncher::updateCommonView(int modID, const QString & name) {
 	_scoresLabel->hide();
 	_playTimeLabel->setText("");
 	if (Config::OnlineMode) {
-		_ratingWidget->setVisible(modID != -1);
+		_ratingWidget->setVisible(projectID != -1);
 	}
 	_installDate->setText("");
 	_lastPlayedDate->setText("");
 
-	if (modID != -1) {
+	if (projectID != -1) {
 		if (Config::OnlineMode) {
-			_ratingWidget->setModID(modID);
+			_ratingWidget->setModID(projectID);
 			_ratingWidget->setModName(name);
 		}
 		Database::DBError err;
-		auto date = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT InstallDate FROM installDates WHERE ModID = " + std::to_string(modID) + " LIMIT 1;", err);
+		auto date = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT InstallDate FROM installDates WHERE ModID = " + std::to_string(projectID) + " LIMIT 1;", err);
 		if (date.empty()) {
 			const int currentDate = std::chrono::duration_cast<std::chrono::hours>(std::chrono::system_clock::now() - std::chrono::system_clock::time_point()).count();
-			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO installDates (ModID, InstallDate) VALUES (" + std::to_string(modID) + ", " + std::to_string(currentDate) +");", err);
+			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO installDates (ModID, InstallDate) VALUES (" + std::to_string(projectID) + ", " + std::to_string(currentDate) +");", err);
 			date.push_back(currentDate);
 		}
 		_installDate->setText(QApplication::tr("Installed").arg(QDate(1970, 1, 1).addDays(date[0] / 24).toString("dd.MM.yyyy")));
@@ -337,8 +337,8 @@ void ILauncher::updateModInfoView(ProjectStats ms) {
 	_discussionUrlText->setText(QString("<a href=\"%1\">%1</a>").arg(_discussionUrl));
 }
 
-void ILauncher::startScreenshotManager(int modID) {
-	_screenshotManager->start(modID);
+void ILauncher::startScreenshotManager(int projectID) {
+	_screenshotManager->start(projectID);
 }
 
 void ILauncher::stopScreenshotManager() {
@@ -368,7 +368,7 @@ void ILauncher::startCommon() {
 		});
 	}
 
-	startScreenshotManager(_modID);
+	startScreenshotManager(_projectID);
 }
 
 void ILauncher::stopCommon() {
@@ -412,7 +412,7 @@ void ILauncher::stopCommon() {
 	if (!Config::OnlineMode) return;
 	
 	Database::DBError err;
-	const auto version = Database::queryNth<std::vector<int>, int, int, int>(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "SELECT MajorVersion, MinorVersion, PatchVersion FROM updates WHERE ModID = " + std::to_string(_modID) + " LIMIT 1;", err);
+	const auto version = Database::queryNth<std::vector<int>, int, int, int>(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "SELECT MajorVersion, MinorVersion, PatchVersion FROM updates WHERE ModID = " + std::to_string(_projectID) + " LIMIT 1;", err);
 
 	const int versionMajor = version.empty() ? 0 : static_cast<uint8_t>(version[0]);
 	const int versionMinor = version.empty() ? 0 : static_cast<uint8_t>(version[1]);
@@ -421,7 +421,7 @@ void ILauncher::stopCommon() {
 	QJsonObject requestData;
 	requestData["Username"] = Config::Username;
 	requestData["Password"] = Config::Password;
-	requestData["ProjectID"] = _modID;
+	requestData["ProjectID"] = _projectID;
 	requestData["Language"] = Config::Language;
 	requestData["MajorVersion"] = versionMajor;
 	requestData["MinorVersion"] = versionMinor;
@@ -483,15 +483,15 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 				if (msg->type == MessageType::REQUESTUSERNAME) {
 					SendUsernameMessage sum;
 					sum.username = Config::Username.toStdString();
-					sum.modID = _modID;
+					sum.modID = _projectID;
 					sum.userID = Config::UserID;
 					serialized = sum.SerializeBlank();
 					socket->writePacket(serialized);
 				} else if (msg->type == MessageType::REQUESTSCORES) {
 					auto * rsm = dynamic_cast<RequestScoresMessage *>(msg);
-					if (_modID != -1) {
+					if (_projectID != -1) {
 						if (rsm) {
-							rsm->modID = _modID;
+							rsm->modID = _projectID;
 							if (Config::OnlineMode) {
 								clockUtils::sockets::TcpSocket sock;
 								if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
@@ -513,7 +513,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 								}
 							} else {
 								Database::DBError dbErr;
-								std::vector<std::vector<std::string>> lastResults = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier, Username, Score FROM modScores WHERE ModID = " + std::to_string(_modID) + " ORDER BY Score DESC", dbErr);
+								std::vector<std::vector<std::string>> lastResults = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier, Username, Score FROM modScores WHERE ModID = " + std::to_string(_projectID) + " ORDER BY Score DESC", dbErr);
 								SendScoresMessage ssm;
 								std::map<int, std::vector<std::pair<std::string, int32_t>>> scores;
 								for (auto vec : lastResults) {
@@ -540,10 +540,10 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 					}
 				} else if (msg->type == MessageType::UPDATESCORE) {
 					auto * usm = dynamic_cast<UpdateScoreMessage *>(msg);
-					if (_modID != -1) {
+					if (_projectID != -1) {
 						if (usm) {
 							if (Config::OnlineMode) {
-								usm->modID = _modID;
+								usm->modID = _projectID;
 								usm->username = Config::Username.toStdString();
 								usm->password = Config::Password.toStdString();
 								clockUtils::sockets::TcpSocket sock;
@@ -559,18 +559,18 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 								}
 							} else {
 								Database::DBError dbErr;
-								Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO modScores (ModID, Identifier, Username, Score) VALUES (" + std::to_string(_modID) + ", " + std::to_string(usm->identifier) + ", '" + Config::Username.toStdString() + "', " + std::to_string(usm->score) + ");", dbErr);
+								Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO modScores (ModID, Identifier, Username, Score) VALUES (" + std::to_string(_projectID) + ", " + std::to_string(usm->identifier) + ", '" + Config::Username.toStdString() + "', " + std::to_string(usm->score) + ");", dbErr);
 								if (dbErr.error) {
-									Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "UPDATE modScores SET Score = " + std::to_string(usm->score) + " WHERE ModID = " + std::to_string(_modID) + " AND Identifier = " + std::to_string(usm->identifier) + " AND Username = '" + Config::Username.toStdString() + "';", dbErr);
+									Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "UPDATE modScores SET Score = " + std::to_string(usm->score) + " WHERE ModID = " + std::to_string(_projectID) + " AND Identifier = " + std::to_string(usm->identifier) + " AND Username = '" + Config::Username.toStdString() + "';", dbErr);
 								}
 							}
 						}
 					}
 				} else if (msg->type == MessageType::REQUESTACHIEVEMENTS) {
 					auto * ram = dynamic_cast<RequestAchievementsMessage *>(msg);
-					if (_modID != -1) {
+					if (_projectID != -1) {
 						if (ram && Config::OnlineMode && !Config::Username.isEmpty()) {
-							ram->modID = _modID;
+							ram->modID = _projectID;
 							ram->username = Config::Username.toStdString();
 							ram->password = Config::Password.toStdString();
 							clockUtils::sockets::TcpSocket sock;
@@ -594,16 +594,16 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 							}
 						} else {
 							Database::DBError dbErr;
-							std::vector<std::string> lastResults = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier FROM modAchievements WHERE ModID = " + std::to_string(_modID) + ";", dbErr);
+							std::vector<std::string> lastResults = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier FROM modAchievements WHERE ModID = " + std::to_string(_projectID) + ";", dbErr);
 
 							SendAchievementsMessage sam;
 							for (const std::string & s : lastResults) {
 								auto identifier = static_cast<int32_t>(std::stoi(s));
 								sam.achievements.push_back(identifier);
 							}
-							auto lastResultsVec = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier, Max FROM modAchievementProgressMax WHERE ModID = " + std::to_string(_modID) + ";", dbErr);
+							auto lastResultsVec = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier, Max FROM modAchievementProgressMax WHERE ModID = " + std::to_string(_projectID) + ";", dbErr);
 							for (auto vec : lastResultsVec) {
-								lastResults = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Current FROM modAchievementProgress WHERE ModID = " + std::to_string(_modID) + " AND Identifier = " + vec[0] + " LIMIT 1;", dbErr);
+								lastResults = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Current FROM modAchievementProgress WHERE ModID = " + std::to_string(_projectID) + " AND Identifier = " + vec[0] + " LIMIT 1;", dbErr);
 								if (lastResults.empty()) {
 									sam.achievementProgress.emplace_back(std::stoi(vec[0]), std::make_pair(0, std::stoi(vec[1])));
 								} else {
@@ -621,14 +621,14 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 					}
 				} else if (msg->type == MessageType::UNLOCKACHIEVEMENT) {
 					auto * uam = dynamic_cast<UnlockAchievementMessage *>(msg);
-					if (_modID != -1) {
+					if (_projectID != -1) {
 						if (uam) {
 							if (Config::OnlineMode) {
 								int duration = _timer->elapsed();
 								duration = duration / 1000; // to seconds
 								duration = duration / 60;
 
-								uam->modID = _modID;
+								uam->modID = _projectID;
 								uam->username = Config::Username.toStdString();
 								uam->password = Config::Password.toStdString();
 								uam->duration = duration;
@@ -644,21 +644,21 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 									cacheAchievement(uam);
 								}
 							} else {
-								uam->modID = _modID;
+								uam->modID = _projectID;
 								
 								cacheAchievement(uam);
 								
 								Database::DBError dbErr;
-								Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO modAchievements (ModID, Identifier, Username) VALUES (" + std::to_string(_modID) + ", " + std::to_string(uam->identifier) + ", '" + Config::Username.toStdString() + ");", dbErr);
+								Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO modAchievements (ModID, Identifier, Username) VALUES (" + std::to_string(_projectID) + ", " + std::to_string(uam->identifier) + ", '" + Config::Username.toStdString() + ");", dbErr);
 							}
 						}
 					}
 				} else if (msg->type == MessageType::UPDATEACHIEVEMENTPROGRESS) {
 					auto * uapm = dynamic_cast<UpdateAchievementProgressMessage *>(msg);
-					if (_modID != -1) {
+					if (_projectID != -1) {
 						if (uapm) {
 							if (Config::OnlineMode) {
-								uapm->modID = _modID;
+								uapm->modID = _projectID;
 								uapm->username = Config::Username.toStdString();
 								uapm->password = Config::Password.toStdString();
 								clockUtils::sockets::TcpSocket sock;
@@ -674,20 +674,20 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 								}
 							} else {
 								Database::DBError dbErr;
-								Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO modAchievementProgress (ModID, Identifier, Username, Current) VALUES (" + std::to_string(_modID) + ", " + std::to_string(uapm->identifier) + ", '" + Config::Username.toStdString() + "', " + std::to_string(uapm->progress) + ");", dbErr);
+								Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO modAchievementProgress (ModID, Identifier, Username, Current) VALUES (" + std::to_string(_projectID) + ", " + std::to_string(uapm->identifier) + ", '" + Config::Username.toStdString() + "', " + std::to_string(uapm->progress) + ");", dbErr);
 								if (dbErr.error) {
-									Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "UPDATE modAchievementProgress SET Current = " + std::to_string(uapm->progress) + " WHERE ModID = " + std::to_string(_modID) + " AND Identifier = " + std::to_string(uapm->identifier) + " AND Username = '" + Config::Username.toStdString() + "';", dbErr);
+									Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "UPDATE modAchievementProgress SET Current = " + std::to_string(uapm->progress) + " WHERE ModID = " + std::to_string(_projectID) + " AND Identifier = " + std::to_string(uapm->identifier) + " AND Username = '" + Config::Username.toStdString() + "';", dbErr);
 								}
 							}
 						}
 					}
 				} else if (msg->type == MessageType::SEARCHMATCH) {
-					if (_modID != -1 && Config::OnlineMode) {
+					if (_projectID != -1 && Config::OnlineMode) {
 						auto * smm = dynamic_cast<SearchMatchMessage *>(msg);
 						if (smm) {
 							clockUtils::sockets::TcpSocket sock;
 							if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-								smm->modID = _modID;
+								smm->modID = _projectID;
 								smm->username = Config::Username.toStdString();
 								smm->password = Config::Password.toStdString();
 								serialized = smm->SerializePublic();
@@ -730,10 +730,10 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 					}
 				} else if (msg->type == MessageType::REQUESTOVERALLSAVEDATA) {
 					auto * rom = dynamic_cast<RequestOverallSaveDataMessage *>(msg);
-					if (_modID != -1) {
+					if (_projectID != -1) {
 						if (rom && !Config::Username.isEmpty()) {
 							if (Config::OnlineMode) {
-								rom->modID = _modID;
+								rom->modID = _projectID;
 								rom->username = Config::Username.toStdString();
 								rom->password = Config::Password.toStdString();
 								clockUtils::sockets::TcpSocket sock;
@@ -755,7 +755,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 							} else {
 								SendOverallSaveDataMessage som;
 								Database::DBError dbErr;
-								std::vector<std::vector<std::string>> lastResults = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Entry, Value FROM overallSaveData WHERE ModID = " + std::to_string(_modID) + " AND Username = '" = Config::Username.toStdString() + "';", dbErr);
+								std::vector<std::vector<std::string>> lastResults = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Entry, Value FROM overallSaveData WHERE ModID = " + std::to_string(_projectID) + " AND Username = '" = Config::Username.toStdString() + "';", dbErr);
 								for (auto vec : lastResults) {
 									if (vec.size() == 2) {
 										som.data.emplace_back(vec[0], vec[1]);
@@ -774,10 +774,10 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 					}
 				} else if (msg->type == MessageType::UPDATEOVERALLSAVEDATA) {
 					auto * uom = dynamic_cast<UpdateOverallSaveDataMessage *>(msg);
-					if (_modID != -1) {
+					if (_projectID != -1) {
 						if (uom) {
 							if (Config::OnlineMode) {
-								uom->modID = _modID;
+								uom->modID = _projectID;
 								uom->username = Config::Username.toStdString();
 								uom->password = Config::Password.toStdString();
 								clockUtils::sockets::TcpSocket sock;
@@ -793,9 +793,9 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 								}
 							} else {
 								Database::DBError dbErr;
-								Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO overallSaveData (ModID, Username, Entry, Value) VALUES (" + std::to_string(_modID) + ", '" + Config::Username.toStdString() + "', '" + uom->entry + "', '" + uom->value + "');", dbErr);
+								Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO overallSaveData (ModID, Username, Entry, Value) VALUES (" + std::to_string(_projectID) + ", '" + Config::Username.toStdString() + "', '" + uom->entry + "', '" + uom->value + "');", dbErr);
 								if (dbErr.error) {
-									Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "UPDATE overallSaveData SET Value = '" + uom->value + "' WHERE ModID = " + std::to_string(_modID) + " AND Entry = '" + uom->entry + "' AND Username = '" + Config::Username.toStdString() + "';", dbErr);
+									Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "UPDATE overallSaveData SET Value = '" + uom->value + "' WHERE ModID = " + std::to_string(_projectID) + " AND Entry = '" + uom->entry + "' AND Username = '" + Config::Username.toStdString() + "';", dbErr);
 								}
 							}
 						}
@@ -834,10 +834,10 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 					}
 				} else if (msg->type == MessageType::UPDATECHAPTERSTATS) {
 					auto * ucsm = dynamic_cast<UpdateChapterStatsMessage *>(msg);
-					if (_modID != -1) {
+					if (_projectID != -1) {
 						if (ucsm) {
 							if (Config::OnlineMode) {
-								ucsm->modID = _modID;
+								ucsm->modID = _projectID;
 								clockUtils::sockets::TcpSocket sock;
 								if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
 									serialized = ucsm->SerializePublic();
@@ -848,7 +848,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 					}
 				} else if (msg->type == MessageType::ISACHIEVEMENTUNLOCKED) {
 					auto * iaum = dynamic_cast<IsAchievementUnlockedMessage *>(msg);
-					if (_modID != -1) {
+					if (_projectID != -1) {
 						if (iaum) {
 							iaum->username = q2s(Config::Username);
 							iaum->password = q2s(Config::Password);
@@ -1161,7 +1161,7 @@ void ILauncher::sendUserInfos(QJsonObject json) const {
 
 void ILauncher::requestSingleProjectStats(const std::function<void(bool)> & resultCallback) {
 	QJsonObject json;
-	json["ProjectID"] = _modID;
+	json["ProjectID"] = _projectID;
 	json["Username"] = Config::Username;
 	json["Password"] = Config::Password;
 	json["Language"] = Config::Language;
@@ -1239,5 +1239,5 @@ void ILauncher::requestSingleProjectStats(const std::function<void(bool)> & resu
 }
 
 QList<int32_t> ILauncher::getActiveProjects() const {
-	return { _modID };
+	return { _projectID };
 }
