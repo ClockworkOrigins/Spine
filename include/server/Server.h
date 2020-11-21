@@ -122,6 +122,8 @@ namespace server {
 		void handleModListRequest(clockUtils::sockets::TcpSocket * sock, common::RequestAllModsMessage * msg) const;
 		void handleModFilesListRequest(clockUtils::sockets::TcpSocket * sock, common::RequestModFilesMessage * msg) const;
 		void handleDownloadSucceeded(clockUtils::sockets::TcpSocket * sock, common::DownloadSucceededMessage * msg) const;
+		
+		[[deprecated("Remove in Spine 1.28.0")]]
 		void handleUpdatePlaytime(clockUtils::sockets::TcpSocket * sock, common::UpdatePlayTimeMessage * msg) const;
 		void handleRequestPlaytime(clockUtils::sockets::TcpSocket * sock, common::RequestPlayTimeMessage * msg) const;
 		void handleRequestScores(clockUtils::sockets::TcpSocket * sock, common::RequestScoresMessage * msg) const;

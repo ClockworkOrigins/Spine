@@ -18,6 +18,8 @@
 
 #include "DatabaseServer.h"
 
+#include <set>
+
 #include "MariaDBWrapper.h"
 #include "ServerCommon.h"
 #include "SpineLevel.h"
@@ -53,6 +55,7 @@ int DatabaseServer::run() {
 	_server->resource["^/sendUserInfos"]["POST"] = std::bind(&DatabaseServer::sendUserInfos, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/requestSingleProjectStats"]["POST"] = std::bind(&DatabaseServer::requestSingleProjectStats, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/requestCompatibilityList"]["POST"] = std::bind(&DatabaseServer::requestCompatibilityList, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/updatePlayTime"]["POST"] = std::bind(&DatabaseServer::updatePlayTime, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -1054,6 +1057,116 @@ void DatabaseServer::requestCompatibilityList(std::shared_ptr<HttpsServer::Respo
 		write_json(responseStream, responseTree);
 
 		response->write(code, responseStream.str());
+	}
+	catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::updatePlayTime(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		const auto username = pt.get<std::string>("Username");
+		const auto password = pt.get<std::string>("Password");
+		const auto duration = pt.get<int32_t>("Duration");
+		
+		const int userID = ServerCommon::getUserID(username, password); // if userID is -1 user is not in database, so it's the play time of all unregistered players summed up
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+
+			if (!database.query("PREPARE insertStmt FROM \"INSERT INTO playtimes (ModID, UserID, Duration) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE Duration = Duration + ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				return;
+			}
+			if (!database.query("PREPARE insertSessionTimeStmt FROM \"INSERT INTO sessionTimes (ModID, Duration) VALUES (?, ?)\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				return;
+			}
+			if (!database.query("PREPARE deleteSessionInfosStmt FROM \"DELETE FROM userSessionInfos WHERE UserID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				return;
+			}
+			if (!database.query("PREPARE deleteSettingsStmt FROM \"DELETE FROM userSettings WHERE UserID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				return;
+			}
+			if (!database.query("PREPARE selectProjectPlayersStmt FROM \"SELECT UserID FROM playtimes WHERE ModID = ? AND UserID != -1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				return;
+			}
+			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				return;
+			}
+			if (!database.query("SET @paramDuration=" + std::to_string(duration) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				return;
+			}
+
+			std::set<int> userList;
+
+			for (const auto & v : pt.get_child("Projects")) {
+				const auto data = v.second.data();
+				
+				if (!database.query("SET @paramModID=" + data + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					return;
+				}
+				if (!database.query("EXECUTE insertStmt USING @paramModID, @paramUserID, @paramDuration, @paramDuration;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					return;
+				}
+				if (!database.query("EXECUTE insertSessionTimeStmt USING @paramModID, @paramDuration;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					return;
+				}
+				if (!database.query("PREPARE insertLastPlaytimeStmt FROM \"INSERT INTO lastPlayTimes (ModID, UserID, Timestamp) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE Timestamp = ?\";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					return;
+				}
+				
+				const int timestamp = std::chrono::duration_cast<std::chrono::hours>(std::chrono::system_clock::now() - std::chrono::system_clock::time_point()).count();
+				if (!database.query("SET @paramTimestamp=" + std::to_string(timestamp) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					return;
+				}
+				if (!database.query("EXECUTE insertLastPlaytimeStmt USING @paramModID, @paramUserID, @paramTimestamp, @paramTimestamp;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					return;
+				}
+
+				if (!database.query("EXECUTE selectProjectPlayersStmt USING @paramModID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					return;
+				}
+				const auto lastResults = database.getResults<std::vector<std::string>>();
+
+				for (const auto & vec : lastResults) {
+					userList.insert(std::stoi(vec[0]));
+				}
+			}
+			if (!database.query("EXECUTE deleteSessionInfosStmt USING @paramUserID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				return;
+			}
+			if (!database.query("EXECUTE deleteSettingsStmt USING @paramUserID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				return;
+			}
+
+			SpineLevel::clear(std::vector<int>(userList.begin(), userList.end()));
+		} while (false);
+
+		response->write(code);
 	}
 	catch (...) {
 		response->write(SimpleWeb::StatusCode::client_error_bad_request);

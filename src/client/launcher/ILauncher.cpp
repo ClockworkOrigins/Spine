@@ -384,24 +384,28 @@ void ILauncher::stopCommon() {
 	delete _socket;
 	_socket = nullptr;
 
-	QtConcurrent::run([this, duration]() {
-		UpdatePlayTimeMessage uptm;
-		uptm.username = Config::Username.toStdString();
-		uptm.password = Config::Password.toStdString();
-		uptm.modID = _modID;
-		uptm.duration = duration;
-		const std::string serialized = uptm.SerializePublic();
-		clockUtils::sockets::TcpSocket sock;
-		if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-			sock.writePacket(serialized);
+	{
+		QJsonObject json;
+		json["Username"] = Config::Username;
+		json["Password"] = Config::Password;
+		json["Duration"] = duration;
 
-			syncAdditionalTimes(duration);
-			
+		QJsonArray jsonArray;
+
+		const auto activeProjects = getActiveProjects();
+
+		for (const auto projectID : activeProjects) {
+			jsonArray << projectID;
+		}
+		
+		json["Projects"] = jsonArray;
+
+		Https::postAsync(DATABASESERVER_PORT, "updatePlayTime", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject &, int) {
 			updateModStats();
 
 			emit syncedNewStats();
-		}
-	});
+		});
+	}
 
 	stopScreenshotManager();
 
@@ -1232,4 +1236,8 @@ void ILauncher::requestSingleProjectStats(const std::function<void(bool)> & resu
 		
 		resultCallback(b);
 	});
+}
+
+QList<int32_t> ILauncher::getActiveProjects() const {
+	return { _modID };
 }

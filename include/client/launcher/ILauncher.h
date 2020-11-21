@@ -136,8 +136,6 @@ namespace launcher {
 
 		virtual QString getOverallSavePath() const = 0;
 
-		virtual void syncAdditionalTimes(int) {}
-
 		virtual void updateModStats() {}
 
 		bool isAllowedSymlinkSuffix(QString suffix) const;
@@ -150,6 +148,12 @@ namespace launcher {
 		 * resultCallback is called when response is received, true for success, false for error
 		 */
 		void requestSingleProjectStats(const std::function<void(bool)> & resultCallback);
+
+		/**
+		 * \brief returns a list of all projects active for the current selection
+		 * default implementation will just return _modID as in most cases that's true
+		 */
+		virtual QList<int32_t> getActiveProjects() const;
 
 	private:
 		QLabel * _playTimeLabel = nullptr;

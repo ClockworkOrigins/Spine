@@ -158,7 +158,7 @@ namespace common {
 	struct ListModFilesMessage : public Message {
 		std::vector<std::pair<std::string, std::string>> fileList;
 		std::string fileserver;
-		ListModFilesMessage() : Message(), fileList(), fileserver() {
+		ListModFilesMessage() : Message() {
 			type = MessageType::LISTMODFILES;
 		}
 		template<class Archive>
@@ -181,12 +181,12 @@ namespace common {
 		}
 	};
 
-	struct UpdatePlayTimeMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.28.0")]] UpdatePlayTimeMessage : public Message {
 		std::string username;
 		std::string password;
 		int32_t modID;
 		int32_t duration;
-		UpdatePlayTimeMessage() : Message(), username(), password(), modID(), duration() {
+		UpdatePlayTimeMessage() : Message(), modID(), duration() {
 			type = MessageType::UPDATEPLAYTIME;
 		}
 		template<class Archive>
@@ -201,7 +201,7 @@ namespace common {
 
 	struct UpdateDownloadSizesMessage : public Message {
 		std::vector<std::pair<int32_t, uint64_t>> downloadSizes;
-		UpdateDownloadSizesMessage() : Message(), downloadSizes() {
+		UpdateDownloadSizesMessage() : Message() {
 			type = MessageType::UPDATEDOWNLOADSIZES;
 		}
 		template<class Archive>
@@ -215,7 +215,7 @@ namespace common {
 		std::string username;
 		std::string password;
 		int32_t modID;
-		RequestPlayTimeMessage() : Message(), username(), password(), modID() {
+		RequestPlayTimeMessage() : Message(), modID() {
 			type = MessageType::REQUESTPLAYTIME;
 		}
 		template<class Archive>
@@ -253,7 +253,7 @@ namespace common {
 		std::string username;
 		int32_t modID;
 		int32_t userID;
-		SendUsernameMessage() : Message(), username(), modID(), userID(-1) {
+		SendUsernameMessage() : Message(), modID(), userID(-1) {
 			type = MessageType::SENDUSERNAME;
 		}
 		template<class Archive>

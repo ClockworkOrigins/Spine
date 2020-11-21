@@ -166,8 +166,6 @@ namespace launcher {
 
 		QString getOverallSavePath() const override;
 
-		void syncAdditionalTimes(int duration) override;
-
 		void setZSpyActivated(bool enabled) override;
 		
 		void parseMods();
@@ -183,6 +181,8 @@ namespace launcher {
 		void updatedProject(int projectID) override;
 
 		void updatePatchCheckboxes();
+
+		QList<int32_t> getActiveProjects() const override;
 	};
 
 } /* namespace launcher */

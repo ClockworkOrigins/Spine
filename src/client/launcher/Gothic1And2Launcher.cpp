@@ -2087,29 +2087,6 @@ QString Gothic1And2Launcher::getOverallSavePath() const {
 	return _directory + "/saves_" + QFileInfo(_iniFile).baseName() + "/spineTest.spsav";
 }
 
-void Gothic1And2Launcher::syncAdditionalTimes(int duration) {
-	common::UpdatePlayTimeMessage uptm;
-	uptm.username = Config::Username.toStdString();
-	uptm.password = Config::Password.toStdString();
-	uptm.duration = duration;
-
-	clockUtils::sockets::TcpSocket sock;
-	if (clockUtils::ClockError::SUCCESS != sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) return;
-
-	// everything worked fine so far, so add patches!
-	Database::DBError dbErr;
-	const auto patches = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT PatchID FROM patchConfigs WHERE ModID = " + std::to_string(_modID) + ";", dbErr);
-	for (const std::string & patchIDString : patches) {
-		const int count = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Name FROM patches WHERE ModID = " + patchIDString + " LIMIT 1;", dbErr);
-		if (count == 0) continue;
-
-		const int patchID = std::stoi(patchIDString);
-		uptm.modID = patchID;
-		const auto serialized = uptm.SerializePublic();
-		sock.writePacket(serialized);
-	}
-}
-
 void Gothic1And2Launcher::setZSpyActivated(bool enabled) {
 	_zSpyActivated = enabled;
 }
@@ -2368,4 +2345,20 @@ void Gothic1And2Launcher::updatePatchCheckboxes() {
 			it.key()->setChecked(true);
 		}
 	}
+}
+
+QList<int32_t> Gothic1And2Launcher::getActiveProjects() const {
+	auto activeProjects = ILauncher::getActiveProjects();
+	
+	Database::DBError dbErr;
+	const auto patches = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT PatchID FROM patchConfigs WHERE ModID = " + std::to_string(_modID) + ";", dbErr);
+	for (const std::string & patchIDString : patches) {
+		const int count = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Name FROM patches WHERE ModID = " + patchIDString + " LIMIT 1;", dbErr);
+		if (count == 0) continue;
+
+		const int32_t patchID = std::stoi(patchIDString);
+		activeProjects << patchID;
+	}
+
+	return activeProjects;
 }
