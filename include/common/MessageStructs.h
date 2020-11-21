@@ -1148,7 +1148,7 @@ namespace common {
 		}
 	};
 
-	struct RequestCompatibilityListMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.28.0")]] RequestCompatibilityListMessage : public Message {
 		int32_t modID;
 		RequestCompatibilityListMessage() : Message(), modID() {
 			type = MessageType::REQUESTCOMPATIBILITYLIST;
@@ -1160,10 +1160,10 @@ namespace common {
 		}
 	};
 
-	struct SendCompatibilityListMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.28.0")]] SendCompatibilityListMessage : public Message {
 		std::vector<int32_t> impossiblePatches;
 		std::vector<int32_t> forbiddenPatches;
-		SendCompatibilityListMessage() : Message(), impossiblePatches(), forbiddenPatches() {
+		SendCompatibilityListMessage() : Message() {
 			type = MessageType::SENDCOMPATIBILITYLIST;
 		}
 		template<class Archive>
@@ -1179,7 +1179,7 @@ namespace common {
 		int32_t rating;
 		std::string username;
 		std::string password;
-		SubmitRatingMessage() : Message(), modID(), rating(), username(), password() {
+		SubmitRatingMessage() : Message(), modID(), rating() {
 			type = MessageType::SUBMITRATING;
 		}
 		template<class Archive>

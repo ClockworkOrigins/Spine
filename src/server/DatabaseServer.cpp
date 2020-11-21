@@ -52,6 +52,7 @@ int DatabaseServer::run() {
 	_server->resource["^/getSpineLevelRanking"]["POST"] = std::bind(&DatabaseServer::getSpineLevelRanking, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/sendUserInfos"]["POST"] = std::bind(&DatabaseServer::sendUserInfos, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/requestSingleProjectStats"]["POST"] = std::bind(&DatabaseServer::requestSingleProjectStats, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/requestCompatibilityList"]["POST"] = std::bind(&DatabaseServer::requestCompatibilityList, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -173,7 +174,7 @@ void DatabaseServer::getOwnRating(std::shared_ptr<HttpsServer::Response> respons
 			return;
 		}
 		
-		const int32_t projectID = pt.get<int32_t>("ProjectID");
+		const auto projectID = pt.get<int32_t>("ProjectID");
 
 		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
 
@@ -256,7 +257,7 @@ void DatabaseServer::getWeightedRating(std::shared_ptr<HttpsServer::Response> re
 		ptree pt;
 		read_json(ss, pt);
 		
-		const int32_t projectID = pt.get<int32_t>("ProjectID");
+		const auto projectID = pt.get<int32_t>("ProjectID");
 
 		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
 
@@ -368,7 +369,7 @@ void DatabaseServer::getRatings(std::shared_ptr<HttpsServer::Response> response,
 		ptree pt;
 		read_json(ss, pt);
 		
-		const int32_t projectID = pt.get<int32_t>("ProjectID");
+		const auto projectID = pt.get<int32_t>("ProjectID");
 
 		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
 
@@ -530,7 +531,7 @@ void DatabaseServer::getUserIDForDiscordID(std::shared_ptr<HttpsServer::Response
 		std::stringstream responseStream;
 		ptree responseTree;
 
-		const int64_t discordAPI = pt.get<int64_t>("DiscordAPI");
+		const auto discordAPI = pt.get<int64_t>("DiscordAPI");
 
 		do {
 			CONNECTTODATABASE(__LINE__)
@@ -730,8 +731,7 @@ void DatabaseServer::sendUserInfos(std::shared_ptr<HttpsServer::Response> respon
 		} while (false);
 
 		response->write(code);
-	}
-	catch (...) {
+	} catch (...) {
 		response->write(SimpleWeb::StatusCode::client_error_bad_request);
 	}
 }
@@ -812,8 +812,7 @@ void DatabaseServer::requestSingleProjectStats(std::shared_ptr<HttpsServer::Resp
 				auto lastResults = database.getResults<std::vector<std::string>>();
 				if (lastResults.empty()) {
 					responseTree.put("LastTimePlayed", -1);
-				}
-				else {
+				} else {
 					responseTree.put("LastTimePlayed", std::stoi(lastResults[0][0]));
 				}
 			} else {
@@ -828,8 +827,7 @@ void DatabaseServer::requestSingleProjectStats(std::shared_ptr<HttpsServer::Resp
 			auto results = database.getResults<std::vector<std::string>>();
 			if (!results.empty() && userID != -1) {
 				responseTree.put("Duration", std::stoi(results[0][0]));
-			}
-			else {
+			} else {
 				responseTree.put("Duration", 0);
 			}
 			if (!database.query("EXECUTE selectAllAchievementsStmt USING @paramModID;")) {
@@ -937,8 +935,7 @@ void DatabaseServer::requestSingleProjectStats(std::shared_ptr<HttpsServer::Resp
 						bestScore = 0;
 						bestScoreRank = 0;
 						bestScoreName = "";
-					}
-					else {
+					} else {
 						bestScoreName = results[0][0];
 					}
 				}
@@ -958,6 +955,100 @@ void DatabaseServer::requestSingleProjectStats(std::shared_ptr<HttpsServer::Resp
 			results = database.getResults<std::vector<std::string>>();
 
 			responseTree.put("DiscussionUrl", results.empty() ? "" : results[0][0]);
+		} while (false);
+
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::requestCompatibilityList(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		const auto projectID = pt.get<int64_t>("ProjectID");
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+
+			if (!database.query("PREPARE selectForbiddenStmt FROM \"SELECT DISTINCT PatchID FROM forbiddenPatches WHERE ModID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("PREPARE selectCompatibilitiesStmt FROM \"SELECT DISTINCT PatchID FROM compatibilityList WHERE ModID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("PREPARE selectCompatibilitiesValuesStmt FROM \"SELECT SUM(Compatible) AS UpVotes, COUNT(Compatible) AS Amount FROM compatibilityList WHERE ModID = ? AND PatchID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramModID=" + std::to_string(projectID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("EXECUTE selectForbiddenStmt USING @paramModID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			auto lastResults = database.getResults<std::vector<std::string>>();
+
+			if (!lastResults.empty()) {
+				ptree forbbidenPatchesNodes;
+				for (const auto & v : lastResults) {
+					ptree forbiddenPatchNode;
+					forbiddenPatchNode.put("", v[0][0]);
+					forbbidenPatchesNodes.push_back(std::make_pair("", forbiddenPatchNode));
+				}
+				responseTree.add_child("ForbiddenPatches", forbbidenPatchesNodes);
+			}
+
+			if (!database.query("EXECUTE selectCompatibilitiesStmt USING @paramModID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			lastResults = database.getResults<std::vector<std::string>>();
+			
+			if (!lastResults.empty()) {
+				bool added = false;
+				ptree impossiblePatchNodes;
+				for (const auto & vec : lastResults) {
+					if (!database.query("SET @paramPatchID=" + vec[0] + ";")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						break;
+					}
+					if (!database.query("EXECUTE selectCompatibilitiesValuesStmt USING @paramModID, @paramPatchID;")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						break;
+					}
+
+					auto results = database.getResults<std::vector<std::string>>();
+					const int upVotes = std::stoi(results[0][0]);
+					const int amount = std::stoi(results[0][1]);
+					if (upVotes < amount / 2) { // if less then 50% of all users rated combination as compatible it is assumed to be incompatible
+						ptree impossiblePatchNode;
+						impossiblePatchNode.put("", vec[0]);
+						impossiblePatchNodes.push_back(std::make_pair("", impossiblePatchNode));
+						added = true;
+					}
+				}
+				if (added) {
+					responseTree.add_child("ForbiddenPatches", impossiblePatchNodes);
+				}
+			}
 		} while (false);
 
 		write_json(responseStream, responseTree);

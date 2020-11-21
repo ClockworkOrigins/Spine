@@ -53,6 +53,7 @@
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QJsonArray>
+#include <QJsonDocument>
 #include <QLabel>
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -69,6 +70,7 @@
 
 using namespace spine;
 using namespace spine::client;
+using namespace spine::https;
 using namespace spine::launcher;
 using namespace spine::utils;
 
@@ -740,7 +742,7 @@ void Gothic1And2Launcher::start() {
 	if (!future.result()) {
 		splash.hide();
 		if (!dependencies.isEmpty()) {
-			https::Https::postAsync(DATABASESERVER_PORT, "getModnameForIDs", QString("{ \"Language\": \"%1\", \"ModIDs\": [ %2 ] }").arg(Config::Language).arg(dependencies.values().join(',')), [this, dependencies](const QJsonObject & json, int status) {
+			Https::postAsync(DATABASESERVER_PORT, "getModnameForIDs", QString("{ \"Language\": \"%1\", \"ModIDs\": [ %2 ] }").arg(Config::Language).arg(dependencies.values().join(',')), [this, dependencies](const QJsonObject & json, int status) {
 				QString msg = QApplication::tr("DependenciesMissing");
 				if (status != 200) {
 					for (const auto & p : dependencies) {
@@ -1156,31 +1158,28 @@ void Gothic1And2Launcher::updateModStats() {
 	int modID = _modID;
 	requestSingleProjectStats([this, modID](bool b) {
 		if (b) {
-			clockUtils::sockets::TcpSocket sock;
-			clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-			if (clockUtils::ClockError::SUCCESS == cErr) {
-				common::RequestCompatibilityListMessage rclm;
-				rclm.modID = modID;
-				std::string serialized = rclm.SerializePublic();
-				sock.writePacket(serialized);
-				if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-					try {
-						common::Message * m = common::Message::DeserializePublic(serialized);
-						if (m) {
-							auto * sclm = dynamic_cast<common::SendCompatibilityListMessage *>(m);
-							emit receivedCompatibilityList(modID, sclm->impossiblePatches, sclm->forbiddenPatches);
-						}
-						delete m;
-					}
-					catch (...) {
-						emit receivedCompatibilityList(modID, {}, {});
-						return;
+			QJsonObject json;
+			json["ProjectID"] = modID;
+			Https::postAsync(DATABASESERVER_PORT, "requestCompatibilityList", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, modID](const QJsonObject & data, int) {
+				std::vector<int32_t> impossiblePatches;
+				std::vector<int32_t> forbiddenPatches;
+
+				if (data.contains("ImpossiblePatches")) {
+					QJsonArray jsonArray = data["ImpossiblePatches"].toArray();
+					for (const auto jsonObject : jsonArray) {
+						impossiblePatches.push_back(jsonObject.toString().toInt());
 					}
 				}
-				else {
-					qDebug() << "Error occurred: " << static_cast<int>(cErr);
+
+				if (data.contains("ForbiddenPatches")) {
+					QJsonArray jsonArray = data["ForbiddenPatches"].toArray();
+					for (const auto jsonObject : jsonArray) {
+						forbiddenPatches.push_back(jsonObject.toString().toInt());
+					}
 				}
-			}
+
+				emit receivedCompatibilityList(modID, impossiblePatches, forbiddenPatches);
+			});
 		} else {
 			emit receivedCompatibilityList(modID, {}, {});
 		}
