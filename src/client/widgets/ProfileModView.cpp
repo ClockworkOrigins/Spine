@@ -46,7 +46,7 @@ using namespace spine::client;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-ProfileModView::ProfileModView(common::ModStats ms, QString gothicDirectory, QString gothic2Directory, QWidget * par) : QWidget(par), _modID(ms.modID), _nameLabel(nullptr), _patchOrTool(ms.type == common::ModType::PATCH || ms.type == common::ModType::TOOL), _duration(ms.duration) {
+ProfileModView::ProfileModView(common::ProjectStats ms, QString gothicDirectory, QString gothic2Directory, QWidget * par) : QWidget(par), _modID(ms.projectID), _nameLabel(nullptr), _patchOrTool(ms.type == common::ModType::PATCH || ms.type == common::ModType::TOOL), _duration(ms.duration) {
 	QGridLayout * l = new QGridLayout();
 
 	setObjectName("ProfileModView");
@@ -54,10 +54,10 @@ ProfileModView::ProfileModView(common::ModStats ms, QString gothicDirectory, QSt
 	_nameLabel = new QLabel(s2q(ms.name), this);
 	QLabel * iconLabel = new QLabel(this);
 
-	QDirIterator it(Config::DOWNLOADDIR + "/mods/" + QString::number(ms.modID), QStringList() << "*.ini", QDir::Files, QDirIterator::Subdirectories);
+	QDirIterator it(Config::DOWNLOADDIR + "/mods/" + QString::number(ms.projectID), QStringList() << "*.ini", QDir::Files, QDirIterator::Subdirectories);
 
-	if (IconCache::getInstance()->hasIcon(ms.modID)) {
-		QPixmap pixmap = IconCache::getInstance()->getIcon(ms.modID);
+	if (IconCache::getInstance()->hasIcon(ms.projectID)) {
+		QPixmap pixmap = IconCache::getInstance()->getIcon(ms.projectID);
 		pixmap = pixmap.scaled(QSize(32, 32), Qt::AspectRatioMode::KeepAspectRatio, Qt::SmoothTransformation);
 		iconLabel->setPixmap(pixmap);
 	} else {	

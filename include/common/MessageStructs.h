@@ -20,7 +20,7 @@
 
 #include "common/MessageTypes.h"
 #include "common/Mod.h"
-#include "common/ModStats.h"
+#include "common/ProjectStats.h"
 #include "common/ModUpdate.h"
 #include "common/ModVersion.h"
 #include "common/NewsTickerTypes.h"
@@ -570,7 +570,7 @@ namespace common {
 	};
 
 	struct SendAllModStatsMessage : public Message {
-		std::vector<ModStats> mods;
+		std::vector<ProjectStats> mods;
 		SendAllModStatsMessage() : Message(), mods() {
 			type = MessageType::SENDALLMODSTATS;
 		}
@@ -600,7 +600,7 @@ namespace common {
 	};
 
 	struct [[deprecated("Remove in Spine 1.28.0")]] SendSingleModStatMessage : public Message {
-		ModStats mod;
+		ProjectStats mod;
 		SendSingleModStatMessage() : Message() {
 			type = MessageType::SENDSINGLEMODSTAT;
 		}
@@ -1138,7 +1138,7 @@ namespace common {
 			}
 		};
 		std::vector<Compatibility> compatibilities;
-		SendOwnCompatibilitiesMessage() : Message(), compatibilities() {
+		SendOwnCompatibilitiesMessage() : Message() {
 			type = MessageType::SENDOWNCOMPATIBILITIES;
 		}
 		template<class Archive>

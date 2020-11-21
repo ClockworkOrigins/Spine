@@ -79,7 +79,7 @@ void ILauncher::init() {
 	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "CREATE TABLE IF NOT EXISTS installDates (ModID INT PRIMARY KEY, InstallDate INT NOT NULL);", err);
 	Database::execute(Config::BASEDIR.toStdString() + "/" + LASTPLAYED_DATABASE, "CREATE TABLE IF NOT EXISTS lastPlayed (ModID INT NOT NULL, Ini TEXT NOT NULL, PRIMARY KEY (ModID, Ini));", err);
 	
-	qRegisterMetaType<common::ModStats>("common::ModStats");
+	qRegisterMetaType<common::ProjectStats>("common::ProjectStats");
 
 	_screenshotManager = new ScreenshotManager(this);
 }
@@ -310,7 +310,7 @@ void ILauncher::updateCommonView(int modID, const QString & name) {
 	}
 }
 
-void ILauncher::updateModInfoView(ModStats ms) {
+void ILauncher::updateModInfoView(ProjectStats ms) {
 	const QString timeString = timeToString(ms.duration);
 	_playTimeLabel->setText(timeString);
 
@@ -1166,7 +1166,7 @@ void ILauncher::requestSingleProjectStats(const std::function<void(bool)> & resu
 		bool b = statusCode == 200;
 
 		do {
-			ModStats stats;
+			ProjectStats stats;
 
 			if (!json.contains("ProjectID")) {
 				b = false;
@@ -1193,7 +1193,7 @@ void ILauncher::requestSingleProjectStats(const std::function<void(bool)> & resu
 				break;
 			}
 
-			stats.modID = json["ProjectID"].toString().toInt();
+			stats.projectID = json["ProjectID"].toString().toInt();
 			stats.name = q2s(json["Name"].toString());
 			stats.type = static_cast<ModType>(json["ProjectID"].toString().toInt());
 			stats.lastTimePlayed = json["ProjectID"].toString().toInt();

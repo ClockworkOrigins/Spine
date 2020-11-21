@@ -21,7 +21,7 @@
 #include "client/widgets/SurveyDialog.h"
 
 #include "common/GameType.h"
-#include "common/ModStats.h"
+#include "common/ProjectStats.h"
 
 #include <QtPlugin>
 
@@ -87,7 +87,7 @@ namespace launcher {
 
 	signals:
 		void restartAsAdmin();
-		void receivedModStats(common::ModStats);
+		void receivedModStats(common::ProjectStats);
 		void errorMessage(QString);
 		void openAchievementView(int32_t, QString);
 		void openScoreView(int32_t, QString);
@@ -126,7 +126,7 @@ namespace launcher {
 
 		void updateCommonView(int modID, const QString & name);
 
-		void updateModInfoView(common::ModStats ms);
+		void updateModInfoView(common::ProjectStats ms);
 
 		void startScreenshotManager(int modID);
 		void stopScreenshotManager();

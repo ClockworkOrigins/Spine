@@ -299,7 +299,7 @@ void StartPageWidget::refresh() {
 
 void StartPageWidget::startMod() {
 	QObject * obj = sender();
-	const int modID = obj->property("modID").toInt();
+	const int modID = obj->property("projectID").toInt();
 	const QString ini = obj->property("ini").toString();
 	emit triggerModStart(modID, ini);
 }
@@ -311,7 +311,7 @@ void StartPageWidget::showEvent(QShowEvent *) {
 	if (!vec.empty()) {
 		const QString ini = s2q(vec[0][1]);
 		if (QFileInfo::exists(ini)) {
-			_startModButton->setProperty("modID", std::stoi(vec[0][0]));
+			_startModButton->setProperty("projectID", std::stoi(vec[0][0]));
 			_startModButton->setProperty("ini", ini);
 
 			const QSettings iniParser(ini, QSettings::IniFormat);

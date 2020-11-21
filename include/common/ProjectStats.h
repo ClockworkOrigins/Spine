@@ -30,8 +30,8 @@
 namespace spine {
 namespace common {
 
-	struct ModStats {
-		int32_t modID = -1;
+	struct ProjectStats {
+		int32_t projectID = -1;
 		std::string name;
 		ModType type = ModType::TOTALCONVERSION;
 		int32_t lastTimePlayed = 0;
@@ -44,11 +44,11 @@ namespace common {
 		bool feedbackMailAvailable = false;
 		std::string discussionUrl;
 
-		ModStats() {}
+		ProjectStats() {}
 
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & modID;
+			ar & projectID;
 			ar & name;
 			ar & type;
 			ar & lastTimePlayed;

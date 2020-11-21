@@ -164,7 +164,7 @@ ProfileView::ProfileView(QMainWindow * mainWindow, GeneralSettingsWidget * gener
 
 	qRegisterMetaType<int32_t>("int32_t");
 	qRegisterMetaType<uint32_t>("uint32_t");
-	qRegisterMetaType<std::vector<common::ModStats>>("std::vector<common::ModStats>");
+	qRegisterMetaType<std::vector<common::ProjectStats>>("std::vector<common::ProjectStats>");
 	qRegisterMetaType<std::vector<common::SendAllAchievementStatsMessage::AchievementStats>>("std::vector<common::SendAllAchievementStatsMessage::AchievementStats>");
 	qRegisterMetaType<std::vector<common::SendAllScoreStatsMessage::ScoreStats>>("std::vector<common::SendAllScoreStatsMessage::ScoreStats>");
 	connect(this, &ProfileView::receivedMods, this, &ProfileView::updateModList);
@@ -362,7 +362,7 @@ void ProfileView::openScoreView(int32_t modID, QString modName) {
 	});
 }
 
-void ProfileView::updateModList(std::vector<common::ModStats> mods) {
+void ProfileView::updateModList(std::vector<common::ProjectStats> mods) {
 	int32_t overallDuration = 0;
 
 	for (ProfileModView * pmv : _mods) {
@@ -371,7 +371,7 @@ void ProfileView::updateModList(std::vector<common::ModStats> mods) {
 	}
 	_mods.clear();
 
-	for (const common::ModStats & ms : mods) {
+	for (const common::ProjectStats & ms : mods) {
 		ProfileModView * pmv = new ProfileModView(ms, _gothicDirectory, _gothic2Directory, _mainWidget);
 		if (pmv->isPatchOrTool()) {
 			pmv->setVisible(_hidePatchesAndToolsBox->checkState() == Qt::Unchecked);

@@ -51,7 +51,7 @@ namespace widgets {
 		void setGothic2Directory(QString path);
 
 	signals:
-		void receivedMods(std::vector<common::ModStats>);
+		void receivedMods(std::vector<common::ProjectStats>);
 		void receivedUserLevel(uint32_t, uint32_t, uint32_t);
 		void receivedAchievementStats(int32_t, std::vector<common::SendAllAchievementStatsMessage::AchievementStats>);
 		void receivedScoreStats(std::vector<common::SendAllScoreStatsMessage::ScoreStats>);
@@ -66,7 +66,7 @@ namespace widgets {
 		void openScoreView(int32_t modID, QString modName);
 
 	private slots:
-		void updateModList(std::vector<common::ModStats> mods);
+		void updateModList(std::vector<common::ProjectStats> mods);
 		void updateUserLevel(uint32_t level, uint32_t currentXP, uint32_t nextXP);
 		void updateAchievements(int32_t modID, std::vector<common::SendAllAchievementStatsMessage::AchievementStats> achievementStats);
 		void updateScores(std::vector<common::SendAllScoreStatsMessage::ScoreStats> scoreStats);

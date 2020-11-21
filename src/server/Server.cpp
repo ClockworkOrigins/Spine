@@ -1757,8 +1757,8 @@ void Server::handleRequestAllModStats(clockUtils::sockets::TcpSocket * sock, Req
 		SendAllModStatsMessage samsm;
 		for (auto vec : lastResults) {
 			// get mod name in current language if available
-			ModStats ms;
-			ms.modID = std::stoi(vec[0]);
+			ProjectStats ms;
+			ms.projectID = std::stoi(vec[0]);
 			ms.duration = std::stoi(vec[1]);
 
 			if (!database.query("SET @paramModID=" + vec[0] + ";")) {
@@ -1806,7 +1806,7 @@ void Server::handleRequestAllModStats(clockUtils::sockets::TcpSocket * sock, Req
 				}
 			}
 
-			if (ms.modID == 339) {
+			if (ms.projectID == 339) {
 				getBestTri6Score(userID, ms);
 			} else {
 				if (!database.query("EXECUTE selectScoreStmt USING @paramModID;")) {
@@ -1930,7 +1930,7 @@ void Server::handleRequestSingleModStat(clockUtils::sockets::TcpSocket * sock, R
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
-	ModStats ms;
+	ProjectStats ms;
 	if (userID != -1) {
 		if (!database.query("EXECUTE selectLastTimePlayedStmt USING @paramModID, @paramUserID;")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
@@ -1946,7 +1946,7 @@ void Server::handleRequestSingleModStat(clockUtils::sockets::TcpSocket * sock, R
 		ms.lastTimePlayed = -1;
 	}
 	// get mod name in current language
-	ms.modID = msg->modID;
+	ms.projectID = msg->modID;
 
 	if (!database.query("EXECUTE selectTimePlayedStmt USING @paramModID, @paramUserID;")) {
 		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
@@ -4659,7 +4659,7 @@ void Server::handleRequestAllTri6ScoreStats(clockUtils::sockets::TcpSocket * soc
 	sock->writePacket(serialized);
 }
 
-void Server::getBestTri6Score(int userID, ModStats & modStats) const {
+void Server::getBestTri6Score(int userID, ProjectStats & modStats) const {
 	MariaDBWrapper database;
 	if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, TRI6DATABASE, 0)) {
 		std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;

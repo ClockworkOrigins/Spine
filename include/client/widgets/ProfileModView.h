@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "common/ModStats.h"
+#include "common/ProjectStats.h"
 
 #include <QWidget>
 
@@ -31,7 +31,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		ProfileModView(common::ModStats ms, QString gothicDirectory, QString gothic2Directory, QWidget * par);
+		ProfileModView(common::ProjectStats ms, QString gothicDirectory, QString gothic2Directory, QWidget * par);
 
 		bool isPatchOrTool() const;
 		QSize sizeHint() const override;

@@ -83,7 +83,7 @@ namespace common {
 	struct UpdateStartTimeMessage;
 	struct UpdateSucceededMessage;
 
-	struct ModStats;
+	struct ProjectStats;
 } /* namespace common */
 
 	class DownloadSizeChecker;
@@ -175,7 +175,7 @@ namespace server {
 		bool isTeamMemberOfMod(int modID, int userID) const;
 
 		void handleRequestAllTri6ScoreStats(clockUtils::sockets::TcpSocket * sock) const;
-		void getBestTri6Score(int userID, common::ModStats & modStats) const;
+		void getBestTri6Score(int userID, common::ProjectStats & modStats) const;
 	};
 
 } /* namespace server */
