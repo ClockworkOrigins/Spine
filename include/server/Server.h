@@ -136,6 +136,8 @@ namespace server {
 		void handleRequestPackageFiles(clockUtils::sockets::TcpSocket * sock, common::RequestPackageFilesMessage * msg) const;
 		void handlePackageDownloadSucceeded(clockUtils::sockets::TcpSocket * sock, common::PackageDownloadSucceededMessage * msg) const;
 		void handleRequestAllModStats(clockUtils::sockets::TcpSocket * sock, common::RequestAllModStatsMessage * msg) const;
+
+		[[deprecated("Remove in Spine 1.28.0")]]
 		void handleRequestSingleModStat(clockUtils::sockets::TcpSocket * sock, common::RequestSingleModStatMessage * msg) const;
 		void handleRequestAllAchievementStats(clockUtils::sockets::TcpSocket * sock, common::RequestAllAchievementStatsMessage * msg) const;
 		void handleRequestAllScoreStats(clockUtils::sockets::TcpSocket * sock, common::RequestAllScoreStatsMessage * msg) const;
@@ -145,6 +147,8 @@ namespace server {
 		void handleSubmitScriptFeatures(clockUtils::sockets::TcpSocket * sock, common::SubmitScriptFeaturesMessage * msg) const;
 		void handleRequestInfoPage(clockUtils::sockets::TcpSocket * sock, common::RequestInfoPageMessage * msg) const;
 		void handleSubmitInfoPage(clockUtils::sockets::TcpSocket * sock, common::SubmitInfoPageMessage * msg) const;
+
+		[[deprecated("Remove in Spine 1.28.0")]]
 		void handleSendUserInfos(clockUtils::sockets::TcpSocket * sock, common::SendUserInfosMessage * msg) const;
 		void handleRequestRandomMod(clockUtils::sockets::TcpSocket * sock, common::RequestRandomModMessage * msg) const;
 		void handleUpdateAchievementProgress(clockUtils::sockets::TcpSocket * sock, common::UpdateAchievementProgressMessage * msg) const;

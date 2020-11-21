@@ -557,7 +557,7 @@ namespace common {
 		std::string username;
 		std::string password;
 		std::string language;
-		RequestAllModStatsMessage() : Message(), username(), password(), language() {
+		RequestAllModStatsMessage() : Message() {
 			type = MessageType::REQUESTALLMODSTATS;
 		}
 		template<class Archive>
@@ -581,12 +581,12 @@ namespace common {
 		}
 	};
 
-	struct RequestSingleModStatMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.28.0")]] RequestSingleModStatMessage : public Message {
 		std::string username;
 		std::string password;
 		std::string language;
 		int32_t modID;
-		RequestSingleModStatMessage() : Message(), username(), password(), language(), modID() {
+		RequestSingleModStatMessage() : Message(), modID() {
 			type = MessageType::REQUESTSINGLEMODSTAT;
 		}
 		template<class Archive>
@@ -599,9 +599,9 @@ namespace common {
 		}
 	};
 
-	struct SendSingleModStatMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.28.0")]] SendSingleModStatMessage : public Message {
 		ModStats mod;
-		SendSingleModStatMessage() : Message(), mod() {
+		SendSingleModStatMessage() : Message() {
 			type = MessageType::SENDSINGLEMODSTAT;
 		}
 		template<class Archive>
@@ -616,7 +616,7 @@ namespace common {
 		std::string password;
 		std::string language;
 		int32_t modID;
-		RequestAllAchievementStatsMessage() : Message(), username(), password(), language(), modID() {
+		RequestAllAchievementStatsMessage() : Message(), modID() {
 			type = MessageType::REQUESTALLACHIEVEMENTSTATS;
 		}
 		template<class Archive>
@@ -1017,7 +1017,7 @@ namespace common {
 		}
 	};
 
-	struct [[deprecated("Usage of this struct is deprecated. Will be removed in Spine 1.28.0")]] SendUserInfosMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.28.0")]] SendUserInfosMessage : public Message {
 		std::string username;
 		std::string password;
 		std::string hash;
@@ -1076,7 +1076,7 @@ namespace common {
 		int32_t progress;
 		std::string username;
 		std::string password;
-		UpdateAchievementProgressMessage() : Message(), modID(), identifier(), progress(), username(), password() {
+		UpdateAchievementProgressMessage() : Message(), modID(), identifier(), progress() {
 			type = MessageType::UPDATEACHIEVEMENTPROGRESS;
 		}
 		template<class Archive>

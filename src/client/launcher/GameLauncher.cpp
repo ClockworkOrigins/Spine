@@ -25,17 +25,11 @@
 
 #include "client/widgets/UpdateLanguage.h"
 
-#include "common/MessageStructs.h"
-
-#include "security/Hash.h"
-
 #include "utils/Config.h"
 #include "utils/Conversion.h"
 #include "utils/Database.h"
 
 #include "widgets/MainWindow.h"
-
-#include "clockUtils/sockets/TcpSocket.h"
 
 #include <QFileInfo>
 #include <QLabel>
@@ -51,7 +45,6 @@
 using namespace spine::client;
 using namespace spine::common;
 using namespace spine::launcher;
-using namespace spine::security;
 using namespace spine::utils;
 using namespace spine::widgets;
 
@@ -62,8 +55,8 @@ GameLauncher::GameLauncher() {
 void GameLauncher::finishedGame(int, QProcess::ExitStatus) {
 	stopCommon();
 
-	widgets::MainWindow::getInstance()->setEnabled(true);
-	widgets::MainWindow::getInstance()->setWindowState(_oldWindowState);
+	MainWindow::getInstance()->setEnabled(true);
+	MainWindow::getInstance()->setWindowState(_oldWindowState);
 
 	Database::DBError err;
 	Database::execute(Config::BASEDIR.toStdString() + "/" + LASTPLAYED_DATABASE, "DELETE FROM lastPlayed;", err);
@@ -80,7 +73,7 @@ bool GameLauncher::supportsGame(GameType gameType) const {
 bool GameLauncher::supportsModAndIni(int32_t gameID, const QString &) const {
 	Database::DBError err;
 	const int gvInt = Database::queryNth<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + std::to_string(gameID) + " LIMIT 1;", err, 0);
-	const auto gv = static_cast<common::GameType>(gvInt);
+	const auto gv = static_cast<GameType>(gvInt);
 
 	return supportsGame(gv);
 }
@@ -121,32 +114,7 @@ void GameLauncher::start() {
 void GameLauncher::updateModStats() {
 	if (!Config::OnlineMode) return;
 
-	int gameID = _modID;
-	QtConcurrent::run([this, gameID]() {
-		clockUtils::sockets::TcpSocket sock;
-		const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-		if (clockUtils::ClockError::SUCCESS == cErr) {
-			{
-				RequestSingleModStatMessage rsmsm;
-				rsmsm.modID = gameID;
-				rsmsm.username = Config::Username.toStdString();
-				rsmsm.password = Config::Password.toStdString();
-				rsmsm.language = Config::Language.toStdString();
-				std::string serialized = rsmsm.SerializePublic();
-				sock.writePacket(serialized);
-				if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-					try {
-						Message * m = Message::DeserializePublic(serialized);
-						if (m) {
-							auto * ssmsm = dynamic_cast<SendSingleModStatMessage *>(m);
-							emit receivedModStats(ssmsm->mod);
-						}
-						delete m;
-					} catch (...) {}
-				}
-			}
-		}
-	});
+	requestSingleProjectStats([this](bool) {});
 }
 		
 void GameLauncher::updateView(int gameID, const QString & configFile) {

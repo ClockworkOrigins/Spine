@@ -32,8 +32,6 @@
 
 #include "launcher/LauncherFactory.h"
 
-#include "security/Hash.h"
-
 #include "utils/Config.h"
 #include "utils/Conversion.h"
 #include "utils/Database.h"
@@ -782,7 +780,7 @@ void Gothic1And2Launcher::start() {
 	if (_zSpyActivated && _zSpyLevel->value() > 0) {
 		QProcess::startDetached("\"" + _directory + "/_work/tools/zSpy/zSpy.exe\"");
 		args << "-zlog:" + QString::number(_zSpyLevel->value()) + ",s";
-		LOGINFO("Started zSpy");
+		LOGINFO("Started zSpy")
 	}
 	if (!Config::Username.isEmpty() && Config::OnlineMode) {
 		QJsonObject json;
@@ -1156,35 +1154,11 @@ void Gothic1And2Launcher::updateModStats() {
 		return;
 	}
 	int modID = _modID;
-	QtConcurrent::run([this, modID]() {
-		clockUtils::sockets::TcpSocket sock;
-		clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-		if (clockUtils::ClockError::SUCCESS == cErr) {
-			{
-				common::RequestSingleModStatMessage rsmsm;
-				rsmsm.modID = _modID;
-				rsmsm.username = Config::Username.toStdString();
-				rsmsm.password = Config::Password.toStdString();
-				rsmsm.language = Config::Language.toStdString();
-				std::string serialized = rsmsm.SerializePublic();
-				sock.writePacket(serialized);
-				if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-					try {
-						common::Message * m = common::Message::DeserializePublic(serialized);
-						if (m) {
-							auto * ssmsm = dynamic_cast<common::SendSingleModStatMessage *>(m);
-							emit receivedModStats(ssmsm->mod);
-						}
-						delete m;
-					} catch (...) {
-						emit receivedCompatibilityList(modID, {}, {});
-						return;
-					}
-				} else {
-					qDebug() << "Error occurred: " << static_cast<int>(cErr);
-				}
-			}
-			{
+	requestSingleProjectStats([this, modID](bool b) {
+		if (b) {
+			clockUtils::sockets::TcpSocket sock;
+			clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
+			if (clockUtils::ClockError::SUCCESS == cErr) {
 				common::RequestCompatibilityListMessage rclm;
 				rclm.modID = modID;
 				std::string serialized = rclm.SerializePublic();
@@ -1197,11 +1171,13 @@ void Gothic1And2Launcher::updateModStats() {
 							emit receivedCompatibilityList(modID, sclm->impossiblePatches, sclm->forbiddenPatches);
 						}
 						delete m;
-					} catch (...) {
+					}
+					catch (...) {
 						emit receivedCompatibilityList(modID, {}, {});
 						return;
 					}
-				} else {
+				}
+				else {
 					qDebug() << "Error occurred: " << static_cast<int>(cErr);
 				}
 			}

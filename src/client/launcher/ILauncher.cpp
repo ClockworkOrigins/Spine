@@ -1155,3 +1155,81 @@ void ILauncher::sendUserInfos(QJsonObject json) const {
 	Https::postAsync(DATABASESERVER_PORT, "sendUserInfos", QJsonDocument(json).toJson(QJsonDocument::Compact), [](const QJsonObject &, int) {});
 }
 
+void ILauncher::requestSingleProjectStats(const std::function<void(bool)> & resultCallback) {
+	QJsonObject json;
+	json["ProjectID"] = _modID;
+	json["Username"] = Config::Username;
+	json["Password"] = Config::Password;
+	json["Language"] = Config::Language;
+
+	Https::postAsync(DATABASESERVER_PORT, "requestSingleProjectStats", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, resultCallback](const QJsonObject & json, int statusCode) {
+		bool b = statusCode == 200;
+
+		do {
+			ModStats stats;
+
+			if (!json.contains("ProjectID")) {
+				b = false;
+				break;
+			}
+
+			if (!json.contains("Name")) {
+				b = false;
+				break;
+			}
+
+			if (!json.contains("Type")) {
+				b = false;
+				break;
+			}
+
+			if (!json.contains("LastTimePlayed")) {
+				b = false;
+				break;
+			}
+
+			if (!json.contains("Duration")) {
+				b = false;
+				break;
+			}
+
+			stats.modID = json["ProjectID"].toString().toInt();
+			stats.name = q2s(json["Name"].toString());
+			stats.type = static_cast<ModType>(json["ProjectID"].toString().toInt());
+			stats.lastTimePlayed = json["ProjectID"].toString().toInt();
+			stats.duration = json["ProjectID"].toString().toInt();
+
+			if (json.contains("AchievedAchievements")) {
+				stats.achievedAchievements = json["AchievedAchievements"].toString().toInt();
+			}
+
+			if (json.contains("AllAchievements")) {
+				stats.allAchievements = json["AllAchievements"].toString().toInt();
+			}
+
+			if (json.contains("BestScoreName")) {
+				stats.bestScoreName = q2s(json["BestScoreName"].toString());
+			}
+
+			if (json.contains("BestScoreRank")) {
+				stats.bestScoreRank = json["BestScoreRank"].toString().toInt();
+			}
+
+			if (json.contains("BestScore")) {
+				stats.bestScore = json["BestScore"].toString().toInt();
+			}
+
+			if (json.contains("FeedbackMailAvailable")) {
+				stats.feedbackMailAvailable = json["FeedbackMailAvailable"].toString().toInt();
+			}
+
+			if (json.contains("DiscussionUrl")) {
+				stats.discussionUrl = q2s(json["DiscussionUrl"].toString());
+			}
+			
+			emit receivedModStats(stats);
+		} while (false);
+		
+		resultCallback(b);
+	});
+}

@@ -31,20 +31,20 @@ namespace spine {
 namespace common {
 
 	struct ModStats {
-		int32_t modID;
+		int32_t modID = -1;
 		std::string name;
-		ModType type;
-		int32_t lastTimePlayed;
-		int32_t duration;
-		int32_t achievedAchievements;
-		int32_t allAchievements;
+		ModType type = ModType::TOTALCONVERSION;
+		int32_t lastTimePlayed = 0;
+		int32_t duration = 0;
+		int32_t achievedAchievements = 0;
+		int32_t allAchievements = 0;
 		std::string bestScoreName;
-		int32_t bestScoreRank;
-		int32_t bestScore;
-		bool feedbackMailAvailable;
+		int32_t bestScoreRank = 0;
+		int32_t bestScore = 0;
+		bool feedbackMailAvailable = false;
 		std::string discussionUrl;
 
-		ModStats() : modID(-1), type(ModType::TOTALCONVERSION), lastTimePlayed(0), duration(0), achievedAchievements(0), allAchievements(0), bestScoreRank(0), bestScore(0), feedbackMailAvailable(false) {}
+		ModStats() {}
 
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int /* file_version */) {

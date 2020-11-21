@@ -145,6 +145,12 @@ namespace launcher {
 
 		void sendUserInfos(QJsonObject json) const;
 
+		/**
+		 * \brief requests stats for this project to display in the library (e.g. play time)
+		 * resultCallback is called when response is received, true for success, false for error
+		 */
+		void requestSingleProjectStats(const std::function<void(bool)> & resultCallback);
+
 	private:
 		QLabel * _playTimeLabel = nullptr;
 		widgets::RatingWidget * _ratingWidget = nullptr;
