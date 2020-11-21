@@ -1174,41 +1174,6 @@ namespace common {
 		}
 	};
 
-	struct RequestRatingMessage : public Message {
-		int32_t modID;
-		std::string username;
-		std::string password;
-		RequestRatingMessage() : Message(), modID(), username(), password() {
-			type = MessageType::REQUESTRATING;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & modID;
-			ar & username;
-			ar & password;
-		}
-	};
-
-	// Deprecated, remove somewhen in the future, currently kept for backwards compatibility
-	struct SendRatingMessage : public Message {
-		int32_t modID;
-		int sum;
-		int voteCount;
-		bool allowedToRate;
-		SendRatingMessage() : Message(), modID(), sum(), voteCount(), allowedToRate() {
-			type = MessageType::SENDRATING;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & modID;
-			ar & sum;
-			ar & voteCount;
-			ar & allowedToRate;
-		}
-	};
-
 	struct SubmitRatingMessage : public Message {
 		int32_t modID;
 		int32_t rating;

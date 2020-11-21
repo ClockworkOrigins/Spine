@@ -57,7 +57,6 @@ namespace common {
 	struct RequestPackageFilesMessage;
 	struct RequestPlayTimeMessage;
 	struct RequestRandomModMessage;
-	struct RequestRatingMessage;
 	struct RequestScoresMessage;
 	struct RequestSingleModStatMessage;
 	struct RequestUserLevelMessage;
@@ -155,7 +154,6 @@ namespace server {
 		void handleSubmitCompatibility(clockUtils::sockets::TcpSocket * sock, common::SubmitCompatibilityMessage * msg) const;
 		void handleRequestOwnCompatibilities(clockUtils::sockets::TcpSocket * sock, common::RequestOwnCompatibilitiesMessage * msg) const;
 		void handleRequestCompatibilityList(clockUtils::sockets::TcpSocket * sock, common::RequestCompatibilityListMessage * msg) const;
-		void handleRequestRating(clockUtils::sockets::TcpSocket * sock, common::RequestRatingMessage * msg) const;
 		void handleSubmitRating(clockUtils::sockets::TcpSocket * sock, common::SubmitRatingMessage * msg) const;
 		void handleAutoUpdateEncrypted(clockUtils::sockets::TcpSocket * sock, common::UpdateRequestEncryptedMessage * msg) const;
 		void handleRequestOverallSaveData(clockUtils::sockets::TcpSocket * sock, common::RequestOverallSaveDataMessage * msg) const;

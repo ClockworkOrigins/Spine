@@ -226,9 +226,6 @@ void Server::receiveMessage(const std::vector<uint8_t> & message, clockUtils::so
 			} else if (m->type == MessageType::REQUESTCOMPATIBILITYLIST) {
 				RequestCompatibilityListMessage * msg = dynamic_cast<RequestCompatibilityListMessage *>(m);
 				handleRequestCompatibilityList(sock, msg);
-			} else if (m->type == MessageType::REQUESTRATING) {
-				RequestRatingMessage * msg = dynamic_cast<RequestRatingMessage *>(m);
-				handleRequestRating(sock, msg);
 			} else if (m->type == MessageType::SUBMITRATING) {
 				SubmitRatingMessage * msg = dynamic_cast<SubmitRatingMessage *>(m);
 				handleSubmitRating(sock, msg);
@@ -241,12 +238,6 @@ void Server::receiveMessage(const std::vector<uint8_t> & message, clockUtils::so
 			} else if (m->type == MessageType::UPDATEOVERALLSAVEDATA) {
 				UpdateOverallSaveDataMessage * msg = dynamic_cast<UpdateOverallSaveDataMessage *>(m);
 				handleUpdateOverallSaveData(sock, msg);
-			} else if (m->type == MessageType::REQUESTMODMANAGEMENT) {
-				// not supported anymore
-			} else if (m->type == MessageType::UPDATEMODVERSION) {
-				// not supported anymore
-			} else if (m->type == MessageType::UPDATEEARLYACCESSSTATE) {
-				// not supported anymore
 			} else if (m->type == MessageType::REQUESTMODSFOREDITOR) {
 				RequestModsForEditorMessage * msg = dynamic_cast<RequestModsForEditorMessage *>(m);
 				handleRequestModsForEditor(sock, msg);
@@ -3688,89 +3679,6 @@ void Server::handleRequestCompatibilityList(clockUtils::sockets::TcpSocket * soc
 		}
 	} while (false);
 	const std::string serialized = sclm.SerializePrivate();
-	sock->writePacket(serialized);
-}
-
-void Server::handleRequestRating(clockUtils::sockets::TcpSocket * sock, RequestRatingMessage * msg) const {
-	SendRatingMessage srm;
-	srm.modID = msg->modID;
-	srm.sum = 0;
-	srm.allowedToRate = !msg->username.empty();
-	do {
-		const int userID = ServerCommon::getUserID(msg->username, msg->password);
-		MariaDBWrapper database;
-		if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, SPINEDATABASE, 0)) {
-			std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-			break;
-		}
-		if (!database.query("PREPARE selectOwnRatingStmt FROM \"SELECT Rating FROM ratings WHERE ModID = ? AND UserID = ? LIMIT 1\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			break;
-		}
-		if (!database.query("PREPARE selectRatingStmt FROM \"SELECT IFNULL(SUM(Rating), 0), IFNULL(COUNT(Rating), 1) FROM ratings WHERE ModID = ?\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			break;
-		}
-		if (!database.query("PREPARE selectOwnPlaytimeStmt FROM \"SELECT Duration FROM playtimes WHERE ModID = ? AND UserID = ? LIMIT 1\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			break;
-		}
-		if (!database.query("PREPARE selectOverallPlaytimeStmt FROM \"SELECT IFNULL(SUM(Duration), 0), IFNULL(COUNT(Duration), 1) FROM playtimes WHERE ModID = ? AND UserID != -1\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			break;
-		}
-		if (!database.query("SET @paramModID=" + std::to_string(msg->modID) + ";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			break;
-		}
-		if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			break;
-		}
-		if (userID == -1) {
-			if (!database.query("EXECUTE selectRatingStmt USING @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-				break;
-			}
-			auto lastResults = database.getResults<std::vector<std::string>>();
-			const int sum = std::stoi(lastResults[0][0]);
-			const int count = std::stoi(lastResults[0][1]);
-			srm.voteCount = count;
-			srm.sum = sum;
-		} else {
-			if (!database.query("EXECUTE selectOwnRatingStmt USING @paramModID, @paramUserID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-				break;
-			}
-			auto lastResults = database.getResults<std::vector<std::string>>();
-			if (!lastResults.empty()) {
-				srm.sum = std::stoi(lastResults[0][0]);
-			}
-			srm.voteCount = 0;
-			if (!database.query("EXECUTE selectOwnPlaytimeStmt USING @paramModID, @paramUserID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-				break;
-			}
-			lastResults = database.getResults<std::vector<std::string>>();
-			int32_t duration = 0;
-			if (!lastResults.empty()) {
-				duration = std::stoi(lastResults[0][0]);
-			}
-			if (!database.query("EXECUTE selectOverallPlaytimeStmt USING @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-				break;
-			}
-			lastResults = database.getResults<std::vector<std::string>>();
-			const int sum = std::stoi(lastResults[0][0]);
-			int count = std::stoi(lastResults[0][1]);
-			if (count == 0) {
-				count = 1;
-			}
-			const int average = sum / count;
-			srm.allowedToRate = duration >= average && count > 1;
-		}
-	} while (false);
-	const std::string serialized = srm.SerializePrivate();
 	sock->writePacket(serialized);
 }
 
