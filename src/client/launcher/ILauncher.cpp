@@ -133,7 +133,7 @@ void ILauncher::createWidget() {
 		_upperLayout->addStretch(1);
 
 		if (Config::OnlineMode) {
-			_ratingWidget = new widgets::RatingWidget(widgets::RatingWidget::RatingMode::User, _widget);
+			_ratingWidget = new RatingWidget(RatingWidget::RatingMode::User, _widget);
 			_ratingWidget->setProperty("library", true);
 			_upperLayout->addWidget(_ratingWidget, 1, Qt::AlignRight);
 			_ratingWidget->setEditable(true);
@@ -146,7 +146,7 @@ void ILauncher::createWidget() {
 	}
 
 	{
-		QHBoxLayout * hbl = new QHBoxLayout();
+		auto * hbl = new QHBoxLayout();
 
 		_installDate = new QLabel(_widget);
 		_installDate->setProperty("library", true);
@@ -166,7 +166,7 @@ void ILauncher::createWidget() {
 	}
 
 	{
-		QHBoxLayout * hbl = new QHBoxLayout();
+		auto * hbl = new QHBoxLayout();
 
 		_discussionUrlTitle = new QLabel(QApplication::tr("DiscussionUrl"), _widget);
 		UPDATELANGUAGESETTEXT(_discussionUrlTitle, "DiscussionUrl");
@@ -191,7 +191,7 @@ void ILauncher::createWidget() {
 	}
 
 	{
-		QHBoxLayout * hbl = new QHBoxLayout();
+		auto * hbl = new QHBoxLayout();
 
 		_feedbackButton = new QPushButton(QApplication::tr("Feedback"), _widget);
 		UPDATELANGUAGESETTEXT(_feedbackButton, "Feedback");
@@ -311,10 +311,10 @@ void ILauncher::updateCommonView(int modID, const QString & name) {
 }
 
 void ILauncher::updateModInfoView(ModStats ms) {
-	const QString timeString = utils::timeToString(ms.duration);
+	const QString timeString = timeToString(ms.duration);
 	_playTimeLabel->setText(timeString);
 
-	_achievementLabel->setText(R"(<a href="Foobar" style="color: #181C22">)" + QApplication::tr("AchievementText").arg(ms.achievedAchievements).arg(ms.allAchievements).arg(ms.achievedAchievements * 100 / ((ms.allAchievements) ? ms.allAchievements : 1)) + "</a>");
+	_achievementLabel->setText(R"(<a href="Foobar" style="color: #181C22">)" + QApplication::tr("AchievementText").arg(ms.achievedAchievements).arg(ms.allAchievements).arg(ms.achievedAchievements * 100 / (ms.allAchievements ? ms.allAchievements : 1)) + "</a>");
 	_achievementLabel->setVisible(ms.allAchievements > 0);
 
 	_scoresLabel->setText(R"(<a href="Blafoo" style="color: #181C22">)" + ((ms.bestScoreRank > 0) ? QApplication::tr("BestScoreText").arg(s2q(ms.bestScoreName)).arg(ms.bestScoreRank).arg(ms.bestScore) : QApplication::tr("NoBestScore")) + "</a>");
@@ -484,7 +484,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 					serialized = sum.SerializeBlank();
 					socket->writePacket(serialized);
 				} else if (msg->type == MessageType::REQUESTSCORES) {
-					RequestScoresMessage * rsm = dynamic_cast<RequestScoresMessage *>(msg);
+					auto * rsm = dynamic_cast<RequestScoresMessage *>(msg);
 					if (_modID != -1) {
 						if (rsm) {
 							rsm->modID = _modID;
@@ -513,9 +513,9 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 								SendScoresMessage ssm;
 								std::map<int, std::vector<std::pair<std::string, int32_t>>> scores;
 								for (auto vec : lastResults) {
-									int32_t identifier = static_cast<int32_t>(std::stoi(vec[0]));
+									auto identifier = static_cast<int32_t>(std::stoi(vec[0]));
 									std::string username = vec[1];
-									int32_t score = static_cast<int32_t>(std::stoi(vec[2]));
+									auto score = static_cast<int32_t>(std::stoi(vec[2]));
 									if (!username.empty()) {
 										scores[identifier].push_back(std::make_pair(username, score));
 									}
@@ -535,7 +535,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 						socket->writePacket(serialized);
 					}
 				} else if (msg->type == MessageType::UPDATESCORE) {
-					UpdateScoreMessage * usm = dynamic_cast<UpdateScoreMessage *>(msg);
+					auto * usm = dynamic_cast<UpdateScoreMessage *>(msg);
 					if (_modID != -1) {
 						if (usm) {
 							if (Config::OnlineMode) {
@@ -563,7 +563,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 						}
 					}
 				} else if (msg->type == MessageType::REQUESTACHIEVEMENTS) {
-					RequestAchievementsMessage * ram = dynamic_cast<RequestAchievementsMessage *>(msg);
+					auto * ram = dynamic_cast<RequestAchievementsMessage *>(msg);
 					if (_modID != -1) {
 						if (ram && Config::OnlineMode && !Config::Username.isEmpty()) {
 							ram->modID = _modID;
@@ -574,7 +574,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 								serialized = ram->SerializePublic();
 								if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
 									if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-										SendAchievementsMessage * sam = dynamic_cast<SendAchievementsMessage *>(Message::DeserializePublic(serialized));
+										auto * sam = dynamic_cast<SendAchievementsMessage *>(Message::DeserializePublic(serialized));
 										sam->showAchievements = _showAchievements;
 										serialized = sam->SerializeBlank();
 										socket->writePacket(serialized);
@@ -594,7 +594,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 
 							SendAchievementsMessage sam;
 							for (const std::string & s : lastResults) {
-								int32_t identifier = static_cast<int32_t>(std::stoi(s));
+								auto identifier = static_cast<int32_t>(std::stoi(s));
 								sam.achievements.push_back(identifier);
 							}
 							auto lastResultsVec = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier, Max FROM modAchievementProgressMax WHERE ModID = " + std::to_string(_modID) + ";", dbErr);
@@ -616,7 +616,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 						socket->writePacket(serialized);
 					}
 				} else if (msg->type == MessageType::UNLOCKACHIEVEMENT) {
-					UnlockAchievementMessage * uam = dynamic_cast<UnlockAchievementMessage *>(msg);
+					auto * uam = dynamic_cast<UnlockAchievementMessage *>(msg);
 					if (_modID != -1) {
 						if (uam) {
 							if (Config::OnlineMode) {
@@ -650,7 +650,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 						}
 					}
 				} else if (msg->type == MessageType::UPDATEACHIEVEMENTPROGRESS) {
-					UpdateAchievementProgressMessage * uapm = dynamic_cast<UpdateAchievementProgressMessage *>(msg);
+					auto * uapm = dynamic_cast<UpdateAchievementProgressMessage *>(msg);
 					if (_modID != -1) {
 						if (uapm) {
 							if (Config::OnlineMode) {
@@ -679,7 +679,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 					}
 				} else if (msg->type == MessageType::SEARCHMATCH) {
 					if (_modID != -1 && Config::OnlineMode) {
-						SearchMatchMessage * smm = dynamic_cast<SearchMatchMessage *>(msg);
+						auto * smm = dynamic_cast<SearchMatchMessage *>(msg);
 						if (smm) {
 							clockUtils::sockets::TcpSocket sock;
 							if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
@@ -711,7 +711,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 						socket->writePacket(serialized);
 					}
 				} else if (msg->type == MessageType::REQUESTOVERALLSAVEPATH) {
-					RequestOverallSavePathMessage * rospm = dynamic_cast<RequestOverallSavePathMessage *>(msg);
+					auto * rospm = dynamic_cast<RequestOverallSavePathMessage *>(msg);
 					if (rospm) {
 						QString overallSavePath = getOverallSavePath();
 						SendOverallSavePathMessage sospm;
@@ -725,7 +725,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 						socket->writePacket("empty");
 					}
 				} else if (msg->type == MessageType::REQUESTOVERALLSAVEDATA) {
-					RequestOverallSaveDataMessage * rom = dynamic_cast<RequestOverallSaveDataMessage *>(msg);
+					auto * rom = dynamic_cast<RequestOverallSaveDataMessage *>(msg);
 					if (_modID != -1) {
 						if (rom && !Config::Username.isEmpty()) {
 							if (Config::OnlineMode) {
@@ -769,7 +769,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 						socket->writePacket(serialized);
 					}
 				} else if (msg->type == MessageType::UPDATEOVERALLSAVEDATA) {
-					UpdateOverallSaveDataMessage * uom = dynamic_cast<UpdateOverallSaveDataMessage *>(msg);
+					auto * uom = dynamic_cast<UpdateOverallSaveDataMessage *>(msg);
 					if (_modID != -1) {
 						if (uom) {
 							if (Config::OnlineMode) {
@@ -797,7 +797,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 						}
 					}
 				} else if (msg->type == MessageType::REQUESTALLFRIENDS) {
-					RequestAllFriendsMessage * rafm = dynamic_cast<RequestAllFriendsMessage *>(msg);
+					auto * rafm = dynamic_cast<RequestAllFriendsMessage *>(msg);
 					if (Config::OnlineMode) {
 						if (rafm && !Config::Username.isEmpty()) {
 							rafm->username = Config::Username.toStdString();
@@ -807,7 +807,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 								serialized = rafm->SerializePublic();
 								if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
 									if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-										SendAllFriendsMessage * safm = dynamic_cast<SendAllFriendsMessage *>(Message::DeserializePublic(serialized));
+										auto * safm = dynamic_cast<SendAllFriendsMessage *>(Message::DeserializePublic(serialized));
 										serialized = safm->SerializeBlank();
 										socket->writePacket(serialized);
 										delete safm;
@@ -829,7 +829,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 						socket->writePacket(serialized);
 					}
 				} else if (msg->type == MessageType::UPDATECHAPTERSTATS) {
-					UpdateChapterStatsMessage * ucsm = dynamic_cast<UpdateChapterStatsMessage *>(msg);
+					auto * ucsm = dynamic_cast<UpdateChapterStatsMessage *>(msg);
 					if (_modID != -1) {
 						if (ucsm) {
 							if (Config::OnlineMode) {
@@ -843,7 +843,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 						}
 					}
 				} else if (msg->type == MessageType::ISACHIEVEMENTUNLOCKED) {
-					IsAchievementUnlockedMessage * iaum = dynamic_cast<IsAchievementUnlockedMessage *>(msg);
+					auto * iaum = dynamic_cast<IsAchievementUnlockedMessage *>(msg);
 					if (_modID != -1) {
 						if (iaum) {
 							iaum->username = q2s(Config::Username);
@@ -1066,7 +1066,7 @@ void ILauncher::synchronizeOfflineData() {
 							if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
 								Message * msg = Message::DeserializePublic(serialized);
 								if (msg) {
-									SendOfflineDataMessage * sodm = dynamic_cast<SendOfflineDataMessage *>(msg);
+									auto * sodm = dynamic_cast<SendOfflineDataMessage *>(msg);
 									if (sodm) {
 										Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM playTimes WHERE Username = '" + Config::Username.toStdString() + "';", err);
 										Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM modAchievementList;", err);
