@@ -14,6 +14,18 @@ echo "Extracting Discord"
 
 call build-common.bat downloadAndUnpack %ARCHIVE% %BUILD_DIR% https://dl-game-sdk.discordapp.net/latest/
 
+pushd "%BUILD_DIR%"
+dir
+popd
+
+pushd "%BUILD_DIR%/lib"
+dir
+popd
+
+pushd "%BUILD_DIR%/lib/%ARCHFOLDER%"
+dir
+popd
+
 echo "Configuring Discord"
 
 mkdir "%PREFIX%"
