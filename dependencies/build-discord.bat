@@ -14,18 +14,6 @@ echo "Extracting Discord"
 
 call build-common.bat downloadAndUnpack %ARCHIVE% %BUILD_DIR% https://dl-game-sdk.discordapp.net/latest/
 
-pushd "%BUILD_DIR%"
-dir
-popd
-
-pushd "%BUILD_DIR%/lib"
-dir
-popd
-
-pushd "%BUILD_DIR%/lib/%ARCHFOLDER%"
-dir
-popd
-
 echo "Configuring Discord"
 
 mkdir "%PREFIX%"
@@ -40,6 +28,18 @@ IF [%VSSOLUTIONARCH%] == [x86] (
 IF [%VSSOLUTIONARCH%] == [x64] (
 	SET ARCHFOLDER=x86_64
 )
+
+pushd "%BUILD_DIR%"
+dir
+popd
+
+pushd "%BUILD_DIR%/lib"
+dir
+popd
+
+pushd "%BUILD_DIR%/lib/%ARCHFOLDER%"
+dir
+popd
 
 xcopy /S /Y "%BUILD_DIR%\cpp\*.h" "%PREFIX%\include\"
 xcopy /S /Y "%BUILD_DIR%\cpp\*.cpp" "%PREFIX%\src\"
