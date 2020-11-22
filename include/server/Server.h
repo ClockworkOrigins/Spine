@@ -129,6 +129,8 @@ namespace server {
 
 		[[deprecated("Remove in Spine 1.28.0")]]
 		void handleRequestScores(clockUtils::sockets::TcpSocket * sock, common::RequestScoresMessage * msg) const;
+		
+		[[deprecated("Remove in Spine 1.28.0")]]
 		void handleUpdateScore(clockUtils::sockets::TcpSocket * sock, common::UpdateScoreMessage * msg) const;
 		void handleRequestAchievements(clockUtils::sockets::TcpSocket * sock, common::RequestAchievementsMessage * msg) const;
 		void handleUnlockAchievement(clockUtils::sockets::TcpSocket * sock, common::UnlockAchievementMessage * msg) const;

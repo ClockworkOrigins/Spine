@@ -470,35 +470,11 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 				if (msg->type == MessageType::REQUESTUSERNAME) {
 					handleRequestUsername(socket);
 				} else if (msg->type == MessageType::REQUESTSCORES) {
-					handleRequestScores(socket, dynamic_cast<RequestScoresMessage *>(msg));
+					auto * rsm = dynamic_cast<RequestScoresMessage *>(msg);
+					handleRequestScores(socket, rsm);
 				} else if (msg->type == MessageType::UPDATESCORE) {
 					auto * usm = dynamic_cast<UpdateScoreMessage *>(msg);
-					if (_projectID != -1) {
-						if (usm) {
-							if (Config::OnlineMode) {
-								usm->modID = _projectID;
-								usm->username = Config::Username.toStdString();
-								usm->password = Config::Password.toStdString();
-								clockUtils::sockets::TcpSocket sock;
-								if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-									serialized = usm->SerializePublic();
-									if (clockUtils::ClockError::SUCCESS != sock.writePacket(serialized)) {
-										cacheScore(usm);
-									} else {
-										removeScore(usm);
-									}
-								} else {
-									cacheScore(usm);
-								}
-							} else {
-								Database::DBError dbErr;
-								Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO modScores (ModID, Identifier, Username, Score) VALUES (" + std::to_string(_projectID) + ", " + std::to_string(usm->identifier) + ", '" + Config::Username.toStdString() + "', " + std::to_string(usm->score) + ");", dbErr);
-								if (dbErr.error) {
-									Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "UPDATE modScores SET Score = " + std::to_string(usm->score) + " WHERE ModID = " + std::to_string(_projectID) + " AND Identifier = " + std::to_string(usm->identifier) + " AND Username = '" + Config::Username.toStdString() + "';", dbErr);
-								}
-							}
-						}
-					}
+					handleUpdateScore(socket, usm);
 				} else if (msg->type == MessageType::REQUESTACHIEVEMENTS) {
 					auto * ram = dynamic_cast<RequestAchievementsMessage *>(msg);
 					if (_projectID != -1) {
@@ -839,16 +815,18 @@ void ILauncher::tryCleanCaches() {
 	if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
 		std::vector<std::vector<int>> scores = Database::queryAll<std::vector<int>, int, int, int>(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "SELECT * FROM scoreCache;", err);
 		for (auto t : scores) {
-			UpdateScoreMessage usm;
-			usm.modID = t[0];
-			usm.identifier = t[1];
-			usm.score = t[2];
-			usm.username = Config::Username.toStdString();
-			usm.password = Config::Password.toStdString();
-			const std::string serialized = usm.SerializePublic();
-			if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
-				removeScore(&usm);
-			}
+			QJsonObject json;
+			json["ProjectID"] = t[0];
+			json["Username"] = Config::Username;
+			json["Password"] = Config::Password;
+			json["Identifier"] = t[1];
+			json["Score"] = t[2];
+
+			Https::postAsync(DATABASESERVER_PORT, "updateScore", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, t](const QJsonObject &, int statusCode) {
+				if (statusCode != 200) return;
+				
+				removeScore(t[0], t[1]);
+			});
 		}
 		std::vector<std::vector<int>> achievements = Database::queryAll<std::vector<int>, int, int>(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "SELECT * FROM achievementCache;", err);
 		for (auto t : achievements) {
@@ -891,17 +869,17 @@ void ILauncher::tryCleanCaches() {
 	}
 }
 
-void ILauncher::cacheScore(UpdateScoreMessage * usm) {
+void ILauncher::cacheScore(int32_t projectID, int32_t identifier, int32_t score) const {
 	Database::DBError err;
-	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "INSERT INTO scoreCache (ModID, Identifier, Score) VALUES (" + std::to_string(usm->modID) + ", " + std::to_string(usm->identifier) + ", " + std::to_string(usm->score) + ");", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "INSERT INTO scoreCache (ModID, Identifier, Score) VALUES (" + std::to_string(projectID) + ", " + std::to_string(identifier) + ", " + std::to_string(score) + ");", err);
 	if (err.error) {
-		Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "UPDATE scoreCache SET Score = " + std::to_string(usm->score) + " WHERE ModID = " + std::to_string(usm->modID) + " AND Identifier = " + std::to_string(usm->identifier) + ";", err);
+		Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "UPDATE scoreCache SET Score = " + std::to_string(score) + " WHERE ModID = " + std::to_string(projectID) + " AND Identifier = " + std::to_string(identifier) + ";", err);
 	}
 }
 
-void ILauncher::removeScore(UpdateScoreMessage * usm) {
+void ILauncher::removeScore(int32_t projectID, int32_t identifier) const {
 	Database::DBError err;
-	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "DELETE FROM scoreCache WHERE ModID = " + std::to_string(usm->modID) + " AND Identifier = " + std::to_string(usm->identifier) + ";", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "DELETE FROM scoreCache WHERE ModID = " + std::to_string(projectID) + " AND Identifier = " + std::to_string(identifier) + ";", err);
 }
 
 void ILauncher::cacheAchievement(UnlockAchievementMessage * uam) {
@@ -1246,5 +1224,37 @@ void ILauncher::handleRequestScores(clockUtils::sockets::TcpSocket * socket, Req
 		}
 		const auto serialized = ssm.SerializeBlank();
 		socket->writePacket(serialized);
+	}
+}
+
+void ILauncher::handleUpdateScore(clockUtils::sockets::TcpSocket * socket, UpdateScoreMessage * msg) const {
+	if (_projectID == -1) return;
+	
+	if (!msg) return;
+	
+	if (Config::OnlineMode) {
+		QJsonObject json;
+		json["ProjectID"] = _projectID;
+		json["Username"] = Config::Username;
+		json["Password"] = Config::Password;
+		json["Identifier"] = msg->identifier;
+		json["Score"] = msg->score;
+
+		int32_t identifier = msg->identifier;
+		int32_t score = msg->score;
+
+		Https::postAsync(DATABASESERVER_PORT, "updateScore", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, identifier, score](const QJsonObject &, int statusCode) {
+			if (statusCode != 200) {
+				cacheScore(_projectID, identifier, score);
+				return;
+			}
+			removeScore(_projectID, identifier);
+		});
+	} else {
+		Database::DBError dbErr;
+		Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO modScores (ModID, Identifier, Username, Score) VALUES (" + std::to_string(_projectID) + ", " + std::to_string(msg->identifier) + ", '" + Config::Username.toStdString() + "', " + std::to_string(msg->score) + ");", dbErr);
+		if (dbErr.error) {
+			Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "UPDATE modScores SET Score = " + std::to_string(msg->score) + " WHERE ModID = " + std::to_string(_projectID) + " AND Identifier = " + std::to_string(msg->identifier) + " AND Username = '" + Config::Username.toStdString() + "';", dbErr);
+		}
 	}
 }

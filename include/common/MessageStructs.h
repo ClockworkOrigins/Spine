@@ -290,12 +290,12 @@ namespace common {
 	};
 
 	struct UpdateScoreMessage : public Message {
-		int32_t modID;
+		int32_t [[deprecated("Remove in Spine 1.28.0")]] modID;
 		int32_t identifier;
-		std::string username;
-		std::string password;
+		std::string [[deprecated("Remove in Spine 1.28.0")]] username;
+		std::string [[deprecated("Remove in Spine 1.28.0")]] password;
 		int32_t score;
-		UpdateScoreMessage() : Message(), modID(), identifier(), username(), password(), score() {
+		UpdateScoreMessage() : Message(), modID(), identifier(), score() {
 			type = MessageType::UPDATESCORE;
 		}
 		template<class Archive>
