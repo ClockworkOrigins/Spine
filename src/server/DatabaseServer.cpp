@@ -56,6 +56,7 @@ int DatabaseServer::run() {
 	_server->resource["^/requestSingleProjectStats"]["POST"] = std::bind(&DatabaseServer::requestSingleProjectStats, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/requestCompatibilityList"]["POST"] = std::bind(&DatabaseServer::requestCompatibilityList, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/updatePlayTime"]["POST"] = std::bind(&DatabaseServer::updatePlayTime, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/requestScores"]["POST"] = std::bind(&DatabaseServer::requestScores, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -1057,8 +1058,7 @@ void DatabaseServer::requestCompatibilityList(std::shared_ptr<HttpsServer::Respo
 		write_json(responseStream, responseTree);
 
 		response->write(code, responseStream.str());
-	}
-	catch (...) {
+	} catch (...) {
 		response->write(SimpleWeb::StatusCode::client_error_bad_request);
 	}
 }
@@ -1167,6 +1167,74 @@ void DatabaseServer::updatePlayTime(std::shared_ptr<HttpsServer::Response> respo
 		} while (false);
 
 		response->write(code);
+	}
+	catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::requestScores(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		const auto projectID = pt.get<int64_t>("ProjectID");
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+
+			if (!database.query("PREPARE selectStmt FROM \"SELECT Identifier, UserID, Score FROM modScores WHERE ModID = ? ORDER BY Score DESC\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramModID=" + std::to_string(projectID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("EXECUTE selectStmt USING @paramModID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			auto lastResults = database.getResults<std::vector<std::string>>();
+
+			std::map<int, std::vector<std::pair<std::string, int32_t>>> scores;
+			for (const auto & vec : lastResults) {
+				const auto identifier = static_cast<int32_t>(std::stoi(vec[0]));
+				const int userID = std::stoi(vec[1]);
+				const auto score = static_cast<int32_t>(std::stoi(vec[2]));
+				std::string username = ServerCommon::getUsername(userID);
+				if (!username.empty()) {
+					scores[identifier].push_back(std::make_pair(username, score));
+				}
+			}
+			ptree scoreNodes;
+			for (auto & score : scores) {
+				ptree scoreNode;
+				for (const auto & p : score.second) {
+					ptree scoreEntryNode;
+					scoreEntryNode.put("Username", p.first);
+					scoreEntryNode.put("Score", p.second);
+
+					scoreNode.push_back(std::make_pair("", scoreEntryNode));
+				}
+				scoreNodes.put("ID", score.first);
+				scoreNodes.add_child("Scores", scoreNode);
+			}
+			responseTree.add_child("Scores", scoreNodes);
+		} while (false);
+
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
 	}
 	catch (...) {
 		response->write(SimpleWeb::StatusCode::client_error_bad_request);

@@ -300,7 +300,7 @@ void ILauncher::updateCommonView(int projectID, const QString & name) {
 		auto date = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT InstallDate FROM installDates WHERE ModID = " + std::to_string(projectID) + " LIMIT 1;", err);
 		if (date.empty()) {
 			const int currentDate = std::chrono::duration_cast<std::chrono::hours>(std::chrono::system_clock::now() - std::chrono::system_clock::time_point()).count();
-			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO installDates (ModID, InstallDate) VALUES (" + std::to_string(projectID) + ", " + std::to_string(currentDate) +");", err);
+			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO installDates (ModID, InstallDate) VALUES (" + std::to_string(projectID) + ", " + std::to_string(currentDate) + ");", err);
 			date.push_back(currentDate);
 		}
 		_installDate->setText(QApplication::tr("Installed").arg(QDate(1970, 1, 1).addDays(date[0] / 24).toString("dd.MM.yyyy")));
@@ -468,63 +468,9 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 			Message * msg = Message::DeserializeBlank(serialized);
 			if (msg) {
 				if (msg->type == MessageType::REQUESTUSERNAME) {
-					SendUsernameMessage sum;
-					sum.username = Config::Username.toStdString();
-					sum.modID = _projectID;
-					sum.userID = Config::UserID;
-					serialized = sum.SerializeBlank();
-					socket->writePacket(serialized);
+					handleRequestUsername(socket);
 				} else if (msg->type == MessageType::REQUESTSCORES) {
-					auto * rsm = dynamic_cast<RequestScoresMessage *>(msg);
-					if (_projectID != -1) {
-						if (rsm) {
-							rsm->modID = _projectID;
-							if (Config::OnlineMode) {
-								clockUtils::sockets::TcpSocket sock;
-								if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-									serialized = rsm->SerializePublic();
-									if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
-										if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-											Message * newMsg = Message::DeserializePublic(serialized);
-											serialized = newMsg->SerializeBlank();
-											delete newMsg;
-											socket->writePacket(serialized);
-										} else {
-											socket->writePacket("empty");
-										}
-									} else {
-										socket->writePacket("empty");
-									}
-								} else {
-									socket->writePacket("empty");
-								}
-							} else {
-								Database::DBError dbErr;
-								std::vector<std::vector<std::string>> lastResults = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier, Username, Score FROM modScores WHERE ModID = " + std::to_string(_projectID) + " ORDER BY Score DESC", dbErr);
-								SendScoresMessage ssm;
-								std::map<int, std::vector<std::pair<std::string, int32_t>>> scores;
-								for (auto vec : lastResults) {
-									auto identifier = static_cast<int32_t>(std::stoi(vec[0]));
-									std::string username = vec[1];
-									auto score = static_cast<int32_t>(std::stoi(vec[2]));
-									if (!username.empty()) {
-										scores[identifier].push_back(std::make_pair(username, score));
-									}
-								}
-								for (auto & score : scores) {
-									ssm.scores.emplace_back(score.first, score.second);
-								}
-								serialized = ssm.SerializeBlank();
-								socket->writePacket(serialized);
-							}
-						} else {
-							socket->writePacket("empty");
-						}
-					} else {
-						SendScoresMessage ssm;
-						serialized = ssm.SerializeBlank();
-						socket->writePacket(serialized);
-					}
+					handleRequestScores(socket, dynamic_cast<RequestScoresMessage *>(msg));
 				} else if (msg->type == MessageType::UPDATESCORE) {
 					auto * usm = dynamic_cast<UpdateScoreMessage *>(msg);
 					if (_projectID != -1) {
@@ -618,7 +564,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 								uam->modID = _projectID;
 								uam->username = Config::Username.toStdString();
 								uam->password = Config::Password.toStdString();
-								uam->duration = duration;
+								uam->duration = static_cast<uint32_t>(duration);
 								clockUtils::sockets::TcpSocket sock;
 								if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
 									serialized = uam->SerializePublic();
@@ -1227,4 +1173,78 @@ void ILauncher::requestSingleProjectStats(const std::function<void(bool)> & resu
 
 QList<int32_t> ILauncher::getActiveProjects() const {
 	return { _projectID };
+}
+
+void ILauncher::handleRequestUsername(clockUtils::sockets::TcpSocket * socket) const {
+	SendUsernameMessage sum;
+	sum.username = Config::Username.toStdString();
+	sum.modID = _projectID;
+	sum.userID = Config::UserID;
+	const auto serialized = sum.SerializeBlank();
+	socket->writePacket(serialized);
+}
+
+void ILauncher::handleRequestScores(clockUtils::sockets::TcpSocket * socket, RequestScoresMessage * msg) const {
+	if (_projectID == -1) {
+		const SendScoresMessage ssm;
+		const auto serialized = ssm.SerializeBlank();
+		socket->writePacket(serialized);
+		return;
+	}
+	if (!msg) {
+		socket->writePacket("empty");
+		return;
+	}
+	
+	if (Config::OnlineMode) {
+		QJsonObject json;
+		json["ProjectID"] = _projectID;
+		Https::postAsync(DATABASESERVER_PORT, "requestScores", QJsonDocument(json).toJson(QJsonDocument::Compact), [socket](const QJsonObject & data, int statusCode) {
+			if (statusCode != 200) {
+				socket->writePacket("empty");
+				return;
+			}
+
+			SendScoresMessage ssm;
+
+			if (data.contains("Scores")) {
+				QJsonArray scoresArray = data["Scores"].toArray();
+				for (const auto score : scoresArray) {
+					QJsonObject jsonScore = score.toObject();
+
+					std::vector<std::pair<std::string, int32_t>> scores;
+
+					QJsonArray scoreEntriesArray = jsonScore["Scores"].toArray();
+
+					for (const auto scoreEntry : scoreEntriesArray) {
+						QJsonObject jsonScoreEntry = scoreEntry.toObject();
+						scores.emplace_back(jsonScoreEntry["Username"].toString().toStdString(), jsonScoreEntry["Score"].toString().toInt());
+					}
+					
+					ssm.scores.emplace_back(jsonScore["ID"].toString().toInt(), scores);
+				}
+			}
+			
+			const auto serialized = ssm.SerializeBlank();
+			socket->writePacket(serialized);
+		});
+	} else {
+		Database::DBError dbErr;
+		const auto lastResults = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier, Username, Score FROM modScores WHERE ModID = " + std::to_string(_projectID) + " ORDER BY Score DESC", dbErr);
+		SendScoresMessage ssm;
+		std::map<int, std::vector<std::pair<std::string, int32_t>>> scores;
+		for (const auto & vec : lastResults) {
+			auto identifier = static_cast<int32_t>(std::stoi(vec[0]));
+			std::string username = vec[1];
+			auto score = static_cast<int32_t>(std::stoi(vec[2]));
+			if (!username.empty()) {
+				scores[identifier].push_back(std::make_pair(username, score));
+			}
+		}
+		for (auto & score : scores) {
+			ssm.scores.emplace_back(score.first, score.second);
+		}
+		const auto serialized = ssm.SerializeBlank();
+		socket->writePacket(serialized);
+	}
 }

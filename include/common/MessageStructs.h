@@ -264,7 +264,7 @@ namespace common {
 			ar & userID;
 		}
 	};
-
+	
 	struct RequestScoresMessage : public Message {
 		int32_t modID;
 		RequestScoresMessage() : Message(), modID() {
@@ -276,10 +276,10 @@ namespace common {
 			ar & modID;
 		}
 	};
-
+	
 	struct SendScoresMessage : public Message {
 		std::vector<std::pair<int32_t, std::vector<std::pair<std::string, int32_t>>>> scores;
-		SendScoresMessage() : Message(), scores() {
+		SendScoresMessage() : Message() {
 			type = MessageType::SENDSCORES;
 		}
 		template<class Archive>
