@@ -1023,7 +1023,7 @@ void ILauncher::synchronizeOfflineData() {
 							Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO sync (Enabled) VALUES (0);", err);
 							UpdateOfflineDataMessage uodm;
 							const auto achievements = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Identifier FROM modAchievements;", err);
-							for (auto vec : achievements) {
+							for (const auto & vec : achievements) {
 								UpdateOfflineDataMessage::AchievementData ad {};
 								ad.modID = std::stoi(vec[0]);
 								ad.identifier = std::stoi(vec[1]);
@@ -1034,7 +1034,7 @@ void ILauncher::synchronizeOfflineData() {
 								uodm.achievements.push_back(ad);
 							}
 							const auto scores = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Identifier, Score FROM modScores;", err);
-							for (auto vec : scores) {
+							for (const auto & vec : scores) {
 								UpdateOfflineDataMessage::ScoreData sd {};
 								sd.modID = std::stoi(vec[0]);
 								sd.identifier = std::stoi(vec[1]);
@@ -1042,7 +1042,7 @@ void ILauncher::synchronizeOfflineData() {
 								uodm.scores.push_back(sd);
 							}
 							const auto overallSaveData = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Entry, Value FROM overallSaveData;", err);
-							for (auto vec : overallSaveData) {
+							for (const auto & vec : overallSaveData) {
 								UpdateOfflineDataMessage::OverallSaveData od;
 								od.modID = std::stoi(vec[0]);
 								od.entry = vec[1];
@@ -1050,7 +1050,7 @@ void ILauncher::synchronizeOfflineData() {
 								uodm.overallSaves.push_back(od);
 							}
 							const auto playTimes = Database::queryAll<std::vector<int>, int, int>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Duration FROM playTimes;", err);
-							for (auto vec : playTimes) {
+							for (const auto & vec : playTimes) {
 								uodm.playTimes.emplace_back(vec[0], vec[1]);
 							}
 							Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM playTimes;", err);
