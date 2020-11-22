@@ -29,18 +29,6 @@ IF [%VSSOLUTIONARCH%] == [x64] (
 	SET ARCHFOLDER=x86_64
 )
 
-pushd "%BUILD_DIR%"
-dir
-popd
-
-pushd "%BUILD_DIR%/lib"
-dir
-popd
-
-pushd "%BUILD_DIR%/lib/%ARCHFOLDER%"
-dir
-popd
-
 xcopy /S /Y "%BUILD_DIR%\cpp\*.h" "%PREFIX%\include\"
 xcopy /S /Y "%BUILD_DIR%\cpp\*.cpp" "%PREFIX%\src\"
 xcopy /F "%BUILD_DIR%/lib/%ARCHFOLDER%/discord_game_sdk.dll" "%PREFIX%/lib/discord_game_sdk.dll*"
