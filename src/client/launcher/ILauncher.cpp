@@ -360,8 +360,8 @@ void ILauncher::startCommon() {
 			clockUtils::sockets::TcpSocket sock;
 			if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 5000)) {
 				UpdatePlayingTimeMessage uptm;
-				uptm.dayOfTheWeek = QDate::currentDate().dayOfWeek();
-				uptm.hour = QTime::currentTime().hour();
+				uptm.dayOfTheWeek = static_cast<int16_t>(QDate::currentDate().dayOfWeek());
+				uptm.hour = static_cast<int16_t>(QTime::currentTime().hour());
 				const std::string serialized = uptm.SerializePublic();
 				sock.writePacket(serialized);
 			}
@@ -376,7 +376,7 @@ void ILauncher::stopCommon() {
 
 	_running = false;
 	
-	int duration = _timer->elapsed();
+	auto duration = _timer->elapsed();
 	duration = duration / 1000; // to seconds
 	duration = duration / 60; // to minutes
 	delete _listenSocket;
@@ -624,7 +624,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 					if (_projectID != -1) {
 						if (uam) {
 							if (Config::OnlineMode) {
-								int duration = _timer->elapsed();
+								auto duration = _timer->elapsed();
 								duration = duration / 1000; // to seconds
 								duration = duration / 60;
 
@@ -1166,69 +1166,69 @@ void ILauncher::requestSingleProjectStats(const std::function<void(bool)> & resu
 	json["Password"] = Config::Password;
 	json["Language"] = Config::Language;
 
-	Https::postAsync(DATABASESERVER_PORT, "requestSingleProjectStats", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, resultCallback](const QJsonObject & json, int statusCode) {
+	Https::postAsync(DATABASESERVER_PORT, "requestSingleProjectStats", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, resultCallback](const QJsonObject & jsonResponse, int statusCode) {
 		bool b = statusCode == 200;
 
 		do {
 			ProjectStats stats;
 
-			if (!json.contains("ProjectID")) {
+			if (!jsonResponse.contains("ProjectID")) {
 				b = false;
 				break;
 			}
 
-			if (!json.contains("Name")) {
+			if (!jsonResponse.contains("Name")) {
 				b = false;
 				break;
 			}
 
-			if (!json.contains("Type")) {
+			if (!jsonResponse.contains("Type")) {
 				b = false;
 				break;
 			}
 
-			if (!json.contains("LastTimePlayed")) {
+			if (!jsonResponse.contains("LastTimePlayed")) {
 				b = false;
 				break;
 			}
 
-			if (!json.contains("Duration")) {
+			if (!jsonResponse.contains("Duration")) {
 				b = false;
 				break;
 			}
 
-			stats.projectID = json["ProjectID"].toString().toInt();
-			stats.name = q2s(json["Name"].toString());
-			stats.type = static_cast<ModType>(json["ProjectID"].toString().toInt());
-			stats.lastTimePlayed = json["ProjectID"].toString().toInt();
-			stats.duration = json["ProjectID"].toString().toInt();
+			stats.projectID = jsonResponse["ProjectID"].toString().toInt();
+			stats.name = q2s(jsonResponse["Name"].toString());
+			stats.type = static_cast<ModType>(jsonResponse["ProjectID"].toString().toInt());
+			stats.lastTimePlayed = jsonResponse["ProjectID"].toString().toInt();
+			stats.duration = jsonResponse["ProjectID"].toString().toInt();
 
-			if (json.contains("AchievedAchievements")) {
-				stats.achievedAchievements = json["AchievedAchievements"].toString().toInt();
+			if (jsonResponse.contains("AchievedAchievements")) {
+				stats.achievedAchievements = jsonResponse["AchievedAchievements"].toString().toInt();
 			}
 
-			if (json.contains("AllAchievements")) {
-				stats.allAchievements = json["AllAchievements"].toString().toInt();
+			if (jsonResponse.contains("AllAchievements")) {
+				stats.allAchievements = jsonResponse["AllAchievements"].toString().toInt();
 			}
 
-			if (json.contains("BestScoreName")) {
-				stats.bestScoreName = q2s(json["BestScoreName"].toString());
+			if (jsonResponse.contains("BestScoreName")) {
+				stats.bestScoreName = q2s(jsonResponse["BestScoreName"].toString());
 			}
 
-			if (json.contains("BestScoreRank")) {
-				stats.bestScoreRank = json["BestScoreRank"].toString().toInt();
+			if (jsonResponse.contains("BestScoreRank")) {
+				stats.bestScoreRank = jsonResponse["BestScoreRank"].toString().toInt();
 			}
 
-			if (json.contains("BestScore")) {
-				stats.bestScore = json["BestScore"].toString().toInt();
+			if (jsonResponse.contains("BestScore")) {
+				stats.bestScore = jsonResponse["BestScore"].toString().toInt();
 			}
 
-			if (json.contains("FeedbackMailAvailable")) {
-				stats.feedbackMailAvailable = json["FeedbackMailAvailable"].toString().toInt();
+			if (jsonResponse.contains("FeedbackMailAvailable")) {
+				stats.feedbackMailAvailable = jsonResponse["FeedbackMailAvailable"].toString().toInt();
 			}
 
-			if (json.contains("DiscussionUrl")) {
-				stats.discussionUrl = q2s(json["DiscussionUrl"].toString());
+			if (jsonResponse.contains("DiscussionUrl")) {
+				stats.discussionUrl = q2s(jsonResponse["DiscussionUrl"].toString());
 			}
 			
 			emit receivedModStats(stats);
