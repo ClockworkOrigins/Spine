@@ -354,19 +354,6 @@ void ILauncher::startCommon() {
 	_running = true;
 	
 	_timer->restart();
-	
-	if (Config::OnlineMode) {
-		QtConcurrent::run([]() {
-			clockUtils::sockets::TcpSocket sock;
-			if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 5000)) {
-				UpdatePlayingTimeMessage uptm;
-				uptm.dayOfTheWeek = static_cast<int16_t>(QDate::currentDate().dayOfWeek());
-				uptm.hour = static_cast<int16_t>(QTime::currentTime().hour());
-				const std::string serialized = uptm.SerializePublic();
-				sock.writePacket(serialized);
-			}
-		});
-	}
 
 	startScreenshotManager(_projectID);
 }

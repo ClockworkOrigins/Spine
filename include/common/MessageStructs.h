@@ -1477,7 +1477,7 @@ namespace common {
 		std::vector<ScoreData> scores;
 		std::vector<OverallSaveData> overallSaves;
 		std::vector<std::pair<int32_t, int32_t>> playTimes;
-		UpdateOfflineDataMessage() : Message(), username(), password(), achievements(), scores(), overallSaves(), playTimes() {
+		UpdateOfflineDataMessage() : Message() {
 			type = MessageType::UPDATEOFFLINEDATA;
 		}
 		template<class Archive>
@@ -1495,7 +1495,7 @@ namespace common {
 	struct RequestOfflineDataMessage : public Message {
 		std::string username;
 		std::string password;
-		RequestOfflineDataMessage() : Message(), username(), password() {
+		RequestOfflineDataMessage() : Message() {
 			type = MessageType::REQUESTOFFLINEDATA;
 		}
 		template<class Archive>
@@ -1553,7 +1553,7 @@ namespace common {
 		std::vector<AchievementData> achievements;
 		std::vector<ScoreData> scores;
 		std::vector<OverallSaveData> overallSaves;
-		SendOfflineDataMessage() : Message(), achievements(), scores(), overallSaves() {
+		SendOfflineDataMessage() : Message() {
 			type = MessageType::SENDOFFLINEDATA;
 		}
 		template<class Archive>
@@ -1579,7 +1579,7 @@ namespace common {
 		}
 	};
 
-	struct UpdatePlayingTimeMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.28.0")]] UpdatePlayingTimeMessage : public Message {
 		int16_t dayOfTheWeek;
 		int16_t hour;
 		UpdatePlayingTimeMessage() : Message(), dayOfTheWeek(), hour() {
@@ -1596,7 +1596,7 @@ namespace common {
 	struct RequestAllFriendsMessage : public Message {
 		std::string username;
 		std::string password;
-		RequestAllFriendsMessage() : Message(), username(), password() {
+		RequestAllFriendsMessage() : Message() {
 			type = MessageType::REQUESTALLFRIENDS;
 		}
 		template<class Archive>
@@ -1611,10 +1611,8 @@ namespace common {
 		std::string name;
 		uint32_t level;
 
-		Friend() : name(), level(0) {
-		}
-		Friend(const std::string & n, uint32_t l) : name(n), level(l) {
-		}
+		Friend() : level(0) {}
+		Friend(const std::string & n, uint32_t l) : name(n), level(l) {}
 
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int /* file_version */) {
@@ -1628,7 +1626,7 @@ namespace common {
 		std::vector<Friend> pendingFriends;
 		std::vector<Friend> friendRequests;
 		std::vector<std::string> nonFriends;
-		SendAllFriendsMessage() : Message(), friends(), pendingFriends(), friendRequests(), nonFriends() {
+		SendAllFriendsMessage() : Message() {
 			type = MessageType::SENDALLFRIENDS;
 		}
 		template<class Archive>
