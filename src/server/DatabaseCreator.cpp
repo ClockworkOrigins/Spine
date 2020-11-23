@@ -74,7 +74,7 @@ void DatabaseCreator::createTables() {
 		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS reviews (ReviewID INT AUTO_INCREMENT PRIMARY KEY, ModID INT NOT NULL, UserID INT NOT NULL, Review TEXT NOT NULL);"))) {
+	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS reviews (ReviewID INT AUTO_INCREMENT, ProjectID INT NOT NULL, UserID INT NOT NULL, Review TEXT NOT NULL, ReviewDate INT NOT NULL, PlayTime INT NOT NULL, PRIMARY KEY (ProjectID, UserID));"))) {
 		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}

@@ -23,6 +23,7 @@
 
 #include <QWidget>
 
+class QPushButton;
 class QSvgWidget;
 
 namespace spine {
@@ -43,10 +44,12 @@ namespace widgets {
 
 	signals:
 		void receivedRating(int32_t, qreal, int32_t, bool);
+		void editReview(int32_t projectID, const QString & review);
+		void reviewEnabled();
 
 	public slots:
 		void loginChanged();
-		void setModID(int32_t projectID);
+		void setProjectID(int32_t projectID);
 		void setVisible(bool visible) override;
 		void setModName(QString name);
 
@@ -55,12 +58,14 @@ namespace widgets {
 
 	private:
 		std::array<QSvgWidget *, 5> _svgs;
-		int32_t _modID;
+		QPushButton * _reviewButton;
+		int32_t _projectID;
 		QString _modname;
 		bool _allowedToRate;
 		bool _editable;
 		bool _visible;
 		RatingMode _mode;
+		QString _review;
 
 		void mousePressEvent(QMouseEvent * evt) override;
 		void requestRating();

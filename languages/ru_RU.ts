@@ -3301,5 +3301,25 @@ You can revoke your permission at every point in time. All necessary information
         <source>PlayedFilter</source>
         <translation>Уже играл</translation>
     </message>
+    <message>
+        <source>WriteReview</source>
+        <translation>Написать обзор</translation>
+    </message>
+    <message>
+        <source>EditReview</source>
+        <translation>Редактировать отзыв</translation>
+    </message>
+    <message>
+        <source>CreatedAt</source>
+        <translation>Опубликовано</translation>
+    </message>
+    <message>
+        <source>OverallPlayTime</source>
+        <translation>Общее время игры</translation>
+    </message>
+    <message>
+        <source>ReviewPlayTime</source>
+        <translation>Время воспроизведения на обзоре</translation>
+    </message>
 </context>
 </TS>

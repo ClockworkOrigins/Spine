@@ -95,6 +95,7 @@ namespace launcher {
 		void openScoreView(int32_t, QString);
 		void loadedSurvey(widgets::Survey survey, int versionMajor, int versionMinor, int versionPatch);
 		void syncedNewStats();
+		void editReview(int32_t projectID, const QString & review);
 
 	public slots:
 		virtual void finishedInstallation(int projectID, int packageID, bool success) = 0;

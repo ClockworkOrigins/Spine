@@ -28,9 +28,11 @@
 namespace spine {
 namespace utils {
 
-#define s2q(str) QString::fromUtf8(std::string(str).c_str()).replace("&apos;", "'")
-#define q2s(str) QString(str).replace("'", "&apos;").trimmed().toUtf8().toStdString()
-#define q2ws(str) QString(str).replace("'", "&apos;").trimmed().toStdWString()
+#define decodeString(str) str.replace("&apos;", "'")
+#define encodeString(str) str.replace("'", "&apos;").trimmed()
+#define s2q(str) decodeString(QString::fromUtf8(std::string(str).c_str()))
+#define q2s(str) encodeString(QString(str)).toUtf8().toStdString()
+#define q2ws(str) encodeString(QString(str)).toStdWString()
 #define i2s(number) QLocale::system().toString(number)
 
 	inline QString byteToString(qint64 value) {

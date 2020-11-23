@@ -22,6 +22,7 @@
 #include "common/SpineModules.h"
 
 #include <QItemSelection>
+#include <QJsonArray>
 #include <QMap>
 #include <QWidget>
 
@@ -33,6 +34,7 @@ class QListView;
 class QMainWindow;
 class QProgressBar;
 class QPushButton;
+class QScrollArea;
 class QStandardItemModel;
 class QTextBrowser;
 class QTextEdit;
@@ -68,6 +70,7 @@ namespace widgets {
 		void openAchievementView(int32_t, QString);
 		void openScoreView(int32_t, QString);
 		void receivedRatings(int, int, int, int, int);
+		void receivedReviews(QJsonArray reviews);
 
 	public slots:
 		void loginChanged();
@@ -77,6 +80,7 @@ namespace widgets {
 		void forceEditPage();
 		void updateStarted(int modID);
 		void updateFinished(int modID);
+		void editReview(int projectID, const QString & review);
 
 	private slots:
 		void updatePage(common::SendInfoPageMessage * sipm);
@@ -92,6 +96,8 @@ namespace widgets {
 		void selectedSpineFeature(const QModelIndex & idx);
 		void changedThumbnailSelection(QItemSelection selection);
 		void updateRatings(int rating1, int rating2, int rating3, int rating4, int rating5);
+		void updateReviews(QJsonArray reviews);
+		void submitReview();
 
 	private:
 		QMainWindow * _mainWindow;
@@ -126,6 +132,12 @@ namespace widgets {
 		QVBoxLayout * _historyLayout;
 		QList<QWidget *> _historyWidgets;
 		QGroupBox * _ratingsBox;
+		QScrollArea * _scrollArea = nullptr;
+
+		QWidget * _ownReviewWidget;
+		QTextEdit * _ownReviewEdit;
+
+		QVBoxLayout * _reviewLayout;
 
 		struct Rating {
 			QProgressBar * shareView;
@@ -133,6 +145,7 @@ namespace widgets {
 		};
 
 		QList<Rating> _ratings;
+		QList<QWidget *> _reviewWidgets;
 
 		void mouseDoubleClickEvent(QMouseEvent * evt) override;
 		void showEvent(QShowEvent * evt) override;

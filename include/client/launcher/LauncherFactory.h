@@ -57,6 +57,7 @@ namespace launcher {
 		void updateStarted(int);
 		void updateFinished(int);
 		void showSurvey(widgets::Survey survey, int versionMajor, int versionMinor, int versionPatch);
+		void editReview(int32_t projectID, const QString & review);
 
 	private:
 		QList<ILauncherPtr> _launchers;

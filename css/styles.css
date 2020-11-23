@@ -258,6 +258,11 @@ QPushButton[logout=true] {
 	font-size: 10px;
 }
 
+QLabel[reviewSmall=true] {
+	font-size: 10px;
+	color: #555555;
+}
+
 QCheckBox[noLogin=true] {
 	font-size: 10px;
 }

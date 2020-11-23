@@ -140,6 +140,7 @@ void ILauncher::createWidget() {
 			_ratingWidget->setVisible(false);
 
 			connect(this, &ILauncher::syncedNewStats, _ratingWidget, &RatingWidget::loginChanged);
+			connect(_ratingWidget, &RatingWidget::editReview, this, &ILauncher::editReview);
 		}
 
 		_layout->addLayout(_upperLayout);
@@ -293,7 +294,7 @@ void ILauncher::updateCommonView(int projectID, const QString & name) {
 
 	if (projectID != -1) {
 		if (Config::OnlineMode) {
-			_ratingWidget->setModID(projectID);
+			_ratingWidget->setProjectID(projectID);
 			_ratingWidget->setModName(name);
 		}
 		Database::DBError err;
@@ -414,7 +415,7 @@ void ILauncher::stopCommon() {
 	requestData["MinorVersion"] = versionMinor;
 	requestData["PatchVersion"] = versionPatch;
 	
-	https::Https::postAsync(MANAGEMENTSERVER_PORT, "getOwnPlayTestSurveyAnswers", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this, versionMajor, versionMinor, versionPatch](const QJsonObject & json, int statusCode) {
+	Https::postAsync(MANAGEMENTSERVER_PORT, "getOwnPlayTestSurveyAnswers", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this, versionMajor, versionMinor, versionPatch](const QJsonObject & json, int statusCode) {
 		if (statusCode != 200) return;
 
 		if (!json.contains("SurveyID")) return;
@@ -807,9 +808,8 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 }
 
 void ILauncher::tryCleanCaches() {
-	if (!Config::OnlineMode) {
-		return;
-	}
+	if (!Config::OnlineMode) return;
+
 	Database::DBError err;
 	clockUtils::sockets::TcpSocket sock;
 	if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
@@ -1227,7 +1227,7 @@ void ILauncher::handleRequestScores(clockUtils::sockets::TcpSocket * socket, Req
 	}
 }
 
-void ILauncher::handleUpdateScore(clockUtils::sockets::TcpSocket * socket, UpdateScoreMessage * msg) const {
+void ILauncher::handleUpdateScore(clockUtils::sockets::TcpSocket *, UpdateScoreMessage * msg) const {
 	if (_projectID == -1) return;
 	
 	if (!msg) return;

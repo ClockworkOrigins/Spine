@@ -43,6 +43,7 @@
 #include "widgets/NewsWidget.h"
 #include "widgets/ProjectInfoBoxWidget.h"
 #include "widgets/RatingWidget.h"
+#include "widgets/ReviewWidget.h"
 #include "widgets/UpdateLanguage.h"
 
 #include "clockUtils/sockets/TcpSocket.h"
@@ -55,6 +56,7 @@
 #include <QFileInfo>
 #include <QFutureWatcher>
 #include <QGroupBox>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLabel>
@@ -74,21 +76,22 @@
 using namespace spine;
 using namespace spine::client;
 using namespace spine::gui;
+using namespace spine::https;
 using namespace spine::utils;
 using namespace spine::widgets;
 
 ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par), _mainWindow(mainWindow), _modnameLabel(nullptr), _previewImageLabel(nullptr), _ratingWidget(nullptr), _rateWidget(nullptr), _thumbnailView(nullptr), _installButton(nullptr), _descriptionView(nullptr), _spineFeaturesView(nullptr), _thumbnailModel(nullptr), _spineFeatureModel(nullptr), _modID(-1), _editInfoPageButton(nullptr), _descriptionEdit(nullptr), _featuresEdit(nullptr), _spineFeaturesEdit(nullptr), _addImageButton(nullptr), _deleteImageButton(nullptr), _applyButton(nullptr), _waitSpinner(nullptr), _forceEdit(false) {
-	QVBoxLayout * l = new QVBoxLayout();
+	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
-	QScrollArea * scrollArea = new QScrollArea(this);
-	QWidget * widget = new QWidget(scrollArea);
-	QVBoxLayout * scrollLayout = new QVBoxLayout();
+	_scrollArea = new QScrollArea(this);
+	auto * widget = new QWidget(_scrollArea);
+	auto * scrollLayout = new QVBoxLayout();
 	scrollLayout->setAlignment(Qt::AlignTop);
 	widget->setLayout(scrollLayout);
-	scrollArea->setWidget(widget);
-	scrollArea->setWidgetResizable(true);
-	scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	_scrollArea->setWidget(widget);
+	_scrollArea->setWidgetResizable(true);
+	_scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	widget->setProperty("achievementEditor", true);
 
 	_modnameLabel = new QLabel(widget);
@@ -97,7 +100,7 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 	_modnameLabel->hide();
 
 	{
-		QHBoxLayout * hl = new QHBoxLayout();
+		auto * hl = new QHBoxLayout();
 		hl->addStretch(25);
 		_previewImageLabel = new QLabel(widget);
 		hl->addWidget(_previewImageLabel, 50, Qt::AlignHCenter);
@@ -105,16 +108,18 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 		_previewImageLabel->setFixedSize(640, 480);
 
 		{
-			QVBoxLayout * vl = new QVBoxLayout();
-			_ratingWidget = new RatingWidget(widgets::RatingWidget::RatingMode::Overall, this);
+			auto * vl = new QVBoxLayout();
+			_ratingWidget = new RatingWidget(RatingWidget::RatingMode::Overall, this);
 			vl->addWidget(_ratingWidget, 0, Qt::AlignTop | Qt::AlignRight);
 			_ratingWidget->setEditable(false);
 			_ratingWidget->setVisible(false);
 
-			_rateWidget = new RatingWidget(widgets::RatingWidget::RatingMode::User, this);
+			_rateWidget = new RatingWidget(RatingWidget::RatingMode::User, this);
 			vl->addWidget(_rateWidget, 0, Qt::AlignTop | Qt::AlignRight);
 			_rateWidget->setEditable(true);
 			_rateWidget->setVisible(false);
+
+			connect(_rateWidget, &RatingWidget::editReview, this, &ModInfoPage::editReview);
 
 			vl->addStretch(1);
 
@@ -124,7 +129,7 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 			hl->addLayout(vl, 25);
 		}
 
-		QVBoxLayout * vl = new QVBoxLayout();
+		auto * vl = new QVBoxLayout();
 		_addImageButton = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/add.svg"), "", widget);
 		connect(_addImageButton, &QPushButton::released, this, &ModInfoPage::addImage);
 		_addImageButton->hide();
@@ -179,7 +184,7 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 	_optionalPackageButtonsLayout = new QVBoxLayout();
 	scrollLayout->addLayout(_optionalPackageButtonsLayout);
 
-	QHBoxLayout * hl = new QHBoxLayout();
+	auto * hl = new QHBoxLayout();
 	hl->setAlignment(Qt::AlignTop);
 
 	_descriptionView = new QTextBrowser(widget);
@@ -194,7 +199,7 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 	UPDATELANGUAGESETPLACEHOLDERTEXT(_descriptionEdit, "InfoPageDescriptionPlaceholder");
 
 	{
-		QVBoxLayout * rightLayout = new QVBoxLayout();
+		auto * rightLayout = new QVBoxLayout();
 		rightLayout->setAlignment(Qt::AlignTop);
 		
 		_spineFeaturesView = new QListView(widget);
@@ -220,42 +225,42 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 		hl->addLayout(rightLayout, 25);
 	}
 	{
-		QVBoxLayout * vl = new QVBoxLayout();
+		auto * vl = new QVBoxLayout();
 		vl->setAlignment(Qt::AlignTop);
 		_spineFeaturesEdit->setLayout(vl);
 
 		{
-			QCheckBox * cb = new QCheckBox(QApplication::tr("AchievementModule"), _spineFeaturesEdit);
+			auto * cb = new QCheckBox(QApplication::tr("AchievementModule"), _spineFeaturesEdit);
 			_moduleCheckBoxes.insert(common::SpineModules::Achievements, cb);
 			vl->addWidget(cb);
 		}
 		{
-			QCheckBox * cb = new QCheckBox(QApplication::tr("ScoresModule"), _spineFeaturesEdit);
+			auto * cb = new QCheckBox(QApplication::tr("ScoresModule"), _spineFeaturesEdit);
 			_moduleCheckBoxes.insert(common::SpineModules::Scores, cb);
 			vl->addWidget(cb);
 		}
 		{
-			QCheckBox * cb = new QCheckBox(QApplication::tr("MultiplayerModule"), _spineFeaturesEdit);
+			auto * cb = new QCheckBox(QApplication::tr("MultiplayerModule"), _spineFeaturesEdit);
 			_moduleCheckBoxes.insert(common::SpineModules::Multiplayer, cb);
 			vl->addWidget(cb);
 		}
 		{
-			QCheckBox * cb = new QCheckBox(QApplication::tr("OverallSaveModule"), _spineFeaturesEdit);
+			auto * cb = new QCheckBox(QApplication::tr("OverallSaveModule"), _spineFeaturesEdit);
 			_moduleCheckBoxes.insert(common::SpineModules::OverallSave, cb);
 			vl->addWidget(cb);
 		}
 		{
-			QCheckBox * cb = new QCheckBox(QApplication::tr("GamepadModule"), _spineFeaturesEdit);
+			auto * cb = new QCheckBox(QApplication::tr("GamepadModule"), _spineFeaturesEdit);
 			_moduleCheckBoxes.insert(common::SpineModules::Gamepad, cb);
 			vl->addWidget(cb);
 		}
 		{
-			QCheckBox * cb = new QCheckBox(QApplication::tr("FriendsModule"), _spineFeaturesEdit);
+			auto * cb = new QCheckBox(QApplication::tr("FriendsModule"), _spineFeaturesEdit);
 			_moduleCheckBoxes.insert(common::SpineModules::Friends, cb);
 			vl->addWidget(cb);
 		}
 		{
-			QCheckBox * cb = new QCheckBox(QApplication::tr("StatisticsModule"), _spineFeaturesEdit);
+			auto * cb = new QCheckBox(QApplication::tr("StatisticsModule"), _spineFeaturesEdit);
 			_moduleCheckBoxes.insert(common::SpineModules::Statistics, cb);
 			vl->addWidget(cb);
 		}
@@ -279,15 +284,15 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 	_featuresEdit->setPlaceholderText(QApplication::tr("FeaturesEditPlaceholder"));
 	UPDATELANGUAGESETPLACEHOLDERTEXT(_featuresEdit, "FeaturesEditPlaceholder");
 
-	l->addWidget(scrollArea);
+	l->addWidget(_scrollArea);
 
 	_ratingsBox = new QGroupBox(QApplication::tr("Ratings"), this);
 
 	{
-		QVBoxLayout * ratingsLayout = new QVBoxLayout();
+		auto * ratingsLayout = new QVBoxLayout();
 
 		for (int i = 4; i >= 0; i--) {
-			QHBoxLayout * horiLayout = new QHBoxLayout();
+			auto * horiLayout = new QHBoxLayout();
 			for (int j = 0; j < 5; j++) {
 				auto * svgWidget = new QSvgWidget(j <= i ? ":/svg/star-full.svg" : ":/svg/star.svg", _ratingsBox);
 				svgWidget->setFixedSize(QSize(25, 25));
@@ -316,15 +321,42 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 
 		_ratingsBox->setLayout(ratingsLayout);
 	}
-	
+
 	scrollLayout->addWidget(_ratingsBox);
 
 	{
-		QHBoxLayout * hlBottom = new QHBoxLayout();
+		_ownReviewWidget = new QWidget(_scrollArea);
+
+		auto * vl = new QVBoxLayout();
+		
+		_ownReviewEdit = new QTextEdit(_ownReviewWidget);
+
+		vl->addWidget(_ownReviewEdit);
+
+		auto * pb = new QPushButton(QApplication::tr("Submit"), _ownReviewWidget);
+		UPDATELANGUAGESETTEXT(pb, "Submit");
+
+		vl->addWidget(pb, 0, Qt::AlignBottom | Qt::AlignRight);
+		
+		_ownReviewWidget->setVisible(false);
+
+		_ownReviewWidget->setLayout(vl);
+
+		scrollLayout->addWidget(_ownReviewWidget);
+
+		connect(pb, &QPushButton::released, this, &ModInfoPage::submitReview);
+	}
+
+	_reviewLayout = new QVBoxLayout();
+
+	scrollLayout->addLayout(_reviewLayout);	
+
+	{
+		auto * hlBottom = new QHBoxLayout();
 
 		hlBottom->addStretch(1);
 
-		QPushButton * reportContentBtn = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/flag.svg"), "", this);
+		auto * reportContentBtn = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/flag.svg"), "", this);
 		reportContentBtn->setToolTip(QApplication::tr("ReportContent"));
 
 		connect(reportContentBtn, &QPushButton::released, this, [this]() {
@@ -358,6 +390,7 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 	connect(this, &ModInfoPage::receivedPage, this, &ModInfoPage::updatePage);
 	connect(this, &ModInfoPage::gotRandomMod, this, &ModInfoPage::loadPage);
 	connect(this, &ModInfoPage::receivedRatings, this, &ModInfoPage::updateRatings);
+	connect(this, &ModInfoPage::receivedReviews, this, &ModInfoPage::updateReviews);
 }
 
 void ModInfoPage::loginChanged() {
@@ -366,10 +399,17 @@ void ModInfoPage::loginChanged() {
 
 void ModInfoPage::loadPage(int32_t modID) {
 	if (modID == -1) return;
+
+	_ownReviewWidget->setVisible(false);
 	
 	delete _waitSpinner;
 	_waitSpinner = new WaitSpinner(QApplication::tr("LoadingPage"), this);
 	_modID = modID;
+
+	for (auto * rw : _reviewWidgets) {
+		rw->deleteLater();
+	}
+	_reviewWidgets.clear();
 	
 	QtConcurrent::run([this, modID]() {
 		common::RequestInfoPageMessage ripm;
@@ -386,7 +426,7 @@ void ModInfoPage::loadPage(int32_t modID) {
 				try {
 					common::Message * m = common::Message::DeserializePublic(serialized);
 					if (m) {
-						common::SendInfoPageMessage * sipm = dynamic_cast<common::SendInfoPageMessage *>(m);
+						auto * sipm = dynamic_cast<common::SendInfoPageMessage *>(m);
 						if (sipm) {
 							emit receivedPage(sipm);
 						}
@@ -407,7 +447,7 @@ void ModInfoPage::loadPage(int32_t modID) {
 
 	int projectID = _modID;
 	
-	https::Https::postAsync(DATABASESERVER_PORT, "getRatings", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this, projectID](const QJsonObject & json, int statusCode) {
+	Https::postAsync(DATABASESERVER_PORT, "getRatings", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this, projectID](const QJsonObject & json, int statusCode) {
 		if (statusCode != 200) return;
 
 		if (projectID != _modID) return;
@@ -429,6 +469,16 @@ void ModInfoPage::loadPage(int32_t modID) {
 		const int rating5 = json["Rating5"].toString().toInt();
 
 		emit receivedRatings(rating1, rating2, rating3, rating4, rating5);
+	});
+
+	Https::postAsync(DATABASESERVER_PORT, "getReviews", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this, projectID](const QJsonObject & json, int statusCode) {
+		if (statusCode != 200) return;
+
+		if (projectID != _modID) return;
+
+		if (!json.contains("Reviews")) return;
+
+		emit receivedReviews(json["Reviews"].toArray());
 	});
 }
 
@@ -462,8 +512,8 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 	}
 	_historyWidgets.clear();
 
-	_ratingWidget->setModID(_modID);
-	_rateWidget->setModID(_modID);
+	_ratingWidget->setProjectID(_modID);
+	_rateWidget->setProjectID(_modID);
 	_ratingWidget->setModName(s2q(sipm->modname));
 	_rateWidget->setModName(s2q(sipm->modname));
 	_ratingWidget->setVisible(true);
@@ -489,7 +539,7 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 		if (!images.empty()) {
 			auto empty = true;
 			
-			MultiFileDownloader * mfd = new MultiFileDownloader(this);
+			auto * mfd = new MultiFileDownloader(this);
 			for (const auto & p : images) {
 				QString filename = p.first;
 				filename.chop(2); // every image is compressed, so it has a .z at the end
@@ -500,7 +550,7 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 					empty = false;
 					
 					QFileInfo fi(p.first);
-					FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(_modID) + "/screens/" + p.first), Config::DOWNLOADDIR + "/screens/" + QString::number(_modID) + "/" + fi.path(), fi.fileName(), p.second, mfd);
+					auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(_modID) + "/screens/" + p.first), Config::DOWNLOADDIR + "/screens/" + QString::number(_modID) + "/" + fi.path(), fi.fileName(), p.second, mfd);
 					mfd->addFileDownloader(fd);
 				}
 			}
@@ -549,37 +599,37 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 
 	_spineFeatureModel->clear();
 	if (sipm->spineFeatures & common::SpineModules::Achievements) {
-		QStandardItem * itm = new QStandardItem(QApplication::tr("AchievementModule"));
+		auto * itm = new QStandardItem(QApplication::tr("AchievementModule"));
 		_spineFeatureModel->appendRow(itm);
 		itm->setData(static_cast<int>(common::SpineModules::Achievements), Qt::UserRole);
 	}
 	if (sipm->spineFeatures & common::SpineModules::Scores) {
-		QStandardItem * itm = new QStandardItem(QApplication::tr("ScoresModule"));
+		auto * itm = new QStandardItem(QApplication::tr("ScoresModule"));
 		_spineFeatureModel->appendRow(itm);
 		itm->setData(static_cast<int>(common::SpineModules::Scores), Qt::UserRole);
 	}
 	if (sipm->spineFeatures & common::SpineModules::Multiplayer) {
-		QStandardItem * itm = new QStandardItem(QApplication::tr("MultiplayerModule"));
+		auto * itm = new QStandardItem(QApplication::tr("MultiplayerModule"));
 		_spineFeatureModel->appendRow(itm);
 		itm->setData(static_cast<int>(common::SpineModules::Multiplayer), Qt::UserRole);
 	}
 	if (sipm->spineFeatures & common::SpineModules::OverallSave) {
-		QStandardItem * itm = new QStandardItem(QApplication::tr("OverallSaveModule"));
+		auto * itm = new QStandardItem(QApplication::tr("OverallSaveModule"));
 		_spineFeatureModel->appendRow(itm);
 		itm->setData(static_cast<int>(common::SpineModules::OverallSave), Qt::UserRole);
 	}
 	if (sipm->spineFeatures & common::SpineModules::Gamepad) {
-		QStandardItem * itm = new QStandardItem(QApplication::tr("GamepadModule"));
+		auto * itm = new QStandardItem(QApplication::tr("GamepadModule"));
 		_spineFeatureModel->appendRow(itm);
 		itm->setData(static_cast<int>(common::SpineModules::Gamepad), Qt::UserRole);
 	}
 	if (sipm->spineFeatures & common::SpineModules::Friends) {
-		QStandardItem * itm = new QStandardItem(QApplication::tr("FriendsModule"));
+		auto * itm = new QStandardItem(QApplication::tr("FriendsModule"));
 		_spineFeatureModel->appendRow(itm);
 		itm->setData(static_cast<int>(common::SpineModules::Friends), Qt::UserRole);
 	}
 	if (sipm->spineFeatures & common::SpineModules::Statistics) {
-		QStandardItem * itm = new QStandardItem(QApplication::tr("StatisticsModule"));
+		auto * itm = new QStandardItem(QApplication::tr("StatisticsModule"));
 		_spineFeatureModel->appendRow(itm);
 		itm->setData(static_cast<int>(common::SpineModules::Statistics), Qt::UserRole);
 	}
@@ -611,7 +661,7 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 
 	for (const auto & p : sipm->optionalPackages) {
 		const bool packageInstalled = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT PackageID FROM packages WHERE ModID = " + std::to_string(_modID) + " AND PackageID = " + std::to_string(p.first) + " LIMIT 1;", err) > 0;
-		QPushButton * pb = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/download.svg"), s2q(p.second), this);
+		auto * pb = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/download.svg"), s2q(p.second), this);
 		pb->setVisible(!packageInstalled && installed && sipm->installAllowed);
 		pb->setProperty("packageid", static_cast<int>(p.first));
 		_optionalPackageButtonsLayout->addWidget(pb, 0, Qt::AlignLeft);
@@ -630,8 +680,8 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 	_historyBox->setVisible(!sipm->history.empty());	
 
 	for (const auto & h : sipm->history) {
-		QVBoxLayout * vl = new QVBoxLayout();
-		QTextBrowser * tb = new QTextBrowser(this);
+		auto * vl = new QVBoxLayout();
+		auto * tb = new QTextBrowser(this);
 		tb->setProperty("changelog", true);
 
 		const auto changelog = s2q(h.changelog).trimmed();
@@ -645,7 +695,7 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 			title += QString(" (%1)").arg(QApplication::tr("SaveNotCompatible"));
 		}
 
-		Spoiler * s = new Spoiler(title, this);
+		auto * s = new Spoiler(title, this);
 		s->setContentLayout(vl);
 
 		_historyLayout->addWidget(s);
@@ -715,6 +765,16 @@ void ModInfoPage::updateFinished(int modID) {
 	_runningUpdates.removeAll(modID);
 }
 
+void ModInfoPage::editReview(int projectID, const QString & review) {
+	if (_modID != projectID) {
+		loadPage(projectID);
+	}
+	
+	_ownReviewEdit->setText(review + "Fpp");
+	_ownReviewWidget->setVisible(true);
+	_scrollArea->ensureWidgetVisible(_ownReviewWidget);
+}
+
 void ModInfoPage::addImage() {
 	if (_screens.size() == 10 && Config::Username != "Bonne") return;
 
@@ -725,7 +785,7 @@ void ModInfoPage::addImage() {
 
 	for (const auto & path : paths) {
 		Config::IniParser->setValue("PATH/Images", QFileInfo(path).absolutePath());
-		QStandardItem * itm = new QStandardItem();
+		auto * itm = new QStandardItem();
 		const QPixmap thumb(path);
 		itm->setIcon(thumb.scaled(QSize(300, 100), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 		_thumbnailModel->appendRow(itm);
@@ -843,7 +903,7 @@ void ModInfoPage::requestRandomMod() {
 				try {
 					common::Message * m = common::Message::DeserializePublic(serialized);
 					if (m) {
-						common::SendRandomModMessage * srmm = dynamic_cast<common::SendRandomModMessage *>(m);
+						auto * srmm = dynamic_cast<common::SendRandomModMessage *>(m);
 						if (srmm) {
 							emit gotRandomMod(srmm->modID);
 						}
@@ -917,6 +977,48 @@ void ModInfoPage::updateRatings(int rating1, int rating2, int rating3, int ratin
 	_ratingsBox->show();
 }
 
+void ModInfoPage::updateReviews(QJsonArray reviews) {
+	for (auto jsonRef : reviews) {
+		const auto json = jsonRef.toObject();
+
+		const auto reviewer = json["Username"].toString();
+		const auto review = json["Review"].toString();
+
+		if (reviewer == Config::Username) {
+			_ownReviewEdit->setText(review);
+			_ownReviewWidget->setVisible(true);
+			
+			continue;
+		}
+
+		const auto rating = json["Rating"].toString().toInt();
+		const auto duration = json["Duration"].toString().toInt();
+		const auto reviewDuration = json["ReviewDuration"].toString().toInt();
+		const auto date = json["Date"].toString().toInt();
+
+		auto * rv = new ReviewWidget(reviewer, review, duration, reviewDuration, date, rating, this);
+		_reviewLayout->addWidget(rv);
+
+		_reviewWidgets << rv;
+	}
+}
+
+void ModInfoPage::submitReview() {
+	if (!_ownReviewWidget->isVisible()) return;
+
+	const auto review = encodeString(_ownReviewEdit->toPlainText());
+	
+	if (review.isEmpty()) return;
+
+	QJsonObject json;
+	json["ProjectID"] = _modID;
+	json["Username"] = Config::Username;
+	json["Password"] = Config::Password;
+	json["Review"] = review;
+
+	Https::postAsync(DATABASESERVER_PORT, "updateReview", QJsonDocument(json).toJson(QJsonDocument::Compact), [](const QJsonObject &, int) {});
+}
+
 void ModInfoPage::mouseDoubleClickEvent(QMouseEvent * evt) {
 	QWidget * child = childAt(evt->pos());
 	if (child == _previewImageLabel) {
@@ -946,7 +1048,7 @@ void ModInfoPage::showScreens() {
 	for (const auto & p : _screens) {
 		QString fn = QString::fromStdString(p.first);
 		fn.chop(2); // .z
-		QStandardItem * itm = new QStandardItem();
+		auto * itm = new QStandardItem();
 		QPixmap thumb(Config::DOWNLOADDIR + "/screens/" + QString::number(_modID) + "/" + fn);
 		QPixmap scaledThumb = thumb.scaled(QSize(300, 100), Qt::KeepAspectRatio, Qt::SmoothTransformation);
 		itm->setIcon(scaledThumb);

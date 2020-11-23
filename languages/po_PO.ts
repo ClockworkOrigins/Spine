@@ -3296,5 +3296,25 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>PlayedFilter</source>
         <translation>Już grałem</translation>
     </message>
+    <message>
+        <source>WriteReview</source>
+        <translation>Napisać recenzję</translation>
+    </message>
+    <message>
+        <source>EditReview</source>
+        <translation>Edytuj opinię</translation>
+    </message>
+    <message>
+        <source>CreatedAt</source>
+        <translation>Wysłano</translation>
+    </message>
+    <message>
+        <source>OverallPlayTime</source>
+        <translation>Całkowity czas gry</translation>
+    </message>
+    <message>
+        <source>ReviewPlayTime</source>
+        <translation>Playtime at Review</translation>
+    </message>
 </context>
 </TS>

@@ -3304,5 +3304,25 @@ You can revoke your permission at every point in time. All necessary information
         <source>PlayedFilter</source>
         <translation>Already played</translation>
     </message>
+    <message>
+        <source>WriteReview</source>
+        <translation>Write review</translation>
+    </message>
+    <message>
+        <source>EditReview</source>
+        <translation>Edit review</translation>
+    </message>
+    <message>
+        <source>CreatedAt</source>
+        <translation>Created</translation>
+    </message>
+    <message>
+        <source>OverallPlayTime</source>
+        <translation>Overall playtime</translation>
+    </message>
+    <message>
+        <source>ReviewPlayTime</source>
+        <translation>Playtime at review</translation>
+    </message>
 </context>
 </TS>

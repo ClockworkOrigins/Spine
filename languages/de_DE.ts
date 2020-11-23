@@ -3296,5 +3296,25 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>PlayedFilter</source>
         <translation>Bereits gespielt</translation>
     </message>
+    <message>
+        <source>WriteReview</source>
+        <translation>Review verfassen</translation>
+    </message>
+    <message>
+        <source>EditReview</source>
+        <translation>Review bearbeiten</translation>
+    </message>
+    <message>
+        <source>CreatedAt</source>
+        <translation>Verfasst</translation>
+    </message>
+    <message>
+        <source>OverallPlayTime</source>
+        <translation>Spielzeit insgesamt</translation>
+    </message>
+    <message>
+        <source>ReviewPlayTime</source>
+        <translation>Spielzeit bei Review</translation>
+    </message>
 </context>
 </TS>
