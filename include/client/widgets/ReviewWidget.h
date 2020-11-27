@@ -33,7 +33,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		ReviewWidget(const QString & reviewer, const QString & review, uint64_t playTime, uint64_t playTimeAtReview, uint64_t date, int rating, QWidget * par);
+		ReviewWidget(const QString & reviewer, const QString & review, uint64_t playTime, uint64_t playTimeAtReview, uint64_t date, int rating, int32_t projectID, QWidget * par);
 
 	private:
         std::array<QSvgWidget *, 5> _svgs;

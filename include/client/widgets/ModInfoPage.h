@@ -74,24 +74,24 @@ namespace widgets {
 
 	public slots:
 		void loginChanged();
-		void loadPage(int32_t modID);
-		void finishedInstallation(int modID, int packageID, bool success);
+		void loadPage(int32_t projectID);
+		void finishedInstallation(int projectID, int packageID, bool success);
 		void switchToEdit();
 		void forceEditPage();
-		void updateStarted(int modID);
-		void updateFinished(int modID);
+		void updateStarted(int projectID);
+		void updateFinished(int projectID);
 		void editReview(int projectID, const QString & review);
 
 	private slots:
 		void updatePage(common::SendInfoPageMessage * sipm);
-		void installMod();
+		void installProject();
 		void installPackage();
 		void changePreviewImage(const QModelIndex & idx);
 		void addImage();
 		void removeImage();
 		void submitChanges();
 		void requestRandomMod();
-		void startMod();
+		void startProject();
 		void showFullscreen();
 		void selectedSpineFeature(const QModelIndex & idx);
 		void changedThumbnailSelection(QItemSelection selection);
@@ -101,7 +101,7 @@ namespace widgets {
 
 	private:
 		QMainWindow * _mainWindow;
-		QLabel * _modnameLabel;
+		QLabel * _projectNameLabel;
 		QLabel * _previewImageLabel;
 		RatingWidget * _ratingWidget;
 		RatingWidget * _rateWidget;
@@ -113,7 +113,7 @@ namespace widgets {
 		QListView * _spineFeaturesView;
 		QStandardItemModel * _thumbnailModel;
 		QStandardItemModel * _spineFeatureModel;
-		int32_t _modID;
+		int32_t _projectID;
 		std::vector<std::pair<std::string, std::string>> _screens;
 		QPushButton * _editInfoPageButton;
 		QTextEdit * _descriptionEdit;

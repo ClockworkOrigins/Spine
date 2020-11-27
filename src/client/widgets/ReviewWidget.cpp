@@ -18,21 +18,28 @@
 
 #include "widgets/ReviewWidget.h"
 
+#include "IconCache.h"
+
+#include "gui/ReportContentDialog.h"
+
 #include "utils/Conversion.h"
 
 #include <QApplication>
 #include <QDate>
 #include <QGroupBox>
 #include <QLabel>
+#include <QPushButton>
 #include <QSvgWidget>
 #include <QTextBrowser>
 #include <QVBoxLayout>
 
 using namespace spine;
+using namespace spine::client;
+using namespace spine::gui;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-ReviewWidget::ReviewWidget(const QString & reviewer, const QString & review, uint64_t playTime, uint64_t playTimeAtReview, uint64_t date, int rating, QWidget * par) : QWidget(par), _svgs() {
+ReviewWidget::ReviewWidget(const QString & reviewer, const QString & review, uint64_t playTime, uint64_t playTimeAtReview, uint64_t date, int rating, int32_t projectID, QWidget * par) : QWidget(par), _svgs() {
     auto * l = new QVBoxLayout();
 
     auto * gb = new QGroupBox(reviewer, this);
@@ -76,6 +83,24 @@ ReviewWidget::ReviewWidget(const QString & reviewer, const QString & review, uin
     tb->setText(review);
 
     vl->addWidget(tb);
+
+    {
+        auto * hlBottom = new QHBoxLayout();
+
+        hlBottom->addStretch(1);
+
+        auto * reportContentBtn = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/flag.svg"), "", this);
+        reportContentBtn->setToolTip(QApplication::tr("ReportContent"));
+
+        connect(reportContentBtn, &QPushButton::released, this, [this, projectID, reviewer]() {
+            ReportContentDialog dlg("Review_" + QString::number(projectID) + "_" + reviewer, this);
+            dlg.exec();
+            });
+
+        hlBottom->addWidget(reportContentBtn);
+
+        vl->addLayout(hlBottom);
+    }
 
     gb->setLayout(vl);
 

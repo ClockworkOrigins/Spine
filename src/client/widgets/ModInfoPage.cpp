@@ -80,7 +80,7 @@ using namespace spine::https;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par), _mainWindow(mainWindow), _modnameLabel(nullptr), _previewImageLabel(nullptr), _ratingWidget(nullptr), _rateWidget(nullptr), _thumbnailView(nullptr), _installButton(nullptr), _descriptionView(nullptr), _spineFeaturesView(nullptr), _thumbnailModel(nullptr), _spineFeatureModel(nullptr), _modID(-1), _editInfoPageButton(nullptr), _descriptionEdit(nullptr), _featuresEdit(nullptr), _spineFeaturesEdit(nullptr), _addImageButton(nullptr), _deleteImageButton(nullptr), _applyButton(nullptr), _waitSpinner(nullptr), _forceEdit(false) {
+ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par), _mainWindow(mainWindow), _projectNameLabel(nullptr), _previewImageLabel(nullptr), _ratingWidget(nullptr), _rateWidget(nullptr), _thumbnailView(nullptr), _installButton(nullptr), _descriptionView(nullptr), _spineFeaturesView(nullptr), _thumbnailModel(nullptr), _spineFeatureModel(nullptr), _projectID(-1), _editInfoPageButton(nullptr), _descriptionEdit(nullptr), _featuresEdit(nullptr), _spineFeaturesEdit(nullptr), _addImageButton(nullptr), _deleteImageButton(nullptr), _applyButton(nullptr), _waitSpinner(nullptr), _forceEdit(false) {
 	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
@@ -94,10 +94,10 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 	_scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	widget->setProperty("achievementEditor", true);
 
-	_modnameLabel = new QLabel(widget);
-	_modnameLabel->setProperty("modnameTitle", true);
-	scrollLayout->addWidget(_modnameLabel, 0, Qt::AlignTop);
-	_modnameLabel->hide();
+	_projectNameLabel = new QLabel(widget);
+	_projectNameLabel->setProperty("modnameTitle", true);
+	scrollLayout->addWidget(_projectNameLabel, 0, Qt::AlignTop);
+	_projectNameLabel->hide();
 
 	{
 		auto * hl = new QHBoxLayout();
@@ -173,13 +173,13 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 	scrollLayout->addWidget(_installButton, 0, Qt::AlignLeft);
 	_installButton->hide();
 	UPDATELANGUAGESETTEXT(_installButton, "Install");
-	connect(_installButton, &QPushButton::released, this, &ModInfoPage::installMod);
+	connect(_installButton, &QPushButton::released, this, &ModInfoPage::installProject);
 
 	_startButton = new QPushButton(QApplication::tr("StartMod"), widget);
 	scrollLayout->addWidget(_startButton, 0, Qt::AlignLeft);
 	_startButton->hide();
 	UPDATELANGUAGESETTEXT(_startButton, "StartMod");
-	connect(_startButton, &QPushButton::released, this, &ModInfoPage::startMod);
+	connect(_startButton, &QPushButton::released, this, &ModInfoPage::startProject);
 
 	_optionalPackageButtonsLayout = new QVBoxLayout();
 	scrollLayout->addLayout(_optionalPackageButtonsLayout);
@@ -349,7 +349,7 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 
 	_reviewLayout = new QVBoxLayout();
 
-	scrollLayout->addLayout(_reviewLayout);	
+	scrollLayout->addLayout(_reviewLayout);
 
 	{
 		auto * hlBottom = new QHBoxLayout();
@@ -360,7 +360,7 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 		reportContentBtn->setToolTip(QApplication::tr("ReportContent"));
 
 		connect(reportContentBtn, &QPushButton::released, this, [this]() {
-			ReportContentDialog dlg("InfoPage_" + QString::number(_modID), this);
+			ReportContentDialog dlg("InfoPage_" + QString::number(_projectID), this);
 			dlg.exec();
 		});
 
@@ -397,23 +397,23 @@ void ModInfoPage::loginChanged() {
 	_rateWidget->loginChanged();
 }
 
-void ModInfoPage::loadPage(int32_t modID) {
-	if (modID == -1) return;
+void ModInfoPage::loadPage(int32_t projectID) {
+	if (projectID == -1) return;
 
 	_ownReviewWidget->setVisible(false);
 	
 	delete _waitSpinner;
 	_waitSpinner = new WaitSpinner(QApplication::tr("LoadingPage"), this);
-	_modID = modID;
+	_projectID = projectID;
 
 	for (auto * rw : _reviewWidgets) {
 		rw->deleteLater();
 	}
 	_reviewWidgets.clear();
 	
-	QtConcurrent::run([this, modID]() {
+	QtConcurrent::run([this, projectID]() {
 		common::RequestInfoPageMessage ripm;
-		ripm.modID = modID;
+		ripm.modID = projectID;
 		ripm.language = Config::Language.toStdString();
 		ripm.username = Config::Username.toStdString();
 		ripm.password = Config::Password.toStdString();
@@ -443,14 +443,12 @@ void ModInfoPage::loadPage(int32_t modID) {
 	});
 
 	QJsonObject requestData;
-	requestData["ProjectID"] = _modID;
+	requestData["ProjectID"] = _projectID;
 
-	int projectID = _modID;
-	
 	Https::postAsync(DATABASESERVER_PORT, "getRatings", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this, projectID](const QJsonObject & json, int statusCode) {
 		if (statusCode != 200) return;
 
-		if (projectID != _modID) return;
+		if (projectID != _projectID) return;
 
 		if (!json.contains("Rating1")) return;
 		
@@ -474,7 +472,7 @@ void ModInfoPage::loadPage(int32_t modID) {
 	Https::postAsync(DATABASESERVER_PORT, "getReviews", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this, projectID](const QJsonObject & json, int statusCode) {
 		if (statusCode != 200) return;
 
-		if (projectID != _modID) return;
+		if (projectID != _projectID) return;
 
 		if (!json.contains("Reviews")) return;
 
@@ -482,16 +480,16 @@ void ModInfoPage::loadPage(int32_t modID) {
 	});
 }
 
-void ModInfoPage::finishedInstallation(int modID, int, bool success) {
-	if (_modID != modID || !success) return;
+void ModInfoPage::finishedInstallation(int projectID, int, bool success) {
+	if (_projectID != projectID || !success) return;
 
 	Database::DBError err;
-	const bool installed = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM mods WHERE ModID = " + std::to_string(_modID) + " LIMIT 1;", err) > 0;
+	const bool installed = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM mods WHERE ModID = " + std::to_string(_projectID) + " LIMIT 1;", err) > 0;
 	_installButton->setVisible(!installed);
-	_startButton->setVisible(installed && !_runningUpdates.contains(_modID));
+	_startButton->setVisible(installed && !_runningUpdates.contains(_projectID));
 
 	for (QPushButton * pb : _optionalPackageButtons) {
-		const bool packageInstalled = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT PackageID FROM packages WHERE ModID = " + std::to_string(_modID) + " AND PackageID = " + std::to_string(pb->property("packageid").toInt()) + " LIMIT 1;", err) > 0;
+		const bool packageInstalled = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT PackageID FROM packages WHERE ModID = " + std::to_string(_projectID) + " AND PackageID = " + std::to_string(pb->property("packageid").toInt()) + " LIMIT 1;", err) > 0;
 		pb->setVisible(installed && !packageInstalled);
 	}
 }
@@ -499,8 +497,8 @@ void ModInfoPage::finishedInstallation(int modID, int, bool success) {
 void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 	delete _waitSpinner;
 	_waitSpinner = nullptr;
-	_modnameLabel->setText(s2q(sipm->modname) + QString(" (%1.%2.%3)").arg(sipm->majorVersion).arg(sipm->minorVersion).arg(sipm->patchVersion));
-	_modnameLabel->setVisible(!sipm->modname.empty());
+	_projectNameLabel->setText(s2q(sipm->modname) + QString(" (%1.%2.%3)").arg(sipm->majorVersion).arg(sipm->minorVersion).arg(sipm->patchVersion));
+	_projectNameLabel->setVisible(!sipm->modname.empty());
 
 	for (QPushButton * pb : _optionalPackageButtons) {
 		pb->deleteLater();
@@ -512,8 +510,8 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 	}
 	_historyWidgets.clear();
 
-	_ratingWidget->setProjectID(_modID);
-	_rateWidget->setProjectID(_modID);
+	_ratingWidget->setProjectID(_projectID);
+	_rateWidget->setProjectID(_projectID);
 	_ratingWidget->setModName(s2q(sipm->modname));
 	_rateWidget->setModName(s2q(sipm->modname));
 	_ratingWidget->setVisible(true);
@@ -544,13 +542,13 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 				QString filename = p.first;
 				filename.chop(2); // every image is compressed, so it has a .z at the end
 
-				const auto targetFile = Config::DOWNLOADDIR + "/screens/" + QString::number(_modID) + "/" + filename;
+				const auto targetFile = Config::DOWNLOADDIR + "/screens/" + QString::number(_projectID) + "/" + filename;
 				
 				if (!QFileInfo::exists(targetFile) || !Hashing::checkHash(targetFile, p.second)) {
 					empty = false;
 					
 					QFileInfo fi(p.first);
-					auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(_modID) + "/screens/" + p.first), Config::DOWNLOADDIR + "/screens/" + QString::number(_modID) + "/" + fi.path(), fi.fileName(), p.second, mfd);
+					auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(_projectID) + "/screens/" + p.first), Config::DOWNLOADDIR + "/screens/" + QString::number(_projectID) + "/" + fi.path(), fi.fileName(), p.second, mfd);
 					mfd->addFileDownloader(fd);
 				}
 			}
@@ -652,15 +650,15 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 	_applyButton->hide();
 
 	Database::DBError err;
-	const bool installed = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM mods WHERE ModID = " + std::to_string(_modID) + " LIMIT 1;", err) > 0;
+	const bool installed = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM mods WHERE ModID = " + std::to_string(_projectID) + " LIMIT 1;", err) > 0;
 	_installButton->setVisible(!installed && sipm->installAllowed);
-	_installButton->setProperty("modid", static_cast<int>(_modID));
+	_installButton->setProperty("modid", static_cast<int>(_projectID));
 
-	const QDirIterator it(Config::DOWNLOADDIR + "/mods/" + QString::number(_modID) + "/System", QStringList() << "*.ini", QDir::Files, QDirIterator::Subdirectories);
-	_startButton->setVisible(installed && it.hasNext() && !_runningUpdates.contains(_modID));
+	const QDirIterator it(Config::DOWNLOADDIR + "/mods/" + QString::number(_projectID) + "/System", QStringList() << "*.ini", QDir::Files, QDirIterator::Subdirectories);
+	_startButton->setVisible(installed && it.hasNext() && !_runningUpdates.contains(_projectID));
 
 	for (const auto & p : sipm->optionalPackages) {
-		const bool packageInstalled = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT PackageID FROM packages WHERE ModID = " + std::to_string(_modID) + " AND PackageID = " + std::to_string(p.first) + " LIMIT 1;", err) > 0;
+		const bool packageInstalled = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT PackageID FROM packages WHERE ModID = " + std::to_string(_projectID) + " AND PackageID = " + std::to_string(p.first) + " LIMIT 1;", err) > 0;
 		auto * pb = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/download.svg"), s2q(p.second), this);
 		pb->setVisible(!packageInstalled && installed && sipm->installAllowed);
 		pb->setProperty("packageid", static_cast<int>(p.first));
@@ -669,7 +667,7 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 		connect(pb, &QPushButton::released, this, &ModInfoPage::installPackage);
 	}
 
-	if (sipm->gameType == common::GameType::Game || _modID == 36 || _modID == 37 || _modID == 116) {
+	if (sipm->gameType == common::GameType::Game || _projectID == 36 || _projectID == 37 || _projectID == 116) {
 		_startButton->setText(QApplication::tr("StartGame"));
 		UPDATELANGUAGESETTEXT(_startButton, "StartGame");
 	} else {
@@ -709,21 +707,21 @@ void ModInfoPage::updatePage(common::SendInfoPageMessage * sipm) {
 	}
 }
 
-void ModInfoPage::installMod() {
+void ModInfoPage::installProject() {
 	const int32_t modID = sender()->property("modid").toInt();
 	emit tryInstallMod(modID, -1, InstallMode::UI);
 }
 
 void ModInfoPage::installPackage() {
 	const int32_t packageID = sender()->property("packageid").toInt();
-	emit tryInstallPackage(_modID, packageID, InstallMode::UI);
+	emit tryInstallPackage(_projectID, packageID, InstallMode::UI);
 }
 
 void ModInfoPage::changePreviewImage(const QModelIndex & idx) {
 	QString filename = QString::fromStdString(_screens[idx.row()].first);
 	if (!_screens[idx.row()].second.empty()) { // downloaded screens: relative path
 		filename.chop(2);
-		const QPixmap preview(Config::DOWNLOADDIR + "/screens/" + QString::number(_modID) + "/" + filename);
+		const QPixmap preview(Config::DOWNLOADDIR + "/screens/" + QString::number(_projectID) + "/" + filename);
 		_previewImageLabel->setPixmap(preview.scaled(QSize(640, 480), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 	} else {
 		const QPixmap preview(filename);
@@ -757,16 +755,16 @@ void ModInfoPage::forceEditPage() {
 	_forceEdit = true;
 }
 
-void ModInfoPage::updateStarted(int modID) {
-	_runningUpdates.append(modID);
+void ModInfoPage::updateStarted(int projectID) {
+	_runningUpdates.append(projectID);
 }
 
-void ModInfoPage::updateFinished(int modID) {
-	_runningUpdates.removeAll(modID);
+void ModInfoPage::updateFinished(int projectID) {
+	_runningUpdates.removeAll(projectID);
 }
 
 void ModInfoPage::editReview(int projectID, const QString & review) {
-	if (_modID != projectID) {
+	if (_projectID != projectID) {
 		loadPage(projectID);
 	}
 	
@@ -808,7 +806,7 @@ void ModInfoPage::submitChanges() {
 	QFutureWatcher<void> watcher(this);
 	QEventLoop loop;
 	connect(&watcher, &QFutureWatcher<void>::finished, &loop, &QEventLoop::quit);
-	int32_t modID = _modID;
+	int32_t modID = _projectID;
 	std::string language = Config::Language.toStdString();
 	std::string description = q2s(_descriptionEdit->toPlainText());
 	std::vector<std::string> features;
@@ -885,7 +883,7 @@ void ModInfoPage::submitChanges() {
 	});
 	watcher.setFuture(future);
 	loop.exec();
-	loadPage(_modID);
+	loadPage(_projectID);
 }
 
 void ModInfoPage::requestRandomMod() {
@@ -921,11 +919,11 @@ void ModInfoPage::requestRandomMod() {
 	});
 }
 
-void ModInfoPage::startMod() {
-	QDirIterator it(Config::DOWNLOADDIR + "/mods/" + QString::number(_modID) + "/System", QStringList() << "*.ini", QDir::Files, QDirIterator::Subdirectories);
+void ModInfoPage::startProject() {
+	QDirIterator it(Config::DOWNLOADDIR + "/mods/" + QString::number(_projectID) + "/System", QStringList() << "*.ini", QDir::Files, QDirIterator::Subdirectories);
 	if (it.hasNext()) {
 		it.next();
-		emit triggerModStart(_modID, it.filePath());
+		emit triggerModStart(_projectID, it.filePath());
 	}
 }
 
@@ -933,15 +931,15 @@ void ModInfoPage::showFullscreen() {
 	QItemSelectionModel * selectionModel = _thumbnailView->selectionModel();
 	const QModelIndexList list = selectionModel->selectedRows();
 	const int row = list.isEmpty() ? 0 : selectionModel->selectedRows().front().row();
-	FullscreenPreview fp(Config::DOWNLOADDIR + "/screens/" + QString::number(_modID) + "/" + QString::fromStdString(_screens[row].first), this);
+	FullscreenPreview fp(Config::DOWNLOADDIR + "/screens/" + QString::number(_projectID) + "/" + QString::fromStdString(_screens[row].first), this);
 	fp.exec();
 }
 
 void ModInfoPage::selectedSpineFeature(const QModelIndex & idx) {
 	if (idx.data(Qt::UserRole).toInt() == common::SpineModules::Achievements) {
-		emit openAchievementView(_modID, _modnameLabel->text());
+		emit openAchievementView(_projectID, _projectNameLabel->text());
 	} else if (idx.data(Qt::UserRole).toInt() == common::SpineModules::Scores) {
-		emit openScoreView(_modID, _modnameLabel->text());
+		emit openScoreView(_projectID, _projectNameLabel->text());
 	}
 }
 
@@ -996,7 +994,7 @@ void ModInfoPage::updateReviews(QJsonArray reviews) {
 		const auto reviewDuration = json["ReviewDuration"].toString().toInt();
 		const auto date = json["Date"].toString().toInt();
 
-		auto * rv = new ReviewWidget(reviewer, review, duration, reviewDuration, date, rating, this);
+		auto * rv = new ReviewWidget(reviewer, review, duration, reviewDuration, date, rating, _projectID, this);
 		_reviewLayout->addWidget(rv);
 
 		_reviewWidgets << rv;
@@ -1011,7 +1009,7 @@ void ModInfoPage::submitReview() {
 	if (review.isEmpty()) return;
 
 	QJsonObject json;
-	json["ProjectID"] = _modID;
+	json["ProjectID"] = _projectID;
 	json["Username"] = Config::Username;
 	json["Password"] = Config::Password;
 	json["Review"] = review;
@@ -1031,7 +1029,7 @@ void ModInfoPage::showEvent(QShowEvent * evt) {
 	static bool firstOpen = true;
 	if (firstOpen) {
 		firstOpen = false;
-		if (_modID == -1) {
+		if (_projectID == -1) {
 			requestRandomMod();
 		}
 	}
@@ -1043,13 +1041,13 @@ void ModInfoPage::showScreens() {
 	
 	QString filename = QString::fromStdString(_screens[0].first);
 	filename.chop(2);
-	const QPixmap preview(Config::DOWNLOADDIR + "/screens/" + QString::number(_modID) + "/" + filename);
+	const QPixmap preview(Config::DOWNLOADDIR + "/screens/" + QString::number(_projectID) + "/" + filename);
 	_previewImageLabel->setPixmap(preview.scaled(QSize(640, 480), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 	for (const auto & p : _screens) {
 		QString fn = QString::fromStdString(p.first);
 		fn.chop(2); // .z
 		auto * itm = new QStandardItem();
-		QPixmap thumb(Config::DOWNLOADDIR + "/screens/" + QString::number(_modID) + "/" + fn);
+		QPixmap thumb(Config::DOWNLOADDIR + "/screens/" + QString::number(_projectID) + "/" + fn);
 		QPixmap scaledThumb = thumb.scaled(QSize(300, 100), Qt::KeepAspectRatio, Qt::SmoothTransformation);
 		itm->setIcon(scaledThumb);
 		minWidth = std::min(minWidth, scaledThumb.width());
