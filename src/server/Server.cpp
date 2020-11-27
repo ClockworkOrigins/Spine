@@ -130,169 +130,163 @@ void Server::receiveMessage(const std::vector<uint8_t> & message, clockUtils::so
 					return;
 				}
 			}
+			std::cout << "Handling message: " << static_cast<int>(m->type) << std::endl;
 			if (m->type == MessageType::UPDATEREQUEST) {
-				UpdateRequestMessage * msg = dynamic_cast<UpdateRequestMessage *>(m);
+				auto * msg = dynamic_cast<UpdateRequestMessage *>(m);
 				handleAutoUpdate(sock, msg);
 			} else if (m->type == MessageType::REQUESTALLMODS) {
-				RequestAllModsMessage * msg = dynamic_cast<RequestAllModsMessage *>(m);
+				auto * msg = dynamic_cast<RequestAllModsMessage *>(m);
 				handleModListRequest(sock, msg);
 			} else if (m->type == MessageType::REQUESTMODFILES) {
-				RequestModFilesMessage * msg = dynamic_cast<RequestModFilesMessage *>(m);
+				auto * msg = dynamic_cast<RequestModFilesMessage *>(m);
 				handleModFilesListRequest(sock, msg);
 			} else if (m->type == MessageType::DOWNLOADSUCCEEDED) {
-				DownloadSucceededMessage * msg = dynamic_cast<DownloadSucceededMessage *>(m);
+				auto * msg = dynamic_cast<DownloadSucceededMessage *>(m);
 				handleDownloadSucceeded(sock, msg);
 			} else if (m->type == MessageType::UPDATEPLAYTIME) {
-				UpdatePlayTimeMessage * msg = dynamic_cast<UpdatePlayTimeMessage *>(m);
+				auto * msg = dynamic_cast<UpdatePlayTimeMessage *>(m);
 				handleUpdatePlaytime(sock, msg);
 			} else if (m->type == MessageType::REQUESTPLAYTIME) {
-				RequestPlayTimeMessage * msg = dynamic_cast<RequestPlayTimeMessage *>(m);
+				auto * msg = dynamic_cast<RequestPlayTimeMessage *>(m);
 				handleRequestPlaytime(sock, msg);
 			} else if (m->type == MessageType::REQUESTSCORES) {
-				RequestScoresMessage * msg = dynamic_cast<RequestScoresMessage *>(m);
+				auto * msg = dynamic_cast<RequestScoresMessage *>(m);
 				handleRequestScores(sock, msg);
 			} else if (m->type == MessageType::UPDATESCORE) {
-				UpdateScoreMessage * msg = dynamic_cast<UpdateScoreMessage *>(m);
+				auto * msg = dynamic_cast<UpdateScoreMessage *>(m);
 				handleUpdateScore(sock, msg);
 			} else if (m->type == MessageType::REQUESTACHIEVEMENTS) {
-				RequestAchievementsMessage * msg = dynamic_cast<RequestAchievementsMessage *>(m);
+				auto * msg = dynamic_cast<RequestAchievementsMessage *>(m);
 				handleRequestAchievements(sock, msg);
 			} else if (m->type == MessageType::UNLOCKACHIEVEMENT) {
-				UnlockAchievementMessage * msg = dynamic_cast<UnlockAchievementMessage *>(m);
+				auto * msg = dynamic_cast<UnlockAchievementMessage *>(m);
 				handleUnlockAchievement(sock, msg);
 			} else if (m->type == MessageType::MODVERSIONCHECK) {
-				ModVersionCheckMessage * msg = dynamic_cast<ModVersionCheckMessage *>(m);
+				auto * msg = dynamic_cast<ModVersionCheckMessage *>(m);
 				handleModVersionCheck(sock, msg);
 			} else if (m->type == MessageType::FEEDBACK) {
-				FeedbackMessage * msg = dynamic_cast<FeedbackMessage *>(m);
+				auto * msg = dynamic_cast<FeedbackMessage *>(m);
 				handleFeedback(sock, msg);
 			} else if (m->type == MessageType::REQUESTORIGINALFILES) {
-				RequestOriginalFilesMessage * msg = dynamic_cast<RequestOriginalFilesMessage *>(m);
+				auto * msg = dynamic_cast<RequestOriginalFilesMessage *>(m);
 				handleRequestOriginalFiles(sock, msg);
 			} else if (m->type == MessageType::UPDATELOGINTIME) {
-				UpdateLoginTimeMessage * msg = dynamic_cast<UpdateLoginTimeMessage *>(m);
+				auto * msg = dynamic_cast<UpdateLoginTimeMessage *>(m);
 				handleUpdateLoginTime(sock, msg);
 			} else if (m->type == MessageType::REQUESTPACKAGEFILES) {
-				RequestPackageFilesMessage * msg = dynamic_cast<RequestPackageFilesMessage *>(m);
+				auto * msg = dynamic_cast<RequestPackageFilesMessage *>(m);
 				handleRequestPackageFiles(sock, msg);
 			} else if (m->type == MessageType::PACKAGEDOWNLOADSUCCEEDED) {
-				PackageDownloadSucceededMessage * msg = dynamic_cast<PackageDownloadSucceededMessage *>(m);
+				auto * msg = dynamic_cast<PackageDownloadSucceededMessage *>(m);
 				handlePackageDownloadSucceeded(sock, msg);
 			} else if (m->type == MessageType::REQUESTALLMODSTATS) {
-				RequestAllModStatsMessage * msg = dynamic_cast<RequestAllModStatsMessage *>(m);
+				auto * msg = dynamic_cast<RequestAllModStatsMessage *>(m);
 				handleRequestAllModStats(sock, msg);
 			} else if (m->type == MessageType::REQUESTSINGLEMODSTAT) {
-				RequestSingleModStatMessage * msg = dynamic_cast<RequestSingleModStatMessage *>(m);
+				auto * msg = dynamic_cast<RequestSingleModStatMessage *>(m);
 				handleRequestSingleModStat(sock, msg);
 			} else if (m->type == MessageType::REQUESTALLACHIEVEMENTSTATS) {
-				RequestAllAchievementStatsMessage * msg = dynamic_cast<RequestAllAchievementStatsMessage *>(m);
+				auto * msg = dynamic_cast<RequestAllAchievementStatsMessage *>(m);
 				handleRequestAllAchievementStats(sock, msg);
 			} else if (m->type == MessageType::REQUESTALLSCORESTATS) {
-				RequestAllScoreStatsMessage * msg = dynamic_cast<RequestAllScoreStatsMessage *>(m);
+				auto * msg = dynamic_cast<RequestAllScoreStatsMessage *>(m);
 				handleRequestAllScoreStats(sock, msg);
 			} else if (m->type == MessageType::REQUESTALLNEWS) {
-				RequestAllNewsMessage * msg = dynamic_cast<RequestAllNewsMessage *>(m);
+				auto * msg = dynamic_cast<RequestAllNewsMessage *>(m);
 				handleRequestAllNews(sock, msg);
 			} else if (m->type == MessageType::SUBMITNEWS) {
-				SubmitNewsMessage * msg = dynamic_cast<SubmitNewsMessage *>(m);
+				auto * msg = dynamic_cast<SubmitNewsMessage *>(m);
 				handleSubmitNews(sock, msg);
 			} else if (m->type == MessageType::LINKCLICKED) {
-				LinkClickedMessage * msg = dynamic_cast<LinkClickedMessage *>(m);
+				auto * msg = dynamic_cast<LinkClickedMessage *>(m);
 				handleLinkClicked(sock, msg);
 			} else if (m->type == MessageType::SUBMITSCRIPTFEATURES) {
-				SubmitScriptFeaturesMessage * msg = dynamic_cast<SubmitScriptFeaturesMessage *>(m);
+				auto * msg = dynamic_cast<SubmitScriptFeaturesMessage *>(m);
 				handleSubmitScriptFeatures(sock, msg);
 			} else if (m->type == MessageType::REQUESTINFOPAGE) {
-				RequestInfoPageMessage * msg = dynamic_cast<RequestInfoPageMessage *>(m);
+				auto * msg = dynamic_cast<RequestInfoPageMessage *>(m);
 				handleRequestInfoPage(sock, msg);
 			} else if (m->type == MessageType::SUBMITINFOPAGE) {
-				SubmitInfoPageMessage * msg = dynamic_cast<SubmitInfoPageMessage *>(m);
+				auto * msg = dynamic_cast<SubmitInfoPageMessage *>(m);
 				handleSubmitInfoPage(sock, msg);
 			} else if (m->type == MessageType::SENDUSERINFOS) {
-				SendUserInfosMessage * msg = dynamic_cast<SendUserInfosMessage *>(m);
+				auto * msg = dynamic_cast<SendUserInfosMessage *>(m);
 				handleSendUserInfos(sock, msg);
 			} else if (m->type == MessageType::REQUESTRANDOMMOD) {
-				RequestRandomModMessage * msg = dynamic_cast<RequestRandomModMessage *>(m);
+				auto * msg = dynamic_cast<RequestRandomModMessage *>(m);
 				handleRequestRandomMod(sock, msg);
 			} else if (m->type == MessageType::UPDATEACHIEVEMENTPROGRESS) {
-				UpdateAchievementProgressMessage * msg = dynamic_cast<UpdateAchievementProgressMessage *>(m);
+				auto * msg = dynamic_cast<UpdateAchievementProgressMessage *>(m);
 				handleUpdateAchievementProgress(sock, msg);
 			} else if (m->type == MessageType::SUBMITCOMPATIBILITY) {
-				SubmitCompatibilityMessage * msg = dynamic_cast<SubmitCompatibilityMessage *>(m);
+				auto * msg = dynamic_cast<SubmitCompatibilityMessage *>(m);
 				handleSubmitCompatibility(sock, msg);
 			} else if (m->type == MessageType::REQUESTOWNCOMPATIBILITIES) {
-				RequestOwnCompatibilitiesMessage * msg = dynamic_cast<RequestOwnCompatibilitiesMessage *>(m);
+				auto * msg = dynamic_cast<RequestOwnCompatibilitiesMessage *>(m);
 				handleRequestOwnCompatibilities(sock, msg);
 			} else if (m->type == MessageType::REQUESTCOMPATIBILITYLIST) {
-				RequestCompatibilityListMessage * msg = dynamic_cast<RequestCompatibilityListMessage *>(m);
+				auto * msg = dynamic_cast<RequestCompatibilityListMessage *>(m);
 				handleRequestCompatibilityList(sock, msg);
 			} else if (m->type == MessageType::SUBMITRATING) {
-				SubmitRatingMessage * msg = dynamic_cast<SubmitRatingMessage *>(m);
+				auto * msg = dynamic_cast<SubmitRatingMessage *>(m);
 				handleSubmitRating(sock, msg);
 			} else if (m->type == MessageType::UPDATEREQUESTENCRYPTED) {
-				UpdateRequestEncryptedMessage * msg = dynamic_cast<UpdateRequestEncryptedMessage *>(m);
+				auto * msg = dynamic_cast<UpdateRequestEncryptedMessage *>(m);
 				handleAutoUpdateEncrypted(sock, msg);
 			} else if (m->type == MessageType::REQUESTOVERALLSAVEDATA) {
-				RequestOverallSaveDataMessage * msg = dynamic_cast<RequestOverallSaveDataMessage *>(m);
+				auto * msg = dynamic_cast<RequestOverallSaveDataMessage *>(m);
 				handleRequestOverallSaveData(sock, msg);
 			} else if (m->type == MessageType::UPDATEOVERALLSAVEDATA) {
-				UpdateOverallSaveDataMessage * msg = dynamic_cast<UpdateOverallSaveDataMessage *>(m);
+				auto * msg = dynamic_cast<UpdateOverallSaveDataMessage *>(m);
 				handleUpdateOverallSaveData(sock, msg);
 			} else if (m->type == MessageType::REQUESTMODSFOREDITOR) {
-				RequestModsForEditorMessage * msg = dynamic_cast<RequestModsForEditorMessage *>(m);
+				auto * msg = dynamic_cast<RequestModsForEditorMessage *>(m);
 				handleRequestModsForEditor(sock, msg);
 			} else if (m->type == MessageType::UPDATEOFFLINEDATA) {
-				UpdateOfflineDataMessage * msg = dynamic_cast<UpdateOfflineDataMessage *>(m);
+				auto * msg = dynamic_cast<UpdateOfflineDataMessage *>(m);
 				handleUpdateOfflineData(sock, msg);
 			} else if (m->type == MessageType::REQUESTOFFLINEDATA) {
-				RequestOfflineDataMessage * msg = dynamic_cast<RequestOfflineDataMessage *>(m);
+				auto * msg = dynamic_cast<RequestOfflineDataMessage *>(m);
 				handleRequestOfflineData(sock, msg);
 			} else if (m->type == MessageType::UPDATESTARTTIME) {
-				UpdateStartTimeMessage * msg = dynamic_cast<UpdateStartTimeMessage *>(m);
+				auto * msg = dynamic_cast<UpdateStartTimeMessage *>(m);
 				handleUpdateStartTime(sock, msg);
 			} else if (m->type == MessageType::UPDATEPLAYINGTIME) {
-				UpdatePlayingTimeMessage * msg = dynamic_cast<UpdatePlayingTimeMessage *>(m);
+				auto * msg = dynamic_cast<UpdatePlayingTimeMessage *>(m);
 				handleUpdatePlayingTime(sock, msg);
 			} else if (m->type == MessageType::REQUESTALLFRIENDS) {
-				RequestAllFriendsMessage * msg = dynamic_cast<RequestAllFriendsMessage *>(m);
+				auto * msg = dynamic_cast<RequestAllFriendsMessage *>(m);
 				handleRequestAllFriends(sock, msg);
 			} else if (m->type == MessageType::SENDFRIENDREQUEST) {
-				SendFriendRequestMessage * msg = dynamic_cast<SendFriendRequestMessage *>(m);
+				auto * msg = dynamic_cast<SendFriendRequestMessage *>(m);
 				handleSendFriendRequest(sock, msg);
 			} else if (m->type == MessageType::ACCEPTFRIENDREQUEST) {
-				AcceptFriendRequestMessage * msg = dynamic_cast<AcceptFriendRequestMessage *>(m);
+				auto * msg = dynamic_cast<AcceptFriendRequestMessage *>(m);
 				handleAcceptFriendRequest(sock, msg);
 			} else if (m->type == MessageType::DECLINEFRIENDREQUEST) {
-				DeclineFriendRequestMessage * msg = dynamic_cast<DeclineFriendRequestMessage *>(m);
+				auto * msg = dynamic_cast<DeclineFriendRequestMessage *>(m);
 				handleDeclineFriendRequest(sock, msg);
 			} else if (m->type == MessageType::REQUESTUSERLEVEL) {
-				RequestUserLevelMessage * msg = dynamic_cast<RequestUserLevelMessage *>(m);
+				auto * msg = dynamic_cast<RequestUserLevelMessage *>(m);
 				handleRequestUserLevel(sock, msg);
-			} else if (m->type == MessageType::UPDATEGENERALMODCONFIGURATION) {
-				// not supported anymore
-			} else if (m->type == MessageType::UPDATESCORES) {
-				// not supported anymore
-			} else if (m->type == MessageType::UPDATEACHIEVEMENTS) {
-				// not supported anymore
 			} else if (m->type == MessageType::UPDATESUCCEEDED) {
-				UpdateSucceededMessage * msg = dynamic_cast<UpdateSucceededMessage *>(m);
+				auto * msg = dynamic_cast<UpdateSucceededMessage *>(m);
 				handleUpdateSucceeded(sock, msg);
 			} else if (m->type == MessageType::UPDATECHAPTERSTATS) {
-				UpdateChapterStatsMessage * msg = dynamic_cast<UpdateChapterStatsMessage *>(m);
+				auto * msg = dynamic_cast<UpdateChapterStatsMessage *>(m);
 				handleUpdateChapterStats(sock, msg);
-			} else if (m->type == MessageType::UPDATEIMPRESSION) {
-				// not supported anymore
 			} else if (m->type == MessageType::ISACHIEVEMENTUNLOCKED) {
-				IsAchievementUnlockedMessage * msg = dynamic_cast<IsAchievementUnlockedMessage *>(m);
+				auto * msg = dynamic_cast<IsAchievementUnlockedMessage *>(m);
 				handleIsAchievementUnlocked(sock, msg);
 			} else if (m->type == MessageType::UPLOADACHIEVEMENTICONS) {
-				UploadAchievementIconsMessage * msg = dynamic_cast<UploadAchievementIconsMessage *>(m);
+				auto * msg = dynamic_cast<UploadAchievementIconsMessage *>(m);
 				_managementServer->uploadAchievementIcons(msg);
 			} else {
 				std::cerr << "unexpected control message arrived: " << static_cast<int>(m->type) << std::endl;
 				delete m;
 				return;
 			}
+			std::cout << "Handled message: " << static_cast<int>(m->type) << std::endl;
 
 			delete m;
 		} catch (const boost::archive::archive_exception &) {
@@ -335,9 +329,9 @@ void Server::handleAutoUpdate(clockUtils::sockets::TcpSocket * sock, UpdateReque
 
 	if (rootNode != nullptr) {
 		for (tinyxml2::XMLElement * node = rootNode->FirstChildElement("Version"); node != nullptr; node = node->NextSiblingElement("Version")) {
-			const uint8_t majorVersion = uint8_t(std::stoi(node->Attribute("majorVersion")));
-			const uint8_t minorVersion = uint8_t(std::stoi(node->Attribute("minorVersion")));
-			const uint8_t patchVersion = uint8_t(std::stoi(node->Attribute("patchVersion")));
+			const uint8_t majorVersion = static_cast<uint8_t>(std::stoi(node->Attribute("majorVersion")));
+			const uint8_t minorVersion = static_cast<uint8_t>(std::stoi(node->Attribute("minorVersion")));
+			const uint8_t patchVersion = static_cast<uint8_t>(std::stoi(node->Attribute("patchVersion")));
 			uint32_t version = (majorVersion << 16) + (minorVersion << 8) + patchVersion;
 
 			versions.insert(std::make_pair(version, std::vector<std::pair<std::string, std::string>>()));
@@ -398,8 +392,8 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			return;
 		}
-		for (auto vec : lastResults) {
-			const int32_t id = static_cast<int32_t>(std::stoi(vec[0]));
+		for (const auto & vec : lastResults) {
+			const auto id = static_cast<int32_t>(std::stoi(vec[0]));
 			
 			if (!database.query("SET @paramTeamID=" + std::to_string(id) + ";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;

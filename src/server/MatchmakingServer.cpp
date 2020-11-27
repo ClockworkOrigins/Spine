@@ -29,7 +29,7 @@
 
 using namespace spine;
 
-MatchmakingServer::MatchmakingServer() : _lock(), _nameMapping(), _socketSearch(), _gameSearches(), _games(), _listenClient(new clockUtils::sockets::TcpSocket()) {
+MatchmakingServer::MatchmakingServer() : _listenClient(new clockUtils::sockets::TcpSocket()) {
 	_listenClient->listen(SPINE_MP_PORT, 10, true, std::bind(&MatchmakingServer::accept, this, std::placeholders::_1));
 }
 
@@ -38,7 +38,6 @@ MatchmakingServer::~MatchmakingServer() {
 }
 
 void MatchmakingServer::socketError(clockUtils::sockets::TcpSocket * sock) {
-	std::cout << "Quit match " << sock->getRemoteIP() << std::endl;
 	std::lock_guard<std::mutex> lg(_lock);
 	_nameMapping.erase(sock);
 	{
@@ -82,7 +81,7 @@ void MatchmakingServer::handleSearchMatch(clockUtils::sockets::TcpSocket * sock,
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
-	auto lastResults = spineDatabase.getResults<std::vector<std::string>>();
+	const auto lastResults = spineDatabase.getResults<std::vector<std::string>>();
 	if (lastResults.empty()) {
 		std::cout << "Rejected MP Mod: " << msg->modID << std::endl;
 		return;
@@ -110,7 +109,7 @@ void MatchmakingServer::handleSearchMatch(clockUtils::sockets::TcpSocket * sock,
 		_gameSearches.push_back(gs);
 	}
 	_socketSearch[sock] = gs;
-	if (int32_t(gs.members.size()) == gs.numPlayers) { // found a match
+	if (static_cast<int32_t>(gs.members.size()) == gs.numPlayers) { // found a match
 		std::cout << "Found match for " << sock->getRemoteIP() << " " << gs.modID << " " << gs.identifier << " " << gs.numPlayers << std::endl;
 		std::vector<std::string> usernames;
 		GamePtr game = std::make_shared<Game>();
@@ -170,10 +169,10 @@ void MatchmakingServer::receiveMessage(const std::vector<uint8_t> & message, clo
 				return;
 			}
 			if (m->type == common::MessageType::SEARCHMATCH) {
-				common::SearchMatchMessage * msg = dynamic_cast<common::SearchMatchMessage *>(m);
+				auto * msg = dynamic_cast<common::SearchMatchMessage *>(m);
 				handleSearchMatch(sock, msg);
 			} else {
-				std::cerr << "unexpected control message arrived: " << int(m->type) << std::endl;
+				std::cerr << "unexpected control message arrived: " << static_cast<int>(m->type) << std::endl;
 				delete m;
 				return;
 			}
