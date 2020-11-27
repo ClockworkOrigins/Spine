@@ -969,13 +969,13 @@ void Gothic1And2Launcher::finishedMod(int, QProcess::ExitStatus status) {
 			QTextStream ts(&f);
 			text = ts.readAll();
 		}
-		const QRegularExpression regExp("(PluginList\\s=[^\n]*)\n");
+		const QRegularExpression regExp("(PluginList[\\s]*=[^\n]*)\n");
 		const QRegularExpressionMatch match = regExp.match(text);
 		QString replaceText = match.captured(1);
 		LOGINFO("Replacing #2: " << q2s(replaceText))
 		replaceText = replaceText.trimmed();
 		if (!replaceText.isEmpty()) {
-			text = text.replace(replaceText, "PluginList =");
+			text = text.replace(replaceText, "PluginList=");
 			{
 				QFile f(_directory + "/System/Systempack.ini");
 				f.open(QIODevice::WriteOnly);
@@ -2001,15 +2001,15 @@ void Gothic1And2Launcher::updatePlugins(int modID) {
 				QTextStream ts(&f);
 				text = ts.readAll();
 			}
-			const QRegularExpression regExp("(PluginList\\s=[^\n]*)\n");
+			const QRegularExpression regExp("(PluginList[\\s]*=[^\n]*)\n");
 			const QRegularExpressionMatch match = regExp.match(text);
 			QString replaceText = match.captured(1);
 			LOGINFO("Replacing #1: " << q2s(replaceText))
 			replaceText = replaceText.trimmed();
 			if (replaceText.isEmpty()) {
-				text += "\n[PLUGINS]\nPluginList = " + _unionPlugins.join(',') + "\n";
+				text += "\n[PLUGINS]\nPluginList= " + _unionPlugins.join(',') + "\n";
 			} else {
-				text = text.replace(replaceText, "PluginList = " + _unionPlugins.join(','));
+				text = text.replace(replaceText, "PluginList= " + _unionPlugins.join(','));
 			}
 			{
 				QFile f(_directory + "/System/Systempack.ini");
