@@ -342,11 +342,11 @@ namespace common {
 	};
 
 	struct UnlockAchievementMessage : public Message {
-		int32_t modID;
+		int32_t [[deprecated("Remove in Spine 1.28.0")]] modID;
 		int32_t identifier;
-		std::string username;
-		std::string password;
-		uint32_t duration;
+		std::string [[deprecated("Remove in Spine 1.28.0")]] username;
+		std::string [[deprecated("Remove in Spine 1.28.0")]] password;
+		uint32_t [[deprecated("Remove in Spine 1.28.0")]] duration;
 		UnlockAchievementMessage() : Message(), modID(), identifier(), duration() {
 			type = MessageType::UNLOCKACHIEVEMENT;
 		}

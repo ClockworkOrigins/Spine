@@ -132,7 +132,11 @@ namespace server {
 		
 		[[deprecated("Remove in Spine 1.28.0")]]
 		void handleUpdateScore(clockUtils::sockets::TcpSocket * sock, common::UpdateScoreMessage * msg) const;
+		
+		[[deprecated("Remove in Spine 1.28.0")]]
 		void handleRequestAchievements(clockUtils::sockets::TcpSocket * sock, common::RequestAchievementsMessage * msg) const;
+		
+		[[deprecated("Remove in Spine 1.28.0")]]
 		void handleUnlockAchievement(clockUtils::sockets::TcpSocket * sock, common::UnlockAchievementMessage * msg) const;
 		void handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, common::ModVersionCheckMessage * msg) const;
 		void handleFeedback(clockUtils::sockets::TcpSocket * sock, common::FeedbackMessage * msg) const;

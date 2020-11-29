@@ -481,38 +481,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 					handleRequestAchievements(socket);
 				} else if (msg->type == MessageType::UNLOCKACHIEVEMENT) {
 					auto * uam = dynamic_cast<UnlockAchievementMessage *>(msg);
-					if (_projectID != -1) {
-						if (uam) {
-							if (Config::OnlineMode) {
-								auto duration = _timer->elapsed();
-								duration = duration / 1000; // to seconds
-								duration = duration / 60;
-
-								uam->modID = _projectID;
-								uam->username = Config::Username.toStdString();
-								uam->password = Config::Password.toStdString();
-								uam->duration = static_cast<uint32_t>(duration);
-								clockUtils::sockets::TcpSocket sock;
-								if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-									serialized = uam->SerializePublic();
-									if (clockUtils::ClockError::SUCCESS != sock.writePacket(serialized)) {
-										cacheAchievement(uam);
-									} else {
-										removeAchievement(uam);
-									}
-								} else {
-									cacheAchievement(uam);
-								}
-							} else {
-								uam->modID = _projectID;
-								
-								cacheAchievement(uam);
-								
-								Database::DBError dbErr;
-								Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO modAchievements (ModID, Identifier, Username) VALUES (" + std::to_string(_projectID) + ", " + std::to_string(uam->identifier) + ", '" + Config::Username.toStdString() + ");", dbErr);
-							}
-						}
-					}
+					handleUnlockAchievement(socket, uam);
 				} else if (msg->type == MessageType::UPDATEACHIEVEMENTPROGRESS) {
 					auto * uapm = dynamic_cast<UpdateAchievementProgressMessage *>(msg);
 					if (_projectID != -1) {
@@ -764,7 +733,7 @@ void ILauncher::tryCleanCaches() {
 	clockUtils::sockets::TcpSocket sock;
 	if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
 		std::vector<std::vector<int>> scores = Database::queryAll<std::vector<int>, int, int, int>(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "SELECT * FROM scoreCache;", err);
-		for (auto t : scores) {
+		for (const auto & t : scores) {
 			QJsonObject json;
 			json["ProjectID"] = t[0];
 			json["Username"] = Config::Username;
@@ -779,16 +748,19 @@ void ILauncher::tryCleanCaches() {
 			});
 		}
 		std::vector<std::vector<int>> achievements = Database::queryAll<std::vector<int>, int, int>(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "SELECT * FROM achievementCache;", err);
-		for (auto t : achievements) {
-			UnlockAchievementMessage uam;
-			uam.modID = t[0];
-			uam.identifier = t[1];
-			uam.username = Config::Username.toStdString();
-			uam.password = Config::Password.toStdString();
-			const std::string serialized = uam.SerializePublic();
-			if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
-				removeAchievement(&uam);
-			}
+		for (const auto & t : achievements) {
+			QJsonObject json;
+			json["ProjectID"] = t[0];
+			json["Username"] = Config::Username;
+			json["Password"] = Config::Password;
+			json["Identifier"] = t[1];
+			json["Duration"] = 0;
+
+			Https::postAsync(DATABASESERVER_PORT, "unlockAchievement", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, t](const QJsonObject &, int statusCode) {
+				if (statusCode != 200) return;
+
+				removeAchievement(t[0], t[1]);
+			});
 		}
 		std::vector<std::vector<int>> achievementProgresses = Database::queryAll<std::vector<int>, int, int, int>(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "SELECT * FROM achievementProgressCache;", err);
 		for (auto t : achievementProgresses) {
@@ -832,14 +804,14 @@ void ILauncher::removeScore(int32_t projectID, int32_t identifier) const {
 	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "DELETE FROM scoreCache WHERE ModID = " + std::to_string(projectID) + " AND Identifier = " + std::to_string(identifier) + ";", err);
 }
 
-void ILauncher::cacheAchievement(UnlockAchievementMessage * uam) {
+void ILauncher::cacheAchievement(int32_t projectID, int32_t identifier) const {
 	Database::DBError err;
-	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "INSERT INTO achievementCache (ModID, Identifier) VALUES (" + std::to_string(uam->modID) + ", " + std::to_string(uam->identifier) + ");", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "INSERT INTO achievementCache (ModID, Identifier) VALUES (" + std::to_string(projectID) + ", " + std::to_string(identifier) + ");", err);
 }
 
-void ILauncher::removeAchievement(UnlockAchievementMessage * uam) {
+void ILauncher::removeAchievement(int32_t projectID, int32_t identifier) const {
 	Database::DBError err;
-	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "DELETE FROM achievementCache WHERE ModID = " + std::to_string(uam->modID) + " AND Identifier = " + std::to_string(uam->identifier) + ";", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "DELETE FROM achievementCache WHERE ModID = " + std::to_string(projectID) + " AND Identifier = " + std::to_string(identifier) + ";", err);
 }
 
 void ILauncher::cacheAchievementProgress(UpdateAchievementProgressMessage * uapm) {
@@ -1283,3 +1255,34 @@ void ILauncher::handleRequestAchievements(clockUtils::sockets::TcpSocket * socke
 	});
 }
 
+void ILauncher::handleUnlockAchievement(clockUtils::sockets::TcpSocket *, UnlockAchievementMessage * msg) const {
+	if (_projectID == -1) return;
+
+	if (!msg) return;
+
+	if (Config::OnlineMode) {
+		auto duration = _timer->elapsed();
+		duration = duration / 1000; // to seconds
+		duration = duration / 60;
+		
+		QJsonObject json;
+		json["ProjectID"] = _projectID;
+		json["Username"] = Config::Username;
+		json["Password"] = Config::Password;
+		json["Identifier"] = msg->identifier;
+		json["Duration"] = duration;
+
+		int32_t identifier = msg->identifier;
+
+		Https::postAsync(DATABASESERVER_PORT, "unlockAchievement", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, identifier](const QJsonObject &, int statusCode) {
+			if (statusCode != 200) {
+				cacheAchievement(_projectID, identifier);
+				return;
+			}
+			removeAchievement(_projectID, identifier);
+		});
+	} else {
+		Database::DBError dbErr;
+		Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO modAchievements (ModID, Identifier, Username) VALUES (" + std::to_string(_projectID) + ", " + std::to_string(msg->identifier) + ", '" + Config::Username.toStdString() + ");", dbErr);
+	}
+}
