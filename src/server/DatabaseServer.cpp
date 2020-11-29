@@ -60,6 +60,7 @@ int DatabaseServer::run() {
 	_server->resource["^/updateScore"]["POST"] = std::bind(&DatabaseServer::updateScore, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/getReviews"]["POST"] = std::bind(&DatabaseServer::getReviews, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/updateReview"]["POST"] = std::bind(&DatabaseServer::updateReview, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/requestAchievements"]["POST"] = std::bind(&DatabaseServer::requestAchievements, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -1494,6 +1495,114 @@ void DatabaseServer::updateReview(std::shared_ptr<HttpsServer::Response> respons
 		} while (false);
 
 		response->write(code);
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::requestAchievements(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		const auto projectID = pt.get<int64_t>("ProjectID");
+		const auto username = pt.get<std::string>("Username");
+		const auto password = pt.get<std::string>("Password");
+
+		const int userID = ServerCommon::getUserID(username, password); // if userID is -1 user is not in database, so it's the play time of all unregistered players summed up
+
+		if (userID == -1) {
+			response->write(SimpleWeb::StatusCode::client_error_bad_request);
+			return;
+		}
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+
+			if (!database.query("PREPARE selectStmt FROM \"SELECT Identifier FROM modAchievements WHERE ModID = ? AND UserID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("PREPARE selectProgressMaxStmt FROM \"SELECT Identifier, Max FROM modAchievementProgressMax WHERE ModID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("PREPARE selectProgressStmt FROM \"SELECT Current FROM modAchievementProgress WHERE ModID = ? AND UserID = ? AND Identifier = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramProjectID=" + std::to_string(projectID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("EXECUTE selectStmt USING @paramProjectID, @paramUserID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			auto lastResults = database.getResults<std::vector<std::string>>();
+			ptree achievementsNode;
+			for (const auto & vec : lastResults) {
+				const auto identifier = static_cast<int32_t>(std::stoi(vec[0]));
+
+				ptree achievementNode;
+				achievementNode.put("", identifier);
+				achievementsNode.push_back(std::make_pair("", achievementNode));
+			}
+			if (!lastResults.empty()) {
+				responseTree.add_child("Achievements", achievementsNode);
+			}
+			
+			if (!database.query("EXECUTE selectProgressMaxStmt USING @paramProjectID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			lastResults = database.getResults<std::vector<std::string>>();
+
+			ptree achievementProgressesNode;
+			
+			for (const auto & vec : lastResults) {
+				if (!database.query("SET @paramIdentifier=" + vec[0] + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					break;
+				}
+				if (!database.query("EXECUTE selectProgressStmt USING @paramProjectID, @paramUserID, @paramIdentifier;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					break;
+				}
+				auto result = database.getResults<std::vector<std::string>>();
+
+				ptree achievementProgressNode;
+				achievementProgressNode.put("Identifier", std::stoi(vec[0]));
+				achievementProgressNode.put("Maximum", std::stoi(vec[1]));
+				
+				if (result.empty()) {
+					achievementProgressNode.put("Current", std::stoi(result[0][0]));
+				}
+
+				achievementProgressesNode.push_back(std::make_pair("", achievementProgressNode));
+			}
+
+			if (!lastResults.empty()) {
+				responseTree.add_child("AchievementProgress", achievementProgressesNode);
+			}
+		} while (false);
+
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
 	} catch (...) {
 		response->write(SimpleWeb::StatusCode::client_error_bad_request);
 	}

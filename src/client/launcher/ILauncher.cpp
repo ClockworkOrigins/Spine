@@ -478,57 +478,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 					handleUpdateScore(socket, usm);
 				} else if (msg->type == MessageType::REQUESTACHIEVEMENTS) {
 					auto * ram = dynamic_cast<RequestAchievementsMessage *>(msg);
-					if (_projectID != -1) {
-						if (ram && Config::OnlineMode && !Config::Username.isEmpty()) {
-							ram->modID = _projectID;
-							ram->username = Config::Username.toStdString();
-							ram->password = Config::Password.toStdString();
-							clockUtils::sockets::TcpSocket sock;
-							if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-								serialized = ram->SerializePublic();
-								if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
-									if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-										auto * sam = dynamic_cast<SendAchievementsMessage *>(Message::DeserializePublic(serialized));
-										sam->showAchievements = _showAchievements;
-										serialized = sam->SerializeBlank();
-										socket->writePacket(serialized);
-										delete sam;
-									} else {
-										socket->writePacket("empty");
-									}
-								} else {
-									socket->writePacket("empty");
-								}
-							} else {
-								socket->writePacket("empty");
-							}
-						} else {
-							Database::DBError dbErr;
-							std::vector<std::string> lastResults = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier FROM modAchievements WHERE ModID = " + std::to_string(_projectID) + ";", dbErr);
-
-							SendAchievementsMessage sam;
-							for (const std::string & s : lastResults) {
-								auto identifier = static_cast<int32_t>(std::stoi(s));
-								sam.achievements.push_back(identifier);
-							}
-							auto lastResultsVec = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier, Max FROM modAchievementProgressMax WHERE ModID = " + std::to_string(_projectID) + ";", dbErr);
-							for (auto vec : lastResultsVec) {
-								lastResults = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Current FROM modAchievementProgress WHERE ModID = " + std::to_string(_projectID) + " AND Identifier = " + vec[0] + " LIMIT 1;", dbErr);
-								if (lastResults.empty()) {
-									sam.achievementProgress.emplace_back(std::stoi(vec[0]), std::make_pair(0, std::stoi(vec[1])));
-								} else {
-									sam.achievementProgress.emplace_back(std::stoi(vec[0]), std::make_pair(std::stoi(lastResults[0]), std::stoi(vec[1])));
-								}
-							}
-							serialized = sam.SerializeBlank();
-							socket->writePacket(serialized);
-						}
-					} else {
-						SendAchievementsMessage sam;
-						sam.showAchievements = _showAchievements;
-						serialized = sam.SerializeBlank();
-						socket->writePacket(serialized);
-					}
+					handleRequestAchievements(socket);
 				} else if (msg->type == MessageType::UNLOCKACHIEVEMENT) {
 					auto * uam = dynamic_cast<UnlockAchievementMessage *>(msg);
 					if (_projectID != -1) {
@@ -1258,3 +1208,78 @@ void ILauncher::handleUpdateScore(clockUtils::sockets::TcpSocket *, UpdateScoreM
 		}
 	}
 }
+
+void ILauncher::handleRequestAchievements(clockUtils::sockets::TcpSocket * socket) const {
+	if (_projectID == -1) {
+		SendAchievementsMessage sam;
+		sam.showAchievements = _showAchievements;
+		const auto serialized = sam.SerializeBlank();
+		socket->writePacket(serialized);
+		return;
+	}
+	
+	if (!Config::OnlineMode || Config::Username.isEmpty()) {
+		Database::DBError dbErr;
+		std::vector<std::string> lastResults = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier FROM modAchievements WHERE ModID = " + std::to_string(_projectID) + ";", dbErr);
+
+		SendAchievementsMessage sam;
+		for (const std::string & s : lastResults) {
+			auto identifier = static_cast<int32_t>(std::stoi(s));
+			sam.achievements.push_back(identifier);
+		}
+		auto lastResultsVec = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier, Max FROM modAchievementProgressMax WHERE ModID = " + std::to_string(_projectID) + ";", dbErr);
+		for (const auto & vec : lastResultsVec) {
+			lastResults = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Current FROM modAchievementProgress WHERE ModID = " + std::to_string(_projectID) + " AND Identifier = " + vec[0] + " LIMIT 1;", dbErr);
+			if (lastResults.empty()) {
+				sam.achievementProgress.emplace_back(std::stoi(vec[0]), std::make_pair(0, std::stoi(vec[1])));
+			} else {
+				sam.achievementProgress.emplace_back(std::stoi(vec[0]), std::make_pair(std::stoi(lastResults[0]), std::stoi(vec[1])));
+			}
+		}
+		const auto serialized = sam.SerializeBlank();
+		socket->writePacket(serialized);
+		
+		return;
+	}
+
+	QJsonObject json;
+	json["ProjectID"] = _projectID;
+	json["Username"] = Config::Username;
+	json["Password"] = Config::Password;
+	
+	Https::postAsync(DATABASESERVER_PORT, "requestAchievements", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, socket](const QJsonObject & data, int statusCode) {
+		if (statusCode != 200) {
+			socket->writePacket("empty");
+			return;
+		}
+
+		SendAchievementsMessage sam;
+
+		if (data.contains("Achievements")) {
+			QJsonArray achievementsArray = data["Achievements"].toArray();
+			for (const auto achievementRef : achievementsArray) {
+				sam.achievements.push_back(achievementRef.toString().toInt());
+			}
+		}
+
+		if (data.contains("AchievementProgress")) {
+			QJsonArray achievementProgressArray = data["AchievementProgress"].toArray();
+			for (const auto achievementProgressRef : achievementProgressArray) {
+				QJsonObject achievementProgress = achievementProgressRef.toObject();
+
+				const int identifier = achievementProgress["Identifier"].toString().toInt();
+				const int maxProgress = achievementProgress["Maximum"].toString().toInt();
+
+				const int currentProgress = achievementProgress.contains("Current") ? achievementProgress["Current"].toString().toInt() : 0;
+				
+				sam.achievementProgress.emplace_back(identifier, std::make_pair(currentProgress, maxProgress));
+			}
+		}
+
+		sam.showAchievements = _showAchievements;
+
+		const auto serialized = sam.SerializeBlank();
+		socket->writePacket(serialized);
+	});
+}
+

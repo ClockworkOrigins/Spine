@@ -310,10 +310,10 @@ namespace common {
 	};
 
 	struct RequestAchievementsMessage : public Message {
-		int32_t modID;
-		std::string username;
-		std::string password;
-		RequestAchievementsMessage() : Message(), modID(), username(), password() {
+		int32_t [[deprecated("Remove in Spine 1.28.0")]] modID;
+		std::string [[deprecated("Remove in Spine 1.28.0")]] username;
+		std::string [[deprecated("Remove in Spine 1.28.0")]] password;
+		RequestAchievementsMessage() : Message(), modID() {
 			type = MessageType::REQUESTACHIEVEMENTS;
 		}
 		template<class Archive>
@@ -329,7 +329,7 @@ namespace common {
 		std::vector<int32_t> achievements;
 		std::vector<std::pair<int32_t, std::pair<int32_t, int32_t>>> achievementProgress;
 		bool showAchievements;
-		SendAchievementsMessage() : Message(), achievements(), achievementProgress(), showAchievements(true) {
+		SendAchievementsMessage() : Message(), showAchievements(true) {
 			type = MessageType::SENDACHIEVEMENTS;
 		}
 		template<class Archive>
@@ -347,7 +347,7 @@ namespace common {
 		std::string username;
 		std::string password;
 		uint32_t duration;
-		UnlockAchievementMessage() : Message(), modID(), identifier(), username(), password(), duration() {
+		UnlockAchievementMessage() : Message(), modID(), identifier(), duration() {
 			type = MessageType::UNLOCKACHIEVEMENT;
 		}
 		template<class Archive>
