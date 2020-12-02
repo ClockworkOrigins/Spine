@@ -398,7 +398,7 @@ namespace common {
 		std::string username;
 		std::string password;
 		std::string friendName;
-		SearchMatchMessage() : Message(), numPlayers(), identifier(), modID(), username(), password(), friendName() {
+		SearchMatchMessage() : Message(), numPlayers(), identifier(), modID() {
 			type = MessageType::SEARCHMATCH;
 		}
 		template<class Archive>
@@ -415,7 +415,7 @@ namespace common {
 
 	struct FoundMatchMessage : public Message {
 		std::vector<std::string> users;
-		FoundMatchMessage() : Message(), users() {
+		FoundMatchMessage() : Message() {
 			type = MessageType::FOUNDMATCH;
 		}
 		template<class Archive>

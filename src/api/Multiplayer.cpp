@@ -80,7 +80,7 @@ namespace {
 						try {
 							common::Message * msg = common::Message::DeserializeBlank(serialized);
 							if (msg) {
-								common::FoundMatchMessage * fmm = dynamic_cast<common::FoundMatchMessage *>(msg);
+								auto * fmm = dynamic_cast<common::FoundMatchMessage *>(msg);
 								if (fmm) {
 									mpUsernames = fmm->users;
 									inMatch = true;
@@ -133,7 +133,7 @@ namespace {
 						try {
 							common::Message * msg = common::Message::DeserializeBlank(serialized);
 							if (msg) {
-								common::FoundMatchMessage * fmm = dynamic_cast<common::FoundMatchMessage *>(msg);
+								auto * fmm = dynamic_cast<common::FoundMatchMessage *>(msg);
 								if (fmm) {
 									mpUsernames = fmm->users;
 									inMatch = true;
@@ -178,14 +178,14 @@ namespace {
 
 	int32_t getPlayerCount() {
 		if (initialized && (activatedModules & common::SpineModules::Multiplayer)) {
-			return int32_t(mpUsernames.size());
+			return static_cast<int32_t>(mpUsernames.size());
 		} else {
 			return 0;
 		}
 	}
 
 	void getPlayerUsername(int32_t player, char * str) {
-		if (initialized && player < int32_t(mpUsernames.size()) && (activatedModules & common::SpineModules::Multiplayer)) {
+		if (initialized && player < static_cast<int32_t>(mpUsernames.size()) && (activatedModules & common::SpineModules::Multiplayer)) {
 			strcpy(str, mpUsernames[player].c_str());
 			str[mpUsernames[player].size()] = '\0';
 			for (size_t i = mpUsernames[player].size(); i < NAMELENGTH; i++) {

@@ -484,39 +484,6 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 				} else if (msg->type == MessageType::UPDATEACHIEVEMENTPROGRESS) {
 					auto * uapm = dynamic_cast<UpdateAchievementProgressMessage *>(msg);
 					handleUpdateAchievementProgress(socket, uapm);
-				} else if (msg->type == MessageType::SEARCHMATCH) {
-					if (_projectID != -1 && Config::OnlineMode) {
-						auto * smm = dynamic_cast<SearchMatchMessage *>(msg);
-						if (smm) {
-							clockUtils::sockets::TcpSocket sock;
-							if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-								smm->modID = _projectID;
-								smm->username = Config::Username.toStdString();
-								smm->password = Config::Password.toStdString();
-								serialized = smm->SerializePublic();
-								if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
-									if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-										Message * newMsg = Message::DeserializePublic(serialized);
-										serialized = newMsg->SerializeBlank();
-										delete newMsg;
-										socket->writePacket(serialized);
-									} else {
-										socket->writePacket("empty");
-									}
-								} else {
-									socket->writePacket("empty");
-								}
-							} else {
-								socket->writePacket("empty");
-							}
-						} else {
-							socket->writePacket("empty");
-						}
-					} else {
-						FoundMatchMessage fmm;
-						serialized = fmm.SerializeBlank();
-						socket->writePacket(serialized);
-					}
 				} else if (msg->type == MessageType::REQUESTOVERALLSAVEPATH) {
 					auto * rospm = dynamic_cast<RequestOverallSavePathMessage *>(msg);
 					if (rospm) {
