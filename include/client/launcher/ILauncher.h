@@ -194,8 +194,8 @@ namespace launcher {
 		void cacheAchievement(int32_t projectID, int32_t identifier) const;
 		void removeAchievement(int32_t projectID, int32_t identifier) const;
 
-		void cacheAchievementProgress(common::UpdateAchievementProgressMessage * uapm);
-		void removeAchievementProgress(common::UpdateAchievementProgressMessage * uapm);
+		void cacheAchievementProgress(int32_t projectID, int32_t identifier, int32_t progress) const;
+		void removeAchievementProgress(int32_t projectID, int32_t identifier) const;
 
 		void cacheOverallSaveData(common::UpdateOverallSaveDataMessage * uom);
 		void removeOverallSaveData(common::UpdateOverallSaveDataMessage * uom);
@@ -207,6 +207,7 @@ namespace launcher {
 		void handleUpdateScore(clockUtils::sockets::TcpSocket * socket, common::UpdateScoreMessage * msg) const;
 		void handleRequestAchievements(clockUtils::sockets::TcpSocket * socket) const;
 		void handleUnlockAchievement(clockUtils::sockets::TcpSocket * socket, common::UnlockAchievementMessage * msg) const;
+		void handleUpdateAchievementProgress(clockUtils::sockets::TcpSocket * socket, common::UpdateAchievementProgressMessage * msg) const;
 	};
 	typedef QSharedPointer<ILauncher> ILauncherPtr;
 

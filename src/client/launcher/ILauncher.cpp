@@ -477,39 +477,13 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 					auto * usm = dynamic_cast<UpdateScoreMessage *>(msg);
 					handleUpdateScore(socket, usm);
 				} else if (msg->type == MessageType::REQUESTACHIEVEMENTS) {
-					auto * ram = dynamic_cast<RequestAchievementsMessage *>(msg);
 					handleRequestAchievements(socket);
 				} else if (msg->type == MessageType::UNLOCKACHIEVEMENT) {
 					auto * uam = dynamic_cast<UnlockAchievementMessage *>(msg);
 					handleUnlockAchievement(socket, uam);
 				} else if (msg->type == MessageType::UPDATEACHIEVEMENTPROGRESS) {
 					auto * uapm = dynamic_cast<UpdateAchievementProgressMessage *>(msg);
-					if (_projectID != -1) {
-						if (uapm) {
-							if (Config::OnlineMode) {
-								uapm->modID = _projectID;
-								uapm->username = Config::Username.toStdString();
-								uapm->password = Config::Password.toStdString();
-								clockUtils::sockets::TcpSocket sock;
-								if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-									serialized = uapm->SerializePublic();
-									if (clockUtils::ClockError::SUCCESS != sock.writePacket(serialized)) {
-										cacheAchievementProgress(uapm);
-									} else {
-										removeAchievementProgress(uapm);
-									}
-								} else {
-									cacheAchievementProgress(uapm);
-								}
-							} else {
-								Database::DBError dbErr;
-								Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO modAchievementProgress (ModID, Identifier, Username, Current) VALUES (" + std::to_string(_projectID) + ", " + std::to_string(uapm->identifier) + ", '" + Config::Username.toStdString() + "', " + std::to_string(uapm->progress) + ");", dbErr);
-								if (dbErr.error) {
-									Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "UPDATE modAchievementProgress SET Current = " + std::to_string(uapm->progress) + " WHERE ModID = " + std::to_string(_projectID) + " AND Identifier = " + std::to_string(uapm->identifier) + " AND Username = '" + Config::Username.toStdString() + "';", dbErr);
-								}
-							}
-						}
-					}
+					handleUpdateAchievementProgress(socket, uapm);
 				} else if (msg->type == MessageType::SEARCHMATCH) {
 					if (_projectID != -1 && Config::OnlineMode) {
 						auto * smm = dynamic_cast<SearchMatchMessage *>(msg);
@@ -764,16 +738,18 @@ void ILauncher::tryCleanCaches() {
 		}
 		std::vector<std::vector<int>> achievementProgresses = Database::queryAll<std::vector<int>, int, int, int>(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "SELECT * FROM achievementProgressCache;", err);
 		for (auto t : achievementProgresses) {
-			UpdateAchievementProgressMessage uapm;
-			uapm.modID = t[0];
-			uapm.identifier = t[1];
-			uapm.progress = t[2];
-			uapm.username = Config::Username.toStdString();
-			uapm.password = Config::Password.toStdString();
-			const std::string serialized = uapm.SerializePublic();
-			if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
-				removeAchievementProgress(&uapm);
-			}
+			QJsonObject json;
+			json["ProjectID"] = t[0];
+			json["Username"] = Config::Username;
+			json["Password"] = Config::Password;
+			json["Identifier"] = t[1];
+			json["Progress"] = t[2];
+
+			Https::postAsync(DATABASESERVER_PORT, "updateAchievementProgress", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, t](const QJsonObject &, int statusCode) {
+				if (statusCode != 200) return;
+				
+				removeAchievement(t[0], t[1]);
+			});
 		}
 		std::vector<std::vector<std::string>> overallSaveDatas = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "SELECT * FROM overallSaveDataCache;", err);
 		for (auto t : overallSaveDatas) {
@@ -814,17 +790,17 @@ void ILauncher::removeAchievement(int32_t projectID, int32_t identifier) const {
 	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "DELETE FROM achievementCache WHERE ModID = " + std::to_string(projectID) + " AND Identifier = " + std::to_string(identifier) + ";", err);
 }
 
-void ILauncher::cacheAchievementProgress(UpdateAchievementProgressMessage * uapm) {
+void ILauncher::cacheAchievementProgress(int32_t projectID, int32_t identifier, int32_t progress) const {
 	Database::DBError err;
-	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "INSERT INTO achievementProgressCache (ModID, Identifier, Progress) VALUES (" + std::to_string(uapm->modID) + ", " + std::to_string(uapm->identifier) + ", " + std::to_string(uapm->progress) + ");", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "INSERT INTO achievementProgressCache (ModID, Identifier, Progress) VALUES (" + std::to_string(projectID) + ", " + std::to_string(identifier) + ", " + std::to_string(progress) + ");", err);
 	if (err.error) {
-		Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "UPDATE achievementProgressCache SET Progress = " + std::to_string(uapm->progress) + " WHERE ModID = " + std::to_string(uapm->modID) + " AND Identifier = " + std::to_string(uapm->identifier) + ";", err);
+		Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "UPDATE achievementProgressCache SET Progress = " + std::to_string(progress) + " WHERE ModID = " + std::to_string(projectID) + " AND Identifier = " + std::to_string(identifier) + ";", err);
 	}
 }
 
-void ILauncher::removeAchievementProgress(UpdateAchievementProgressMessage * uapm) {
+void ILauncher::removeAchievementProgress(int32_t projectID, int32_t identifier) const {
 	Database::DBError err;
-	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "DELETE FROM achievementProgressCache WHERE ModID = " + std::to_string(uapm->modID) + " AND Identifier = " + std::to_string(uapm->identifier) + ";", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "DELETE FROM achievementProgressCache WHERE ModID = " + std::to_string(projectID) + " AND Identifier = " + std::to_string(identifier) + ";", err);
 }
 
 void ILauncher::cacheOverallSaveData(UpdateOverallSaveDataMessage * uom) {
@@ -1284,5 +1260,37 @@ void ILauncher::handleUnlockAchievement(clockUtils::sockets::TcpSocket *, Unlock
 	} else {
 		Database::DBError dbErr;
 		Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO modAchievements (ModID, Identifier, Username) VALUES (" + std::to_string(_projectID) + ", " + std::to_string(msg->identifier) + ", '" + Config::Username.toStdString() + ");", dbErr);
+	}
+}
+
+void ILauncher::handleUpdateAchievementProgress(clockUtils::sockets::TcpSocket * socket, UpdateAchievementProgressMessage * msg) const {
+	if (_projectID == -1) return;
+
+	if (!msg) return;
+
+	if (Config::OnlineMode) {
+		QJsonObject json;
+		json["ProjectID"] = _projectID;
+		json["Username"] = Config::Username;
+		json["Password"] = Config::Password;
+		json["Identifier"] = msg->identifier;
+		json["Progress"] = msg->progress;
+
+		int32_t identifier = msg->identifier;
+		int32_t progress = msg->progress;
+
+		Https::postAsync(DATABASESERVER_PORT, "updateAchievementProgress", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, identifier, progress](const QJsonObject &, int statusCode) {
+			if (statusCode != 200) {
+				cacheAchievementProgress(_projectID, identifier, progress);
+				return;
+			}
+			removeAchievement(_projectID, identifier);
+		});
+	} else {
+		Database::DBError dbErr;
+		Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO modAchievementProgress (ModID, Identifier, Username, Current) VALUES (" + std::to_string(_projectID) + ", " + std::to_string(msg->identifier) + ", '" + Config::Username.toStdString() + "', " + std::to_string(msg->progress) + ");", dbErr);
+		if (dbErr.error) {
+			Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "UPDATE modAchievementProgress SET Current = " + std::to_string(msg->progress) + " WHERE ModID = " + std::to_string(_projectID) + " AND Identifier = " + std::to_string(msg->identifier) + " AND Username = '" + Config::Username.toStdString() + "';", dbErr);
+		}
 	}
 }

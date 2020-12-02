@@ -1071,11 +1071,11 @@ namespace common {
 	};
 
 	struct UpdateAchievementProgressMessage : public Message {
-		int32_t modID;
+		int32_t [[deprecated("Remove in Spine 1.28.0")]] modID;
 		int32_t identifier;
 		int32_t progress;
-		std::string username;
-		std::string password;
+		std::string [[deprecated("Remove in Spine 1.28.0")]] username;
+		std::string [[deprecated("Remove in Spine 1.28.0")]] password;
 		UpdateAchievementProgressMessage() : Message(), modID(), identifier(), progress() {
 			type = MessageType::UPDATEACHIEVEMENTPROGRESS;
 		}
@@ -1096,7 +1096,7 @@ namespace common {
 		std::string username;
 		std::string password;
 		bool compatible;
-		SubmitCompatibilityMessage() : Message(), modID(), patchID(), username(), password(), compatible() {
+		SubmitCompatibilityMessage() : Message(), modID(), patchID(), compatible() {
 			type = MessageType::SUBMITCOMPATIBILITY;
 		}
 		template<class Archive>
@@ -1113,7 +1113,7 @@ namespace common {
 	struct RequestOwnCompatibilitiesMessage : public Message {
 		std::string username;
 		std::string password;
-		RequestOwnCompatibilitiesMessage() : Message(), username(), password() {
+		RequestOwnCompatibilitiesMessage() : Message() {
 			type = MessageType::REQUESTOWNCOMPATIBILITIES;
 		}
 		template<class Archive>

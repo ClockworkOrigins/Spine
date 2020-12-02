@@ -160,6 +160,8 @@ namespace server {
 		[[deprecated("Remove in Spine 1.28.0")]]
 		void handleSendUserInfos(clockUtils::sockets::TcpSocket * sock, common::SendUserInfosMessage * msg) const;
 		void handleRequestRandomMod(clockUtils::sockets::TcpSocket * sock, common::RequestRandomModMessage * msg) const;
+
+		[[deprecated("Remove in Spine 1.28.0")]]
 		void handleUpdateAchievementProgress(clockUtils::sockets::TcpSocket * sock, common::UpdateAchievementProgressMessage * msg) const;
 		void handleSubmitCompatibility(clockUtils::sockets::TcpSocket * sock, common::SubmitCompatibilityMessage * msg) const;
 		void handleRequestOwnCompatibilities(clockUtils::sockets::TcpSocket * sock, common::RequestOwnCompatibilitiesMessage * msg) const;
