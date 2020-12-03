@@ -494,36 +494,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 					handleUpdateOverallSaveData(uom);
 				} else if (msg->type == MessageType::REQUESTALLFRIENDS) {
 					auto * rafm = dynamic_cast<RequestAllFriendsMessage *>(msg);
-					if (Config::OnlineMode) {
-						if (rafm && !Config::Username.isEmpty()) {
-							rafm->username = Config::Username.toStdString();
-							rafm->password = Config::Password.toStdString();
-							clockUtils::sockets::TcpSocket sock;
-							if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-								serialized = rafm->SerializePublic();
-								if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
-									if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-										auto * safm = dynamic_cast<SendAllFriendsMessage *>(Message::DeserializePublic(serialized));
-										serialized = safm->SerializeBlank();
-										socket->writePacket(serialized);
-										delete safm;
-									} else {
-										socket->writePacket("empty");
-									}
-								} else {
-									socket->writePacket("empty");
-								}
-							} else {
-								socket->writePacket("empty");
-							}
-						} else {
-							socket->writePacket("empty");
-						}
-					} else {
-						SendAllFriendsMessage safm;
-						serialized = safm.SerializeBlank();
-						socket->writePacket(serialized);
-					}
+					handleRequestAllFriends(socket, rafm);
 				} else if (msg->type == MessageType::UPDATECHAPTERSTATS) {
 					auto * ucsm = dynamic_cast<UpdateChapterStatsMessage *>(msg);
 					if (_projectID != -1) {
@@ -1278,3 +1249,47 @@ void ILauncher::handleUpdateOverallSaveData(UpdateOverallSaveDataMessage * msg) 
 	}
 }
 
+void ILauncher::handleRequestAllFriends(clockUtils::sockets::TcpSocket * socket, RequestAllFriendsMessage * msg) const {
+	if (_projectID == -1) {
+		const SendAllFriendsMessage safm;
+		const auto serialized = safm.SerializeBlank();
+		socket->writePacket(serialized);
+		return;
+	}
+
+	if (!msg) return;
+
+	if (Config::OnlineMode) {
+		QJsonObject json;
+		json["Username"] = Config::Username;
+		json["Password"] = Config::Password;
+		json["FriendsOnly"] = 1;
+
+		Https::postAsync(DATABASESERVER_PORT, "requestAllFriends", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, socket](const QJsonObject & data, int statusCode) {
+			if (statusCode != 200) {
+				socket->writePacket("empty");
+				return;
+			}
+			SendAllFriendsMessage safm;
+
+			if (data.contains("Friends")) {
+				const auto arr = data["Friends"].toArray();
+				for (const auto jsonRef : arr) {
+					const auto json2 = jsonRef.toObject();
+
+					const Friend f(q2s(json2["Name"].toString()), json2["Level"].toString().toInt());
+					
+					safm.friends.push_back(f);
+				}
+			}
+
+			const auto serialized = safm.SerializeBlank();
+
+			socket->writePacket(serialized);
+		});
+	} else {
+		const SendAllFriendsMessage safm;
+		const auto serialized = safm.SerializeBlank();
+		socket->writePacket(serialized);
+	}
+}

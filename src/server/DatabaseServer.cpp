@@ -64,6 +64,7 @@ int DatabaseServer::run() {
 	_server->resource["^/unlockAchievement"]["POST"] = std::bind(&DatabaseServer::unlockAchievement, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/updateAchievementProgress"]["POST"] = std::bind(&DatabaseServer::updateAchievementProgress, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/requestOverallSaveData"]["POST"] = std::bind(&DatabaseServer::requestOverallSaveData, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/requestAllFriends"]["POST"] = std::bind(&DatabaseServer::requestAllFriends, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -1947,6 +1948,170 @@ void DatabaseServer::requestOverallSaveData(std::shared_ptr<HttpsServer::Respons
 			}
 			if (!lastResults.empty()) {
 				responseTree.add_child("Data", dataNodes);
+			}
+		} while (false);
+
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::requestAllFriends(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		const auto username = pt.get<std::string>("Username");
+		const auto password = pt.get<std::string>("Password");
+		const auto friendsOnly = pt.count("FriendsOnly") == 1;
+
+		const int userID = ServerCommon::getUserID(username, password); // if userID is -1 user is not in database, so it's the play time of all unregistered players summed up
+
+		if (userID == -1) {
+			response->write(SimpleWeb::StatusCode::client_error_bad_request);
+			return;
+		}
+
+		do {
+			auto allUsers = ServerCommon::getUserList();
+			
+			CONNECTTODATABASE(__LINE__)
+			
+			if (!database.query("PREPARE selectOwnFriendsStmt FROM \"SELECT FriendID FROM friends WHERE UserID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!database.query("PREPARE checkIfFriendStmt FROM \"SELECT UserID FROM friends WHERE UserID = ? AND FriendID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!database.query("PREPARE selectRequestsStmt FROM \"SELECT UserID FROM friends WHERE FriendID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!database.query("EXECUTE selectOwnFriendsStmt USING @paramUserID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			auto lastResults = database.getResults<std::vector<std::string>>();
+
+			std::vector<common::Friend> friends;
+			std::vector<common::Friend> friendRequests;
+			std::vector<common::Friend> pendingFriends;
+			
+			for (const auto & vec : lastResults) {
+				if (!database.query("SET @paramFriendID=" + vec[0] + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_bad_request;
+					break;
+				}
+				if (!database.query("EXECUTE checkIfFriendStmt USING @paramFriendID, @paramUserID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_bad_request;
+					break;
+				}
+				std::string friendName = ServerCommon::getUsername(std::stoi(vec[0]));
+				auto results = database.getResults<std::vector<std::string>>();
+				if (results.empty()) {
+					int32_t friendID = std::stoi(vec[0]);
+					const auto sulm = SpineLevel::getLevel(friendID);
+					pendingFriends.emplace_back(friendName, sulm.level);
+				} else {
+					int32_t friendID = std::stoi(vec[0]);
+					const auto sulm = SpineLevel::getLevel(friendID);
+					friends.emplace_back(friendName, sulm.level);
+				}
+				allUsers.erase(std::remove_if(allUsers.begin(), allUsers.end(), [friendName](const std::string & o) { return o == friendName; }), allUsers.end());
+			}
+
+			if (!friendsOnly) {
+				if (!database.query("EXECUTE selectRequestsStmt USING @paramUserID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_bad_request;
+					break;
+				}
+				lastResults = database.getResults<std::vector<std::string>>();
+				for (const auto & vec : lastResults) {
+					const std::string friendName = ServerCommon::getUsername(std::stoi(vec[0]));
+					if (std::find_if(friends.begin(), friends.end(), [friendName](const common::Friend & o) { return o.name == friendName; }) == friends.end()) {
+						int32_t friendID = std::stoi(vec[0]);
+						const auto sulm = SpineLevel::getLevel(friendID);
+						friendRequests.emplace_back(friendName, sulm.level);
+						allUsers.erase(std::remove_if(allUsers.begin(), allUsers.end(), [friendName](const std::string & o) { return o == friendName; }), allUsers.end());
+					}
+				}
+
+				ptree friendRequestNodes;
+				if (!friendRequests.empty()) {
+					for (const auto & f : friendRequests) {
+						ptree friendNode;
+						friendNode.put("Name", f.name);
+						friendNode.put("Level", f.level);
+
+						friendRequestNodes.push_back(std::make_pair("", friendNode));
+					}
+					responseTree.add_child("FriendRequests", friendRequestNodes);
+				}
+
+				ptree pendingFriendNodes;
+				if (!pendingFriends.empty()) {
+					for (const auto & f : pendingFriends) {
+						ptree friendNode;
+						friendNode.put("Name", f.name);
+						friendNode.put("Level", f.level);
+
+						pendingFriendNodes.push_back(std::make_pair("", friendNode));
+					}
+					responseTree.add_child("PendingFriends", pendingFriendNodes);
+				}
+
+				ptree userNodes;
+				if (!allUsers.empty()) {
+					for (const auto & name : allUsers) {
+						ptree friendNode;
+						friendNode.put("", name);
+
+						userNodes.push_back(std::make_pair("", friendNode));
+					}
+					responseTree.add_child("Users", userNodes);
+				}
+			}
+
+			std::sort(friends.begin(), friends.end(), [](const common::Friend & a, const common::Friend & b) {
+				return a.name < b.name;
+			});
+
+			ptree friendNodes;
+			if (!friends.empty()) {
+				for (const auto & f : friends) {
+					ptree friendNode;
+					friendNode.put("Name", f.name);
+					friendNode.put("Level", f.level);
+
+					friendNodes.push_back(std::make_pair("", friendNode));
+				}
+				responseTree.add_child("Friends", friendNodes);
 			}
 		} while (false);
 

@@ -24,6 +24,8 @@
 
 #include "gui/WaitSpinner.h"
 
+#include "https/Https.h"
+
 #include "utils/Config.h"
 #include "utils/Conversion.h"
 
@@ -34,6 +36,9 @@
 #include "clockUtils/sockets/TcpSocket.h"
 
 #include <QApplication>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QListView>
 #include <QPushButton>
 #include <QScrollArea>
@@ -43,16 +48,18 @@
 #include <QVBoxLayout>
 
 using namespace spine;
+using namespace spine::common;
 using namespace spine::gui;
+using namespace spine::https;
 using namespace spine::utils;
 using namespace spine::widgets;
 
 FriendsView::FriendsView(QWidget * par) : QWidget(par), _friendsList(nullptr), _waitSpinner(nullptr), _model(nullptr), _sendRequestButton(nullptr), _scrollArea(nullptr), _mainWidget(nullptr), _scrollLayout(nullptr) {
-	QVBoxLayout * l = new QVBoxLayout();
+	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
 	{
-		QHBoxLayout * hl = new QHBoxLayout();
+		auto * hl = new QHBoxLayout();
 		hl->addStretch(1);
 
 		_sendRequestButton = new QPushButton("+", this);
@@ -83,7 +90,7 @@ FriendsView::FriendsView(QWidget * par) : QWidget(par), _friendsList(nullptr), _
 	_friendsList = new QListView(this);
 	_friendsList->setEditTriggers(QAbstractItemView::EditTrigger::NoEditTriggers);
 	_model = new QStandardItemModel(this);
-	QSortFilterProxyModel * filterModel = new QSortFilterProxyModel(this);
+	auto * filterModel = new QSortFilterProxyModel(this);
 	filterModel->setSourceModel(_model);
 	_friendsList->setModel(filterModel);
 
@@ -92,7 +99,7 @@ FriendsView::FriendsView(QWidget * par) : QWidget(par), _friendsList(nullptr), _
 	setLayout(l);
 
 	qRegisterMetaType<std::vector<std::string>>("std::vector<common::Friend::string>");
-	qRegisterMetaType<std::vector<common::Friend>>("std::vector<common::Friend>");
+	qRegisterMetaType<std::vector<Friend>>("std::vector<common::Friend>");
 	connect(this, &FriendsView::receivedFriends, this, &FriendsView::updateFriendsList);
 }
 
@@ -102,36 +109,51 @@ void FriendsView::updateFriendList() {
 	delete _waitSpinner;
 	_waitSpinner = new WaitSpinner(QApplication::tr("LoadingFriends"), this);
 	_users.clear();
-	QtConcurrent::run([this]() {
-		common::RequestAllFriendsMessage rafm;
-		rafm.username = Config::Username.toStdString();
-		rafm.password = Config::Password.toStdString();
-		std::string serialized = rafm.SerializePublic();
-		clockUtils::sockets::TcpSocket sock;
-		clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-		if (clockUtils::ClockError::SUCCESS == cErr) {
-			sock.writePacket(serialized);
-			if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-				try {
-					common::Message * m = common::Message::DeserializePublic(serialized);
-					if (m) {
-						common::SendAllFriendsMessage * safm = dynamic_cast<common::SendAllFriendsMessage *>(m);
-						emit receivedFriends(safm->friends, safm->friendRequests);
-						for (const std::string & n : safm->nonFriends) {
-							QString qn = s2q(n);
-							if (qn != Config::Username) {
-								_users << qn;
-							}
-						}
-					}
-					delete m;
-				} catch (...) {
-					return;
-				}
-			} else {
-				qDebug() << "Error occurred: " << static_cast<int>(cErr);
+
+	QJsonObject json;
+	json["Username"] = Config::Username;
+	json["Password"] = Config::Password;
+
+	Https::postAsync(DATABASESERVER_PORT, "requestAllFriends", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & data, int statusCode) {
+		if (statusCode != 200) return;
+
+		std::vector<Friend> friends;
+		std::vector<Friend> friendRequests;
+		
+		if (data.contains("Friends")) {
+			const auto arr = data["Friends"].toArray();
+			for (const auto jsonRef : arr) {
+				const auto json2 = jsonRef.toObject();
+
+				const Friend f(q2s(json2["Name"].toString()), json2["Level"].toString().toInt());
+
+				friends.push_back(f);
 			}
 		}
+
+		if (data.contains("FriendRequests")) {
+			const auto arr = data["FriendRequests"].toArray();
+			for (const auto jsonRef : arr) {
+				const auto json2 = jsonRef.toObject();
+
+				const Friend f(q2s(json2["Name"].toString()), json2["Level"].toString().toInt());
+
+				friendRequests.push_back(f);
+			}
+		}
+
+		if (data.contains("Users")) {
+			const auto arr = data["Users"].toArray();
+			for (const auto jsonRef : arr) {
+				const auto name = jsonRef.toString();
+
+				if (name == Config::Username) continue;
+
+				_users << name;
+			}
+		}
+
+		emit receivedFriends(friends, friendRequests);
 	});
 }
 
@@ -143,7 +165,7 @@ void FriendsView::loginChanged() {
 
 void FriendsView::updateFriendsList(std::vector<common::Friend> friends, std::vector<common::Friend> friendRequests) {
 	_model->clear();
-	for (const common::Friend & s : friends) {
+	for (const Friend & s : friends) {
 		_model->appendRow(new QStandardItem(s2q(s.name) + " (" + QApplication::tr("Level") + " " + i2s(s.level) + ")"));
 	}
 
@@ -152,8 +174,8 @@ void FriendsView::updateFriendsList(std::vector<common::Friend> friends, std::ve
 	}
 	_friendRequests.clear();
 
-	for (const common::Friend & f : friendRequests) {
-		FriendRequestView * frv = new FriendRequestView(s2q(f.name), f.level, this);
+	for (const Friend & f : friendRequests) {
+		auto * frv = new FriendRequestView(s2q(f.name), f.level, this);
 		_scrollLayout->addWidget(frv);
 		_friendRequests.append(frv);
 		connect(frv, &FriendRequestView::accepted, this, &FriendsView::acceptedFriend);

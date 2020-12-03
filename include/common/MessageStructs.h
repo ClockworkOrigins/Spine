@@ -1594,8 +1594,8 @@ namespace common {
 	};
 
 	struct RequestAllFriendsMessage : public Message {
-		std::string username;
-		std::string password;
+		std::string [[deprecated("Remove in Spine 1.28.0")]] username;
+		std::string [[deprecated("Remove in Spine 1.28.0")]] password;
 		RequestAllFriendsMessage() : Message() {
 			type = MessageType::REQUESTALLFRIENDS;
 		}
@@ -1623,9 +1623,9 @@ namespace common {
 
 	struct SendAllFriendsMessage : public Message {
 		std::vector<Friend> friends;
-		std::vector<Friend> pendingFriends;
-		std::vector<Friend> friendRequests;
-		std::vector<std::string> nonFriends;
+		std::vector<Friend> [[deprecated("Remove in Spine 1.28.0")]] pendingFriends;
+		std::vector<Friend> [[deprecated("Remove in Spine 1.28.0")]] friendRequests;
+		std::vector<std::string> [[deprecated("Remove in Spine 1.28.0")]] nonFriends;
 		SendAllFriendsMessage() : Message() {
 			type = MessageType::SENDALLFRIENDS;
 		}
@@ -1643,7 +1643,7 @@ namespace common {
 		std::string username;
 		std::string password;
 		std::string friendname;
-		SendFriendRequestMessage() : Message(), username(), password(), friendname() {
+		SendFriendRequestMessage() : Message() {
 			type = MessageType::SENDFRIENDREQUEST;
 		}
 		template<class Archive>

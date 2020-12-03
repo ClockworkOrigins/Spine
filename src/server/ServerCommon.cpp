@@ -158,13 +158,13 @@ std::vector<std::string> ServerCommon::getUserList() {
 
 	std::map<std::string, std::string> userMap;
 	
-	for (auto vec : results) {
+	for (const auto & vec : results) {
 		userMap.insert(std::make_pair(vec[0], filterUsername(vec[1])));
 	}
 
 	std::vector<std::string> users;
 	do {
-		CONNECTTODATABASE(__LINE__);
+		CONNECTTODATABASE(__LINE__)
 
 		if (!database.query("PREPARE selectStmt FROM \"SELECT UserID FROM lastLoginTimes\";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;

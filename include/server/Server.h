@@ -181,6 +181,8 @@ namespace server {
 		
 		[[deprecated("Remove in Spine 1.28.0")]]
 		void handleUpdatePlayingTime(clockUtils::sockets::TcpSocket * sock, common::UpdatePlayingTimeMessage * msg) const;
+
+		[[deprecated("Remove in Spine 1.28.0")]]
 		void handleRequestAllFriends(clockUtils::sockets::TcpSocket * sock, common::RequestAllFriendsMessage * msg) const;
 		void handleSendFriendRequest(clockUtils::sockets::TcpSocket * sock, common::SendFriendRequestMessage * msg) const;
 		void handleAcceptFriendRequest(clockUtils::sockets::TcpSocket * sock, common::AcceptFriendRequestMessage * msg) const;
