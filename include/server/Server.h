@@ -168,6 +168,8 @@ namespace server {
 		void handleRequestCompatibilityList(clockUtils::sockets::TcpSocket * sock, common::RequestCompatibilityListMessage * msg) const;
 		void handleSubmitRating(clockUtils::sockets::TcpSocket * sock, common::SubmitRatingMessage * msg) const;
 		void handleAutoUpdateEncrypted(clockUtils::sockets::TcpSocket * sock, common::UpdateRequestEncryptedMessage * msg) const;
+		
+		[[deprecated("Remove in Spine 1.28.0")]]
 		void handleRequestOverallSaveData(clockUtils::sockets::TcpSocket * sock, common::RequestOverallSaveDataMessage * msg) const;
 		void handleUpdateOverallSaveData(clockUtils::sockets::TcpSocket * sock, common::UpdateOverallSaveDataMessage * msg) const;
 		void handleRequestModsForEditor(clockUtils::sockets::TcpSocket * sock, common::RequestModsForEditorMessage * msg) const;

@@ -42,6 +42,7 @@ namespace sockets {
 namespace spine {
 	class ScreenshotManager;
 namespace common {
+	struct RequestOverallSaveDataMessage;
 	struct RequestScoresMessage;
 	struct RequestUsernameMessage;
 	struct UpdateAchievementProgressMessage;
@@ -209,6 +210,7 @@ namespace launcher {
 		void handleUnlockAchievement(clockUtils::sockets::TcpSocket * socket, common::UnlockAchievementMessage * msg) const;
 		void handleUpdateAchievementProgress(clockUtils::sockets::TcpSocket * socket, common::UpdateAchievementProgressMessage * msg) const;
 		void handleRequestOverallSaveDataPath(clockUtils::sockets::TcpSocket * socket) const;
+		void handleRequestOverallSaveData(clockUtils::sockets::TcpSocket * socket, common::RequestOverallSaveDataMessage * msg) const;
 	};
 	typedef QSharedPointer<ILauncher> ILauncherPtr;
 

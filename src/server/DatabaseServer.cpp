@@ -63,6 +63,7 @@ int DatabaseServer::run() {
 	_server->resource["^/requestAchievements"]["POST"] = std::bind(&DatabaseServer::requestAchievements, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/unlockAchievement"]["POST"] = std::bind(&DatabaseServer::unlockAchievement, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/updateAchievementProgress"]["POST"] = std::bind(&DatabaseServer::updateAchievementProgress, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/requestOverallSaveData"]["POST"] = std::bind(&DatabaseServer::requestOverallSaveData, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -1882,6 +1883,76 @@ void DatabaseServer::updateAchievementProgress(std::shared_ptr<HttpsServer::Resp
 		} while (false);
 
 		response->write(code);
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::requestOverallSaveData(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		const auto projectID = pt.get<int64_t>("ProjectID");
+		const auto username = pt.get<std::string>("Username");
+		const auto password = pt.get<std::string>("Password");
+
+		const int userID = ServerCommon::getUserID(username, password); // if userID is -1 user is not in database, so it's the play time of all unregistered players summed up
+
+		if (userID == -1) {
+			response->write(SimpleWeb::StatusCode::client_error_bad_request);
+			return;
+		}
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+
+			if (!database.query("PREPARE selectStmt FROM \"SELECT Entry, Value FROM overallSaveData WHERE UserID = ? AND ModID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!database.query("SET @paramProjectID=" + std::to_string(projectID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!database.query("EXECUTE selectStmt USING @paramUserID, @paramProjectID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			auto lastResults = database.getResults<std::vector<std::string>>();
+			ptree dataNodes;
+			for (const auto & vec : lastResults) {
+				ptree dataNode;
+				dataNode.put("Key", vec[0]);
+				dataNode.put("Value", vec[1]);
+
+				dataNodes.push_back(std::make_pair("", dataNode));
+			}
+			if (!lastResults.empty()) {
+				responseTree.add_child("Data", dataNodes);
+			}
+		} while (false);
+
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
 	} catch (...) {
 		response->write(SimpleWeb::StatusCode::client_error_bad_request);
 	}

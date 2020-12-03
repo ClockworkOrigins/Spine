@@ -488,48 +488,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 					handleRequestOverallSaveDataPath(socket);
 				} else if (msg->type == MessageType::REQUESTOVERALLSAVEDATA) {
 					auto * rom = dynamic_cast<RequestOverallSaveDataMessage *>(msg);
-					if (_projectID != -1) {
-						if (rom && !Config::Username.isEmpty()) {
-							if (Config::OnlineMode) {
-								rom->modID = _projectID;
-								rom->username = Config::Username.toStdString();
-								rom->password = Config::Password.toStdString();
-								clockUtils::sockets::TcpSocket sock;
-								if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-									serialized = rom->SerializePublic();
-									if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
-										if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-											serialized = Message::DeserializePublic(serialized)->SerializeBlank();
-											socket->writePacket(serialized);
-										} else {
-											socket->writePacket("empty");
-										}
-									} else {
-										socket->writePacket("empty");
-									}
-								} else {
-									socket->writePacket("empty");
-								}
-							} else {
-								SendOverallSaveDataMessage som;
-								Database::DBError dbErr;
-								std::vector<std::vector<std::string>> lastResults = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Entry, Value FROM overallSaveData WHERE ModID = " + std::to_string(_projectID) + " AND Username = '" = Config::Username.toStdString() + "';", dbErr);
-								for (auto vec : lastResults) {
-									if (vec.size() == 2) {
-										som.data.emplace_back(vec[0], vec[1]);
-									}
-								}
-								serialized = som.SerializeBlank();
-								socket->writePacket(serialized);
-							}
-						} else {
-							socket->writePacket("empty");
-						}
-					} else {
-						SendOverallSaveDataMessage som;
-						serialized = som.SerializeBlank();
-						socket->writePacket(serialized);
-					}
+					handleRequestOverallSaveData(socket, rom);
 				} else if (msg->type == MessageType::UPDATEOVERALLSAVEDATA) {
 					auto * uom = dynamic_cast<UpdateOverallSaveDataMessage *>(msg);
 					if (_projectID != -1) {
@@ -1259,4 +1218,53 @@ void ILauncher::handleRequestOverallSaveDataPath(clockUtils::sockets::TcpSocket 
 	sospm.path = q2s(overallSavePath);
 #endif
 	socket->writePacket(sospm.SerializeBlank());
+}
+
+void ILauncher::handleRequestOverallSaveData(clockUtils::sockets::TcpSocket * socket, RequestOverallSaveDataMessage * msg) const {
+	if (_projectID == -1) {
+		SendOverallSaveDataMessage som;
+		const auto serialized = som.SerializeBlank();
+		socket->writePacket(serialized);
+		return;
+	}
+
+	if (!msg) return;
+
+	if (Config::OnlineMode) {
+		QJsonObject json;
+		json["ProjectID"] = _projectID;
+		json["Username"] = Config::Username;
+		json["Password"] = Config::Password;
+
+		Https::postAsync(DATABASESERVER_PORT, "requestOverallSaveData", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, socket](const QJsonObject & data, int statusCode) {
+			if (statusCode != 200) {
+				socket->writePacket("empty");
+				return;
+			}
+			SendOverallSaveDataMessage som;
+
+			if (data.contains("Data")) {
+				const auto arr = data["Data"].toArray();
+				for (const auto jsonRef : arr) {
+					const auto json = jsonRef.toObject();
+					som.data.emplace_back(q2s(json["Key"].toString()), q2s(json["Value"].toString()));
+				}
+			}
+
+			const auto serialized = som.SerializeBlank();
+			
+			socket->writePacket(serialized);
+		});
+	} else {
+		SendOverallSaveDataMessage som;
+		Database::DBError dbErr;
+		const auto lastResults = Database::queryAll<std::vector<std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Entry, Value FROM overallSaveData WHERE ModID = " + std::to_string(_projectID) + " AND Username = '" = Config::Username.toStdString() + "';", dbErr);
+		for (const auto & vec : lastResults) {
+			if (vec.size() == 2) {
+				som.data.emplace_back(vec[0], vec[1]);
+			}
+		}
+		const auto serialized = som.SerializeBlank();
+		socket->writePacket(serialized);
+	}
 }

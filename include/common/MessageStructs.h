@@ -1209,10 +1209,10 @@ namespace common {
 	};
 
 	struct RequestOverallSaveDataMessage : public Message {
-		int32_t modID;
-		std::string username;
-		std::string password;
-		RequestOverallSaveDataMessage() : Message(), modID(), username(), password() {
+		int32_t [[deprecated("Remove in Spine 1.28.0")]] modID;
+		std::string [[deprecated("Remove in Spine 1.28.0")]] username;
+		std::string [[deprecated("Remove in Spine 1.28.0")]] password;
+		RequestOverallSaveDataMessage() : Message(), modID() {
 			type = MessageType::REQUESTOVERALLSAVEDATA;
 		}
 		template<class Archive>
@@ -1226,7 +1226,7 @@ namespace common {
 
 	struct SendOverallSaveDataMessage : public Message {
 		std::vector<std::pair<std::string, std::string>> data;
-		SendOverallSaveDataMessage() : Message(), data() {
+		SendOverallSaveDataMessage() : Message() {
 			type = MessageType::SENDOVERALLSAVEDATA;
 		}
 		template<class Archive>
