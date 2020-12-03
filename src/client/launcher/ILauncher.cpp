@@ -485,19 +485,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 					auto * uapm = dynamic_cast<UpdateAchievementProgressMessage *>(msg);
 					handleUpdateAchievementProgress(socket, uapm);
 				} else if (msg->type == MessageType::REQUESTOVERALLSAVEPATH) {
-					auto * rospm = dynamic_cast<RequestOverallSavePathMessage *>(msg);
-					if (rospm) {
-						QString overallSavePath = getOverallSavePath();
-						SendOverallSavePathMessage sospm;
-#ifdef Q_OS_WIN
-						sospm.path = q2ws(overallSavePath);
-#else
-						sospm.path = q2s(overallSavePath);
-#endif
-						socket->writePacket(sospm.SerializeBlank());
-					} else {
-						socket->writePacket("empty");
-					}
+					handleRequestOverallSaveDataPath(socket);
 				} else if (msg->type == MessageType::REQUESTOVERALLSAVEDATA) {
 					auto * rom = dynamic_cast<RequestOverallSaveDataMessage *>(msg);
 					if (_projectID != -1) {
@@ -1260,4 +1248,15 @@ void ILauncher::handleUpdateAchievementProgress(clockUtils::sockets::TcpSocket *
 			Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "UPDATE modAchievementProgress SET Current = " + std::to_string(msg->progress) + " WHERE ModID = " + std::to_string(_projectID) + " AND Identifier = " + std::to_string(msg->identifier) + " AND Username = '" + Config::Username.toStdString() + "';", dbErr);
 		}
 	}
+}
+
+void ILauncher::handleRequestOverallSaveDataPath(clockUtils::sockets::TcpSocket * socket) const {
+	const QString overallSavePath = getOverallSavePath();
+	SendOverallSavePathMessage sospm;
+#ifdef Q_OS_WIN
+	sospm.path = q2ws(overallSavePath);
+#else
+	sospm.path = q2s(overallSavePath);
+#endif
+	socket->writePacket(sospm.SerializeBlank());
 }

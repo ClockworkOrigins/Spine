@@ -208,6 +208,7 @@ namespace launcher {
 		void handleRequestAchievements(clockUtils::sockets::TcpSocket * socket) const;
 		void handleUnlockAchievement(clockUtils::sockets::TcpSocket * socket, common::UnlockAchievementMessage * msg) const;
 		void handleUpdateAchievementProgress(clockUtils::sockets::TcpSocket * socket, common::UpdateAchievementProgressMessage * msg) const;
+		void handleRequestOverallSaveDataPath(clockUtils::sockets::TcpSocket * socket) const;
 	};
 	typedef QSharedPointer<ILauncher> ILauncherPtr;
 
