@@ -97,6 +97,7 @@ namespace {
 }
 
 	void updateState(int32_t keyCode, int32_t pressed) {
+#ifdef WIN32
 		auto kc = static_cast<DIK_KeyCodes>(keyCode);
 		INPUT ip;
 		ip.type = INPUT_KEYBOARD;
@@ -120,6 +121,7 @@ namespace {
 			ip.ki.dwFlags |= KEYEVENTF_KEYUP;
 		}
 		SendInput(1, &ip, sizeof(INPUT));
+#endif
 	}
 
 } /* namespace input */
