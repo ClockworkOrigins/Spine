@@ -21,7 +21,7 @@ mkdir "%PREFIX%\include"
 mkdir "%PREFIX%\lib"
 mkdir "%PREFIX%\src"
 
-IF [%VSSOLUTIONARCH%] == [x86] (
+IF [%VSSOLUTIONARCH%] == [Win32] (
 	SET ARCHFOLDER=x86
 )
 
