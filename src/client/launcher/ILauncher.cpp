@@ -475,15 +475,15 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 					handleRequestScores(socket, rsm);
 				} else if (msg->type == MessageType::UPDATESCORE) {
 					auto * usm = dynamic_cast<UpdateScoreMessage *>(msg);
-					handleUpdateScore(socket, usm);
+					handleUpdateScore(usm);
 				} else if (msg->type == MessageType::REQUESTACHIEVEMENTS) {
 					handleRequestAchievements(socket);
 				} else if (msg->type == MessageType::UNLOCKACHIEVEMENT) {
 					auto * uam = dynamic_cast<UnlockAchievementMessage *>(msg);
-					handleUnlockAchievement(socket, uam);
+					handleUnlockAchievement(uam);
 				} else if (msg->type == MessageType::UPDATEACHIEVEMENTPROGRESS) {
 					auto * uapm = dynamic_cast<UpdateAchievementProgressMessage *>(msg);
-					handleUpdateAchievementProgress(socket, uapm);
+					handleUpdateAchievementProgress(uapm);
 				} else if (msg->type == MessageType::REQUESTOVERALLSAVEPATH) {
 					handleRequestOverallSaveDataPath(socket);
 				} else if (msg->type == MessageType::REQUESTOVERALLSAVEDATA) {
@@ -491,32 +491,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 					handleRequestOverallSaveData(socket, rom);
 				} else if (msg->type == MessageType::UPDATEOVERALLSAVEDATA) {
 					auto * uom = dynamic_cast<UpdateOverallSaveDataMessage *>(msg);
-					if (_projectID != -1) {
-						if (uom) {
-							if (Config::OnlineMode) {
-								uom->modID = _projectID;
-								uom->username = Config::Username.toStdString();
-								uom->password = Config::Password.toStdString();
-								clockUtils::sockets::TcpSocket sock;
-								if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-									serialized = uom->SerializePublic();
-									if (clockUtils::ClockError::SUCCESS != sock.writePacket(serialized)) {
-										cacheOverallSaveData(uom);
-									} else {
-										removeOverallSaveData(uom);
-									}
-								} else {
-									cacheOverallSaveData(uom);
-								}
-							} else {
-								Database::DBError dbErr;
-								Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO overallSaveData (ModID, Username, Entry, Value) VALUES (" + std::to_string(_projectID) + ", '" + Config::Username.toStdString() + "', '" + uom->entry + "', '" + uom->value + "');", dbErr);
-								if (dbErr.error) {
-									Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "UPDATE overallSaveData SET Value = '" + uom->value + "' WHERE ModID = " + std::to_string(_projectID) + " AND Entry = '" + uom->entry + "' AND Username = '" + Config::Username.toStdString() + "';", dbErr);
-								}
-							}
-						}
-					}
+					handleUpdateOverallSaveData(uom);
 				} else if (msg->type == MessageType::REQUESTALLFRIENDS) {
 					auto * rafm = dynamic_cast<RequestAllFriendsMessage *>(msg);
 					if (Config::OnlineMode) {
@@ -620,7 +595,7 @@ void ILauncher::tryCleanCaches() {
 	Database::DBError err;
 	clockUtils::sockets::TcpSocket sock;
 	if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-		std::vector<std::vector<int>> scores = Database::queryAll<std::vector<int>, int, int, int>(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "SELECT * FROM scoreCache;", err);
+		const auto scores = Database::queryAll<std::vector<int>, int, int, int>(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "SELECT * FROM scoreCache;", err);
 		for (const auto & t : scores) {
 			QJsonObject json;
 			json["ProjectID"] = t[0];
@@ -635,7 +610,7 @@ void ILauncher::tryCleanCaches() {
 				removeScore(t[0], t[1]);
 			});
 		}
-		std::vector<std::vector<int>> achievements = Database::queryAll<std::vector<int>, int, int>(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "SELECT * FROM achievementCache;", err);
+		const auto achievements = Database::queryAll<std::vector<int>, int, int>(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "SELECT * FROM achievementCache;", err);
 		for (const auto & t : achievements) {
 			QJsonObject json;
 			json["ProjectID"] = t[0];
@@ -650,7 +625,7 @@ void ILauncher::tryCleanCaches() {
 				removeAchievement(t[0], t[1]);
 			});
 		}
-		std::vector<std::vector<int>> achievementProgresses = Database::queryAll<std::vector<int>, int, int, int>(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "SELECT * FROM achievementProgressCache;", err);
+		const auto achievementProgresses = Database::queryAll<std::vector<int>, int, int, int>(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "SELECT * FROM achievementProgressCache;", err);
 		for (auto t : achievementProgresses) {
 			QJsonObject json;
 			json["ProjectID"] = t[0];
@@ -665,18 +640,20 @@ void ILauncher::tryCleanCaches() {
 				removeAchievement(t[0], t[1]);
 			});
 		}
-		std::vector<std::vector<std::string>> overallSaveDatas = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "SELECT * FROM overallSaveDataCache;", err);
-		for (auto t : overallSaveDatas) {
-			UpdateOverallSaveDataMessage uom;
-			uom.modID = std::stoi(t[0]);
-			uom.entry = t[1];
-			uom.value = t[2];
-			uom.username = Config::Username.toStdString();
-			uom.password = Config::Password.toStdString();
-			const std::string serialized = uom.SerializePublic();
-			if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
-				removeOverallSaveData(&uom);
-			}
+		const auto overallSaveDatas = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "SELECT * FROM overallSaveDataCache;", err);
+		for (const auto & t : overallSaveDatas) {
+			QJsonObject json;
+			json["ProjectID"] = std::stoi(t[0]);
+			json["Username"] = Config::Username;
+			json["Password"] = Config::Password;
+			json["Key"] = s2q(t[1]);
+			json["Value"] = s2q(t[2]);
+
+			Https::postAsync(DATABASESERVER_PORT, "updateOverallSaveData", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, t](const QJsonObject &, int statusCode) {
+				if (statusCode != 200) return;
+				
+				removeOverallSaveData(std::stoi(t[0]), t[1]);
+			});
 		}
 	}
 }
@@ -717,17 +694,17 @@ void ILauncher::removeAchievementProgress(int32_t projectID, int32_t identifier)
 	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "DELETE FROM achievementProgressCache WHERE ModID = " + std::to_string(projectID) + " AND Identifier = " + std::to_string(identifier) + ";", err);
 }
 
-void ILauncher::cacheOverallSaveData(UpdateOverallSaveDataMessage * uom) {
+void ILauncher::cacheOverallSaveData(int32_t projectID, const std::string & key, const std::string & value) const {
 	Database::DBError err;
-	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "INSERT INTO overallSaveDataCache (ModID, Entry, Value) VALUES (" + std::to_string(uom->modID) + ", '" + uom->entry + "', '" + uom->value + "');", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "INSERT INTO overallSaveDataCache (ModID, Entry, Value) VALUES (" + std::to_string(projectID) + ", '" + key + "', '" + value + "');", err);
 	if (err.error) {
-		Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "UPDATE overallSaveDataCache SET Value = '" + uom->value + "' WHERE ModID = " + std::to_string(uom->modID) + " AND Entry = '" + uom->entry + "';", err);
+		Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "UPDATE overallSaveDataCache SET Value = '" + value + "' WHERE ModID = " + std::to_string(projectID) + " AND Entry = '" + key + "';", err);
 	}
 }
 
-void ILauncher::removeOverallSaveData(UpdateOverallSaveDataMessage * uom) {
+void ILauncher::removeOverallSaveData(int32_t projectID, const std::string & key) const {
 	Database::DBError err;
-	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "DELETE FROM overallSaveDataCache WHERE ModID = " + std::to_string(uom->modID) + " AND Entry = '" + uom->entry + "';", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "DELETE FROM overallSaveDataCache WHERE ModID = " + std::to_string(projectID) + " AND Entry = '" + key + "';", err);
 }
 
 void ILauncher::synchronizeOfflineData() {
@@ -1039,7 +1016,7 @@ void ILauncher::handleRequestScores(clockUtils::sockets::TcpSocket * socket, Req
 	}
 }
 
-void ILauncher::handleUpdateScore(clockUtils::sockets::TcpSocket *, UpdateScoreMessage * msg) const {
+void ILauncher::handleUpdateScore(UpdateScoreMessage * msg) const {
 	if (_projectID == -1) return;
 	
 	if (!msg) return;
@@ -1145,7 +1122,7 @@ void ILauncher::handleRequestAchievements(clockUtils::sockets::TcpSocket * socke
 	});
 }
 
-void ILauncher::handleUnlockAchievement(clockUtils::sockets::TcpSocket *, UnlockAchievementMessage * msg) const {
+void ILauncher::handleUnlockAchievement(UnlockAchievementMessage * msg) const {
 	if (_projectID == -1) return;
 
 	if (!msg) return;
@@ -1177,7 +1154,7 @@ void ILauncher::handleUnlockAchievement(clockUtils::sockets::TcpSocket *, Unlock
 	}
 }
 
-void ILauncher::handleUpdateAchievementProgress(clockUtils::sockets::TcpSocket * socket, UpdateAchievementProgressMessage * msg) const {
+void ILauncher::handleUpdateAchievementProgress(UpdateAchievementProgressMessage * msg) const {
 	if (_projectID == -1) return;
 
 	if (!msg) return;
@@ -1268,3 +1245,36 @@ void ILauncher::handleRequestOverallSaveData(clockUtils::sockets::TcpSocket * so
 		socket->writePacket(serialized);
 	}
 }
+
+void ILauncher::handleUpdateOverallSaveData(UpdateOverallSaveDataMessage * msg) const {
+	if (_projectID == -1) return;
+
+	if (!msg) return;
+
+	if (Config::OnlineMode) {
+		QJsonObject json;
+		json["ProjectID"] = _projectID;
+		json["Username"] = Config::Username;
+		json["Password"] = Config::Password;
+		json["Key"] = s2q(msg->entry);
+		json["Value"] = s2q(msg->value);
+
+		const auto key = msg->entry;
+		const auto value = msg->value;
+
+		Https::postAsync(DATABASESERVER_PORT, "updateOverallSaveData", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, key, value](const QJsonObject &, int statusCode) {
+			if (statusCode != 200) {
+				cacheOverallSaveData(_projectID, key, value);
+				return;
+			}
+			removeOverallSaveData(_projectID, key);
+		});
+	} else {
+		Database::DBError dbErr;
+		Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO overallSaveData (ModID, Username, Entry, Value) VALUES (" + std::to_string(_projectID) + ", '" + Config::Username.toStdString() + "', '" + msg->entry + "', '" + msg->value + "');", dbErr);
+		if (dbErr.error) {
+			Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "UPDATE overallSaveData SET Value = '" + msg->value + "' WHERE ModID = " + std::to_string(_projectID) + " AND Entry = '" + msg->entry + "' AND Username = '" + Config::Username.toStdString() + "';", dbErr);
+		}
+	}
+}
+

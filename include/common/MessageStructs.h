@@ -1237,12 +1237,12 @@ namespace common {
 	};
 
 	struct UpdateOverallSaveDataMessage : public Message {
-		int32_t modID;
-		std::string username;
-		std::string password;
+		int32_t [[deprecated("Remove in Spine 1.28.0")]] modID;
+		std::string [[deprecated("Remove in Spine 1.28.0")]] username;
+		std::string [[deprecated("Remove in Spine 1.28.0")]] password;
 		std::string entry;
 		std::string value;
-		UpdateOverallSaveDataMessage() : Message(), modID(), username(), password(), entry(), value() {
+		UpdateOverallSaveDataMessage() : Message(), modID() {
 			type = MessageType::UPDATEOVERALLSAVEDATA;
 		}
 		template<class Archive>

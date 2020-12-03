@@ -198,19 +198,20 @@ namespace launcher {
 		void cacheAchievementProgress(int32_t projectID, int32_t identifier, int32_t progress) const;
 		void removeAchievementProgress(int32_t projectID, int32_t identifier) const;
 
-		void cacheOverallSaveData(common::UpdateOverallSaveDataMessage * uom);
-		void removeOverallSaveData(common::UpdateOverallSaveDataMessage * uom);
+		void cacheOverallSaveData(int32_t projectID, const std::string & key, const std::string & value) const;
+		void removeOverallSaveData(int32_t projectID, const std::string & key) const;
 
 		void synchronizeOfflineData();
 
 		void handleRequestUsername(clockUtils::sockets::TcpSocket * socket) const;
 		void handleRequestScores(clockUtils::sockets::TcpSocket * socket, common::RequestScoresMessage * msg) const;
-		void handleUpdateScore(clockUtils::sockets::TcpSocket * socket, common::UpdateScoreMessage * msg) const;
+		void handleUpdateScore(common::UpdateScoreMessage * msg) const;
 		void handleRequestAchievements(clockUtils::sockets::TcpSocket * socket) const;
-		void handleUnlockAchievement(clockUtils::sockets::TcpSocket * socket, common::UnlockAchievementMessage * msg) const;
-		void handleUpdateAchievementProgress(clockUtils::sockets::TcpSocket * socket, common::UpdateAchievementProgressMessage * msg) const;
+		void handleUnlockAchievement(common::UnlockAchievementMessage * msg) const;
+		void handleUpdateAchievementProgress(common::UpdateAchievementProgressMessage * msg) const;
 		void handleRequestOverallSaveDataPath(clockUtils::sockets::TcpSocket * socket) const;
 		void handleRequestOverallSaveData(clockUtils::sockets::TcpSocket * socket, common::RequestOverallSaveDataMessage * msg) const;
+		void handleUpdateOverallSaveData(common::UpdateOverallSaveDataMessage * msg) const;
 	};
 	typedef QSharedPointer<ILauncher> ILauncherPtr;
 
