@@ -408,12 +408,17 @@ void LocationSettingsWidget::openDownloadFileDialog() {
 	if (path.isEmpty()) return;
 	
 	if (_downloadPathLineEdit->text() == path) return;
-	
+
 	// perform checks
 	path = path.replace("\\", "/");
+
 	QString programFiles = QProcessEnvironment::systemEnvironment().value("ProgramFiles", "Foobar123");
 	programFiles = programFiles.replace("\\", "/");
-	if (path.contains(programFiles, Qt::CaseInsensitive) || (!_gothicPathLineEdit->text().isEmpty() && path.contains(_gothicPathLineEdit->text(), Qt::CaseInsensitive)) || (!_gothic2PathLineEdit->text().isEmpty() && path.contains(_gothic2PathLineEdit->text(), Qt::CaseInsensitive))) {
+
+	QDir appDir(qApp->applicationDirPath());
+	appDir.cdUp();
+	
+	if (path.contains(programFiles, Qt::CaseInsensitive) || (!_gothicPathLineEdit->text().isEmpty() && path.contains(_gothicPathLineEdit->text(), Qt::CaseInsensitive)) || (!_gothic2PathLineEdit->text().isEmpty() && path.contains(_gothic2PathLineEdit->text(), Qt::CaseInsensitive)) || path.contains(appDir.absolutePath(), Qt::CaseInsensitive)) {
 		QMessageBox resultMsg(QMessageBox::Icon::Warning, QApplication::tr("InvalidPath"), QApplication::tr("InvalidDownloadPath").arg(path), QMessageBox::StandardButton::Ok);
 		resultMsg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
 		resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);

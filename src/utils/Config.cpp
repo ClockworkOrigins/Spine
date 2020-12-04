@@ -103,7 +103,7 @@ int Config::Init() {
 	}
 	
 	Database::DBError err;
-	Database::execute(Config::BASEDIR.toStdString() + "/" + BACKUP_DATABASE, "CREATE TABLE IF NOT EXISTS downloadPath(Path TEXT NOT NULL PRIMARY KEY);", err);
+	Database::execute(BASEDIR.toStdString() + "/" + BACKUP_DATABASE, "CREATE TABLE IF NOT EXISTS downloadPath(Path TEXT NOT NULL PRIMARY KEY);", err);
 	
 	STYLESDIR = BASEDIR + "/styles/";
 	{
@@ -141,7 +141,7 @@ int Config::Init() {
 		DOWNLOADDIR = path;
 
 		if (path.isEmpty()) {
-			const auto backupPath = Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + BACKUP_DATABASE, "SELECT Path FROM downloadPath;", err);
+			const auto backupPath = Database::queryNth<std::string, std::string>(BASEDIR.toStdString() + "/" + BACKUP_DATABASE, "SELECT Path FROM downloadPath;", err);
 
 			if (!backupPath.empty()) {
 				IniParser->setValue("PATH/Downloads", s2q(backupPath));
