@@ -55,11 +55,11 @@ LocationSettingsWidget::LocationSettingsWidget(bool temporary, QWidget * par) : 
 		instance = this;
 	}
 	
-	QVBoxLayout * l = new QVBoxLayout();
+	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
 	{
-		QLabel * infoLabel = new QLabel(QApplication::tr("GothicPathDescription"), this);
+		auto * infoLabel = new QLabel(QApplication::tr("GothicPathDescription"), this);
 		infoLabel->setWordWrap(true);
 		if (!temporary) {
 			UPDATELANGUAGESETTEXT(infoLabel, "GothicPathDescription");
@@ -70,18 +70,18 @@ LocationSettingsWidget::LocationSettingsWidget(bool temporary, QWidget * par) : 
 		l->addSpacing(10);
 	}
 	{
-		QGridLayout * hl = new QGridLayout();
+		auto * hl = new QGridLayout();
 
 		QString path = Config::IniParser->value("PATH/Gothic", "").toString();
 
-		QLabel * gothicPathLabel = new QLabel(QApplication::tr("GothicPath"), this);
+		auto * gothicPathLabel = new QLabel(QApplication::tr("GothicPath"), this);
 		if (!temporary) {
 			UPDATELANGUAGESETTEXT(gothicPathLabel, "GothicPath");
 		}
 		_gothicPathLineEdit = new QLineEdit(path, this);
 		_gothicPathLineEdit->setValidator(new DirValidator());
 		_gothicPathLineEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
-		QPushButton * gothicPathPushButton = new QPushButton("...", this);
+		auto * gothicPathPushButton = new QPushButton("...", this);
 		_gothicSteam = new QCheckBox(QApplication::tr("StartWithSteam"), this);
 		UPDATELANGUAGESETTEXT(_gothicSteam, "StartWithSteam");
 		hl->addWidget(gothicPathLabel, 0, 0);
@@ -120,7 +120,7 @@ LocationSettingsWidget::LocationSettingsWidget(bool temporary, QWidget * par) : 
 		l->addSpacing(10);
 	}
 	{
-		QPushButton * w = new QPushButton(QApplication::tr("SearchGothic"), this);
+		auto * w = new QPushButton(QApplication::tr("SearchGothic"), this);
 		if (!temporary) {
 			UPDATELANGUAGESETTEXT(w, "SearchGothic");
 		}
@@ -134,18 +134,18 @@ LocationSettingsWidget::LocationSettingsWidget(bool temporary, QWidget * par) : 
 		l->addSpacing(10);
 	}
 	{
-		QHBoxLayout * hl = new QHBoxLayout();
+		auto * hl = new QHBoxLayout();
 
 		const QString path = Config::IniParser->value("PATH/Downloads", Config::BASEDIR).toString();
 
-		QLabel * downloadPathLabel = new QLabel(QApplication::tr("DownloadPath"), this);
+		auto * downloadPathLabel = new QLabel(QApplication::tr("DownloadPath"), this);
 		if (!temporary) {
 			UPDATELANGUAGESETTEXT(downloadPathLabel, "DownloadPath");
 		}
 		_downloadPathLineEdit = new QLineEdit(path, this);
 		_downloadPathLineEdit->setReadOnly(true);
 		_downloadPathLineEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
-		QPushButton * downloadPathPushButton = new QPushButton("...", this);
+		auto * downloadPathPushButton = new QPushButton("...", this);
 		hl->addWidget(downloadPathLabel);
 		hl->addWidget(_downloadPathLineEdit);
 		hl->addWidget(downloadPathPushButton);
@@ -156,11 +156,11 @@ LocationSettingsWidget::LocationSettingsWidget(bool temporary, QWidget * par) : 
 		l->addLayout(hl);
 	}
 	{
-		QHBoxLayout * hl = new QHBoxLayout();
+		auto * hl = new QHBoxLayout();
 
 		const QString path = Config::IniParser->value("PATH/Screenshots", Config::BASEDIR + "/screens/").toString();
 
-		QLabel * screenshotPathLabel = new QLabel(QApplication::tr("ScreenshotPath"), this);
+		auto * screenshotPathLabel = new QLabel(QApplication::tr("ScreenshotPath"), this);
 		if (!temporary) {
 			UPDATELANGUAGESETTEXT(screenshotPathLabel, "ScreenshotPath");
 		}
@@ -175,7 +175,7 @@ LocationSettingsWidget::LocationSettingsWidget(bool temporary, QWidget * par) : 
 		if (!temporary) {
 			UPDATELANGUAGESETTOOLTIP(_screenshotPathLineEdit, "ScreenshotTooltip");
 		}
-		QPushButton * screenshotPathPushButton = new QPushButton("...", this);
+		auto * screenshotPathPushButton = new QPushButton("...", this);
 		hl->addWidget(screenshotPathLabel);
 		hl->addWidget(_screenshotPathLineEdit);
 		hl->addWidget(screenshotPathPushButton);
@@ -358,92 +358,98 @@ bool LocationSettingsWidget::isGothic2Valid(bool restored) const {
 
 void LocationSettingsWidget::openGothicFileDialog() {
 	const QString path = QFileDialog::getExistingDirectory(this, QApplication::tr("SelectGothicDir"), _gothicPathLineEdit->text());
-	if (!path.isEmpty()) {
-		if (_gothicPathLineEdit->text() != path) {
-			_gothicPathLineEdit->setText(path);
-			if (!isGothicValid(false)) {
-				if (isGothicValid(_gothicPathLineEdit->text() + "/../", "Gothic.exe", false)) {
-					QDir g1Dir(_gothicPathLineEdit->text());
-					g1Dir.cdUp();
-					_gothicPathLineEdit->setText(g1Dir.absolutePath());
-					return;
-				}
-				QMessageBox resultMsg(QMessageBox::Icon::Warning, QApplication::tr("InvalidPath"), QApplication::tr("InvalidGothicPath"), QMessageBox::StandardButton::Ok);
-				resultMsg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
-				resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-				resultMsg.exec();
-			}
-		}
+	
+	if (path.isEmpty()) return;
+	
+	if (_gothicPathLineEdit->text() == path) return;
+	
+	_gothicPathLineEdit->setText(path);
+	
+	if (isGothicValid(false)) return;
+	
+	if (isGothicValid(_gothicPathLineEdit->text() + "/../", "Gothic.exe", false)) {
+		QDir g1Dir(_gothicPathLineEdit->text());
+		g1Dir.cdUp();
+		_gothicPathLineEdit->setText(g1Dir.absolutePath());
+		return;
 	}
+	QMessageBox resultMsg(QMessageBox::Icon::Warning, QApplication::tr("InvalidPath"), QApplication::tr("InvalidGothicPath"), QMessageBox::StandardButton::Ok);
+	resultMsg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
+	resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+	resultMsg.exec();
 }
 
 void LocationSettingsWidget::openGothic2FileDialog() {
 	const QString path = QFileDialog::getExistingDirectory(this, QApplication::tr("SelectGothic2Dir"), _gothic2PathLineEdit->text());
-	if (!path.isEmpty()) {
-		if (_gothic2PathLineEdit->text() != path) {
-			_gothic2PathLineEdit->setText(path);
-			if (!isGothic2Valid(false)) {
-				if (isGothicValid(_gothic2PathLineEdit->text() + "/../", "Gothic2.exe", false)) {
-					QDir g2Dir(_gothic2PathLineEdit->text());
-					g2Dir.cdUp();
-					_gothic2PathLineEdit->setText(g2Dir.absolutePath());
-					return;
-				}
-				QMessageBox resultMsg(QMessageBox::Icon::Warning, QApplication::tr("InvalidPath"), QApplication::tr("InvalidGothic2Path"), QMessageBox::StandardButton::Ok);
-				resultMsg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
-				resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-				resultMsg.exec();
-			}
-		}
+	
+	if (path.isEmpty()) return;
+	
+	if (_gothic2PathLineEdit->text() == path) return;
+	
+	_gothic2PathLineEdit->setText(path);
+	
+	if (isGothic2Valid(false)) return;
+	
+	if (isGothicValid(_gothic2PathLineEdit->text() + "/../", "Gothic2.exe", false)) {
+		QDir g2Dir(_gothic2PathLineEdit->text());
+		g2Dir.cdUp();
+		_gothic2PathLineEdit->setText(g2Dir.absolutePath());
+		return;
 	}
+	QMessageBox resultMsg(QMessageBox::Icon::Warning, QApplication::tr("InvalidPath"), QApplication::tr("InvalidGothic2Path"), QMessageBox::StandardButton::Ok);
+	resultMsg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
+	resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+	resultMsg.exec();
 }
 
 void LocationSettingsWidget::openDownloadFileDialog() {
 	QString path = QFileDialog::getExistingDirectory(this, QApplication::tr("SelectDownloadDir"), _downloadPathLineEdit->text());
-	if (!path.isEmpty()) {
-		if (_downloadPathLineEdit->text() != path) {
-			// perform checks
-			path = path.replace("\\", "/");
-			QString programFiles = QProcessEnvironment::systemEnvironment().value("ProgramFiles", "Foobar123");
-			programFiles = programFiles.replace("\\", "/");
-			if (path.contains(programFiles, Qt::CaseInsensitive) || (!_gothicPathLineEdit->text().isEmpty() && path.contains(_gothicPathLineEdit->text(), Qt::CaseInsensitive)) || (!_gothic2PathLineEdit->text().isEmpty() && path.contains(_gothic2PathLineEdit->text(), Qt::CaseInsensitive))) {
-				QMessageBox resultMsg(QMessageBox::Icon::Warning, QApplication::tr("InvalidPath"), QApplication::tr("InvalidDownloadPath").arg(path), QMessageBox::StandardButton::Ok);
-				resultMsg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
-				resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-				resultMsg.exec();
-				return;
-			}
-			_downloadPathLineEdit->setText(path);
-		}
+	
+	if (path.isEmpty()) return;
+	
+	if (_downloadPathLineEdit->text() == path) return;
+	
+	// perform checks
+	path = path.replace("\\", "/");
+	QString programFiles = QProcessEnvironment::systemEnvironment().value("ProgramFiles", "Foobar123");
+	programFiles = programFiles.replace("\\", "/");
+	if (path.contains(programFiles, Qt::CaseInsensitive) || (!_gothicPathLineEdit->text().isEmpty() && path.contains(_gothicPathLineEdit->text(), Qt::CaseInsensitive)) || (!_gothic2PathLineEdit->text().isEmpty() && path.contains(_gothic2PathLineEdit->text(), Qt::CaseInsensitive))) {
+		QMessageBox resultMsg(QMessageBox::Icon::Warning, QApplication::tr("InvalidPath"), QApplication::tr("InvalidDownloadPath").arg(path), QMessageBox::StandardButton::Ok);
+		resultMsg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
+		resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+		resultMsg.exec();
+		return;
 	}
+	_downloadPathLineEdit->setText(path);
 }
 
 void LocationSettingsWidget::searchGothic() {
 	const bool searchG1 = !isGothicValid(false);
 	const bool searchG2 = !isGothic2Valid(false);
-	if (searchG1 || searchG2) {
-		QProgressDialog dlg(QApplication::tr("SearchGothicWaiting"), "", 0, 1);
-		dlg.setWindowTitle(QApplication::tr("SearchGothic"));
-		dlg.setCancelButton(nullptr);
-		dlg.setWindowFlags(dlg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-		QLabel * lbl = new QLabel(QApplication::tr("SearchGothicWaiting"), &dlg);
-		lbl->setWordWrap(true);
-		dlg.setLabel(lbl);
-		connect(this, &LocationSettingsWidget::finishedSearch, &dlg, &QDialog::accept);
-		connect(this, &LocationSettingsWidget::finishedFolder, lbl, &QLabel::setText);
+	
+	if (!searchG1 && !searchG2) return;
+	
+	QProgressDialog dlg(QApplication::tr("SearchGothicWaiting"), "", 0, 1);
+	dlg.setWindowTitle(QApplication::tr("SearchGothic"));
+	dlg.setCancelButton(nullptr);
+	dlg.setWindowFlags(dlg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+	auto * lbl = new QLabel(QApplication::tr("SearchGothicWaiting"), &dlg);
+	lbl->setWordWrap(true);
+	dlg.setLabel(lbl);
+	connect(this, &LocationSettingsWidget::finishedSearch, &dlg, &QDialog::accept);
+	connect(this, &LocationSettingsWidget::finishedFolder, lbl, &QLabel::setText);
 
-		_cancelSearch = false;
-		_futureCounter = 0;
-		QFutureWatcher<void> watcher;
-		const QFuture<void> future = QtConcurrent::run(this, &LocationSettingsWidget::searchGothicAsync, searchG1, searchG2);
-		watcher.setFuture(future);
-		const int code = dlg.exec();
-		if (code == QDialog::Rejected) {
-			_cancelSearch = true;
-			watcher.cancel();
-		}
-		watcher.waitForFinished();
+	_cancelSearch = false;
+	_futureCounter = 0;
+	QFutureWatcher<void> watcher;
+	const QFuture<void> future = QtConcurrent::run(this, &LocationSettingsWidget::searchGothicAsync, searchG1, searchG2);
+	watcher.setFuture(future);
+	const int code = dlg.exec();
+	if (code == QDialog::Rejected) {
+		_cancelSearch = true;
+		watcher.cancel();
 	}
+	watcher.waitForFinished();
 }
 
 void LocationSettingsWidget::openScreenshotDirectoryFileDialog() {
