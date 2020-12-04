@@ -310,7 +310,7 @@ void ModFilesWidget::uploadCurrentMod() {
 			QElapsedTimer startTime;
 			startTime.start();
 			qint64 writtenBytes = 0;
-			int32_t size = static_cast<int32_t>(serialized.size()); // TODO: support 64bit files in the future!
+			auto size = static_cast<int32_t>(serialized.size()); // TODO: support 64bit files in the future!
 			sock.write(&size, 4);
 			sock.write(serialized);
 			for (const QString & file : uploadFiles) {
@@ -336,7 +336,7 @@ void ModFilesWidget::uploadCurrentMod() {
 			sock.receivePacket(serialized);
 			common::Message * msg = common::Message::DeserializePublic(serialized);
 			if (msg) {
-				common::AckMessage * am = dynamic_cast<common::AckMessage *>(msg);
+				auto * am = dynamic_cast<common::AckMessage *>(msg);
 				if (msg) {
 					emit finishedUpload(am->success, uploadFiles.size());
 				} else {
@@ -391,7 +391,7 @@ void ModFilesWidget::updateView() {
 void ModFilesWidget::updateData(ManagementModFilesData content) {
 	_data = content;
 
-	QStandardItem * baseItem = new QStandardItem("/");
+	auto * baseItem = new QStandardItem("/");
 	baseItem->setEditable(false);
 	_directory.insert("/", baseItem);
 	for (const auto & f : _data.files) {
@@ -405,6 +405,7 @@ void ModFilesWidget::updateData(ManagementModFilesData content) {
 	_majorVersionBox->setValue(_data.versionMajor);
 	_minorVersionBox->setValue(_data.versionMinor);
 	_patchVersionBox->setValue(_data.versionPatch);
+	_spineVersionBox->setValue(_data.versionSpine);
 }
 
 void ModFilesWidget::addFolder() {

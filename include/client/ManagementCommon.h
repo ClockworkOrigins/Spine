@@ -116,6 +116,7 @@ namespace client {
 		int32_t versionMajor;
 		int32_t versionMinor;
 		int32_t versionPatch;
+		int32_t versionSpine;
 
 		QList<ManagementModFile> files;
 

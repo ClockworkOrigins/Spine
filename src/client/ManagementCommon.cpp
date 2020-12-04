@@ -265,11 +265,14 @@ void ManagementModFilesData::read(const QJsonObject & json) {
 	
 	if (!json.contains("VersionPatch")) return;
 	
+	if (!json.contains("VersionSpine")) return;
+	
 	if (!json.contains("Files")) return;
 
 	versionMajor = json["VersionMajor"].toString().toInt();
 	versionMinor = json["VersionMinor"].toString().toInt();
 	versionPatch = json["VersionPatch"].toString().toInt();
+	versionSpine = json["VersionSpine"].toString().toInt();
 			
 	const auto arr = json["Files"].toArray();
 	for (const auto entry : arr) {

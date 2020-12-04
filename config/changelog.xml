@@ -2024,6 +2024,7 @@
 		<Bug language="Deutsch">Spiele und Updates werden im Entwicklermodus jetzt korrekt ausgeblendet</Bug>
 		<Bug language="Deutsch">Fehler beim Starten von Plugins mit Union behoben</Bug>
 		<Bug language="Deutsch">Check eingebaut, um Download-Pfad innerhalb des Spine-Ordners zu verhindern</Bug>
+		<Bug language="Deutsch">Spine-Version wird jetzt korrekt fürs Management geladen</Bug>
 		
 		<Enhancement language="English">Added support for user reviews</Enhancement>
 		<Bug language="English">Optimized number formatting</Bug>
@@ -2032,5 +2033,6 @@
 		<Bug language="English">Games and updates now are hidden properly in developer mode</Bug>
 		<Bug language="English">Fixed bug starting plugins with Union</Bug>
 		<Bug language="English">Added check to avoid downloads paths within the Spine folder</Bug>
+		<Bug language="English">Spine version now also loaded for Management</Bug>
 	</Version>
 </Versions>
