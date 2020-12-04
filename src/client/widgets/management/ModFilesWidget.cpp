@@ -75,11 +75,11 @@ namespace {
 }
 
 ModFilesWidget::ModFilesWidget(QWidget * par) : QWidget(par), _fileList(nullptr), _fileTreeView(nullptr), _modIndex(-1), _majorVersionBox(nullptr), _minorVersionBox(nullptr), _patchVersionBox(nullptr), _spineVersionBox(nullptr), _waitSpinner(nullptr) {
-	QVBoxLayout * l = new QVBoxLayout();
+	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
 	{
-		QHBoxLayout * hl2 = new QHBoxLayout();
+		auto * hl2 = new QHBoxLayout();
 		_majorVersionBox = new QSpinBox(this);
 		_majorVersionBox->setMinimum(0);
 		_majorVersionBox->setMaximum(127);
@@ -100,7 +100,7 @@ ModFilesWidget::ModFilesWidget(QWidget * par) : QWidget(par), _fileList(nullptr)
 		hl2->addWidget(_minorVersionBox);
 		hl2->addWidget(_patchVersionBox);
 		hl2->addWidget(_spineVersionBox);
-		QPushButton * submitButton = new QPushButton(QApplication::tr("Submit"), this);
+		auto * submitButton = new QPushButton(QApplication::tr("Submit"), this);
 		submitButton->setToolTip(QApplication::tr("UpdateVersionNumberTooltip"));
 		hl2->addWidget(submitButton);
 		connect(submitButton, &QPushButton::released, this, &ModFilesWidget::updateVersion);
@@ -117,30 +117,30 @@ ModFilesWidget::ModFilesWidget(QWidget * par) : QWidget(par), _fileList(nullptr)
 	l->addWidget(_fileTreeView);
 
 	{
-		QHBoxLayout * hl2 = new QHBoxLayout();
-		QPushButton * pbAdd = new QPushButton("+", this);
+		auto * hl2 = new QHBoxLayout();
+		auto * pbAdd = new QPushButton("+", this);
 		pbAdd->setToolTip(QApplication::tr("AddFileTooltip"));
 		hl2->addWidget(pbAdd);
 		connect(pbAdd, &QPushButton::released, this, static_cast<void(ModFilesWidget::*)()>(&ModFilesWidget::addFile));
 
-		QPushButton * pbDelete = new QPushButton("-", this);
+		auto * pbDelete = new QPushButton("-", this);
 		pbDelete->setToolTip(QApplication::tr("RemoveFileTooltip"));
 		hl2->addWidget(pbDelete);
 		connect(pbDelete, &QPushButton::released, this, static_cast<void(ModFilesWidget::*)()>(&ModFilesWidget::deleteFile));
 
-		QPushButton * pbAddFolder = new QPushButton(QApplication::tr("AddFolder"), this);
+		auto * pbAddFolder = new QPushButton(QApplication::tr("AddFolder"), this);
 		hl2->addWidget(pbAddFolder);
 		connect(pbAddFolder, &QPushButton::released, this, &ModFilesWidget::addFolder);
 
 		l->addLayout(hl2);
 	}
 
-	QPushButton * uploadButton = new QPushButton(QApplication::tr("Upload"), this);
+	auto * uploadButton = new QPushButton(QApplication::tr("Upload"), this);
 	uploadButton->setToolTip(QApplication::tr("UploadFileTooltip"));
 	l->addWidget(uploadButton);
 	connect(uploadButton, &QPushButton::released, this, &ModFilesWidget::uploadCurrentMod);
 
-	QPushButton * testUpdateButton = new QPushButton(QApplication::tr("TestUpdate"), this);
+	auto * testUpdateButton = new QPushButton(QApplication::tr("TestUpdate"), this);
 	testUpdateButton->setToolTip(QApplication::tr("TestUpdateTooltip"));
 	l->addWidget(testUpdateButton);
 	connect(testUpdateButton, &QPushButton::released, this, &ModFilesWidget::testUpdate);
@@ -163,7 +163,7 @@ ModFilesWidget::ModFilesWidget(QWidget * par) : QWidget(par), _fileList(nullptr)
 	connect(this, &ModFilesWidget::versionUpdated, this, &ModFilesWidget::showVersionUpdate);
 
 #ifdef Q_OS_WIN
-	QWinTaskbarButton * button = new QWinTaskbarButton(this);
+	auto * button = new QWinTaskbarButton(this);
 	button->setWindow(spine::widgets::MainWindow::getInstance()->windowHandle());
 
 	_taskbarProgress = button->progress();
@@ -184,12 +184,20 @@ ModFilesWidget::~ModFilesWidget() {
 void ModFilesWidget::addFile() {
 	// adds a file... if already existing => just update internally
 	const QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectFile"));
+	
 	if (path.isEmpty()) return;
 
 	QInputDialog dlg(this);
 	dlg.setInputMode(QInputDialog::TextInput);
 	dlg.setWindowTitle(QApplication::tr("PathInDirectoryStructure"));
 	dlg.setLabelText(QApplication::tr("PathInDirectoryStructureDescription"));
+
+	connect(&dlg, &QInputDialog::textValueChanged, this, [&dlg](const QString & text) {
+		QSignalBlocker blocker(dlg);
+		auto textCopy = text;
+		textCopy = textCopy.remove(".");
+		dlg.setTextValue(textCopy);
+	});
 
 	if (dlg.exec() == QDialog::Rejected) return;
 	
@@ -271,12 +279,12 @@ void ModFilesWidget::uploadCurrentMod() {
 				} else {
 					// hash check
 					QString hashSum;
-					const bool b = utils::Hashing::hash(it.value(), hashSum);
+					const bool b = Hashing::hash(it.value(), hashSum);
 					if (b) {
 						if (hashSum == s2q(mf.hash)) { // hash the same, so just update the language
 							mf.size = 0;
 						} else {
-							utils::Compression::compress(it.value(), false);
+							Compression::compress(it.value(), false);
 
 #ifdef Q_OS_WIN
 							const auto path = q2ws(it.value() + ".z");
@@ -327,7 +335,7 @@ void ModFilesWidget::uploadCurrentMod() {
 					const auto fileSize = in.gcount();
 					sock.write(buffer, fileSize);
 					writtenBytes += fileSize;
-					emit updateUploadText(QApplication::tr("UploadingFiles").arg(utils::byteToString(writtenBytes), utils::byteToString(maxBytes), utils::bytePerTimeToString(writtenBytes, startTime.elapsed())));
+					emit updateUploadText(QApplication::tr("UploadingFiles").arg(byteToString(writtenBytes), byteToString(maxBytes), bytePerTimeToString(writtenBytes, startTime.elapsed())));
 					emit updateProgress(static_cast<int>(writtenBytes / 1024));
 				}
 				in.close();
@@ -567,7 +575,7 @@ void ModFilesWidget::addFile(QString fullPath, QString relativePath, QString fil
 				it.deleted = false;
 			}
 			// check hash of new file
-			const bool b = utils::Hashing::checkHash(fullPath, it.hash);
+			const bool b = Hashing::checkHash(fullPath, it.hash);
 			if (!b) { // hash changed
 				it.changed = true;
 				_fileMap.insert(fullRelativePath, fullPath);
@@ -603,7 +611,7 @@ void ModFilesWidget::addFile(QStandardItem * itm, QString file, QString language
 		currentPath += d;
 		auto it = _directory.find(currentPath);
 		if (it == _directory.end()) {
-			QStandardItem * newItm = new QStandardItem(d);
+			auto * newItm = new QStandardItem(d);
 			newItm->setEditable(false);
 			QStandardItem * languageItm = nullptr;
 			if (currentPath == currentFileName) {

@@ -1661,7 +1661,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 	QSettings iniParser(_iniFile, QSettings::IniFormat);
 	{
 		QString modFiles = iniParser.value("FILES/VDF", "").toString();
-		QString executable = iniParser.value("FILES/Executable", "").toString();
+		QString executable = stripRelativePath(iniParser.value("FILES/Executable", "").toString());
 		if (!executable.isEmpty()) {
 			*usedExecutable = executable;
 		}
@@ -1793,7 +1793,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 void Gothic1And2Launcher::checkToolCfg(QString path, QStringList * backgroundExecutables, bool * newGMP) {
 	if (QFileInfo::exists(path + "/tool.cfg")) {
 		QSettings configParser(path + "/tool.cfg", QSettings::IniFormat);
-		const QString executable = configParser.value("CONFIG/BackgroundProcess", "").toString();
+		const QString executable = stripRelativePath(configParser.value("CONFIG/BackgroundProcess", "").toString());
 		if (!executable.isEmpty()) {
 			backgroundExecutables->append(executable);
 		}

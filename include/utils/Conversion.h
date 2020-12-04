@@ -34,6 +34,7 @@ namespace utils {
 #define q2s(str) encodeString(QString(str)).toUtf8().toStdString()
 #define q2ws(str) encodeString(QString(str)).toStdWString()
 #define i2s(number) QLocale::system().toString(number)
+#define stripRelativePath(path) path.remove(".")
 
 	inline QString byteToString(qint64 value) {
 		QString unit = "B";

@@ -83,7 +83,7 @@ void GameLauncher::start() {
 
 	QSettings cfgFile(_iniFile, QSettings::IniFormat);
 	cfgFile.beginGroup("INFO");
-		const QString executable = cfgFile.value("Executable", "").toString();
+		const QString executable = stripRelativePath(cfgFile.value("Executable", "").toString());
 	cfgFile.endGroup();
 
 	const auto executablePath = QString("%1/%2").arg(_directory).arg(executable);
@@ -209,7 +209,7 @@ void GameLauncher::parseGame(int gameID, int gameType) {
 	auto title = cfgFile.value("INFO/Title").toString();
 	title = cfgFile.value("INFO/Title_" + Config::Language, title).toString(); // load language specific title, fall back to generic title if not present
 	
-	const auto icon = cfgFile.value("INFO/Icon").toString();
+	const auto icon = stripRelativePath(cfgFile.value("INFO/Icon").toString());
 
 	const auto iconPath = QString("%1/mods/%2/%3").arg(Config::DOWNLOADDIR).arg(gameID).arg(icon);
 
