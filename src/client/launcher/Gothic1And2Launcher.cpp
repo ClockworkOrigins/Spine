@@ -1791,91 +1791,91 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 }
 
 void Gothic1And2Launcher::checkToolCfg(QString path, QStringList * backgroundExecutables, bool * newGMP) {
-	if (QFileInfo::exists(path + "/tool.cfg")) {
-		QSettings configParser(path + "/tool.cfg", QSettings::IniFormat);
-		const QString executable = stripRelativePath(configParser.value("CONFIG/BackgroundProcess", "").toString());
-		if (!executable.isEmpty()) {
-			backgroundExecutables->append(executable);
+	if (!QFileInfo::exists(path + "/tool.cfg")) return;
+	
+	QSettings configParser(path + "/tool.cfg", QSettings::IniFormat);
+	const QString executable = stripRelativePath(configParser.value("CONFIG/BackgroundProcess", "").toString());
+	if (!executable.isEmpty()) {
+		backgroundExecutables->append(executable);
+	}
+	if (configParser.contains("GMP/IP")) {
+#ifdef Q_OS_WIN
+		{
+			QSettings registrySettings(R"(HKEY_CURRENT_USER\Software\Public domain\GMP Launcher\Server)", QSettings::NativeFormat);
+			_gmpCounterBackup = registrySettings.value("size", -1).toInt();
+			registrySettings.setValue("size", 1);
 		}
-		if (configParser.contains("GMP/IP")) {
-#ifdef Q_OS_WIN
-			{
-				QSettings registrySettings(R"(HKEY_CURRENT_USER\Software\Public domain\GMP Launcher\Server)", QSettings::NativeFormat);
-				_gmpCounterBackup = registrySettings.value("size", -1).toInt();
-				registrySettings.setValue("size", 1);
-			}
-			{
-				QSettings registrySettings(R"(HKEY_CURRENT_USER\Software\Public domain\GMP Launcher\Server\1)", QSettings::NativeFormat);
-				registrySettings.setValue("server_name", _nameLabel->text());
-				registrySettings.setValue("server_nick", Config::Username);
-				registrySettings.setValue("server_port", configParser.value("GMP/Port").toInt());
-				registrySettings.setValue("server_url", configParser.value("GMP/IP").toString());
-			}
-			{
-				QSettings registrySettings(R"(HKEY_CURRENT_USER\Software\Public domain\GMP Launcher\Gothic)", QSettings::NativeFormat);
-				registrySettings.setValue("working_directory", _directory);
-			}
-			*newGMP = true;
+		{
+			QSettings registrySettings(R"(HKEY_CURRENT_USER\Software\Public domain\GMP Launcher\Server\1)", QSettings::NativeFormat);
+			registrySettings.setValue("server_name", _nameLabel->text());
+			registrySettings.setValue("server_nick", Config::Username);
+			registrySettings.setValue("server_port", configParser.value("GMP/Port").toInt());
+			registrySettings.setValue("server_url", configParser.value("GMP/IP").toString());
+		}
+		{
+			QSettings registrySettings(R"(HKEY_CURRENT_USER\Software\Public domain\GMP Launcher\Gothic)", QSettings::NativeFormat);
+			registrySettings.setValue("working_directory", _directory);
+		}
+		*newGMP = true;
 #endif
-		} else if (configParser.contains("G2O/IP")) {
+	} else if (configParser.contains("G2O/IP")) {
 #ifdef Q_OS_WIN
-			const QString ip = configParser.value("G2O/IP", "127.0.0.1").toString();
-			const int port = configParser.value("G2O/Port", 12345).toInt();
-			const QString favoriteString = QString("<servers><server><ip>123.456.789.0</ip><port>12345</port></server></servers>").arg(ip).arg(port);
-			QFile outFile(_directory + "/../favorite.xml");
-			outFile.open(QIODevice::WriteOnly);
-			QTextStream ts(&outFile);
-			ts << favoriteString;
+		const QString ip = configParser.value("G2O/IP", "127.0.0.1").toString();
+		const int port = configParser.value("G2O/Port", 12345).toInt();
+		const QString favoriteString = QString("<servers><server><ip>123.456.789.0</ip><port>12345</port></server></servers>").arg(ip).arg(port);
+		QFile outFile(_directory + "/../favorite.xml");
+		outFile.open(QIODevice::WriteOnly);
+		QTextStream ts(&outFile);
+		ts << favoriteString;
 
-			{
-				QSettings registrySettings(R"(HKEY_CURRENT_USER\Software\G2O)", QSettings::NativeFormat);
-				if (!registrySettings.contains("nickname")) {
-					registrySettings.setValue("nickname", Config::Username);
-				}
+		{
+			QSettings registrySettings(R"(HKEY_CURRENT_USER\Software\G2O)", QSettings::NativeFormat);
+			if (!registrySettings.contains("nickname")) {
+				registrySettings.setValue("nickname", Config::Username);
 			}
+		}
 #endif
-		} else {
-			const QString ini = configParser.value("CONFIG/WriteIni", "").toString();
-			const QString clearIni = configParser.value("CONFIG/ClearIni", "").toString();
-			if (!ini.isEmpty()) {
-				QSettings newIni(_directory + "/" + ini, QSettings::IniFormat);
-				if (ini == clearIni) {
-					newIni.clear();
-				}
-				configParser.beginGroup(ini);
-				for (const QString & entry : configParser.allKeys()) {
-					QStringList list = entry.split(".");
-					if (list.size() == 2) {
-						QString e = configParser.value(entry, "").toString();
-						// modify e
-						// in case e = @USERNAME@ => _username
-						e = e.replace("@USERNAME@", Config::Username);
-						newIni.setValue(list[0] + "/" + list[1], e);
-					}
-				}
-				configParser.endGroup();
+	} else {
+		const QString ini = configParser.value("CONFIG/WriteIni", "").toString();
+		const QString clearIni = configParser.value("CONFIG/ClearIni", "").toString();
+		if (!ini.isEmpty()) {
+			QSettings newIni(_directory + "/" + ini, QSettings::IniFormat);
+			if (ini == clearIni) {
+				newIni.clear();
 			}
-			const QString file = configParser.value("CONFIG/WriteFile", "").toString();
-			const QString clearFile = configParser.value("CONFIG/ClearFile", "").toString();
-			if (!file.isEmpty()) {
-				QFile f(_directory + "/" + file);
-				if (file != clearFile) {
-					f.open(QIODevice::ReadWrite);
-				} else {
-					f.open(QIODevice::WriteOnly);
-				}
-				configParser.beginGroup(file);
-				for (const QString & entry : configParser.allKeys()) {
+			configParser.beginGroup(ini);
+			for (const QString & entry : configParser.allKeys()) {
+				QStringList list = entry.split(".");
+				if (list.size() == 2) {
 					QString e = configParser.value(entry, "").toString();
 					// modify e
 					// in case e = @USERNAME@ => _username
 					e = e.replace("@USERNAME@", Config::Username);
-					f.write(e.toStdString().c_str(), e.length());
-					f.write("\n");
+					newIni.setValue(list[0] + "/" + list[1], e);
 				}
-				f.close();
-				configParser.endGroup();
 			}
+			configParser.endGroup();
+		}
+		const QString file = configParser.value("CONFIG/WriteFile", "").toString();
+		const QString clearFile = configParser.value("CONFIG/ClearFile", "").toString();
+		if (!file.isEmpty()) {
+			QFile f(_directory + "/" + file);
+			if (file != clearFile) {
+				f.open(QIODevice::ReadWrite);
+			} else {
+				f.open(QIODevice::WriteOnly);
+			}
+			configParser.beginGroup(file);
+			for (const QString & entry : configParser.allKeys()) {
+				QString e = configParser.value(entry, "").toString();
+				// modify e
+				// in case e = @USERNAME@ => _username
+				e = e.replace("@USERNAME@", Config::Username);
+				f.write(e.toStdString().c_str(), e.length());
+				f.write("\n");
+			}
+			f.close();
+			configParser.endGroup();
 		}
 	}
 }
