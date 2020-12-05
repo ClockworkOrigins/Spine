@@ -87,7 +87,7 @@ EnginePage::EnginePage(QSettings * iniParser, QWidget * par) : QWidget(par), _in
 			gl->addWidget(lbl, 0, 2);
 			gl->addWidget(_zTexCacheOutTimeMSec, 0, 3);
 
-			lbl = new QLabel("zTexCacheSizeMaxByte", engineBox);
+			lbl = new QLabel("zTexCacheSizeMaxBytes", engineBox);
 			lbl->setToolTip(QApplication::tr("zTexCacheSizeMaxByteTooltip"));
 			_zTexCacheSizeMaxByte = new QSpinBox(engineBox);
 			_zTexCacheSizeMaxByte->setMinimum(0);
@@ -155,7 +155,7 @@ void EnginePage::reject() {
 	_zEnvMapTextureName->setText(text);
 	value = _iniParser->value("zTexCacheOutTimeMSec", 24000).toInt();
 	_zTexCacheOutTimeMSec->setValue(value);
-	value = _iniParser->value("zTexCacheSizeMaxByte", 100000000).toInt();
+	value = _iniParser->value("zTexCacheSizeMaxBytes", 100000000).toInt();
 	_zTexCacheSizeMaxByte->setValue(value);
 	value = _iniParser->value("zSndCacheOutTimeMSec", 10000).toInt();
 	_zSndCacheOutTimeMSec->setValue(value);
@@ -175,7 +175,7 @@ void EnginePage::accept() {
 	_iniParser->setValue("zCacheInAllNSCAtNewGame", _zCacheInAllNSCAtNewGame->currentIndex());
 	_iniParser->setValue("zEnvMapTextureName", _zEnvMapTextureName->text());
 	_iniParser->setValue("zTexCacheOutTimeMSec", _zTexCacheOutTimeMSec->value());
-	_iniParser->setValue("zTexCacheSizeMaxByte", _zTexCacheSizeMaxByte->value());
+	_iniParser->setValue("zTexCacheSizeMaxBytes", _zTexCacheSizeMaxByte->value());
 	_iniParser->setValue("zSndCacheOutTimeMSec", _zSndCacheOutTimeMSec->value());
 	_iniParser->setValue("zSndCacheSizeMaxBytes", _zSndCacheSizeMaxBytes->value());
 	_iniParser->setValue("zWaterEnvMapTextureName", _zWaterEnvMapTextureName->text());

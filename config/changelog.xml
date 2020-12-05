@@ -2026,6 +2026,7 @@
 		<Bug language="Deutsch">Check eingebaut, um Download-Pfad innerhalb des Spine-Ordners zu verhindern</Bug>
 		<Bug language="Deutsch">Spine-Version wird jetzt korrekt fürs Management geladen</Bug>
 		<Bug language="Deutsch">Sicherheitsmechanismus eingebaut, um Pfade oberhalb des zugehörigen Ordners zu sperren</Bug>
+		<Bug language="Deutsch">Übersetzer funktioniert wieder</Bug>
 		
 		<Enhancement language="English">Added support for user reviews</Enhancement>
 		<Bug language="English">Optimized number formatting</Bug>
@@ -2036,5 +2037,6 @@
 		<Bug language="English">Added check to avoid downloads paths within the Spine folder</Bug>
 		<Bug language="English">Spine version now also loaded for Management</Bug>
 		<Bug language="English">Added security mechanism to prohibit access to folders above the related one</Bug>
+		<Bug language="English">Translator works again</Bug>
 	</Version>
 </Versions>

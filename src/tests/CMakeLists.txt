@@ -32,3 +32,5 @@ LINK_TO_FOLDER("${CMAKE_CURRENT_SOURCE_DIR}/resources" "${CMAKE_BINARY_DIR}/bin/
 set_target_properties(
 	UnitTester PROPERTIES FOLDER Tests
 )
+
+ADD_TEST(NAME TestUnitTests COMMAND $<TARGET_FILE:UnitTester> WORKING_DIRECTORY $<TARGET_FILE:UnitTester>/..)

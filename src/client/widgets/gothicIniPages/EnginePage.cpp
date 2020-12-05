@@ -50,7 +50,7 @@ EnginePage::EnginePage(QSettings * iniParser, QWidget * par) : QWidget(par), _in
 			gl->addWidget(lbl, 0, 0);
 			gl->addWidget(_zTexCacheOutTimeMSec, 0, 1);
 
-			lbl = new QLabel("zTexCacheSizeMaxByte", engineBox);
+			lbl = new QLabel("zTexCacheSizeMaxBytes", engineBox);
 			lbl->setToolTip(QApplication::tr("zTexCacheSizeMaxByteTooltip"));
 			_zTexCacheSizeMaxByte = new QSpinBox(engineBox);
 			_zTexCacheSizeMaxByte->setMinimum(0);
@@ -80,7 +80,7 @@ void EnginePage::reject() {
 	_iniParser->beginGroup("ENGINE");
 	int value = _iniParser->value("zTexCacheOutTimeMSec", 24000).toInt();
 	_zTexCacheOutTimeMSec->setValue(value);
-	value = _iniParser->value("zTexCacheSizeMaxByte", 100000000).toInt();
+	value = _iniParser->value("zTexCacheSizeMaxBytes", 100000000).toInt();
 	_zTexCacheSizeMaxByte->setValue(value);
 	_iniParser->endGroup();
 }
@@ -89,7 +89,7 @@ void EnginePage::accept() {
 	// Engine
 	_iniParser->beginGroup("ENGINE");
 	_iniParser->setValue("zTexCacheOutTimeMSec", _zTexCacheOutTimeMSec->value());
-	_iniParser->setValue("zTexCacheSizeMaxByte", _zTexCacheSizeMaxByte->value());
+	_iniParser->setValue("zTexCacheSizeMaxBytes", _zTexCacheSizeMaxByte->value());
 	_iniParser->endGroup();
 }
 

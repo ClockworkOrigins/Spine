@@ -189,11 +189,15 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 	_sortModel->setFilterKeyColumn(DatabaseColumn::Name);
 	_sortModel->setFilterCaseSensitivity(Qt::CaseSensitivity::CaseInsensitive);
 	_treeView->setModel(_sortModel);
+
+	const QStringList headerLabels = { QApplication::tr("ID"), QApplication::tr("Name"), QApplication::tr("Author"), QApplication::tr("Type"), QApplication::tr("Game"), QApplication::tr("DevTime"), QApplication::tr("AvgTime"), QApplication::tr("ReleaseDate"), QApplication::tr("UpdateDate"), QApplication::tr("Version"), QApplication::tr("Languages"), QApplication::tr("DownloadSize"), QString() };
+
+	_sourceModel->setHorizontalHeaderLabels(headerLabels);
 	_treeView->header()->setSortIndicatorShown(true);
 	_treeView->header()->setStretchLastSection(true);
 	_treeView->header()->setDefaultAlignment(Qt::AlignHCenter);
 	_treeView->header()->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
-	_sourceModel->setHorizontalHeaderLabels(QStringList() << QApplication::tr("ID") << QApplication::tr("Name") << QApplication::tr("Author") << QApplication::tr("Type") << QApplication::tr("Game") << QApplication::tr("DevTime") << QApplication::tr("AvgTime") << QApplication::tr("ReleaseDate") << QApplication::tr("UpdateDate") << QApplication::tr("Version") << QApplication::tr("Languages") << QApplication::tr("DownloadSize") << QString());
+	_treeView->header()->setModel(_sourceModel);
 	_treeView->setAlternatingRowColors(true);
 	_treeView->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
 	_treeView->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);

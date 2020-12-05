@@ -27,9 +27,6 @@ SOURCE_GROUP(widgets\\management /widgets/management/*)
 SOURCE_GROUP(widgets\\systempackIniPages /widgets/systempackIniPages/*)
 SOURCE_GROUP(moc /moc_*)
 
-# add resources ...
-QT5_ADD_RESOURCES(QT_RESOURCE_FILES ${ResourceFile})
-
 # add translations ...
 QT5_ADD_TRANSLATION(QT_TRANSLATION_FILES ${TRANS})
 
@@ -43,7 +40,7 @@ IF(WIN32)
          )
 ENDIF(WIN32)
 
-ADD_EXECUTABLE(Spine ${GUI_TYPE} ${SpineSrc} ${SpineHeader} ${QT_TRANSLATION_FILES} ${QT_RESOURCE_FILES} ${WINDOWS_RC_FILES})
+ADD_EXECUTABLE(Spine ${GUI_TYPE} ${SpineSrc} ${SpineHeader} ${QT_TRANSLATION_FILES} ${ResourceFile} ${WINDOWS_RC_FILES})
 
 IF(WITH_API)
 	add_dependencies(Spine SpineAPI${ARCH_POSTFIX})
