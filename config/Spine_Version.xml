@@ -37,10 +37,6 @@
 		<File Hash="7f8a2e061be53f6e811ab89554aa541261a0ae59452d1a675df43b2f2e39b0685b453a74a77cd7d292245ae5ea26c59443cacaf91d770cdb7cf88cb9ffe7ee33">bin/libcrypto-1_1-x64.dll.z</File>
 		<File Hash="85b557aa5d48e01f1e8056b0c4c5ee99b1305ad351143d11e028b8d16b7be523cd837106f3510016298fe350f3fcd79018cee3b975886e6d8dc59dd1a836245a">bin/libssl-1_1-x64.dll.z</File>
 	</Version>
-	<Version majorVersion="1" minorVersion="22" patchVersion="2">
-		<File Hash="89692bebb0a9264b5a2102b73201aa3b0034648a639ff812e640a653613a37bbbc792b4f68560fbc2a6ebd3befa98e4a3eba1a79d8fec2817c02f2b5328cd517">bin/TranslatorAPI.dll.z</File>
-		<File Hash="58406e08ce732069027cb27bfb1c5c8e26d195b57f027011eeaeb0941b9e1de2e45c2bd1cfc0ae0088141fb6eb9e6cad0cdeb4344a67c4fd1939cb53c80b814d">bin/TranslatorCommon.dll.z</File>
-	</Version>
 	<Version majorVersion="1" minorVersion="23" patchVersion="0">
 		<File Hash="f4046d3b38adacf9cb6150c687f5a3fc38d8eb265bb78d9a4205a84b9fec634c0118388f2457c8568c54a52bbfc3114d7f850fb95caa35c2fec698d78bac786e">styles.css.z</File>
 	</Version>
@@ -64,6 +60,8 @@
 		<File Hash="bf9ec1cc8f7edb5d8f08af1b0d77c773e8067e143bc59d8a213a4070c22174475f9371a306c5f3fa48c3c96c34c7a815a10acd1b2cfede18a1e744fda2ae626e">bin/Qt5Svg.dll.z</File>
 		<File Hash="a4d67d544d40136f5e3ed325afd7b8161fa37d7c28f91314457ad88d3d0000c92e1d57a9791bf10ea1ce4550f591354d08164b85549f4dbd13f0b9dfa3e68e31">bin/Qt5Widgets.dll.z</File>
 		<File Hash="83aa6c057c497c875fa9c15d1afa9accc39f9501c49afddf9fcb594c8d60ae162b93185d50e8c4cc14aee9db95bda8aae160af04aa3c72c1164f8f6543b36241">bin/Qt5WinExtras.dll.z</File>
+		<File Hash="89692bebb0a9264b5a2102b73201aa3b0034648a639ff812e640a653613a37bbbc792b4f68560fbc2a6ebd3befa98e4a3eba1a79d8fec2817c02f2b5328cd517">bin/TranslatorAPI.dll.z</File>
+		<File Hash="58406e08ce732069027cb27bfb1c5c8e26d195b57f027011eeaeb0941b9e1de2e45c2bd1cfc0ae0088141fb6eb9e6cad0cdeb4344a67c4fd1939cb53c80b814d">bin/TranslatorCommon.dll.z</File>
 		<File Hash="70f515a75c6bfa0a9ae0b8a93abfa6ec95700d3b163c5d23cb28459c70a9f05666c08bd74332abbbdd8929ad98b60ff4dcd4d18729f8928f17ff6d6e335377bf">bin/zlib.dll.z</File>
 		<File Hash="c22939819a10f6082d1efe618feecb509392210d1411c41c6494d082f3b8dc1de6f61f1c31a5b412cf30388f4900469224def8937ebb7d62ed90d02e32f76dab">bin/plugins/imageformats/qico.dll.z</File>
 		<File Hash="61ebb52e6e6efeba62836879bd49f7f88649217212cba6572e57b6201be656fb50c4870ce65fefc00f529e7ad590bb8d4b7a7874396b2f1c350ed10251ab0244">bin/plugins/imageformats/qjpeg.dll.z</File>

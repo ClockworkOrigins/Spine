@@ -27,7 +27,7 @@ class QPushButton;
 class QSettings;
 
 namespace spine {
-namespace translator {
+namespace translation {
 
 	class ApplyTranslationDialog : public QDialog {
 		Q_OBJECT
@@ -49,5 +49,5 @@ namespace translator {
 		void saveSettings();
 	};
 
-} /* namespace translator */
+} /* namespace translation */
 } /* namespace spine */

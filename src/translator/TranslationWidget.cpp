@@ -21,10 +21,10 @@
 #include <QHBoxLayout>
 #include <QLineEdit>
 
-using namespace spine::translator;
+using namespace spine::translation;
 
 TranslationWidget::TranslationWidget(QString sourceText, QString targetText, QWidget * par) : QWidget(par), _sourceEdit(nullptr), _translationEdit(nullptr) {
-	QHBoxLayout * l = new QHBoxLayout();
+	auto * l = new QHBoxLayout();
 	
 	_sourceEdit = new QLineEdit(sourceText, this);
 	_sourceEdit->setReadOnly(true);
@@ -37,9 +37,6 @@ TranslationWidget::TranslationWidget(QString sourceText, QString targetText, QWi
 
 	connect(_translationEdit, &QLineEdit::cursorPositionChanged, this, &TranslationWidget::focusChanged);
 	connect(_translationEdit, &QLineEdit::textChanged, this, &TranslationWidget::focusChanged);
-}
-
-TranslationWidget::~TranslationWidget() {
 }
 
 QString TranslationWidget::getTranslation() const {

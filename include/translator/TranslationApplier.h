@@ -24,7 +24,7 @@
 #include <QObject>
 
 namespace spine {
-namespace translator {
+namespace translation {
 
 	class TranslationApplier : public QObject {
 		Q_OBJECT
@@ -48,5 +48,5 @@ namespace translator {
 		void parseName(QString line, QMap<QString, QString> names, QString & newFileContent);
 	};
 
-} /* namespace translator */
+} /* namespace translation */
 } /* namespace spine */

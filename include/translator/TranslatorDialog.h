@@ -31,7 +31,7 @@ namespace spine {
 namespace gui {
 	class WaitSpinner;
 }
-namespace translator {
+namespace translation {
 
 	class TranslationWidget;
 
@@ -43,7 +43,7 @@ namespace translator {
 		~TranslatorDialog();
 
 	signals:
-		void receivedProjects(std::vector<::translator::common::SendProjectsMessage::Project>);
+		void receivedProjects(std::vector<translator::common::SendProjectsMessage::Project>);
 		void receivedTextToTranslate();
 		void receivedTextToReview();
 		void receivedProgress(std::pair<uint32_t, uint32_t>);
@@ -51,7 +51,7 @@ namespace translator {
 	private slots:
 		void submit();
 		void discard();
-		void updateProjects(std::vector<::translator::common::SendProjectsMessage::Project> projects);
+		void updateProjects(std::vector<translator::common::SendProjectsMessage::Project> projects);
 		void requestText();
 		void requestReview();
 		void updateTextToTranslate();
@@ -62,12 +62,12 @@ namespace translator {
 	private:
 		QComboBox * _projectsComboBox;
 		QProgressBar * _progressBar;
-		std::vector<::translator::common::SendProjectsMessage::Project> _projects;
+		std::vector<translator::common::SendProjectsMessage::Project> _projects;
 		QPushButton * _requestTextButton;
 		QPushButton * _requestReviewButton;
-		::translator::common::SendProjectsMessage::Project _activeProject;
-		::translator::common::SendTextToTranslateMessage * _textToTranslateMsg;
-		::translator::common::SendTextToReviewMessage * _textToReviewMsg;
+		translator::common::SendProjectsMessage::Project _activeProject;
+		translator::common::SendTextToTranslateMessage * _textToTranslateMsg;
+		translator::common::SendTextToReviewMessage * _textToReviewMsg;
 		QTextBrowser * _sourcePreview;
 		QTextBrowser * _destinationPreview;
 		QTextBrowser * _hintPreview;
@@ -85,5 +85,5 @@ namespace translator {
 		bool eventFilter(QObject * o, QEvent * e) override;
 	};
 
-} /* namespace translator */
+} /* namespace translation */
 } /* namespace spine */

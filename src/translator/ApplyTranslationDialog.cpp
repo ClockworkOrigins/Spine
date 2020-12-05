@@ -32,21 +32,21 @@
 #include <QSettings>
 #include <QVBoxLayout>
 
-using namespace spine::translator;
+using namespace spine::translation;
 using namespace spine::utils;
 
 ApplyTranslationDialog::ApplyTranslationDialog(uint32_t requestID, QString title, QWidget * par) : QDialog(par), _requestID(requestID) {
-	QVBoxLayout * l = new QVBoxLayout();
+	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
 	{
-		QHBoxLayout * hl = new QHBoxLayout();
+		auto * hl = new QHBoxLayout();
 
-		QLabel * pathLabel = new QLabel(QApplication::tr("ParsePath"), this);
+		auto * pathLabel = new QLabel(QApplication::tr("ParsePath"), this);
 		_pathEdit = new QLineEdit(this);
 		_pathEdit->setReadOnly(true);
 		_pathEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
-		QPushButton * pathPushButton = new QPushButton("...", this);
+		auto * pathPushButton = new QPushButton("...", this);
 		hl->addWidget(pathLabel);
 		hl->addWidget(_pathEdit);
 		hl->addWidget(pathPushButton);
@@ -57,12 +57,12 @@ ApplyTranslationDialog::ApplyTranslationDialog(uint32_t requestID, QString title
 		l->addLayout(hl);
 	}
 
-	QDialogButtonBox * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Apply | QDialogButtonBox::StandardButton::Cancel, Qt::Orientation::Horizontal, this);
+	auto * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Apply | QDialogButtonBox::StandardButton::Cancel, Qt::Orientation::Horizontal, this);
 	l->addWidget(dbb);
 
 	setLayout(l);
 
-	QPushButton * b = dbb->button(QDialogButtonBox::StandardButton::Apply);
+	auto * b = dbb->button(QDialogButtonBox::StandardButton::Apply);
 	b->setText(QApplication::tr("Apply"));
 	_applyButton = b;
 	b->setDisabled(true);
@@ -98,9 +98,9 @@ void ApplyTranslationDialog::applyTranslation() {
 	QProgressDialog progressDialog(QApplication::tr("ApplyingTranslation"), "", 0, 100, this);
 	progressDialog.setCancelButton(nullptr);
 	progressDialog.setWindowFlags(progressDialog.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-	translator::TranslationApplier ta(_requestID, this);
-	connect(&ta, &translator::TranslationApplier::updatedCurrentProgress, &progressDialog, &QProgressDialog::setValue);
-	connect(&ta, &translator::TranslationApplier::updateMaxProgress, &progressDialog, &QProgressDialog::setMaximum);
+	TranslationApplier ta(_requestID, this);
+	connect(&ta, &TranslationApplier::updatedCurrentProgress, &progressDialog, &QProgressDialog::setValue);
+	connect(&ta, &TranslationApplier::updateMaxProgress, &progressDialog, &QProgressDialog::setMaximum);
 	ta.parseTexts(_pathEdit->text());
 	accept();
 }

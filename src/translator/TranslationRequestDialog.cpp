@@ -44,21 +44,21 @@
 #include "translator/api/TranslatorAPI.h"
 #include "translator/common/TranslationModel.h"
 
-using namespace spine::translator;
+using namespace spine::translation;
 using namespace spine::utils;
 
-TranslationRequestDialog::TranslationRequestDialog(QWidget * par) : QDialog(par), _model(nullptr), _progressDialog(nullptr), _widgets() {
-	QVBoxLayout * l = new QVBoxLayout();
+TranslationRequestDialog::TranslationRequestDialog(QWidget * par) : QDialog(par), _model(nullptr), _progressDialog(nullptr) {
+	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
 	{
-		QHBoxLayout * hl = new QHBoxLayout();
+		auto * hl = new QHBoxLayout();
 
-		QLabel * pathLabel = new QLabel(QApplication::tr("ParsePath"), this);
+		auto * pathLabel = new QLabel(QApplication::tr("ParsePath"), this);
 		_pathEdit = new QLineEdit(this);
 		_pathEdit->setReadOnly(true);
 		_pathEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
-		QPushButton * pathPushButton = new QPushButton("...", this);
+		auto * pathPushButton = new QPushButton("...", this);
 		hl->addWidget(pathLabel);
 		hl->addWidget(_pathEdit);
 		hl->addWidget(pathPushButton);
@@ -70,21 +70,21 @@ TranslationRequestDialog::TranslationRequestDialog(QWidget * par) : QDialog(par)
 	}
 
 	{
-		QHBoxLayout * hl = new QHBoxLayout();
+		auto * hl = new QHBoxLayout();
 
 		hl->setAlignment(Qt::AlignLeft);
 
 		QStringList languages;
 		languages << "Deutsch" << "English" << "Polish" << "Russian";
 
-		QLabel * projectNameLabel = new QLabel(QApplication::tr("ProjectName"), this);
+		auto * projectNameLabel = new QLabel(QApplication::tr("ProjectName"), this);
 		_projectNameEdit = new QLineEdit(this);
 
-		QLabel * sourceLanguageLabel = new QLabel(QApplication::tr("SourceLanguage"), this);
+		auto * sourceLanguageLabel = new QLabel(QApplication::tr("SourceLanguage"), this);
 		_sourceLanguageBox = new QComboBox(this);
 		_sourceLanguageBox->addItems(languages);
 
-		QLabel * destinationLanguageLabel = new QLabel(QApplication::tr("DestinationLanguage"), this);
+		auto * destinationLanguageLabel = new QLabel(QApplication::tr("DestinationLanguage"), this);
 		_destinationLanguageBox = new QComboBox(this);
 		_destinationLanguageBox->addItems(languages);
 
@@ -103,7 +103,7 @@ TranslationRequestDialog::TranslationRequestDialog(QWidget * par) : QDialog(par)
 	}
 
 	{
-		QHBoxLayout * hl = new QHBoxLayout();
+		auto * hl = new QHBoxLayout();
 
 		hl->setAlignment(Qt::AlignLeft);
 
@@ -122,7 +122,7 @@ TranslationRequestDialog::TranslationRequestDialog(QWidget * par) : QDialog(par)
 	}
 
 	{
-		QGridLayout * gl = new QGridLayout();
+		auto * gl = new QGridLayout();
 
 		gl->setAlignment(Qt::AlignLeft);
 
@@ -170,7 +170,7 @@ TranslationRequestDialog::TranslationRequestDialog(QWidget * par) : QDialog(par)
 
 	restoreSettings();
 
-	qRegisterMetaType<std::vector<::translator::common::SendOwnProjectsMessage::Project>>("std::vector<translator::common::SendOwnProjectsMessage::Project>");
+	qRegisterMetaType<std::vector<translator::common::SendOwnProjectsMessage::Project>>("std::vector<translator::common::SendOwnProjectsMessage::Project>");
 	connect(this, &TranslationRequestDialog::receivedRequestList, this, &TranslationRequestDialog::updateRequestList);
 
 	requestList();
@@ -194,13 +194,13 @@ void TranslationRequestDialog::openFileDialog() {
 void TranslationRequestDialog::parseScripts() {
 	delete _model;
 
-	translator::GothicParser gp(this);
+	GothicParser gp(this);
 
-	_model = ::translator::api::TranslatorAPI::createModel(q2s(_projectNameEdit->text()), q2s(_sourceLanguageBox->currentText()), q2s(_destinationLanguageBox->currentText()));
+	_model = translator::api::TranslatorAPI::createModel(q2s(_projectNameEdit->text()), q2s(_sourceLanguageBox->currentText()), q2s(_destinationLanguageBox->currentText()));
 	_progressDialog = new QProgressDialog(QApplication::tr("ParseScripts"), "", 0, 100, this);
 	_progressDialog->setCancelButton(nullptr);
 	_progressDialog->setWindowFlags(_progressDialog->windowFlags() & ~Qt::WindowContextHelpButtonHint);
-	connect(&gp, &translator::GothicParser::updatedProgress, this, &TranslationRequestDialog::updateProgress);
+	connect(&gp, &GothicParser::updatedProgress, this, &TranslationRequestDialog::updateProgress);
 	gp.parseTexts(_pathEdit->text(), _model);
 	delete _progressDialog;
 	const bool condition = _model && _model->getNames().size() + _model->getTexts().size() + _model->getDialogTextCount() > 0;
@@ -228,7 +228,7 @@ void TranslationRequestDialog::requestTranslation() {
 	QFutureWatcher<void> watcher;
 	connect(&watcher, &QFutureWatcher<void>::finished, &loop, &QEventLoop::quit);
 	const QFuture<void> future = QtConcurrent::run([this]() {
-		::translator::api::TranslatorAPI::requestTranslation(q2s(Config::Username), _model);
+		translator::api::TranslatorAPI::requestTranslation(q2s(Config::Username), _model);
 		delete _model;
 		_model = nullptr;
 	});
@@ -249,29 +249,29 @@ void TranslationRequestDialog::checkParsePossible() {
 	_parseButton->setEnabled(!Config::Username.isEmpty() && !_pathEdit->text().isEmpty() && !_projectNameEdit->text().isEmpty() && _sourceLanguageBox->currentIndex() != _destinationLanguageBox->currentIndex());
 }
 
-void TranslationRequestDialog::updateRequestList(std::vector<::translator::common::SendOwnProjectsMessage::Project> projects) {
+void TranslationRequestDialog::updateRequestList(std::vector<translator::common::SendOwnProjectsMessage::Project> projects) {
 	for (QWidget * w : _widgets) {
 		w->deleteLater();
 	}
 	_widgets.clear();
 
-	for (auto project : projects) {
-		QHBoxLayout * hl = new QHBoxLayout();
-		QLabel * l = new QLabel(s2q(project.projectName) + " (" + s2q(project.sourceLanguage) + " => " + s2q(project.destinationLanguage) + ")", this);
-		QProgressBar * pb = new QProgressBar(this);
+	for (const auto & project : projects) {
+		auto * hl = new QHBoxLayout();
+		auto * l = new QLabel(s2q(project.projectName) + " (" + s2q(project.sourceLanguage) + " => " + s2q(project.destinationLanguage) + ")", this);
+		auto * pb = new QProgressBar(this);
 		pb->setMinimum(0);
 		pb->setMaximum(project.toTranslate);
 		pb->setValue(project.translated);
 		pb->setFormat("%v / %m (%p %)");
 		pb->setAlignment(Qt::AlignCenter);
 
-		QPushButton * accessButton = new QPushButton(QApplication::tr("UserManagement"), this);
-		accessButton->setProperty("requestID", int(project.requestID));
+		auto * accessButton = new QPushButton(QApplication::tr("UserManagement"), this);
+		accessButton->setProperty("requestID", static_cast<int>(project.requestID));
 		accessButton->setProperty("title", l->text());
 		connect(accessButton, &QPushButton::released, this, &TranslationRequestDialog::openAccessDialog);
 
-		QPushButton * applyTranslationButton = new QPushButton(QApplication::tr("ApplyTranslation"), this);
-		applyTranslationButton->setProperty("requestID", int(project.requestID));
+		auto * applyTranslationButton = new QPushButton(QApplication::tr("ApplyTranslation"), this);
+		applyTranslationButton->setProperty("requestID", static_cast<int>(project.requestID));
 		applyTranslationButton->setProperty("title", l->text());
 		connect(applyTranslationButton, &QPushButton::released, this, &TranslationRequestDialog::applyTranslation);
 
@@ -318,7 +318,7 @@ void TranslationRequestDialog::saveSettings() {
 
 void TranslationRequestDialog::requestList() {
 	QtConcurrent::run([this]() {
-		::translator::common::SendOwnProjectsMessage * sopm = ::translator::api::TranslatorAPI::requestOwnProjects(q2s(Config::Username));
+		translator::common::SendOwnProjectsMessage * sopm = translator::api::TranslatorAPI::requestOwnProjects(q2s(Config::Username));
 		if (sopm) {
 			emit receivedRequestList(sopm->projects);
 		}

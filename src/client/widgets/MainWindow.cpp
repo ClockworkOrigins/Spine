@@ -117,8 +117,8 @@ using namespace spine::launcher;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-#ifdef WITH_TRANLSATOR
-using namespace spine::translator;
+#ifdef WITH_TRANSLATOR
+using namespace spine::translation;
 #endif
 
 enum MainTabsOnline {

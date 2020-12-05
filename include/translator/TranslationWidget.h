@@ -23,14 +23,13 @@
 class QLineEdit;
 
 namespace spine {
-namespace translator {
+namespace translation {
 
 	class TranslationWidget : public QWidget {
 		Q_OBJECT
 
 	public:
 		TranslationWidget(QString sourceText, QString targetText, QWidget * par);
-		~TranslationWidget();
 
 		QString getTranslation() const;
 		void setFocusToTranslation();
@@ -47,5 +46,5 @@ namespace translator {
 		QLineEdit * _translationEdit;
 	};
 
-} /* namespace translator */
+} /* namespace translation */
 } /* namespace spine */

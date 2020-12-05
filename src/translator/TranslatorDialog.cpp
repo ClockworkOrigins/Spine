@@ -39,15 +39,15 @@
 
 #include "translator/api/TranslatorAPI.h"
 
-using namespace spine::translator;
+using namespace spine::translation;
 using namespace spine::utils;
 
-TranslatorDialog::TranslatorDialog(QWidget * par) : QDialog(par), _projectsComboBox(nullptr), _progressBar(nullptr), _projects(), _requestTextButton(nullptr), _requestReviewButton(nullptr), _activeProject(), _textToTranslateMsg(nullptr), _textToReviewMsg(nullptr), _sourcePreview(nullptr), _destinationPreview(nullptr), _hintPreview(nullptr), _translationsLayout(nullptr), _translationWidgets(), _hintsBox(nullptr), _waitSpinner(nullptr) {
-	QVBoxLayout * l = new QVBoxLayout();
+TranslatorDialog::TranslatorDialog(QWidget * par) : QDialog(par), _projectsComboBox(nullptr), _progressBar(nullptr), _requestTextButton(nullptr), _requestReviewButton(nullptr), _activeProject(), _textToTranslateMsg(nullptr), _textToReviewMsg(nullptr), _sourcePreview(nullptr), _destinationPreview(nullptr), _hintPreview(nullptr), _translationsLayout(nullptr), _hintsBox(nullptr), _waitSpinner(nullptr) {
+	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
 	{
-		QHBoxLayout * hl = new QHBoxLayout();
+		auto * hl = new QHBoxLayout();
 		_projectsComboBox = new QComboBox(this);
 		_progressBar = new QProgressBar(this);
 		_progressBar->hide();
@@ -59,7 +59,7 @@ TranslatorDialog::TranslatorDialog(QWidget * par) : QDialog(par), _projectsCombo
 		l->addLayout(hl);
 	}
 	{
-		QHBoxLayout * hl = new QHBoxLayout();
+		auto * hl = new QHBoxLayout();
 		_requestTextButton = new QPushButton(QApplication::tr("RequestTextToTranslate"), this);
 		_requestTextButton->setEnabled(false);
 		_requestTextButton->installEventFilter(this);
@@ -75,9 +75,9 @@ TranslatorDialog::TranslatorDialog(QWidget * par) : QDialog(par), _projectsCombo
 		l->addLayout(hl);
 	}
 	{
-		QGridLayout * gl = new QGridLayout();
+		auto * gl = new QGridLayout();
 
-		QHBoxLayout * hl = new QHBoxLayout();
+		auto * hl = new QHBoxLayout();
 		_sourcePreview = new QTextBrowser(this);
 		_destinationPreview = new QTextBrowser(this);
 
@@ -89,8 +89,8 @@ TranslatorDialog::TranslatorDialog(QWidget * par) : QDialog(par), _projectsCombo
 		gl->addLayout(hl, 0, 0);
 		gl->addWidget(_hintPreview, 0, 1);
 
-		QScrollArea * scrollArea = new QScrollArea(this);
-		QWidget * mainWidget = new QWidget(this);
+		auto * scrollArea = new QScrollArea(this);
+		auto * mainWidget = new QWidget(this);
 		scrollArea->setWidgetResizable(true);
 		_translationsLayout = new QVBoxLayout();
 		_translationsLayout->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
@@ -105,7 +105,7 @@ TranslatorDialog::TranslatorDialog(QWidget * par) : QDialog(par), _projectsCombo
 		l->addLayout(gl);
 	}
 
-	QDialogButtonBox * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Apply | QDialogButtonBox::StandardButton::Discard, Qt::Orientation::Horizontal, this);
+	auto * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Apply | QDialogButtonBox::StandardButton::Discard, Qt::Orientation::Horizontal, this);
 	l->addWidget(dbb);
 
 	setLayout(l);
@@ -127,7 +127,7 @@ TranslatorDialog::TranslatorDialog(QWidget * par) : QDialog(par), _projectsCombo
 
 	restoreSettings();
 
-	qRegisterMetaType<std::vector<::translator::common::SendProjectsMessage::Project>>("std::vector<translator::common::SendProjectsMessage::Project>");
+	qRegisterMetaType<std::vector<translator::common::SendProjectsMessage::Project>>("std::vector<translator::common::SendProjectsMessage::Project>");
 	qRegisterMetaType<std::pair<uint32_t, uint32_t>>("std::pair<uint32_t, uint32_t>");
 	connect(this, &TranslatorDialog::receivedProjects, this, &TranslatorDialog::updateProjects);
 	connect(this, &TranslatorDialog::receivedTextToTranslate, this, &TranslatorDialog::updateTextToTranslate);
@@ -156,7 +156,7 @@ void TranslatorDialog::submit() {
 				dialog.push_back(q2s(tw->getTranslation()));
 			}
 		}
-		::translator::api::TranslatorAPI::sendTranslationDraft(q2s(Config::Username), _activeProject.destinationLanguage, name, text, dialog, _textToTranslateMsg->id);
+		translator::api::TranslatorAPI::sendTranslationDraft(q2s(Config::Username), _activeProject.destinationLanguage, name, text, dialog, _textToTranslateMsg->id);
 		newRequestTranslate = true;
 	}
 	bool newRequestReview = false;
@@ -173,7 +173,7 @@ void TranslatorDialog::submit() {
 				changed |= dialog[dialog.size() - 1] != _textToReviewMsg->dialog.second[dialog.size() - 1];
 			}
 		}
-		::translator::api::TranslatorAPI::sendTranslationReview(q2s(Config::Username), _activeProject.sourceLanguage, _activeProject.destinationLanguage, name, text, dialog, _textToReviewMsg->id, changed);
+		translator::api::TranslatorAPI::sendTranslationReview(q2s(Config::Username), _activeProject.sourceLanguage, _activeProject.destinationLanguage, name, text, dialog, _textToReviewMsg->id, changed);
 		newRequestReview = true;
 		if (!changed) {
 			_progressBar->setValue(_progressBar->value() + 1);
@@ -191,12 +191,12 @@ void TranslatorDialog::discard() {
 	reset();
 }
 
-void TranslatorDialog::updateProjects(std::vector<::translator::common::SendProjectsMessage::Project> projects) {
+void TranslatorDialog::updateProjects(std::vector<translator::common::SendProjectsMessage::Project> projects) {
 	delete _waitSpinner;
 	_waitSpinner = nullptr;
 	_projects = projects;
 	QStringList options;
-	for (auto p : projects) {
+	for (const auto & p : projects) {
 		options << QString("%1 (%2 => %3)").arg(s2q(p.projectName), s2q(p.sourceLanguage), s2q(p.destinationLanguage));
 	}
 	_projectsComboBox->clear();
@@ -221,7 +221,7 @@ void TranslatorDialog::requestText() {
 		_textToReviewMsg = nullptr;
 	}
 	QtConcurrent::run([this]() {
-		_textToTranslateMsg = ::translator::api::TranslatorAPI::requestTextToTranslate(q2s(Config::Username), _activeProject.projectName, _activeProject.sourceLanguage, _activeProject.destinationLanguage);
+		_textToTranslateMsg = translator::api::TranslatorAPI::requestTextToTranslate(q2s(Config::Username), _activeProject.projectName, _activeProject.sourceLanguage, _activeProject.destinationLanguage);
 		emit receivedTextToTranslate();
 	});
 }
@@ -241,7 +241,7 @@ void TranslatorDialog::requestReview() {
 		_textToReviewMsg = nullptr;
 	}
 	QtConcurrent::run([this]() {
-		_textToReviewMsg = ::translator::api::TranslatorAPI::requestTextToReview(q2s(Config::Username), _activeProject.projectName, _activeProject.sourceLanguage, _activeProject.destinationLanguage);
+		_textToReviewMsg = translator::api::TranslatorAPI::requestTextToReview(q2s(Config::Username), _activeProject.projectName, _activeProject.sourceLanguage, _activeProject.destinationLanguage);
 		emit receivedTextToReview();
 	});
 
@@ -258,14 +258,14 @@ void TranslatorDialog::updateTextToTranslate() {
 	}
 	_translationWidgets.clear();
 	if (!_textToTranslateMsg->name.empty()) {
-		TranslationWidget * tw = new TranslationWidget(s2q(_textToTranslateMsg->name).trimmed(), "", this);
+		auto * tw = new TranslationWidget(s2q(_textToTranslateMsg->name).trimmed(), "", this);
 		_translationsLayout->addWidget(tw);
 		_translationWidgets.append(tw);
 		connect(tw, &TranslationWidget::selectedSource, _sourcePreview, &QTextBrowser::setText);
 		connect(tw, &TranslationWidget::selectedDestination, _destinationPreview, &QTextBrowser::setText);
 	}
 	if (!_textToTranslateMsg->text.empty()) {
-		TranslationWidget * tw = new TranslationWidget(s2q(_textToTranslateMsg->text).trimmed(), "", this);
+		auto * tw = new TranslationWidget(s2q(_textToTranslateMsg->text).trimmed(), "", this);
 		_translationsLayout->addWidget(tw);
 		_translationWidgets.append(tw);
 		connect(tw, &TranslationWidget::selectedSource, _sourcePreview, &QTextBrowser::setText);
@@ -273,7 +273,7 @@ void TranslatorDialog::updateTextToTranslate() {
 	}
 	if (!_textToTranslateMsg->dialog.empty()) {
 		for (const std::string & s : _textToTranslateMsg->dialog) {
-			TranslationWidget * tw = new TranslationWidget(s2q(s).trimmed(), "", this);
+			auto * tw = new TranslationWidget(s2q(s).trimmed(), "", this);
 			_translationsLayout->addWidget(tw);
 			_translationWidgets.append(tw);
 			connect(tw, &TranslationWidget::selectedSource, _sourcePreview, &QTextBrowser::setText);
@@ -284,7 +284,7 @@ void TranslatorDialog::updateTextToTranslate() {
 		_translationWidgets.front()->setFocusToTranslation();
 	}
 	QStringList options;
-	for (const std::pair<std::string, std::string> s : _textToTranslateMsg->hints) {
+	for (const auto & s : _textToTranslateMsg->hints) {
 		options << QString("\"%1\" => \"%2\"").arg(s2q(s.first).trimmed(), s2q(s.second).trimmed());
 	}
 	_hintsBox->clear();
@@ -302,14 +302,14 @@ void TranslatorDialog::updateTextToReview() {
 	}
 	_translationWidgets.clear();
 	if (!_textToReviewMsg->name.first.empty()) {
-		TranslationWidget * tw = new TranslationWidget(s2q(_textToReviewMsg->name.first).trimmed(), s2q(_textToReviewMsg->name.second).trimmed(), this);
+		auto * tw = new TranslationWidget(s2q(_textToReviewMsg->name.first).trimmed(), s2q(_textToReviewMsg->name.second).trimmed(), this);
 		_translationsLayout->addWidget(tw);
 		_translationWidgets.append(tw);
 		connect(tw, &TranslationWidget::selectedSource, _sourcePreview, &QTextBrowser::setText);
 		connect(tw, &TranslationWidget::selectedDestination, _destinationPreview, &QTextBrowser::setText);
 	}
 	if (!_textToReviewMsg->text.first.empty()) {
-		TranslationWidget * tw = new TranslationWidget(s2q(_textToReviewMsg->text.first).trimmed(), s2q(_textToReviewMsg->text.second).trimmed(), this);
+		auto * tw = new TranslationWidget(s2q(_textToReviewMsg->text.first).trimmed(), s2q(_textToReviewMsg->text.second).trimmed(), this);
 		_translationsLayout->addWidget(tw);
 		_translationWidgets.append(tw);
 		connect(tw, &TranslationWidget::selectedSource, _sourcePreview, &QTextBrowser::setText);
@@ -317,7 +317,7 @@ void TranslatorDialog::updateTextToReview() {
 	}
 	if (!_textToReviewMsg->dialog.first.empty()) {
 		for (size_t i = 0; i < _textToReviewMsg->dialog.first.size(); i++) {
-			TranslationWidget * tw = new TranslationWidget(s2q(_textToReviewMsg->dialog.first[i]).trimmed(), s2q(_textToReviewMsg->dialog.second[i]).trimmed(), this);
+			auto * tw = new TranslationWidget(s2q(_textToReviewMsg->dialog.first[i]).trimmed(), s2q(_textToReviewMsg->dialog.second[i]).trimmed(), this);
 			_translationsLayout->addWidget(tw);
 			_translationWidgets.append(tw);
 			connect(tw, &TranslationWidget::selectedSource, _sourcePreview, &QTextBrowser::setText);
@@ -328,7 +328,7 @@ void TranslatorDialog::updateTextToReview() {
 		_translationWidgets.front()->setFocusToTranslation();
 	}
 	QStringList options;
-	for (const std::pair<std::string, std::string> s : _textToReviewMsg->hints) {
+	for (const auto & s : _textToReviewMsg->hints) {
 		options << QString("\"%1\" => \"%2\"").arg(s2q(s.first).trimmed(), s2q(s.second).trimmed());
 	}
 	_hintsBox->clear();
@@ -383,12 +383,12 @@ void TranslatorDialog::queryAllProjects() {
 	delete _waitSpinner;
 	_waitSpinner = new gui::WaitSpinner(QApplication::tr("Updating"), this);
 	QtConcurrent::run([this]() {
-		::translator::common::SendProjectsMessage * msg = ::translator::api::TranslatorAPI::getProjects(q2s(Config::Username));
+		translator::common::SendProjectsMessage * msg = translator::api::TranslatorAPI::getProjects(q2s(Config::Username));
 		if (msg) {
 			emit receivedProjects(msg->projects);
 			delete msg;
 		} else {
-			emit receivedProjects(std::vector<::translator::common::SendProjectsMessage::Project>());
+			emit receivedProjects(std::vector<translator::common::SendProjectsMessage::Project>());
 		}
 	});
 }
@@ -397,7 +397,7 @@ void TranslatorDialog::requestProjectProgress() {
 	delete _waitSpinner;
 	_waitSpinner = new gui::WaitSpinner(QApplication::tr("Updating"), this);
 	QtConcurrent::run([this]() {
-		const auto progress = ::translator::api::TranslatorAPI::requestTranslationProgress(_activeProject.projectName, _activeProject.sourceLanguage, _activeProject.destinationLanguage);
+		const auto progress = translator::api::TranslatorAPI::requestTranslationProgress(_activeProject.projectName, _activeProject.sourceLanguage, _activeProject.destinationLanguage);
 		emit receivedProgress(progress);
 	});
 }
@@ -422,11 +422,11 @@ void TranslatorDialog::reset() {
 
 bool TranslatorDialog::eventFilter(QObject * o, QEvent * evt) {
 	if (evt->type() == QEvent::KeyPress) {
-		QKeyEvent * keyEvent = dynamic_cast<QKeyEvent *>(evt);
+		auto * keyEvent = dynamic_cast<QKeyEvent *>(evt);
 		if (keyEvent->key() == Qt::Key_Return) {
 			evt->ignore();
 			return false;
 		}
 	}
-	return QWidget::eventFilter(o, evt);
+	return QDialog::eventFilter(o, evt);
 }

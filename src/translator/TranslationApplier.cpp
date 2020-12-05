@@ -43,13 +43,13 @@ const QSet<QString> IGNORE_FUNCTIONS = {
 };
 const QSet<QRegularExpression> IGNORE_REGEX = { QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*wp[ \t]*="), QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*visual[ \t]*="), QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*scemeName[ \t]*="), QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*visual_change[ \t]*="), QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*effect[ \t]*="), QRegularExpression("[ \t]*TA_[a-zA-Z_0-9]+[ \t]*\\([ \t]*[0-9]+[ \t]*,[ \t]*[0-9]+[ \t]*,[ \t]*[0-9]+[ \t]*,[ \t]*[0-9]+[ \t]*,[ \t]*\""), QRegularExpression("items\\[[0-9]+\\]"), QRegularExpression("musictheme[ \t]*="), QRegularExpression("backPic[ \t]*="), QRegularExpression("onChgSetOption[ \t]*="), QRegularExpression("onChgSetOptionSection[ \t]*="), QRegularExpression("hideIfOptionSectionSet[ \t]*="), QRegularExpression("hideIfOptionSet[ \t]*="), QRegularExpression("fontName[ \t]*="), QRegularExpression("BIP01 ") };
 
-using namespace spine::translator;
+using namespace spine::translation;
 
 TranslationApplier::TranslationApplier(uint32_t requestID, QObject * par) : QObject(par), _requestID(requestID), _currentProgress(0), _maxProgress(0) {
 }
 
 void TranslationApplier::parseTexts(QString path) {
-	const QFuture<::translator::common::SendTranslationDownloadMessage *> f = QtConcurrent::run(::translator::api::TranslatorAPI::requestTranslationDownload, _requestID);
+	const QFuture<translator::common::SendTranslationDownloadMessage *> f = QtConcurrent::run(translator::api::TranslatorAPI::requestTranslationDownload, _requestID);
 
 	QString translatedPath = QFileInfo(path + "/../translated/").absolutePath();
 
@@ -77,7 +77,7 @@ void TranslationApplier::parseTexts(QString path) {
 				QFile::remove(newPath);
 			}
 			bool b = QDir().mkpath(QFileInfo(newPath).absolutePath());
-			Q_UNUSED(b);
+			Q_UNUSED(b)
 			const bool copied = QFile::copy(filePath, newPath);
 			Q_ASSERT(copied);
 		}
@@ -88,7 +88,7 @@ void TranslationApplier::parseTexts(QString path) {
 	QMap<QString, QString> names;
 	QMap<QString, QString> texts;
 	QList<QPair<QStringList, QStringList>> dialogs;
-	::translator::common::SendTranslationDownloadMessage * stdm = f.result();
+	translator::common::SendTranslationDownloadMessage * stdm = f.result();
 	if (stdm == nullptr) {
 		emit updatedCurrentProgress(_maxProgress);
 		return;
@@ -113,7 +113,7 @@ void TranslationApplier::parseTexts(QString path) {
 
 	// 2. Parse them asynchronously
 	QEventLoop loop;
-	QFutureWatcher<void> * watcher = new QFutureWatcher<void>();
+	auto * watcher = new QFutureWatcher<void>();
 	connect(watcher, &QFutureWatcher<void>::finished, this, &TranslationApplier::finished);
 	connect(watcher, &QFutureWatcher<void>::finished, &loop, &QEventLoop::quit);
 	connect(watcher, &QFutureWatcher<void>::finished, watcher, &QFutureWatcher<void>::deleteLater);
@@ -132,7 +132,7 @@ void TranslationApplier::parseFile(QString filePath, QString basePath, QString t
 	const QString absolutePath = QFileInfo(newPath).absolutePath();
 	if (!QDir().exists(absolutePath)) {
 		bool b = QDir().mkpath(absolutePath);
-		Q_UNUSED(b);
+		Q_UNUSED(b)
 	}
 	QFile inFile(filePath);
 	QFile outFile(newPath);

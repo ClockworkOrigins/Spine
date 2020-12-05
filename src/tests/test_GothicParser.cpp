@@ -87,7 +87,7 @@ protected:
 	}
 
 	void parseScript(QString folder) {
-		spine::translator::GothicParser gp(nullptr);
+		spine::translation::GothicParser gp(nullptr);
 		gp.parseFile("tests/" + folder + "/test.d", model);
 	}
 

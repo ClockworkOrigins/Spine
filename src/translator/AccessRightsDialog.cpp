@@ -34,22 +34,22 @@
 #include "translator/api/TranslatorAPI.h"
 #include "translator/common/MessageStructs.h"
 
-using namespace spine::translator;
+using namespace spine::translation;
 using namespace spine::utils;
 
 AccessRightsDialog::AccessRightsDialog(uint32_t requestID, QString title, QWidget * par) : QDialog(par), _requestID(requestID) {
-	QVBoxLayout * l = new QVBoxLayout();
+	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
 	{
-		QLineEdit * le = new QLineEdit(this);
+		auto * le = new QLineEdit(this);
 		connect(le, &QLineEdit::textChanged, this, &AccessRightsDialog::changedNameFilter);
 
 		l->addWidget(le);
 	}
 
 	{
-		QHBoxLayout * hl = new QHBoxLayout();
+		auto * hl = new QHBoxLayout();
 
 		_userListView = new QListView(this);
 		_userListView->setToolTip(QApplication::tr("LockedTranslatorsTooltip"));
@@ -62,7 +62,7 @@ AccessRightsDialog::AccessRightsDialog(uint32_t requestID, QString title, QWidge
 		hl->addWidget(_userListView);
 
 		{
-			QVBoxLayout * vl = new QVBoxLayout();
+			auto * vl = new QVBoxLayout();
 			_addUserButton = new QPushButton("->", this);
 			_addUserButton->setToolTip(QApplication::tr("UnlockTranslatorTooltip"));
 			_removeUserButton = new QPushButton("<-", this);
@@ -109,12 +109,12 @@ void AccessRightsDialog::updateUserList(std::vector<std::string> userList, std::
 	QSet<QString> unlockedUsers;
 	for (const std::string s : translators) {
 		unlockedUsers.insert(s2q(s));
-		QStandardItem * itm = new QStandardItem(s2q(s));
+		auto * itm = new QStandardItem(s2q(s));
 		itm->setEditable(false);
 		_unlockedListModel->appendRow(itm);
 	}
 	for (const std::string s : userList) {
-		QStandardItem * itm = new QStandardItem(s2q(s));
+		auto * itm = new QStandardItem(s2q(s));
 		itm->setEditable(false);
 		_userListModel->appendRow(itm);
 	}
@@ -122,7 +122,7 @@ void AccessRightsDialog::updateUserList(std::vector<std::string> userList, std::
 
 void AccessRightsDialog::addUser() {
 	const QString username = _selectedUser.data(Qt::DisplayRole).toString();
-	QStandardItem * itm = new QStandardItem(username);
+	auto * itm = new QStandardItem(username);
 	itm->setEditable(false);
 	_unlockedListModel->appendRow(itm);
 	_userListModel->removeRow(_selectedUser.row());
@@ -134,7 +134,7 @@ void AccessRightsDialog::addUser() {
 
 void AccessRightsDialog::removeUser() {
 	const QString username = _selectedUnlockedUser.data(Qt::DisplayRole).toString();
-	QStandardItem * itm = new QStandardItem(username);
+	auto * itm = new QStandardItem(username);
 	itm->setEditable(false);
 	_userListModel->appendRow(itm);
 	_unlockedListModel->removeRow(_selectedUnlockedUser.row());
@@ -160,7 +160,7 @@ void AccessRightsDialog::changedNameFilter(QString filter) {
 
 void AccessRightsDialog::requestUsers() {
 	QtConcurrent::run([this]() {
-		::translator::common::SendTranslatorsMessage * stm = ::translator::api::TranslatorAPI::requestTranslators(_requestID);
+		translator::common::SendTranslatorsMessage * stm = translator::api::TranslatorAPI::requestTranslators(_requestID);
 		if (stm) {
 			emit receivedUserList(stm->lockedUsers, stm->translators);
 			delete stm;
@@ -169,7 +169,7 @@ void AccessRightsDialog::requestUsers() {
 }
 
 void AccessRightsDialog::changeAccessRight(QString username, bool enabled) {
-	::translator::api::TranslatorAPI::changeTranslatorRights(_requestID, q2s(username), enabled);
+	translator::api::TranslatorAPI::changeTranslatorRights(_requestID, q2s(username), enabled);
 }
 
 void AccessRightsDialog::restoreSettings() {

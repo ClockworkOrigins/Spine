@@ -42,12 +42,12 @@ const QSet<QString> IGNORE_FUNCTIONS = {
 };
 const QList<QRegularExpression> IGNORE_REGEX = { QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*wp[ \t]*="), QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*visual[ \t]*="), QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*scemeName[ \t]*="), QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*visual_change[ \t]*="), QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*effect[ \t]*="), QRegularExpression("[ \t]*TA_[a-zA-Z_0-9]+[ \t]*\\([ \t]*[0-9]+[ \t]*,[ \t]*[0-9]+[ \t]*,[ \t]*[0-9]+[ \t]*,[ \t]*[0-9]+[ \t]*,[ \t]*\""), QRegularExpression("items\\[[0-9]+\\]"), QRegularExpression("musictheme[ \t]*="), QRegularExpression("backPic[ \t]*="), QRegularExpression("onChgSetOption[ \t]*="), QRegularExpression("onChgSetOptionSection[ \t]*="), QRegularExpression("hideIfOptionSectionSet[ \t]*="), QRegularExpression("hideIfOptionSet[ \t]*="), QRegularExpression("fontName[ \t]*="), QRegularExpression("BIP01 ") };
 
-using namespace spine::translator;
+using namespace spine::translation;
 
 GothicParser::GothicParser(QObject * par) : QObject(par), _currentProgress(0), _maxProgress(0) {
 }
 
-void GothicParser::parseTexts(QString path, ::translator::common::TranslationModel * model) {
+void GothicParser::parseTexts(QString path, translator::common::TranslationModel * model) {
 	// 1. determine all files
 	_currentProgress = 0;
 	QStringList filesToParse;
@@ -71,7 +71,7 @@ void GothicParser::parseTexts(QString path, ::translator::common::TranslationMod
 
 	// 2. Parse them asynchronously
 	QEventLoop loop;
-	QFutureWatcher<void> * watcher = new QFutureWatcher<void>();
+	auto * watcher = new QFutureWatcher<void>();
 	connect(watcher, &QFutureWatcher<void>::finished, this, &GothicParser::finished);
 	connect(watcher, &QFutureWatcher<void>::finished, &loop, &QEventLoop::quit);
 	connect(watcher, &QFutureWatcher<void>::finished, watcher, &QFutureWatcher<void>::deleteLater);
@@ -85,7 +85,7 @@ void GothicParser::parseTexts(QString path, ::translator::common::TranslationMod
 	std::cout << model->getDialogTextCount() << " Dialog Texts" << std::endl;
 
 	int count = 0;
-	for (auto d : model->getDialogs()) {
+	for (const auto & d : model->getDialogs()) {
 		for (const auto & d2 : d) {
 			count += s2q(d2).split(' ').count();
 		}
@@ -100,7 +100,7 @@ void GothicParser::parseTexts(QString path, ::translator::common::TranslationMod
 	std::cout << (model->getNames().size() + model->getTexts().size() + model->getDialogTextCount()) << " Overall" << std::endl;
 }
 
-void GothicParser::parseFile(QString filePath, ::translator::common::TranslationModel * model) {
+void GothicParser::parseFile(QString filePath, translator::common::TranslationModel * model) {
 	//static QMutex l;
 	//QMutexLocker lg(&l);
 	QFile f(filePath);
@@ -222,7 +222,7 @@ void GothicParser::parseFile(QString filePath, ::translator::common::Translation
 	}
 }
 
-void GothicParser::parseName(QString line, ::translator::common::TranslationModel * model) {
+void GothicParser::parseName(QString line, translator::common::TranslationModel * model) {
 	bool started = false;
 	QString name;
 	for (int i = 0; i < line.size(); i++) {
