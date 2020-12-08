@@ -192,6 +192,8 @@ namespace server {
 		
 		[[deprecated("Remove in Spine 1.28.0")]]
 		void handleUpdateChapterStats(clockUtils::sockets::TcpSocket * sock, common::UpdateChapterStatsMessage * msg) const;
+		
+		[[deprecated("Remove in Spine 1.28.0")]]
 		void handleIsAchievementUnlocked(clockUtils::sockets::TcpSocket * sock, common::IsAchievementUnlockedMessage * msg) const;
 
 		bool isTeamMemberOfMod(int modID, int userID) const;

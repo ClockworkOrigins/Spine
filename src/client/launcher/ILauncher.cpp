@@ -500,45 +500,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 					handleUpdateChapterStats(ucsm);
 				} else if (msg->type == MessageType::ISACHIEVEMENTUNLOCKED) {
 					auto * iaum = dynamic_cast<IsAchievementUnlockedMessage *>(msg);
-					if (_projectID != -1) {
-						if (iaum) {
-							iaum->username = q2s(Config::Username);
-							iaum->password = q2s(Config::Password);
-							if (Config::OnlineMode) {
-								clockUtils::sockets::TcpSocket sock;
-								if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-									serialized = iaum->SerializePublic();
-									if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
-										if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-											Message * newMsg = Message::DeserializePublic(serialized);
-											serialized = newMsg->SerializeBlank();
-											delete newMsg;
-											socket->writePacket(serialized);
-										} else {
-											socket->writePacket("empty");
-										}
-									} else {
-										socket->writePacket("empty");
-									}
-								} else {
-									socket->writePacket("empty");
-								}
-							} else {
-								Database::DBError dbErr;
-								std::vector<std::vector<std::string>> lastResults = Database::queryAll<std::vector<std::string>, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier FROM modAchievements WHERE ModID = " + std::to_string(iaum->modID) + " AND Identifier = " + std::to_string(iaum->achievementID) + "", dbErr);
-								SendAchievementUnlockedMessage saum;
-								saum.unlocked = !lastResults.empty();
-								serialized = saum.SerializeBlank();
-								socket->writePacket(serialized);
-							}
-						} else {
-							socket->writePacket("empty");
-						}
-					} else {
-						SendScoresMessage ssm;
-						serialized = ssm.SerializeBlank();
-						socket->writePacket(serialized);
-					}
+					handleIsAchievementUnlocked(socket, iaum);
 				}
 			}
 			delete msg;
@@ -1298,4 +1260,44 @@ void ILauncher::handleUpdateChapterStats(UpdateChapterStatsMessage * msg) const 
 	json["Value"] = msg->statValue;
 
 	Https::postAsync(DATABASESERVER_PORT, "updateChapterStats", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject &, int) {});
+}
+
+void ILauncher::handleIsAchievementUnlocked(clockUtils::sockets::TcpSocket * socket, IsAchievementUnlockedMessage * msg) const {
+	if (_projectID == -1) {
+		const SendAchievementUnlockedMessage saum;
+		const auto serialized = saum.SerializeBlank();
+		socket->writePacket(serialized);
+		return;
+	}
+
+	if (!msg) return;
+
+	if (Config::OnlineMode) {
+		QJsonObject json;
+		json["Username"] = Config::Username;
+		json["Password"] = Config::Password;
+		json["ProjectID"] = msg->modID;
+		json["AchievementID"] = msg->achievementID;
+
+		Https::postAsync(DATABASESERVER_PORT, "isAchievementUnlocked", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, socket](const QJsonObject & data, int statusCode) {
+			if (statusCode != 200) {
+				socket->writePacket("empty");
+				return;
+			}
+			
+			SendAchievementUnlockedMessage saum;
+			saum.unlocked = data.contains("Unlocked");
+
+			const auto serialized = saum.SerializeBlank();
+
+			socket->writePacket(serialized);
+		});
+	} else {
+		Database::DBError dbErr;
+		const auto lastResults = Database::queryAll<std::vector<std::string>, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier FROM modAchievements WHERE ModID = " + std::to_string(msg->modID) + " AND Identifier = " + std::to_string(msg->achievementID) + "", dbErr);
+		SendAchievementUnlockedMessage saum;
+		saum.unlocked = !lastResults.empty();
+		const auto serialized = saum.SerializeBlank();
+		socket->writePacket(serialized);
+	}
 }

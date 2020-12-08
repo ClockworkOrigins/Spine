@@ -1780,12 +1780,12 @@ namespace common {
 	};
 
 	struct IsAchievementUnlockedMessage : public Message {
-		std::string username;
-		std::string password;
+		std::string [[deprecated("Remove in Spine 1.28.0")]] username;
+		std::string [[deprecated("Remove in Spine 1.28.0")]] password;
 		int32_t modID;
 		int32_t achievementID;
 
-		IsAchievementUnlockedMessage() : Message(), username(), password(), modID(), achievementID() {
+		IsAchievementUnlockedMessage() : Message(), modID(), achievementID() {
 			type = MessageType::ISACHIEVEMENTUNLOCKED;
 		}
 		template<class Archive>
