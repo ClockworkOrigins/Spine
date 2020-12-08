@@ -29,7 +29,7 @@ int SendUserInfosMessage::id = 0;
 std::string Message::SerializeBlank() const {
 	std::stringstream ss;
 	boost::archive::text_oarchive arch(ss);
-	Message * m = const_cast<Message *>(this);
+	auto * m = const_cast<Message *>(this);
 	try {
 		arch << m;
 	} catch (...) {
@@ -51,7 +51,7 @@ Message * Message::DeserializeBlank(const std::string & s) {
 std::string Message::SerializePublic() const {
 	std::stringstream ss;
 	boost::archive::text_oarchive arch(ss);
-	Message * m = const_cast<Message *>(this);
+	auto * m = const_cast<Message *>(this);
 	try {
 		arch << m;
 	} catch (...) {
@@ -78,7 +78,7 @@ Message * Message::DeserializePublic(const std::string & s) {
 std::string Message::SerializePrivate() const {
 	std::stringstream ss;
 	boost::archive::text_oarchive arch(ss);
-	Message * m = const_cast<Message *>(this);
+	auto * m = const_cast<Message *>(this);
 	try {
 		arch << m;
 	} catch (...) {
