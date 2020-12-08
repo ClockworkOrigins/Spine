@@ -189,6 +189,8 @@ namespace server {
 		void handleDeclineFriendRequest(clockUtils::sockets::TcpSocket * sock, common::DeclineFriendRequestMessage * msg) const;
 		void handleRequestUserLevel(clockUtils::sockets::TcpSocket * sock, common::RequestUserLevelMessage * msg) const;
 		void handleUpdateSucceeded(clockUtils::sockets::TcpSocket * sock, common::UpdateSucceededMessage * msg) const;
+		
+		[[deprecated("Remove in Spine 1.28.0")]]
 		void handleUpdateChapterStats(clockUtils::sockets::TcpSocket * sock, common::UpdateChapterStatsMessage * msg) const;
 		void handleIsAchievementUnlocked(clockUtils::sockets::TcpSocket * sock, common::IsAchievementUnlockedMessage * msg) const;
 

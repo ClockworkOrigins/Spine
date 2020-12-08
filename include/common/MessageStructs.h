@@ -1759,13 +1759,13 @@ namespace common {
 	};
 
 	struct UpdateChapterStatsMessage : public Message {
-		int32_t modID;
+		int32_t [[deprecated("Remove in Spine 1.28.0")]] modID;
 		int32_t identifier;
 		int32_t guild;
 		std::string statName;
 		int32_t statValue;
 
-		UpdateChapterStatsMessage() : Message(), modID(), identifier(), guild(), statName(), statValue() {
+		UpdateChapterStatsMessage() : Message(), modID(), identifier(), guild(), statValue() {
 			type = MessageType::UPDATECHAPTERSTATS;
 		}
 		template<class Archive>

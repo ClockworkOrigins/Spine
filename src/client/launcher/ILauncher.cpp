@@ -497,18 +497,7 @@ void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets
 					handleRequestAllFriends(socket, rafm);
 				} else if (msg->type == MessageType::UPDATECHAPTERSTATS) {
 					auto * ucsm = dynamic_cast<UpdateChapterStatsMessage *>(msg);
-					if (_projectID != -1) {
-						if (ucsm) {
-							if (Config::OnlineMode) {
-								ucsm->modID = _projectID;
-								clockUtils::sockets::TcpSocket sock;
-								if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-									serialized = ucsm->SerializePublic();
-									sock.writePacket(serialized);
-								}
-							}
-						}
-					}
+					handleUpdateChapterStats(ucsm);
 				} else if (msg->type == MessageType::ISACHIEVEMENTUNLOCKED) {
 					auto * iaum = dynamic_cast<IsAchievementUnlockedMessage *>(msg);
 					if (_projectID != -1) {
@@ -1292,4 +1281,21 @@ void ILauncher::handleRequestAllFriends(clockUtils::sockets::TcpSocket * socket,
 		const auto serialized = safm.SerializeBlank();
 		socket->writePacket(serialized);
 	}
+}
+
+void ILauncher::handleUpdateChapterStats(UpdateChapterStatsMessage * msg) const {
+	if (_projectID == -1) return;
+
+	if (!msg) return;
+
+	if (!Config::OnlineMode) return;
+	
+	QJsonObject json;
+	json["ProjectID"] = _projectID;
+	json["Identifier"] = msg->identifier;
+	json["Guild"] = msg->guild;
+	json["Key"] = s2q(msg->statName);
+	json["Value"] = msg->statValue;
+
+	Https::postAsync(DATABASESERVER_PORT, "updateChapterStats", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject &, int) {});
 }

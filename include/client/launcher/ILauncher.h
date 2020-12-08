@@ -46,9 +46,10 @@ namespace common {
 	struct RequestOverallSaveDataMessage;
 	struct RequestScoresMessage;
 	struct RequestUsernameMessage;
+	struct UnlockAchievementMessage;
 	struct UpdateAchievementProgressMessage;
 	struct UpdateScoreMessage;
-	struct UnlockAchievementMessage;
+	struct UpdateChapterStatsMessage;
 	struct UpdateOverallSaveDataMessage;
 } /* namespace common */
 namespace widgets {
@@ -214,6 +215,7 @@ namespace launcher {
 		void handleRequestOverallSaveData(clockUtils::sockets::TcpSocket * socket, common::RequestOverallSaveDataMessage * msg) const;
 		void handleUpdateOverallSaveData(common::UpdateOverallSaveDataMessage * msg) const;
 		void handleRequestAllFriends(clockUtils::sockets::TcpSocket * socket, common::RequestAllFriendsMessage * msg) const;
+		void handleUpdateChapterStats(common::UpdateChapterStatsMessage * msg) const;
 	};
 	typedef QSharedPointer<ILauncher> ILauncherPtr;
 

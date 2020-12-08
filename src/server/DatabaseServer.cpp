@@ -65,6 +65,7 @@ int DatabaseServer::run() {
 	_server->resource["^/updateAchievementProgress"]["POST"] = std::bind(&DatabaseServer::updateAchievementProgress, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/requestOverallSaveData"]["POST"] = std::bind(&DatabaseServer::requestOverallSaveData, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/requestAllFriends"]["POST"] = std::bind(&DatabaseServer::requestAllFriends, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/updateChapterStats"]["POST"] = std::bind(&DatabaseServer::updateChapterStats, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -2118,6 +2119,68 @@ void DatabaseServer::requestAllFriends(std::shared_ptr<HttpsServer::Response> re
 		write_json(responseStream, responseTree);
 
 		response->write(code, responseStream.str());
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::updateChapterStats(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		const auto projectID = pt.get<int32_t>("ProjectID");
+		const auto identifier = pt.get<int32_t>("Identifier");
+		const auto guild = pt.get<int32_t>("Guild");
+		const auto key = pt.get<std::string>("Key");
+		const auto value = pt.get<int32_t>("Value");
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+
+			if (!database.query("PREPARE insertStmt FROM \"INSERT INTO chapterStats (ModID, Identifier, Guild, StatName, StatValue) VALUES (?, ?, ?, CONVERT(? USING BINARY), ?)\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!database.query("SET @paramProjectID=" + std::to_string(projectID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!database.query("SET @paramIdentifier=" + std::to_string(identifier) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!database.query("SET @paramGuild=" + std::to_string(guild) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!database.query("SET @paramStatName='" + key + "';")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!database.query("SET @paramStatValue=" + std::to_string(value) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!database.query("EXECUTE insertStmt USING @paramProjectID, @paramIdentifier, @paramGuild, @paramStatName, @paramStatValue;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+		} while (false);
+
+		response->write(code);
 	} catch (...) {
 		response->write(SimpleWeb::StatusCode::client_error_bad_request);
 	}
