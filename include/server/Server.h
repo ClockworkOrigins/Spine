@@ -175,6 +175,8 @@ namespace server {
 		[[deprecated("Remove in Spine 1.28.0")]]
 		void handleUpdateOverallSaveData(clockUtils::sockets::TcpSocket * sock, common::UpdateOverallSaveDataMessage * msg) const;
 		void handleRequestModsForEditor(clockUtils::sockets::TcpSocket * sock, common::RequestModsForEditorMessage * msg) const;
+		
+		[[deprecated("Remove in Spine 1.28.0")]]
 		void handleUpdateOfflineData(clockUtils::sockets::TcpSocket * sock, common::UpdateOfflineDataMessage * msg) const;
 		void handleRequestOfflineData(clockUtils::sockets::TcpSocket * sock, common::RequestOfflineDataMessage * msg) const;
 		void handleUpdateStartTime(clockUtils::sockets::TcpSocket * sock, common::UpdateStartTimeMessage * msg) const;

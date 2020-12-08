@@ -1358,8 +1358,7 @@ namespace common {
 		bool deleted;
 		int32_t size;
 
-		ModFile() : filename(), hash(), language(), changed(false), deleted(false), size(0) {
-		}
+		ModFile() : changed(false), deleted(false), size(0) {}
 
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int /* file_version */) {
@@ -1386,7 +1385,7 @@ namespace common {
 	struct UploadModfilesMessage : public Message {
 		int32_t modID;
 		std::vector<ModFile> files;
-		UploadModfilesMessage() : Message(), modID(), files() {
+		UploadModfilesMessage() : Message(), modID() {
 			type = MessageType::UPLOADMODFILES;
 		}
 		template<class Archive>
@@ -1401,7 +1400,7 @@ namespace common {
 		std::string username;
 		std::string password;
 		std::string language;
-		RequestModsForEditorMessage() : Message(), username(), password(), language() {
+		RequestModsForEditorMessage() : Message() {
 			type = MessageType::REQUESTMODSFOREDITOR;
 		}
 		template<class Archive>
@@ -1427,7 +1426,7 @@ namespace common {
 			}
 		};
 		std::vector<ModForEditor> modList;
-		SendModsForEditorMessage() : Message(), modList() {
+		SendModsForEditorMessage() : Message() {
 			type = MessageType::SENDMODSFOREDITOR;
 		}
 		template<class Archive>
@@ -1437,7 +1436,7 @@ namespace common {
 		}
 	};
 
-	struct UpdateOfflineDataMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.28.0")]] UpdateOfflineDataMessage : public Message {
 		struct AchievementData {
 			int32_t modID;
 			int32_t identifier;
@@ -1492,7 +1491,7 @@ namespace common {
 		}
 	};
 
-	struct RequestOfflineDataMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.28.0")]] RequestOfflineDataMessage : public Message {
 		std::string username;
 		std::string password;
 		RequestOfflineDataMessage() : Message() {
@@ -1506,7 +1505,7 @@ namespace common {
 		}
 	};
 
-	struct SendOfflineDataMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.28.0")]] SendOfflineDataMessage : public Message {
 		struct AchievementData {
 			int32_t modID;
 			int32_t identifier;
