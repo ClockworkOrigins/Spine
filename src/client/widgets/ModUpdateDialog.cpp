@@ -57,7 +57,7 @@ using namespace spine::utils;
 using namespace spine::widgets;
 
 ModUpdateDialog::ModUpdateDialog(QMainWindow * mainWindow) : QDialog(nullptr), _mainWindow(mainWindow), _infoLabel(nullptr), _checkBoxLayout(nullptr), _running(false), _lastTimeRejected(false), _loginChecked(false), _spineUpdateChecked(false) {
-	QVBoxLayout * l = new QVBoxLayout();
+	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
 	_infoLabel = new QLabel(QApplication::tr("SearchingForModUpdates"), this);
@@ -70,7 +70,7 @@ ModUpdateDialog::ModUpdateDialog(QMainWindow * mainWindow) : QDialog(nullptr), _
 	_dontShowAgain = new QCheckBox(QApplication::tr("DontShowAgain"), this);
 	l->addWidget(_dontShowAgain);
 
-	QDialogButtonBox * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Apply | QDialogButtonBox::StandardButton::Discard, Qt::Orientation::Horizontal, this);
+	auto * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Apply | QDialogButtonBox::StandardButton::Discard, Qt::Orientation::Horizontal, this);
 	l->addWidget(dbb);
 	dbb->hide();
 
@@ -161,9 +161,9 @@ void ModUpdateDialog::updateModList(std::vector<ModUpdate> updates, bool forceAc
 
 			QString title = QString("%1 (%2 => %3.%4.%5)").arg(s2q(u.name)).arg(_oldVersions[u.modID]).arg(static_cast<int>(u.majorVersion)).arg(static_cast<int>(u.minorVersion)).arg(static_cast<int>(u.patchVersion));
 
-			QHBoxLayout * hl = new QHBoxLayout();
+			auto * hl = new QHBoxLayout();
 			
-			QCheckBox * cb = new QCheckBox(title, this);
+			auto * cb = new QCheckBox(title, this);
 			cb->setChecked(true); // default enabled
 			_checkBoxes.push_back(cb);
 			_updates.push_back(u);
@@ -171,7 +171,7 @@ void ModUpdateDialog::updateModList(std::vector<ModUpdate> updates, bool forceAc
 			cb->setVisible(b);
 			visibleCount += b ? 1 : 0;
 
-			QLabel * lbl = new QLabel(u.savegameCompatible ? "" : "!", this);
+			auto * lbl = new QLabel(u.savegameCompatible ? "" : "!", this);
 			lbl->setProperty("error", true);
 			lbl->setProperty("bold", true);
 			lbl->setVisible(b);
@@ -188,13 +188,13 @@ void ModUpdateDialog::updateModList(std::vector<ModUpdate> updates, bool forceAc
 			const auto changelog = s2q(u.changelog);
 
 			if (b && !changelog.isEmpty()) {
-				QVBoxLayout * vl = new QVBoxLayout();
-				QTextBrowser * tb = new QTextBrowser(this);
+				auto * vl = new QVBoxLayout();
+				auto * tb = new QTextBrowser(this);
 				tb->setProperty("changelog", true);
 				tb->setText(changelog);
 				vl->addWidget(tb);
 
-				Spoiler * s = new Spoiler(QApplication::tr("Changelog"), this);
+				auto * s = new Spoiler(QApplication::tr("Changelog"), this);
 				s->setContentLayout(vl);
 
 				_checkBoxLayout->addWidget(s);
@@ -308,7 +308,7 @@ void ModUpdateDialog::accept() {
 		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE mods SET GothicVersion = " + std::to_string(static_cast<int>(_updates[i].gothicVersion)) + " WHERE ModID = " + std::to_string(_updates[i].modID) + ";", err);
 	}
 
-	MultiFileDownloader * mfd = new MultiFileDownloader(this);
+	auto * mfd = new MultiFileDownloader(this);
 	for (const ModFile & mf : *installFiles) {
 		QDir dir(Config::DOWNLOADDIR + "/mods/" + QString::number(mf.modID));
 		if (!dir.exists()) {
@@ -316,7 +316,7 @@ void ModUpdateDialog::accept() {
 			Q_UNUSED(b)
 		}
 		QFileInfo fi(QString::fromStdString(mf.file));
-		FileDownloader * fd = new FileDownloader(QUrl(mf.fileserver + QString::number(mf.modID) + "/" + QString::fromStdString(mf.file)), dir.absolutePath() + "/" + fi.path(), fi.fileName(), QString::fromStdString(mf.hash), mfd);
+		auto * fd = new FileDownloader(QUrl(mf.fileserver + QString::number(mf.modID) + "/" + QString::fromStdString(mf.file)), dir.absolutePath() + "/" + fi.path(), fi.fileName(), QString::fromStdString(mf.hash), mfd);
 		mfd->addFileDownloader(fd);
 
 		// zip workflow
@@ -337,7 +337,7 @@ void ModUpdateDialog::accept() {
 			Q_UNUSED(b)
 		}
 		QFileInfo fi(QString::fromStdString(mf.file));
-		FileDownloader * fd = new FileDownloader(QUrl(mf.fileserver + QString::number(mf.modID) + "/" + QString::fromStdString(mf.file)), dir.absolutePath() + "/" + fi.path(), fi.fileName(), QString::fromStdString(mf.hash), mfd);
+		auto * fd = new FileDownloader(QUrl(mf.fileserver + QString::number(mf.modID) + "/" + QString::fromStdString(mf.file)), dir.absolutePath() + "/" + fi.path(), fi.fileName(), QString::fromStdString(mf.hash), mfd);
 		mfd->addFileDownloader(fd);
 
 		// zip workflow
