@@ -243,6 +243,10 @@ void SpineLevel::cacheLevel(int userID) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
+		if (!database.query("PREPARE selectReviewsStmt FROM \"SELECT Count(*) FROM reviews WHERE UserID = ?\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
 		if (!database.query("PREPARE selectCompatibilitiesStmt FROM \"SELECT Count(*) FROM compatibilityList WHERE UserID = ?\";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
@@ -335,6 +339,17 @@ void SpineLevel::cacheLevel(int userID) {
 			const int count = std::stoi(lastResults[0][0]);
 			
 			currentXP += count * 250; // 250 EP per rating
+		}
+
+		if (!database.query("EXECUTE selectReviewsStmt USING @paramUserID;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			break;
+		}
+		lastResults = database.getResults<std::vector<std::string>>();
+		if (!lastResults.empty()) {
+			const int count = std::stoi(lastResults[0][0]);
+
+			currentXP += count * 250; // 250 EP per review for now, maybe more later, but can easily be abused by one letter reviews
 		}
 		
 		if (!database.query("EXECUTE selectCompatibilitiesStmt USING @paramUserID;")) {
