@@ -74,7 +74,7 @@ ModUpdateDialog::ModUpdateDialog(QMainWindow * mainWindow) : QDialog(nullptr), _
 	l->addWidget(dbb);
 	dbb->hide();
 
-	qRegisterMetaType<std::vector<common::ModUpdate>>("std::vector<common::ModUpdate>");
+	qRegisterMetaType<std::vector<ModUpdate>>("std::vector<common::ModUpdate>");
 
 	connect(this, &ModUpdateDialog::receivedMods, dbb, &QDialogButtonBox::show);
 	connect(this, &ModUpdateDialog::receivedMods, this, &ModUpdateDialog::updateModList);
@@ -99,13 +99,15 @@ ModUpdateDialog::ModUpdateDialog(QMainWindow * mainWindow) : QDialog(nullptr), _
 
 	Database::DBError err;
 	Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "CREATE TABLE IF NOT EXISTS updates (ModID INT PRIMARY KEY, Name TEXT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL, SpineVersion INT NOT NULL);", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "DELETE FROM updates WHERE ModID = 0;", err);
 
 	err.error = false;
-	Database::queryAll<std::vector<int>, int>(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "SELECT SpineVersion FROM updates LIMIT 1;", err);
-
+	
+	Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "INSERT INTO updates (ModID, Name, MajorVersion, MinorVersion, PatchVersion, SpineVersion) VALUES (0, 'Foo', 0, 0, 0, 0);", err);
+	
 	if (err.error) {
-		Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "ALTER TABLE updates ADD SpineVersion INT NOT NULL;", err);
-		Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "UPDATE updates SET SpineVersion = 0;", err);
+		Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "DROP TABLE updates;", err);
+		Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "CREATE TABLE IF NOT EXISTS updates (ModID INT PRIMARY KEY, Name TEXT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL, SpineVersion INT NOT NULL);", err);
 	}
 }
 
@@ -137,7 +139,7 @@ void ModUpdateDialog::spineUpToDate() {
 	}
 }
 
-void ModUpdateDialog::updateModList(std::vector<common::ModUpdate> updates, bool forceAccept) {
+void ModUpdateDialog::updateModList(std::vector<ModUpdate> updates, bool forceAccept) {
 	if (updates.empty()) {
 		_infoLabel->setText(QApplication::tr("NoModUpdates"));
 		_running = false;
@@ -150,7 +152,7 @@ void ModUpdateDialog::updateModList(std::vector<common::ModUpdate> updates, bool
 		}
 		_checkBoxes.clear();
 		int visibleCount = 0;
-		for (const common::ModUpdate & u : updates) {
+		for (const ModUpdate & u : updates) {
 			Database::DBError err;
 			Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "DELETE FROM updates WHERE ModID = " + std::to_string(u.modID) + " AND MajorVersion != " + std::to_string(static_cast<int>(u.majorVersion)) + " AND MinorVersion != " + std::to_string(static_cast<int>(u.minorVersion)) + " AND PatchVersion != " + std::to_string(static_cast<int>(u.patchVersion)) + " AND SpineVersion != " + std::to_string(static_cast<int>(u.spineVersion)) + " LIMIT 1;", err);
 			std::vector<int> result = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "SELECT ModID FROM updates WHERE ModID = " + std::to_string(u.modID) + " AND MajorVersion = " + std::to_string(static_cast<int>(u.majorVersion)) + " AND MinorVersion = " + std::to_string(static_cast<int>(u.minorVersion)) + " AND PatchVersion = " + std::to_string(static_cast<int>(u.patchVersion)) + " AND SpineVersion = " + std::to_string(static_cast<int>(u.spineVersion)) + " LIMIT 1;", err);
@@ -209,7 +211,7 @@ void ModUpdateDialog::updateModList(std::vector<common::ModUpdate> updates, bool
 }
 
 void ModUpdateDialog::accept() {
-	QList<common::ModUpdate> hides;
+	QList<ModUpdate> hides;
 	QSharedPointer<QList<ModFile>> installFiles(new QList<ModFile>());
 	QSharedPointer<QList<ModFile>> removeFiles(new QList<ModFile>());
 	QSharedPointer<QList<ModFile>> newFiles(new QList<ModFile>());
@@ -324,7 +326,7 @@ void ModUpdateDialog::accept() {
 
 		// 1. if it is a zip, register new signal. FileDownloader will send signal after extracting the archive reporting the files with hashes it contained
 		// 2. reported files need to be added to filelist and archive must be removed
-		connect(fd, &FileDownloader::unzippedArchive, [this, mf, installFiles, newFiles, removeFiles](const QString & archive, const QList<QPair<QString, QString>> & files) {
+		connect(fd, &FileDownloader::unzippedArchive, this, [this, mf, installFiles, newFiles, removeFiles](const QString & archive, const QList<QPair<QString, QString>> & files) {
 			unzippedArchive(archive, files, mf, installFiles, newFiles, removeFiles);
 		});
 	}
@@ -345,7 +347,7 @@ void ModUpdateDialog::accept() {
 
 		// 1. if it is a zip, register new signal. FileDownloader will send signal after extracting the archive reporting the files with hashes it contained
 		// 2. reported files need to be added to filelist and archive must be removed
-		connect(fd, &FileDownloader::unzippedArchive, [this, mf, installFiles, newFiles, removeFiles](const QString & archive, const QList<QPair<QString, QString>> & files) {
+		connect(fd, &FileDownloader::unzippedArchive, this, [this, mf, installFiles, newFiles, removeFiles](const QString & archive, const QList<QPair<QString, QString>> & files) {
 			unzippedArchive(archive, files, mf, installFiles, newFiles, removeFiles);
 		});
 	}
@@ -356,7 +358,7 @@ void ModUpdateDialog::accept() {
 		emit updateStarted(_updates[i].modID);
 	}
 
-	connect(mfd, &MultiFileDownloader::downloadSucceeded, [this, installFiles, newFiles, removeFiles, hides]() {
+	connect(mfd, &MultiFileDownloader::downloadSucceeded, this, [this, installFiles, newFiles, removeFiles, hides]() {
 		bool success = true;
 		Database::DBError err;
 		Database::open(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, err);
@@ -405,7 +407,7 @@ void ModUpdateDialog::accept() {
 		success = success && !err.error;
 
 		if (success) {
-			common::UpdateSucceededMessage usm;
+			UpdateSucceededMessage usm;
 			clockUtils::sockets::TcpSocket sock;
 			sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
 			for (size_t i = 0; i < _updates.size(); i++) {
@@ -434,7 +436,7 @@ void ModUpdateDialog::accept() {
 		hideUpdates(hides);
 	});
 
-	connect(mfd, &MultiFileDownloader::downloadFailed, [this, hides]() {
+	connect(mfd, &MultiFileDownloader::downloadFailed, this, [this, hides]() {
 		OverlayMessageHandler::getInstance()->showMessage(IconCache::getInstance()->getOrLoadIconAsImage(":/svg/download.svg"), QApplication::tr("UpdateUnsuccessful"));
 
 		_running = false;
@@ -471,9 +473,9 @@ void ModUpdateDialog::checkForUpdate() {
 			int language;
 		};
 		
-		std::vector<common::ModVersion> m = Database::queryAll<common::ModVersion, int, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, MajorVersion, MinorVersion, PatchVersion, SpineVersion FROM mods;", err);
+		std::vector<ModVersion> m = Database::queryAll<ModVersion, int, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, MajorVersion, MinorVersion, PatchVersion, SpineVersion FROM mods;", err);
 		std::vector<ProjectLanguage> pl = Database::queryAll<ProjectLanguage, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ProjectID, Language FROM languages;", err);
-		for (common::ModVersion & mv : m) {
+		for (ModVersion & mv : m) {
 			_oldVersions.insert(mv.modID, QString("%1.%2.%3").arg(static_cast<int>(mv.majorVersion)).arg(static_cast<int>(mv.minorVersion)).arg(static_cast<int>(mv.patchVersion)));
 
 			const auto it = std::find_if(pl.begin(), pl.end(), [mv](const ProjectLanguage & p) {
@@ -484,7 +486,7 @@ void ModUpdateDialog::checkForUpdate() {
 
 			mv.language = it->language;
 		}
-		common::ModVersionCheckMessage mvcm;
+		ModVersionCheckMessage mvcm;
 		mvcm.modVersions = m;
 		mvcm.language = Config::Language.toStdString();
 		mvcm.username = Config::Username.toStdString();
@@ -495,21 +497,21 @@ void ModUpdateDialog::checkForUpdate() {
 			sock.writePacket(serialized);
 			if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
 				try {
-					common::Message * msg = common::Message::DeserializePublic(serialized);
+					Message * msg = Message::DeserializePublic(serialized);
 					if (msg) {
-						const common::SendModsToUpdateMessage * smtum = dynamic_cast<common::SendModsToUpdateMessage *>(msg);
+						const SendModsToUpdateMessage * smtum = dynamic_cast<SendModsToUpdateMessage *>(msg);
 						if (smtum) {
 							emit receivedMods(smtum->updates, false);
 						} else {
 							qDebug() << static_cast<int>(msg->type);
-							emit receivedMods(std::vector<common::ModUpdate>(), false);
+							emit receivedMods(std::vector<ModUpdate>(), false);
 						}
 					} else {
-						emit receivedMods(std::vector<common::ModUpdate>(), false);
+						emit receivedMods(std::vector<ModUpdate>(), false);
 					}
 					delete msg;
 				} catch (...) {
-					emit receivedMods(std::vector<common::ModUpdate>(), false);
+					emit receivedMods(std::vector<ModUpdate>(), false);
 					return;
 				}
 			}
@@ -520,15 +522,15 @@ void ModUpdateDialog::checkForUpdate() {
 void ModUpdateDialog::checkForUpdate(int32_t modID, bool forceAccept) {
 	_running = true;
 	QtConcurrent::run([this, modID, forceAccept]() {
-		std::vector<common::ModVersion> m = { common::ModVersion(modID, 0, 0, 0, 0) };
+		std::vector<ModVersion> m = { ModVersion(modID, 0, 0, 0, 0) };
 		Database::DBError err;
-		std::vector<common::ModVersion> m2 = Database::queryAll<common::ModVersion, int, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, MajorVersion, MinorVersion, PatchVersion, SpineVersion FROM mods WHERE ModID = " + std::to_string(modID) + " LIMIT 1;", err);
+		std::vector<ModVersion> m2 = Database::queryAll<ModVersion, int, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, MajorVersion, MinorVersion, PatchVersion, SpineVersion FROM mods WHERE ModID = " + std::to_string(modID) + " LIMIT 1;", err);
 		std::vector<int> cl = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Language FROM languages WHERE ProjectID = " + std::to_string(modID) + " LIMIT 1;", err);
 		
 		_oldVersions.insert(modID, QString("%1.%2.%3").arg(static_cast<int>(m2.empty() ? m[0].majorVersion : m2[0].majorVersion)).arg(static_cast<int>(m2.empty() ? m[0].minorVersion : m2[0].minorVersion)).arg(static_cast<int>(m2.empty() ? m[0].patchVersion : m2[0].patchVersion)));
 		m[0].language = cl.empty() ? English : cl[0];
 		
-		common::ModVersionCheckMessage mvcm;
+		ModVersionCheckMessage mvcm;
 		mvcm.modVersions = m;
 		mvcm.language = Config::Language.toStdString();
 		mvcm.username = Config::Username.toStdString();
@@ -539,21 +541,21 @@ void ModUpdateDialog::checkForUpdate(int32_t modID, bool forceAccept) {
 			sock.writePacket(serialized);
 			if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
 				try {
-					common::Message * msg = common::Message::DeserializePublic(serialized);
+					Message * msg = Message::DeserializePublic(serialized);
 					if (msg) {
-						auto * smtum = dynamic_cast<common::SendModsToUpdateMessage *>(msg);
+						auto * smtum = dynamic_cast<SendModsToUpdateMessage *>(msg);
 						if (smtum) {
 							emit receivedMods(smtum->updates, forceAccept);
 						} else {
 							qDebug() << static_cast<int>(msg->type);
-							emit receivedMods(std::vector<common::ModUpdate>(), forceAccept);
+							emit receivedMods(std::vector<ModUpdate>(), forceAccept);
 						}
 					} else {
-						emit receivedMods(std::vector<common::ModUpdate>(), forceAccept);
+						emit receivedMods(std::vector<ModUpdate>(), forceAccept);
 					}
 					delete msg;
 				} catch (...) {
-					emit receivedMods(std::vector<common::ModUpdate>(), forceAccept);
+					emit receivedMods(std::vector<ModUpdate>(), forceAccept);
 					return;
 				}
 			}
@@ -561,16 +563,16 @@ void ModUpdateDialog::checkForUpdate(int32_t modID, bool forceAccept) {
 	});
 }
 
-void ModUpdateDialog::hideUpdates(QList<common::ModUpdate> hides) const {
+void ModUpdateDialog::hideUpdates(QList<ModUpdate> hides) const {
 	if (!_dontShowAgain->isChecked()) return;
 
-	for (const common::ModUpdate & mu : hides) {
+	for (const ModUpdate & mu : hides) {
 		Database::DBError err;
 		Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "INSERT INTO updates (ModID, Name, MajorVersion, MinorVersion, PatchVersion, SpineVersion) VALUES (" + std::to_string(mu.modID) + ", '" + mu.name + "', " + std::to_string(static_cast<int>(mu.majorVersion)) + ", " + std::to_string(static_cast<int>(mu.minorVersion)) + "," + std::to_string(static_cast<int>(mu.patchVersion)) + "," + std::to_string(static_cast<int>(mu.spineVersion)) + ");", err);
 	}
 }
 
-bool ModUpdateDialog::hasChanges(common::ModUpdate mu) const {
+bool ModUpdateDialog::hasChanges(ModUpdate mu) const {
 	Database::DBError err;
 	std::vector<ModFile> m = Database::queryAll<ModFile, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, File, Hash FROM modfiles WHERE ModID = " + std::to_string(mu.modID) + ";", err);
 	std::vector<int> packageIDs = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT DISTINCT PackageID FROM packages WHERE ModID = " + std::to_string(mu.modID) + ";", err);
