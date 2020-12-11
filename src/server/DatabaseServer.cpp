@@ -1465,7 +1465,7 @@ void DatabaseServer::getReviews(std::shared_ptr<HttpsServer::Response> response,
 		do {
 			CONNECTTODATABASE(__LINE__)
 
-			if (!database.query("PREPARE selectStmt FROM \"SELECT UserID, Review, ReviewDate, Duration FROM reviews WHERE ProjectID = ?\";")) {
+			if (!database.query("PREPARE selectStmt FROM \"SELECT UserID, Review, ReviewDate, PlayTime FROM reviews WHERE ProjectID = ?\";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_bad_request;
 				break;
@@ -1564,7 +1564,7 @@ void DatabaseServer::updateReview(std::shared_ptr<HttpsServer::Response> respons
 		do {
 			CONNECTTODATABASE(__LINE__)
 
-			if (!database.query("PREPARE updateStmt FROM \"INSERT INTO reviews (ProjectID, UserID, Review, ReviewDate, Timestamp) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE Review = ?\";")) {
+			if (!database.query("PREPARE updateStmt FROM \"INSERT INTO reviews (ProjectID, UserID, Review, ReviewDate, PlayTime) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE Review = ?\";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_bad_request;
 				break;
