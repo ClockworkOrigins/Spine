@@ -20,6 +20,7 @@
 
 #include <set>
 
+#include "LanguageConverter.h"
 #include "MariaDBWrapper.h"
 #include "ServerCommon.h"
 #include "SpineLevel.h"
@@ -883,6 +884,7 @@ void DatabaseServer::requestSingleProjectStats(std::shared_ptr<HttpsServer::Resp
 			}
 			// get mod name in current language
 			responseTree.put("ProjectID", projectID);
+			responseTree.put("Name", ServerCommon::getProjectName(projectID, LanguageConverter::convert(language)));
 
 			if (!database.query("EXECUTE selectTimePlayedStmt USING @paramModID, @paramUserID;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
