@@ -43,7 +43,6 @@
 	<Version majorVersion="1" minorVersion="26" patchVersion="0">
 		<File Hash="5b20b1c946b0237775e84f6d21f52c3e135d5eb02ffd5a9719056af3c9a1934f39d8a9f137ab255b6765b8813b47316ebac4672b459d25aec995e180c4aec4f1">bin/cleanup.exe.z</File>
 		<File Hash="ef0124f2baa2a16f301674ea68ec4819db1e310749432f0a774c45c04d2d20b8c39e216c9022224f12fa89a021a19c7880bd18d6c06635510bb342ead22cfea3">bin/changelog.xml.z</File>
-		<File Hash="103c114016b37e8f187e54be930b0d88154693b2f1fd40cd92ca1ce76302f2645cefc47c8204eb4a8c0ff97d50ce9f2a816320b2031dfd3f3ebfd1c4da91697c">bin/Spine.exe.z</File>
 		<File Hash="1e674a28dc92324384797ba9982e9153e2503b696f1f746884c8c7edfc9fda5f98bd9946075d7b15b629f86b1fabec0863205854f0e1f15d696f7d227e8112c0">bin/SpineAPI.dll.z</File>
 		<File Hash="80a8c5f0a4e440019d8e488455cff6ed444fa7894f0821e371f68127b24de7f9a77cfe68e067e4593488fa0fc27c12d8c0be5f6c1b63c8c491e4b8642dcaf86c">bin/SpineAPI64.dll.z</File>
 		<File Hash="79debbabfd3d7e233619cc8bdb8a7f70af5f13fde6015e540f0a785dec7a26112ad05babe575420a12bef5b6d7e2047a4a9d77c597c0f3833d537d41e3d7a5d8">bin/de_DE.qm.z</File>
@@ -66,5 +65,8 @@
 		<File Hash="1a7ed7e615fa5aad1792625896ec336164883ef65b398cc09b5006b000c84a5891012acd0b2468001e04e2f4ce5669675e0b20ec3e8312942ffe6783130590d3">bin/plugins/imageformats/qjpeg.dll.z</File>
 		<File Hash="803664d6f3eef7eb7419aa6f032a0b7668d0c6cf5056d9402240396325bd05adcb546aa798cdb1effebb9ff7d7cd6c4a2cc43ef43fac27a5cc14d5c99488d588">bin/plugins/imageformats/qsvg.dll.z</File>
 		<File Hash="10b41962020dc50b5ef3cc7a69add8348621e2191e37c5126e3c7149491cc85a52a6e082bc53f618c7da154b9aac59310e6791272bcd50f890c345ef287152ea">bin/plugins/platforms/qwindows.dll.z</File>
+	</Version>
+	<Version majorVersion="1" minorVersion="26" patchVersion="1">
+		<File Hash="11b8ef8c91a2b7b37f3560ee70bf1cf5f4329154eb1bfb24b56974d634e01fb986d1e03353ed25830a3e54e8760841c8135a0dacd77228f8b2918528d8d56d96">bin/Spine.exe.z</File>
 	</Version>
 </Versions>

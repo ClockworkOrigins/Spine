@@ -852,6 +852,11 @@ void DatabaseServer::requestSingleProjectStats(std::shared_ptr<HttpsServer::Resp
 				code = SimpleWeb::StatusCode::client_error_bad_request;
 				break;
 			}
+			if (!database.query("PREPARE selectTypeStmt FROM \"SELECT Type FROM mods WHERE ModID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
 			if (!database.query("SET @paramLanguage='" + language + "';")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_bad_request;
@@ -896,6 +901,15 @@ void DatabaseServer::requestSingleProjectStats(std::shared_ptr<HttpsServer::Resp
 			} else {
 				responseTree.put("Duration", 0);
 			}
+
+			if (!database.query("EXECUTE selectTypeStmt USING @paramModID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+			}
+			results = database.getResults<std::vector<std::string>>();
+
+			responseTree.put("Type", results[0][0]);
+			
 			if (!database.query("EXECUTE selectAllAchievementsStmt USING @paramModID;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_bad_request;

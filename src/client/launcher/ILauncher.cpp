@@ -887,9 +887,9 @@ void ILauncher::requestSingleProjectStats(const std::function<void(bool)> & resu
 
 			stats.projectID = jsonResponse["ProjectID"].toString().toInt();
 			stats.name = q2s(jsonResponse["Name"].toString());
-			stats.type = static_cast<ModType>(jsonResponse["ProjectID"].toString().toInt());
-			stats.lastTimePlayed = jsonResponse["ProjectID"].toString().toInt();
-			stats.duration = jsonResponse["ProjectID"].toString().toInt();
+			stats.type = static_cast<ModType>(jsonResponse["Type"].toString().toInt());
+			stats.lastTimePlayed = jsonResponse["LastTimePlayed"].toString().toInt();
+			stats.duration = jsonResponse["Duration"].toString().toInt();
 
 			if (jsonResponse.contains("AchievedAchievements")) {
 				stats.achievedAchievements = jsonResponse["AchievedAchievements"].toString().toInt();
