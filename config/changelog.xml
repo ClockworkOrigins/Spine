@@ -2041,4 +2041,9 @@
 		<Bug language="English">Translator works again</Bug>
 		<Bug language="English">Fixed problem with ignored updates</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="26" patchVersion="2">
+		<Bug language="Deutsch">Fehler behoben, wodurch Spiele/Mods mit speziellem Executable nicht mehr gestartet werden konnten</Bug>
+		
+		<Bug language="English">Fixed bug that caused games/mods with special executable not being startable anymore</Bug>
+	</Version>
 </Versions>

@@ -66,7 +66,7 @@
 		<File Hash="803664d6f3eef7eb7419aa6f032a0b7668d0c6cf5056d9402240396325bd05adcb546aa798cdb1effebb9ff7d7cd6c4a2cc43ef43fac27a5cc14d5c99488d588">bin/plugins/imageformats/qsvg.dll.z</File>
 		<File Hash="10b41962020dc50b5ef3cc7a69add8348621e2191e37c5126e3c7149491cc85a52a6e082bc53f618c7da154b9aac59310e6791272bcd50f890c345ef287152ea">bin/plugins/platforms/qwindows.dll.z</File>
 	</Version>
-	<Version majorVersion="1" minorVersion="26" patchVersion="1">
-		<File Hash="11b8ef8c91a2b7b37f3560ee70bf1cf5f4329154eb1bfb24b56974d634e01fb986d1e03353ed25830a3e54e8760841c8135a0dacd77228f8b2918528d8d56d96">bin/Spine.exe.z</File>
+	<Version majorVersion="1" minorVersion="26" patchVersion="2">
+		<File Hash="93ed07a92d2a76e3eb4bbd94d875af5098a529808ef10803940efd96e81de3fdd1521ef0db5a22f3d0c8b21865faf8dc47477d63917d1c70d0af8beaeffbb246">bin/Spine.exe.z</File>
 	</Version>
 </Versions>
