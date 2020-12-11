@@ -30,7 +30,7 @@ IF(WIN32)
 	configure_file($ENV{Qt5_DIR}/plugins/imageformats/qsvg.dll ${CMAKE_BINARY_DIR}/installer/Qt/plugins/imageformats/qsvg.dll COPYONLY)
 
 	configure_file($ENV{Qt5_DIR}/plugins/platforms/qwindows.dll ${CMAKE_BINARY_DIR}/installer/Qt/plugins/platforms/qwindows.dll COPYONLY)
-
+	
 	# Windows installer with NSIS
 	add_custom_target(WindowsInstaller COMMAND makensis.exe ${CMAKE_BINARY_DIR}/installer/Windows/setup.nsi WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/installer/Windows DEPENDS Spine SpineAPI cleanup)
 ENDIF(WIN32)

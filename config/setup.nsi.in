@@ -213,11 +213,11 @@ Section !$(NameSecModFiles) SecModFiles
 
   ; Installiere Game-Ini
   SetOutPath "$INSTDIR\${GAME_NAME}\bin"
-  File      "@CMAKE_BINARY_DIR@\bin\${GAME_FILE}.exe"
-  File      "@CMAKE_BINARY_DIR@\bin\cleanup.exe"
-  File      "@CMAKE_BINARY_DIR@\bin\*.qm"
-  File      "@CMAKE_BINARY_DIR@\bin\SpineAPI.dll"
-  File      "@CMAKE_BINARY_DIR@\bin\SpineAPI64.dll"
+  File      "@CMAKE_BINARY_DIR@\bin\Release\${GAME_FILE}.exe"
+  File      "@CMAKE_BINARY_DIR@\bin\Release\cleanup.exe"
+  File      "@CMAKE_BINARY_DIR@\bin\Release\*.qm"
+  File      "@CMAKE_BINARY_DIR@\bin\Release\SpineAPI.dll"
+  File      "@CMAKE_BINARY_DIR@\bin\Release\SpineAPI64.dll"
   File      "@CMAKE_SOURCE_DIR@\config\changelog.xml"
   File      "@CMAKE_SOURCE_DIR@\config\*.conf"
   File      "@SPINE_DEP_DIR@\openSSL\bin\*.dll"
