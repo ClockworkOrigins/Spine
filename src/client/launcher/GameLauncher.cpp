@@ -95,7 +95,7 @@ void GameLauncher::start() {
 	MainWindow::getInstance()->setWindowState(Qt::WindowState::WindowMinimized);
 	
 	auto * process = new QProcess(this);
-	connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &GameLauncher::finishedGame);
+	connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &GameLauncher::finishedGame, Qt::QueuedConnection);
 	process->setWorkingDirectory(_directory);
 	
 	if (!Config::Username.isEmpty() && Config::OnlineMode) {

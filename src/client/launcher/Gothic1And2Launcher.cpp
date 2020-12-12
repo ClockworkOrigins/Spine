@@ -772,7 +772,7 @@ void Gothic1And2Launcher::start() {
 		bp->start("\"" + _directory + "/" + backgroundProcess + "\"");
 	}
 	connect(process, &QProcess::errorOccurred, this, &Gothic1And2Launcher::errorOccurred);
-	connect(process, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), this, &Gothic1And2Launcher::finishedMod);
+	connect(process, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), this, &Gothic1And2Launcher::finishedMod, Qt::QueuedConnection);
 	process->setWorkingDirectory(_directory + "/System/");
 	if (Config::extendedLogging) {
 		LOGINFO("Preparation duration: " << t.elapsed())

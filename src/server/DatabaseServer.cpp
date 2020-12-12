@@ -1179,6 +1179,11 @@ void DatabaseServer::updatePlayTime(std::shared_ptr<HttpsServer::Response> respo
 		const auto username = pt.get<std::string>("Username");
 		const auto password = pt.get<std::string>("Password");
 		const auto duration = pt.get<int32_t>("Duration");
+
+		if (duration > 60 * 24 || duration < 0) {
+			response->write(code);
+			return;
+		}
 		
 		const int userID = ServerCommon::getUserID(username, password); // if userID is -1 user is not in database, so it's the play time of all unregistered players summed up
 
