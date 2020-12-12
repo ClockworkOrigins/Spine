@@ -1730,7 +1730,7 @@ void DatabaseServer::requestAchievements(std::shared_ptr<HttpsServer::Response> 
 				achievementProgressNode.put("Identifier", std::stoi(vec[0]));
 				achievementProgressNode.put("Maximum", std::stoi(vec[1]));
 				
-				if (result.empty()) {
+				if (!result.empty()) {
 					achievementProgressNode.put("Current", std::stoi(result[0][0]));
 				}
 
