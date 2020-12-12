@@ -807,6 +807,11 @@ void DatabaseServer::requestSingleProjectStats(std::shared_ptr<HttpsServer::Resp
 		const std::string language = pt.get<std::string>("Language");
 		const auto projectID = pt.get<int64_t>("ProjectID");
 
+		if (projectID == -1) {
+			response->write(code);
+			return;
+		}
+
 		const int userID = ServerCommon::getUserID(username, password);
 
 		do {
