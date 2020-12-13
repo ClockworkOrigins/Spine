@@ -3321,5 +3321,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>ReviewPlayTime</source>
         <translation>Время воспроизведения на обзоре</translation>
     </message>
+    <message>
+        <source>Descending</source>
+        <translation>По убыванию</translation>
+    </message>
 </context>
 </TS>

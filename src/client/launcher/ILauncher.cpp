@@ -25,6 +25,7 @@
 #include "client/widgets/UpdateLanguage.h"
 
 #include "common/MessageStructs.h"
+#include "common/ScoreOrder.h"
 
 #include "discord/DiscordManager.h"
 
@@ -79,7 +80,23 @@ void ILauncher::init() {
 	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "CREATE TABLE IF NOT EXISTS installDates (ModID INT PRIMARY KEY, InstallDate INT NOT NULL);", err);
 	Database::execute(Config::BASEDIR.toStdString() + "/" + LASTPLAYED_DATABASE, "CREATE TABLE IF NOT EXISTS lastPlayed (ModID INT NOT NULL, Ini TEXT NOT NULL, PRIMARY KEY (ModID, Ini));", err);
 	
-	qRegisterMetaType<common::ProjectStats>("common::ProjectStats");
+	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "CREATE TABLE IF NOT EXISTS scoreCache (ModID INT NOT NULL, Identifier INT NOT NULL, Score INT NOT NULL, PRIMARY KEY (ModID, Identifier));", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "CREATE TABLE IF NOT EXISTS achievementCache (ModID INT NOT NULL, Identifier INT NOT NULL, PRIMARY KEY (ModID, Identifier));", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "CREATE TABLE IF NOT EXISTS achievementProgressCache (ModID INT NOT NULL, Identifier INT NOT NULL, Progress INT NOT NULL, PRIMARY KEY (ModID, Identifier));", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "CREATE TABLE IF NOT EXISTS overallSaveDataCache (ModID INT NOT NULL, Entry TEXT NOT NULL, Value TEXT NOT NULL, PRIMARY KEY (ModID, Entry));", err);
+
+	Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "CREATE TABLE IF NOT EXISTS modScores (ModID INT NOT NULL, Username TEXT NOT NULL, Identifier INT NOT NULL, Score INT NOT NULL, PRIMARY KEY (ModID, Username, Identifier));", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "CREATE TABLE IF NOT EXISTS scoreOrders (ProjectID INT NOT NULL, Identifier INT NOT NULL, ScoreOrder INT NOT NULL, PRIMARY KEY (ProjectID, Identifier));", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "CREATE TABLE IF NOT EXISTS modAchievements (ModID INT NOT NULL, Username TEXT NOT NULL, Identifier INT NOT NULL, PRIMARY KEY (ModID, Username, Identifier));", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "CREATE TABLE IF NOT EXISTS modAchievementList (ModID INT NOT NULL, Identifier INT NOT NULL, PRIMARY KEY (ModID, Identifier));", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "CREATE TABLE IF NOT EXISTS modAchievementProgressMax (ModID INT NOT NULL, Identifier INT NOT NULL, Max INT NOT NULL, PRIMARY KEY (ModID, Identifier));", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "CREATE TABLE IF NOT EXISTS modAchievementProgress (ModID INT NOT NULL, Username TEXT NOT NULL, Identifier INT NOT NULL, Current INT NOT NULL, PRIMARY KEY (ModID, Username, Identifier));", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "CREATE TABLE IF NOT EXISTS overallSaveData (Username TEXT NOT NULL, ModID INT NOT NULL, Entry TEXT NOT NULL, Value TEXT NOT NULL, PRIMARY KEY (Username, ModID, Entry));", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "CREATE TABLE IF NOT EXISTS playTimes (ModID INT NOT NULL, Username TEXT NOT NULL, Duration INT NOT NULL, PRIMARY KEY (Username, ModID));", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "CREATE TABLE IF NOT EXISTS sync (Enabled INT PRIMARY KEY);", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT OR IGNORE INTO sync (Enabled) VALUES (0);", err);
+	
+	qRegisterMetaType<ProjectStats>("common::ProjectStats");
 
 	_screenshotManager = new ScreenshotManager(this);
 }
@@ -740,6 +757,7 @@ void ILauncher::synchronizeOfflineData() {
 					Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM modAchievementProgressMax;", err2);
 					Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM modAchievements;", err2);
 					Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM modScores;", err2);
+					Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM scoreOrders;", err2);
 					Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "DELETE FROM overallSaveData;", err2);
 
 					Database::open(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, err2);
@@ -780,8 +798,10 @@ void ILauncher::synchronizeOfflineData() {
 							const auto identifier = jsonScore["Identifier"].toString().toInt();
 							const auto score = jsonScore["Score"].toString().toInt();
 							const auto username = jsonScore["Username"].toString();
+							const auto scoreOrder = jsonScore["ScoreOrder"].toString().toInt();
 							
 							Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT INTO modScores (ModID, Identifier, Username, Score) VALUES (" + std::to_string(projectID) + ", " + std::to_string(identifier) + ", '" + username.toStdString() + "', " + std::to_string(score) + ");", err2);
+							Database::execute(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "INSERT OR IGNORE INTO scoreOrders (ProjectID, Identifier, ScoreOrder) VALUES (" + std::to_string(projectID) + ", " + std::to_string(identifier) + ", " + std::to_string(scoreOrder) + ");", err2);
 						}
 					}
 					if (data.contains("OverallSaveData")) {
@@ -985,6 +1005,13 @@ void ILauncher::handleRequestScores(clockUtils::sockets::TcpSocket * socket, Req
 		});
 	} else {
 		Database::DBError dbErr;
+		const auto scoreOrderResults = Database::queryAll<std::vector<int>, int, int>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier, ScoreOrder FROM scoreOrders WHERE ProjectID = " + std::to_string(_projectID), dbErr);
+		QMap<int, ScoreOrder> scoreOrders;
+
+		for (const auto & vec : scoreOrderResults) {
+			scoreOrders.insert(vec[0], static_cast<ScoreOrder>(vec[1]));
+		}
+		
 		const auto lastResults = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier, Username, Score FROM modScores WHERE ModID = " + std::to_string(_projectID) + " ORDER BY Score DESC", dbErr);
 		SendScoresMessage ssm;
 		std::map<int, std::vector<std::pair<std::string, int32_t>>> scores;
@@ -996,7 +1023,14 @@ void ILauncher::handleRequestScores(clockUtils::sockets::TcpSocket * socket, Req
 				scores[identifier].push_back(std::make_pair(username, score));
 			}
 		}
+
 		for (auto & score : scores) {
+			const auto scoreOrder = scoreOrders.value(score.first, ScoreOrder::Descending);
+
+			if (scoreOrder == ScoreOrder::Ascending) {
+				std::reverse(score.second.begin(), score.second.end());
+			}
+			
 			ssm.scores.emplace_back(score.first, score.second);
 		}
 		const auto serialized = ssm.SerializeBlank();

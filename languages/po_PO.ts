@@ -3316,5 +3316,9 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>ReviewPlayTime</source>
         <translation>Playtime at Review</translation>
     </message>
+    <message>
+        <source>Descending</source>
+        <translation>Malejąco</translation>
+    </message>
 </context>
 </TS>

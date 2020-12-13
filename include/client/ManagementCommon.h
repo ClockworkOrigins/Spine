@@ -23,6 +23,7 @@
 
 #include "common/GameType.h"
 #include "common/ModType.h"
+#include "common/ScoreOrder.h"
 
 #include <QDate>
 #include <QList>
@@ -163,6 +164,7 @@ namespace client {
 
 	typedef struct {
 		QList<ManagementTranslation> names;
+		common::ScoreOrder scoreOrder;
 
 		void read(const QJsonObject &json);
 		void write(QJsonObject & json) const;

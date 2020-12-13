@@ -25,6 +25,7 @@
 
 #include "common/MessageStructs.h"
 #include "common/NewsTickerTypes.h"
+#include "common/ScoreOrder.h"
 
 #define BOOST_SPIRIT_THREADSAFE
 #include "boost/filesystem/operations.hpp"
@@ -1540,17 +1541,35 @@ void ManagementServer::getScores(std::shared_ptr<HttpsServer::Response> response
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
+			if (!database.query("PREPARE selectScoreOrdersStmt FROM \"SELECT Identifier, ScoreOrder FROM scoreOrders WHERE ProjectID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
 			if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			if (!database.query("EXECUTE selectScoreNamesStmt USING @paramModID;")) {
+			if (!database.query("EXECUTE selectScoreOrdersStmt USING @paramModID;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
 			auto results = database.getResults<std::vector<std::string>>();
+
+			std::map<int32_t, ScoreOrder> scoreOrders;
+
+			for (const auto & vec : results) {
+				scoreOrders.insert(std::make_pair(std::stoi(vec[0]), static_cast<ScoreOrder>(std::stoi(vec[1]))));
+			}
+			
+			if (!database.query("EXECUTE selectScoreNamesStmt USING @paramModID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			results = database.getResults<std::vector<std::string>>();
 
 			std::map<int32_t, std::vector<std::pair<std::string, std::string>>> map;
 
@@ -1576,6 +1595,12 @@ void ManagementServer::getScores(std::shared_ptr<HttpsServer::Response> response
 					nameNodes.push_back(std::make_pair("", nameNode));
 				}
 				scoreNode.add_child("Names", nameNodes);
+
+				const auto it2 = scoreOrders.find(it.first);
+
+				const auto scoreOrder = it2 != scoreOrders.end() ? it2->second : ScoreOrder::Descending;
+				
+				scoreNode.put("Order", static_cast<int>(scoreOrder));
 				
 				scoreNodes.push_back(std::make_pair("", scoreNode));
 			}
@@ -1609,7 +1634,7 @@ void ManagementServer::updateScores(std::shared_ptr<HttpsServer::Response> respo
 			return;
 		}
 
-		const int32_t modID = pt.get<int32_t>("ModID");
+		const auto modID = pt.get<int32_t>("ModID");
 
 		if (!hasAdminAccessToMod(userID, modID)) {
 			response->write(SimpleWeb::StatusCode::client_error_unauthorized);
@@ -1622,6 +1647,11 @@ void ManagementServer::updateScores(std::shared_ptr<HttpsServer::Response> respo
 			CONNECTTODATABASE(__LINE__)
 				
 			if (!database.query("PREPARE insertScoreStmt FROM \"INSERT IGNORE INTO modScoreList (ModID, Identifier) VALUES (?, ?)\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE updateScoreOrderStmt FROM \"INSERT INTO scoreOrders (ProjectID, Identifier, ScoreOrder) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE ScoreOrder = ?\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
@@ -1667,6 +1697,19 @@ void ManagementServer::updateScores(std::shared_ptr<HttpsServer::Response> respo
 						break;
 					}
 				}
+
+				const auto orderNode = score.second.count("Order") == 0 ? static_cast<int32_t>(ScoreOrder::Descending) : score.second.get<int32_t>("Order");
+				if (!database.query("SET @paramScoreOrder=" + std::to_string(orderNode) + ";")) {
+					std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("EXECUTE updateScoreOrderStmt USING @paramModID, @paramIdentifier, @paramScoreOrder, @paramScoreOrder;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				
 				id++;
 			}
 		} while (false);

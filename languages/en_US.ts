@@ -3324,5 +3324,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>ReviewPlayTime</source>
         <translation>Playtime at review</translation>
     </message>
+    <message>
+        <source>Descending</source>
+        <translation>Descending</translation>
+    </message>
 </context>
 </TS>

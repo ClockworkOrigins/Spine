@@ -26,6 +26,8 @@
 #include "SpineLevel.h"
 #include "SpineServerConfig.h"
 
+#include "common/ScoreOrder.h"
+
 #define BOOST_SPIRIT_THREADSAFE
 #include "boost/property_tree/json_parser.hpp"
 
@@ -842,6 +844,11 @@ void DatabaseServer::requestSingleProjectStats(std::shared_ptr<HttpsServer::Resp
 				code = SimpleWeb::StatusCode::client_error_bad_request;
 				break;
 			}
+			if (!database.query("PREPARE selectScoreOrdersStmt FROM \"SELECT Identifier, ScoreOrder FROM scoreOrders WHERE ProjectID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
 			if (!database.query("PREPARE selectScoreNameStmt FROM \"SELECT CAST(Name AS BINARY) FROM modScoreNames WHERE ModID = ? AND Identifier = ? AND Language = ? LIMIT 1\";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_bad_request;
@@ -936,6 +943,18 @@ void DatabaseServer::requestSingleProjectStats(std::shared_ptr<HttpsServer::Resp
 					responseTree.put("AchievedAchievements", std::stoi(results[0][0]));
 				}
 			}
+			if (!database.query("EXECUTE selectScoreOrdersStmt USING @paramModID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+			}
+			results = database.getResults<std::vector<std::string>>();
+
+			std::map<int32_t, common::ScoreOrder> scoreOrders;
+
+			for (const auto & vec : results) {
+				scoreOrders.insert(std::make_pair(std::stoi(vec[0]), static_cast<common::ScoreOrder>(std::stoi(vec[1]))));
+			}
+			
 			if (projectID == 339) { // Tri6: Infinite Demo
 				do {
 					MariaDBWrapper tri6Database;
@@ -990,9 +1009,17 @@ void DatabaseServer::requestSingleProjectStats(std::shared_ptr<HttpsServer::Resp
 			}
 			else {
 				std::map<int, std::vector<std::pair<int, int>>> scores;
-				for (auto s : results) {
+				for (const auto & s : results) {
 					scores[std::stoi(s[1])].push_back(std::make_pair(std::stoi(s[0]), std::stoi(s[2])));
 				}
+
+				for (auto & score : scores) {
+					const auto it = scoreOrders.find(score.first);
+					if (it != scoreOrders.end() && it->second == common::ScoreOrder::Ascending) {
+						std::reverse(score.second.begin(), score.second.end());
+					}
+				}
+				
 				int bestScore = 0;
 				std::string bestScoreName;
 				int bestScoreRank = 0;
@@ -1006,7 +1033,7 @@ void DatabaseServer::requestSingleProjectStats(std::shared_ptr<HttpsServer::Resp
 							rank = realRank;
 						}
 						if (p.second == userID) {
-							if (rank < bestScoreRank || bestScoreRank == 0 || (bestScoreRank == rank && bestScore < p.first)) {
+							if (rank < bestScoreRank || bestScoreRank == 0) {
 								bestScore = p.first;
 								bestScoreRank = rank;
 								identifier = score.first;
@@ -1319,17 +1346,35 @@ void DatabaseServer::requestScores(std::shared_ptr<HttpsServer::Response> respon
 				code = SimpleWeb::StatusCode::client_error_bad_request;
 				break;
 			}
+			if (!database.query("PREPARE selectScoreOrderStmt FROM \"SELECT Identifier, ScoreOrder FROM scoreOrders WHERE ProjectID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
 			if (!database.query("SET @paramModID=" + std::to_string(projectID) + ";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_bad_request;
 				break;
 			}
-			if (!database.query("EXECUTE selectStmt USING @paramModID;")) {
+			if (!database.query("EXECUTE selectScoreOrderStmt USING @paramModID;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_bad_request;
 				break;
 			}
 			auto lastResults = database.getResults<std::vector<std::string>>();
+
+			std::map<int32_t, common::ScoreOrder> scoreOrders;
+
+			for (const auto & vec : lastResults) {
+				scoreOrders.insert(std::make_pair(std::stoi(vec[0]), static_cast<common::ScoreOrder>(std::stoi(vec[1]))));
+			}
+			
+			if (!database.query("EXECUTE selectStmt USING @paramModID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			lastResults = database.getResults<std::vector<std::string>>();
 
 			std::map<int, std::vector<std::pair<std::string, int32_t>>> scores;
 			for (const auto & vec : lastResults) {
@@ -1344,6 +1389,12 @@ void DatabaseServer::requestScores(std::shared_ptr<HttpsServer::Response> respon
 			ptree scoreNodes;
 			for (auto & score : scores) {
 				ptree scoreNode;
+
+				const auto it = scoreOrders.find(score.first);
+				if (it != scoreOrders.end() && it->second == common::ScoreOrder::Ascending) {
+					std::reverse(score.second.begin(), score.second.end());
+				}
+				
 				for (const auto & p : score.second) {
 					ptree scoreEntryNode;
 					scoreEntryNode.put("Username", p.first);
@@ -2524,6 +2575,11 @@ void DatabaseServer::requestOfflineData(std::shared_ptr<HttpsServer::Response> r
 				code = SimpleWeb::StatusCode::client_error_bad_request;
 				break;
 			}
+			if (!database.query("PREPARE selectScoreOrderStmt FROM \"SELECT Identifier, ScoreOrder FROM scoreOrders WHERE ProjectID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
 			if (!database.query("PREPARE selectOverallSavesStmt FROM \"SELECT ModID, Entry, Value FROM overallSaveData WHERE UserID = ?\";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_bad_request;
@@ -2598,6 +2654,19 @@ void DatabaseServer::requestOfflineData(std::shared_ptr<HttpsServer::Response> r
 				responseTree.add_child("Achievements", achievementsNode);
 			}
 			
+			if (!database.query("EXECUTE selectScoreOrderStmt USING @paramModID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			lastResults = database.getResults<std::vector<std::string>>();
+
+			std::map<int32_t, common::ScoreOrder> scoreOrders;
+
+			for (const auto & vec : lastResults) {
+				scoreOrders.insert(std::make_pair(std::stoi(vec[0]), static_cast<common::ScoreOrder>(std::stoi(vec[1]))));
+			}
+			
 			if (!database.query("EXECUTE selectScoresStmt;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_bad_request;
@@ -2613,6 +2682,11 @@ void DatabaseServer::requestOfflineData(std::shared_ptr<HttpsServer::Response> r
 				scoreNode.put("Identifier", vec[1]);
 				scoreNode.put("Username", ServerCommon::getUsername(std::stoi(vec[2])));
 				scoreNode.put("Score", vec[3]);
+
+				const auto it = scoreOrders.find(std::stoi(vec[1]));
+				const auto scoreOrder = it != scoreOrders.end() ? it->second : common::ScoreOrder::Descending;
+				
+				scoreNode.put("Order", static_cast<int>(scoreOrder));
 
 				scoresNode.push_back(std::make_pair("", scoreNode));
 			}

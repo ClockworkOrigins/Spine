@@ -22,6 +22,7 @@
 #include <QJsonObject>
 
 using namespace spine::client;
+using namespace spine::common;
 
 // boost ptree serializes everything as string, so this has be taken into account here
 
@@ -379,6 +380,8 @@ void ManagementScore::read(const QJsonObject & json) {
 			names.append(mt);
 		}
 	}
+
+	scoreOrder = json.contains("Order") ? static_cast<ScoreOrder>(json["Order"].toString().toInt()) : ScoreOrder::Descending;
 }
 
 void ManagementScore::write(QJsonObject & json) const {
@@ -389,6 +392,7 @@ void ManagementScore::write(QJsonObject & json) const {
 		nameArray.append(n);
 	}
 	json["Names"] = nameArray;
+	json["Order"] = static_cast<int32_t>(scoreOrder);
 }
 
 void ManagementSurvey::read(const QJsonObject & json) {

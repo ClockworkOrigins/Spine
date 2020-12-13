@@ -2046,4 +2046,9 @@
 		
 		<Bug language="English">Fixed bug that caused games/mods with special executable not being startable anymore</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="27" patchVersion="0">
+		<Enhancement language="Deutsch">Support für aufsteigende Scores eingebaut</Enhancement>
+		
+		<Enhancement language="English">Added support for ascending scores</Enhancement>
+	</Version>
 </Versions>

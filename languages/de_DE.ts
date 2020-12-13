@@ -3316,5 +3316,9 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>ReviewPlayTime</source>
         <translation>Spielzeit bei Review</translation>
     </message>
+    <message>
+        <source>Descending</source>
+        <translation>Absteigend</translation>
+    </message>
 </context>
 </TS>

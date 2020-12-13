@@ -34,16 +34,18 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QCheckBox>
 #include <QVBoxLayout>
 
 using namespace spine;
 using namespace spine::client;
 using namespace spine::client::widgets;
+using namespace spine::common;
 using namespace spine::gui;
 using namespace spine::utils;
 
-ScoresWidget::ScoresWidget(QWidget * par) : QWidget(par), _mods(), _modIndex(-1), _rowCount(1), _scoreEdits(), _waitSpinner(nullptr) {
-	QVBoxLayout * vl = new QVBoxLayout();
+ScoresWidget::ScoresWidget(QWidget * par) : QWidget(par), _modIndex(-1), _rowCount(1), _waitSpinner(nullptr) {
+	auto * vl = new QVBoxLayout();
 
 	{
 		_layout = new QGridLayout();
@@ -58,26 +60,24 @@ ScoresWidget::ScoresWidget(QWidget * par) : QWidget(par), _mods(), _modIndex(-1)
 	}
 
 	{
-		QHBoxLayout * hl = new QHBoxLayout();
+		auto * hl = new QHBoxLayout();
 		hl->addStretch(1);
 
-		QPushButton * pb = new QPushButton("+", this);
+		auto * pb = new QPushButton("+", this);
 		hl->addWidget(pb);
 		connect(pb, &QPushButton::released, this, &ScoresWidget::addScore);
 
 		vl->addLayout(hl);
 	}
 
-	QDialogButtonBox * dbb = new QDialogButtonBox(this);
-	QPushButton * submitButton = new QPushButton(QApplication::tr("Submit"), this);
+	auto * dbb = new QDialogButtonBox(this);
+	auto * submitButton = new QPushButton(QApplication::tr("Submit"), this);
 	dbb->addButton(submitButton, QDialogButtonBox::ButtonRole::AcceptRole);
 	connect(submitButton, &QPushButton::released, this, &ScoresWidget::updateScores);
 
 	qRegisterMetaType<QList<ManagementScore>>("QList<ManagementScore>");
 
 	connect(this, &ScoresWidget::removeSpinner, [this]() {
-		if (!_waitSpinner) return;
-		
 		_waitSpinner->deleteLater();
 		_waitSpinner = nullptr;
 	});
@@ -102,11 +102,11 @@ void ScoresWidget::updateModList(QList<client::ManagementMod> modList) {
 void ScoresWidget::selectedMod(int index) {
 	_modIndex = index;
 
-	for (auto t : _scoreEdits) {
-		QLineEdit * germanEdit = std::get<0>(t);
-		QLineEdit * englishEdit = std::get<1>(t);
-		QLineEdit * polishEdit = std::get<2>(t);
-		QLineEdit * russianEdit = std::get<3>(t);
+	for (const auto & t : _scoreEdits) {
+		auto * germanEdit = std::get<0>(t);
+		auto * englishEdit = std::get<1>(t);
+		auto * polishEdit = std::get<2>(t);
+		auto * russianEdit = std::get<3>(t);
 
 		_layout->removeWidget(germanEdit);
 		_layout->removeWidget(englishEdit);
@@ -118,7 +118,13 @@ void ScoresWidget::selectedMod(int index) {
 		polishEdit->deleteLater();
 		russianEdit->deleteLater();
 	}
+
+	for (auto * t : _scoreToggles) {
+		t->deleteLater();
+	}
+	
 	_scoreEdits.clear();
+	_scoreToggles.clear();
 }
 
 void ScoresWidget::updateView() {
@@ -162,10 +168,13 @@ void ScoresWidget::updateView() {
 
 void ScoresWidget::updateData(QList<ManagementScore> scores) {		
 	for (const auto & score : scores) {
-		QLineEdit * germanEdit = new QLineEdit(this);
-		QLineEdit * englishEdit = new QLineEdit(this);
-		QLineEdit * polishEdit = new QLineEdit(this);
-		QLineEdit * russianEdit = new QLineEdit(this);
+		auto * germanEdit = new QLineEdit(this);
+		auto * englishEdit = new QLineEdit(this);
+		auto * polishEdit = new QLineEdit(this);
+		auto * russianEdit = new QLineEdit(this);
+
+		auto * orderToggle = new QCheckBox(QApplication::tr("Descending"), this);
+		orderToggle->setChecked(score.scoreOrder == ScoreOrder::Descending);
 
 		for (const auto & tt : score.names) {
 			if (tt.language == "Deutsch") {
@@ -183,9 +192,13 @@ void ScoresWidget::updateData(QList<ManagementScore> scores) {
 		_layout->addWidget(englishEdit, _rowCount, 1);
 		_layout->addWidget(polishEdit, _rowCount, 2);
 		_layout->addWidget(russianEdit, _rowCount, 3);
+		_layout->addWidget(orderToggle, _rowCount + 1, 3);
 
 		_scoreEdits.push_back(std::make_tuple(germanEdit, englishEdit, polishEdit, russianEdit));
 
+		_scoreToggles << orderToggle;
+
+		_rowCount++;
 		_rowCount++;
 	}
 }
@@ -200,13 +213,17 @@ void ScoresWidget::updateScores() {
 
 	QJsonArray scoreArray;
 
-	for (auto & scoreEdit : _scoreEdits) {
+	for (int i = 0; i < _scoreEdits.size(); i++) {
+		const auto scoreEdit = _scoreEdits[i];
+		
 		bool toAdd = false;
 
 		QLineEdit * germanEdit = std::get<0>(scoreEdit);
 		QLineEdit * englishEdit = std::get<1>(scoreEdit);
 		QLineEdit * polishEdit = std::get<2>(scoreEdit);
 		QLineEdit * russianEdit = std::get<3>(scoreEdit);
+		
+		QCheckBox * orderToggle = _scoreToggles[i];
 
 		ManagementScore ms;
 
@@ -238,6 +255,9 @@ void ScoresWidget::updateScores() {
 			ms.names.push_back(mt);
 			toAdd = true;
 		}
+
+		ms.scoreOrder = orderToggle->isChecked() ? ScoreOrder::Descending : ScoreOrder::Ascending;
+		
 		if (toAdd) {
 			QJsonObject j;
 			ms.write(j);
@@ -258,17 +278,24 @@ void ScoresWidget::updateScores() {
 }
 
 void ScoresWidget::addScore() {
-	QLineEdit * germanEdit = new QLineEdit(this);
-	QLineEdit * englishEdit = new QLineEdit(this);
-	QLineEdit * polishEdit = new QLineEdit(this);
-	QLineEdit * russianEdit = new QLineEdit(this);
+	auto * germanEdit = new QLineEdit(this);
+	auto * englishEdit = new QLineEdit(this);
+	auto * polishEdit = new QLineEdit(this);
+	auto * russianEdit = new QLineEdit(this);
+
+	auto * orderToggle = new QCheckBox(QApplication::tr("Descending"), this);
+	orderToggle->setChecked(true);
 
 	_layout->addWidget(germanEdit, _rowCount, 0);
 	_layout->addWidget(englishEdit, _rowCount, 1);
 	_layout->addWidget(polishEdit, _rowCount, 2);
 	_layout->addWidget(russianEdit, _rowCount, 3);
+	
+	_layout->addWidget(orderToggle, _rowCount + 1, 3);
 
 	_scoreEdits.push_back(std::make_tuple(germanEdit, englishEdit, polishEdit, russianEdit));
+	_scoreToggles << orderToggle;
 
+	_rowCount++;
 	_rowCount++;
 }

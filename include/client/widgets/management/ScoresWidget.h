@@ -25,6 +25,7 @@
 #include <QFutureWatcher>
 #include <QWidget>
 
+class QCheckBox;
 class QGridLayout;
 class QLineEdit;
 
@@ -61,6 +62,7 @@ namespace widgets {
 		QGridLayout * _layout;
 		int _rowCount;
 		QList<std::tuple<QLineEdit *, QLineEdit *, QLineEdit *, QLineEdit *>> _scoreEdits;
+		QList<QCheckBox *> _scoreToggles;
 		gui::WaitSpinner * _waitSpinner;
 
 		QFutureWatcher<void> _futureWatcher;

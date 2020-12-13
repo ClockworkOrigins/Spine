@@ -38,6 +38,7 @@
 
 #include "common/MessageStructs.h"
 #include "common/NewsTickerTypes.h"
+#include "common/ScoreOrder.h"
 
 #include "boost/filesystem.hpp"
 
@@ -1725,6 +1726,10 @@ void Server::handleRequestAllModStats(clockUtils::sockets::TcpSocket * sock, Req
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			return;
 		}
+		if (!database.query("PREPARE selectScoreOrderStmt FROM \"SELECT Identifier, ScoreOrder FROM scoreOrders WHERE ProjectID = ?\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			return;
+		}
 		if (!database.query("SET @paramLanguage=" + std::to_string(LanguageConverter::convert(msg->language)) + ";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			return;
@@ -1747,7 +1752,7 @@ void Server::handleRequestAllModStats(clockUtils::sockets::TcpSocket * sock, Req
 		}
 		auto lastResults = database.getResults<std::vector<std::string>>();
 		SendAllModStatsMessage samsm;
-		for (auto vec : lastResults) {
+		for (const auto & vec : lastResults) {
 			// get mod name in current language if available
 			ProjectStats ms;
 			ms.projectID = std::stoi(vec[0]);
@@ -1765,7 +1770,7 @@ void Server::handleRequestAllModStats(clockUtils::sockets::TcpSocket * sock, Req
 			auto results = database.getResults<std::vector<std::string>>();
 			if (results.empty()) continue;
 
-			ms.type = ModType(std::stoi(results[0][0]));
+			ms.type = static_cast<ModType>(std::stoi(results[0][0]));
 			if (!database.query("EXECUTE selectLastTimePlayedStmt USING @paramModID, @paramUserID;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				continue;
@@ -1801,6 +1806,18 @@ void Server::handleRequestAllModStats(clockUtils::sockets::TcpSocket * sock, Req
 			if (ms.projectID == 339) {
 				getBestTri6Score(userID, ms);
 			} else {
+				if (!database.query("EXECUTE selectScoreOrderStmt USING @paramModID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					continue;
+				}
+				lastResults = database.getResults<std::vector<std::string>>();
+
+				std::map<int32_t, ScoreOrder> scoreOrders;
+
+				for (const auto & scoreOrder : lastResults) {
+					scoreOrders.insert(std::make_pair(std::stoi(scoreOrder[0]), static_cast<ScoreOrder>(std::stoi(scoreOrder[1]))));
+				}
+				
 				if (!database.query("EXECUTE selectScoreStmt USING @paramModID;")) {
 					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					continue;
@@ -1812,14 +1829,21 @@ void Server::handleRequestAllModStats(clockUtils::sockets::TcpSocket * sock, Req
 					ms.bestScoreRank = -1;
 				} else {
 					std::map<int, std::vector<std::pair<int, int>>> scores;
-					for (auto s : results) {
+					for (const auto & s : results) {
 						scores[std::stoi(s[1])].push_back(std::make_pair(std::stoi(s[0]), std::stoi(s[2])));
 					}
+					
 					ms.bestScore = 0;
 					ms.bestScoreName = "";
 					ms.bestScoreRank = 0;
 					int identifier = -1;
 					for (auto & score : scores) {
+						const auto it = scoreOrders.find(score.first);
+						
+						if (it != scoreOrders.end() && it->second == ScoreOrder::Ascending) {
+							std::reverse(score.second.begin(), score.second.end());
+						}
+						
 						int rank = 1;
 						int lastRank = 1;
 						int lastScore = 0;
@@ -1828,7 +1852,7 @@ void Server::handleRequestAllModStats(clockUtils::sockets::TcpSocket * sock, Req
 								rank = lastRank;
 							}
 							if (p.second == userID) {
-								if (rank < ms.bestScoreRank || ms.bestScoreRank == 0 || (ms.bestScoreRank == rank && ms.bestScore < p.first)) {
+								if (rank < ms.bestScoreRank || ms.bestScoreRank == 0 ) {
 									ms.bestScore = p.first;
 									ms.bestScoreRank = rank;
 									identifier = score.first;
@@ -2257,6 +2281,10 @@ void Server::handleRequestAllScoreStats(clockUtils::sockets::TcpSocket * sock, R
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
 	}
+	if (!database.query("PREPARE selectScoreOrderStmt FROM \"SELECT ScoreOrder FROM scoreOrders WHERE ProjectID = ? AND Identifier = ? LIMIT 1\";")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		return;
+	}
 	if (!database.query("PREPARE selectScoreNameStmt FROM \"SELECT CAST(Name AS BINARY), Identifier FROM modScoreNames WHERE ModID = ? AND Language = ? ORDER BY Identifier ASC\";")) {
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 		return;
@@ -2279,7 +2307,7 @@ void Server::handleRequestAllScoreStats(clockUtils::sockets::TcpSocket * sock, R
 	}
 	auto lastResults = database.getResults<std::vector<std::string>>();
 	SendAllScoreStatsMessage sassm;
-	for (auto vec : lastResults) {
+	for (const auto & vec : lastResults) {
 		SendAllScoreStatsMessage::ScoreStats ss;
 		ss.name = vec[0];
 
@@ -2287,12 +2315,25 @@ void Server::handleRequestAllScoreStats(clockUtils::sockets::TcpSocket * sock, R
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			continue;
 		}
-		if (!database.query("EXECUTE selectScoreStmt USING @paramModID, @paramIdentifier;")) {
+		if (!database.query("EXECUTE selectScoreOrderStmt USING @paramModID, @paramIdentifier;")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			continue;
 		}
 		auto results = database.getResults<std::vector<std::string>>();
-		for (auto score : results) {
+
+		const auto scoreOrder = results.empty() ? ScoreOrder::Descending : static_cast<ScoreOrder>(std::stoi(results[0][0]));
+		
+		if (!database.query("EXECUTE selectScoreStmt USING @paramModID, @paramIdentifier;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			continue;
+		}
+		results = database.getResults<std::vector<std::string>>();
+
+		if (scoreOrder == ScoreOrder::Ascending) {
+			std::reverse(results.begin(), results.end());
+		}
+		
+		for (const auto & score : results) {
 			ss.scores.emplace_back(ServerCommon::getUsername(std::stoi(score[1])), std::stoi(score[0]));
 		}
 		sassm.scores.push_back(ss);
