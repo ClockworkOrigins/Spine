@@ -35,12 +35,11 @@
 #include <QtConcurrentRun>
 #include <QVBoxLayout>
 
-using namespace spine;
 using namespace spine::utils;
 using namespace spine::widgets;
 
 AddFriendDialog::AddFriendDialog(QStringList users, QWidget * par) : QDialog(par), _comboBox(nullptr) {
-	QVBoxLayout * l = new QVBoxLayout();
+	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
 
@@ -49,14 +48,14 @@ AddFriendDialog::AddFriendDialog(QStringList users, QWidget * par) : QDialog(par
 	_comboBox->setDuplicatesEnabled(false);
 
 	_sourceModel = new QStandardItemModel(_comboBox);
-	QSortFilterProxyModel * sortModel = new QSortFilterProxyModel(_comboBox);
+	auto * sortModel = new QSortFilterProxyModel(_comboBox);
 	sortModel->setSourceModel(_sourceModel);
 
 	for (const QString & s : users) {
 		_sourceModel->appendRow(new QStandardItem(s));
 	}
 
-	QCompleter * completer = new QCompleter(this);
+	auto * completer = new QCompleter(this);
 	completer->setCaseSensitivity(Qt::CaseInsensitive);
 	completer->setModel(sortModel);
 	completer->setCompletionColumn(0);
@@ -65,7 +64,7 @@ AddFriendDialog::AddFriendDialog(QStringList users, QWidget * par) : QDialog(par
 
 	l->addWidget(_comboBox);
 
-	QPushButton * requestButton = new QPushButton(QApplication::tr("SendFriendRequest"), this);
+	auto * requestButton = new QPushButton(QApplication::tr("SendFriendRequest"), this);
 
 	l->addWidget(requestButton);
 
@@ -81,6 +80,7 @@ void AddFriendDialog::sendRequest() {
 	if (Config::Username.isEmpty()) return;
 
 	const QString friendname = _comboBox->currentText();
+	
 	if (friendname.isEmpty()) return;
 
 	QtConcurrent::run([friendname]() {
