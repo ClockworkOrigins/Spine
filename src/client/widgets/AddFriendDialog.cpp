@@ -20,21 +20,22 @@
 
 #include "SpineConfig.h"
 
-#include "common/MessageStructs.h"
+#include "https/Https.h"
 
 #include "utils/Config.h"
-
-#include "clockUtils/sockets/TcpSocket.h"
 
 #include <QApplication>
 #include <QComboBox>
 #include <QCompleter>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QPushButton>
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
 #include <QtConcurrentRun>
 #include <QVBoxLayout>
 
+using namespace spine::https;
 using namespace spine::utils;
 using namespace spine::widgets;
 
@@ -82,18 +83,13 @@ void AddFriendDialog::sendRequest() {
 	const QString friendname = _comboBox->currentText();
 	
 	if (friendname.isEmpty()) return;
+	
+	QJsonObject json;
+	json["Username"] = Config::Username;
+	json["Password"] = Config::Password;
+	json["Friend"] = friendname;
 
-	QtConcurrent::run([friendname]() {
-		common::SendFriendRequestMessage sfrm;
-		sfrm.username = Config::Username.toStdString();
-		sfrm.password = Config::Password.toStdString();
-		sfrm.friendname = friendname.toStdString();
-		const std::string serialized = sfrm.SerializePublic();
-		clockUtils::sockets::TcpSocket sock;
-		const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-		if (clockUtils::ClockError::SUCCESS == cErr) {
-			sock.writePacket(serialized);
-		}
-	});
+	Https::postAsync(DATABASESERVER_PORT, "friendRequest", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject &, int) {});
+	
 	close();
 }

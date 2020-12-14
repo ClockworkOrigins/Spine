@@ -1638,7 +1638,7 @@ namespace common {
 		}
 	};
 
-	struct SendFriendRequestMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.29.0")]] SendFriendRequestMessage : public Message {
 		std::string username;
 		std::string password;
 		std::string friendname;
@@ -1658,7 +1658,7 @@ namespace common {
 		std::string username;
 		std::string password;
 		std::string friendname;
-		AcceptFriendRequestMessage() : Message(), username(), password(), friendname() {
+		AcceptFriendRequestMessage() : Message() {
 			type = MessageType::ACCEPTFRIENDREQUEST;
 		}
 		template<class Archive>
@@ -1674,7 +1674,7 @@ namespace common {
 		std::string username;
 		std::string password;
 		std::string friendname;
-		DeclineFriendRequestMessage() : Message(), username(), password(), friendname() {
+		DeclineFriendRequestMessage() : Message() {
 			type = MessageType::DECLINEFRIENDREQUEST;
 		}
 		template<class Archive>
@@ -1689,7 +1689,7 @@ namespace common {
 	struct RequestUserLevelMessage : public Message {
 		std::string username;
 		std::string password;
-		RequestUserLevelMessage() : Message(), username(), password() {
+		RequestUserLevelMessage() : Message() {
 			type = MessageType::REQUESTUSERLEVEL;
 		}
 		template<class Archive>
