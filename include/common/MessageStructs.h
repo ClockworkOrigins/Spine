@@ -425,7 +425,7 @@ namespace common {
 		}
 	};
 
-	struct FeedbackMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.29.0")]] FeedbackMessage : public Message {
 		std::string text;
 		uint8_t majorVersion;
 		uint8_t minorVersion;
@@ -450,7 +450,7 @@ namespace common {
 
 	struct RequestOriginalFilesMessage : public Message {
 		std::vector<std::pair<int32_t, std::string>> files;
-		RequestOriginalFilesMessage() : Message(), files() {
+		RequestOriginalFilesMessage() : Message() {
 			type = MessageType::REQUESTORIGINALFILES;
 		}
 		template<class Archive>
@@ -462,7 +462,7 @@ namespace common {
 
 	struct SendOriginalFilesMessage : public Message {
 		std::vector<std::pair<int32_t, std::pair<std::string, std::string>>> files;
-		SendOriginalFilesMessage() : Message(), files() {
+		SendOriginalFilesMessage() : Message() {
 			type = MessageType::SENDORIGINALFILES;
 		}
 		template<class Archive>
@@ -474,7 +474,7 @@ namespace common {
 
 	struct UpdateFilesMessage : public Message {
 		std::vector<std::pair<std::string, std::string>> files;
-		UpdateFilesMessage() : Message(), files() {
+		UpdateFilesMessage() : Message() {
 			type = MessageType::UPDATEFILES;
 		}
 		template<class Archive>
@@ -487,7 +487,7 @@ namespace common {
 	struct UpdateLoginTimeMessage : public Message {
 		std::string username;
 		std::string password;
-		UpdateLoginTimeMessage() : Message(), username(), password() {
+		UpdateLoginTimeMessage() : Message() {
 			type = MessageType::UPDATELOGINTIME;
 		}
 		template<class Archive>
@@ -501,7 +501,7 @@ namespace common {
 	struct RequestPackageFilesMessage : public Message {
 		int32_t packageID;
 		std::string language;
-		RequestPackageFilesMessage() : Message(), packageID(), language() {
+		RequestPackageFilesMessage() : Message(), packageID() {
 			type = MessageType::REQUESTPACKAGEFILES;
 		}
 		template<class Archive>
@@ -519,7 +519,7 @@ namespace common {
 			std::string name;
 			uint64_t downloadSize;
 
-			Package() : modID(), packageID(), name(), downloadSize(0) {
+			Package() : modID(), packageID(), downloadSize(0) {
 			}
 
 			template<class Archive>
@@ -531,7 +531,7 @@ namespace common {
 			}
 		};
 		std::vector<Package> packages;
-		UpdatePackageListMessage() : Message(), packages() {
+		UpdatePackageListMessage() : Message() {
 			type = MessageType::UPDATEPACKAGELIST;
 		}
 		template<class Archive>
@@ -571,7 +571,7 @@ namespace common {
 
 	struct SendAllModStatsMessage : public Message {
 		std::vector<ProjectStats> mods;
-		SendAllModStatsMessage() : Message(), mods() {
+		SendAllModStatsMessage() : Message() {
 			type = MessageType::SENDALLMODSTATS;
 		}
 		template<class Archive>

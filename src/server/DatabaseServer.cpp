@@ -19,6 +19,7 @@
 #include "DatabaseServer.h"
 
 #include <set>
+#include <sstream>
 
 #include "LanguageConverter.h"
 #include "MariaDBWrapper.h"
@@ -73,6 +74,7 @@ int DatabaseServer::run() {
 	_server->resource["^/updateOfflineData"]["POST"] = std::bind(&DatabaseServer::updateOfflineData, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/requestOfflineData"]["POST"] = std::bind(&DatabaseServer::requestOfflineData, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/friendRequest"]["POST"] = std::bind(&DatabaseServer::friendRequest, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/feedback"]["POST"] = std::bind(&DatabaseServer::feedback, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -2780,6 +2782,112 @@ void DatabaseServer::friendRequest(std::shared_ptr<HttpsServer::Response> respon
 				break;
 			}
 		} while (false);
+
+		response->write(code);
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::feedback(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		const auto username = pt.get<std::string>("Username");
+		const auto text = pt.get<std::string>("Text");
+		const auto projectID = pt.get<int>("ProjectID");
+		const auto majorVersion = pt.get<int>("MajorVersion");
+		const auto minorVersion = pt.get<int>("MinorVersion");
+		const auto patchVersion = pt.get<int>("PatchVersion");
+
+		std::string replyMail = "noreply@clockwork-origins.de";
+
+		if (!username.empty()) {
+			const int userID = ServerCommon::getUserID(username);
+
+			MariaDBWrapper accountDatabase;
+			do {
+				if (!accountDatabase.connect("localhost", DATABASEUSER, DATABASEPASSWORD, ACCOUNTSDATABASE, 0)) {
+					std::cout << "Couldn't connect to database" << std::endl;
+					break;
+				}
+
+				if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT Mail FROM accounts WHERE ID = ? LIMIT 1\";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					break;
+				}
+				if (!accountDatabase.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					break;
+				}
+				if (!accountDatabase.query("EXECUTE selectStmt USING @paramUserID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					break;
+				}
+				const auto results = accountDatabase.getResults<std::vector<std::string>>();
+				
+				if (results.empty()) break;
+
+				replyMail = results[0][0];
+			} while (false);
+		}
+
+		if (projectID == -1) {
+			ServerCommon::sendMail("[Spine] New Feedback arrived", ss.str() + "\n" + text + "\n" + std::to_string(majorVersion) + "." + std::to_string(minorVersion) + "." + std::to_string(patchVersion) + "\n\n" + username, replyMail);
+		} else {
+			MariaDBWrapper accountDatabase;
+			do {
+				if (!accountDatabase.connect("localhost", DATABASEUSER, DATABASEPASSWORD, ACCOUNTSDATABASE, 0)) {
+					std::cout << "Couldn't connect to database" << std::endl;
+					break;
+				}
+
+				if (!accountDatabase.query("PREPARE selectMailStmt FROM \"SELECT Mail FROM feedbackMails WHERE ProjectID = ? LIMIT 1\";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					break;
+				}
+				if (!accountDatabase.query("PREPARE selectProjectNameStmt FROM \"SELECT Name FROM projectNames WHERE ProjectID = ? LIMIT 1\";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					break;
+				}
+				if (!accountDatabase.query("SET @paramProjectID=" + std::to_string(projectID) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					break;
+				}
+				if (!accountDatabase.query("EXECUTE selectMailStmt USING @paramProjectID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					break;
+				}
+				auto results = accountDatabase.getResults<std::vector<std::string>>();
+
+				if (results.empty()) break;
+
+				const auto receiver = results[0][0];
+
+				if (!accountDatabase.query("EXECUTE selectProjectNameStmt USING @paramProjectID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					break;
+				}
+				results = accountDatabase.getResults<std::vector<std::string>>();
+
+				if (results.empty()) break;
+
+				const auto projectName = results[0][0];
+
+				const auto title = "[Spine] Feedback for '" + projectName + "'!";
+
+				const auto message = text + "\n\nPlayed Version: " + std::to_string(majorVersion) + "." + std::to_string(minorVersion) + "." + std::to_string(patchVersion);
+
+				ServerCommon::sendMail(title, text, replyMail, receiver);
+			} while (false);
+		}
 
 		response->write(code);
 	} catch (...) {

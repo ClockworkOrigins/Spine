@@ -20,17 +20,17 @@
 
 #include "SpineConfig.h"
 
-#include "common/MessageStructs.h"
+#include "https/Https.h"
 
 #include "utils/Config.h"
 
 #include "widgets/UpdateLanguage.h"
 
-#include "clockUtils/sockets/TcpSocket.h"
-
 #include <QApplication>
 #include <QCloseEvent>
 #include <QDialogButtonBox>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMessageBox>
@@ -38,17 +38,17 @@
 #include <QTextEdit>
 #include <QVBoxLayout>
 
-using namespace spine;
+using namespace spine::https;
 using namespace spine::utils;
 using namespace spine::widgets;
 
 FeedbackDialog::FeedbackDialog(int32_t projectID, Type type, uint8_t majorVersion, uint8_t minorVersion, uint8_t patchVersion) : QDialog(), _textEdit(nullptr), _usernameEdit(nullptr), _projectID(projectID), _type(type), _majorVersion(majorVersion), _minorVersion(minorVersion), _patchVersion(patchVersion) {
-	QVBoxLayout * l = new QVBoxLayout();
+	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
 	const char * feedbackText = type == Type::Spine ? "FeedbackText" : "FeedbackTextProject";
 	
-	QLabel * infoLabel = new QLabel(QApplication::tr(feedbackText), this);
+	auto * infoLabel = new QLabel(QApplication::tr(feedbackText), this);
 	l->addWidget(infoLabel);
 	UPDATELANGUAGESETTEXT(infoLabel, feedbackText);
 
@@ -59,7 +59,7 @@ FeedbackDialog::FeedbackDialog(int32_t projectID, Type type, uint8_t majorVersio
 	l->addWidget(_usernameEdit);
 	_usernameEdit->setDisabled(true);
 
-	QDialogButtonBox * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Apply | QDialogButtonBox::StandardButton::Discard, Qt::Orientation::Horizontal, this);
+	auto * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Apply | QDialogButtonBox::StandardButton::Discard, Qt::Orientation::Horizontal, this);
 	l->addWidget(dbb);
 
 	setLayout(l);
@@ -89,29 +89,33 @@ void FeedbackDialog::loginChanged() {
 }
 
 void FeedbackDialog::accept() {
-	common::FeedbackMessage fm;
-	fm.text = _textEdit->toPlainText().trimmed().toStdString();
-	fm.majorVersion = _majorVersion;
-	fm.minorVersion = _minorVersion;
-	fm.patchVersion = _patchVersion;
-	fm.username = _type == Type::Spine ? _usernameEdit->text().toStdString() : "";
-	fm.projectID = _projectID;
+	const auto text = _textEdit->toPlainText().trimmed().replace("'", "&apos;");
 	
-	if (fm.text.empty()) return;
-	
-	const std::string serialized = fm.SerializePublic();
-	clockUtils::sockets::TcpSocket sock;
-	const clockUtils::ClockError err = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-	if (clockUtils::ClockError::SUCCESS == err) {
-		if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
-			QMessageBox resultMsg(QMessageBox::Icon::Information, QApplication::tr("FeedbackSuccessful"), QApplication::tr("FeedbackSuccessfulText"), QMessageBox::StandardButton::Ok);
-			resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-			resultMsg.exec();
-			_textEdit->clear();
-			QDialog::accept();
-			return;
-		}
+	if (text.isEmpty()) return;
+
+	QJsonObject json;
+	json["Username"] = Config::Username;
+	json["ProjectID"] = _projectID;
+	json["Text"] = text;
+	json["MajorVersion"] = static_cast<int>(_majorVersion);
+	json["MinorVersion"] = static_cast<int>(_minorVersion);
+	json["PatchVersion"] = static_cast<int>(_patchVersion);
+
+	bool success = false;
+
+	Https::post(DATABASESERVER_PORT, "updatePlayTime", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, &success](const QJsonObject &, int statusCode) {
+		success = statusCode == 200;
+	});
+
+	if (success) {
+		QMessageBox resultMsg(QMessageBox::Icon::Information, QApplication::tr("FeedbackSuccessful"), QApplication::tr("FeedbackSuccessfulText"), QMessageBox::StandardButton::Ok);
+		resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+		resultMsg.exec();
+		_textEdit->clear();
+		QDialog::accept();
+		return;
 	}
+
 	QMessageBox resultMsg(QMessageBox::Icon::Warning, QApplication::tr("FeedbackUnsuccessful"), QApplication::tr("FeedbackUnsuccessfulText"), QMessageBox::StandardButton::Ok);
 	resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
 	resultMsg.exec();
