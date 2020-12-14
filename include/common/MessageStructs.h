@@ -1654,7 +1654,7 @@ namespace common {
 		}
 	};
 
-	struct AcceptFriendRequestMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.29.0")]] AcceptFriendRequestMessage : public Message {
 		std::string username;
 		std::string password;
 		std::string friendname;
@@ -1670,7 +1670,7 @@ namespace common {
 		}
 	};
 
-	struct DeclineFriendRequestMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.29.0")]] DeclineFriendRequestMessage : public Message {
 		std::string username;
 		std::string password;
 		std::string friendname;
