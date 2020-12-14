@@ -727,7 +727,12 @@ void ILauncher::synchronizeOfflineData() {
 				for (const auto & vec : playTimes) {
 					QJsonObject jsonTime;
 					jsonTime["ProjectID"] = vec[0];
-					jsonTime["Time"] = vec[1];
+
+					auto duration = vec[1];
+					duration = duration / 1000; // to seconds
+					duration = duration / 60;
+					
+					jsonTime["Time"] = duration;
 
 					playTimesArray << jsonTime;
 				}

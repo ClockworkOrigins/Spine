@@ -1578,7 +1578,7 @@ void DatabaseServer::getReviews(std::shared_ptr<HttpsServer::Response> response,
 
 				reviewNode.put("Username", ServerCommon::getUsername(std::stoi(vec[0])));
 				reviewNode.put("Review", vec[1]);
-				reviewNode.put("ReviewDate", vec[2]);
+				reviewNode.put("Date", vec[2]);
 				reviewNode.put("ReviewDuration", vec[3]);
 				reviewNode.put("Rating", results[0][0]);
 				
@@ -2500,6 +2500,8 @@ void DatabaseServer::updateOfflineData(std::shared_ptr<HttpsServer::Response> re
 
 					const auto projectID = data.get<int32_t>("ProjectID");
 					const auto time = data.get<int32_t>("Time");
+
+					if (time > 60 * 24 || time < 0) continue;
 
 					if (!database.query("SET @paramProjectID=" + std::to_string(projectID) + ";")) {
 						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;

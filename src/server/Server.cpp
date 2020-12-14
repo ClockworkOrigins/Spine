@@ -815,6 +815,8 @@ void Server::handleDownloadSucceeded(clockUtils::sockets::TcpSocket *, DownloadS
 }
 
 void Server::handleUpdatePlaytime(clockUtils::sockets::TcpSocket *, UpdatePlayTimeMessage * msg) const {
+	if (msg->duration > 60 * 24 || msg->duration < 0) return;
+	
 	MariaDBWrapper database;
 	if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, SPINEDATABASE, 0)) {
 		std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
@@ -4078,6 +4080,8 @@ void Server::handleUpdateOfflineData(clockUtils::sockets::TcpSocket *, UpdateOff
 			}
 		}
 		for (const auto & p : msg->playTimes) {
+			if (p.second > 60 * 24 || p.second < 0) continue;
+
 			if (!database.query("SET @paramModID=" + std::to_string(p.first) + ";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				break;

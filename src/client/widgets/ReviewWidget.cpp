@@ -48,7 +48,7 @@ ReviewWidget::ReviewWidget(const QString & reviewer, const QString & review, uin
 
     {
         auto * hl = new QHBoxLayout();
-        auto * createdLbl = new QLabel(QApplication::tr("CreatedAt") + ": " + QDate(1970, 1, 1).addDays(date / 60 / 60 / 24).toString("dd.MM.yyyy"));
+        auto * createdLbl = new QLabel(QApplication::tr("CreatedAt") + ": " + QDate(1970, 1, 1).addDays(date / 24).toString("dd.MM.yyyy"));
         createdLbl->setProperty("reviewSmall", true);
 		
         hl->addWidget(createdLbl, 0, Qt::AlignLeft);

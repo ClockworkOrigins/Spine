@@ -2046,9 +2046,16 @@
 		
 		<Bug language="English">Fixed bug that caused games/mods with special executable not being startable anymore</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="26" patchVersion="3">
+		<Bug language="Deutsch">Fehler behoben, wodurch Spielzeit viel zu hoch wurde</Bug>
+		
+		<Bug language="English">Fixed bug that caused play time to get too high</Bug>
+	</Version>
 	<Version majorVersion="1" minorVersion="27" patchVersion="0">
 		<Enhancement language="Deutsch">Support für aufsteigende Scores eingebaut</Enhancement>
+		<Bug language="Deutsch">Falsches Review-Datum behoben</Bug>
 		
 		<Enhancement language="English">Added support for ascending scores</Enhancement>
+		<Bug language="Deutsch">Fixed wrong review date</Bug>
 	</Version>
 </Versions>
