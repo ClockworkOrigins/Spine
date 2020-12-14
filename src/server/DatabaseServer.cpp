@@ -2445,6 +2445,8 @@ void DatabaseServer::updateOfflineData(std::shared_ptr<HttpsServer::Response> re
 					const auto projectID = data.get<int32_t>("ProjectID");
 					const auto time = data.get<int32_t>("Time");
 
+					if (time > 60 * 24 || time < 0) continue;
+
 					if (!database.query("SET @paramProjectID=" + std::to_string(projectID) + ";")) {
 						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 						code = SimpleWeb::StatusCode::client_error_bad_request;

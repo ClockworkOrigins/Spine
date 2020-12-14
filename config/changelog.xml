@@ -2046,4 +2046,9 @@
 		
 		<Bug language="English">Fixed bug that caused games/mods with special executable not being startable anymore</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="26" patchVersion="3">
+		<Bug language="Deutsch">Fehler behoben, wodurch Spielzeit viel zu hoch wurde</Bug>
+		
+		<Bug language="English">Fixed bug that caused play time to get too high</Bug>
+	</Version>
 </Versions>
