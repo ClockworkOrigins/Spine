@@ -24,6 +24,7 @@
 #include <QMap>
 
 class QCheckBox;
+class QHBoxLayout;
 class QLabel;
 class QMainWindow;
 class QVBoxLayout;
@@ -71,8 +72,10 @@ namespace widgets {
 		QMainWindow * _mainWindow;
 		QLabel * _infoLabel;
 		QVBoxLayout * _checkBoxLayout;
-		std::vector<common::ModUpdate> _updates;
-		std::vector<QCheckBox *> _checkBoxes;
+		QList<common::ModUpdate> _updates;
+		QList<QCheckBox *> _checkBoxes;
+		QList<QWidget *> _widgets;
+		QList<QHBoxLayout *> _checkBoxLayouts;
 		QCheckBox * _dontShowAgain;
 		bool _running;
 		bool _lastTimeRejected;

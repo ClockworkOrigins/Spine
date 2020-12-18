@@ -147,10 +147,17 @@ void ModUpdateDialog::updateModList(std::vector<ModUpdate> updates, bool forceAc
 		_infoLabel->setText(QApplication::tr("SelectModUpdates"));
 		_updates.clear();
 		for (QCheckBox * cb : _checkBoxes) {
-			_checkBoxLayout->removeWidget(cb);
 			cb->deleteLater();
 		}
+		for (QWidget * w : _widgets) {
+			w->deleteLater();
+		}
+		for (QHBoxLayout * hl : _checkBoxLayouts) {
+			hl->deleteLater();
+		}
 		_checkBoxes.clear();
+		_checkBoxLayouts.clear();
+		_widgets.clear();
 		int visibleCount = 0;
 		for (const ModUpdate & u : updates) {
 			Database::DBError err;
@@ -165,7 +172,7 @@ void ModUpdateDialog::updateModList(std::vector<ModUpdate> updates, bool forceAc
 			
 			auto * cb = new QCheckBox(title, this);
 			cb->setChecked(true); // default enabled
-			_checkBoxes.push_back(cb);
+			_checkBoxes << cb;
 			_updates.push_back(u);
 			const bool b = hasChanges(u);
 			cb->setVisible(b);
@@ -184,6 +191,7 @@ void ModUpdateDialog::updateModList(std::vector<ModUpdate> updates, bool forceAc
 			hl->addWidget(lbl);
 			
 			_checkBoxLayout->addLayout(hl);
+			_checkBoxLayouts << hl;
 
 			const auto changelog = s2q(u.changelog);
 
@@ -198,6 +206,7 @@ void ModUpdateDialog::updateModList(std::vector<ModUpdate> updates, bool forceAc
 				s->setContentLayout(vl);
 
 				_checkBoxLayout->addWidget(s);
+				_widgets << s;
 			}
 		}
 		if (!_updates.empty()) {
