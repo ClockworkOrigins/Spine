@@ -2053,9 +2053,11 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="27" patchVersion="0">
 		<Enhancement language="Deutsch">Support für aufsteigende Scores eingebaut</Enhancement>
+		<Enhancement language="Deutsch">Update existierender Dateien geht jetzt viel leichter</Enhancement>
 		<Bug language="Deutsch">Falsches Review-Datum behoben</Bug>
 		
 		<Enhancement language="English">Added support for ascending scores</Enhancement>
+		<Enhancement language="English">Update of existing files is a lot easier now</Enhancement>
 		<Bug language="Deutsch">Fixed wrong review date</Bug>
 	</Version>
 </Versions>

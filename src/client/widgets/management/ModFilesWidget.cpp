@@ -187,10 +187,13 @@ void ModFilesWidget::addFile() {
 	
 	if (path.isEmpty()) return;
 
+	const auto pathSuggestion = getPathSuggestion(path);
+
 	QInputDialog dlg(this);
 	dlg.setInputMode(QInputDialog::TextInput);
 	dlg.setWindowTitle(QApplication::tr("PathInDirectoryStructure"));
 	dlg.setLabelText(QApplication::tr("PathInDirectoryStructureDescription"));
+	dlg.setTextValue(pathSuggestion);
 
 	connect(&dlg, &QInputDialog::textValueChanged, this, [&dlg](const QString & text) {
 		QSignalBlocker blocker(dlg);
@@ -652,4 +655,26 @@ void ModFilesWidget::deleteFile(const QModelIndex & idx) {
 	}
 	_directory.remove(path);
 	_fileList->removeRow(idx.row(), idx.parent());
+}
+
+QString ModFilesWidget::getPathSuggestion(const QString & file) const {
+	const QFileInfo fi(file);
+	const auto fileName = fi.fileName();
+	
+	for (const auto & f : _data.files) {
+		if (!f.filename.contains(fileName)) continue;
+
+		auto path = f.filename;
+		path = path.remove(fileName);
+		if (path.endsWith(".z")) {
+			path.resize(path.size() - 2);
+		}
+		if (path.endsWith("/")) {
+			path.resize(path.size() - 1);
+		}
+
+		return path;
+	}
+	
+	return "";
 }

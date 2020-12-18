@@ -98,6 +98,7 @@ namespace widgets {
 		void addFile(QString fullPath, QString relativePath, QString file);
 		void addFile(QStandardItem * itm, QString file, QString language);
 		void deleteFile(const QModelIndex & idx);
+		QString getPathSuggestion(const QString & file) const;
 	};
 
 } /* namespace widgets */
