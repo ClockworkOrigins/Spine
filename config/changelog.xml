@@ -2056,10 +2056,12 @@
 		<Enhancement language="Deutsch">Update existierender Dateien geht jetzt viel leichter</Enhancement>
 		<Bug language="Deutsch">Falsches Review-Datum behoben</Bug>
 		<Bug language="Deutsch">Fehler behoben, wodurch Einträge im Update-Dialog mehrfach aufgetaucht sind</Bug>
+		<Bug language="Deutsch">Pfadeingabe beim Upload verbessert</Bug>
 		
 		<Enhancement language="English">Added support for ascending scores</Enhancement>
 		<Enhancement language="English">Update of existing files is a lot easier now</Enhancement>
 		<Bug language="Deutsch">Fixed wrong review date</Bug>
 		<Bug language="Deutsch">Fixed bug that caused entries in update dialog to appear multiple times</Bug>
+		<Bug language="Deutsch">Improved path input for upload</Bug>
 	</Version>
 </Versions>

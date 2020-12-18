@@ -199,6 +199,10 @@ void ModFilesWidget::addFile() {
 		QSignalBlocker blocker(dlg);
 		auto textCopy = text;
 		textCopy = textCopy.remove(".");
+		textCopy = textCopy.replace('\\', '/');
+		if (textCopy.startsWith('/')) {
+			textCopy.remove(0, 1);
+		}
 		dlg.setTextValue(textCopy);
 	});
 
@@ -434,8 +438,6 @@ void ModFilesWidget::addFolder() {
 		fileList.append(fileName);
 	}
 
-	qDebug() << fileList.count();
-
 	QDirIterator it(dir, QDir::Files, QDirIterator::Subdirectories);
 	while (it.hasNext()) {
 		it.next();
@@ -448,8 +450,6 @@ void ModFilesWidget::addFolder() {
 	}
 
 	for (const QString & file : fileList) {
-		qDebug() << file;
-		
 		const auto idxList = _fileList->match(_fileList->index(0, 0), PathRole, QVariant::fromValue(file), 2, Qt::MatchRecursive);
 
 		if (idxList.isEmpty()) continue;
