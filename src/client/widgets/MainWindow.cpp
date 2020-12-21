@@ -806,8 +806,8 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 
 		connect(_autoUpdateDialog, &AutoUpdateDialog::upToDate, _modUpdateDialog, &ModUpdateDialog::spineUpToDate);
 
-		connect(LauncherFactory::getInstance(), &LauncherFactory::editReview, this, &MainWindow::changeToInfoTab);
 		connect(LauncherFactory::getInstance(), &LauncherFactory::editReview, _modInfoPage, &ModInfoPage::editReview);
+		connect(LauncherFactory::getInstance(), &LauncherFactory::editReview, this, &MainWindow::changeToInfoTab);
 
 		_updateCheckTimer = new QTimer(this);
 		connect(_updateCheckTimer, &QTimer::timeout, [this]() {

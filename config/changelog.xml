@@ -2058,6 +2058,7 @@
 		<Bug language="Deutsch">Fehler behoben, wodurch Einträge im Update-Dialog mehrfach aufgetaucht sind</Bug>
 		<Bug language="Deutsch">Pfadeingabe beim Upload verbessert</Bug>
 		<Bug language="Deutsch">Fehlerhaften Standardtext in Reviews entfernt</Bug>
+		<Bug language="Deutsch">Link von Bibliothek zur Infoseite über den Review-Button korrigiert</Bug>
 		
 		<Enhancement language="English">Added support for ascending scores</Enhancement>
 		<Enhancement language="English">Update of existing files is a lot easier now</Enhancement>
@@ -2065,5 +2066,6 @@
 		<Bug language="Deutsch">Fixed bug that caused entries in update dialog to appear multiple times</Bug>
 		<Bug language="Deutsch">Improved path input for upload</Bug>
 		<Bug language="Deutsch">Removed wrong default text in review</Bug>
+		<Bug language="Deutsch">Fixed link from library to info page using review button</Bug>
 	</Version>
 </Versions>
