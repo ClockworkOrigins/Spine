@@ -768,7 +768,7 @@ void ModInfoPage::editReview(int projectID, const QString & review) {
 		loadPage(projectID);
 	}
 	
-	_ownReviewEdit->setText(review + "Fpp");
+	_ownReviewEdit->setText(review);
 	_ownReviewWidget->setVisible(true);
 	_scrollArea->ensureWidgetVisible(_ownReviewWidget);
 }
