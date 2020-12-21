@@ -9,6 +9,7 @@ FILE(GLOB ServerHeader ${includedir}/*.h)
 ADD_EXECUTABLE(SpineServer ${SpineServerSrc} ${ServerHeader})
 
 target_link_libraries(SpineServer SpineCommon ${BOOST_LIBRARIES} ${CLOCKUTILS_LIBRARIES} ${CLOCKWORK_LIBRARIES} ${MARIADB_LIBRARIES} ${OPENSSL_LIBRARIES})
+target_link_libraries(SpineServer debug ${TINYXML_DEBUG_LIBRARIES} optimized ${TINYXML_RELEASE_LIBRARIES})
 
 IF(UNIX)
 	target_link_libraries(SpineServer pthread)

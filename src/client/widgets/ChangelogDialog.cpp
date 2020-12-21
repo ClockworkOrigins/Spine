@@ -18,44 +18,38 @@
 
 #include "widgets/ChangelogDialog.h"
 
-#include <functional>
 #include <map>
 
 #include "utils/Config.h"
-#include "utils/Conversion.h"
 
 #include <QApplication>
 #include <QCheckBox>
 #include <QDialogButtonBox>
+#include <QFile>
 #include <QPushButton>
 #include <QSettings>
 #include <QTextBrowser>
 #include <QVBoxLayout>
-
-#include "tinyxml2.h"
-
-#ifdef Q_OS_WIN
-	#include "clockUtils/log/Log.h"
-#endif
+#include <QXmlStreamReader>
 
 using namespace spine;
 using namespace spine::utils;
 using namespace spine::widgets;
 
 ChangelogDialog::ChangelogDialog(QWidget * par) : QDialog(par), _changelogBrowser(nullptr) {
-	QVBoxLayout * l = new QVBoxLayout();
+	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
 	_changelogBrowser = new QTextBrowser(this);
 	l->addWidget(_changelogBrowser);
 
 	const bool dsa = Config::IniParser->value("CHANGELOGDIALOG/DontShowAgain", false).toBool();
-	QCheckBox * cb = new QCheckBox(QApplication::tr("DontShowAgain"), this);
+	auto * cb = new QCheckBox(QApplication::tr("DontShowAgain"), this);
 	cb->setChecked(dsa);
 	l->addWidget(cb);
 	connect(cb, &QCheckBox::stateChanged, this, &ChangelogDialog::changedShowState);
 
-	QDialogButtonBox * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Close, Qt::Orientation::Horizontal, this);
+	auto * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Close, Qt::Orientation::Horizontal, this);
 	l->addWidget(dbb);
 
 	setLayout(l);
@@ -82,48 +76,84 @@ ChangelogDialog::~ChangelogDialog() {
 
 int ChangelogDialog::execStartup() {
 	const bool dsa = Config::IniParser->value("CHANGELOGDIALOG/DontShowAgain", false).toBool();
-	if (dsa) {
-		return QDialog::Accepted;
-	} else {
-		return exec();
-	}
+	
+	if (dsa) return Accepted;
+	
+	return exec();
 }
 
 int ChangelogDialog::exec() {
-	tinyxml2::XMLDocument doc;
+	QFile xmlFile(qApp->applicationDirPath() + "/changelog.xml");
 
-	const tinyxml2::XMLError e = doc.LoadFile((qApp->applicationDirPath().toStdString() + "/changelog.xml").c_str());
-
-	if (e) {
-		return QDialog::Rejected;
-	}
-
-	QString language = Config::IniParser->value("MISC/language", "English").toString();
-	if (language != "Deutsch" && language != "English" && language != "Russian") {
-		language = "English";
-	}
+	if (!xmlFile.open(QIODevice::ReadOnly)) return Rejected;
+	
+	QXmlStreamReader xml(&xmlFile);
+	
+	const auto language = Config::Language;
 
 	std::map<uint32_t, std::pair<QStringList, QStringList>, std::greater<uint32_t>> versions;
 
-	tinyxml2::XMLElement * versionsNode = doc.FirstChildElement("Versions");
+	uint32_t currentVersion = 0;
 
-	for (tinyxml2::XMLElement * node = versionsNode->FirstChildElement("Version"); node != nullptr; node = node->NextSiblingElement("Version")) {
-		if (node->Attribute("majorVersion") == nullptr || node->Attribute("minorVersion") == nullptr || node->Attribute("patchVersion") == nullptr) {
-			continue;
-		}
-		const uint8_t majorVersion = static_cast<uint8_t>(std::stoi(node->Attribute("majorVersion")));
-		const uint8_t minorVersion = static_cast<uint8_t>(std::stoi(node->Attribute("minorVersion")));
-		const uint8_t patchVersion = static_cast<uint8_t>(std::stoi(node->Attribute("patchVersion")));
-		uint32_t version = (majorVersion << 16) + (minorVersion << 8) + patchVersion;
-		versions.insert(std::make_pair(version, std::make_pair(QStringList(), QStringList())));
-		for (tinyxml2::XMLElement * enhancement = node->FirstChildElement("Enhancement"); enhancement != nullptr; enhancement = enhancement->NextSiblingElement("Enhancement")) {
-			if (enhancement->Attribute("language") != nullptr && enhancement->Attribute("language") == language) {
-				versions[version].first.push_back(s2q(enhancement->GetText()));
-			}
-		}
-		for (tinyxml2::XMLElement * bug = node->FirstChildElement("Bug"); bug != nullptr; bug = bug->NextSiblingElement("Bug")) {
-			if (bug->Attribute("language") != nullptr && bug->Attribute("language") == language) {
-				versions[version].second.push_back(s2q(bug->GetText()));
+	while (!xml.atEnd()) {
+		if (!xml.readNextStartElement()) break;
+		
+		const auto name = xml.name();
+
+		if (name == "Version") {
+			auto attributes = xml.attributes();
+
+			if (attributes.count() != 3) continue;
+
+			if (!attributes.hasAttribute("majorVersion")) continue;
+			
+			if (!attributes.hasAttribute("minorVersion")) continue;
+			
+			if (!attributes.hasAttribute("patchVersion")) continue;
+
+			const uint8_t majorVersion = static_cast<uint8_t>(attributes.value("majorVersion").toInt());
+			const uint8_t minorVersion = static_cast<uint8_t>(attributes.value("minorVersion").toInt());
+			const uint8_t patchVersion = static_cast<uint8_t>(attributes.value("patchVersion").toInt());
+
+			currentVersion = (majorVersion << 16) + (minorVersion << 8) + patchVersion;
+			versions.insert(std::make_pair(currentVersion, std::make_pair(QStringList(), QStringList())));
+
+			while (!xml.atEnd()) {
+				if (!xml.readNextStartElement()) break;
+
+				const auto childName = xml.name();
+
+				if (childName == "Enhancement") {
+					attributes = xml.attributes();
+
+					if (!attributes.hasAttribute("language")) continue;
+
+					const auto l = attributes.value("language");
+
+					if (l != language) {
+						xml.skipCurrentElement();
+						continue;
+					}
+
+					const auto text = xml.readElementText();
+
+					versions[currentVersion].first.push_back(text);
+				} else if (childName == "Bug") {
+					attributes = xml.attributes();
+
+					if (!attributes.hasAttribute("language")) continue;
+
+					const auto l = attributes.value("language");
+
+					if (l != language) {
+						xml.skipCurrentElement();
+						continue;
+					}
+
+					const auto text = xml.readElementText();
+
+					versions[currentVersion].second.push_back(text);
+				}
 			}
 		}
 	}

@@ -23,8 +23,7 @@
 #include <QRegularExpression>
 #include <QSet>
 #include <QTextStream>
-
-#include <tinyxml2.h>
+#include <QXmlStreamReader>
 
 int main(const int argc, char ** argv) {
 	if (argc < 4) {
@@ -37,7 +36,15 @@ int main(const int argc, char ** argv) {
 	};
 	QMap<QString, Voice> voices;
 
-	tinyxml2::XMLDocument doc;
+	QFile xmlFile(argv[1]);
+
+	if (!xmlFile.open(QIODevice::ReadOnly)) return -1;
+	
+	QXmlStreamReader xml(&xmlFile);
+
+	const auto n = xml.name();
+
+	/*tinyxml2::XMLDocument doc;
 
 	const tinyxml2::XMLError e = doc.LoadFile(argv[1]);
 
@@ -54,7 +61,7 @@ int main(const int argc, char ** argv) {
 		voice.speed = node->Attribute("speed") ? node->Attribute("speed") : "0";
 		voice.pitch = node->Attribute("pitch") ? node->Attribute("pitch") : "0";
 		voices[node->Attribute("number")] = voice;
-	}
+	}*/
 
 	const QString inputFolder = argv[2];
 	const QString outputFolder = argv[3];
