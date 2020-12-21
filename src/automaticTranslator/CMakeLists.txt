@@ -7,6 +7,7 @@ SET(AutomaticTranslatorSrc
 ADD_EXECUTABLE(AutomaticTranslator ${AutomaticTranslatorSrc})
 
 target_link_libraries(AutomaticTranslator ${QT_LIBRARIES} ${TRANSLATOR_LIBRARIES})
+target_link_libraries(AutomaticTranslator debug ${TRANSLATOR_DEBUG_LIBRARIES} optimized ${TRANSLATOR_RELEASE_LIBRARIES})
 
 IF(UNIX)
 	target_link_libraries(AutomaticTranslator pthread)

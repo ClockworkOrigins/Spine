@@ -6,7 +6,9 @@ SET(HashEvaluatorSrc
 
 ADD_EXECUTABLE(HashEvaluator ${HashEvaluatorSrc})
 
-target_link_libraries(HashEvaluator SpineUtils ${BOOST_LIBRARIES} ${QT_LIBRARIES} ${ZLIB_LIBRARIES})
+target_link_libraries(HashEvaluator SpineUtils ${QT_LIBRARIES})
+target_link_libraries(HashEvaluator debug ${BOOST_DEBUG_BOOST_IOSTREAMS_LIBRARY} optimized ${BOOST_RELEASE_BOOST_IOSTREAMS_LIBRARY})
+target_link_libraries(HashEvaluator debug ${ZLIB_DEBUG_LIBRARIES} optimized ${ZLIB_RELEASE_LIBRARIES})
 
 IF(UNIX)
 	target_link_libraries(HashEvaluator pthread)

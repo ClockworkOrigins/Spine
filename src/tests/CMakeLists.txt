@@ -12,7 +12,9 @@ SET(UnitTesterSrc
 ADD_EXECUTABLE(UnitTester ${UnitTesterSrc} ${UnitTesterGuiHeader})
 
 target_link_libraries(UnitTester debug ${GTEST_DEBUG_LIBRARIES} optimized ${GTEST_RELEASE_LIBRARIES})
-target_link_libraries(UnitTester ${QT_LIBRARIES} ${TRANSLATOR_LIBRARIES})
+target_link_libraries(UnitTester debug ${BOOST_DEBUG_BOOST_IOSTREAMS_LIBRARY} optimized ${BOOST_RELEASE_BOOST_IOSTREAMS_LIBRARY})
+target_link_libraries(UnitTester debug ${TRANSLATOR_DEBUG_LIBRARIES} optimized ${TRANSLATOR_RELEASE_LIBRARIES})
+target_link_libraries(UnitTester ${QT_LIBRARIES})
 
 IF(WITH_TRANSLATOR)
 	target_link_libraries(UnitTester SpineTranslator)

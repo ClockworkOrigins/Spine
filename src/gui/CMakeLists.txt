@@ -8,7 +8,7 @@ FILE(GLOB SpineGuiHeader ${includedir}/*.h)
 
 ADD_LIBRARY(SpineGui STATIC ${SpineGuiSrc} ${SpineGuiHeader})
 
-target_link_libraries(SpineGui SpineHttps SpineUtils ${BOOST_LIBRARIES} ${QT_LIBRARIES})
+target_link_libraries(SpineGui SpineHttps SpineUtils ${QT_LIBRARIES})
 
 set_target_properties(
 	SpineGui PROPERTIES FOLDER Libraries

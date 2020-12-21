@@ -20,7 +20,8 @@ configure_file(${CMAKE_SOURCE_DIR}/media/Spine.vdf ${CMAKE_BINARY_DIR}/media/Spi
 ADD_LIBRARY(SpineAPI${ARCH_POSTFIX} SHARED ${CommonSrc} ${APIHeader})
 set_target_properties(SpineAPI${ARCH_POSTFIX} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-target_link_libraries(SpineAPI${ARCH_POSTFIX} SpineCommon ${CLOCKUTILS_LIBRARIES})
+target_link_libraries(SpineAPI${ARCH_POSTFIX} SpineCommon)
+target_link_libraries(SpineAPI${ARCH_POSTFIX} debug ${CLOCKUTILS_DEBUG_CLOCK_SOCKETS_LIBRARY} optimized ${CLOCKUTILS_RELEASE_CLOCK_SOCKETS_LIBRARY})
 
 IF(WIN32)
 	target_link_libraries(SpineAPI${ARCH_POSTFIX} ws2_32)
