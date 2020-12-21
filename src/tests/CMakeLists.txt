@@ -11,7 +11,8 @@ SET(UnitTesterSrc
 
 ADD_EXECUTABLE(UnitTester ${UnitTesterSrc} ${UnitTesterGuiHeader})
 
-target_link_libraries(UnitTester ${GTEST_LIBRARIES} ${QT_LIBRARIES} ${TRANSLATOR_LIBRARIES})
+target_link_libraries(UnitTester debug ${GTEST_DEBUG_LIBRARIES} optimized ${GTEST_RELEASE_LIBRARIES})
+target_link_libraries(UnitTester ${QT_LIBRARIES} ${TRANSLATOR_LIBRARIES})
 
 IF(WITH_TRANSLATOR)
 	target_link_libraries(UnitTester SpineTranslator)
