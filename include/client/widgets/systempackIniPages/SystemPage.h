@@ -66,10 +66,10 @@ namespace sp {
 		QComboBox * _NewFOVformula;
 		QComboBox * _DisableLOD;
 		QComboBox * _DisableIndoorClipping;
-		QSpinBox * _SPAWN_INSERTRANGE;
-		QSpinBox * _SPAWN_REMOVERANGE;
-		QSpinBox * _SPAWN_INSERTTIME_MAX;
-		QSpinBox * _DrawDistanceMultiplier;
+		QDoubleSpinBox * _SPAWN_INSERTRANGE;
+		QDoubleSpinBox * _SPAWN_REMOVERANGE;
+		QDoubleSpinBox * _SPAWN_INSERTTIME_MAX;
+		QDoubleSpinBox * _DrawDistanceMultiplier;
 		QDoubleSpinBox * _OutDoorPortalDistanceMultiplier;
 		QDoubleSpinBox * _InDoorPortalDistanceMultiplier;
 		QDoubleSpinBox * _WoodPortalDistanceMultiplier;

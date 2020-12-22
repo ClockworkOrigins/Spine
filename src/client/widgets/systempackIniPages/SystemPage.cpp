@@ -217,7 +217,7 @@ SystemPage::SystemPage(QSettings * iniParser, QWidget * par) : QWidget(par), _in
 
 			lbl = new QLabel("SPAWN_INSERTRANGE", debugBox);
 			lbl->setToolTip(QApplication::tr("SPAWN_INSERTRANGETooltip"));
-			_SPAWN_INSERTRANGE = new QSpinBox(debugBox);
+			_SPAWN_INSERTRANGE = new QDoubleSpinBox(debugBox);
 			_SPAWN_INSERTRANGE->setMinimum(0);
 			_SPAWN_INSERTRANGE->setMaximum(100000);
 			gl->addWidget(lbl, 4, 0);
@@ -225,7 +225,7 @@ SystemPage::SystemPage(QSettings * iniParser, QWidget * par) : QWidget(par), _in
 
 			lbl = new QLabel("SPAWN_REMOVERANGE", debugBox);
 			lbl->setToolTip(QApplication::tr("SPAWN_REMOVERANGETooltip"));
-			_SPAWN_REMOVERANGE = new QSpinBox(debugBox);
+			_SPAWN_REMOVERANGE = new QDoubleSpinBox(debugBox);
 			_SPAWN_REMOVERANGE->setMinimum(0);
 			_SPAWN_REMOVERANGE->setMaximum(100000);
 			gl->addWidget(lbl, 5, 0);
@@ -233,7 +233,7 @@ SystemPage::SystemPage(QSettings * iniParser, QWidget * par) : QWidget(par), _in
 
 			lbl = new QLabel("SPAWN_INSERTTIME_MAX", debugBox);
 			lbl->setToolTip(QApplication::tr("SPAWN_INSERTTIME_MAXTooltip"));
-			_SPAWN_INSERTTIME_MAX = new QSpinBox(debugBox);
+			_SPAWN_INSERTTIME_MAX = new QDoubleSpinBox(debugBox);
 			_SPAWN_INSERTTIME_MAX->setMinimum(0);
 			_SPAWN_INSERTTIME_MAX->setMaximum(100000);
 			gl->addWidget(lbl, 6, 0);
@@ -241,7 +241,7 @@ SystemPage::SystemPage(QSettings * iniParser, QWidget * par) : QWidget(par), _in
 
 			lbl = new QLabel("DrawDistanceMultiplier", debugBox);
 			lbl->setToolTip(QApplication::tr("DrawDistanceMultiplierTooltip"));
-			_DrawDistanceMultiplier = new QSpinBox(debugBox);
+			_DrawDistanceMultiplier = new QDoubleSpinBox(debugBox);
 			_DrawDistanceMultiplier->setMinimum(0);
 			_DrawDistanceMultiplier->setMaximum(26);
 			gl->addWidget(lbl, 7, 0);
@@ -477,14 +477,14 @@ void SystemPage::reject() {
 	_DisableLOD->setCurrentIndex(i);
 	i = _iniParser->value("DisableIndoorClipping", 1).toInt();
 	_DisableIndoorClipping->setCurrentIndex(i);
-	i = _iniParser->value("SPAWN_INSERTRANGE", 4500).toInt();
-	_SPAWN_INSERTRANGE->setValue(i);
-	i = _iniParser->value("SPAWN_REMOVERANGE", 5000).toInt();
-	_SPAWN_REMOVERANGE->setValue(i);
-	i = _iniParser->value("SPAWN_INSERTTIME_MAX", 1000).toInt();
-	_SPAWN_INSERTTIME_MAX->setValue(i);
-	i = _iniParser->value("DrawDistanceMultiplier", 1).toInt();
-	_DrawDistanceMultiplier->setValue(i);
+	d = _iniParser->value("SPAWN_INSERTRANGE", 4500.0).toDouble();
+	_SPAWN_INSERTRANGE->setValue(d);
+	d = _iniParser->value("SPAWN_REMOVERANGE", 5000.0).toDouble();
+	_SPAWN_REMOVERANGE->setValue(d);
+	d = _iniParser->value("SPAWN_INSERTTIME_MAX", 1000.0).toDouble();
+	_SPAWN_INSERTTIME_MAX->setValue(d);
+	d = _iniParser->value("DrawDistanceMultiplier", 1.0).toDouble();
+	_DrawDistanceMultiplier->setValue(d);
 	d = _iniParser->value("OutDoorPortalDistanceMultiplier", 1).toDouble();
 	_OutDoorPortalDistanceMultiplier->setValue(d);
 	d = _iniParser->value("InDoorPortalDistanceMultiplier", 1).toDouble();
