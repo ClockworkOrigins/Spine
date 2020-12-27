@@ -41,21 +41,20 @@
 #include <QSpinBox>
 #include <QVBoxLayout>
 
-using namespace spine;
 using namespace spine::client;
 using namespace spine::client::widgets;
 using namespace spine::gui;
 using namespace spine::utils;
 
-GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(par), _mods(), _modIndex(-1), _waitSpinner(nullptr) {
-	QVBoxLayout * vl = new QVBoxLayout();
+GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(par), _modIndex(-1), _waitSpinner(nullptr) {
+	auto * vl = new QVBoxLayout();
 
 	{
-		QGridLayout * l = new QGridLayout();
+		auto * l = new QGridLayout();
 		l->setAlignment(Qt::AlignTop);
 
 		{
-			QLabel * lbl = new QLabel(QApplication::tr("Enabled"), this);
+			auto * lbl = new QLabel(QApplication::tr("Enabled"), this);
 			lbl->setToolTip(QApplication::tr("ModEnabledTooltip"));
 			_enabledBox = new QCheckBox(this);
 			_enabledBox->setToolTip(QApplication::tr("ModEnabledTooltip"));
@@ -65,7 +64,7 @@ GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(
 		}
 
 		{
-			QLabel * lbl = new QLabel(QApplication::tr("GothicVersion"), this);
+			auto * lbl = new QLabel(QApplication::tr("GothicVersion"), this);
 			_gothicVersionBox = new QComboBox(this);
 			_gothicVersionBox->setEditable(false);
 
@@ -79,7 +78,7 @@ GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(
 		}
 
 		{
-			QLabel * lbl = new QLabel(QApplication::tr("ModType"), this);
+			auto * lbl = new QLabel(QApplication::tr("ModType"), this);
 			_typeBox = new QComboBox(this);
 			_typeBox->setEditable(false);
 
@@ -93,7 +92,7 @@ GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(
 		}
 
 		{
-			QLabel * lbl = new QLabel(QApplication::tr("ReleaseDate"), this);
+			auto * lbl = new QLabel(QApplication::tr("ReleaseDate"), this);
 			_releaseDateEdit = new QDateEdit(this);
 			_releaseDateEdit->setCalendarPopup(true);
 
@@ -102,7 +101,7 @@ GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(
 		}
 
 		{
-			QLabel * lbl = new QLabel(QApplication::tr("DevDurationDescription"), this);
+			auto * lbl = new QLabel(QApplication::tr("DevDurationDescription"), this);
 			_devDurationBox = new QSpinBox(this);
 			_devDurationBox->setMinimum(0);
 			_devDurationBox->setMaximum(500 * 60); // 300h
@@ -112,10 +111,10 @@ GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(
 		}
 
 		{
-			const QRegularExpression mailRegex("[a-zA-Z0-9 _.@-]+");
+			const QRegularExpression mailRegex("[a-zA-Z0-9+ _.@-]+");
 			QValidator * mailValidator = new QRegularExpressionValidator(mailRegex, this);
 			
-			QLabel * lbl = new QLabel(QApplication::tr("FeedbackMail"), this);
+			auto * lbl = new QLabel(QApplication::tr("FeedbackMail"), this);
 			lbl->setToolTip(QApplication::tr("FeedbackMailTooltip"));
 			_feedbackMailEdit = new QLineEdit(this);
 			_feedbackMailEdit ->setToolTip(QApplication::tr("FeedbackMailTooltip"));
@@ -126,7 +125,7 @@ GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(
 		}
 
 		{
-			QLabel * lbl = new QLabel(QApplication::tr("DiscussionUrl"), this);
+			auto * lbl = new QLabel(QApplication::tr("DiscussionUrl"), this);
 			lbl->setToolTip(QApplication::tr("DiscussionUrlTooltip"));
 			_discussionUrlEdit = new QLineEdit(this);
 			_discussionUrlEdit ->setToolTip(QApplication::tr("DiscussionUrlTooltip"));
@@ -138,12 +137,12 @@ GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(
 		vl->addLayout(l);
 	}
 
-	QDialogButtonBox * dbb = new QDialogButtonBox(this);
-	QPushButton * submitButton = new QPushButton(QApplication::tr("Submit"), this);
+	auto * dbb = new QDialogButtonBox(this);
+	auto * submitButton = new QPushButton(QApplication::tr("Submit"), this);
 	dbb->addButton(submitButton, QDialogButtonBox::ButtonRole::AcceptRole);
 	connect(submitButton, &QPushButton::released, this, &GeneralConfigurationWidget::updateMod);
 
-	QPushButton * infoPageButton = new QPushButton(QApplication::tr("InfoPage"), this);
+	auto * infoPageButton = new QPushButton(QApplication::tr("InfoPage"), this);
 	infoPageButton->setToolTip(QApplication::tr("EditInfoPageTooltip"));
 	dbb->addButton(infoPageButton, QDialogButtonBox::ButtonRole::ActionRole);
 	connect(infoPageButton, &QPushButton::released, this, &GeneralConfigurationWidget::openInfoPage);
@@ -170,7 +169,7 @@ GeneralConfigurationWidget::~GeneralConfigurationWidget() {
 	_futureWatcher.waitForFinished();
 }
 
-void GeneralConfigurationWidget::updateModList(QList<client::ManagementMod> modList) {
+void GeneralConfigurationWidget::updateModList(QList<ManagementMod> modList) {
 	_mods = modList;
 }
 

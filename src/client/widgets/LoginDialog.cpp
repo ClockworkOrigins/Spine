@@ -173,7 +173,7 @@ LoginDialog::LoginDialog(QWidget *) : QDialog(nullptr), _connected(false), _dont
 	
 	const QRegularExpression nameRegex("[a-zA-Z0-9 _.-]+");
 	const QRegularExpression passwordRegex(R"([a-zA-Z0-9 _.,@;:\+#!?\(\)\[\]$&{}-]+)");
-	const QRegularExpression mailRegex("[a-zA-Z0-9 _.@-]+");
+	const QRegularExpression mailRegex("[a-zA-Z0-9+ _.@-]+");
 
 	{
 		// register tab
