@@ -1640,6 +1640,11 @@ void DatabaseServer::updateReview(std::shared_ptr<HttpsServer::Response> respons
 				code = SimpleWeb::StatusCode::client_error_bad_request;
 				break;
 			}
+			if (!database.query("PREPARE selectFeedbackMailStmt FROM \"SELECT Mail FROM feedbackMails WHERE ProjectID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
 			if (!database.query("SET @paramProjectID=" + std::to_string(projectID) + ";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_bad_request;
@@ -1666,7 +1671,7 @@ void DatabaseServer::updateReview(std::shared_ptr<HttpsServer::Response> respons
 				code = SimpleWeb::StatusCode::client_error_bad_request;
 				break;
 			}
-			const auto lastResults = database.getResults<std::vector<std::string>>();
+			auto lastResults = database.getResults<std::vector<std::string>>();
 			
 			if (!database.query("SET @paramDuration=" + lastResults[0][0] + ";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
@@ -1681,6 +1686,19 @@ void DatabaseServer::updateReview(std::shared_ptr<HttpsServer::Response> respons
 			}
 
 			SpineLevel::updateLevel(userID);
+			
+			if (!database.query("EXECUTE selectFeedbackMailStmt USING @paramProjectID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			lastResults = database.getResults<std::vector<std::string>>();
+
+			if (lastResults.empty()) break;
+
+			const auto feedbackMail = lastResults[0][0];
+
+			const std::string body = "The review of " + username + " was added/changed for your project '" + ServerCommon::getProjectName(projectID, common::Language::English) + "'";
+			ServerCommon::sendMail("[SPINE] Review added or updated", body, "noreply@clockwork-origins.com", feedbackMail);
 		} while (false);
 
 		response->write(code);
