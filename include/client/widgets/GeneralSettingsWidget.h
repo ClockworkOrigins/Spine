@@ -34,7 +34,7 @@ namespace widgets {
 	public:
 		static bool skipExitCheckbox;
 
-		GeneralSettingsWidget(QWidget * par);
+		explicit GeneralSettingsWidget(QWidget * par);
 
 		static GeneralSettingsWidget * getInstance();
 
@@ -61,6 +61,9 @@ namespace widgets {
 		QCheckBox * _hideIncompatibleCheckBox;
 		QCheckBox * _extendedLoggingCheckBox;
 		QCheckBox * _skipExitCheckBox;
+		QCheckBox * _developerModeCheckBox;
+
+		bool _devModeActive;
 
 		static GeneralSettingsWidget * instance;
 	};

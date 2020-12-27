@@ -3325,5 +3325,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>Descending</source>
         <translation>По убыванию</translation>
     </message>
+    <message>
+        <source>ActivateDeveloperModeTooltip</source>
+        <translation>Включает настройки и функции разработчика. Требуется перезапуск Spine.</translation>
+    </message>
 </context>
 </TS>

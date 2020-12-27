@@ -2055,6 +2055,7 @@
 		<Enhancement language="Deutsch">Support für aufsteigende Scores eingebaut</Enhancement>
 		<Enhancement language="Deutsch">Update existierender Dateien geht jetzt viel leichter</Enhancement>
 		<Enhancement language="Deutsch">Bei konfigurierter Feedback-Mail erhält man als Entwickler jetzt E-Mail-Benachrichtigungen für neue/editierte Reviews</Enhancement>
+		<Enhancement language="Deutsch">Entwickler-Optionen lassen sich jetzt in den Einstellungen einfacher aktivieren</Enhancement>
 		<Bug language="Deutsch">Falsches Review-Datum behoben</Bug>
 		<Bug language="Deutsch">Fehler behoben, wodurch Einträge im Update-Dialog mehrfach aufgetaucht sind</Bug>
 		<Bug language="Deutsch">Pfadeingabe beim Upload verbessert</Bug>
@@ -2065,6 +2066,7 @@
 		<Enhancement language="English">Added support for ascending scores</Enhancement>
 		<Enhancement language="English">Update of existing files is a lot easier now</Enhancement>
 		<Enhancement language="English">With configured feedback mal developers now get an email notification when a review is added/changed</Enhancement>
+		<Enhancement language="English">Developer options now can be enabled more easily using the settings dialog</Enhancement>
 		<Bug language="Deutsch">Fixed wrong review date</Bug>
 		<Bug language="Deutsch">Fixed bug that caused entries in update dialog to appear multiple times</Bug>
 		<Bug language="Deutsch">Improved path input for upload</Bug>

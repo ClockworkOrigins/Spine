@@ -3320,5 +3320,9 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>Descending</source>
         <translation>Absteigend</translation>
     </message>
+    <message>
+        <source>ActivateDeveloperModeTooltip</source>
+        <translation>Aktiviert Entwickler-Optionen und -Features. Neustart von Spine erforderlich.</translation>
+    </message>
 </context>
 </TS>

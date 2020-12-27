@@ -49,15 +49,15 @@ GeneralSettingsWidget * GeneralSettingsWidget::instance = nullptr;
 GeneralSettingsWidget::GeneralSettingsWidget(QWidget * par) : QWidget(par), _languageComboBox(nullptr), _styleComboBox(nullptr), _hideIncompatibleCheckBox(nullptr), _extendedLoggingCheckBox(nullptr) {
 	instance = this;
 	
-	QVBoxLayout * l = new QVBoxLayout();
+	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
 	{
-		QHBoxLayout * hl = new QHBoxLayout();
+		auto * hl = new QHBoxLayout();
 
 		Config::Language = Config::IniParser->value("MISC/language", "English").toString();
 
-		QLabel * languageLabel = new QLabel(QApplication::tr("Language"), this);
+		auto * languageLabel = new QLabel(QApplication::tr("Language"), this);
 		_languageComboBox = new QComboBox(this);
 		_languageComboBox->setEditable(false);
 		_languageComboBox->addItem("Deutsch");
@@ -77,11 +77,11 @@ GeneralSettingsWidget::GeneralSettingsWidget(QWidget * par) : QWidget(par), _lan
 		l->addSpacing(10);
 	}
 	{
-		QHBoxLayout * hl = new QHBoxLayout();
+		auto * hl = new QHBoxLayout();
 
 		const QString style = Config::IniParser->value("MISC/style", "Default").toString();
 
-		QLabel * styleLabel = new QLabel(QApplication::tr("Style"), this);
+		auto * styleLabel = new QLabel(QApplication::tr("Style"), this);
 		_styleComboBox = new QComboBox(this);
 		_styleComboBox->setEditable(false);
 		_styleComboBox->addItem("Default");
@@ -110,20 +110,20 @@ GeneralSettingsWidget::GeneralSettingsWidget(QWidget * par) : QWidget(par), _lan
 		connect(_styleComboBox, QOverload<const QString&>::of(&QComboBox::currentIndexChanged), this, &GeneralSettingsWidget::changedStyle);
 	}
 	{
-		QPushButton * pb = new QPushButton(QApplication::tr("ReactivateModUpdates"), this);
+		auto * pb = new QPushButton(QApplication::tr("ReactivateModUpdates"), this);
 		UPDATELANGUAGESETTEXT(pb, "ReactivateModUpdates");
 		connect(pb, &QPushButton::released, this, &GeneralSettingsWidget::reactivateModUpdates);
 
 		l->addWidget(pb);
 	}
 	{
-		QHBoxLayout * hl = new QHBoxLayout();
+		auto * hl = new QHBoxLayout();
 
 		Config::downloadRate = Config::IniParser->value("MISC/kbps", 5120).toInt();
 		if (Config::downloadRate > 5120) {
 			Config::downloadRate = 5120;
 		}
-		QLabel * kbpsLabel = new QLabel(QApplication::tr("DownloadRate"), this);
+		auto * kbpsLabel = new QLabel(QApplication::tr("DownloadRate"), this);
 		UPDATELANGUAGESETTEXT(kbpsLabel, "DownloadRate");
 		kbpsLabel->setToolTip(QApplication::tr("DownloadRateTooltip"));
 		UPDATELANGUAGESETTOOLTIP(kbpsLabel, "DownloadRateTooltip");
@@ -168,6 +168,16 @@ GeneralSettingsWidget::GeneralSettingsWidget(QWidget * par) : QWidget(par), _lan
 
 		l->addWidget(_skipExitCheckBox);
 	}
+	{
+		_devModeActive = Config::IniParser->value("DEVELOPER/Enabled", false).toBool();
+		_developerModeCheckBox = new QCheckBox(QApplication::tr("ActivateDeveloperMode"), this);
+		UPDATELANGUAGESETTEXT(_developerModeCheckBox, "ActivateDeveloperMode");
+		_developerModeCheckBox->setToolTip(QApplication::tr("ActivateDeveloperModeTooltip"));
+		UPDATELANGUAGESETTOOLTIP(_developerModeCheckBox, "ActivateDeveloperModeTooltip");
+		_developerModeCheckBox->setChecked(_devModeActive);
+
+		l->addWidget(_developerModeCheckBox);
+	}
 
 	l->addStretch(1);
 
@@ -183,7 +193,7 @@ void GeneralSettingsWidget::saveSettings() {
 	const QString language = Config::IniParser->value("language", "English").toString();
 	if (language != _languageComboBox->currentText()) {
 		Config::IniParser->setValue("language", _languageComboBox->currentText());
-		QTranslator * translator = new QTranslator(qApp);
+		auto * translator = new QTranslator(qApp);
 		if (_languageComboBox->currentText() == "Deutsch") {
 			QLocale::setDefault(QLocale("de_DE"));
 			translator->load(qApp->applicationDirPath() + "/de_DE");
@@ -232,6 +242,7 @@ void GeneralSettingsWidget::saveSettings() {
 		Config::downloadRate = _downloadRateSpinBox->value();
 		Config::IniParser->setValue("kbps", Config::downloadRate);
 	}
+	
 	const bool hideIncompatible = Config::IniParser->value("hideIncompatible", true).toBool();
 	Config::IniParser->setValue("hideIncompatible", _hideIncompatibleCheckBox->isChecked());
 	if (hideIncompatible != _hideIncompatibleCheckBox->isChecked()) {
@@ -243,6 +254,9 @@ void GeneralSettingsWidget::saveSettings() {
 	Config::IniParser->setValue("skipExitCheckbox", _skipExitCheckBox->isChecked());
 	skipExitCheckbox = _skipExitCheckBox->isChecked();
 	Config::IniParser->endGroup();
+
+	Config::IniParser->setValue("DEVELOPER/Enabled", _developerModeCheckBox->isChecked());
+	
 }
 
 void GeneralSettingsWidget::rejectSettings() {
@@ -267,6 +281,8 @@ void GeneralSettingsWidget::rejectSettings() {
 	skipExitCheckbox = Config::IniParser->value("skipExitCheckbox", false).toBool();
 	_skipExitCheckBox->setChecked(skipExitCheckbox);
 	Config::IniParser->endGroup();
+
+	Config::IniParser->setValue("DEVELOPER/Enabled", _devModeActive);
 }
 
 bool GeneralSettingsWidget::getHideIncompatible() const {
@@ -278,25 +294,26 @@ QString GeneralSettingsWidget::getLanguage() const {
 }
 
 void GeneralSettingsWidget::changedStyle(QString styleName) {
-	if (styleName == "...") {
-		const QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectStyle"), Config::STYLESDIR, "*.css");
-		if (!path.isEmpty() && !path.contains(Config::STYLESDIR)) {
-			QFile(path).copy(Config::STYLESDIR + "/" + QFileInfo(path).fileName());
-			_styleComboBox->clear();
+	if (styleName != "...") return;
+	
+	const QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectStyle"), Config::STYLESDIR, "*.css");
+	
+	if (path.isEmpty() || path.contains(Config::STYLESDIR)) return;
+	
+	QFile(path).copy(Config::STYLESDIR + "/" + QFileInfo(path).fileName());
+	_styleComboBox->clear();
 
-			const QString style = Config::IniParser->value("MISC/style", "Default").toString();
-			_styleComboBox->addItem("Default");
+	const QString style = Config::IniParser->value("MISC/style", "Default").toString();
+	_styleComboBox->addItem("Default");
 
-			QDirIterator it(Config::STYLESDIR, QStringList() << "*.css", QDir::Files, QDirIterator::Subdirectories);
-			while (it.hasNext()) {
-				it.next();
-				_styleComboBox->addItem(QFileInfo(it.fileName()).completeBaseName());
-			}
-
-			_styleComboBox->addItem("...");
-			_styleComboBox->setCurrentText(style);
-		}
+	QDirIterator it(Config::STYLESDIR, QStringList() << "*.css", QDir::Files, QDirIterator::Subdirectories);
+	while (it.hasNext()) {
+		it.next();
+		_styleComboBox->addItem(QFileInfo(it.fileName()).completeBaseName());
 	}
+
+	_styleComboBox->addItem("...");
+	_styleComboBox->setCurrentText(style);
 }
 
 void GeneralSettingsWidget::reactivateModUpdates() {

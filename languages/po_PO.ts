@@ -3320,5 +3320,9 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>Descending</source>
         <translation>Malejąco</translation>
     </message>
+    <message>
+        <source>ActivateDeveloperModeTooltip</source>
+        <translation>Włącza ustawienia i funkcje programisty. Wymagane ponowne uruchomienie Spine.</translation>
+    </message>
 </context>
 </TS>
