@@ -23,18 +23,15 @@
 class QLabel;
 
 namespace spine {
-namespace common {
-	struct SendInfoPageMessage;
-}
 namespace widgets {
 
 	class ProjectInfoBoxWidget : public QWidget {
 		Q_OBJECT
 
 	public:		
-		ProjectInfoBoxWidget(QWidget * par);
+		explicit ProjectInfoBoxWidget(QWidget * par);
 
-		void update(common::SendInfoPageMessage * sipm);
+		void update(const QJsonObject & json);
 
 	private:
 		QLabel * _releaseDateLabel;

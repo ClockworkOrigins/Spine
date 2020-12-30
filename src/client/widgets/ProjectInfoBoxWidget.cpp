@@ -18,21 +18,19 @@
 
 #include "widgets/ProjectInfoBoxWidget.h"
 
-#include "common/MessageStructs.h"
-
 #include "utils/Config.h"
 
 #include <QApplication>
 #include <QDate>
 #include <QHBoxLayout>
+#include <QJsonObject>
 #include <QLabel>
 
-using namespace spine;
 using namespace spine::utils;
 using namespace spine::widgets;
 
 ProjectInfoBoxWidget::ProjectInfoBoxWidget(QWidget * par) : QWidget(par) {
-	QVBoxLayout * l = new QVBoxLayout();
+	auto * l = new QVBoxLayout();
 
 	l->addStretch(1);
 	
@@ -49,15 +47,17 @@ ProjectInfoBoxWidget::ProjectInfoBoxWidget(QWidget * par) : QWidget(par) {
 	setFixedSize(300, 300);
 }
 
-void ProjectInfoBoxWidget::update(common::SendInfoPageMessage * sipm) {
+void ProjectInfoBoxWidget::update(const QJsonObject & json) {
+	const auto releaseDate = json["ReleaseDate"].toString().toInt();
+	const auto updateDate = json["UpdateDate"].toString().toInt();
 	{
 		QDate date(2000, 1, 1);
-		date = date.addDays(sipm->releaseDate);
+		date = date.addDays(releaseDate);
 		_releaseDateLabel->setText(QString("%1: %2").arg(QApplication::tr("ReleaseDate").toUpper()).arg(date.toString("dd.MM.yyyy")));
 	}
 	{
 		QDate date(2000, 1, 1);
-		date = date.addDays(std::max(sipm->updateDate, sipm->releaseDate));
+		date = date.addDays(std::max(updateDate, releaseDate));
 		_updateDateLabel->setText(QString("%1: %2").arg(QApplication::tr("UpdateDate").toUpper()).arg(date.toString("dd.MM.yyyy")));
 	}
 }

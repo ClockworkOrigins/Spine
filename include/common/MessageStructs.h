@@ -901,12 +901,12 @@ namespace common {
 		}
 	};
 
-	struct RequestInfoPageMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.29.0")]] RequestInfoPageMessage : public Message {
 		int32_t modID;
 		std::string language;
 		std::string username;
 		std::string password;
-		RequestInfoPageMessage() : Message(), modID(), language(), username(), password() {
+		RequestInfoPageMessage() : Message(), modID() {
 			type = MessageType::REQUESTINFOPAGE;
 		}
 		template<class Archive>
@@ -919,7 +919,7 @@ namespace common {
 		}
 	};
 
-	struct SendInfoPageMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.29.0")]] SendInfoPageMessage : public Message {
 		struct History {
 			int32_t timestamp;
 			int8_t majorVersion;
@@ -981,7 +981,7 @@ namespace common {
 		}
 	};
 
-	struct SubmitInfoPageMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.29.0")]] SubmitInfoPageMessage : public Message {
 		int32_t modID;
 		std::string language;
 		std::vector<std::pair<std::string, std::string>> screenshots;

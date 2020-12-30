@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "common/MessageStructs.h"
 #include "common/SpineModules.h"
 
 #include <QItemSelection>
@@ -62,7 +61,7 @@ namespace widgets {
 		ModInfoPage(QMainWindow * mainWindow, QWidget * par);
 
 	signals:
-		void receivedPage(common::SendInfoPageMessage *);
+		void receivedPage(QJsonObject json);
 		void tryInstallMod(int, int, client::InstallMode);
 		void tryInstallPackage(int, int, client::InstallMode);
 		void gotRandomMod(int32_t);
@@ -83,7 +82,7 @@ namespace widgets {
 		void editReview(int projectID, const QString & review);
 
 	private slots:
-		void updatePage(common::SendInfoPageMessage * sipm);
+		void updatePage(QJsonObject json);
 		void installProject();
 		void installPackage();
 		void changePreviewImage(const QModelIndex & idx);
@@ -114,7 +113,7 @@ namespace widgets {
 		QStandardItemModel * _thumbnailModel;
 		QStandardItemModel * _spineFeatureModel;
 		int32_t _projectID;
-		std::vector<std::pair<std::string, std::string>> _screens;
+		QList<QPair<QString, QString>> _screens;
 		QPushButton * _editInfoPageButton;
 		QTextEdit * _descriptionEdit;
 		QLineEdit * _featuresEdit;

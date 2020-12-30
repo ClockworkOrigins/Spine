@@ -157,7 +157,11 @@ namespace server {
 		void handleSubmitNews(clockUtils::sockets::TcpSocket * sock, common::SubmitNewsMessage * msg) const;
 		void handleLinkClicked(clockUtils::sockets::TcpSocket * sock, common::LinkClickedMessage * msg) const;
 		void handleSubmitScriptFeatures(clockUtils::sockets::TcpSocket * sock, common::SubmitScriptFeaturesMessage * msg) const;
+		
+		[[deprecated("Remove in Spine 1.29.0")]]
 		void handleRequestInfoPage(clockUtils::sockets::TcpSocket * sock, common::RequestInfoPageMessage * msg) const;
+		
+		[[deprecated("Remove in Spine 1.29.0")]]
 		void handleSubmitInfoPage(clockUtils::sockets::TcpSocket * sock, common::SubmitInfoPageMessage * msg) const;
 
 		[[deprecated("Remove in Spine 1.28.0")]]
