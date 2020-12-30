@@ -230,9 +230,6 @@ void Server::receiveMessage(const std::vector<uint8_t> & message, clockUtils::so
 			} else if (m->type == MessageType::SUBMITRATING) {
 				auto * msg = dynamic_cast<SubmitRatingMessage *>(m);
 				handleSubmitRating(sock, msg);
-			} else if (m->type == MessageType::UPDATEREQUESTENCRYPTED) {
-				auto * msg = dynamic_cast<UpdateRequestEncryptedMessage *>(m);
-				handleAutoUpdateEncrypted(sock, msg);
 			} else if (m->type == MessageType::REQUESTOVERALLSAVEDATA) {
 				auto * msg = dynamic_cast<RequestOverallSaveDataMessage *>(m);
 				handleRequestOverallSaveData(sock, msg);
@@ -3751,66 +3748,6 @@ void Server::handleSubmitRating(clockUtils::sockets::TcpSocket *, SubmitRatingMe
 
 		SpineLevel::updateLevel(userID);
 	} while (false);
-}
-
-void Server::handleAutoUpdateEncrypted(clockUtils::sockets::TcpSocket * sock, UpdateRequestEncryptedMessage * msg) const {
-	// 1. read xml
-	tinyxml2::XMLDocument doc;
-
-	const tinyxml2::XMLError e = doc.LoadFile("Spine_Version.xml");
-
-	if (e) {
-		std::cerr << "Couldn't open xml file!" << std::endl;
-		UpdateFileCountMessage ufcm;
-		ufcm.count = 0;
-
-		const std::string serialized = ufcm.SerializePrivate();
-
-		sock->writePacket(serialized);
-		return;
-	}
-
-	uint32_t lastVersion = (msg->majorVersion << 16) + (msg->minorVersion << 8) + msg->patchVersion;
-
-	std::map<uint32_t, std::vector<std::pair<std::string, std::string>>> versions;
-	versions.insert(std::make_pair(lastVersion, std::vector<std::pair<std::string, std::string>>()));
-
-	for (tinyxml2::XMLElement * node = doc.FirstChildElement("Version"); node != nullptr; node = node->NextSiblingElement("Version")) {
-		const uint8_t majorVersion = uint8_t(std::stoi(node->Attribute("majorVersion")));
-		const uint8_t minorVersion = uint8_t(std::stoi(node->Attribute("minorVersion")));
-		const uint8_t patchVersion = uint8_t(std::stoi(node->Attribute("patchVersion")));
-		uint32_t version = (majorVersion << 16) + (minorVersion << 8) + patchVersion;
-
-		versions.insert(std::make_pair(version, std::vector<std::pair<std::string, std::string>>()));
-
-		auto it = versions.find(version);
-
-		for (tinyxml2::XMLElement * file = node->FirstChildElement("File"); file != nullptr; file = file->NextSiblingElement("File")) {
-			it->second.emplace_back(file->GetText(), file->Attribute("Hash"));
-		}
-	}
-
-	// 2. find all changed files
-	std::set<std::pair<std::string, std::string>> files;
-
-	auto it = versions.find(lastVersion);
-	if (it != versions.end()) {
-		++it;
-		for (; it != versions.end(); ++it) {
-			for (std::pair<std::string, std::string> & file : it->second) {
-				files.insert(file);
-			}
-			lastVersion = it->first;
-		}
-	}
-
-	// 3. send file count
-	UpdateFilesMessage ufm;
-	for (const auto & p : files) {
-		ufm.files.push_back(p);
-	}
-	const std::string serialized = ufm.SerializePrivate();
-	sock->writePacket(serialized);
 }
 
 void Server::handleRequestOverallSaveData(clockUtils::sockets::TcpSocket * sock, RequestOverallSaveDataMessage * msg) const {

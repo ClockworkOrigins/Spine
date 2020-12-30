@@ -78,7 +78,6 @@ namespace common {
 	struct UpdatePlayingTimeMessage;
 	struct UpdatePlayTimeMessage;
 	struct UpdateRequestMessage;
-	struct UpdateRequestEncryptedMessage;
 	struct UpdateScoreMessage;
 	struct UpdateStartTimeMessage;
 	struct UpdateSucceededMessage;
@@ -163,6 +162,8 @@ namespace server {
 
 		[[deprecated("Remove in Spine 1.28.0")]]
 		void handleSendUserInfos(clockUtils::sockets::TcpSocket * sock, common::SendUserInfosMessage * msg) const;
+		
+		[[deprecated("Remove in Spine 1.29.0")]]
 		void handleRequestRandomMod(clockUtils::sockets::TcpSocket * sock, common::RequestRandomModMessage * msg) const;
 
 		[[deprecated("Remove in Spine 1.28.0")]]
@@ -171,7 +172,6 @@ namespace server {
 		void handleRequestOwnCompatibilities(clockUtils::sockets::TcpSocket * sock, common::RequestOwnCompatibilitiesMessage * msg) const;
 		void handleRequestCompatibilityList(clockUtils::sockets::TcpSocket * sock, common::RequestCompatibilityListMessage * msg) const;
 		void handleSubmitRating(clockUtils::sockets::TcpSocket * sock, common::SubmitRatingMessage * msg) const;
-		void handleAutoUpdateEncrypted(clockUtils::sockets::TcpSocket * sock, common::UpdateRequestEncryptedMessage * msg) const;
 		
 		[[deprecated("Remove in Spine 1.28.0")]]
 		void handleRequestOverallSaveData(clockUtils::sockets::TcpSocket * sock, common::RequestOverallSaveDataMessage * msg) const;

@@ -1042,7 +1042,7 @@ namespace common {
 		}
 	};
 
-	struct RequestRandomModMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.29.0")]] RequestRandomModMessage : public Message {
 		std::string language;
 		std::string username;
 		std::string password;
@@ -1058,7 +1058,7 @@ namespace common {
 		}
 	};
 
-	struct SendRandomModMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.29.0")]] SendRandomModMessage : public Message {
 		int32_t modID;
 		SendRandomModMessage() : Message(), modID() {
 			type = MessageType::SENDRANDOMMOD;
@@ -1189,22 +1189,6 @@ namespace common {
 			ar & rating;
 			ar & username;
 			ar & password;
-		}
-	};
-
-	struct UpdateRequestEncryptedMessage : public Message {
-		uint8_t majorVersion;
-		uint8_t minorVersion;
-		uint8_t patchVersion;
-		UpdateRequestEncryptedMessage() : Message(), majorVersion(), minorVersion(), patchVersion() {
-			type = MessageType::UPDATEREQUESTENCRYPTED;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & majorVersion;
-			ar & minorVersion;
-			ar & patchVersion;
 		}
 	};
 

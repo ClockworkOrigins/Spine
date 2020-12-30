@@ -33,10 +33,8 @@
 
 #include "widgets/UpdateLanguage.h"
 
-#include "clockUtils/errors.h"
 #include "clockUtils/compression/Compression.h"
 #include "clockUtils/compression/algorithm/HuffmanGeneric.h"
-#include "clockUtils/sockets/TcpSocket.h"
 
 #include <QApplication>
 #include <QCheckBox>

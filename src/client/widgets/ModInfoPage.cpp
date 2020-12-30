@@ -887,35 +887,19 @@ void ModInfoPage::submitChanges() {
 }
 
 void ModInfoPage::requestRandomMod() {
-	QtConcurrent::run([this]() {
-		common::RequestRandomModMessage rrmm;
-		rrmm.username = q2s(Config::Username);
-		rrmm.password = q2s(Config::Password);
-		rrmm.language = Config::Language.toStdString();
-		std::string serialized = rrmm.SerializePublic();
-		clockUtils::sockets::TcpSocket sock;
-		clockUtils::ClockError err = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-		if (clockUtils::ClockError::SUCCESS == err) {
-			sock.writePacket(serialized);
-			if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-				try {
-					common::Message * m = common::Message::DeserializePublic(serialized);
-					if (m) {
-						auto * srmm = dynamic_cast<common::SendRandomModMessage *>(m);
-						if (srmm) {
-							emit gotRandomMod(srmm->modID);
-						}
-					}
-					delete m;
-				} catch (...) {
-					return;
-				}
-			} else {
-				qDebug() << "Error occurred: " << static_cast<int>(err);
-			}
-		} else {
-			qDebug() << "Error occurred: " << static_cast<int>(err);
-		}
+	QJsonObject json;
+	json["Username"] = Config::Username;
+	json["Password"] = Config::Password;
+	json["Language"] = Config::Language;
+
+	Https::postAsync(DATABASESERVER_PORT, "requestRandomPage", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & data, int responseCode) {
+		if (responseCode != 200) return;
+
+		const int id = data["ID"].toString("-1").toInt();
+
+		if (id == -1) return;
+
+		emit gotRandomMod(id);
 	});
 }
 
