@@ -77,6 +77,7 @@ int DatabaseServer::run() {
 	_server->resource["^/feedback"]["POST"] = std::bind(&DatabaseServer::feedback, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/acceptFriend"]["POST"] = std::bind(&DatabaseServer::acceptFriend, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/declineFriend"]["POST"] = std::bind(&DatabaseServer::declineFriend, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/updateLoginTime"]["POST"] = std::bind(&DatabaseServer::updateLoginTime, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -3027,6 +3028,59 @@ void DatabaseServer::declineFriend(std::shared_ptr<HttpsServer::Response> respon
 			if (!database.query("EXECUTE deleteStmt USING @paramFriendID, @paramUserID;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+		} while (false);
+
+		response->write(code);
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::updateLoginTime(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		const auto username = pt.get<std::string>("Username");
+		const auto password = pt.get<std::string>("Password");
+
+		const int userID = ServerCommon::getUserID(username, password); // if userID is -1 user is not in database, so it's the play time of all unregistered players summed up
+
+		if (userID == -1) {
+			response->write(SimpleWeb::StatusCode::client_error_bad_request);
+			return;
+		}
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+
+			if (!database.query("PREPARE insertStmt FROM \"INSERT INTO lastLoginTimes (UserID, Timestamp) VALUES (?, ?) ON DUPLICATE KEY UPDATE Timestamp = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			const int timestamp = std::chrono::duration_cast<std::chrono::hours>(std::chrono::system_clock::now() - std::chrono::system_clock::time_point()).count();
+			if (!database.query("SET @paramTimestamp=" + std::to_string(timestamp) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("EXECUTE insertStmt USING @paramUserID, @paramTimestamp, @paramTimestamp;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
 		} while (false);

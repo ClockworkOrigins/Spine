@@ -143,6 +143,8 @@ namespace server {
 		[[deprecated("Remove in Spine 1.29.0")]]
 		void handleFeedback(clockUtils::sockets::TcpSocket * sock, common::FeedbackMessage * msg) const;
 		void handleRequestOriginalFiles(clockUtils::sockets::TcpSocket * sock, common::RequestOriginalFilesMessage * msg) const;
+		
+		[[deprecated("Remove in Spine 1.29.0")]]
 		void handleUpdateLoginTime(clockUtils::sockets::TcpSocket * sock, common::UpdateLoginTimeMessage * msg) const;
 		void handleRequestPackageFiles(clockUtils::sockets::TcpSocket * sock, common::RequestPackageFilesMessage * msg) const;
 		void handlePackageDownloadSucceeded(clockUtils::sockets::TcpSocket * sock, common::PackageDownloadSucceededMessage * msg) const;

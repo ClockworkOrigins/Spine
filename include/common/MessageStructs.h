@@ -484,7 +484,7 @@ namespace common {
 		}
 	};
 
-	struct UpdateLoginTimeMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.29.0")]]  UpdateLoginTimeMessage : public Message {
 		std::string username;
 		std::string password;
 		UpdateLoginTimeMessage() : Message() {

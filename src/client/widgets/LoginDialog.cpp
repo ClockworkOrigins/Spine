@@ -600,33 +600,34 @@ void LoginDialog::onPrivacyAcceptChanged(bool) {
 }
 
 void LoginDialog::handleLogin() {
-	QtConcurrent::run([]() {
-		clockUtils::sockets::TcpSocket sock;
-		if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 5000)) {
-			{
-				common::UpdateLoginTimeMessage ultm;
-				ultm.username = Config::Username.toStdString();
-				ultm.password = Config::Password.toStdString();
-				const std::string serialized = ultm.SerializePublic();
-				sock.writePacket(serialized);
-			}
-			{
-				QJsonObject json;
-				json["Username"] = Config::Username;
-				json["Password"] = Config::Password;
-				json["Hash"] = Hash::calculateSystemHash();
-				json["Mac"] = Hash::getMAC();
-				json["Language"] = Config::Language;
+	{
+		QJsonObject json;
+		json["Username"] = Config::Username;
+		json["Password"] = Config::Password;
 
-				Https::postAsync(DATABASESERVER_PORT, "sendUserInfos", QJsonDocument(json).toJson(QJsonDocument::Compact), [](const QJsonObject &, int) {});
-			}
-			Https::postAsync(DATABASESERVER_PORT, "getUserID", QString("{ \"Username\": \"%1\", \"Password\": \"%2\" }").arg(Config::Username).arg(Config::Password), [](const QJsonObject & json, int) {
-				if (!json.contains("ID")) return;
+		Https::postAsync(DATABASESERVER_PORT, "updateLoginTime", QJsonDocument(json).toJson(QJsonDocument::Compact), [](const QJsonObject &, int) {});
+	}
+	{
+		QJsonObject json;
+		json["Username"] = Config::Username;
+		json["Password"] = Config::Password;
+		json["Hash"] = Hash::calculateSystemHash();
+		json["Mac"] = Hash::getMAC();
+		json["Language"] = Config::Language;
 
-				Config::UserID = json["ID"].toString().toInt();
+		Https::postAsync(DATABASESERVER_PORT, "sendUserInfos", QJsonDocument(json).toJson(QJsonDocument::Compact), [](const QJsonObject &, int) {});
+	}
+	{
+		QJsonObject json;
+		json["Username"] = Config::Username;
+		json["Password"] = Config::Password;
+		
+		Https::postAsync(DATABASESERVER_PORT, "getUserID", QJsonDocument(json).toJson(QJsonDocument::Compact), [](const QJsonObject & json, int) {
+			if (!json.contains("ID")) return;
+
+			Config::UserID = json["ID"].toString().toInt();
 			});
-		}
-	});
+	}
 }
 
 void LoginDialog::closeEvent(QCloseEvent *) {
