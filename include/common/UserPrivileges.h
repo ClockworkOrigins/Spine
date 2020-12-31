@@ -25,8 +25,7 @@ namespace common {
 
 	enum class UserPrivilege : int64_t {
 		WriteNews = 1 << 0,
-		SetSpineMultiplayer = 1 << 1,
-		EditInfoPage = 1 << 2
+		EditInfoPage = 1 << 1
 	};
 
 } /* namespace common */

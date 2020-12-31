@@ -301,3 +301,30 @@ std::string ServerCommon::filterUsername(const std::string & username) {
 	
 	return result;
 }
+
+bool ServerCommon::hasPrivilege(int userID, UserPrivilege privilege) {
+	do {
+		CONNECTTODATABASE(__LINE__);
+
+		if (!database.query("PREPARE selectPrivilegeStmt FROM \"SELECT UserID FROM userPrivileges WHERE UserID = ? AND Privileges & ? LIMIT 1\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("SET @paramPrivilege=" + std::to_string(static_cast<int>(privilege)) + ";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("EXECUTE selectPrivilegeStmt USING @paramUserID, @paramPrivilege;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			break;
+		}
+		const auto results = database.getResults<std::vector<std::string>>();
+		return !results.empty();
+	} while (false);
+
+	return false;
+}

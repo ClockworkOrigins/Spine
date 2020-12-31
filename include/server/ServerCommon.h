@@ -22,6 +22,8 @@
 
 #include "SpineServerConfig.h"
 
+#include "common/UserPrivileges.h"
+
 namespace spine {
 namespace server {
 
@@ -50,6 +52,8 @@ namespace server {
 		static std::string getProjectName(int projectID, int preferredLanguage);
 
 		static std::string filterUsername(const std::string & username);
+
+		static bool hasPrivilege(int userID, common::UserPrivilege privilege);
 	};
 
 } /* namespace server */

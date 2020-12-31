@@ -3438,7 +3438,7 @@ void DatabaseServer::requestInfoPage(std::shared_ptr<HttpsServer::Response> resp
 				}
 				lastResults = database.getResults<std::vector<std::string>>();
 
-				bool hasEditRights = !lastResults.empty() || userID == 3;
+				bool hasEditRights = !lastResults.empty();
 				
 				if (!database.query("EXECUTE selectEditRightsStmt USING @paramModID, @paramUserID;")) {
 					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
@@ -3447,6 +3447,7 @@ void DatabaseServer::requestInfoPage(std::shared_ptr<HttpsServer::Response> resp
 				}
 				lastResults = database.getResults<std::vector<std::string>>();
 				hasEditRights |= !lastResults.empty();
+				hasEditRights |= ServerCommon::hasPrivilege(userID, common::UserPrivilege::EditInfoPage);
 
 				if (hasEditRights) {
 					responseTree.put("EditRights", 1);
