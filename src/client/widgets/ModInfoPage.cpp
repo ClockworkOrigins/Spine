@@ -240,6 +240,7 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 		{
 			auto * cb = new QCheckBox(QApplication::tr("MultiplayerModule"), _spineFeaturesEdit);
 			_moduleCheckBoxes.insert(common::SpineModules::Multiplayer, cb);
+			cb->setVisible(false); // can't be changed by users as it gets abused
 			vl->addWidget(cb);
 		}
 		{

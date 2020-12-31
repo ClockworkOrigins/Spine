@@ -2062,6 +2062,7 @@
 		<Bug language="Deutsch">Fehlerhaften Standardtext in Reviews entfernt</Bug>
 		<Bug language="Deutsch">Link von Bibliothek zur Infoseite über den Review-Button korrigiert</Bug>
 		<Bug language="Deutsch">Fehler behoben, wodurch einige Systempack-Einträge falsch in die ini geschrieben wurden</Bug>
+		<Bug language="Deutsch">Multiplayer-Modul auf Infoseite kann nicht mehr von Entwicklerseite eingestellt werden, weil es in fast allen Fällen falsch benutzt wurde</Bug>
 		
 		<Enhancement language="English">Added support for ascending scores</Enhancement>
 		<Enhancement language="English">Update of existing files is a lot easier now</Enhancement>
@@ -2073,5 +2074,6 @@
 		<Bug language="Deutsch">Removed wrong default text in review</Bug>
 		<Bug language="Deutsch">Fixed link from library to info page using review button</Bug>
 		<Bug language="Deutsch">Fixed bug that caused some Systempack entries being written to ini in the wrong way</Bug>
+		<Bug language="Deutsch">Multiplayer module on info page can't be configured anymore by developers as it was used wrong in almost all cases</Bug>
 	</Version>
 </Versions>
