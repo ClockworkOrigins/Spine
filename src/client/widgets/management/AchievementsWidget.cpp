@@ -121,6 +121,11 @@ void AchievementsWidget::updateView() {
 	delete _waitSpinner;
 	_waitSpinner = new WaitSpinner(QApplication::tr("Updating"), this);
 
+	for (AchievementWidget * aw : _achievementEdits) {
+		aw->deleteLater();
+	}
+	_achievementEdits.clear();
+
 	QJsonObject requestData;
 	requestData["Username"] = Config::Username;
 	requestData["Password"] = Config::Password;

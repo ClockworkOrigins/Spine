@@ -133,6 +133,30 @@ void ScoresWidget::updateView() {
 	delete _waitSpinner;
 	_waitSpinner = new WaitSpinner(QApplication::tr("Updating"), this);
 
+	for (const auto & t : _scoreEdits) {
+		auto * germanEdit = std::get<0>(t);
+		auto * englishEdit = std::get<1>(t);
+		auto * polishEdit = std::get<2>(t);
+		auto * russianEdit = std::get<3>(t);
+
+		_layout->removeWidget(germanEdit);
+		_layout->removeWidget(englishEdit);
+		_layout->removeWidget(polishEdit);
+		_layout->removeWidget(russianEdit);
+
+		germanEdit->deleteLater();
+		englishEdit->deleteLater();
+		polishEdit->deleteLater();
+		russianEdit->deleteLater();
+	}
+
+	for (auto * t : _scoreToggles) {
+		t->deleteLater();
+	}
+
+	_scoreEdits.clear();
+	_scoreToggles.clear();
+
 	QJsonObject requestData;
 	requestData["Username"] = Config::Username;
 	requestData["Password"] = Config::Password;
