@@ -3324,5 +3324,13 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>ActivateDeveloperModeTooltip</source>
         <translation>Włącza ustawienia i funkcje programisty. Wymagane ponowne uruchomienie Spine.</translation>
     </message>
+    <message>
+        <source>ResetAchievementProgress</source>
+        <translation>Zresetuj odblokowania osiągnięć</translation>
+    </message>
+    <message>
+        <source>ResetAchievementProgressTooltip</source>
+        <translation>Usuwa wszystkie odblokowania osiągnięć. Dostępne tylko przed wydaniem.</translation>
+    </message>
 </context>
 </TS>

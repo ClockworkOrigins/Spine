@@ -71,6 +71,7 @@ int ManagementServer::run() {
 	_server->resource["^/getOwnPlayTestSurveyAnswers"]["POST"] = std::bind(&ManagementServer::getOwnPlayTestSurveyAnswers, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/getAllPlayTestSurveyAnswers"]["POST"] = std::bind(&ManagementServer::getAllPlayTestSurveyAnswers, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/deletePlayTestSurvey"]["POST"] = std::bind(&ManagementServer::deletePlayTestSurvey, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/clearAchievementProgress"]["POST"] = std::bind(&ManagementServer::clearAchievementProgress, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -248,6 +249,11 @@ void ManagementServer::getAchievements(std::shared_ptr<HttpsServer::Response> re
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
+			if (!database.query("PREPARE selectEnabledStmt FROM \"SELECT Enabled FROM mods WHERE ModID = ? AND Enabled = 0 LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
 			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
@@ -263,7 +269,7 @@ void ManagementServer::getAchievements(std::shared_ptr<HttpsServer::Response> re
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			const auto results = database.getResults<std::vector<std::string>>();
+			auto results = database.getResults<std::vector<std::string>>();
 
 			ptree achievementNodes;
 			for (const auto & achievement : results) {
@@ -348,6 +354,17 @@ void ManagementServer::getAchievements(std::shared_ptr<HttpsServer::Response> re
 			}
 			
 			responseTree.add_child("Achievements", achievementNodes);
+			
+			if (!database.query("EXECUTE selectEnabledStmt USING @paramModID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			results = database.getResults<std::vector<std::string>>();
+
+			if (results.empty()) break;
+
+			responseTree.put("Clearable", 1);
 		} while (false);
 
 		write_json(responseStream, responseTree);
@@ -2680,6 +2697,73 @@ void ManagementServer::deletePlayTestSurvey(std::shared_ptr<HttpsServer::Respons
 				break;
 			}
 			if (!database.query("EXECUTE deleteSurveyAnswersStmt USING @paramSurveyID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+		} while (false);
+
+		response->write(code);
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void ManagementServer::clearAchievementProgress(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		const std::string username = pt.get<std::string>("Username");
+		const std::string password = pt.get<std::string>("Password");
+		const int32_t projectID = pt.get<int32_t>("ProjectID");
+
+		const int userID = ServerCommon::getUserID(username, password);
+
+		if (userID == -1) {
+			response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+			return;
+		}
+
+		if (!hasAdminAccessToMod(userID, projectID)) {
+			response->write(SimpleWeb::StatusCode::client_error_unauthorized);
+			return;
+		}
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+
+			if (!database.query("PREPARE deleteAchievementProgressStmt FROM \"DELETE FROM modAchievements WHERE ModID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectEnabledStmt FROM \"SELECT Enabled FROM mods WHERE ModID = ? AND Enabled = 0 LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramProjectID=" + std::to_string(projectID) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("EXECUTE selectEnabledStmt USING @paramProjectID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			const auto results = database.getResults<std::vector<std::string>>();
+
+			if (results.empty()) break;
+			
+			if (!database.query("EXECUTE deleteAchievementProgressStmt USING @paramProjectID;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;

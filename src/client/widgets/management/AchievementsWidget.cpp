@@ -42,18 +42,17 @@
 #include <QScrollArea>
 #include <QVBoxLayout>
 
-using namespace spine;
 using namespace spine::client;
 using namespace spine::client::widgets;
 using namespace spine::gui;
 using namespace spine::utils;
 
-AchievementsWidget::AchievementsWidget(QWidget * par) : QWidget(par), _mods(), _modIndex(-1), _achievementEdits(), _waitSpinner(nullptr) {
-	QVBoxLayout * vl = new QVBoxLayout();
+AchievementsWidget::AchievementsWidget(QWidget * par) : QWidget(par), _modIndex(-1), _waitSpinner(nullptr) {
+	auto * vl = new QVBoxLayout();
 
 	{
-		QScrollArea * sa = new QScrollArea(this);
-		QWidget * cw = new QWidget(sa);
+		auto * sa = new QScrollArea(this);
+		auto * cw = new QWidget(sa);
 		_layout = new QVBoxLayout();
 		_layout->setAlignment(Qt::AlignTop);
 		cw->setLayout(_layout);
@@ -66,24 +65,36 @@ AchievementsWidget::AchievementsWidget(QWidget * par) : QWidget(par), _mods(), _
 	}
 
 	{
-		QHBoxLayout * hl = new QHBoxLayout();
+		auto * hl = new QHBoxLayout();
 		hl->addStretch(1);
 
-		QPushButton * pb = new QPushButton("+", this);
+		auto * pb = new QPushButton("+", this);
 		hl->addWidget(pb);
 		connect(pb, &QPushButton::released, this, &AchievementsWidget::addAchievement);
 
 		vl->addLayout(hl);
 	}
 
-	QDialogButtonBox * dbb = new QDialogButtonBox(this);
-	QPushButton * submitButton = new QPushButton(QApplication::tr("Submit"), this);
+	{
+		auto * hl = new QHBoxLayout();
+		hl->addStretch(1);
+
+		_clearAchievementsButton = new QPushButton(QApplication::tr("ResetAchievementProgress"), this);
+		_clearAchievementsButton->setToolTip(QApplication::tr("ResetAchievementProgressTooltip"));
+		hl->addWidget(_clearAchievementsButton);
+		connect(_clearAchievementsButton, &QPushButton::released, this, &AchievementsWidget::clearAchievementProgress);
+
+		vl->addLayout(hl);
+	}
+
+	auto * dbb = new QDialogButtonBox(this);
+	auto * submitButton = new QPushButton(QApplication::tr("Submit"), this);
 	dbb->addButton(submitButton, QDialogButtonBox::ButtonRole::AcceptRole);
 	connect(submitButton, &QPushButton::released, this, &AchievementsWidget::updateAchievements);
 
 	qRegisterMetaType<QList<ManagementAchievement>>("QList<ManagementAchievement>");
 
-	connect(this, &AchievementsWidget::removeSpinner, [this]() {
+	connect(this, &AchievementsWidget::removeSpinner, this, [this]() {
 		if (!_waitSpinner) return;
 		
 		_waitSpinner->deleteLater();
@@ -101,7 +112,7 @@ AchievementsWidget::~AchievementsWidget() {
 	_futureWatcher.waitForFinished();
 }
 
-void AchievementsWidget::updateModList(QList<client::ManagementMod> modList) {
+void AchievementsWidget::updateModList(QList<ManagementMod> modList) {
 	_mods = modList;
 }
 
@@ -152,8 +163,10 @@ void AchievementsWidget::updateView() {
 				achievementList.append(ma);
 			}
 		}
+
+		const bool canClear = json.contains("Clearable");
 		
-		emit loadedAchievements(achievementList);
+		emit loadedAchievements(achievementList, canClear);
 		emit removeSpinner();
 	});
 	_futureWatcher.setFuture(f);
@@ -217,20 +230,34 @@ void AchievementsWidget::updateAchievements() {
 }
 
 void AchievementsWidget::addAchievement() {
-	AchievementWidget * achievementWidget = new AchievementWidget(this);
+	auto * achievementWidget = new AchievementWidget(this);
 
 	_layout->addWidget(achievementWidget);
 
 	_achievementEdits.push_back(achievementWidget);
 }
 
-void AchievementsWidget::updateAchievementViews(QList<ManagementAchievement> achievementList) {
+void AchievementsWidget::updateAchievementViews(QList<ManagementAchievement> achievementList, bool canClear) {
 	for (const auto & achievement : achievementList) {
-		AchievementWidget * achievementWidget = new AchievementWidget(this);
+		auto * achievementWidget = new AchievementWidget(this);
 		achievementWidget->setAchievement(_mods[_modIndex].id, achievement);
 
 		_layout->addWidget(achievementWidget);
 
 		_achievementEdits.push_back(achievementWidget);
 	}
+
+	_clearAchievementsButton->setVisible(canClear);
+}
+
+void AchievementsWidget::clearAchievementProgress() {
+	QJsonObject json;
+	json["ProjectID"] = _mods[_modIndex].id;
+	json["Username"] = Config::Username;
+	json["Password"] = Config::Password;
+
+	const QJsonDocument doc(json);
+	const QString content = doc.toJson(QJsonDocument::Compact);
+
+	https::Https::postAsync(MANAGEMENTSERVER_PORT, "clearAchievementProgress", content, [](const QJsonObject &, int) {});
 }

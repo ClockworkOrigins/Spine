@@ -25,6 +25,7 @@
 #include <QFutureWatcher>
 #include <QWidget>
 
+class QPushButton;
 class QVBoxLayout;
 
 namespace spine {
@@ -40,7 +41,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		AchievementsWidget(QWidget * par);
+		explicit AchievementsWidget(QWidget * par);
 		~AchievementsWidget();
 
 		void updateModList(QList<ManagementMod> modList);
@@ -49,19 +50,21 @@ namespace widgets {
 
 	signals:
 		void removeSpinner();
-		void loadedAchievements(QList<ManagementAchievement>);
+		void loadedAchievements(QList<ManagementAchievement>, bool);
 
 	private slots:
 		void updateAchievements();
 		void addAchievement();
-		void updateAchievementViews(QList<ManagementAchievement> achievementList);
+		void updateAchievementViews(QList<ManagementAchievement> achievementList, bool);
+		void clearAchievementProgress();
 
 	private:
-		QList<client::ManagementMod> _mods;
+		QList<ManagementMod> _mods;
 		int _modIndex;
 		QVBoxLayout * _layout;
 		QList<AchievementWidget *> _achievementEdits;
 		gui::WaitSpinner * _waitSpinner;
+		QPushButton * _clearAchievementsButton;
 
 		QFutureWatcher<void> _futureWatcher;
 	};

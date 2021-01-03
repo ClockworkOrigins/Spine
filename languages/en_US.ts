@@ -3332,5 +3332,13 @@ You can revoke your permission at every point in time. All necessary information
         <source>ActivateDeveloperModeTooltip</source>
         <translation>Enables developer settings and features. Restart of Spine required.</translation>
     </message>
+    <message>
+        <source>ResetAchievementProgress</source>
+        <translation>Reset achievement unlocks</translation>
+    </message>
+    <message>
+        <source>ResetAchievementProgressTooltip</source>
+        <translation>Deletes all unlocks of achievements. Only available before release.</translation>
+    </message>
 </context>
 </TS>

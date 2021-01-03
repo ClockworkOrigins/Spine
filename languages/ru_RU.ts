@@ -3329,5 +3329,13 @@ You can revoke your permission at every point in time. All necessary information
         <source>ActivateDeveloperModeTooltip</source>
         <translation>Включает настройки и функции разработчика. Требуется перезапуск Spine.</translation>
     </message>
+    <message>
+        <source>ResetAchievementProgress</source>
+        <translation>Сброс разблокировки достижений</translation>
+    </message>
+    <message>
+        <source>ResetAchievementProgressTooltip</source>
+        <translation>Удаляет все разблокировки достижений. Доступно только до выпуска.</translation>
+    </message>
 </context>
 </TS>

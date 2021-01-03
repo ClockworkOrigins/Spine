@@ -3324,5 +3324,13 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>ActivateDeveloperModeTooltip</source>
         <translation>Aktiviert Entwickler-Optionen und -Features. Neustart von Spine erforderlich.</translation>
     </message>
+    <message>
+        <source>ResetAchievementProgress</source>
+        <translation>Erfolgsfortschritte zurücksetzen</translation>
+    </message>
+    <message>
+        <source>ResetAchievementProgressTooltip</source>
+        <translation>Löscht alle Freischaltungen der Erfolge. Nur vor Release verfügbar.</translation>
+    </message>
 </context>
 </TS>

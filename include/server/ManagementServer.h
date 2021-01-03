@@ -70,6 +70,7 @@ namespace server {
 		void getOwnPlayTestSurveyAnswers(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
 		void getAllPlayTestSurveyAnswers(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
 		void deletePlayTestSurvey(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
+		void clearAchievementProgress(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
 
 		void uploadAchievementIcons(common::UploadAchievementIconsMessage * msg) const;
 
