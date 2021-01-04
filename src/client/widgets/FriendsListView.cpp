@@ -45,9 +45,9 @@ void FriendsListView::contextMenuEvent(QContextMenuEvent * evt) {
 		
 		auto * menu = new QMenu(this);
 
-		const QString friendName = idx.data().toString();
+		const QString friendName = idx.data(Qt::UserRole).toString();
 		
-		QAction * removeFriendAction = menu->addAction(QApplication::tr("Uninstall"));
+		QAction * removeFriendAction = menu->addAction(QApplication::tr("Remove"));
 		connect(removeFriendAction, &QAction::triggered, this, [this, friendName]() {
 			QMessageBox resultMsg(QMessageBox::Icon::Warning, QApplication::tr("RemoveFriend"), QApplication::tr("RemoveFriendDescription"), QMessageBox::StandardButton::Ok | QMessageBox::StandardButton::No);
 			resultMsg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
