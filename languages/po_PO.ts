@@ -3332,5 +3332,17 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>ResetAchievementProgressTooltip</source>
         <translation>Usuwa wszystkie odblokowania osiągnięć. Dostępne tylko przed wydaniem.</translation>
     </message>
+    <message>
+        <source>Remove</source>
+        <translation>Usunąć</translation>
+    </message>
+    <message>
+        <source>RemoveFriend</source>
+        <translation>Usunąć znajomego</translation>
+    </message>
+    <message>
+        <source>RemoveFriendDescription</source>
+        <translation>Czy na pewno chcesz usunąć tego znajomego?</translation>
+    </message>
 </context>
 </TS>

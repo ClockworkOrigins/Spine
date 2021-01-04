@@ -3340,5 +3340,17 @@ You can revoke your permission at every point in time. All necessary information
         <source>ResetAchievementProgressTooltip</source>
         <translation>Deletes all unlocks of achievements. Only available before release.</translation>
     </message>
+    <message>
+        <source>Remove</source>
+        <translation>Remove</translation>
+    </message>
+    <message>
+        <source>RemoveFriend</source>
+        <translation>Remove friend</translation>
+    </message>
+    <message>
+        <source>RemoveFriendDescription</source>
+        <translation>Do you really want to remove this friend?</translation>
+    </message>
 </context>
 </TS>

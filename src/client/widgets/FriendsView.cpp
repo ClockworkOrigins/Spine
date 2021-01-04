@@ -20,8 +20,6 @@
 
 #include "SpineConfig.h"
 
-#include "common/MessageStructs.h"
-
 #include "gui/WaitSpinner.h"
 
 #include "https/Https.h"
@@ -31,9 +29,8 @@
 
 #include "widgets/AddFriendDialog.h"
 #include "widgets/FriendRequestView.h"
+#include "widgets/FriendsListView.h"
 #include "widgets/UpdateLanguage.h"
-
-#include "clockUtils/sockets/TcpSocket.h"
 
 #include <QApplication>
 #include <QJsonArray>
@@ -47,7 +44,6 @@
 #include <QtConcurrentRun>
 #include <QVBoxLayout>
 
-using namespace spine;
 using namespace spine::common;
 using namespace spine::gui;
 using namespace spine::https;
@@ -87,7 +83,7 @@ FriendsView::FriendsView(QWidget * par) : QWidget(par), _friendsList(nullptr), _
 
 	l->addWidget(_scrollArea, 0, Qt::AlignHCenter);
 
-	_friendsList = new QListView(this);
+	_friendsList = new FriendsListView(this);
 	_friendsList->setEditTriggers(QAbstractItemView::EditTrigger::NoEditTriggers);
 	_model = new QStandardItemModel(this);
 	auto * filterModel = new QSortFilterProxyModel(this);
@@ -101,6 +97,8 @@ FriendsView::FriendsView(QWidget * par) : QWidget(par), _friendsList(nullptr), _
 	qRegisterMetaType<std::vector<std::string>>("std::vector<common::Friend::string>");
 	qRegisterMetaType<std::vector<Friend>>("std::vector<common::Friend>");
 	connect(this, &FriendsView::receivedFriends, this, &FriendsView::updateFriendsList);
+
+	connect(_friendsList, &FriendsListView::removeFriend, this, &FriendsView::removeFriend);
 }
 
 void FriendsView::updateFriendList() {
@@ -163,7 +161,7 @@ void FriendsView::loginChanged() {
 	updateFriendList();
 }
 
-void FriendsView::updateFriendsList(std::vector<common::Friend> friends, std::vector<common::Friend> friendRequests) {
+void FriendsView::updateFriendsList(std::vector<Friend> friends, std::vector<Friend> friendRequests) {
 	_model->clear();
 	for (const Friend & s : friends) {
 		_model->appendRow(new QStandardItem(s2q(s.name) + " (" + QApplication::tr("Level") + " " + i2s(s.level) + ")"));
@@ -193,4 +191,13 @@ void FriendsView::openAddFriendDialog() {
 
 void FriendsView::acceptedFriend() {
 	updateFriendList();
+}
+
+void FriendsView::removeFriend(const QString & friendName) {
+	QJsonObject json;
+	json["Username"] = Config::Username;
+	json["Password"] = Config::Password;
+	json["Friend"] = friendName;
+
+	Https::postAsync(DATABASESERVER_PORT, "removeFriend", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & data, int statusCode) {});
 }

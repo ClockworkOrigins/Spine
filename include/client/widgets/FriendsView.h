@@ -22,7 +22,6 @@
 
 #include <QWidget>
 
-class QListView;
 class QPushButton;
 class QScrollArea;
 class QStandardItemModel;
@@ -34,6 +33,7 @@ namespace gui {
 }
 namespace widgets {
 
+	class FriendsListView;
 	class FriendRequestView;
 
 	class FriendsView : public QWidget {
@@ -54,9 +54,10 @@ namespace widgets {
 		void updateFriendsList(std::vector<common::Friend> friends, std::vector<common::Friend> friendRequests);
 		void openAddFriendDialog();
 		void acceptedFriend();
+		void removeFriend(const QString & friendName);
 
 	private:
-		QListView * _friendsList;
+		FriendsListView * _friendsList;
 		gui::WaitSpinner * _waitSpinner;
 		QStandardItemModel * _model;
 		QPushButton * _sendRequestButton;

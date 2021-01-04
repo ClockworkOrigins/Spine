@@ -3332,5 +3332,17 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>ResetAchievementProgressTooltip</source>
         <translation>Löscht alle Freischaltungen der Erfolge. Nur vor Release verfügbar.</translation>
     </message>
+    <message>
+        <source>Remove</source>
+        <translation>Entfernen</translation>
+    </message>
+    <message>
+        <source>RemoveFriend</source>
+        <translation>Freund entfernen</translation>
+    </message>
+    <message>
+        <source>RemoveFriendDescription</source>
+        <translation>Willst du diesen Freund wirklich entfernen?</translation>
+    </message>
 </context>
 </TS>

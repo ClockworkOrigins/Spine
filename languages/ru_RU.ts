@@ -3337,5 +3337,17 @@ You can revoke your permission at every point in time. All necessary information
         <source>ResetAchievementProgressTooltip</source>
         <translation>Удаляет все разблокировки достижений. Доступно только до выпуска.</translation>
     </message>
+    <message>
+        <source>Remove</source>
+        <translation>удалять</translation>
+    </message>
+    <message>
+        <source>RemoveFriend</source>
+        <translation>Удалить друга</translation>
+    </message>
+    <message>
+        <source>RemoveFriendDescription</source>
+        <translation>Вы действительно хотите удалить этого друга?</translation>
+    </message>
 </context>
 </TS>

@@ -82,6 +82,7 @@ int DatabaseServer::run() {
 	_server->resource["^/requestRandomPage"]["POST"] = std::bind(&DatabaseServer::requestRandomPage, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/requestInfoPage"]["POST"] = std::bind(&DatabaseServer::requestInfoPage, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/submitInfoPage"]["POST"] = std::bind(&DatabaseServer::submitInfoPage, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/removeFriend"]["POST"] = std::bind(&DatabaseServer::removeFriend, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -3798,6 +3799,72 @@ void DatabaseServer::submitInfoPage(std::shared_ptr<HttpsServer::Response> respo
 					out.write(reinterpret_cast<const char *>(&data[0]), data.size());
 					out.close();
 				}
+			}
+		} while (false);
+
+		response->write(code);
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::removeFriend(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		const auto username = pt.get<std::string>("Username");
+		const auto password = pt.get<std::string>("Password");
+
+		const int userID = ServerCommon::getUserID(username, password); // if userID is -1 user is not in database, so it's the play time of all unregistered players summed up
+
+		if (userID == -1) {
+			response->write(code);
+			return;
+		}
+		
+		const auto friendName = pt.get<std::string>("Friend");
+
+		const int friendID = ServerCommon::getUserID(friendName);
+
+		if (friendID == -1) {
+			response->write(code);
+			return;
+		}
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+
+			if (!database.query("PREPARE deleteFriendStmt FROM \"DELETE FROM friends WHERE UserID = ? AND FriendID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramFriendID=" + std::to_string(friendID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("EXECUTE deleteFriendStmt USING @paramUserID, @paramFriendID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("EXECUTE deleteFriendStmt USING @paramFriendID, @paramUserID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
 			}
 		} while (false);
 
