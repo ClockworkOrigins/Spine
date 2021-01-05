@@ -221,7 +221,7 @@ void AchievementsWidget::updateAchievements() {
 
 	if (uaim.icons.empty()) return;
 
-	const std::string serialized = uaim.SerializePublic();
+	const std::string serialized = uaim.SerializeBlank();
 	clockUtils::sockets::TcpSocket sock;
 	const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
 	if (clockUtils::ClockError::SUCCESS == cErr) {
