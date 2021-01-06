@@ -22,7 +22,7 @@
 #include "InstallMode.h"
 #include "SpineConfig.h"
 
-#include "common/MessageStructs.h"
+#include "https/Https.h"
 
 #include "utils/Config.h"
 #include "utils/Conversion.h"
@@ -30,11 +30,11 @@
 
 #include "widgets/AchievementView.h"
 
-#include "clockUtils/sockets/TcpSocket.h"
-
 #include <QApplication>
 #include <QDate>
 #include <QDesktopServices>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLabel>
 #include <QPainter>
 #include <QPushButton>
@@ -48,15 +48,15 @@
 	#include "clockUtils/log/Log.h"
 #endif
 
-using namespace spine;
 using namespace spine::client;
+using namespace spine::common;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-NewsWidget::NewsWidget(common::SendAllNewsMessage::News news, bool onlineMode, QWidget * par) : QWidget(par), _titleLabel(nullptr), _textBrowser(nullptr), _timestampLabel(nullptr), _newsID(news.id) {
+NewsWidget::NewsWidget(SendAllNewsMessage::News news, bool onlineMode, QWidget * par) : QWidget(par), _titleLabel(nullptr), _textBrowser(nullptr), _timestampLabel(nullptr), _newsID(news.id) {
 	setObjectName("NewsWidget");
 
-	QVBoxLayout * l = new QVBoxLayout();
+	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
 	_titleLabel = new QLabel(s2q(news.title), this);
@@ -64,7 +64,7 @@ NewsWidget::NewsWidget(common::SendAllNewsMessage::News news, bool onlineMode, Q
 	_timestampLabel = new QLabel(QDate(2000, 1, 1).addDays(news.timestamp).toString("dd.MM.yyyy"), this);
 	_timestampLabel->setAlignment(Qt::AlignRight);
 	_timestampLabel->setProperty("newsTimestamp", true);
-	QHBoxLayout * hbl = new QHBoxLayout();
+	auto * hbl = new QHBoxLayout();
 	hbl->addWidget(_titleLabel, 0, Qt::AlignLeft);
 	hbl->addWidget(_timestampLabel, 0, Qt::AlignRight);
 	l->addLayout(hbl);
@@ -83,17 +83,18 @@ NewsWidget::NewsWidget(common::SendAllNewsMessage::News news, bool onlineMode, Q
 	l->setStretchFactor(_textBrowser, 1);
 
 	int installButtonSize = 0;
-	for (const std::pair<int32_t, std::string> & mod : news.referencedMods) {
+	for (const auto & mod : news.referencedMods) {
 		Database::DBError err;
 		const bool installed = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM mods WHERE ModID = " + std::to_string(mod.first) + " LIMIT 1;", err) > 0;
-		if (!installed && onlineMode) {
-			QPushButton * installButton = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/download.svg"), s2q(mod.second), this);
-			l->addWidget(installButton, 0, Qt::AlignLeft);
-			installButtonSize += installButton->height();
-			installButton->setProperty("modid", static_cast<int>(mod.first));
-			connect(installButton, &QPushButton::released, this, &NewsWidget::installMod);
-			_installButtons.append(installButton);
-		}
+		
+		if (installed || !onlineMode) continue;
+		
+		auto * installButton = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/download.svg"), s2q(mod.second), this);
+		l->addWidget(installButton, 0, Qt::AlignLeft);
+		installButtonSize += installButton->height();
+		installButton->setProperty("modid", static_cast<int>(mod.first));
+		connect(installButton, &QPushButton::released, this, &NewsWidget::installMod);
+		_installButtons.append(installButton);
 	}
 
 	setLayout(l);
@@ -106,7 +107,7 @@ NewsWidget::NewsWidget(common::SendAllNewsMessage::News news, bool onlineMode, Q
 
 	static const QMap<int, double> additionalPercentage = { { 200, 0.3 }, { 350, 0.4 }, { 2000, 0.45 } };
 
-	const int height = _textBrowser->document()->size().height();
+	const int height = static_cast<int>(_textBrowser->document()->size().height());
 	const double percent = additionalPercentage.upperBound(height).value();
 	_textBrowser->setMinimumHeight(height + static_cast<int>(percent * height));
 	_textBrowser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
@@ -129,22 +130,15 @@ void NewsWidget::finishedInstallation(int modID, int, bool success) {
 }
 
 void NewsWidget::urlClicked(const QUrl & url) {
-	if (url.toString().startsWith("http://") || url.toString().startsWith("https://") || url.toString().startsWith("www.")) {
-		QDesktopServices::openUrl(url);
+	if (!url.toString().startsWith("http://") && !url.toString().startsWith("https://") && !url.toString().startsWith("www.")) return;
+	
+	QDesktopServices::openUrl(url);
 
-		QtConcurrent::run([this, url]() {
-			common::LinkClickedMessage lcm;
-			lcm.newsID = _newsID;
-			lcm.url = url.toString().toStdString();
-
-			const std::string serialized = lcm.SerializePublic();
-			clockUtils::sockets::TcpSocket sock;
-			const clockUtils::ClockError err = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-			if (clockUtils::ClockError::SUCCESS == err) {
-				sock.writePacket(serialized);
-			}
-		});
-	}
+	QJsonObject json;
+	json["NewsID"] = _newsID;
+	json["Url"] = url.toString();
+	
+	https::Https::postAsync(MANAGEMENTSERVER_PORT, "linkClicked", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject &, int) {});
 }
 
 void NewsWidget::installMod() {
@@ -159,7 +153,7 @@ void NewsWidget::paintEvent(QPaintEvent *) {
 	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 
-void NewsWidget::update(common::SendAllNewsMessage::News news) {
+void NewsWidget::update(SendAllNewsMessage::News news) {
 	_titleLabel->setText(s2q(news.title));
 	_timestampLabel->setText(QDate(2000, 1, 1).addDays(news.timestamp).toString("dd.MM.yyyy"));
 	QString newsText = s2q(news.body);

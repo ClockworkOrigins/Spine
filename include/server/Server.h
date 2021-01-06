@@ -156,6 +156,8 @@ namespace server {
 		void handleRequestAllScoreStats(clockUtils::sockets::TcpSocket * sock, common::RequestAllScoreStatsMessage * msg) const;
 		void handleRequestAllNews(clockUtils::sockets::TcpSocket * sock, common::RequestAllNewsMessage * msg) const;
 		void handleSubmitNews(clockUtils::sockets::TcpSocket * sock, common::SubmitNewsMessage * msg) const;
+
+		[[deprecated("Remove in Spine 1.29.0")]]
 		void handleLinkClicked(clockUtils::sockets::TcpSocket * sock, common::LinkClickedMessage * msg) const;
 		void handleSubmitScriptFeatures(clockUtils::sockets::TcpSocket * sock, common::SubmitScriptFeaturesMessage * msg) const;
 		

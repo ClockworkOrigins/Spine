@@ -84,6 +84,7 @@ int DatabaseServer::run() {
 	_server->resource["^/submitInfoPage"]["POST"] = std::bind(&DatabaseServer::submitInfoPage, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/removeFriend"]["POST"] = std::bind(&DatabaseServer::removeFriend, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/requestOriginalFiles"]["POST"] = std::bind(&DatabaseServer::requestOriginalFiles, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/linkClicked"]["POST"] = std::bind(&DatabaseServer::linkClicked, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -3969,6 +3970,51 @@ void DatabaseServer::requestOriginalFiles(std::shared_ptr<HttpsServer::Response>
 		write_json(responseStream, responseTree);
 
 		response->write(code, responseStream.str());
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::linkClicked(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		const auto newsID = pt.get<int32_t>("NewsID");
+		const auto url = pt.get<std::string>("Url");
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+
+			if (!database.query("PREPARE insertLinkClick FROM \"INSERT INTO linksClicked (NewsID, Url, Counter) VALUES (?, ?, 1) ON DUPLICATE KEY UPDATE Counter = Counter + 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramNewsID=" + std::to_string(newsID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramUrl='" + url + "';")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("EXECUTE insertLinkClick USING @paramNewsID, @paramUrl;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+		} while (false);
+
+		response->write(code);
 	} catch (...) {
 		response->write(SimpleWeb::StatusCode::client_error_bad_request);
 	}
