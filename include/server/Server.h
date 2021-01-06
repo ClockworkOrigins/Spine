@@ -140,6 +140,8 @@ namespace server {
 		
 		[[deprecated("Remove in Spine 1.29.0")]]
 		void handleFeedback(clockUtils::sockets::TcpSocket * sock, common::FeedbackMessage * msg) const;
+		
+		[[deprecated("Remove in Spine 1.29.0")]]
 		void handleRequestOriginalFiles(clockUtils::sockets::TcpSocket * sock, common::RequestOriginalFilesMessage * msg) const;
 		
 		[[deprecated("Remove in Spine 1.29.0")]]

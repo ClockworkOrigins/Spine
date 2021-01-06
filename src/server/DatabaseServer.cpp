@@ -83,6 +83,7 @@ int DatabaseServer::run() {
 	_server->resource["^/requestInfoPage"]["POST"] = std::bind(&DatabaseServer::requestInfoPage, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/submitInfoPage"]["POST"] = std::bind(&DatabaseServer::submitInfoPage, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/removeFriend"]["POST"] = std::bind(&DatabaseServer::removeFriend, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/requestOriginalFiles"]["POST"] = std::bind(&DatabaseServer::requestOriginalFiles, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -3869,6 +3870,105 @@ void DatabaseServer::removeFriend(std::shared_ptr<HttpsServer::Response> respons
 		} while (false);
 
 		response->write(code);
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::requestOriginalFiles(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+
+			if (!database.query("PREPARE selectStmt FROM \"SELECT Path, Hash FROM modfiles WHERE ModID = ? AND Path = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			std::map<int32_t, std::vector<std::pair<std::string, std::string>>> files;
+			for (const auto & p : pt.get_child("Files")) {
+				const int projectID = p.second.get<int32_t>("ProjectID");
+				const auto file = p.second.get<std::string>("File");
+				
+				if (!database.query("SET @paramModID=" + std::to_string(projectID) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("SET @paramFile='" + file + "';")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("EXECUTE selectStmt USING @paramModID, @paramFile;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				auto lastResults = database.getResults<std::vector<std::string>>();
+				if (lastResults.empty()) {
+					if (!database.query("SET @paramFile='" + file + ".z';")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+					if (!database.query("EXECUTE selectStmt USING @paramModID, @paramFile;")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+					lastResults = database.getResults<std::vector<std::string>>();
+				}
+				if (!lastResults.empty()) {
+					const std::string dbFile = lastResults[0][0];
+					const std::string dbHash = lastResults[0][1];
+
+					files[projectID].push_back(std::make_pair(dbFile, dbHash));
+				}
+			}
+
+			ptree fileNodes;
+			for (const auto & p : files) {
+				ptree fileEntryNode;
+
+				fileEntryNode.put("ProjectID", p.first);
+
+				ptree fileEntryNodes;
+				
+				for (const auto & p2 : p.second) {
+					ptree fileNode;
+					fileNode.put("File", p2.first);
+					fileNode.put("Hash", p2.second);
+
+					fileEntryNodes.push_back(std::make_pair("", fileNode));
+				}
+
+				if (fileEntryNodes.empty()) {
+					fileEntryNode.add_child("Files", fileEntryNodes);
+					
+					fileNodes.push_back(std::make_pair("", fileEntryNode));
+				}
+			}
+			if (!fileNodes.empty()) {
+				responseTree.add_child("Files", fileNodes);
+			}
+		} while (false);
+
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
 	} catch (...) {
 		response->write(SimpleWeb::StatusCode::client_error_bad_request);
 	}

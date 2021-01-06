@@ -448,7 +448,7 @@ namespace common {
 		}
 	};
 
-	struct RequestOriginalFilesMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.29.0")]] RequestOriginalFilesMessage : public Message {
 		std::vector<std::pair<int32_t, std::string>> files;
 		RequestOriginalFilesMessage() : Message() {
 			type = MessageType::REQUESTORIGINALFILES;
@@ -460,7 +460,7 @@ namespace common {
 		}
 	};
 
-	struct SendOriginalFilesMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.29.0")]] SendOriginalFilesMessage : public Message {
 		std::vector<std::pair<int32_t, std::pair<std::string, std::string>>> files;
 		SendOriginalFilesMessage() : Message() {
 			type = MessageType::SENDORIGINALFILES;

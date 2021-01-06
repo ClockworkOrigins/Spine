@@ -30,6 +30,8 @@
 
 #include "gui/DownloadQueueWidget.h"
 
+#include "https/Https.h"
+
 #include "launcher/LauncherFactory.h"
 
 #include "models/SpineEditorModel.h"
@@ -89,6 +91,7 @@
 #include <QDesktopServices>
 #include <QDialogButtonBox>
 #include <QGroupBox>
+#include <QJsonDocument>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListView>
@@ -112,6 +115,7 @@
 using namespace spine::client;
 using namespace spine::discord;
 using namespace spine::gui;
+using namespace spine::https;
 using namespace spine::launcher;
 using namespace spine::utils;
 using namespace spine::widgets;
@@ -906,52 +910,58 @@ void MainWindow::checkIntegrity(int projectID) {
 			if (QMessageBox::StandardButton::Ok == msg.exec()) {
 			}
 		} else {
-			QString text = QApplication::tr("CheckIntegrityFailed") + "\n" + QApplication::tr("CorruptedFiles") + ": " + i2s(corruptFiles.count() + corruptGothicFiles.count() + corruptGothic2Files.count());
+			const QString text = QApplication::tr("CheckIntegrityFailed") + "\n" + QApplication::tr("CorruptedFiles") + ": " + i2s(corruptFiles.count() + corruptGothicFiles.count() + corruptGothic2Files.count());
 			
 			QMessageBox msg(QMessageBox::Icon::Critical, QApplication::tr("CheckIntegrity"), text, QMessageBox::StandardButton::Ok | QMessageBox::StandardButton::Cancel);
 			msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
 			msg.button(QMessageBox::StandardButton::Cancel)->setText(QApplication::tr("Cancel"));
 			msg.setWindowFlags(msg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
 			if (QMessageBox::StandardButton::Ok == msg.exec()) {
-				MultiFileDownloader * mfd = new MultiFileDownloader(this);
-				common::RequestOriginalFilesMessage rofm;
+
+				QJsonObject json;
+				QJsonArray jsonArr;
 				for (const IntegrityCheckDialog::ModFile & file : corruptFiles) {
-					rofm.files.emplace_back(file.modID, file.file.toStdString());
+					QJsonObject jsonEntry;
+					jsonEntry["ProjectID"] = file.modID;
+					jsonEntry["File"] = file.file;
+
+					jsonArr << jsonEntry;
 				}
-				std::string serialized = rofm.SerializePublic();
-				clockUtils::sockets::TcpSocket sock;
-				if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 5000)) {
-					if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
-						if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-							try {
-								common::Message * m = common::Message::DeserializePublic(serialized);
-								if (m) {
-									common::SendOriginalFilesMessage * sofm = dynamic_cast<common::SendOriginalFilesMessage *>(m);
-									corruptFiles.clear();
-									for (const auto & p : sofm->files) {
-										corruptFiles.append(IntegrityCheckDialog::ModFile(std::to_string(p.first), p.second.first, p.second.second));
-									}
-								}
-								delete m;
-							} catch (...) {
-								return;
+				json["Files"] = jsonArr;
+
+				Https::post(MANAGEMENTSERVER_PORT, "getAchievements", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, &corruptFiles](const QJsonObject & json, int statusCode) {
+					if (statusCode != 200) return;
+
+					const auto it = json.find("Files");
+					if (it != json.end()) {
+						const auto filesArr = it->toArray();
+						for (auto jsonFileEntryRef : filesArr) {
+							const auto jsonFileEntry = jsonFileEntryRef.toObject();
+
+							const int projectID = jsonFileEntry["ProjectID"].toString().toInt();
+
+							for (const auto jsonFileRef : jsonFileEntry["Files"].toArray()) {
+								const auto jsonFile = jsonFileRef.toObject();
+								corruptFiles << IntegrityCheckDialog::ModFile(std::to_string(projectID), q2s(jsonFile["File"].toString()), q2s(jsonFile["Hash"].toString()));
 							}
 						}
 					}
-				}
+				});
+
+				auto * mfd = new MultiFileDownloader(this);
 				for (const IntegrityCheckDialog::ModFile & file : corruptFiles) {
 					QFileInfo fi(file.file);
-					FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(file.modID) + "/" + file.file), Config::DOWNLOADDIR + "/mods/" + QString::number(file.modID) + "/" + fi.path(), fi.fileName(), file.hash, mfd);
+					auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(file.modID) + "/" + file.file), Config::DOWNLOADDIR + "/mods/" + QString::number(file.modID) + "/" + fi.path(), fi.fileName(), file.hash, mfd);
 					mfd->addFileDownloader(fd);
 				}
 				for (const IntegrityCheckDialog::ModFile & file : corruptGothicFiles) {
 					QFileInfo fi(file.file);
-					FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/g1/" + file.file), _gothicDirectory + "/" + fi.path(), fi.fileName(), file.hash, mfd);
+					auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/g1/" + file.file), _gothicDirectory + "/" + fi.path(), fi.fileName(), file.hash, mfd);
 					mfd->addFileDownloader(fd);
 				}
 				for (const IntegrityCheckDialog::ModFile & file : corruptGothic2Files) {
 					QFileInfo fi(file.file);
-					FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/g2/" + file.file), _gothic2Directory + "/" + fi.path(), fi.fileName(), file.hash, mfd);
+					auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/g2/" + file.file), _gothic2Directory + "/" + fi.path(), fi.fileName(), file.hash, mfd);
 					mfd->addFileDownloader(fd);
 				}
 
