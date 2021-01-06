@@ -79,7 +79,6 @@ namespace common {
 	struct UpdatePlayTimeMessage;
 	struct UpdateRequestMessage;
 	struct UpdateScoreMessage;
-	struct UpdateStartTimeMessage;
 	struct UpdateSucceededMessage;
 
 	struct ProjectStats;
@@ -187,7 +186,6 @@ namespace server {
 		[[deprecated("Remove in Spine 1.28.0")]]
 		void handleUpdateOfflineData(clockUtils::sockets::TcpSocket * sock, common::UpdateOfflineDataMessage * msg) const;
 		void handleRequestOfflineData(clockUtils::sockets::TcpSocket * sock, common::RequestOfflineDataMessage * msg) const;
-		void handleUpdateStartTime(clockUtils::sockets::TcpSocket * sock, common::UpdateStartTimeMessage * msg) const;
 		
 		[[deprecated("Remove in Spine 1.28.0")]]
 		void handleUpdatePlayingTime(clockUtils::sockets::TcpSocket * sock, common::UpdatePlayingTimeMessage * msg) const;

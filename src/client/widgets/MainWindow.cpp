@@ -109,7 +109,6 @@
 	#include <shellapi.h>
 #endif
 
-using namespace spine;
 using namespace spine::client;
 using namespace spine::discord;
 using namespace spine::gui;
@@ -187,18 +186,6 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 			const bool cuTest = cErr == clockUtils::ClockError::SUCCESS;
 
 			Config::OnlineMode = cuTest;
-		}
-		if (Config::OnlineMode) {
-			QtConcurrent::run([]() {
-				clockUtils::sockets::TcpSocket sock;
-				if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 5000)) {
-					common::UpdateStartTimeMessage ustm;
-					ustm.dayOfTheWeek = static_cast<int16_t>(QDate::currentDate().dayOfWeek());
-					ustm.hour = static_cast<int16_t>(QTime::currentTime().hour());
-					const std::string serialized = ustm.SerializePublic();
-					sock.writePacket(serialized);
-				}
-			});
 		}
 	}
 

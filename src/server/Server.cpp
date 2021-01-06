@@ -245,9 +245,6 @@ void Server::receiveMessage(const std::vector<uint8_t> & message, clockUtils::so
 			} else if (m->type == MessageType::REQUESTOFFLINEDATA) {
 				auto * msg = dynamic_cast<RequestOfflineDataMessage *>(m);
 				handleRequestOfflineData(sock, msg);
-			} else if (m->type == MessageType::UPDATESTARTTIME) {
-				auto * msg = dynamic_cast<UpdateStartTimeMessage *>(m);
-				handleUpdateStartTime(sock, msg);
 			} else if (m->type == MessageType::UPDATEPLAYINGTIME) {
 				auto * msg = dynamic_cast<UpdatePlayingTimeMessage *>(m);
 				handleUpdatePlayingTime(sock, msg);
@@ -4152,32 +4149,6 @@ void Server::handleRequestOfflineData(clockUtils::sockets::TcpSocket * sock, Req
 	} while (false);
 	const std::string serialized = sodm.SerializePrivate();
 	sock->writePacket(serialized);
-}
-
-void Server::handleUpdateStartTime(clockUtils::sockets::TcpSocket *, UpdateStartTimeMessage * msg) const {
-	do {
-		MariaDBWrapper database;
-		if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, SPINEDATABASE, 0)) {
-			std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-			break;
-		}
-		if (!database.query("PREPARE insertStmt FROM \"INSERT INTO startTimes (DayOfWeek, Hour, Counter) VALUES (?, ?, 1) ON DUPLICATE KEY UPDATE Counter = Counter + 1\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			break;
-		}
-		if (!database.query("SET @paramDayOfWeek=" + std::to_string(msg->dayOfTheWeek) + ";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			break;
-		}
-		if (!database.query("SET @paramHour=" + std::to_string(msg->hour) + ";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			break;
-		}
-		if (!database.query("EXECUTE insertStmt USING @paramDayOfWeek, @paramHour;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-			break;
-		}
-	} while (false);
 }
 
 void Server::handleUpdatePlayingTime(clockUtils::sockets::TcpSocket *, UpdatePlayingTimeMessage * msg) const {

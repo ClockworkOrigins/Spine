@@ -1548,20 +1548,6 @@ namespace common {
 		}
 	};
 
-	struct UpdateStartTimeMessage : public Message {
-		int16_t dayOfTheWeek;
-		int16_t hour;
-		UpdateStartTimeMessage() : Message(), dayOfTheWeek(), hour() {
-			type = MessageType::UPDATESTARTTIME;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & dayOfTheWeek;
-			ar & hour;
-		}
-	};
-
 	struct [[deprecated("Remove in Spine 1.28.0")]] UpdatePlayingTimeMessage : public Message {
 		int16_t dayOfTheWeek;
 		int16_t hour;
