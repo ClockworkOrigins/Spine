@@ -83,6 +83,12 @@ namespace launcher {
 		virtual void modFinished() {}
 
 	private:
+		enum class Renderer {
+			None,
+			Classic,
+			Clockwork
+		};
+		
 		QPushButton * _startSpacerButton = nullptr;
 		QLabel * _adminInfoLabel = nullptr;
 		QLabel * _nameLabel = nullptr;
@@ -147,7 +153,7 @@ namespace launcher {
 
 		void updateModStats() override;
 		
-		bool prepareModStart(QString * usedExecutable, QStringList * backgroundExecutables, bool * newGMP, QSet<QString> * dependencies, bool * renderer);
+		bool prepareModStart(QString * usedExecutable, QStringList * backgroundExecutables, bool * newGMP, QSet<QString> * dependencies, Renderer * renderer);
 
 		void updateView(int modID, const QString & iniFile) override;
 		void removeModFiles();

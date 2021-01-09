@@ -717,7 +717,7 @@ void Gothic1And2Launcher::start() {
 	QSet<QString> dependencies;
 	QString usedExecutable;
 	bool newGMP = false;
-	bool renderer = false;
+	Renderer renderer = Renderer::None;
 
 	QElapsedTimer t;
 	t.start();
@@ -843,8 +843,9 @@ void Gothic1And2Launcher::start() {
 		}
 	} else {
 		if (usedExecutable.compare(getExecutable(), Qt::CaseInsensitive) == 0 && canBeStartedWithSteam()) {
-			if (renderer) {
+			if (renderer != Renderer::Clockwork) {
 				// Steam starts Gothic from the main directory, while Spine launches it from the System folder. That's basically no problem, but won't work when using the renderer as GD3D11 folder is expected in the working directory
+				// not necessary to do for Clockwork renderer as it uses the proper folder
 				linkOrCopyFolder(_directory + "/System/GD3D11", _directory + "/GD3D11");
 			}
 			startViaSteam(args);
@@ -1171,7 +1172,7 @@ void Gothic1And2Launcher::updateModStats() {
 	});
 }
 
-bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList * backgroundExecutables, bool * newGMP, QSet<QString> * dependencies, bool * renderer) {
+bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList * backgroundExecutables, bool * newGMP, QSet<QString> * dependencies, Renderer * renderer) {
 	_gmpCounterBackup = -1;
 
 	QSet<QString> forbidden;
@@ -1227,13 +1228,13 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 		const std::string patchName = Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Name FROM patches WHERE ModID = " + patchID + " LIMIT 1;", err);
 		if (patchName == "D3D11 Renderer Clockwork Edition" || patchName == "D3D11 Renderer Convenient Edition") {
 			clockworkRenderer = true;
-			*renderer = true;
+			*renderer = patchName == "D3D11 Renderer Clockwork Edition" ? Renderer::Clockwork : Renderer::Classic;
 		} else if (patchName.find("Systempack") != std::string::npos) {
 			systempack = true;
 		} else if (patchID == "314") {
 			ninja = true;
 		} else if (patchName.find("Renderer") != std::string::npos) {
-			*renderer = true;
+			*renderer = Renderer::Classic;
 		}
 	}
 
