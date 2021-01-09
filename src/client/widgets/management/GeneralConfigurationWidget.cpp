@@ -26,8 +26,6 @@
 
 #include "utils/Config.h"
 
-#include "clockUtils/sockets/TcpSocket.h"
-
 #include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
@@ -239,4 +237,5 @@ void GeneralConfigurationWidget::updateData(ManagementGeneralData content) {
 	_releaseDateEdit->setDate(content.releaseDate);
 	_feedbackMailEdit->setText(content.feedbackMail);
 	_discussionUrlEdit->setText(content.discussionUrl.toString());
+	_enabledBox->setVisible(!content.enabled);
 }

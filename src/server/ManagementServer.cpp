@@ -711,7 +711,7 @@ void ManagementServer::updateGeneralConfiguration(std::shared_ptr<HttpsServer::R
 			return;
 		}
 
-		const int32_t modID = pt.get<int32_t>("ModID");
+		const auto modID = pt.get<int32_t>("ModID");
 
 		if (!hasAdminAccessToMod(userID, modID)) {
 			response->write(SimpleWeb::StatusCode::client_error_unauthorized);
@@ -719,17 +719,22 @@ void ManagementServer::updateGeneralConfiguration(std::shared_ptr<HttpsServer::R
 		}
 
 		const int32_t enabled = pt.get<bool>("Enabled") ? 1 : 0;
-		const int32_t gothicVersion = pt.get<int32_t>("GothicVersion");
-		const int32_t modType = pt.get<int32_t>("ModType");
-		const int32_t duration = pt.get<int32_t>("Duration");
-		const int32_t releaseDate = pt.get<int32_t>("ReleaseDate");
+		const auto gothicVersion = pt.get<int32_t>("GothicVersion");
+		const auto modType = pt.get<int32_t>("ModType");
+		const auto duration = pt.get<int32_t>("Duration");
+		const auto releaseDate = pt.get<int32_t>("ReleaseDate");
 
 		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
 
 		do {
 			CONNECTTODATABASE(__LINE__)
 
-			if (!database.query("PREPARE updateStmt FROM \"UPDATE mods SET Enabled = ?, Gothic = ?, Type = ?, ReleaseDate = ? WHERE ModID = ? LIMIT 1\";")) {
+			if (!database.query("PREPARE updateStmt FROM \"UPDATE mods SET Gothic = ?, Type = ?, ReleaseDate = ? WHERE ModID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE updateEnabledStmt FROM \"UPDATE mods SET Enabled = ? WHERE ModID = ? AND Enabled = 0 LIMIT 1\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
@@ -821,7 +826,12 @@ void ManagementServer::updateGeneralConfiguration(std::shared_ptr<HttpsServer::R
 				}
 			}
 			
-			if (!database.query("EXECUTE updateStmt USING @paramEnabled, @paramGothicVersion, @paramModType, @paramReleaseDate, @paramModID;")) {
+			if (!database.query("EXECUTE updateStmt USING @paramGothicVersion, @paramModType, @paramReleaseDate, @paramModID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("EXECUTE updateEnabledStmt USING @paramEnabled;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
