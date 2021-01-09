@@ -18,8 +18,11 @@
 
 #pragma once
 
+#include <QModelIndex>
 #include <QWidget>
 
+class QLineEdit;
+class QSortFilterProxyModel;
 class QStandardItemModel;
 class QTableView;
 
@@ -40,7 +43,7 @@ namespace widgets {
 		} RankingEntry;
 
 	public:
-		SpineLevelRankingWidget(QWidget * par);
+		explicit SpineLevelRankingWidget(QWidget * par);
 
 		void requestUpdate();
 
@@ -49,11 +52,17 @@ namespace widgets {
 
 	private slots:
 		void updateView(QList<RankingEntry> rankingEntries);
+		void scrollToOwnPosition();
+		void updateFilter();
 
 	private:
 		QTableView * _tableView;
 		QStandardItemModel * _model;
 		gui::WaitSpinner * _waitSpinner;
+		QSortFilterProxyModel * _sortModel;
+		QLineEdit * _filterEdit;
+
+		QModelIndex _ownIndex;
 	};
 
 } /* namespace widgets */

@@ -3344,5 +3344,9 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>RemoveFriendDescription</source>
         <translation>Czy na pewno chcesz usunąć tego znajomego?</translation>
     </message>
+    <message>
+        <source>JumpToOwnScore</source>
+        <translation>Przejdź do własnego wyniku</translation>
+    </message>
 </context>
 </TS>

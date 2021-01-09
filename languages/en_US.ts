@@ -3352,5 +3352,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>RemoveFriendDescription</source>
         <translation>Do you really want to remove this friend?</translation>
     </message>
+    <message>
+        <source>JumpToOwnScore</source>
+        <translation>Jump to own score</translation>
+    </message>
 </context>
 </TS>

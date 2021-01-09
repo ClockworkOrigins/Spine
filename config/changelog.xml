@@ -2058,6 +2058,8 @@
 		<Enhancement language="Deutsch">Entwickler-Optionen lassen sich jetzt in den Einstellungen einfacher aktivieren</Enhancement>
 		<Enhancement language="Deutsch">Erfolg-Freischaltungen lassen sich jetzt im Management während der Entwicklung zurücksetzen</Enhancement>
 		<Enhancement language="Deutsch">Möglichkeit eingebaut, Freunde wieder zu entfernen</Enhancement>
+		<Enhancement language="Deutsch">Möglichkeit eingebaut, zur eigenen Platzierung im globalen Ranking zu springen</Enhancement>
+		<Enhancement language="Deutsch">Möglichkeit eingebaut, globales Ranking zu filtern</Enhancement>
 		<Bug language="Deutsch">Falsches Review-Datum behoben</Bug>
 		<Bug language="Deutsch">Fehler behoben, wodurch Einträge im Update-Dialog mehrfach aufgetaucht sind</Bug>
 		<Bug language="Deutsch">Pfadeingabe beim Upload verbessert</Bug>
@@ -2073,6 +2075,8 @@
 		<Enhancement language="English">Developer options now can be enabled more easily using the settings dialog</Enhancement>
 		<Enhancement language="English">Achievement unlocks can be reset in management during development now</Enhancement>
 		<Enhancement language="English">Added possibility to remove friends again</Enhancement>
+		<Enhancement language="English">Added possibility to jump to own position in global ranking</Enhancement>
+		<Enhancement language="English">Added possibility to filter global ranking</Enhancement>
 		<Bug language="Deutsch">Fixed wrong review date</Bug>
 		<Bug language="Deutsch">Fixed bug that caused entries in update dialog to appear multiple times</Bug>
 		<Bug language="Deutsch">Improved path input for upload</Bug>

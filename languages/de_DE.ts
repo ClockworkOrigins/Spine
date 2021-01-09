@@ -3344,5 +3344,9 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>RemoveFriendDescription</source>
         <translation>Willst du diesen Freund wirklich entfernen?</translation>
     </message>
+    <message>
+        <source>JumpToOwnScore</source>
+        <translation>Zum eigenen Score springen</translation>
+    </message>
 </context>
 </TS>

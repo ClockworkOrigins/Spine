@@ -34,7 +34,9 @@
 #include <QHeaderView>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QLineEdit>
 #include <QPushButton>
+#include <QSortFilterProxyModel>
 #include <QStandardItemModel>
 #include <QTableView>
 #include <QVBoxLayout>
@@ -51,14 +53,37 @@ SpineLevelRankingWidget::SpineLevelRankingWidget(QWidget * par) : QWidget(par), 
 	_model = new QStandardItemModel(_tableView);
 	_model->setHorizontalHeaderLabels({ QApplication::tr("Rank"), QApplication::tr("Name"), QApplication::tr("Level"), QApplication::tr("Experience") });
 
-	_tableView->setModel(_model);
+	_sortModel = new QSortFilterProxyModel(this);
+	_sortModel->setSourceModel(_model);
+
+	_tableView->setModel(_sortModel);
 	_tableView->verticalHeader()->hide();
 	_tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Stretch);
 	_tableView->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectItems);
 	_tableView->setSelectionMode(QAbstractItemView::SelectionMode::NoSelection);
 	_tableView->setProperty("score", true);
+	
+	_sortModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+	_sortModel->setFilterKeyColumn(1);
 
 	l->addWidget(_tableView);
+
+	{
+		auto * hl = new QHBoxLayout();
+
+		_filterEdit = new QLineEdit(this);
+
+		connect(_filterEdit, &QLineEdit::textChanged, this, &SpineLevelRankingWidget::updateFilter);
+
+		auto * jumpToPositionButton = new QPushButton(QApplication::tr("JumpToOwnScore"), this);
+
+		connect(jumpToPositionButton, &QPushButton::released, this, &SpineLevelRankingWidget::scrollToOwnPosition);
+
+		hl->addWidget(_filterEdit, 1);
+		hl->addWidget(jumpToPositionButton);
+
+		l->addLayout(hl);
+	}
 
 	{
 		auto * hl = new QHBoxLayout();
@@ -133,4 +158,24 @@ void SpineLevelRankingWidget::updateView(QList<RankingEntry> rankingEntries) {
 		_model->item(row, 3)->setTextAlignment(Qt::AlignCenter);
 		row++;
 	}
+
+	if (Config::Username.isEmpty()) return;
+
+	const auto items = _model->findItems(Config::Username, Qt::MatchExactly, 1);
+
+	if (items.isEmpty()) return;
+
+	_ownIndex = _model->indexFromItem(items[0]);
+
+	scrollToOwnPosition();
+}
+
+void SpineLevelRankingWidget::scrollToOwnPosition() {
+	if (!_ownIndex.isValid()) return;
+	
+	_tableView->scrollTo(_sortModel->mapFromSource(_ownIndex));
+}
+
+void SpineLevelRankingWidget::updateFilter() {
+	_sortModel->setFilterRegularExpression(_filterEdit->text());
 }

@@ -3349,5 +3349,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>RemoveFriendDescription</source>
         <translation>Вы действительно хотите удалить этого друга?</translation>
     </message>
+    <message>
+        <source>JumpToOwnScore</source>
+        <translation>Перейти к собственному счету</translation>
+    </message>
 </context>
 </TS>
