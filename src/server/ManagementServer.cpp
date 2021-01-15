@@ -831,7 +831,7 @@ void ManagementServer::updateGeneralConfiguration(std::shared_ptr<HttpsServer::R
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			if (!database.query("EXECUTE updateEnabledStmt USING @paramEnabled;")) {
+			if (!database.query("EXECUTE updateEnabledStmt USING @paramEnabled, @paramModID;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
