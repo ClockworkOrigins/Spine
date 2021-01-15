@@ -3521,7 +3521,7 @@ void DatabaseServer::requestInfoPage(std::shared_ptr<HttpsServer::Response> resp
 						if (!results.empty()) {
 							ptree packageNode;
 							packageNode.put("ID", std::stoi(vec[0]));
-							packageNode.put("Name", vec[1]);
+							packageNode.put("Name", results[0][0]);
 							
 							packageNodes.push_back(std::make_pair("", packageNode));
 						}
