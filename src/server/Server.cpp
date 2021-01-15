@@ -1806,11 +1806,11 @@ void Server::handleRequestAllModStats(clockUtils::sockets::TcpSocket * sock, Req
 					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					continue;
 				}
-				lastResults = database.getResults<std::vector<std::string>>();
+				const auto lastResults2 = database.getResults<std::vector<std::string>>();
 
 				std::map<int32_t, ScoreOrder> scoreOrders;
 
-				for (const auto & scoreOrder : lastResults) {
+				for (const auto & scoreOrder : lastResults2) {
 					scoreOrders.insert(std::make_pair(std::stoi(scoreOrder[0]), static_cast<ScoreOrder>(std::stoi(scoreOrder[1]))));
 				}
 				
