@@ -2087,7 +2087,6 @@
 		<Bug language="Deutsch">Fixed bug that caused some Systempack entries being written to ini in the wrong way</Bug>
 		<Bug language="Deutsch">Multiplayer module on info page can't be configured anymore by developers as it was used wrong in almost all cases</Bug>
 		<Bug language="Deutsch">Fixed bug that caused switching tab in management to duplicate achievements and scores</Bug>
-		<Bug language="Deutsch">Fixed bug that caused switching tab in management to duplicate achievements and scores</Bug>
 		<Bug language="Deutsch">Fixed bug that could happen when starting with renderer</Bug>
 		<Bug language="Deutsch">Fixed bug that caused Spine to hang up using certain patch configurations</Bug>
 	</Version>
