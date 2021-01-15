@@ -222,7 +222,7 @@ Section !$(NameSecModFiles) SecModFiles
   File      "@CMAKE_SOURCE_DIR@\config\*.conf"
   File      "@SPINE_DEP_DIR@\openSSL\bin\*.dll"
   File      "@SQLITE3_ROOT@\bin\sqlite3.dll"
-  File      "@TRANSLATOR_ROOT@\bin\*.dll"
+  File      "@TRANSLATOR_RELEASE_ROOT@\bin\*.dll"
   File      "@DISCORD_ROOT@\lib\*.dll"
   File      "@CMAKE_BINARY_DIR@\installer\Qt\*.dll"
   SetOutPath "$INSTDIR\${GAME_NAME}\bin\plugins\imageformats"

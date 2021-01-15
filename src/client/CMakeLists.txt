@@ -47,7 +47,7 @@ IF(WITH_API)
 ENDIF(WITH_API)
 
 target_link_libraries(Spine SpineCommon SpineDiscord SpineGui SpineHttps SpineSecurity SpineUtils ${DISCORD_LIBRARIES} ${OPENSSL_LIBRARIES} ${QT_LIBRARIES} ${SQLITE3_LIBRARIES})
-target_link_libraries(Spine debug ${BOOST_DEBUG_BOOST_FILESYSTEM_LIBRARY} optimized ${BOOST_RELEASE_BOOST_FILESYSTEM_LIBRARY})
+#target_link_libraries(Spine debug ${BOOST_DEBUG_BOOST_FILESYSTEM_LIBRARY} optimized ${BOOST_RELEASE_BOOST_FILESYSTEM_LIBRARY})
 target_link_libraries(Spine debug ${BOOST_DEBUG_BOOST_IOSTREAMS_LIBRARY} optimized ${BOOST_RELEASE_BOOST_IOSTREAMS_LIBRARY})
 target_link_libraries(Spine debug ${BOOST_DEBUG_BOOST_SERIALIZATION_LIBRARY} optimized ${BOOST_RELEASE_BOOST_SERIALIZATION_LIBRARY})
 target_link_libraries(Spine debug ${BOOST_DEBUG_BOOST_SYSTEM_LIBRARY} optimized ${BOOST_RELEASE_BOOST_SYSTEM_LIBRARY})
