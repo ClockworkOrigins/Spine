@@ -3567,10 +3567,10 @@ void DatabaseServer::requestInfoPage(std::shared_ptr<HttpsServer::Response> resp
 
 					if (r.empty()) continue;
 
-					responseTree.put("MajorVersion", std::stoi(r[0][0]));
-					responseTree.put("MinorVersion", std::stoi(r[0][1]));
-					responseTree.put("PatchVersion", std::stoi(r[0][2]));
-					responseTree.put("SaveCompatible", r[0][3] == "1" ? 1 : 0);
+					historyNode.put("MajorVersion", std::stoi(r[0][0]));
+					historyNode.put("MinorVersion", std::stoi(r[0][1]));
+					historyNode.put("PatchVersion", std::stoi(r[0][2]));
+					historyNode.put("SaveCompatible", r[0][3] == "1" ? 1 : 0);
 
 					if (!database.query("EXECUTE selectChangelogStmt USING @paramNewsID, @paramLanguage;")) {
 						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
@@ -3593,7 +3593,7 @@ void DatabaseServer::requestInfoPage(std::shared_ptr<HttpsServer::Response> resp
 						r = database.getResults<std::vector<std::string>>();
 					}
 
-					responseTree.put("Changelog", r.empty() ? "" : r[0][0]);
+					historyNode.put("Changelog", r.empty() ? "" : r[0][0]);
 
 					historyNodes.push_back(std::make_pair("", historyNode));
 				}
