@@ -2069,6 +2069,7 @@
 		<Bug language="Deutsch">Multiplayer-Modul auf Infoseite kann nicht mehr von Entwicklerseite eingestellt werden, weil es in fast allen Fällen falsch benutzt wurde</Bug>
 		<Bug language="Deutsch">Fehler behoben, wodurch im Management Erfolge und Scores dupliziert wurden, wenn man den Tab gewechselt hat</Bug>
 		<Bug language="Deutsch">Fehler behoben, der beim Start mit Renderer passieren konnte</Bug>
+		<Bug language="Deutsch">Fehler behoben, wodurch sich Spine bei bestimmten Patch-Konfigurationen aufgehängt hat</Bug>
 		
 		<Enhancement language="English">Added support for ascending scores</Enhancement>
 		<Enhancement language="English">Update of existing files is a lot easier now</Enhancement>
@@ -2088,5 +2089,6 @@
 		<Bug language="Deutsch">Fixed bug that caused switching tab in management to duplicate achievements and scores</Bug>
 		<Bug language="Deutsch">Fixed bug that caused switching tab in management to duplicate achievements and scores</Bug>
 		<Bug language="Deutsch">Fixed bug that could happen when starting with renderer</Bug>
+		<Bug language="Deutsch">Fixed bug that caused Spine to hang up using certain patch configurations</Bug>
 	</Version>
 </Versions>

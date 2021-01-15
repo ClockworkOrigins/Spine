@@ -2318,7 +2318,19 @@ void Gothic1And2Launcher::updatePatchCheckboxes() {
 	for (auto it = _checkboxPatchIDMapping.begin(); it != _checkboxPatchIDMapping.end(); ++it) {
 		const auto idString = QString::number(it.value());
 
-		if (forbidden.contains(idString)) {
+		auto isForbidden = forbidden.contains(idString);
+
+		auto sl = dependencyMap.value(idString);
+
+		for (const auto & id : sl) {
+			if (!forbidden.contains(id)) continue;
+
+			isForbidden = true;
+			
+			break;
+		}
+
+		if (isForbidden) {
 			if (it.key()->isChecked()) {
 				it.key()->setChecked(false);
 			}
@@ -2327,7 +2339,7 @@ void Gothic1And2Launcher::updatePatchCheckboxes() {
 			it.key()->setEnabled(true);
 		}
 
-		if (dependencies.contains(idString) && !it.key()->isChecked()) {
+		if (dependencies.contains(idString) && !it.key()->isChecked() && !isForbidden) {
 			it.key()->setChecked(true);
 		}
 	}
