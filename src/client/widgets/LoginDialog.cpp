@@ -441,14 +441,14 @@ void LoginDialog::loginUser() {
 			}
 			}
 
+			Config::Username = username;
+			Config::Password = passwd;
+
 			handleLogin();
 
 			if (stayLoggedIn) {
 				saveCredentials(username, passwd);
 			}
-
-			Config::Username = username;
-			Config::Password = passwd;
 
 			emit loggedIn();
 		});
@@ -513,14 +513,14 @@ void LoginDialog::registerUser() {
 			}
 			}
 
+			Config::Username = username;
+			Config::Password = passwd;
+
 			handleLogin();
 
 			if (stayLoggedIn) {
 				saveCredentials(username, passwd);
 			}
-
-			Config::Username = username;
-			Config::Password = passwd;
 
 			emit loggedIn();
 		});
