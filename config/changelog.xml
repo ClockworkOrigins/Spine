@@ -2095,4 +2095,9 @@
 		
 		<Bug language="English">Fixed bug that caused some stuff not being properly synchronized after login</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="27" patchVersion="2">
+		<Bug language="Deutsch">Fehler behoben, wodurch Zusatzpakete nicht mehr von der Infoseite geladen werden konnten</Bug>
+		
+		<Bug language="English">Fixed bug that caused additional packages not being downloadable from info page</Bug>
+	</Version>
 </Versions>

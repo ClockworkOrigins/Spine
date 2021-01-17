@@ -652,7 +652,7 @@ void ModInfoPage::updatePage(QJsonObject json) {
 	_startButton->setVisible(installed && it.hasNext() && !_runningUpdates.contains(_projectID));
 
 	if (json.contains("Packages")) {
-		for (auto jsonRef : json["Packages"].toObject()) {
+		for (auto jsonRef : json["Packages"].toArray()) {
 			const auto jsonPackage = jsonRef.toObject();
 			const auto packageName = decodeString(jsonPackage["Name"].toString());
 			const auto packageID = jsonPackage["ID"].toString().toInt();
