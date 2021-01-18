@@ -1956,32 +1956,6 @@ void Gothic1And2Launcher::updatePlugins(int modID) {
 		if (!_unionPlugins.isEmpty()) {
 			QString text;
 			{
-				QFile f(_directory + "/System/Union.ini");
-				f.open(QIODevice::ReadOnly);
-				QTextStream ts(&f);
-				text = ts.readAll();
-			}
-			const QRegularExpression regExp("(PluginList\\s=[^\n]*)\n");
-			const QRegularExpressionMatch match = regExp.match(text);
-			QString replaceText = match.captured(1);
-			LOGINFO("Replacing #1: " << q2s(replaceText))
-			replaceText = replaceText.trimmed();
-			if (replaceText.isEmpty()) {
-				text += "\n[PLUGINS]\nPluginList = " + _unionPlugins.join(',') + "\n";
-			} else {
-				text = text.replace(replaceText, "PluginList = " + _unionPlugins.join(','));
-			}
-			{
-				QFile f(_directory + "/System/Union.ini");
-				f.open(QIODevice::WriteOnly);
-				QTextStream ts(&f);
-				ts << text;
-			}
-		}
-
-		if (!_unionPlugins.isEmpty()) {
-			QString text;
-			{
 				QFile f(_directory + "/System/Systempack.ini");
 				f.open(QIODevice::ReadOnly);
 				QTextStream ts(&f);
