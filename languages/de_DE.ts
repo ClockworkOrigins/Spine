@@ -2594,7 +2594,7 @@ Das zwingt den Treiber die Szene nach jedem Objekt zu flushen, was zu ernsthafen
     </message>
     <message>
         <source>InvalidDownloadPath</source>
-        <translation>%1 kann nicht als Pfad für installierte Modifikationen gewählte werden. Bitte wähle einen Ordner, der weder in einem Gothic-Verzeichnis ist noch im Windows-Programme-Verzeichnis liegt.</translation>
+        <translation>%1 kann nicht als Pfad für installierte Modifikationen gewählt werden. Bitte wähle einen Ordner, der weder in einem Gothic-Verzeichnis ist noch im Windows-Programme-Verzeichnis liegt.</translation>
     </message>
     <message>
         <source>PreparingUpload</source>
