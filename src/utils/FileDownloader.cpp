@@ -93,7 +93,7 @@ void FileDownloader::startDownload() {
 		QFutureWatcher<bool> watcher;
 		connect(&watcher, &QFutureWatcher<bool>::finished, &hashLoop, &QEventLoop::quit);
 		QFuture<bool> f = QtConcurrent::run([&]() {
-			return utils::Hashing::checkHash(_targetDirectory + "/" + realName, _hash);
+			return Hashing::checkHash(_targetDirectory + "/" + realName, _hash);
 		});
 		watcher.setFuture(f);
 		hashLoop.exec();
@@ -160,11 +160,13 @@ void FileDownloader::updateDownloadProgress(qint64 bytesReceived, qint64) {
 }
 
 void FileDownloader::fileDownloaded() {
-	QNetworkReply * reply = dynamic_cast<QNetworkReply *>(sender());
+	auto * reply = dynamic_cast<QNetworkReply *>(sender());
 
 	emit downloadFinished();
+
+	const auto err = reply->error();
 	
-	if (reply->error() == QNetworkReply::NetworkError::NoError) {
+	if (err == QNetworkReply::NetworkError::NoError) {
 		if (Config::extendedLogging) {
 			LOGINFO("Uncompressing file")
 		}
@@ -183,7 +185,7 @@ void FileDownloader::fileDownloaded() {
 		if (_retried) {
 			LOGERROR("Unknown Error: " << reply->error() << ", " << q2s(reply->errorString()))
 			if (reply->error() != QNetworkReply::OperationCanceledError) {
-				utils::ErrorReporting::report(QString("Unknown Error during download: %1, %2 (%3)").arg(reply->error()).arg(reply->errorString()).arg(_url.toString()));
+				ErrorReporting::report(QString("Unknown Error during download: %1, %2 (%3)").arg(reply->error()).arg(reply->errorString()).arg(_url.toString()));
 			}
 			emit fileFailed(DownloadError::UnknownError);
 		} else {
@@ -195,7 +197,7 @@ void FileDownloader::fileDownloaded() {
 			
 			emit downloadProgress(-fileSize);
 
-			delete _webAccessManager;
+			_webAccessManager->deleteLater();
 			_webAccessManager = new QNetworkAccessManager(this);
 
 			emit retry();
@@ -217,7 +219,7 @@ void FileDownloader::determineFileSize() {
 }
 
 void FileDownloader::writeToFile() {
-	QNetworkReply * reply = dynamic_cast<QNetworkReply *>(sender());
+	auto * reply = dynamic_cast<QNetworkReply *>(sender());
 	const QByteArray data = reply->readAll();
 	_outputFile->write(data);
 	const QFileDevice::FileError err = _outputFile->error();
@@ -257,10 +259,10 @@ void FileDownloader::uncompressAndHash() {
 		// in this case, uncompress, drop file extension and proceeed		
 		if (suffix.compare("z", Qt::CaseInsensitive) == 0) {
 			try {
-				utils::Compression::uncompress(_targetDirectory + "/" + _fileName, true); // remove compressed download now
+				Compression::uncompress(_targetDirectory + "/" + _fileName, true); // remove compressed download now
 			} catch (boost::iostreams::zlib_error & e) {
 				LOGERROR("Exception: " << e.what())
-				utils::ErrorReporting::report(QString("Uncompressing of %1 failed: %2 (%3)").arg(_fileName).arg(e.what()).arg(_url.toString()));
+				ErrorReporting::report(QString("Uncompressing of %1 failed: %2 (%3)").arg(_fileName).arg(e.what()).arg(_url.toString()));
 			}
 			_fileName.chop(2);
 		}
@@ -275,7 +277,7 @@ void FileDownloader::uncompressAndHash() {
 			return;
 		}
 		
-		const bool b = utils::Hashing::checkHash(_targetDirectory + "/" + _fileName, _hash);
+		const bool b = Hashing::checkHash(_targetDirectory + "/" + _fileName, _hash);
 		if (b) {
 			if (_fileName.startsWith("vc") && _fileName.endsWith(".exe")) {
 				handleVcRedist();
@@ -287,7 +289,7 @@ void FileDownloader::uncompressAndHash() {
 		} else {
 			LOGERROR("Hash invalid: " << _fileName.toStdString())
 			emit fileFailed(DownloadError::HashError);
-			utils::ErrorReporting::report(QString("Hash invalid: %1 (%2)").arg(_fileName).arg(_url.toString()));
+			ErrorReporting::report(QString("Hash invalid: %1 (%2)").arg(_fileName).arg(_url.toString()));
 		}
 	});
 }
@@ -295,11 +297,11 @@ void FileDownloader::uncompressAndHash() {
 void FileDownloader::handleZip() {
 	const auto fullPath = _targetDirectory + "/" + _fileName;
 	{
-		const bool b = utils::Hashing::checkHash(fullPath, _hash);
+		const bool b = Hashing::checkHash(fullPath, _hash);
 		if (!b) {
 			LOGERROR("Hash invalid: " << _fileName.toStdString())
 			emit fileFailed(DownloadError::HashError);
-			utils::ErrorReporting::report(QString("Hash invalid: %1 (%2)").arg(_fileName).arg(_url.toString()));
+			ErrorReporting::report(QString("Hash invalid: %1 (%2)").arg(_fileName).arg(_url.toString()));
 			return;
 		}
 	}
@@ -310,7 +312,7 @@ void FileDownloader::handleZip() {
 		if (!b) {
 			LOGERROR("Unzipping failed: " << _fileName.toStdString())
 			emit fileFailed(DownloadError::UnknownError);
-			utils::ErrorReporting::report(QString("Unzipping failed: %1 (%2)").arg(_fileName).arg(_url.toString()));
+			ErrorReporting::report(QString("Unzipping failed: %1 (%2)").arg(_fileName).arg(_url.toString()));
 			return;
 		}				
 	}
@@ -320,7 +322,7 @@ void FileDownloader::handleZip() {
 	if (!QFileInfo::exists(_targetDirectory + "/.manifest")) {
 		LOGERROR("Archive doesn't contain manifest: " << _fileName.toStdString())
 		emit fileFailed(DownloadError::UnknownError);
-		utils::ErrorReporting::report(QString("Archive doesn't contain manifest: %1 (%2)").arg(_fileName).arg(_url.toString()));
+		ErrorReporting::report(QString("Archive doesn't contain manifest: %1 (%2)").arg(_fileName).arg(_url.toString()));
 		return;
 	}
 

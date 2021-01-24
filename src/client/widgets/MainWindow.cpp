@@ -917,7 +917,6 @@ void MainWindow::checkIntegrity(int projectID) {
 			msg.button(QMessageBox::StandardButton::Cancel)->setText(QApplication::tr("Cancel"));
 			msg.setWindowFlags(msg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
 			if (QMessageBox::StandardButton::Ok == msg.exec()) {
-
 				QJsonObject json;
 				QJsonArray jsonArr;
 				for (const IntegrityCheckDialog::ModFile & file : corruptFiles) {
@@ -929,7 +928,9 @@ void MainWindow::checkIntegrity(int projectID) {
 				}
 				json["Files"] = jsonArr;
 
-				Https::post(MANAGEMENTSERVER_PORT, "getAchievements", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, &corruptFiles](const QJsonObject & json, int statusCode) {
+				QList<IntegrityCheckDialog::ModFile> fixFiles;
+
+				Https::post(MANAGEMENTSERVER_PORT, "requestOriginalFiles", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, &fixFiles](const QJsonObject & json, int statusCode) {
 					if (statusCode != 200) return;
 
 					const auto it = json.find("Files");
@@ -942,14 +943,14 @@ void MainWindow::checkIntegrity(int projectID) {
 
 							for (const auto jsonFileRef : jsonFileEntry["Files"].toArray()) {
 								const auto jsonFile = jsonFileRef.toObject();
-								corruptFiles << IntegrityCheckDialog::ModFile(std::to_string(projectID), q2s(jsonFile["File"].toString()), q2s(jsonFile["Hash"].toString()));
+								fixFiles << IntegrityCheckDialog::ModFile(std::to_string(projectID), q2s(jsonFile["File"].toString()), q2s(jsonFile["Hash"].toString()));
 							}
 						}
 					}
 				});
 
 				auto * mfd = new MultiFileDownloader(this);
-				for (const IntegrityCheckDialog::ModFile & file : corruptFiles) {
+				for (const IntegrityCheckDialog::ModFile & file : fixFiles) {
 					QFileInfo fi(file.file);
 					auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(file.modID) + "/" + file.file), Config::DOWNLOADDIR + "/mods/" + QString::number(file.modID) + "/" + fi.path(), fi.fileName(), file.hash, mfd);
 					mfd->addFileDownloader(fd);
