@@ -1600,7 +1600,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 					}
 					bool copy = true;
 					if (QFileInfo::exists(_directory + "/" + filename)) {
-						const bool b = utils::Hashing::checkHash(_directory + "/" + filename, QString::fromStdString(file.second));
+						const bool b = Hashing::checkHash(_directory + "/" + filename, QString::fromStdString(file.second));
 						if (b) {
 							copy = false;
 						}
@@ -1612,6 +1612,10 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 						QFile::rename(_directory + "/" + filename, _directory + "/" + filename + ".spbak");
 						success = linkOrCopyFile(Config::DOWNLOADDIR + "/mods/" + QString::number(patchID) + "/" + filename, _directory + "/" + filename);
 						if (!success) {
+							if (Config::extendedLogging) {
+								LOGINFO("Missing file " << file.first << " (" << patchIDString << ")")
+							}
+
 							std::vector<std::string> name = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Name FROM patches WHERE ModID = " + patchIDString + " LIMIT 1;", err);
 							Q_ASSERT(!name.empty());
 							emit errorMessage(QApplication::tr("PatchIncomplete").arg(s2q(name[0])));
