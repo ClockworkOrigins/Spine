@@ -17,7 +17,7 @@ call build-common.bat downloadAndUnpack %ARCHIVE% %BUILD_DIR%
 echo "Configuring SimpleWebServer"
 
 cd %BUILD_DIR%
-cmake -DBOOST_ROOT=%DEP_DIR%/%ARCH_DIR%/boost -DOPENSSL_ROOT_DIR=%DEP_DIR%/%ARCH_DIR%/openssl -DCMAKE_INSTALL_PREFIX=%PREFIX% -G "%VSCOMPILER%" -A "%VSARCH%" .
+cmake -DBOOST_ROOT=%DEP_DIR%/%ARCH_DIR%/boost/Release -DOPENSSL_ROOT_DIR=%DEP_DIR%/%ARCH_DIR%/openssl -DCMAKE_INSTALL_PREFIX=%PREFIX% -G "%VSCOMPILER%" -A "%VSARCH%" .
 
 echo "Building SimpleWebServer"
 
