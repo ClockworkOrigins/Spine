@@ -3791,17 +3791,6 @@ void DatabaseServer::submitInfoPage(std::shared_ptr<HttpsServer::Response> respo
 					}
 				}
 			}
-			if (pt.count("Images") > 0) {
-				for (const auto & p : pt.get_child("Images")) {
-					const auto file = p.second.get<std::string>("File");
-					const auto data = p.second.get<std::string>("Data");
-					
-					std::ofstream out;
-					out.open("/var/www/vhosts/clockwork-origins.de/httpdocs/Gothic/downloads/mods/" + std::to_string(projectID) + "/screens/" + file, std::ios::out | std::ios::binary);
-					out.write(reinterpret_cast<const char *>(&data[0]), data.size());
-					out.close();
-				}
-			}
 		} while (false);
 
 		response->write(code);

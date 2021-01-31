@@ -46,6 +46,8 @@
 #include "widgets/ReviewWidget.h"
 #include "widgets/UpdateLanguage.h"
 
+#include "clockUtils/sockets/TcpSocket.h"
+
 #include <QApplication>
 #include <QCheckBox>
 #include <QDebug>
@@ -860,9 +862,11 @@ void ModInfoPage::submitChanges() {
 		json["Features"] = featuresArray;
 		json["SpineFeatures"] = modules;
 
+		common::UploadScreenshotsMessage usm;
+		usm.projectID = projectID;
+
 		if (!_screens.isEmpty()) {
 			QJsonArray screens;
-			QJsonArray images;
 			
 			for (auto p : _screens) {
 				if (p.second.isEmpty()) {
@@ -887,11 +891,7 @@ void ModInfoPage::submitChanges() {
 							std::vector<uint8_t> buffer(byteArr.length());
 							memcpy(&buffer[0], byteArr.data(), byteArr.length());
 
-							QJsonObject jsonImage;
-							jsonImage["File"] = file;
-							jsonImage["Data"] = QString::fromUtf8(byteArr);
-
-							images << jsonImage;
+							usm.screenshots.emplace_back(q2s(file), buffer);
 						}
 						f.close();
 						f.remove();
@@ -913,8 +913,12 @@ void ModInfoPage::submitChanges() {
 
 			json["Screenshots"] = screens;
 
-			if (!images.isEmpty()) {
-				json["Images"] = images;
+			if (!usm.screenshots.empty()) {
+				const auto serialized = usm.SerializeBlank();
+				clockUtils::sockets::TcpSocket sock;
+				if (sock.connectToHostname("clockwork-origins.com", SERVER_PORT, 10000) == clockUtils::ClockError::SUCCESS) {
+					sock.writePacket(serialized);
+				}
 			}
 		}
 

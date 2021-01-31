@@ -80,6 +80,7 @@ namespace common {
 	struct UpdateRequestMessage;
 	struct UpdateScoreMessage;
 	struct UpdateSucceededMessage;
+	struct UploadScreenshotsMessage;
 
 	struct ProjectStats;
 } /* namespace common */
@@ -213,6 +214,7 @@ namespace server {
 		
 		[[deprecated("Remove in Spine 1.28.0")]]
 		void handleIsAchievementUnlocked(clockUtils::sockets::TcpSocket * sock, common::IsAchievementUnlockedMessage * msg) const;
+		void handleUploadScreenshots(clockUtils::sockets::TcpSocket * sock, common::UploadScreenshotsMessage * msg) const;
 
 		bool isTeamMemberOfMod(int modID, int userID) const;
 

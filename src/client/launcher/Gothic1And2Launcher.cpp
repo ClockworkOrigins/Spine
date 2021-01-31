@@ -1613,7 +1613,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 						success = linkOrCopyFile(Config::DOWNLOADDIR + "/mods/" + QString::number(patchID) + "/" + filename, _directory + "/" + filename);
 						if (!success) {
 							if (Config::extendedLogging) {
-								LOGINFO("Missing file " << file.first << " (" << patchIDString << ")")
+								LOGINFO("Missing file " << file.first << " (" << patchIDString << ")" << " " << QFileInfo::exists(_directory + "/" + filename) << " - " << QFileInfo::exists(Config::DOWNLOADDIR + "/mods/" + QString::number(patchID) + "/" + filename));
 							}
 
 							std::vector<std::string> name = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Name FROM patches WHERE ModID = " + patchIDString + " LIMIT 1;", err);

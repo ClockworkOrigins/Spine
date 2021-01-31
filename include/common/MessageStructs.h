@@ -1780,5 +1780,25 @@ namespace common {
 		}
 	};
 
+	struct UploadScreenshotsMessage : public Message {
+		int32_t projectID;
+		std::string username;
+		std::string password;
+		// filename, data
+		std::vector<std::pair<std::string, std::vector<uint8_t>>> screenshots;
+
+		UploadScreenshotsMessage() : Message(), projectID(-1) {
+			type = MessageType::UPLOADSCREENSHOTS;
+		}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & boost::serialization::base_object<Message>(*this);
+			ar & projectID;
+			ar & username;
+			ar & password;
+			ar & screenshots;
+		}
+	};
+
 } /* namespace common */
 } /* namespace spine */

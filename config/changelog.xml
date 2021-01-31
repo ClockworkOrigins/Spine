@@ -2098,8 +2098,10 @@
 	<Version majorVersion="1" minorVersion="27" patchVersion="2">
 		<Bug language="Deutsch">Fehler behoben, wodurch Zusatzpakete nicht mehr von der Infoseite geladen werden konnten</Bug>
 		<Bug language="Deutsch">Crash bei Integritätsprüfung behoben</Bug>
+		<Bug language="Deutsch">Upload von Screenshots korrigiert</Bug>
 		
 		<Bug language="English">Fixed bug that caused additional packages not being downloadable from info page</Bug>
 		<Bug language="English">Fixed crash during integrity check</Bug>
+		<Bug language="English">Fixed upload of screenshots</Bug>
 	</Version>
 </Versions>

@@ -272,6 +272,9 @@ void Server::receiveMessage(const std::vector<uint8_t> & message, clockUtils::so
 			} else if (m->type == MessageType::ISACHIEVEMENTUNLOCKED) {
 				auto * msg = dynamic_cast<IsAchievementUnlockedMessage *>(m);
 				handleIsAchievementUnlocked(sock, msg);
+			} else if (m->type == MessageType::UPLOADSCREENSHOTS) {
+				auto * msg = dynamic_cast<UploadScreenshotsMessage *>(m);
+				handleUploadScreenshots(sock, msg);
 			} else if (m->type == MessageType::UPLOADACHIEVEMENTICONS) {
 				auto * msg = dynamic_cast<UploadAchievementIconsMessage *>(m);
 				_managementServer->uploadAchievementIcons(msg);
@@ -4493,6 +4496,27 @@ void Server::handleIsAchievementUnlocked(clockUtils::sockets::TcpSocket * sock, 
 		}
 		const auto lastResults = database.getResults<std::vector<std::string>>();
 		siaum.unlocked = !lastResults.empty();
+	} while (false);
+	const std::string serialized = siaum.SerializePrivate();
+	sock->writePacket(serialized);
+}
+
+void Server::handleUploadScreenshots(clockUtils::sockets::TcpSocket * sock, UploadScreenshotsMessage * msg) const {
+	SendAchievementUnlockedMessage siaum;
+	siaum.unlocked = false;
+	do {
+		const int userID = ServerCommon::getUserID(msg->username, msg->password);
+		
+		if (userID == -1) break;
+
+		boost::filesystem::create_directories("/var/www/vhosts/clockwork-origins.de/httpdocs/Gothic/downloads/mods/" + std::to_string(msg->projectID) + "/screens/"); // ensure folder exists
+		
+		for (const auto & p : msg->screenshots) {
+			std::ofstream out;
+			out.open("/var/www/vhosts/clockwork-origins.de/httpdocs/Gothic/downloads/mods/" + std::to_string(msg->projectID) + "/screens/" + p.first, std::ios::out | std::ios::binary);
+			out.write(reinterpret_cast<const char *>(&p.second[0]), p.second.size());
+			out.close();
+		}
 	} while (false);
 	const std::string serialized = siaum.SerializePrivate();
 	sock->writePacket(serialized);
