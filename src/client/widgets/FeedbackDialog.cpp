@@ -103,7 +103,7 @@ void FeedbackDialog::accept() {
 
 	bool success = false;
 
-	Https::post(DATABASESERVER_PORT, "updatePlayTime", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, &success](const QJsonObject &, int statusCode) {
+	Https::post(DATABASESERVER_PORT, "feedback", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, &success](const QJsonObject &, int statusCode) {
 		success = statusCode == 200;
 	});
 
