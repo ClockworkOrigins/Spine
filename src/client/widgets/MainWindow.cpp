@@ -930,7 +930,7 @@ void MainWindow::checkIntegrity(int projectID) {
 
 				QList<IntegrityCheckDialog::ModFile> fixFiles;
 
-				Https::post(MANAGEMENTSERVER_PORT, "requestOriginalFiles", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, &fixFiles](const QJsonObject & json, int statusCode) {
+				Https::post(DATABASESERVER_PORT, "requestOriginalFiles", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, &fixFiles](const QJsonObject & json, int statusCode) {
 					if (statusCode != 200) return;
 
 					const auto it = json.find("Files");

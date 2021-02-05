@@ -3945,7 +3945,7 @@ void DatabaseServer::requestOriginalFiles(std::shared_ptr<HttpsServer::Response>
 					fileEntryNodes.push_back(std::make_pair("", fileNode));
 				}
 
-				if (fileEntryNodes.empty()) {
+				if (!fileEntryNodes.empty()) {
 					fileEntryNode.add_child("Files", fileEntryNodes);
 					
 					fileNodes.push_back(std::make_pair("", fileEntryNode));
