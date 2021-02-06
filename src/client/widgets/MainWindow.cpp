@@ -20,6 +20,7 @@
 
 #include "InstallMode.h"
 #include "LibraryFilterModel.h"
+#include "MissingMetadataChecker.h"
 #include "ReportGenerator.h"
 #include "SpineConfig.h"
 #include "Uninstaller.h"
@@ -810,7 +811,15 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 
 			_autoUpdateDialog->checkForUpdate();
 		});
-		_updateCheckTimer->start(600000);
+		_updateCheckTimer->start(30 * 60 * 1000); // 30 Minutes
+
+		auto * mmc = new MissingMetadataChecker();
+
+		connect(mmc, &MissingMetadataChecker::install, _modDatabaseView, [this](int projectID) {
+			_modDatabaseView->updateModList(projectID, -1, InstallMode::Silent);
+		});
+
+		connect(_autoUpdateDialog, &AutoUpdateDialog::upToDate, mmc, &MissingMetadataChecker::check);
 	}
 }
 
