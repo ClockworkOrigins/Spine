@@ -85,6 +85,7 @@ int DatabaseServer::run() {
 	_server->resource["^/removeFriend"]["POST"] = std::bind(&DatabaseServer::removeFriend, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/requestOriginalFiles"]["POST"] = std::bind(&DatabaseServer::requestOriginalFiles, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/linkClicked"]["POST"] = std::bind(&DatabaseServer::linkClicked, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/submitRating"]["POST"] = std::bind(&DatabaseServer::submitRating, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -4001,6 +4002,68 @@ void DatabaseServer::linkClicked(std::shared_ptr<HttpsServer::Response> response
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
+		} while (false);
+
+		response->write(code);
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::submitRating(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		const auto username = pt.get<std::string>("Username");
+		const auto password = pt.get<std::string>("Password");
+
+		const int userID = ServerCommon::getUserID(username, password); // if userID is -1 user is not in database, so it's the play time of all unregistered players summed up
+
+		if (userID == -1) {
+			response->write(code);
+			return;
+		}
+		
+		const auto projectID = pt.get<int32_t>("ProjectID");
+		const auto rating = pt.get<int32_t>("Rating");
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+
+			if (!database.query("PREPARE insertStmt FROM \"INSERT INTO ratings (ModID, UserID, Rating) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE Rating = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramModID=" + std::to_string(projectID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramRating=" + std::to_string(rating) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("EXECUTE insertStmt USING @paramModID, @paramUserID, @paramRating, @paramRating;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+
+			SpineLevel::updateLevel(userID);
 		} while (false);
 
 		response->write(code);

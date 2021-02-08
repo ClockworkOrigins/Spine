@@ -1049,7 +1049,7 @@ namespace common {
 		}
 	};
 
-	struct SubmitRatingMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.30.0")]] SubmitRatingMessage : public Message {
 		int32_t modID;
 		int32_t rating;
 		std::string username;

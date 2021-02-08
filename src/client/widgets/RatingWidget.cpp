@@ -20,14 +20,10 @@
 
 #include "SpineConfig.h"
 
-#include "common/MessageStructs.h"
-
 #include "https/Https.h"
 
 #include "utils/Config.h"
 #include "utils/Conversion.h"
-
-#include "clockUtils/sockets/TcpSocket.h"
 
 #include <QApplication>
 #include <QHBoxLayout>
@@ -38,7 +34,6 @@
 #include <QSvgWidget>
 #include <QtConcurrentRun>
 
-using namespace spine;
 using namespace spine::utils;
 using namespace spine::widgets;
 
@@ -64,6 +59,9 @@ RatingWidget::RatingWidget(RatingMode mode, QWidget * par) : QWidget(par), _svgs
 	connect(this, &RatingWidget::receivedRating, this, &RatingWidget::updateRating);
 	connect(_reviewButton, &QPushButton::released, this, [this]() {
 		emit editReview(_projectID, _review);
+	});
+	connect(this, &RatingWidget::reviewEnabled, this, [this]() {
+		_reviewButton->setVisible(true);
 	});
 }
 
@@ -126,7 +124,7 @@ void RatingWidget::updateRating(int32_t modID, qreal rating, int32_t count, bool
 void RatingWidget::mousePressEvent(QMouseEvent * evt) {
 	if (!_allowedToRate || !_editable)  return;
 
-	double value = std::ceil((static_cast<double>(evt->localPos().x()) / width()) * 5);
+	const double value = std::ceil((static_cast<double>(evt->localPos().x()) / width()) * 5);
 	for (size_t i = 0; i < _svgs.size(); i++) {
 		if (value > static_cast<qreal>(i)) {
 			_svgs[i]->load(QString(":/svg/star-edit-full.svg"));
@@ -137,19 +135,16 @@ void RatingWidget::mousePressEvent(QMouseEvent * evt) {
 	
 	_reviewButton->setVisible(true);
 
-	emit reviewEnabled();
-	
-	QtConcurrent::run([this, value]() {
-		common::SubmitRatingMessage srm;
-		srm.username = Config::Username.toStdString();
-		srm.password = Config::Password.toStdString();
-		srm.modID = _projectID;
-		srm.rating = static_cast<int32_t>(value);
-		const std::string serialized = srm.SerializePublic();
-		clockUtils::sockets::TcpSocket sock;
-		if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-			sock.writePacket(serialized);
-		}
+	QJsonObject requestData;
+	requestData["Username"] = Config::Username;
+	requestData["Password"] = Config::Password;
+	requestData["ProjectID"] = _projectID;
+	requestData["Rating"] = static_cast<int>(value);
+
+	https::Https::postAsync(DATABASESERVER_PORT, "submitRating", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject &, int statusCode) {
+		if (statusCode != 200) return;
+
+		emit reviewEnabled();
 	});
 }
 
