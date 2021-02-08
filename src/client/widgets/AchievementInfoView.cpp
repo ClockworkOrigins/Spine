@@ -30,7 +30,7 @@
 using namespace spine;
 using namespace spine::widgets;
 
-AchievementInfoView::AchievementInfoView(const common::SendAllAchievementStatsMessage::AchievementStats & as, QWidget * par) : QWidget(par), _name(s2q(as.name)), _description(s2q(as.description)), _progress(as.unlockedPercent), _currentProgress(as.currentProgress), _maxProgress(as.maxProgress), _unlocked(as.unlocked) {
+AchievementInfoView::AchievementInfoView(const common::AchievementStats & as, QWidget * par) : QWidget(par), _name(s2q(as.name)), _description(s2q(as.description)), _progress(as.unlockedPercent), _currentProgress(as.currentProgress), _maxProgress(as.maxProgress), _unlocked(as.unlocked) {
 	setFixedSize(AchievementInfoView::sizeHint());
 }
 

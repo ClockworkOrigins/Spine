@@ -1598,7 +1598,7 @@ void Server::handleRequestAllAchievementStats(clockUtils::sockets::TcpSocket * s
 	SendAllAchievementStatsMessage saasm;
 	for (auto vec : lastResults) {
 		// get mod name in current language
-		SendAllAchievementStatsMessage::AchievementStats as;
+		AchievementStats as;
 		if (!database.query("SET @paramIdentifier=" + vec[0] + ";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			continue;
@@ -1727,7 +1727,7 @@ void Server::handleRequestAllScoreStats(clockUtils::sockets::TcpSocket * sock, R
 	auto lastResults = database.getResults<std::vector<std::string>>();
 	SendAllScoreStatsMessage sassm;
 	for (const auto & vec : lastResults) {
-		SendAllScoreStatsMessage::ScoreStats ss;
+		ScoreStats ss;
 		ss.name = vec[0];
 
 		if (!database.query("SET @paramIdentifier=" + vec[1] + ";")) {
@@ -3223,7 +3223,7 @@ void Server::handleUploadScreenshots(clockUtils::sockets::TcpSocket * sock, Uplo
 	sock->writePacket(serialized);
 }
 
-bool Server::isTeamMemberOfMod(int modID, int userID) const {
+bool Server::isTeamMemberOfMod(int modID, int userID) {
 	if (userID == 3) return true;
 	
 	do {
@@ -3307,7 +3307,7 @@ void Server::handleRequestAllTri6ScoreStats(clockUtils::sockets::TcpSocket * soc
 	
 	SendAllScoreStatsMessage sassm;
 	for (const auto & vec : lastResults) {
-		SendAllScoreStatsMessage::ScoreStats ss;
+		ScoreStats ss;
 		ss.name = vec[0];
 
 		if (!database.query("SET @paramIdentifier=" + vec[1] + ";")) {
@@ -3329,7 +3329,7 @@ void Server::handleRequestAllTri6ScoreStats(clockUtils::sockets::TcpSocket * soc
 	sock->writePacket(serialized);
 }
 
-void Server::getBestTri6Score(int userID, ProjectStats & modStats) const {
+void Server::getBestTri6Score(int userID, ProjectStats & projectStats) {
 	MariaDBWrapper database;
 	if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, TRI6DATABASE, 0)) {
 		std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
@@ -3362,17 +3362,17 @@ void Server::getBestTri6Score(int userID, ProjectStats & modStats) const {
 	}
 	lastResults = database.getResults<std::vector<std::string>>();
 	if (lastResults.empty()) {
-		modStats.bestScore = 0;
-		modStats.bestScoreName = "";
-		modStats.bestScoreRank = -1;
+		projectStats.bestScore = 0;
+		projectStats.bestScoreName = "";
+		projectStats.bestScoreRank = -1;
 	} else {
 		std::map<int, std::vector<std::pair<int, int>>> scores;
 		for (auto s : lastResults) {
 			scores[std::stoi(s[1])].push_back(std::make_pair(std::stoi(s[0]), std::stoi(s[2])));
 		}
-		modStats.bestScore = 0;
-		modStats.bestScoreName = "";
-		modStats.bestScoreRank = 0;
+		projectStats.bestScore = 0;
+		projectStats.bestScoreName = "";
+		projectStats.bestScoreRank = 0;
 		int identifier = -1;
 		for (auto & score : scores) {
 			int rank = 1;
@@ -3383,9 +3383,9 @@ void Server::getBestTri6Score(int userID, ProjectStats & modStats) const {
 					rank = lastRank;
 				}
 				if (p.second == userID) {
-					if (rank < modStats.bestScoreRank || modStats.bestScoreRank == 0 || (modStats.bestScoreRank == rank && modStats.bestScore < p.first)) {
-						modStats.bestScore = p.first;
-						modStats.bestScoreRank = rank;
+					if (rank < projectStats.bestScoreRank || projectStats.bestScoreRank == 0 || (projectStats.bestScoreRank == rank && projectStats.bestScore < p.first)) {
+						projectStats.bestScore = p.first;
+						projectStats.bestScoreRank = rank;
 						identifier = score.first;
 						break;
 					}
@@ -3401,7 +3401,7 @@ void Server::getBestTri6Score(int userID, ProjectStats & modStats) const {
 				{ 2, "Helios" }
 			};
 			
-			modStats.bestScoreName = scoreNames[identifier];
+			projectStats.bestScoreName = scoreNames[identifier];
 		}
 	}
 }

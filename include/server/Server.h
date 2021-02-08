@@ -96,6 +96,8 @@ namespace server {
 	class ManagementServer;
 
 	class Server {
+		friend class DatabaseServer;
+	
 	public:
 		Server();
 		~Server();
@@ -136,9 +138,14 @@ namespace server {
 		void handleUpdateLoginTime(clockUtils::sockets::TcpSocket * sock, common::UpdateLoginTimeMessage * msg) const;
 		void handleRequestPackageFiles(clockUtils::sockets::TcpSocket * sock, common::RequestPackageFilesMessage * msg) const;
 		void handlePackageDownloadSucceeded(clockUtils::sockets::TcpSocket * sock, common::PackageDownloadSucceededMessage * msg) const;
+		
+		[[deprecated("Remove in Spine 1.30.0")]]
 		void handleRequestAllModStats(clockUtils::sockets::TcpSocket * sock, common::RequestAllModStatsMessage * msg) const;
 
+		[[deprecated("Remove in Spine 1.30.0")]]
 		void handleRequestAllAchievementStats(clockUtils::sockets::TcpSocket * sock, common::RequestAllAchievementStatsMessage * msg) const;
+
+		[[deprecated("Remove in Spine 1.30.0")]]
 		void handleRequestAllScoreStats(clockUtils::sockets::TcpSocket * sock, common::RequestAllScoreStatsMessage * msg) const;
 		void handleRequestAllNews(clockUtils::sockets::TcpSocket * sock, common::RequestAllNewsMessage * msg) const;
 		void handleSubmitNews(clockUtils::sockets::TcpSocket * sock, common::SubmitNewsMessage * msg) const;
@@ -172,15 +179,18 @@ namespace server {
 
 		[[deprecated("Remove in Spine 1.29.0")]]
 		void handleDeclineFriendRequest(clockUtils::sockets::TcpSocket * sock, common::DeclineFriendRequestMessage * msg) const;
+		
+		[[deprecated("Remove in Spine 1.30.0")]]
 		void handleRequestUserLevel(clockUtils::sockets::TcpSocket * sock, common::RequestUserLevelMessage * msg) const;
 		void handleUpdateSucceeded(clockUtils::sockets::TcpSocket * sock, common::UpdateSucceededMessage * msg) const;
 		
 		void handleUploadScreenshots(clockUtils::sockets::TcpSocket * sock, common::UploadScreenshotsMessage * msg) const;
 
-		bool isTeamMemberOfMod(int modID, int userID) const;
+		static bool isTeamMemberOfMod(int modID, int userID);
 
+		[[deprecated("Remove in Spine 1.30.0")]]
 		void handleRequestAllTri6ScoreStats(clockUtils::sockets::TcpSocket * sock) const;
-		void getBestTri6Score(int userID, common::ProjectStats & modStats) const;
+		static void getBestTri6Score(int userID, common::ProjectStats & projectStats);
 	};
 
 } /* namespace server */

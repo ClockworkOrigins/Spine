@@ -53,8 +53,8 @@ namespace widgets {
 	signals:
 		void receivedMods(std::vector<common::ProjectStats>);
 		void receivedUserLevel(uint32_t, uint32_t, uint32_t);
-		void receivedAchievementStats(int32_t, std::vector<common::SendAllAchievementStatsMessage::AchievementStats>);
-		void receivedScoreStats(std::vector<common::SendAllScoreStatsMessage::ScoreStats>);
+		void receivedAchievementStats(int32_t, std::vector<common::AchievementStats>);
+		void receivedScoreStats(std::vector<common::ScoreStats>);
 		void triggerLogout();
 		void discordLinkageStateReceived(bool linked);
 
@@ -68,8 +68,8 @@ namespace widgets {
 	private slots:
 		void updateModList(std::vector<common::ProjectStats> mods);
 		void updateUserLevel(uint32_t level, uint32_t currentXP, uint32_t nextXP);
-		void updateAchievements(int32_t modID, std::vector<common::SendAllAchievementStatsMessage::AchievementStats> achievementStats);
-		void updateScores(std::vector<common::SendAllScoreStatsMessage::ScoreStats> scoreStats);
+		void updateAchievements(int32_t modID, std::vector<common::AchievementStats> achievementStats);
+		void updateScores(std::vector<common::ScoreStats> scoreStats);
 		void toggledHidePatchesAndTools();
 		void updateAchievementIcons();
 		void linkWithDiscord();

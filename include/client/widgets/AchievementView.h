@@ -31,13 +31,13 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		AchievementView(int32_t modID, common::SendAllAchievementStatsMessage::AchievementStats as, QWidget * par);
+		AchievementView(int32_t modID, common::AchievementStats as, QWidget * par);
 
 		void updateIcons();
 
 	private:
 		int32_t _modID;
-		common::SendAllAchievementStatsMessage::AchievementStats _achievement;
+		common::AchievementStats _achievement;
 		QLabel * _lockedIcon;
 		QLabel * _unlockedIcon;
 		

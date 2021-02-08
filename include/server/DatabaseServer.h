@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "boost/property_tree/ptree_fwd.hpp"
+
 #include "simple-web-server/server_https.hpp"
 
 using HttpsServer = SimpleWeb::Server<SimpleWeb::HTTPS>;
@@ -74,6 +76,12 @@ namespace server {
 		void requestOriginalFiles(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
 		void linkClicked(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
 		void submitRating(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
+		void requestUserLevel(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
+		void requestAllProjectStats(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
+		void requestAllAchievementStats(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
+		void requestAllScoreStats(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
+		
+		void requestAllTri6ScoreStats(boost::property_tree::ptree & responseTree) const;
 	};
 
 } /* namespace server */

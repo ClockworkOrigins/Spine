@@ -20,8 +20,6 @@
 
 #include "SpineConfig.h"
 
-#include "common/MessageStructs.h"
-
 #include "discord/DiscordManager.h"
 
 #include "gui/DownloadQueueWidget.h"
@@ -39,13 +37,12 @@
 #include "widgets/ProfileModView.h"
 #include "widgets/UpdateLanguage.h"
 
-#include "clockUtils/sockets/TcpSocket.h"
-
 #include <QApplication>
 #include <QCheckBox>
 #include <QDebug>
 #include <QFileInfo>
 #include <QHeaderView>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLabel>
@@ -57,7 +54,7 @@
 #include <QTabWidget>
 #include <QVBoxLayout>
 
-using namespace spine;
+using namespace spine::common;
 using namespace spine::discord;
 using namespace spine::gui;
 using namespace spine::https;
@@ -65,7 +62,7 @@ using namespace spine::utils;
 using namespace spine::widgets;
 
 ProfileView::ProfileView(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _nameLabel(nullptr), _timeLabel(nullptr), _backToProfileButton(nullptr), _modnameLabel(nullptr), _achievmentDescriptionLabel(nullptr), _scrollArea(nullptr), _mainWidget(nullptr), _scrollLayout(nullptr), _achievementsWidget(nullptr), _achievementsLayout(nullptr), _scoresWidget(nullptr), _specialPage(false), _hidePatchesAndToolsBox(nullptr), _mainWindow(mainWindow), _waitSpinner(nullptr), _hiddenAchievementsView(nullptr) {
-	QVBoxLayout * l = new QVBoxLayout();
+	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
 	_nameLabel = new QLabel(QApplication::tr("NotLoggedIn"), this);
@@ -78,7 +75,7 @@ ProfileView::ProfileView(QMainWindow * mainWindow, GeneralSettingsWidget * gener
 	_timeLabel = new QLabel("", this);
 	_timeLabel->setAlignment(Qt::AlignRight);
 	_timeLabel->setProperty("profileHeader", true);
-	QHBoxLayout * hbl = new QHBoxLayout();
+	auto * hbl = new QHBoxLayout();
 	hbl->addWidget(_nameLabel, 0, Qt::AlignLeft);
 	hbl->addWidget(_timeLabel, 0, Qt::AlignRight);
 	l->addLayout(hbl);
@@ -132,7 +129,7 @@ ProfileView::ProfileView(QMainWindow * mainWindow, GeneralSettingsWidget * gener
 
 	l->addWidget(_scoresWidget);
 
-	QHBoxLayout* hl = new QHBoxLayout();
+	auto * hl = new QHBoxLayout();
 	_logoutButton = new QPushButton(QApplication::tr("Logout"), this);
 	UPDATELANGUAGESETTEXT(_logoutButton, "Logout");
 	connect(_logoutButton, &QPushButton::released, this, &ProfileView::triggerLogout);
@@ -165,8 +162,8 @@ ProfileView::ProfileView(QMainWindow * mainWindow, GeneralSettingsWidget * gener
 	qRegisterMetaType<int32_t>("int32_t");
 	qRegisterMetaType<uint32_t>("uint32_t");
 	qRegisterMetaType<std::vector<common::ProjectStats>>("std::vector<common::ProjectStats>");
-	qRegisterMetaType<std::vector<common::SendAllAchievementStatsMessage::AchievementStats>>("std::vector<common::SendAllAchievementStatsMessage::AchievementStats>");
-	qRegisterMetaType<std::vector<common::SendAllScoreStatsMessage::ScoreStats>>("std::vector<common::SendAllScoreStatsMessage::ScoreStats>");
+	qRegisterMetaType<std::vector<common::AchievementStats>>("std::vector<common::AchievementStats>");
+	qRegisterMetaType<std::vector<common::ScoreStats>>("std::vector<common::ScoreStats>");
 	connect(this, &ProfileView::receivedMods, this, &ProfileView::updateModList);
 	connect(this, &ProfileView::receivedAchievementStats, this, &ProfileView::updateAchievements);
 	connect(this, &ProfileView::receivedScoreStats, this, &ProfileView::updateScores);
@@ -194,55 +191,54 @@ void ProfileView::updateList() {
 	_nameLabel->show();
 	_timeLabel->show();
 	_scrollArea->show();
-	QtConcurrent::run([this]() {
-		clockUtils::sockets::TcpSocket sock;
-		clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-		if (clockUtils::ClockError::SUCCESS == cErr) {
-			{
-				common::RequestUserLevelMessage rulm;
-				rulm.username = Config::Username.toStdString();
-				rulm.password = Config::Password.toStdString();
-				std::string serialized = rulm.SerializePublic();
-				sock.writePacket(serialized);
-				if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-					try {
-						common::Message * m = common::Message::DeserializePublic(serialized);
-						if (m) {
-							common::SendUserLevelMessage * sulm = dynamic_cast<common::SendUserLevelMessage *>(m);
-							emit receivedUserLevel(sulm->level, sulm->currentXP, sulm->nextXP);
-						}
-						delete m;
-					} catch (...) {
-						return;
-					}
-				} else {
-					qDebug() << "Error occurred: " << static_cast<int>(cErr);
-				}
+
+	{
+		QJsonObject requestData;
+		requestData["Username"] = Config::Username;
+		requestData["Password"] = Config::Password;
+
+		Https::postAsync(DATABASESERVER_PORT, "requestUserLevel", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+			if (statusCode != 200) return;
+
+			const auto level = json["Level"].toString().toInt();
+			const auto currentXP = json["CurrentXP"].toString().toInt();
+			const auto nextXP = json["NextXP"].toString().toInt();
+			
+			emit receivedUserLevel(level, currentXP, nextXP);
+		});
+	}
+	{
+		QJsonObject requestData;
+		requestData["Username"] = Config::Username;
+		requestData["Password"] = Config::Password;
+		requestData["Language"] = Config::Language;
+
+		Https::postAsync(DATABASESERVER_PORT, "requestAllProjectStats", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+			if (statusCode != 200) return;
+
+			std::vector<common::ProjectStats> projects;
+			
+			for (const auto jsonRef : json["Projects"].toArray()) {
+				const auto jsonProject = jsonRef.toObject();
+
+				common::ProjectStats ps;
+				ps.bestScoreRank = jsonProject["BestScoreRank"].toString().toInt();
+				ps.achievedAchievements = jsonProject["AchievedAchievements"].toString().toInt();
+				ps.allAchievements = jsonProject["AllAchievements"].toString().toInt();
+				ps.bestScore = jsonProject["BestScore"].toString().toInt();
+				ps.bestScoreName = q2s(jsonProject["BestScoreName"].toString());
+				ps.duration = jsonProject["Duration"].toString().toInt();
+				ps.lastTimePlayed = jsonProject["LastTimePlayed"].toString().toInt();
+				ps.name = q2s(jsonProject["Name"].toString());
+				ps.projectID = jsonProject["ProjectID"].toString().toInt();
+				ps.type = static_cast<common::ModType>(jsonProject["Type"].toString().toInt());
+
+				projects.push_back(ps);
 			}
-			{
-				common::RequestAllModStatsMessage ramsm;
-				ramsm.username = Config::Username.toStdString();
-				ramsm.password = Config::Password.toStdString();
-				ramsm.language = Config::Language.toStdString();
-				std::string serialized = ramsm.SerializePublic();
-				sock.writePacket(serialized);
-				if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-					try {
-						common::Message * m = common::Message::DeserializePublic(serialized);
-						if (m) {
-							common::SendAllModStatsMessage * samsm = dynamic_cast<common::SendAllModStatsMessage *>(m);
-							emit receivedMods(samsm->mods);
-						}
-						delete m;
-					} catch (...) {
-						return;
-					}
-				} else {
-					qDebug() << "Error occurred: " << static_cast<int>(cErr);
-				}
-			}
-		}
-	});
+
+			emit receivedMods(projects);
+		});
+	}
 }
 
 void ProfileView::setGothicDirectory(QString path) {
@@ -287,34 +283,42 @@ void ProfileView::openAchievementView(int32_t modID, QString modName) {
 	_modnameLabel->setText(modName);
 	_modnameLabel->show();
 	_backToProfileButton->show();
-	updateAchievements(-1, std::vector<common::SendAllAchievementStatsMessage::AchievementStats>());
-	QtConcurrent::run([this, modID]() {
-		common::RequestAllAchievementStatsMessage raasm;
-		raasm.username = Config::Username.toStdString();
-		raasm.password = Config::Password.toStdString();
-		raasm.language = Config::Language.toStdString();
-		raasm.modID = modID;
-		std::string serialized = raasm.SerializePublic();
-		clockUtils::sockets::TcpSocket sock;
-		clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-		if (clockUtils::ClockError::SUCCESS == cErr) {
-			sock.writePacket(serialized);
-			if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-				try {
-					common::Message * m = common::Message::DeserializePublic(serialized);
-					if (m) {
-						common::SendAllAchievementStatsMessage * saasm = dynamic_cast<common::SendAllAchievementStatsMessage *>(m);
-						emit receivedAchievementStats(modID, saasm->achievements);
-					}
-					delete m;
-				} catch (...) {
-					return;
-				}
-			} else {
-				qDebug() << "Error occurred: " << static_cast<int>(cErr);
+	updateAchievements(-1, std::vector<AchievementStats>());
+	{
+		QJsonObject requestData;
+		requestData["Username"] = Config::Username;
+		requestData["Password"] = Config::Password;
+		requestData["Language"] = Config::Language;
+		requestData["ProjectID"] = modID;
+
+		Https::postAsync(DATABASESERVER_PORT, "requestAllAchievementStats", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this, modID](const QJsonObject & json, int statusCode) {
+			if (statusCode != 200) return;
+
+			std::vector<AchievementStats> achievments;
+
+			for (const auto jsonRef : json["Achievements"].toArray()) {
+				const auto jsonProject = jsonRef.toObject();
+
+				AchievementStats as;
+				as.name = q2s(jsonProject["Name"].toString());
+				as.canSeeHidden = jsonProject["CanSeeHidden"].toString().toInt();
+				as.currentProgress = jsonProject["CurrentProgress"].toString().toInt();
+				as.description = q2s(jsonProject["Description"].toString());
+				as.hidden = jsonProject["Hidden"].toString().toInt();
+				as.iconLocked = q2s(jsonProject["IconLocked"].toString());
+				as.iconLockedHash = q2s(jsonProject["IconLockedHash"].toString());
+				as.iconUnlocked = q2s(jsonProject["IconUnlocked"].toString());
+				as.iconUnlockedHash = q2s(jsonProject["IconUnlockedHash"].toString());
+				as.maxProgress = jsonProject["MaxProgress"].toString().toInt();
+				as.unlocked = jsonProject["Unlocked"].toString().toInt();
+				as.unlockedPercent = jsonProject["UnlockedPercent"].toString().toDouble();
+
+				achievments.push_back(as);
 			}
-		}
-	});
+
+			emit receivedAchievementStats(modID, achievments);
+		});
+	}
 }
 
 void ProfileView::openScoreView(int32_t modID, QString modName) {
@@ -333,36 +337,41 @@ void ProfileView::openScoreView(int32_t modID, QString modName) {
 	_modnameLabel->setText(modName);
 	_modnameLabel->show();
 	_backToProfileButton->show();
-	QtConcurrent::run([this, modID]() {
-		common::RequestAllScoreStatsMessage rassm;
-		rassm.username = Config::Username.toStdString();
-		rassm.password = Config::Password.toStdString();
-		rassm.language = Config::Language.toStdString();
-		rassm.modID = modID;
-		std::string serialized = rassm.SerializePublic();
-		clockUtils::sockets::TcpSocket sock;
-		clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-		if (clockUtils::ClockError::SUCCESS == cErr) {
-			sock.writePacket(serialized);
-			if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-				try {
-					common::Message * m = common::Message::DeserializePublic(serialized);
-					if (m) {
-						common::SendAllScoreStatsMessage * sassm = dynamic_cast<common::SendAllScoreStatsMessage *>(m);
-						emit receivedScoreStats(sassm->scores);
-					}
-					delete m;
-				} catch (...) {
-					return;
+
+	{
+		QJsonObject requestData;
+		requestData["Language"] = Config::Language;
+		requestData["ProjectID"] = modID;
+
+		Https::postAsync(DATABASESERVER_PORT, "requestAllScoreStats", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+			if (statusCode != 200) return;
+
+			std::vector<ScoreStats> scores;
+
+			for (const auto jsonRef : json["Scores"].toArray()) {
+				const auto jsonScore = jsonRef.toObject();
+
+				ScoreStats ss;
+				ss.name = q2s(jsonScore["Name"].toString());
+
+				for (const auto jsonRef2 : jsonScore["Scores"].toArray()) {
+					const auto jsonScoreEntry = jsonRef2.toObject();
+
+					const auto name = q2s(jsonScoreEntry["Name"].toString());
+					const auto score = jsonScoreEntry["Score"].toString().toInt();
+					
+					ss.scores.emplace_back(name, score);
 				}
-			} else {
-				qDebug() << "Error occurred: " << static_cast<int>(cErr);
+
+				scores.push_back(ss);
 			}
-		}
-	});
+
+			emit receivedScoreStats(scores);
+		});
+	}
 }
 
-void ProfileView::updateModList(std::vector<common::ProjectStats> mods) {
+void ProfileView::updateModList(std::vector<ProjectStats> mods) {
 	int32_t overallDuration = 0;
 
 	for (ProfileModView * pmv : _mods) {
@@ -371,8 +380,8 @@ void ProfileView::updateModList(std::vector<common::ProjectStats> mods) {
 	}
 	_mods.clear();
 
-	for (const common::ProjectStats & ms : mods) {
-		ProfileModView * pmv = new ProfileModView(ms, _gothicDirectory, _gothic2Directory, _mainWidget);
+	for (const ProjectStats & ms : mods) {
+		auto * pmv = new ProfileModView(ms, _gothicDirectory, _gothic2Directory, _mainWidget);
 		if (pmv->isPatchOrTool()) {
 			pmv->setVisible(_hidePatchesAndToolsBox->checkState() == Qt::Unchecked);
 		} else {
@@ -404,8 +413,8 @@ void ProfileView::updateUserLevel(uint32_t level, uint32_t currentXP, uint32_t n
 	_nameLabel->setText(Config::Username + " - " + QApplication::tr("Level") + " " + i2s(level) + " (" + i2s(currentXP) + " / " + i2s(nextXP) + ")");
 }
 
-void ProfileView::updateAchievements(int32_t modID, std::vector<common::SendAllAchievementStatsMessage::AchievementStats> achievementStats) {
-	std::sort(achievementStats.begin(), achievementStats.end(), [](const common::SendAllAchievementStatsMessage::AchievementStats & a, const common::SendAllAchievementStatsMessage::AchievementStats & b) {
+void ProfileView::updateAchievements(int32_t modID, std::vector<AchievementStats> achievementStats) {
+	std::sort(achievementStats.begin(), achievementStats.end(), [](const AchievementStats & a, const AchievementStats & b) {
 		return a.unlockedPercent > b.unlockedPercent;
 	});
 	for (AchievementView * av : _achievements) {
@@ -435,10 +444,10 @@ void ProfileView::updateAchievements(int32_t modID, std::vector<common::SendAllA
 		}
 	}
 	if (!images.isEmpty()) {
-		MultiFileDownloader * mfd = new MultiFileDownloader(this);
+		auto * mfd = new MultiFileDownloader(this);
 		for (const auto & p : images) {
 			QFileInfo fi(p.first);
-			FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(modID) + "/achievements/" + p.first), Config::DOWNLOADDIR + "/achievements/" + QString::number(modID) + "/" + fi.path(), fi.fileName(), p.second, mfd);
+			auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(modID) + "/achievements/" + p.first), Config::DOWNLOADDIR + "/achievements/" + QString::number(modID) + "/" + fi.path(), fi.fileName(), p.second, mfd);
 			mfd->addFileDownloader(fd);
 		}
 
@@ -448,7 +457,7 @@ void ProfileView::updateAchievements(int32_t modID, std::vector<common::SendAllA
 	}
 	int32_t counter = 0;
 	for (const auto & as : achievementStats) {
-		AchievementView * av = new AchievementView(modID, as, _achievementsWidget);
+		auto * av = new AchievementView(modID, as, _achievementsWidget);
 		av->setVisible(!as.hidden || as.unlocked || as.canSeeHidden);
 		counter += (!as.hidden || as.unlocked) ? 0 : 1;
 		_achievementsLayout->addWidget(av);
@@ -463,14 +472,14 @@ void ProfileView::updateAchievements(int32_t modID, std::vector<common::SendAllA
 	_waitSpinner = nullptr;
 }
 
-void ProfileView::updateScores(std::vector<common::SendAllScoreStatsMessage::ScoreStats> scoreStats) {
+void ProfileView::updateScores(std::vector<ScoreStats> scoreStats) {
 	while (_scoresWidget->tabBar()->count() > 0) {
 		_scoresWidget->removeTab(0);
 	}
 	_scoresWidget->show();
 	for (const auto & score : scoreStats) {
-		QTableView * scoreWidget = new QTableView(_scoresWidget);
-		QStandardItemModel * m = new QStandardItemModel(scoreWidget);
+		auto * scoreWidget = new QTableView(_scoresWidget);
+		auto * m = new QStandardItemModel(scoreWidget);
 		m->setHorizontalHeaderLabels(QStringList() << QApplication::tr("Rank") << QApplication::tr("Name") << QApplication::tr("Score"));
 		int rank = 1;
 		int lastRank = 1;
@@ -529,11 +538,11 @@ void ProfileView::linkWithDiscord() {
 	requestData["username"] = Config::Username;
 	requestData["password"] = Config::Password;
 
-	const qint64 discordID = static_cast<qint64>(DiscordManager::instance()->getUserID());
+	const auto discordID = static_cast<qint64>(DiscordManager::instance()->getUserID());
 	
 	requestData["DiscordID"] = QString::number(discordID);
 	
-	https::Https::postAsync(19101, "linkToDiscord", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+	Https::postAsync(19101, "linkToDiscord", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
 		if (statusCode != 200) return;
 		
 		if (!json.contains("Linked")) return;
@@ -553,7 +562,7 @@ void ProfileView::unlinkFromDiscord() {
 	requestData["username"] = Config::Username;
 	requestData["password"] = Config::Password;
 	
-	https::Https::postAsync(19101, "unlinkFromDiscord", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+	Https::postAsync(19101, "unlinkFromDiscord", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
 		if (statusCode != 200) return;
 		
 		if (!json.contains("Linked")) return;
@@ -573,7 +582,7 @@ void ProfileView::requestDiscordLinkage() {
 	requestData["username"] = Config::Username;
 	requestData["password"] = Config::Password;
 	
-	https::Https::postAsync(19101, "isLinkedWithDiscord", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
+	Https::postAsync(19101, "isLinkedWithDiscord", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
 		if (statusCode != 200) return;
 		
 		if (!json.contains("Linked")) return;

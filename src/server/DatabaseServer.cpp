@@ -23,6 +23,7 @@
 
 #include "LanguageConverter.h"
 #include "MariaDBWrapper.h"
+#include "Server.h"
 #include "ServerCommon.h"
 #include "SpineLevel.h"
 #include "SpineServerConfig.h"
@@ -86,6 +87,10 @@ int DatabaseServer::run() {
 	_server->resource["^/requestOriginalFiles"]["POST"] = std::bind(&DatabaseServer::requestOriginalFiles, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/linkClicked"]["POST"] = std::bind(&DatabaseServer::linkClicked, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/submitRating"]["POST"] = std::bind(&DatabaseServer::submitRating, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/requestUserLevel"]["POST"] = std::bind(&DatabaseServer::requestUserLevel, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/requestAllProjectStats"]["POST"] = std::bind(&DatabaseServer::requestAllProjectStats, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/requestAllAchievementStats"]["POST"] = std::bind(&DatabaseServer::requestAllAchievementStats, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/requestAllScoreStats"]["POST"] = std::bind(&DatabaseServer::requestAllScoreStats, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -4070,4 +4075,707 @@ void DatabaseServer::submitRating(std::shared_ptr<HttpsServer::Response> respons
 	} catch (...) {
 		response->write(SimpleWeb::StatusCode::client_error_bad_request);
 	}
+}
+
+void DatabaseServer::requestUserLevel(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		const auto username = pt.get<std::string>("Username");
+		const auto password = pt.get<std::string>("Password");
+
+		const int userID = ServerCommon::getUserID(username, password); // if userID is -1 user is not in database, so it's the play time of all unregistered players summed up
+
+		if (userID == -1) {
+			response->write(code);
+			return;
+		}
+
+		std::stringstream responseStream;
+		ptree responseTree;
+		
+		common::SendUserLevelMessage sulm = SpineLevel::getLevel(userID);
+		
+		responseTree.put("Level", sulm.level);
+		responseTree.put("CurrentXP", sulm.currentXP);
+		responseTree.put("NextXP", sulm.nextXP);
+
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::requestAllProjectStats(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		const auto username = pt.get<std::string>("Username");
+		const auto password = pt.get<std::string>("Password");
+
+		const int userID = ServerCommon::getUserID(username, password); // if userID is -1 user is not in database, so it's the play time of all unregistered players summed up
+
+		if (userID == -1) {
+			response->write(code);
+			return;
+		}
+		
+		const auto language = pt.get<std::string>("Language");
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+
+			if (!database.query("PREPARE selectPlayedModsStmt FROM \"SELECT ModID, Duration FROM playtimes WHERE UserID = ? ORDER BY Duration DESC\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("PREPARE selectLastTimePlayedStmt FROM \"SELECT Timestamp FROM lastPlayTimes WHERE ModID = ? AND UserID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("PREPARE selectAchievementsStmt FROM \"SELECT IFNULL(COUNT(*), 0) FROM modAchievements WHERE ModID = ? AND UserID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("PREPARE selectAllAchievementsStmt FROM \"SELECT IFNULL(COUNT(*), 0) FROM modAchievementList WHERE ModID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("PREPARE selectScoreStmt FROM \"SELECT Score, Identifier, UserID FROM modScores WHERE ModID = ? ORDER BY Score DESC\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("PREPARE selectScoreNameStmt FROM \"SELECT CAST(Name AS BINARY) FROM modScoreNames WHERE ModID = ? AND Identifier = ? AND Language = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("PREPARE selectModTypeStmt FROM \"SELECT Type FROM mods WHERE ModID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("PREPARE selectScoreOrderStmt FROM \"SELECT Identifier, ScoreOrder FROM scoreOrders WHERE ProjectID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("SET @paramLanguage=" + std::to_string(LanguageConverter::convert(language)) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("SET @paramEnglishLanguage=" + std::to_string(common::English) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("SET @paramFallbackLanguage=0;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("EXECUTE selectPlayedModsStmt USING @paramUserID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			auto lastResults = database.getResults<std::vector<std::string>>();
+
+			ptree projectNodes;
+			
+			for (const auto & vec : lastResults) {
+				// get mod name in current language if available
+				ptree projectNode;
+
+				const auto projectID = std::stoi(vec[0]);
+				
+				projectNode.put("ProjectID", projectID);
+				projectNode.put("Duration", std::stoi(vec[1]));
+
+				if (!database.query("SET @paramModID=" + vec[0] + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					continue;
+				}
+				projectNode.put("Name", ServerCommon::getProjectName(std::stoi(vec[0]), LanguageConverter::convert(language)));
+				
+				if (!database.query("EXECUTE selectModTypeStmt USING @paramModID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					continue;
+				}
+				auto results = database.getResults<std::vector<std::string>>();
+				
+				if (results.empty()) continue;
+
+				projectNode.put("Type", std::stoi(results[0][0]));
+				
+				if (!database.query("EXECUTE selectLastTimePlayedStmt USING @paramModID, @paramUserID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					continue;
+				}
+				results = database.getResults<std::vector<std::string>>();
+
+				projectNode.put("LastTimePlayed", results.empty() ? -1 : std::stoi(results[0][0]));
+				
+				if (!database.query("EXECUTE selectAllAchievementsStmt USING @paramModID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					continue;
+				}
+				results = database.getResults<std::vector<std::string>>();
+				if (results.empty()) {
+					projectNode.put("AchievedAchievements", 0);
+					projectNode.put("AllAchievements", 0);
+				} else {
+					projectNode.put("AllAchievements", std::stoi(results[0][0]));
+					if (!database.query("EXECUTE selectAchievementsStmt USING @paramModID, @paramUserID;")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						continue;
+					}
+					results = database.getResults<std::vector<std::string>>();
+
+					projectNode.put("AchievedAchievements", results.empty() ? 0 : std::stoi(results[0][0]));
+				}
+
+				if (projectID == 339) {
+					common::ProjectStats ps;
+					Server::getBestTri6Score(userID, ps);
+				} else {
+					if (!database.query("EXECUTE selectScoreOrderStmt USING @paramModID;")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						continue;
+					}
+					const auto lastResults2 = database.getResults<std::vector<std::string>>();
+
+					std::map<int32_t, common::ScoreOrder> scoreOrders;
+
+					for (const auto & scoreOrder : lastResults2) {
+						scoreOrders.insert(std::make_pair(std::stoi(scoreOrder[0]), static_cast<common::ScoreOrder>(std::stoi(scoreOrder[1]))));
+					}
+
+					if (!database.query("EXECUTE selectScoreStmt USING @paramModID;")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						continue;
+					}
+					results = database.getResults<std::vector<std::string>>();
+					if (results.empty()) {
+						projectNode.put("BestScore", 0);
+						projectNode.put("BestScoreName", "");
+						projectNode.put("BestScoreRank", -1);
+					} else {
+						std::map<int, std::vector<std::pair<int, int>>> scores;
+						for (const auto & s : results) {
+							scores[std::stoi(s[1])].push_back(std::make_pair(std::stoi(s[0]), std::stoi(s[2])));
+						}
+
+						auto bestScore = 0;
+						std::string bestScoreName;
+						auto bestScoreRank = 0;
+						int identifier = -1;
+						for (auto & score : scores) {
+							const auto it = scoreOrders.find(score.first);
+
+							if (it != scoreOrders.end() && it->second == common::ScoreOrder::Ascending) {
+								std::reverse(score.second.begin(), score.second.end());
+							}
+
+							int rank = 1;
+							int lastRank = 1;
+							int lastScore = 0;
+							for (const auto & p : score.second) {
+								if (lastScore != p.first) {
+									rank = lastRank;
+								}
+								if (p.second == userID) {
+									if (rank < bestScoreRank || bestScoreRank == 0) {
+										bestScore = p.first;
+										bestScoreRank = rank;
+										identifier = score.first;
+										break;
+									}
+								}
+								lastScore = p.first;
+								lastRank++;
+							}
+						}
+						if (identifier != -1) {
+							if (!database.query("SET @paramIdentifier=" + std::to_string(identifier) + ";")) {
+								std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+								code = SimpleWeb::StatusCode::client_error_failed_dependency;
+								continue;
+							}
+							if (!database.query("SET @paramScoreLanguage='" + language + "';")) {
+								std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+								code = SimpleWeb::StatusCode::client_error_failed_dependency;
+								return;
+							}
+							if (!database.query("EXECUTE selectScoreNameStmt USING @paramModID, @paramIdentifier, @paramScoreLanguage;")) {
+								std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+								code = SimpleWeb::StatusCode::client_error_failed_dependency;
+								continue;
+							}
+							results = database.getResults<std::vector<std::string>>();
+							if (results.empty()) {
+								bestScore = 0;
+								bestScoreRank = 0;
+								bestScoreName = "";
+							} else {
+								bestScoreName = results[0][0];
+							}
+						}
+						projectNode.put("BestScore", bestScore);
+						projectNode.put("BestScoreName", bestScoreName);
+						projectNode.put("BestScoreRank", bestScoreRank);
+					}
+				}
+				projectNodes.push_back(std::make_pair("", projectNode));
+			}
+			responseTree.add_child("Projects", projectNodes);
+		} while (false);
+
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::requestAllAchievementStats(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		const auto username = pt.get<std::string>("Username");
+		const auto password = pt.get<std::string>("Password");
+
+		const int userID = ServerCommon::getUserID(username, password); // if userID is -1 user is not in database, so it's the play time of all unregistered players summed up
+
+		const auto language = pt.get<std::string>("Language");
+		const auto projectID = pt.get<int32_t>("ProjectID");
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+
+			if (!database.query("PREPARE selectAllAchievementsStmt FROM \"SELECT Identifier FROM modAchievementList WHERE ModID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("PREPARE selectPlayerCountStmt FROM \"SELECT IFNULL(COUNT(*), 0) FROM playtimes WHERE ModID = ? AND UserID != -1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("PREPARE selectAchievementNameStmt FROM \"SELECT CAST(Name AS BINARY) FROM modAchievementNames WHERE ModID = ? AND Identifier = ? AND Language = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("PREPARE selectAchievementDescriptionStmt FROM \"SELECT CAST(Description AS BINARY) FROM modAchievementDescriptions WHERE ModID = ? AND Identifier = ? AND Language = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("PREPARE selectAchievementIconsStmt FROM \"SELECT LockedIcon, LockedHash, UnlockedIcon, UnlockedHash FROM modAchievementIcons WHERE ModID = ? AND Identifier = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("PREPARE selectAchievementHiddenStmt FROM \"SELECT * FROM modAchievementHidden WHERE ModID = ? AND Identifier = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("PREPARE selectUnlockedAchievementsStmt FROM \"SELECT IFNULL(COUNT(*), 0) FROM modAchievements WHERE ModID = ? AND Identifier = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("PREPARE selectAllOwnAchievementsStmt FROM \"SELECT Identifier FROM modAchievements WHERE ModID = ? AND UserID = ? AND Identifier = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("PREPARE selectAchievementProgressStmt FROM \"SELECT Current FROM modAchievementProgress WHERE ModID = ? AND UserID = ? AND Identifier = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("PREPARE selectAchievementMaxProgressStmt FROM \"SELECT Max FROM modAchievementProgressMax WHERE ModID = ? AND Identifier = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("SET @paramLanguage='" + language + "';")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("SET @paramModID=" + std::to_string(projectID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("EXECUTE selectAllAchievementsStmt USING @paramModID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			auto lastResults = database.getResults<std::vector<std::string>>();
+			if (!database.query("EXECUTE selectPlayerCountStmt USING @paramModID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			auto playerResult = database.getResults<std::vector<std::string>>();
+			int playerCount = 0;
+			if (!playerResult.empty()) {
+				playerCount = std::stoi(playerResult[0][0]);
+			}
+
+			const bool isTeamMember = Server::isTeamMemberOfMod(projectID, userID);
+
+			ptree achievementNodes;
+			for (const auto & vec : lastResults) {
+				// get mod name in current language
+				ptree achievementNode;
+				
+				if (!database.query("SET @paramIdentifier=" + vec[0] + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					continue;
+				}
+				if (!database.query("EXECUTE selectAchievementNameStmt USING @paramModID, @paramIdentifier, @paramLanguage;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					continue;
+				}
+				auto results = database.getResults<std::vector<std::string>>();
+				
+				if (results.empty()) continue;
+
+				achievementNode.put("Name", results[0][0]);
+
+				if (!database.query("EXECUTE selectAchievementDescriptionStmt USING @paramModID, @paramIdentifier, @paramLanguage;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					continue;
+				}
+				results = database.getResults<std::vector<std::string>>();
+
+				achievementNode.put("Description", results.empty() ? "" : results[0][0]);
+				
+				if (!database.query("EXECUTE selectAchievementIconsStmt USING @paramModID, @paramIdentifier;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					continue;
+				}
+				results = database.getResults<std::vector<std::string>>();
+				if (!results.empty()) {
+					achievementNode.put("IconLocked", results[0][0]);
+					achievementNode.put("IconLockedHash", results[0][1]);
+					achievementNode.put("IconUnlocked", results[0][2]);
+					achievementNode.put("IconUnlockedHash", results[0][3]);
+				}
+				if (!database.query("EXECUTE selectAchievementHiddenStmt USING @paramModID, @paramIdentifier;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					continue;
+				}
+				results = database.getResults<std::vector<std::string>>();
+
+				achievementNode.put("Hidden", results.empty() ? 0 : 1);
+
+				if (!database.query("EXECUTE selectUnlockedAchievementsStmt USING @paramModID, @paramIdentifier;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					continue;
+				}
+				results = database.getResults<std::vector<std::string>>();
+				if (results.empty()) {
+					achievementNode.put("UnlockedPercent", 0.0);
+				} else {
+					achievementNode.put("UnlockedPercent", playerCount == 0 ? 0.0 : static_cast<double>(std::stoi(results[0][0]) * 100) / playerCount);
+				}
+				if (!database.query("EXECUTE selectAllOwnAchievementsStmt USING @paramModID, @paramUserID, @paramIdentifier;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					continue;
+				}
+				results = database.getResults<std::vector<std::string>>();
+				
+				achievementNode.put("Unlocked", results.empty() ? 0 : 1);
+				
+				if (!database.query("EXECUTE selectAchievementMaxProgressStmt USING @paramModID, @paramIdentifier;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					continue;
+				}
+				results = database.getResults<std::vector<std::string>>();
+				if (results.empty()) {
+					achievementNode.put("MaxProgress", 0);
+				} else {
+					achievementNode.put("MaxProgress", std::stoi(results[0][0]));
+				}
+				if (!database.query("EXECUTE selectAchievementProgressStmt USING @paramModID, @paramUserID, @paramIdentifier;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					continue;
+				}
+				results = database.getResults<std::vector<std::string>>();
+				if (results.empty()) {
+					achievementNode.put("CurrentProgress", 0);
+				} else {
+					achievementNode.put("CurrentProgress", std::stoi(results[0][0]));
+				}
+
+				achievementNode.put("CanSeeHidden", isTeamMember ? 1: 0);
+
+				achievementNodes.push_back(std::make_pair("", achievementNode));
+			}
+			
+			responseTree.add_child("Achievements", achievementNodes);
+		} while (false);
+
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::requestAllScoreStats(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		const auto language = pt.get<std::string>("Language");
+		const auto projectID = pt.get<int32_t>("ProjectID");
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		do {
+			if (projectID == 339) {
+				requestAllTri6ScoreStats(responseTree);
+				break;
+			}
+			
+			CONNECTTODATABASE(__LINE__)
+
+			if (!database.query("PREPARE selectScoreStmt FROM \"SELECT Score, UserID FROM modScores WHERE ModID = ? AND Identifier = ? ORDER BY Score DESC\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("PREPARE selectScoreOrderStmt FROM \"SELECT ScoreOrder FROM scoreOrders WHERE ProjectID = ? AND Identifier = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("PREPARE selectScoreNameStmt FROM \"SELECT CAST(Name AS BINARY), Identifier FROM modScoreNames WHERE ModID = ? AND Language = ? ORDER BY Identifier ASC\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("SET @paramLanguage='" + language + "';")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("SET @paramModID=" + std::to_string(projectID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("EXECUTE selectScoreNameStmt USING @paramModID, @paramLanguage;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			auto lastResults = database.getResults<std::vector<std::string>>();
+
+			ptree scoreNodes;
+			
+			for (const auto & vec : lastResults) {
+				ptree scoreNode;
+
+				scoreNode.put("Name", vec[0]);
+
+				if (!database.query("SET @paramIdentifier=" + vec[1] + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					continue;
+				}
+				if (!database.query("EXECUTE selectScoreOrderStmt USING @paramModID, @paramIdentifier;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					continue;
+				}
+				auto results = database.getResults<std::vector<std::string>>();
+
+				const auto scoreOrder = results.empty() ? common::ScoreOrder::Descending : static_cast<common::ScoreOrder>(std::stoi(results[0][0]));
+
+				if (!database.query("EXECUTE selectScoreStmt USING @paramModID, @paramIdentifier;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					continue;
+				}
+				results = database.getResults<std::vector<std::string>>();
+
+				if (scoreOrder == common::ScoreOrder::Ascending) {
+					std::reverse(results.begin(), results.end());
+				}
+
+				ptree scoreEntryNodes;
+				for (const auto & score : results) {
+					ptree scoreEntryNode;
+
+					scoreEntryNode.put("Name", ServerCommon::getUsername(std::stoi(score[1])));
+					scoreEntryNode.put("Score", std::stoi(score[0]));
+
+					scoreEntryNodes.push_back(std::make_pair("", scoreEntryNode));
+				}
+
+				scoreNode.add_child("Scores", scoreEntryNodes);
+				
+				scoreNodes.push_back(std::make_pair("", scoreNode));
+			}
+
+			responseTree.add_child("Scores", scoreNodes);
+		} while (false);
+
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::requestAllTri6ScoreStats(ptree & responseTree) const {
+	do {
+		MariaDBWrapper database;
+		if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, TRI6DATABASE, 0)) {
+			std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			return;
+		}
+		if (!database.query("PREPARE selectScoreStmt FROM \"SELECT Score, UserID FROM scores WHERE Version = ? AND Identifier = ? ORDER BY Score DESC\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			return;
+		}
+		if (!database.query("PREPARE selectMaxVersionStmt FROM \"SELECT MAX(Version) FROM scores\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			return;
+		}
+		if (!database.query("EXECUTE selectMaxVersionStmt;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			return;
+		}
+		auto lastResults = database.getResults<std::vector<std::string>>();
+
+		const auto version = lastResults.empty() ? "0" : lastResults[0][0];
+
+		if (!database.query("SET @paramVersion=" + version + ";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			return;
+		}
+
+		lastResults.clear();
+
+		lastResults.push_back({ "Hyperion", "0" });
+		lastResults.push_back({ "Hermes", "1" });
+		lastResults.push_back({ "Helios", "2" });
+
+		ptree scoreNodes;
+
+		for (const auto & vec : lastResults) {
+			ptree scoreNode;
+
+			scoreNode.put("Name", vec[0]);
+
+			if (!database.query("SET @paramIdentifier=" + vec[1] + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				continue;
+			}
+			if (!database.query("EXECUTE selectScoreStmt USING @paramVersion, @paramIdentifier;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				continue;
+			}
+			auto results = database.getResults<std::vector<std::string>>();
+
+			ptree scoreEntryNodes;
+			for (const auto & score : results) {
+				ptree scoreEntryNode;
+
+				scoreEntryNode.put("Name", ServerCommon::getUsername(std::stoi(score[1])));
+				scoreEntryNode.put("Score", std::stoi(score[0]));
+
+				scoreEntryNodes.push_back(std::make_pair("", scoreEntryNode));
+			}
+
+			scoreNode.add_child("Scores", scoreEntryNodes);
+
+			scoreNodes.push_back(std::make_pair("", scoreNode));
+		}
+
+		responseTree.add_child("Scores", scoreNodes);
+	} while (false);
 }

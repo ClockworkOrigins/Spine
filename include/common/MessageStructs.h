@@ -515,7 +515,7 @@ namespace common {
 		}
 	};
 
-	struct RequestAllModStatsMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.30.0")]] RequestAllModStatsMessage : public Message {
 		std::string username;
 		std::string password;
 		std::string language;
@@ -531,7 +531,7 @@ namespace common {
 		}
 	};
 
-	struct SendAllModStatsMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.30.0")]] SendAllModStatsMessage : public Message {
 		std::vector<ProjectStats> mods;
 		SendAllModStatsMessage() : Message() {
 			type = MessageType::SENDALLMODSTATS;
@@ -543,7 +543,7 @@ namespace common {
 		}
 	};
 
-	struct RequestAllAchievementStatsMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.30.0")]] RequestAllAchievementStatsMessage : public Message {
 		std::string username;
 		std::string password;
 		std::string language;
@@ -560,38 +560,39 @@ namespace common {
 			ar & modID;
 		}
 	};
+	
+	struct [[deprecated("Remove serialization in Spine 1.30.0")]] AchievementStats {
+		std::string name = "";
+		std::string description = "";
+		std::string iconLocked = "";
+		std::string iconLockedHash = "";
+		std::string iconUnlocked = "";
+		std::string iconUnlockedHash = "";
+		bool unlocked = false;
+		double unlockedPercent = 0.0;
+		bool hidden = false;
+		int currentProgress = 0;
+		int maxProgress = 0;
+		bool canSeeHidden = false;
 
-	struct SendAllAchievementStatsMessage : public Message {
-		struct AchievementStats {
-			std::string name = "";
-			std::string description = "";
-			std::string iconLocked = "";
-			std::string iconLockedHash = "";
-			std::string iconUnlocked = "";
-			std::string iconUnlockedHash = "";
-			bool unlocked = false;
-			double unlockedPercent = 0.0;
-			bool hidden = false;
-			int currentProgress = 0;
-			int maxProgress = 0;
-			bool canSeeHidden = false;
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & name;
+			ar & description;
+			ar & iconLocked;
+			ar & iconLockedHash;
+			ar & iconUnlocked;
+			ar & iconUnlockedHash;
+			ar & unlocked;
+			ar & unlockedPercent;
+			ar & hidden;
+			ar & currentProgress;
+			ar & maxProgress;
+			ar & canSeeHidden;
+		}
+	};
 
-			template<class Archive>
-			void serialize(Archive & ar, const unsigned int /* file_version */) {
-				ar & name;
-				ar & description;
-				ar & iconLocked;
-				ar & iconLockedHash;
-				ar & iconUnlocked;
-				ar & iconUnlockedHash;
-				ar & unlocked;
-				ar & unlockedPercent;
-				ar & hidden;
-				ar & currentProgress;
-				ar & maxProgress;
-				ar & canSeeHidden;
-			}
-		};
+	struct [[deprecated("Remove in Spine 1.30.0")]] SendAllAchievementStatsMessage : public Message {
 		std::vector<AchievementStats> achievements;
 		SendAllAchievementStatsMessage() : Message(), achievements() {
 			type = MessageType::SENDALLMODSTATS;
@@ -603,7 +604,7 @@ namespace common {
 		}
 	};
 
-	struct RequestAllScoreStatsMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.30.0")]] RequestAllScoreStatsMessage : public Message {
 		std::string username;
 		std::string password;
 		std::string language;
@@ -620,18 +621,19 @@ namespace common {
 			ar & modID;
 		}
 	};
+	
+	struct [[deprecated("Remove serialization in Spine 1.30.0")]] ScoreStats {
+		std::string name = "";
+		std::vector<std::pair<std::string, int32_t>> scores;
 
-	struct SendAllScoreStatsMessage : public Message {
-		struct ScoreStats {
-			std::string name = "";
-			std::vector<std::pair<std::string, int32_t>> scores;
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & name;
+			ar & scores;
+		}
+	};
 
-			template<class Archive>
-			void serialize(Archive & ar, const unsigned int /* file_version */) {
-				ar & name;
-				ar & scores;
-			}
-		};
+	struct [[deprecated("Remove in Spine 1.30.0")]] SendAllScoreStatsMessage : public Message {
 		std::vector<ScoreStats> scores;
 		SendAllScoreStatsMessage() : Message(), scores() {
 			type = MessageType::SENDALLSCORESTATS;
@@ -1367,7 +1369,7 @@ namespace common {
 		}
 	};
 
-	struct RequestUserLevelMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.30.0")]] RequestUserLevelMessage : public Message {
 		std::string username;
 		std::string password;
 		RequestUserLevelMessage() : Message() {
@@ -1381,7 +1383,7 @@ namespace common {
 		}
 	};
 
-	struct SendUserLevelMessage : public Message {
+	struct [[deprecated("Remove message stuff and convert to data container in Spine 1.30.0")]] SendUserLevelMessage : public Message {
 		uint32_t level;
 		uint32_t currentXP;
 		uint32_t nextXP;

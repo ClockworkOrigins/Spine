@@ -31,7 +31,7 @@ using namespace spine;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-AchievementView::AchievementView(int32_t modID, common::SendAllAchievementStatsMessage::AchievementStats as, QWidget * par) : QWidget(par), _modID(modID), _achievement(as) {
+AchievementView::AchievementView(int32_t modID, common::AchievementStats as, QWidget * par) : QWidget(par), _modID(modID), _achievement(as) {
 	QHBoxLayout * l = new QHBoxLayout();
 
 	setObjectName("AchievementView");
