@@ -2108,4 +2108,9 @@
 		<Bug language="English">Fixed upload of screenshots</Bug>
 		<Bug language="English">Feedback works again</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="28" patchVersion="1">
+		<Bug language="Deutsch">Optimierung eingebaut, wodurch Projekte bei der Wiederherstellung übersprungen werden, bei denen nur Screenshots/Erfolge enthalten sind</Bug>
+		
+		<Bug language="English">Added optimization to skip projects for recovery that contain only screenshots/achievements</Bug>
+	</Version>
 </Versions>

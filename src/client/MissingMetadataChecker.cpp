@@ -38,6 +38,8 @@ void MissingMetadataChecker::check() {
         Database::DBError err;
         const auto projects = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID FROM mods", err);
 
+        static QStringList folderWhitelist = { "screens", "achievements" };
+
         QDirIterator it(Config::DOWNLOADDIR + "/mods/", QDir::Filter::Dirs);
         while (it.hasNext()) {
             it.next();
@@ -48,6 +50,22 @@ void MissingMetadataChecker::check() {
             const auto projectID = dirName.toInt(&b);
 
             if (!b) continue;
+
+            const auto filePath = it.filePath();
+            QFileInfoList fiList = QDir(filePath).entryInfoList(QDir::NoDotAndDotDot | QDir::AllEntries);
+
+            bool allInWhiteList = !fiList.isEmpty();
+        	for (const auto & fi : fiList) {
+                const auto fileName = fi.fileName();
+        		
+                if (fi.isDir() && folderWhitelist.contains(fileName)) continue;
+
+                allInWhiteList = false;
+        		
+                break;
+        	}
+
+            if (allInWhiteList) continue;
 
             if (std::find_if(projects.begin(), projects.end(), [projectID](int i) {
                 return i == projectID;

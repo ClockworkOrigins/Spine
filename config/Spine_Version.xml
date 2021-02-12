@@ -71,4 +71,8 @@
 		<File Hash="961310ac4b5d29d5b887b507633980517e440335bbed483feda94ac2868088a6d87e571fe1d00a3b2e5b9a6115e10f48837ddbb0ceed20ad593630cee639dd17">bin/SpineAPI.dll.z</File>
 		<File Hash="8d5bba9e87e739269a4977593cf024dc4979ae495e97018172f0f66b1fedd457549ed8f78c4f2784e20f2f6e6acf9f1795d05bf097e5d17cb23ff1a4ce62fb05">bin/SpineAPI64.dll.z</File>
 	</Version>
+	<Version majorVersion="1" minorVersion="28" patchVersion="1">
+		<File Hash="4e3692c668906ed3391b1f1670eca3c02e5571f18fa9775936423554290df9c753037a9e49ffd95254ac3a602ec2318887debd01f16373115959b0f94516e1da">bin/changelog.xml.z</File>
+		<File Hash="7242d6f715cb7cb2e0f09175b4d141d942a861bbdc22d1e2cc216bfd25e552ce1b628d81cda45a45dff117610436f718dfb14452a1cbe0deeff259eb96d37741">bin/Spine.exe.z</File>
+	</Version>
 </Versions>
