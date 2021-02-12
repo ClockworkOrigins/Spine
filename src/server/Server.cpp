@@ -3202,9 +3202,7 @@ void Server::handleUpdateSucceeded(clockUtils::sockets::TcpSocket *, UpdateSucce
 	} while (false);
 }
 
-void Server::handleUploadScreenshots(clockUtils::sockets::TcpSocket * sock, UploadScreenshotsMessage * msg) const {
-	SendAchievementUnlockedMessage siaum;
-	siaum.unlocked = false;
+void Server::handleUploadScreenshots(clockUtils::sockets::TcpSocket *, UploadScreenshotsMessage * msg) const {
 	do {
 		const int userID = ServerCommon::getUserID(msg->username, msg->password);
 		
@@ -3219,8 +3217,6 @@ void Server::handleUploadScreenshots(clockUtils::sockets::TcpSocket * sock, Uplo
 			out.close();
 		}
 	} while (false);
-	const std::string serialized = siaum.SerializePrivate();
-	sock->writePacket(serialized);
 }
 
 bool Server::isTeamMemberOfMod(int modID, int userID) {
