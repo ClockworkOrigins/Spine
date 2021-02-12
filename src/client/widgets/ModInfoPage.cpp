@@ -864,6 +864,8 @@ void ModInfoPage::submitChanges() {
 
 		common::UploadScreenshotsMessage usm;
 		usm.projectID = projectID;
+		usm.username = q2s(Config::Username);
+		usm.password = q2s(Config::Password);
 
 		if (!_screens.isEmpty()) {
 			QJsonArray screens;
