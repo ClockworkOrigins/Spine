@@ -2150,7 +2150,7 @@ void ManagementServer::getPlayTestSurveys(std::shared_ptr<HttpsServer::Response>
 		do {
 			CONNECTTODATABASE(__LINE__)
 			
-			if (!database.query("PREPARE selectStmt FROM \"SELECT SurveyID, Enabled, Language, MajorVersion, MinorVersion, PatchVersion FROM playTestSurveys WHERE ProjectID = ? ORDER BY MajorVersion DESC ORDER BY MinorVersion DESC ORDER BY PatchVersion DESC\";")) {
+			if (!database.query("PREPARE selectStmt FROM \"SELECT SurveyID, Enabled, Language, MajorVersion, MinorVersion, PatchVersion FROM playTestSurveys WHERE ProjectID = ? ORDER BY MajorVersion, MinorVersion, PatchVersion DESC\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
