@@ -387,53 +387,6 @@ namespace common {
 		}
 	};
 
-	struct [[deprecated("Remove in Spine 1.29.0")]] FeedbackMessage : public Message {
-		std::string text;
-		uint8_t majorVersion;
-		uint8_t minorVersion;
-		uint8_t patchVersion;
-		std::string username;
-		int32_t projectID;
-		
-		FeedbackMessage() : Message(), majorVersion(), minorVersion(), patchVersion(), projectID(-1) {
-			type = MessageType::FEEDBACK;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & text;
-			ar & majorVersion;
-			ar & minorVersion;
-			ar & patchVersion;
-			ar & username;
-			ar & projectID;
-		}
-	};
-
-	struct [[deprecated("Remove in Spine 1.29.0")]] RequestOriginalFilesMessage : public Message {
-		std::vector<std::pair<int32_t, std::string>> files;
-		RequestOriginalFilesMessage() : Message() {
-			type = MessageType::REQUESTORIGINALFILES;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & files;
-		}
-	};
-
-	struct [[deprecated("Remove in Spine 1.29.0")]] SendOriginalFilesMessage : public Message {
-		std::vector<std::pair<int32_t, std::pair<std::string, std::string>>> files;
-		SendOriginalFilesMessage() : Message() {
-			type = MessageType::SENDORIGINALFILES;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & files;
-		}
-	};
-
 	struct UpdateFilesMessage : public Message {
 		std::vector<std::pair<std::string, std::string>> files;
 		UpdateFilesMessage() : Message() {
@@ -443,20 +396,6 @@ namespace common {
 		void serialize(Archive & ar, const unsigned int /* file_version */) {
 			ar & boost::serialization::base_object<Message>(*this);
 			ar & files;
-		}
-	};
-
-	struct [[deprecated("Remove in Spine 1.29.0")]]  UpdateLoginTimeMessage : public Message {
-		std::string username;
-		std::string password;
-		UpdateLoginTimeMessage() : Message() {
-			type = MessageType::UPDATELOGINTIME;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & username;
-			ar & password;
 		}
 	};
 
@@ -835,110 +774,6 @@ namespace common {
 		}
 	};
 
-	struct [[deprecated("Remove in Spine 1.29.0")]] RequestInfoPageMessage : public Message {
-		int32_t modID;
-		std::string language;
-		std::string username;
-		std::string password;
-		RequestInfoPageMessage() : Message(), modID() {
-			type = MessageType::REQUESTINFOPAGE;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & modID;
-			ar & language;
-			ar & username;
-			ar & password;
-		}
-	};
-
-	struct [[deprecated("Remove in Spine 1.29.0")]] SendInfoPageMessage : public Message {
-		struct History {
-			int32_t timestamp;
-			int8_t majorVersion;
-			int8_t minorVersion;
-			int8_t patchVersion;
-			bool savegameCompatible;
-			std::string changelog;
-
-			History() : timestamp(0), majorVersion(0), minorVersion(0), patchVersion(0), savegameCompatible(false) {}
-
-			template<class Archive>
-			void serialize(Archive & ar, const unsigned int /* file_version */) {
-				ar & timestamp;
-				ar & majorVersion;
-				ar & minorVersion;
-				ar & patchVersion;
-				ar & savegameCompatible;
-				ar & changelog;
-			}
-		};
-		
-		std::string modname;
-		std::vector<std::pair<std::string, std::string>> screenshots;
-		std::string description;
-		std::vector<std::string> features;
-		int32_t spineFeatures;
-		bool editRights;
-		bool installAllowed;
-		std::vector<std::pair<int32_t, std::string>> optionalPackages;
-		uint8_t majorVersion;
-		uint8_t minorVersion;
-		uint8_t patchVersion;
-		uint32_t releaseDate;
-		uint32_t updateDate;
-		GameType gameType;
-		std::vector<History> history;
-
-		SendInfoPageMessage() : Message(), spineFeatures(0), editRights(false), installAllowed(true), majorVersion(), minorVersion(), patchVersion(), releaseDate(0), updateDate(0), gameType(GameType::Gothic) {
-			type = MessageType::SENDINFOPAGE;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & modname;
-			ar & screenshots;
-			ar & description;
-			ar & features;
-			ar & spineFeatures;
-			ar & editRights;
-			ar & installAllowed;
-			ar & optionalPackages;
-			ar & majorVersion;
-			ar & minorVersion;
-			ar & patchVersion;
-			ar & releaseDate;
-			ar & updateDate;
-			ar & gameType;
-			ar & history;
-		}
-	};
-
-	struct [[deprecated("Remove in Spine 1.29.0")]] SubmitInfoPageMessage : public Message {
-		int32_t modID;
-		std::string language;
-		std::vector<std::pair<std::string, std::string>> screenshots;
-		std::vector<std::pair<std::string, std::vector<uint8_t>>> imageFiles;
-		std::string description;
-		std::vector<std::string> features;
-		int32_t spineFeatures;
-		SubmitInfoPageMessage() : Message(), modID(), spineFeatures(0) {
-			type = MessageType::SUBMITINFOPAGE;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & modID;
-			ar & language;
-			ar & screenshots;
-			ar & imageFiles;
-			ar & description;
-			ar & features;
-			ar & spineFeatures;
-		}
-	};
-
 	struct AckMessage : public Message {
 		bool success;
 		AckMessage() : Message(), success() {
@@ -948,34 +783,6 @@ namespace common {
 		void serialize(Archive & ar, const unsigned int /* file_version */) {
 			ar & boost::serialization::base_object<Message>(*this);
 			ar & success;
-		}
-	};
-
-	struct [[deprecated("Remove in Spine 1.29.0")]] RequestRandomModMessage : public Message {
-		std::string language;
-		std::string username;
-		std::string password;
-		RequestRandomModMessage() : Message() {
-			type = MessageType::REQUESTRANDOMMOD;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & language;
-			ar & username;
-			ar & password;
-		}
-	};
-
-	struct [[deprecated("Remove in Spine 1.29.0")]] SendRandomModMessage : public Message {
-		int32_t modID;
-		SendRandomModMessage() : Message(), modID() {
-			type = MessageType::SENDRANDOMMOD;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & modID;
 		}
 	};
 
@@ -1318,54 +1125,6 @@ namespace common {
 		void serialize(Archive & ar, const unsigned int /* file_version */) {
 			ar & boost::serialization::base_object<Message>(*this);
 			ar & friends;
-		}
-	};
-
-	struct [[deprecated("Remove in Spine 1.29.0")]] SendFriendRequestMessage : public Message {
-		std::string username;
-		std::string password;
-		std::string friendname;
-		SendFriendRequestMessage() : Message() {
-			type = MessageType::SENDFRIENDREQUEST;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & username;
-			ar & password;
-			ar & friendname;
-		}
-	};
-
-	struct [[deprecated("Remove in Spine 1.29.0")]] AcceptFriendRequestMessage : public Message {
-		std::string username;
-		std::string password;
-		std::string friendname;
-		AcceptFriendRequestMessage() : Message() {
-			type = MessageType::ACCEPTFRIENDREQUEST;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & username;
-			ar & password;
-			ar & friendname;
-		}
-	};
-
-	struct [[deprecated("Remove in Spine 1.29.0")]] DeclineFriendRequestMessage : public Message {
-		std::string username;
-		std::string password;
-		std::string friendname;
-		DeclineFriendRequestMessage() : Message() {
-			type = MessageType::DECLINEFRIENDREQUEST;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & username;
-			ar & password;
-			ar & friendname;
 		}
 	};
 

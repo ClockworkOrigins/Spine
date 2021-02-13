@@ -127,15 +127,6 @@ namespace server {
 		void handleRequestPlaytime(clockUtils::sockets::TcpSocket * sock, common::RequestPlayTimeMessage * msg) const;
 
 		void handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, common::ModVersionCheckMessage * msg) const;
-		
-		[[deprecated("Remove in Spine 1.29.0")]]
-		void handleFeedback(clockUtils::sockets::TcpSocket * sock, common::FeedbackMessage * msg) const;
-		
-		[[deprecated("Remove in Spine 1.29.0")]]
-		void handleRequestOriginalFiles(clockUtils::sockets::TcpSocket * sock, common::RequestOriginalFilesMessage * msg) const;
-		
-		[[deprecated("Remove in Spine 1.29.0")]]
-		void handleUpdateLoginTime(clockUtils::sockets::TcpSocket * sock, common::UpdateLoginTimeMessage * msg) const;
 		void handleRequestPackageFiles(clockUtils::sockets::TcpSocket * sock, common::RequestPackageFilesMessage * msg) const;
 		void handlePackageDownloadSucceeded(clockUtils::sockets::TcpSocket * sock, common::PackageDownloadSucceededMessage * msg) const;
 		
@@ -149,20 +140,7 @@ namespace server {
 		void handleRequestAllScoreStats(clockUtils::sockets::TcpSocket * sock, common::RequestAllScoreStatsMessage * msg) const;
 		void handleRequestAllNews(clockUtils::sockets::TcpSocket * sock, common::RequestAllNewsMessage * msg) const;
 		void handleSubmitNews(clockUtils::sockets::TcpSocket * sock, common::SubmitNewsMessage * msg) const;
-
-		[[deprecated("Remove in Spine 1.29.0")]]
-		void handleLinkClicked(clockUtils::sockets::TcpSocket * sock, common::LinkClickedMessage * msg) const;
 		void handleSubmitScriptFeatures(clockUtils::sockets::TcpSocket * sock, common::SubmitScriptFeaturesMessage * msg) const;
-		
-		[[deprecated("Remove in Spine 1.29.0")]]
-		void handleRequestInfoPage(clockUtils::sockets::TcpSocket * sock, common::RequestInfoPageMessage * msg) const;
-		
-		[[deprecated("Remove in Spine 1.29.0")]]
-		void handleSubmitInfoPage(clockUtils::sockets::TcpSocket * sock, common::SubmitInfoPageMessage * msg) const;
-
-		[[deprecated("Remove in Spine 1.29.0")]]
-		void handleRequestRandomMod(clockUtils::sockets::TcpSocket * sock, common::RequestRandomModMessage * msg) const;
-
 		void handleSubmitCompatibility(clockUtils::sockets::TcpSocket * sock, common::SubmitCompatibilityMessage * msg) const;
 		void handleRequestOwnCompatibilities(clockUtils::sockets::TcpSocket * sock, common::RequestOwnCompatibilitiesMessage * msg) const;
 		
@@ -170,15 +148,6 @@ namespace server {
 		void handleSubmitRating(clockUtils::sockets::TcpSocket * sock, common::SubmitRatingMessage * msg) const;
 		
 		void handleRequestModsForEditor(clockUtils::sockets::TcpSocket * sock, common::RequestModsForEditorMessage * msg) const;
-		
-		[[deprecated("Remove in Spine 1.29.0")]]
-		void handleSendFriendRequest(clockUtils::sockets::TcpSocket * sock, common::SendFriendRequestMessage * msg) const;
-		
-		[[deprecated("Remove in Spine 1.29.0")]]
-		void handleAcceptFriendRequest(clockUtils::sockets::TcpSocket * sock, common::AcceptFriendRequestMessage * msg) const;
-
-		[[deprecated("Remove in Spine 1.29.0")]]
-		void handleDeclineFriendRequest(clockUtils::sockets::TcpSocket * sock, common::DeclineFriendRequestMessage * msg) const;
 		
 		[[deprecated("Remove in Spine 1.30.0")]]
 		void handleRequestUserLevel(clockUtils::sockets::TcpSocket * sock, common::RequestUserLevelMessage * msg) const;
