@@ -494,6 +494,10 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	if (!path.isEmpty()) {
 		_gothic2Directory = path;
 	}
+	path = Config::IniParser->value("PATH/Gothic3", "").toString();
+	if (!path.isEmpty()) {
+		_gothic3Directory = path;
+	}
 	if (firstStartup) {
 		findGothic();
 	}
@@ -513,6 +517,9 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 			_profileView->setGothic2Directory(_gothic2Directory);
 			_spineEditor->getModel()->setPath(_gothic2Directory);
 		}
+	}
+	if (_settingsDialog->getLocationSettingsWidget()->isGothic3Valid(true)) {
+		_modInfoView->setGothic3Directory(_gothic3Directory);
 	}
 
 	Database::DBError err;
@@ -748,6 +755,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	if (Config::OnlineMode) {
 		connect(_settingsDialog->getLocationSettingsWidget(), &LocationSettingsWidget::validGothic, _modDatabaseView, &ModDatabaseView::gothicValidationChanged);
 		connect(_settingsDialog->getLocationSettingsWidget(), &LocationSettingsWidget::validGothic2, _modDatabaseView, &ModDatabaseView::gothic2ValidationChanged);
+		connect(_settingsDialog->getLocationSettingsWidget(), &LocationSettingsWidget::validGothic3, _modDatabaseView, &ModDatabaseView::gothic3ValidationChanged);
 	}
 #ifdef Q_OS_WIN
 	connect(_settingsDialog->getLocationSettingsWidget(), &LocationSettingsWidget::validGothic2, [=](bool b) {
@@ -847,6 +855,7 @@ void MainWindow::pathChanged() {
 		LocationSettingsWidget * locationSettingsWidget = _settingsDialog->getLocationSettingsWidget();
 		_gothicDirectory = locationSettingsWidget->getGothicDirectory();
 		_gothic2Directory = locationSettingsWidget->getGothic2Directory();
+		_gothic3Directory = locationSettingsWidget->getGothic3Directory();
 		if (locationSettingsWidget->isGothicValid(false)) {
 			if (_modInfoView) {
 				_modInfoView->setGothicDirectory(_gothicDirectory);
@@ -867,6 +876,11 @@ void MainWindow::pathChanged() {
 			}
 			if (_profileView) {
 				_profileView->setGothic2Directory(_gothic2Directory);
+			}
+		}
+		if (locationSettingsWidget->isGothic3Valid(false)) {
+			if (_modInfoView) {
+				_modInfoView->setGothic3Directory(_gothic3Directory);
 			}
 		}
 	}
@@ -907,6 +921,9 @@ void MainWindow::checkIntegrity(int projectID) {
 	}
 	if (_settingsDialog->getLocationSettingsWidget()->isGothic2Valid(true)) {
 		dlg.setGothic2Directory(_gothic2Directory);
+	}
+	if (_settingsDialog->getLocationSettingsWidget()->isGothic3Valid(true)) {
+		//dlg.setGothic3Directory(_gothic3Directory); // not yet supported
 	}
 	if (dlg.exec(projectID) == QDialog::Accepted) {
 		QList<IntegrityCheckDialog::ModFile> corruptFiles = dlg.getCorruptFiles();
@@ -1234,12 +1251,17 @@ void MainWindow::findGothic() {
 		if (QFileInfo::exists(gothic2Dir + "/System/Gothic2.exe")) {
 			lsw->setGothic2Directory(gothic2Dir);
 		}
+		const QString gothic3Dir = steamDir + "/SteamApps/common/Gothic 3";
+		if (QFileInfo::exists(gothic3Dir + "/Gothic3.exe")) {
+			lsw->setGothic3Directory(gothic3Dir);
+		}
 	}
 
 	dlg.exec();
 	lsw->saveSettings();
 	_gothicDirectory = lsw->getGothicDirectory();
 	_gothic2Directory = lsw->getGothic2Directory();
+	_gothic3Directory = lsw->getGothic3Directory();
 
 	lsw->saveSettings();
 

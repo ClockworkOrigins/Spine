@@ -19,6 +19,7 @@
 #include "widgets/ModInfoView.h"
 
 #include "launcher/Gothic1And2Launcher.h"
+#include "launcher/Gothic3Launcher.h"
 #include "launcher/LauncherFactory.h"
 
 #include "utils/Config.h"
@@ -35,7 +36,6 @@
 	#include <shellapi.h>
 #endif
 
-using namespace spine;
 using namespace spine::launcher;
 using namespace spine::utils;
 using namespace spine::widgets;
@@ -59,6 +59,12 @@ ModInfoView::ModInfoView(GeneralSettingsWidget * generalSettingsWidget, QWidget 
 			const auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
 
 			connect(gothicLauncher.data(), &Gothic1And2Launcher::installMod, this, &ModInfoView::installMod);
+		}
+		{
+			const auto launcher = factory->getLauncher(common::GameType::Gothic3);
+			const auto gothicLauncher = launcher.dynamicCast<Gothic3Launcher>();
+
+			connect(gothicLauncher.data(), &Gothic3Launcher::installMod, this, &ModInfoView::installMod);
 		}
 	}
 
@@ -108,6 +114,13 @@ void ModInfoView::setGothic2Directory(QString directory) {
 	auto * const factory = LauncherFactory::getInstance();
 	const auto launcher = factory->getLauncher(common::GameType::Gothic2);
 	auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
+	gothicLauncher->setDirectory(directory);
+}
+
+void ModInfoView::setGothic3Directory(QString directory) {
+	auto * const factory = LauncherFactory::getInstance();
+	const auto launcher = factory->getLauncher(common::GameType::Gothic3);
+	auto gothicLauncher = launcher.dynamicCast<Gothic3Launcher>();
 	gothicLauncher->setDirectory(directory);
 }
 
@@ -178,7 +191,7 @@ void ModInfoView::saveSettings() {
 	LauncherFactory::getInstance()->saveSettings();
 }
 
-void ModInfoView::showSurvey(widgets::Survey survey, int versionMajor, int versionMinor, int versionPatch) {
+void ModInfoView::showSurvey(Survey survey, int versionMajor, int versionMinor, int versionPatch) {
 	SurveyDialog sd(survey, versionMajor, versionMinor, versionPatch, this);
 	sd.exec();
 }

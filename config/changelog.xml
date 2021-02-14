@@ -2113,4 +2113,9 @@
 		
 		<Bug language="English">Added optimization to skip projects for recovery that contain only screenshots/achievements</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="28" patchVersion="0">
+		<Enhancement language="Deutsch">Gothic 3 kann jetzt über Spine gestartet werden</Enhancement>
+		
+		<Enhancement language="English">Gothic 3 can be started via Spine now</Enhancement>
+	</Version>
 </Versions>

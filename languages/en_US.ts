@@ -28,12 +28,20 @@
         <translation>Path to Gothic 2</translation>
     </message>
     <message>
+        <source>Gothic3Path</source>
+        <translation>Path to Gothic 3</translation>
+    </message>
+    <message>
         <source>SelectGothicDir</source>
         <translation>Select path to Gothic</translation>
     </message>
     <message>
         <source>SelectGothic2Dir</source>
         <translation>Select path to Gothic 2</translation>
+    </message>
+    <message>
+        <source>SelectGothic3Dir</source>
+        <translation>Select path to Gothic 3</translation>
     </message>
     <message>
         <source>Bugs</source>
@@ -289,6 +297,10 @@ Furthermore it can be used for all other products of Clockwork Origins.</transla
         <translation>Patching Gothic II</translation>
     </message>
     <message>
+        <source>PatchingG3</source>
+        <translation>Patching Gothic 3</translation>
+    </message>
+    <message>
         <source>PatchesAndTools</source>
         <translation>Patches and Tools</translation>
     </message>
@@ -344,6 +356,10 @@ If an update is found, Spine will automatically download the update and restart 
     <message>
         <source>Gothic2</source>
         <translation>Gothic II</translation>
+    </message>
+    <message>
+        <source>Gothic3</source>
+        <translation>Gothic 3</translation>
     </message>
     <message>
         <source>MinDurationHours</source>
@@ -564,6 +580,10 @@ If an update is found, Spine will automatically download the update and restart 
     <message>
         <source>InvalidGothic2Path</source>
         <translation>The chosen path to Gothic II isn't valid. Please ensure that it is the path to the main folder of your Gothic II installation. In this folder another folder with the name "System" containing the Gothic2.exe has to be located.</translation>
+    </message>
+    <message>
+        <source>InvalidGothic3Path</source>
+        <translation>The chosen path to Gothic 3 isn't valid. Please ensure that it is the path to the main folder of your Gothic 3 installation. In this folder the Gothic3.exe has to be located.</translation>
     </message>
     <message>
         <source>VersionUpToDate</source>

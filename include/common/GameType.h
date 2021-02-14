@@ -26,7 +26,8 @@ namespace common {
 		Gothic2,
 		GothicInGothic2, // never used
 		Gothic1And2,
-		Game
+		Game,
+		Gothic3
 	};
 
 } /* namespace common */

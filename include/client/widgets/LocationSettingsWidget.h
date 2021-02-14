@@ -44,21 +44,26 @@ namespace widgets {
 
 		QString getGothicDirectory() const;
 		QString getGothic2Directory() const;
+		QString getGothic3Directory() const;
 		QString getScreenshotDirectory() const;
 
 		bool isGothicValid(bool restored) const;
 		bool isGothic2Valid(bool restored) const;
+		bool isGothic3Valid(bool restored) const;
 
 		bool startGothicWithSteam() const;
 		bool startGothic2WithSteam() const;
+		bool startGothic3WithSteam() const;
 
 	signals:
 		void pathChanged();
 		void validGothic(bool);
 		void validGothic2(bool);
+		void validGothic3(bool);
 		void downloadPathChanged();
 		void foundGothic(QString);
 		void foundGothic2(QString);
+		void foundGothic3(QString);
 		void screenshotDirectoryChanged(QString);
 		void finishedSearch();
 		void finishedFolder(QString);
@@ -66,10 +71,12 @@ namespace widgets {
 	public slots:
 		void setGothicDirectory(QString path);
 		void setGothic2Directory(QString path);
+		void setGothic3Directory(QString path);
 
 	private slots:
 		void openGothicFileDialog();
 		void openGothic2FileDialog();
+		void openGothic3FileDialog();
 		void openDownloadFileDialog();
 		void searchGothic();
 		void openScreenshotDirectoryFileDialog();
@@ -77,6 +84,7 @@ namespace widgets {
 	private:
 		QLineEdit * _gothicPathLineEdit;
 		QLineEdit * _gothic2PathLineEdit;
+		QLineEdit * _gothic3PathLineEdit;
 		QLineEdit * _downloadPathLineEdit;
 		QLineEdit * _screenshotPathLineEdit;
 		std::atomic<int> _futureCounter;
@@ -84,12 +92,20 @@ namespace widgets {
 
 		QCheckBox * _gothicSteam;
 		QCheckBox * _gothic2Steam;
+		QCheckBox * _gothic3Steam;
 
 		static LocationSettingsWidget * instance;
 
+		typedef struct {
+			bool gothicFound;
+			bool gothic2Found;
+			bool gothic3Found;
+		} SearchConfig;
+
 		bool isGothicValid(QString path, QString executable, bool restored) const;
-		void searchGothicAsync(bool searchG1, bool searchG2);
-		void checkPartition(QString partition, QString filter, bool * gothicFound, bool * gothic2Found, bool recursve = false);
+		bool isGothic3Valid(QString path, QString executable, bool restored) const;
+		void searchGothicAsync(bool searchG1, bool searchG2, bool searchG3);
+		void checkPartition(QString partition, QString filter, SearchConfig * searchConfig, bool recursve = false);
 	};
 
 } /* namespace widgets */

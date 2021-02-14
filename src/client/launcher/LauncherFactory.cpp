@@ -21,6 +21,7 @@
 #include "launcher/GameLauncher.h"
 #include "launcher/Gothic1Launcher.h"
 #include "launcher/Gothic2Launcher.h"
+#include "launcher/Gothic3Launcher.h"
 
 using namespace spine::common;
 using namespace spine::launcher;
@@ -33,6 +34,7 @@ LauncherFactory * LauncherFactory::getInstance() {
 LauncherFactory::LauncherFactory() {
 	_launchers.append(ILauncherPtr(new Gothic1Launcher));
 	_launchers.append(ILauncherPtr(new Gothic2Launcher));
+	_launchers.append(ILauncherPtr(new Gothic3Launcher));
 	_launchers.append(ILauncherPtr(new GameLauncher));
 
 	for (auto & launcher : _launchers) {

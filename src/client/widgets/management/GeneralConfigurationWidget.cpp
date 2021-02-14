@@ -67,7 +67,7 @@ GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(
 			_gothicVersionBox->setEditable(false);
 
 			QStringList items;
-			items << QApplication::tr("Gothic") << QApplication::tr("Gothic2") << QApplication::tr("GothicInGothic2") << QApplication::tr("GothicAndGothic2_2") << QApplication::tr("Game");
+			items << QApplication::tr("Gothic") << QApplication::tr("Gothic2") << QApplication::tr("GothicInGothic2") << QApplication::tr("GothicAndGothic2_2") << QApplication::tr("Game") << QApplication::tr("Gothic3");
 
 			_gothicVersionBox->addItems(items);
 

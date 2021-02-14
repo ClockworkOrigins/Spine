@@ -68,6 +68,7 @@ namespace widgets {
 		void updateModList(int modID, int packageID, client::InstallMode mode);
 		void gothicValidationChanged(bool valid);
 		void gothic2ValidationChanged(bool valid);
+		void gothic3ValidationChanged(bool valid);
 		void loginChanged();
 		void setGothicDirectory(QString dir);
 		void setGothic2Directory(QString dir);
@@ -92,6 +93,7 @@ namespace widgets {
 		std::vector<common::Mod> _mods;
 		bool _gothicValid;
 		bool _gothic2Valid;
+		bool _gothic3Valid;
 		QMap<int32_t, QModelIndex> _parentMods;
 		QMap<int32_t, std::vector<common::UpdatePackageListMessage::Package>> _packages;
 		QString _gothicDirectory;

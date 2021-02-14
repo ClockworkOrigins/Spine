@@ -116,6 +116,28 @@ LocationSettingsWidget::LocationSettingsWidget(bool temporary, QWidget * par) : 
 
 		hl->setAlignment(Qt::AlignLeft);
 
+		path = Config::IniParser->value("PATH/Gothic3", "").toString();
+
+		gothicPathLabel = new QLabel(QApplication::tr("Gothic3Path"), this);
+		if (!temporary) {
+			UPDATELANGUAGESETTEXT(gothicPathLabel, "Gothic3Path");
+		}
+		_gothic3PathLineEdit = new QLineEdit(path, this);
+		_gothic3PathLineEdit->setValidator(new DirValidator());
+		_gothic3PathLineEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
+		gothicPathPushButton = new QPushButton("...", this);
+		_gothic3Steam = new QCheckBox(QApplication::tr("StartWithSteam"), this);
+		UPDATELANGUAGESETTEXT(_gothic3Steam, "StartWithSteam");
+		hl->addWidget(gothicPathLabel, 2, 0);
+		hl->addWidget(_gothic3PathLineEdit, 2, 1);
+		hl->addWidget(gothicPathPushButton, 2, 2);
+		hl->addWidget(_gothic3Steam, 2, 3);
+		connect(gothicPathPushButton, &QPushButton::released, this, &LocationSettingsWidget::openGothic3FileDialog);
+
+		_gothic3Steam->setChecked(Config::IniParser->value("PATH/Gothic3WithSteam", false).toBool());
+
+		hl->setAlignment(Qt::AlignLeft);
+
 		l->addLayout(hl);
 		l->addSpacing(10);
 	}
@@ -192,6 +214,7 @@ LocationSettingsWidget::LocationSettingsWidget(bool temporary, QWidget * par) : 
 
 	connect(this, &LocationSettingsWidget::foundGothic, this, &LocationSettingsWidget::setGothicDirectory);
 	connect(this, &LocationSettingsWidget::foundGothic2, this, &LocationSettingsWidget::setGothic2Directory);
+	connect(this, &LocationSettingsWidget::foundGothic3, this, &LocationSettingsWidget::setGothic3Directory);
 }
 
 LocationSettingsWidget * LocationSettingsWidget::getInstance() {
@@ -201,6 +224,7 @@ LocationSettingsWidget * LocationSettingsWidget::getInstance() {
 void LocationSettingsWidget::saveSettings() {
 	bool changedG1Path = false;
 	bool changedG2Path = false;
+	bool changedG3Path = false;
 	{
 		const QString path = Config::IniParser->value("PATH/Gothic", "").toString();
 		if (path != _gothicPathLineEdit->text()) {
@@ -237,13 +261,34 @@ void LocationSettingsWidget::saveSettings() {
 		}
 		Config::IniParser->setValue("PATH/Gothic2WithSteam", _gothic2Steam->isChecked());
 	}
-	if (changedG1Path || changedG2Path) {
+	{
+		const QString path = Config::IniParser->value("PATH/Gothic3", "").toString();
+		if (path != _gothic3PathLineEdit->text()) {
+			if (dynamic_cast<const DirValidator *>(_gothic3PathLineEdit->validator())->isValid(_gothic3PathLineEdit->text()) && isGothic3Valid(false)) {
+				changedG3Path = true;
+				Config::IniParser->setValue("PATH/Gothic3", _gothic3PathLineEdit->text());
+			} else {
+				if (!_gothic3PathLineEdit->text().isEmpty()) {
+					QMessageBox resultMsg(QMessageBox::Icon::Warning, QApplication::tr("InvalidPath"), QApplication::tr("InvalidGothic3Path"), QMessageBox::StandardButton::Ok);
+					resultMsg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
+					resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+					resultMsg.exec();
+				}
+				_gothic3PathLineEdit->setText("");
+			}
+		}
+		Config::IniParser->setValue("PATH/Gothic3WithSteam", _gothic3Steam->isChecked());
+	}
+	if (changedG1Path || changedG2Path || changedG3Path) {
 		emit pathChanged();
 		if (changedG1Path) {
 			emit validGothic(isGothicValid(false));
 		}
 		if (changedG2Path) {
 			emit validGothic2(isGothic2Valid(false));
+		}
+		if (changedG3Path) {
+			emit validGothic3(isGothic3Valid(false));
 		}
 	}
 	Config::IniParser->setValue("PATH/Downloads", _downloadPathLineEdit->text());
@@ -311,6 +356,13 @@ void LocationSettingsWidget::rejectSettings() {
 		_gothic2Steam->setChecked(Config::IniParser->value("PATH/Gothic2WithSteam", false).toBool());
 	}
 	{
+		const QString path = Config::IniParser->value("PATH/Gothic3", "").toString();
+		_gothic3PathLineEdit->setText(path);
+	}
+	{
+		_gothic3Steam->setChecked(Config::IniParser->value("PATH/Gothic3WithSteam", false).toBool());
+	}
+	{
 		const QString path = Config::IniParser->value("PATH/Downloads", "").toString();
 		_downloadPathLineEdit->setText(path);
 	}
@@ -328,6 +380,10 @@ QString LocationSettingsWidget::getGothic2Directory() const {
 	return _gothic2PathLineEdit->text();
 }
 
+QString LocationSettingsWidget::getGothic3Directory() const {
+	return _gothic3PathLineEdit->text();
+}
+
 QString LocationSettingsWidget::getScreenshotDirectory() const {
 	return _screenshotPathLineEdit->text();
 }
@@ -336,6 +392,7 @@ void LocationSettingsWidget::setGothicDirectory(QString path) {
 	_gothicPathLineEdit->setText(path);
 	Config::IniParser->setValue("PATH/Gothic", _gothicPathLineEdit->text());
 	Config::IniParser->setValue("PATH/Gothic2", _gothic2PathLineEdit->text());
+	Config::IniParser->setValue("PATH/Gothic3", _gothic3PathLineEdit->text());
 	emit pathChanged();
 	emit validGothic(isGothicValid(false));
 }
@@ -344,8 +401,18 @@ void LocationSettingsWidget::setGothic2Directory(QString path) {
 	_gothic2PathLineEdit->setText(path);
 	Config::IniParser->setValue("PATH/Gothic", _gothicPathLineEdit->text());
 	Config::IniParser->setValue("PATH/Gothic2", _gothic2PathLineEdit->text());
+	Config::IniParser->setValue("PATH/Gothic3", _gothic3PathLineEdit->text());
 	emit pathChanged();
 	emit validGothic2(isGothic2Valid(false));
+}
+
+void LocationSettingsWidget::setGothic3Directory(QString path) {
+	_gothic3PathLineEdit->setText(path);
+	Config::IniParser->setValue("PATH/Gothic", _gothicPathLineEdit->text());
+	Config::IniParser->setValue("PATH/Gothic2", _gothic2PathLineEdit->text());
+	Config::IniParser->setValue("PATH/Gothic3", _gothic3PathLineEdit->text());
+	emit pathChanged();
+	emit validGothic3(isGothic3Valid(false));
 }
 
 bool LocationSettingsWidget::isGothicValid(bool restored) const {
@@ -354,6 +421,10 @@ bool LocationSettingsWidget::isGothicValid(bool restored) const {
 
 bool LocationSettingsWidget::isGothic2Valid(bool restored) const {
 	return isGothicValid(_gothic2PathLineEdit->text(), "Gothic2.exe", restored);
+}
+
+bool LocationSettingsWidget::isGothic3Valid(bool restored) const {
+	return isGothic3Valid(_gothic3PathLineEdit->text(), "Gothic3.exe", restored);
 }
 
 void LocationSettingsWidget::openGothicFileDialog() {
@@ -402,6 +473,29 @@ void LocationSettingsWidget::openGothic2FileDialog() {
 	resultMsg.exec();
 }
 
+void LocationSettingsWidget::openGothic3FileDialog() {
+	const QString path = QFileDialog::getExistingDirectory(this, QApplication::tr("SelectGothic3Dir"), _gothic3PathLineEdit->text());
+
+	if (path.isEmpty()) return;
+
+	if (_gothic3PathLineEdit->text() == path) return;
+
+	_gothic3PathLineEdit->setText(path);
+
+	if (isGothic3Valid(false)) return;
+
+	if (isGothic3Valid(_gothic3PathLineEdit->text() + "/../", "Gothic3.exe", false)) {
+		QDir g3Dir(_gothic3PathLineEdit->text());
+		g3Dir.cdUp();
+		_gothic3PathLineEdit->setText(g3Dir.absolutePath());
+		return;
+	}
+	QMessageBox resultMsg(QMessageBox::Icon::Warning, QApplication::tr("InvalidPath"), QApplication::tr("InvalidGothic3Path"), QMessageBox::StandardButton::Ok);
+	resultMsg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
+	resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+	resultMsg.exec();
+}
+
 void LocationSettingsWidget::openDownloadFileDialog() {
 	QString path = QFileDialog::getExistingDirectory(this, QApplication::tr("SelectDownloadDir"), _downloadPathLineEdit->text());
 	
@@ -431,8 +525,9 @@ void LocationSettingsWidget::openDownloadFileDialog() {
 void LocationSettingsWidget::searchGothic() {
 	const bool searchG1 = !isGothicValid(false);
 	const bool searchG2 = !isGothic2Valid(false);
+	const bool searchG3 = !isGothic3Valid(false);
 	
-	if (!searchG1 && !searchG2) return;
+	if (!searchG1 && !searchG2 && !searchG3) return;
 	
 	QProgressDialog dlg(QApplication::tr("SearchGothicWaiting"), "", 0, 1);
 	dlg.setWindowTitle(QApplication::tr("SearchGothic"));
@@ -447,7 +542,7 @@ void LocationSettingsWidget::searchGothic() {
 	_cancelSearch = false;
 	_futureCounter = 0;
 	QFutureWatcher<void> watcher;
-	const QFuture<void> future = QtConcurrent::run(this, &LocationSettingsWidget::searchGothicAsync, searchG1, searchG2);
+	const QFuture<void> future = QtConcurrent::run(this, &LocationSettingsWidget::searchGothicAsync, searchG1, searchG2, searchG3);
 	watcher.setFuture(future);
 	const int code = dlg.exec();
 	if (code == QDialog::Rejected) {
@@ -473,40 +568,60 @@ bool LocationSettingsWidget::isGothicValid(QString path, QString executable, boo
 	return b;
 }
 
-void LocationSettingsWidget::searchGothicAsync(bool searchG1, bool searchG2) {
+bool LocationSettingsWidget::isGothic3Valid(QString path, QString executable, bool restored) const {
+	bool b = !path.isEmpty();
+	b = b && QDir().exists(path);
+	b = b && (restored || QFileInfo::exists(path + "/" + executable));
+	return b;
+}
+
+void LocationSettingsWidget::searchGothicAsync(bool searchG1, bool searchG2, bool searchG3) {
 	QString filter = "Gothic";
-	if (searchG1 && searchG2) {
+	int count = 0;
+	if (searchG1) count++;
+	if (searchG2) count++;
+	if (searchG3) count++;
+	
+	if (count > 1) {
 		filter += "*";
 	} else if (searchG2) {
 		filter += "2";
+	} else if (searchG3) {
+		filter += "3";
 	}
 	filter += "*exe";
 	QFutureSynchronizer<void> sync;
-	bool gothicFound = !searchG1;
-	bool gothic2Found = !searchG2;
+	SearchConfig sc;
+	sc.gothicFound = !searchG1;
+	sc.gothic2Found = !searchG2;
+	sc.gothic3Found = !searchG3;
+	
 	for (const QFileInfo & fi : QDir::drives()) {
-		sync.addFuture(QtConcurrent::run<void>(this, &LocationSettingsWidget::checkPartition, fi.absolutePath(), filter, &gothicFound, &gothic2Found, false));
+		sync.addFuture(QtConcurrent::run<void>(this, &LocationSettingsWidget::checkPartition, fi.absolutePath(), filter, &sc, false));
 	}
 	sync.waitForFinished();
 }
 
-void LocationSettingsWidget::checkPartition(QString partition, QString filter, bool * gothicFound, bool * gothic2Found, bool recursive) {
+void LocationSettingsWidget::checkPartition(QString partition, QString filter, SearchConfig * searchConfig, bool recursive) {
 	QDirIterator it(partition, QStringList() << filter, QDir::Files);
 	while (it.hasNext() && !_cancelSearch) {
 		it.next();
-		if (it.fileName().compare("Gothic.exe", Qt::CaseSensitivity::CaseInsensitive) == 0 && !*gothicFound) {
+		if (it.fileName().compare("Gothic.exe", Qt::CaseSensitivity::CaseInsensitive) == 0 && !searchConfig->gothicFound) {
 			emit foundGothic(QDir(QFileInfo(it.filePath()).absolutePath() + "/..").absolutePath());
-			*gothicFound = true;
-		} else if (it.fileName().compare("Gothic2.exe", Qt::CaseSensitivity::CaseInsensitive) == 0 && !*gothic2Found) {
+			searchConfig->gothicFound = true;
+		} else if (it.fileName().compare("Gothic2.exe", Qt::CaseSensitivity::CaseInsensitive) == 0 && !searchConfig->gothic2Found) {
 			emit foundGothic2(QDir(QFileInfo(it.filePath()).absolutePath() + "/..").absolutePath());
-			*gothic2Found = true;
+			searchConfig->gothic2Found = true;
+		} else if (it.fileName().compare("Gothic3.exe", Qt::CaseSensitivity::CaseInsensitive) == 0 && !searchConfig->gothic3Found) {
+			emit foundGothic3(QDir(QFileInfo(it.filePath()).absolutePath()).absolutePath());
+			searchConfig->gothic3Found = true;
 		}
-		if (*gothicFound && *gothic2Found) {
+		if (searchConfig->gothicFound && searchConfig->gothic2Found && searchConfig->gothic3Found) {
 			emit finishedSearch();
 			return;
 		}
 	}
-	if (*gothicFound && *gothic2Found) {
+	if (searchConfig->gothicFound && searchConfig->gothic2Found && searchConfig->gothic3Found) {
 		emit finishedSearch();
 		return;
 	}
@@ -519,9 +634,9 @@ void LocationSettingsWidget::checkPartition(QString partition, QString filter, b
 		dirIt.next();
 		if (_futureCounter < 1000) {
 			++_futureCounter;
-			sync.addFuture(QtConcurrent::run<void>(this, &LocationSettingsWidget::checkPartition, dirIt.filePath(), filter, gothicFound, gothic2Found, false));
+			sync.addFuture(QtConcurrent::run<void>(this, &LocationSettingsWidget::checkPartition, dirIt.filePath(), filter, searchConfig, false));
 		} else {
-			checkPartition(dirIt.filePath(), filter, gothicFound, gothic2Found, true);
+			checkPartition(dirIt.filePath(), filter, searchConfig, true);
 		}
 	}
 	sync.waitForFinished();
@@ -537,4 +652,8 @@ bool LocationSettingsWidget::startGothicWithSteam() const {
 
 bool LocationSettingsWidget::startGothic2WithSteam() const {
 	return _gothic2Steam->isChecked();
+}
+
+bool LocationSettingsWidget::startGothic3WithSteam() const {
+	return _gothic3Steam->isChecked();
 }

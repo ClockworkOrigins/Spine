@@ -100,6 +100,7 @@ namespace widgets {
 		SpineLevelRankingWidget * _spineLevelRankingWidget;
 		QString _gothicDirectory;
 		QString _gothic2Directory;
+		QString _gothic3Directory;
 		SettingsDialog * _settingsDialog;
 		AutoUpdateDialog * _autoUpdateDialog;
 		ChangelogDialog * _changelogDialog;

@@ -28,12 +28,20 @@
         <translation>Путь к игре "Готика 2:НВ"</translation>
     </message>
     <message>
+        <source>Gothic3Path</source>
+        <translation>Путь к игре "Готика 3"</translation>
+    </message>
+    <message>
         <source>SelectGothicDir</source>
         <translation>Выберите путь к каталогу игры "Готика 1"</translation>
     </message>
     <message>
         <source>SelectGothic2Dir</source>
         <translation>Выберите путь к каталогу игры "Готика 2:НВ"</translation>
+    </message>
+    <message>
+        <source>SelectGothic3Dir</source>
+        <translation>Выберите путь к каталогу игры "Готика 3"</translation>
     </message>
     <message>
         <source>Bugs</source>
@@ -285,6 +293,10 @@
     <message>
         <source>PatchingG2</source>
         <translation>Патчинг игры "Готика 2:НВ"</translation>
+    </message>
+    <message>
+        <source>PatchingG3</source>
+        <translation>Патчинг игры "Готика 3"</translation>
     </message>
     <message>
         <source>PatchesAndTools</source>
@@ -562,6 +574,10 @@
     <message>
         <source>InvalidGothic2Path</source>
         <translation>Выбранный путь для игры "Готика 2" не верный! Пожалуйста, убедитесь, что это путь установки до основного каталога "Готики 2". В этом каталоге должна быть папка с названием "System", содержащая файл Gothic2.exe.</translation>
+    </message>
+    <message>
+        <source>InvalidGothic3Path</source>
+        <translation>Выбранный путь для игры "Готика 3" не верный! Пожалуйста, убедитесь, что это путь установки до основного каталога "Готики 3". В этом каталоге должна быть папка содержащая файл Gothic3.exe.</translation>
     </message>
     <message>
         <source>VersionUpToDate</source>

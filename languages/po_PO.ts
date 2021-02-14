@@ -28,12 +28,20 @@
         <translation>Lokalizacja G2</translation>
     </message>
     <message>
+        <source>Gothic3Path</source>
+        <translation>Lokalizacja G3</translation>
+    </message>
+    <message>
         <source>SelectGothicDir</source>
         <translation>Wybierz lokalizację G1</translation>
     </message>
     <message>
         <source>SelectGothic2Dir</source>
         <translation>Wybierz lokalizację G2</translation>
+    </message>
+    <message>
+        <source>SelectGothic3Dir</source>
+        <translation>Wybierz lokalizację G3</translation>
     </message>
     <message>
         <source>Bugs</source>
@@ -346,6 +354,10 @@ W przypadku znalezienia aktualizacji Spine automatycznie rozpocznie pobieranie, 
         <translation>Gothic II</translation>
     </message>
     <message>
+        <source>Gothic3</source>
+        <translation>Gothic 3</translation>
+    </message>
+    <message>
         <source>MinDurationHours</source>
         <translation>Min. czas gry w godzinach</translation>
     </message>
@@ -564,6 +576,10 @@ W przypadku znalezienia aktualizacji Spine automatycznie rozpocznie pobieranie, 
     <message>
         <source>InvalidGothic2Path</source>
         <translation>Wskazana ścieżka do Gothic II jest nieważna. Upewnij się, że jest to katalog główny z twoim zainstalowanym GII. Poznasz go po folderze o nazwie „System”, w którym znajduje się Gothic2.exe.</translation>
+    </message>
+    <message>
+        <source>InvalidGothic3Path</source>
+        <translation>Wskazana ścieżka do Gothic 3 jest nieważna. Upewnij się, że jest to katalog główny z twoim zainstalowanym G3. Poznasz go po folderze w którym znajduje się Gothic3.exe.</translation>
     </message>
     <message>
         <source>VersionUpToDate</source>

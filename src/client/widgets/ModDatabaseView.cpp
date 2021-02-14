@@ -665,6 +665,10 @@ void ModDatabaseView::gothic2ValidationChanged(bool valid) {
 	_gothic2Valid = valid;
 }
 
+void ModDatabaseView::gothic3ValidationChanged(bool valid) {
+	_gothic3Valid = valid;
+}
+
 void ModDatabaseView::loginChanged() {
 	// check if a GMP mod is installed and GMP is not installed
 	Database::DBError dbErr;
@@ -1402,7 +1406,7 @@ void ModDatabaseView::selectedModIndex(const QModelIndex & index) {
 			});
 		}
 	} else {
-		const bool uninstalled = client::Uninstaller::uninstall(mod.id, s2q(mod.name), mod.gothic == common::GameType::Gothic ? _gothicDirectory : _gothic2Directory);
+		const bool uninstalled = Uninstaller::uninstall(mod.id, s2q(mod.name), mod.gothic == common::GameType::Gothic ? _gothicDirectory : _gothic2Directory);
 		if (uninstalled) {
 			int row = 0;
 			for (; row < static_cast<int>(_mods.size()); row++) {

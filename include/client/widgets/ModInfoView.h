@@ -43,6 +43,7 @@ namespace widgets {
 
 		void setGothicDirectory(QString directory);
 		void setGothic2Directory(QString directory);
+		void setGothic3Directory(QString directory);
 		void selectMod(const QString & modID, const QString & iniFile);
 		void start();
 
@@ -65,7 +66,7 @@ namespace widgets {
 	private slots:
 		void restartSpineAsAdmin();
 		void showErrorMessage(QString msg);
-		void showSurvey(widgets::Survey survey, int versionMajor, int versionMinor, int versionPatch);
+		void showSurvey(Survey survey, int versionMajor, int versionMinor, int versionPatch);
 
 	private:
 		QVBoxLayout * _layout;

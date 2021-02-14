@@ -70,11 +70,11 @@ void LibraryFilterModel::showHidden(int state) {
 
 bool LibraryFilterModel::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const {
 	bool result = true;
-	QStandardItemModel * model = dynamic_cast<QStandardItemModel *>(sourceModel());
+	auto * model = dynamic_cast<QStandardItemModel *>(sourceModel());
 
 	const auto gameType = static_cast<common::GameType>(model->data(model->index(source_row, 0), GameRole).toInt());
 	
-	result = result && ((gameType == common::GameType::Gothic && _gothicActive) || (gameType == common::GameType::Gothic2 && _gothic2Active) || (gameType == common::GameType::GothicInGothic2 && _gothicAndGothic2Active) || (gameType == common::GameType::Gothic1And2 && (_gothicActive || _gothic2Active || _gothicAndGothic2Active)) || (gameType == common::GameType::Game && _gameActive));
+	result = result && ((gameType == common::GameType::Gothic && _gothicActive) || (gameType == common::GameType::Gothic2 && _gothic2Active) || (gameType == common::GameType::GothicInGothic2 && _gothicAndGothic2Active) || (gameType == common::GameType::Gothic1And2 && (_gothicActive || _gothic2Active || _gothicAndGothic2Active)) || ((gameType == common::GameType::Game || gameType == common::GameType::Gothic3) && _gameActive));
 	result = result && (_showHidden || !model->data(model->index(source_row, 0), HiddenRole).toBool());
 	result = result && QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
 	return result;
