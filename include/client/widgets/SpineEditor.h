@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "common/MessageStructs.h"
-
 #include <QDialog>
 
 class QMainWindow;
@@ -56,7 +54,6 @@ namespace widgets {
 		void updateFromModel();
 		void accept() override;
 		void reject() override;
-		void submit();
 		void installSpineScripts();
 		void updateSpineScripts();
 		void installIkarusScripts();
@@ -79,7 +76,6 @@ namespace widgets {
 		QPushButton * _installLeGoButton;
 		QPushButton * _updateLeGoButton;
 		QMainWindow * _mainWindow;
-		std::vector<common::SendModsForEditorMessage::ModForEditor> _modList;
 
 		void closeEvent(QCloseEvent * evt) override;
 		void checkSpineVersion();
@@ -89,7 +85,6 @@ namespace widgets {
 		void checkLeGoInitialized();
 		void restoreSettings();
 		void saveSettings();
-		void loadMods();
 	};
 
 } /* namespace widgets */

@@ -20,8 +20,7 @@
 
 #include "SpineConfig.h"
 
-#include "common/MessageStructs.h"
-#include "common/SpineModules.h"
+#include "common/GameType.h"
 
 #include "gui/WaitSpinner.h"
 
@@ -32,7 +31,6 @@
 #include "utils/Conversion.h"
 #include "utils/DownloadQueue.h"
 #include "utils/FileDownloader.h"
-#include "utils/Hashing.h"
 #include "utils/MultiFileDownloader.h"
 
 #include "widgets/AchievementSpineSettingsWidget.h"
@@ -42,27 +40,20 @@
 #include "widgets/ScoreSpineSettingsWidget.h"
 #include "widgets/UpdateLanguage.h"
 
-#include "clockUtils/sockets/TcpSocket.h"
-
 #include <QApplication>
 #include <QDialogButtonBox>
-#include <QDebug>
 #include <QDirIterator>
 #include <QFile>
 #include <QFileInfo>
-#include <QFutureWatcher>
 #include <QInputDialog>
-#include <QMessageBox>
 #include <QProcessEnvironment>
 #include <QPushButton>
-#include <QSet>
 #include <QSettings>
 #include <QTabWidget>
 #include <QtConcurrentRun>
 #include <QTextStream>
 #include <QVBoxLayout>
 
-using namespace spine;
 using namespace spine::gui;
 using namespace spine::models;
 using namespace spine::utils;
@@ -154,7 +145,7 @@ SpineEditor::SpineEditor(QMainWindow * mainWindow) : QDialog(nullptr), _model(ne
 	_updateLeGoButton->hide();
 	l->addWidget(_updateLeGoButton);
 
-	QDialogButtonBox * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Save | QDialogButtonBox::StandardButton::Discard | QDialogButtonBox::StandardButton::Apply, Qt::Orientation::Horizontal, this);
+	QDialogButtonBox * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Save | QDialogButtonBox::StandardButton::Discard, Qt::Orientation::Horizontal, this);
 	l->addWidget(dbb);
 
 	setLayout(l);
@@ -175,27 +166,18 @@ SpineEditor::SpineEditor(QMainWindow * mainWindow) : QDialog(nullptr), _model(ne
 	connect(b, &QPushButton::released, this, &SpineEditor::reject);
 	connect(b, &QPushButton::released, this, &SpineEditor::hide);
 
-	b = dbb->button(QDialogButtonBox::StandardButton::Apply);
-	b->setText(QApplication::tr("Submit"));
-	UPDATELANGUAGESETTEXT(b, "Submit");
-	b->setToolTip(QApplication::tr("SubmitScripts"));
-	UPDATELANGUAGESETTOOLTIP(b, "SubmitScripts");
-	connect(b, &QPushButton::released, this, &SpineEditor::submit);
-
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 	setWindowTitle(QApplication::tr("SpineEditor"));
 	UPDATELANGUAGESETWINDOWTITLE(this, "SpineEditor");
 
 	restoreSettings();
-
-	loadMods();
 }
 
 SpineEditor::~SpineEditor() {
 	saveSettings();
 }
 
-models::SpineEditorModel * SpineEditor::getModel() const {
+SpineEditorModel * SpineEditor::getModel() const {
 	return _model;
 }
 
@@ -238,135 +220,6 @@ void SpineEditor::accept() {
 void SpineEditor::reject() {
 	_model->load();
 	QDialog::reject();
-}
-
-void SpineEditor::submit() {
-	// save to update model
-	_generalSpineSettingsWidget->save();
-	_achievementSpineSettingsWidget->save();
-	_scoreSpineSettingsWidget->save();
-	
-	if (!(_model->getModules() & common::SpineModules::Achievements) && !(_model->getModules() & common::SpineModules::Scores)) {
-		QMessageBox resultMsg(QMessageBox::Icon::Information, QApplication::tr("NoScriptFeatures"), QApplication::tr("NoScriptFeaturesText"), QMessageBox::StandardButton::Ok);
-		resultMsg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
-		resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-		resultMsg.exec();
-		return;
-	}
-	QStringList modList;
-	for (const auto & s : _modList) {
-		modList.append(s2q(s.name));
-	}
-	QString modname = QInputDialog::getItem(this, QApplication::tr("Modname"), QApplication::tr("EnterModname"), modList);
-	if (modname.isEmpty()) {
-		return;
-	}
-
-	WaitSpinner spinner(QApplication::tr("SubmittingFeatures"), this);
-
-	QFutureWatcher<clockUtils::ClockError> watcher(this);
-	QEventLoop loop;
-	connect(&watcher, &QFutureWatcher<clockUtils::ClockError>::finished, &loop, &QEventLoop::quit);
-
-	const QFuture<clockUtils::ClockError> future = QtConcurrent::run([this, &modname]() {
-		common::SubmitScriptFeaturesMessage ssfm;
-		common::SendModsForEditorMessage::ModForEditor mfe;
-		for (const auto & s : _modList) {
-			if (s2q(s.name) == modname) {
-				mfe = s;
-				break;
-			}
-		}
-		ssfm.modID = mfe.modID;
-		ssfm.language = Config::Language.toStdString();
-		ssfm.username = Config::Username.toStdString();
-		ssfm.password = Config::Password.toStdString();
-		if (_model->getModules() & common::SpineModules::Achievements) {
-			QSet<QString> imageNames;
-			for (const models::AchievementModel & am : _model->getAchievements()) {
-				common::SubmitScriptFeaturesMessage::Achievement a;
-				a.name = q2s(am.name);
-				a.description = q2s(am.description);
-				a.hidden = am.hidden;
-				a.lockedImageName = (QFileInfo(am.lockedImage).fileName() + "." + QFileInfo(am.lockedImage).suffix()).toStdString();
-				a.unlockedImageName = (QFileInfo(am.unlockedImage).fileName() + "." + QFileInfo(am.unlockedImage).suffix()).toStdString();
-				a.maxProgress = am.maxProgress;
-				ssfm.achievements.push_back(a);
-				if (!am.lockedImage.isEmpty()) {
-					imageNames.insert(am.lockedImage);
-				}
-				if (!am.unlockedImage.isEmpty()) {
-					imageNames.insert(am.unlockedImage);
-				}
-			}
-			for (const QString & imageFile : imageNames) {
-				QString imageHash;
-				for (const auto & p : mfe.images) {
-					QString af = QFileInfo(s2q(p.first)).fileName();
-					af.chop(2);
-					if (af == imageFile) {
-						imageHash = s2q(p.second);
-						break;
-					}
-				}
-				QDirIterator itImage(_model->getPath() + "/_work/data/Textures/", QStringList() << imageFile, QDir::Files, QDirIterator::Subdirectories);
-				if (itImage.hasNext()) {
-					itImage.next();
-					QImage img(itImage.filePath());
-					if (!img.isNull()) {
-						bool b = img.save(QProcessEnvironment::systemEnvironment().value("TMP", ".") + "/tmpAchSP.png");
-						Q_UNUSED(b);
-					}
-					QString hashSum;
-					utils::Hashing::hash(QProcessEnvironment::systemEnvironment().value("TMP", ".") + "/tmpAchSP.png", hashSum);
-					if (imageHash != hashSum) {
-						utils::Compression::compress(QProcessEnvironment::systemEnvironment().value("TMP", ".") + "/tmpAchSP.png", false);
-
-						QFile compressedFile(QProcessEnvironment::systemEnvironment().value("TMP", ".") + "/tmpAchSP.png.z");
-						if (compressedFile.open(QIODevice::ReadOnly)) {
-							QByteArray byteArr = compressedFile.readAll();
-							std::vector<uint8_t> buffer(byteArr.length());
-							memcpy(&buffer[0], byteArr.data(), byteArr.length());
-							ssfm.achievementImages.emplace_back(std::make_pair(QFileInfo(imageFile).fileName().toStdString(), q2s(hashSum)), buffer);
-						}
-						compressedFile.close();
-						compressedFile.remove();
-					}
-				}
-			}
-		}
-		if (_model->getModules() & common::SpineModules::Scores) {
-			for (const models::ScoreModel & sm : _model->getScores()) {
-				common::SubmitScriptFeaturesMessage::Score s;
-				s.name = q2s(sm.name);
-				ssfm.scores.push_back(s);
-			}
-		}
-		const std::string serialized = ssfm.SerializePublic();
-		clockUtils::sockets::TcpSocket sock;
-		clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-		if (Config::Username.isEmpty()) {
-			cErr = clockUtils::ClockError::INVALID_USAGE;
-		}
-		if (clockUtils::ClockError::SUCCESS == cErr) {
-			cErr = sock.writePacket(serialized);
-		}
-		return cErr;
-	});
-	watcher.setFuture(future);
-	loop.exec();
-	const clockUtils::ClockError cErr = future.result();
-	if (cErr == clockUtils::ClockError::SUCCESS) {
-		QMessageBox resultMsg(QMessageBox::Icon::Information, QApplication::tr("ScriptSubmissionComplete"), QApplication::tr("ScriptSubmissionCompleteText"), QMessageBox::StandardButton::Ok);
-		resultMsg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
-		resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-		resultMsg.exec();
-	} else {
-		QMessageBox resultMsg(QMessageBox::Icon::Warning, QApplication::tr("ScriptSubmissionError"), QApplication::tr("ScriptSubmissionErrorText"), QMessageBox::StandardButton::Ok);
-		resultMsg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
-		resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-		resultMsg.exec();
-	}
 }
 
 void SpineEditor::installSpineScripts() {
@@ -793,33 +646,4 @@ void SpineEditor::restoreSettings() {
 
 void SpineEditor::saveSettings() {
 	Config::IniParser->setValue("WINDOWGEOMETRY/SpineEditorGeometry", saveGeometry());
-}
-
-void SpineEditor::loadMods() {
-	QtConcurrent::run([this]() {
-		common::RequestModsForEditorMessage rmfem;
-		rmfem.username = Config::Username.toStdString();
-		rmfem.password = Config::Password.toStdString();
-		rmfem.language = Config::Language.toStdString();
-		std::string serialized = rmfem.SerializePublic();
-		clockUtils::sockets::TcpSocket sock;
-		clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-		if (clockUtils::ClockError::SUCCESS == cErr) {
-			sock.writePacket(serialized);
-			if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-				try {
-					common::Message * m = common::Message::DeserializePublic(serialized);
-					if (m) {
-						common::SendModsForEditorMessage * smfem = dynamic_cast<common::SendModsForEditorMessage *>(m);
-						_modList = smfem->modList;
-					}
-					delete m;
-				} catch (...) {
-					return;
-				}
-			} else {
-				qDebug() << "Error occurred: " << static_cast<int>(cErr);
-			}
-		}
-	});
 }
