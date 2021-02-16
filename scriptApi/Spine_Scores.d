@@ -16,14 +16,14 @@ func void Spine_UpdateScore(var int identifier, var int score) {
 };
 
 // returns the score for the given identifier
-// if no score exists for the player/identifier combination, 0 is returned
+// if no score exists for the player/identifier combination, -1 is returned
 func int Spine_GetUserScore(var int identifier) {
 	if (Spine_Initialized && Spine_GetUserScoreFunc) {
 		CALL_IntParam(identifier);
 		CALL__cdecl(Spine_GetUserScoreFunc);
 		return CALL_RetValAsInt();
 	};
-	return 0;
+	return -1;
 };
 
 // returns the rank for the given identifier
