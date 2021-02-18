@@ -139,7 +139,7 @@ namespace {
 				sizeString = "-";
 			} else {
 				QString unit = "B";
-				double dSize = static_cast<double>(size);
+				auto dSize = static_cast<double>(size);
 				while (dSize > 1024 && unit != "GB") {
 					dSize /= 1024.0;
 					if (unit == "B") {
@@ -175,7 +175,7 @@ namespace {
 } /* namespace spine */
 
 ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _mainWindow(mainWindow), _treeView(nullptr), _sourceModel(nullptr), _sortModel(nullptr), _gothicValid(false), _gothic2Valid(false), _waitSpinner(nullptr), _allowRenderer(false), _cached(false) {
-	QVBoxLayout * l = new QVBoxLayout();
+	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 	
 	setProperty("default", true);
@@ -265,9 +265,9 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 	languagePixmaps.insert(common::German | common::English | common::Polish | common::Russian, pmDEENPLRU);
 
 	{
-		QWidget * filterWidget = new QWidget(this);
-		QHBoxLayout * hl = new QHBoxLayout();
-		QLineEdit * le = new QLineEdit(filterWidget);
+		auto * filterWidget = new QWidget(this);
+		auto * hl = new QHBoxLayout();
+		auto * le = new QLineEdit(filterWidget);
 		le->setPlaceholderText(QApplication::tr("SearchPlaceholder"));
 		UPDATELANGUAGESETPLACEHOLDERTEXT(le, "SearchPlaceholder");
 
@@ -276,49 +276,49 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 		hl->addWidget(le);
 
 		{
-			QGroupBox * gbLanguages = new QGroupBox(QApplication::tr("Languages"), filterWidget);
+			auto * gbLanguages = new QGroupBox(QApplication::tr("Languages"), filterWidget);
 			UPDATELANGUAGESETTITLE(gbLanguages, "Languages");
 			
-			QGridLayout * gl = new QGridLayout();
+			auto * gl = new QGridLayout();
 
-			QCheckBox * cbGerman = new QCheckBox(QApplication::tr("German"), filterWidget);
+			auto * cbGerman = new QCheckBox(QApplication::tr("German"), filterWidget);
 			cbGerman->setChecked(_sortModel->isLanguageActive(common::German));
 			UPDATELANGUAGESETTEXT(cbGerman, "German");
 			connect(cbGerman, &QCheckBox::stateChanged, [this](int state) {
 				_sortModel->languageChanged(common::German, state);
 			});
 
-			QCheckBox * cbEnglish = new QCheckBox(QApplication::tr("English"), filterWidget);
+			auto * cbEnglish = new QCheckBox(QApplication::tr("English"), filterWidget);
 			cbEnglish->setChecked(_sortModel->isLanguageActive(common::English));
 			UPDATELANGUAGESETTEXT(cbEnglish, "English");
 			connect(cbEnglish, &QCheckBox::stateChanged, [this](int state) {
 				_sortModel->languageChanged(common::English, state);
 			});
 
-			QCheckBox * cbPolish = new QCheckBox(QApplication::tr("Polish"), filterWidget);
+			auto * cbPolish = new QCheckBox(QApplication::tr("Polish"), filterWidget);
 			cbPolish->setChecked(_sortModel->isLanguageActive(common::Polish));
 			UPDATELANGUAGESETTEXT(cbPolish, "Polish");
 			connect(cbPolish, &QCheckBox::stateChanged, [this](int state) {
 				_sortModel->languageChanged(common::Polish, state);
 			});
 
-			QCheckBox * cbRussian = new QCheckBox(QApplication::tr("Russian"), filterWidget);
+			auto * cbRussian = new QCheckBox(QApplication::tr("Russian"), filterWidget);
 			cbRussian->setChecked(_sortModel->isLanguageActive(common::Russian));
 			UPDATELANGUAGESETTEXT(cbRussian, "Russian");
 			connect(cbRussian, &QCheckBox::stateChanged, [this](int state) {
 				_sortModel->languageChanged(common::Russian, state);
 			});
 
-			QLabel * lblGerman = new QLabel(gbLanguages);
+			auto * lblGerman = new QLabel(gbLanguages);
 			lblGerman->setPixmap(languagePixmaps[common::German]);
 
-			QLabel * lblEnglish = new QLabel(gbLanguages);
+			auto * lblEnglish = new QLabel(gbLanguages);
 			lblEnglish->setPixmap(languagePixmaps[common::English]);
 
-			QLabel * lblPolish = new QLabel(gbLanguages);
+			auto * lblPolish = new QLabel(gbLanguages);
 			lblPolish->setPixmap(languagePixmaps[common::Polish]);
 
-			QLabel * lblRussian = new QLabel(gbLanguages);
+			auto * lblRussian = new QLabel(gbLanguages);
 			lblRussian->setPixmap(languagePixmaps[common::Russian]);
 
 			gl->addWidget(cbGerman, 0, 0);
@@ -337,28 +337,28 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 		}
 
 		{
-			QGroupBox * gb = new QGroupBox(QApplication::tr("Type"), filterWidget);
+			auto * gb = new QGroupBox(QApplication::tr("Type"), filterWidget);
 			UPDATELANGUAGESETTITLE(gb, "Type");
 
-			QHBoxLayout * gbHl = new QHBoxLayout();
+			auto * gbHl = new QHBoxLayout();
 
 			{
-				QGroupBox * gbGame = new QGroupBox(QApplication::tr("Game"), gb);
+				auto * gbGame = new QGroupBox(QApplication::tr("Game"), gb);
 				UPDATELANGUAGESETTITLE(gbGame, "Game");
 				
-				QVBoxLayout * vbl = new QVBoxLayout();
+				auto * vbl = new QVBoxLayout();
 
-				QCheckBox * cbFullVersion = new QCheckBox(QApplication::tr("FullVersion"), filterWidget);
+				auto * cbFullVersion = new QCheckBox(QApplication::tr("FullVersion"), filterWidget);
 				cbFullVersion->setChecked(_sortModel->isFullVersionsActive());
 				UPDATELANGUAGESETTEXT(cbFullVersion, "FullVersion");
 				connect(cbFullVersion, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::fullVersionsChanged);
 
-				QCheckBox * cbDemo = new QCheckBox(QApplication::tr("Demo"), filterWidget);
+				auto * cbDemo = new QCheckBox(QApplication::tr("Demo"), filterWidget);
 				cbDemo->setChecked(_sortModel->isDemosActive());
 				UPDATELANGUAGESETTEXT(cbDemo, "Demo");
 				connect(cbDemo, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::demosChanged);
 
-				QCheckBox * cbPlayTesting = new QCheckBox(QApplication::tr("PlayTesting"), filterWidget);
+				auto * cbPlayTesting = new QCheckBox(QApplication::tr("PlayTesting"), filterWidget);
 				cbPlayTesting->setChecked(_sortModel->isPlayTestingActive());
 				UPDATELANGUAGESETTEXT(cbPlayTesting, "PlayTesting");
 				connect(cbPlayTesting, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::playTestingChanged);
@@ -375,37 +375,37 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 			}
 
 			{
-				QGroupBox * gbMod = new QGroupBox(QApplication::tr("Modification"), gb);
+				auto * gbMod = new QGroupBox(QApplication::tr("Modification"), gb);
 				UPDATELANGUAGESETTITLE(gbMod, "Modification");
 				
-				QVBoxLayout * vbl = new QVBoxLayout();
+				auto * vbl = new QVBoxLayout();
 
-				QCheckBox * cbTotalConversion = new QCheckBox(QApplication::tr("TotalConversion"), filterWidget);
+				auto * cbTotalConversion = new QCheckBox(QApplication::tr("TotalConversion"), filterWidget);
 				cbTotalConversion->setChecked(_sortModel->isTotalConversionActive());
 				UPDATELANGUAGESETTEXT(cbTotalConversion, "TotalConversion");
 				connect(cbTotalConversion, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::totalConversionChanged);
 
-				QCheckBox * cbEnhancement = new QCheckBox(QApplication::tr("Enhancement"), filterWidget);
+				auto * cbEnhancement = new QCheckBox(QApplication::tr("Enhancement"), filterWidget);
 				cbEnhancement->setChecked(_sortModel->isEnhancementActive());
 				UPDATELANGUAGESETTEXT(cbEnhancement, "Enhancement");
 				connect(cbEnhancement, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::enhancementChanged);
 
-				QCheckBox * cbPatch = new QCheckBox(QApplication::tr("Patch"), filterWidget);
+				auto * cbPatch = new QCheckBox(QApplication::tr("Patch"), filterWidget);
 				cbPatch->setChecked(_sortModel->isPathActive());
 				UPDATELANGUAGESETTEXT(cbPatch, "Patch");
 				connect(cbPatch, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::patchChanged);
 
-				QCheckBox * cbTool = new QCheckBox(QApplication::tr("Tool"), filterWidget);
+				auto * cbTool = new QCheckBox(QApplication::tr("Tool"), filterWidget);
 				cbTool->setChecked(_sortModel->isToolActive());
 				UPDATELANGUAGESETTEXT(cbTool, "Tool");
 				connect(cbTool, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::toolChanged);
 
-				QCheckBox * cbOriginal = new QCheckBox(QApplication::tr("Original"), filterWidget);
+				auto * cbOriginal = new QCheckBox(QApplication::tr("Original"), filterWidget);
 				cbOriginal->setChecked(_sortModel->isOriginalActive());
 				UPDATELANGUAGESETTEXT(cbOriginal, "Original");
 				connect(cbOriginal, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::originalChanged);
 
-				QCheckBox * cbGMP = new QCheckBox(QApplication::tr("GothicMultiplayer"), filterWidget);
+				auto * cbGMP = new QCheckBox(QApplication::tr("GothicMultiplayer"), filterWidget);
 				cbGMP->setChecked(_sortModel->isGMPActive());
 				UPDATELANGUAGESETTEXT(cbGMP, "GothicMultiplayer");
 				connect(cbGMP, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::gmpChanged);
@@ -430,27 +430,27 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 		}
 
 		{
-			QGroupBox * gb = new QGroupBox(QApplication::tr("Game"), filterWidget);
+			auto * gb = new QGroupBox(QApplication::tr("Game"), filterWidget);
 			UPDATELANGUAGESETTITLE(gb, "Game");
 
-			QVBoxLayout * vbl = new QVBoxLayout();
+			auto * vbl = new QVBoxLayout();
 
-			QCheckBox * cb1 = new QCheckBox(QApplication::tr("Gothic"), filterWidget);
+			auto * cb1 = new QCheckBox(QApplication::tr("Gothic"), filterWidget);
 			cb1->setChecked(_sortModel->isGothicActive());
 			UPDATELANGUAGESETTEXT(cb1, "Gothic");
 			connect(cb1, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::gothicChanged);
 
-			QCheckBox * cb2 = new QCheckBox(QApplication::tr("Gothic2"), filterWidget);
+			auto * cb2 = new QCheckBox(QApplication::tr("Gothic2"), filterWidget);
 			cb2->setChecked(_sortModel->isGothic2Active());
 			UPDATELANGUAGESETTEXT(cb2, "Gothic2");
 			connect(cb2, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::gothic2Changed);
 
-			QCheckBox * cb3 = new QCheckBox(QApplication::tr("GothicAndGothic2"), filterWidget);
+			auto * cb3 = new QCheckBox(QApplication::tr("GothicAndGothic2"), filterWidget);
 			cb3->setChecked(_sortModel->isGothicAndGothic2Active());
 			UPDATELANGUAGESETTEXT(cb3, "GothicAndGothic2");
 			connect(cb3, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::gothicAndGothic2Changed);
 
-			QCheckBox * cb4 = new QCheckBox(QApplication::tr("Game"), filterWidget);
+			auto * cb4 = new QCheckBox(QApplication::tr("Game"), filterWidget);
 			cb4->setChecked(_sortModel->isGamesActive());
 			UPDATELANGUAGESETTEXT(cb4, "Game");
 			connect(cb4, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::gamesChanged);
@@ -468,17 +468,17 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 		}
 
 		{
-			QGroupBox * gb = new QGroupBox(QApplication::tr("General"), filterWidget);
+			auto * gb = new QGroupBox(QApplication::tr("General"), filterWidget);
 			UPDATELANGUAGESETTITLE(gb, "General");
 
-			QVBoxLayout * vbl = new QVBoxLayout();
+			auto * vbl = new QVBoxLayout();
 
-			QCheckBox * cb1 = new QCheckBox(QApplication::tr("InstalledFilter"), filterWidget);
+			auto * cb1 = new QCheckBox(QApplication::tr("InstalledFilter"), filterWidget);
 			cb1->setChecked(_sortModel->isInstalledProjectsActive());
 			UPDATELANGUAGESETTEXT(cb1, "InstalledFilter");
 			connect(cb1, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::installedProjectsChanged);
 
-			QCheckBox * cb2 = new QCheckBox(QApplication::tr("PlayedFilter"), filterWidget);
+			auto * cb2 = new QCheckBox(QApplication::tr("PlayedFilter"), filterWidget);
 			cb2->setChecked(_sortModel->isPlayedProjectsActive());
 			UPDATELANGUAGESETTEXT(cb2, "PlayedFilter");
 			connect(cb2, &QCheckBox::stateChanged, _sortModel, &DatabaseFilterModel::playedProjectsChanged);
@@ -494,16 +494,16 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 		}
 
 		{
-			QGroupBox * gb = new QGroupBox(QApplication::tr("DevTime"), filterWidget);
+			auto * gb = new QGroupBox(QApplication::tr("DevTime"), filterWidget);
 			UPDATELANGUAGESETTITLE(gb, "DevTime");
 
-			QGridLayout * gl = new QGridLayout();
+			auto * gl = new QGridLayout();
 
-			QSpinBox * sb1 = new QSpinBox(gb);
+			auto * sb1 = new QSpinBox(gb);
 			sb1->setMinimum(0);
 			sb1->setMaximum(1000);
 			sb1->setValue(_sortModel->getMinDuration());
-			QSpinBox * sb2 = new QSpinBox(gb);
+			auto * sb2 = new QSpinBox(gb);
 			sb2->setMinimum(0);
 			sb2->setMaximum(1000);
 			sb2->setValue(_sortModel->getMaxDuration());
@@ -511,9 +511,9 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 			connect(sb1, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), _sortModel, &DatabaseFilterModel::minDurationChanged);
 			connect(sb2, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), _sortModel, &DatabaseFilterModel::maxDurationChanged);
 
-			QLabel * l1 = new QLabel(QApplication::tr("MinDurationHours"), gb);
+			auto * l1 = new QLabel(QApplication::tr("MinDurationHours"), gb);
 			UPDATELANGUAGESETTEXT(l1, "MinDurationHours");
-			QLabel * l2 = new QLabel(QApplication::tr("MaxDurationHours"), gb);
+			auto * l2 = new QLabel(QApplication::tr("MaxDurationHours"), gb);
 			UPDATELANGUAGESETTEXT(l2, "MaxDurationHours");
 
 			gl->addWidget(l1, 0, 0);
@@ -911,10 +911,10 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, QSharedPointer<QList<QPa
 		bool b = dir.mkpath(dir.absolutePath());
 		Q_UNUSED(b)
 	}
-	MultiFileDownloader * mfd = new MultiFileDownloader(this);
+	auto * mfd = new MultiFileDownloader(this);
 	for (const auto & p : *fileList) {
 		QFileInfo fi(p.first);
-		FileDownloader * fd = new FileDownloader(QUrl(fileserver + QString::number(mod.id) + "/" + p.first), dir.absolutePath() + "/" + fi.path(), fi.fileName(), p.second, mfd);
+		auto * fd = new FileDownloader(QUrl(fileserver + QString::number(mod.id) + "/" + p.first), dir.absolutePath() + "/" + fi.path(), fi.fileName(), p.second, mfd);
 		mfd->addFileDownloader(fd);
 
 		// zip workflow
@@ -944,7 +944,7 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, QSharedPointer<QList<QPa
 				break;
 			}
 		}
-		TextItem * buttonItem = dynamic_cast<TextItem *>(_sourceModel->item(row, DatabaseColumn::Install));
+		auto * buttonItem = dynamic_cast<TextItem *>(_sourceModel->item(row, Install));
 		buttonItem->setText(QApplication::tr("InQueue"));
 		buttonItem->setToolTip(QApplication::tr("InQueue"));
 		buttonItem->setData(false, Installed);
@@ -957,7 +957,7 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, QSharedPointer<QList<QPa
 				break;
 			}
 		}
-		TextItem * buttonItem = dynamic_cast<TextItem *>(_sourceModel->item(row, DatabaseColumn::Install));
+		auto * buttonItem = dynamic_cast<TextItem *>(_sourceModel->item(row, Install));
 		buttonItem->setText(QString("%1: %2%").arg(QApplication::tr("Downloading")).arg(static_cast<int>(progress * 100)));
 		buttonItem->setToolTip(QApplication::tr("Downloading"));
 		buttonItem->setData(false, Installed);
@@ -972,7 +972,7 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, QSharedPointer<QList<QPa
 				break;
 			}
 		}
-		TextItem * buttonItem = dynamic_cast<TextItem *>(_sourceModel->item(row, DatabaseColumn::Install));
+		auto * buttonItem = dynamic_cast<TextItem *>(_sourceModel->item(row, Install));
 		buttonItem->setText(QChar(static_cast<int>(FontAwesome::trasho)));
 		buttonItem->setToolTip(QApplication::tr("Uninstall"));
 		buttonItem->setData(true, Installed);
