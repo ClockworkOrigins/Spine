@@ -1052,7 +1052,7 @@ namespace common {
 		}
 	};
 
-	struct RequestModsForEditorMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.30.0")]] RequestModsForEditorMessage : public Message {
 		std::string username;
 		std::string password;
 		std::string language;
@@ -1068,7 +1068,7 @@ namespace common {
 		}
 	};
 
-	struct SendModsForEditorMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.30.0")]] SendModsForEditorMessage : public Message {
 		struct ModForEditor {
 			int32_t modID;
 			std::string name;
