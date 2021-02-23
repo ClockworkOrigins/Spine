@@ -689,22 +689,6 @@ void ILauncher::synchronizeOfflineData() {
 					json["Achievements"] = achievementsArray;
 				}
 				
-				QJsonArray scoresArray;
-				
-				const auto scores = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Identifier, Score FROM modScores;", err2);
-				for (const auto & vec : scores) {
-					QJsonObject jsonScore;
-					jsonScore["ProjectID"] = std::stoi(vec[0]);
-					jsonScore["Identifier"] = std::stoi(vec[1]);
-					jsonScore["Score"] = std::stoi(vec[2]);
-
-					scoresArray << jsonScore;
-				}
-
-				if (!scoresArray.isEmpty()) {
-					json["Scores"] = scoresArray;
-				}
-				
 				QJsonArray overallSaveDataArray;
 				
 				const auto overallSaveData = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT ModID, Entry, Value FROM overallSaveData;", err2);
