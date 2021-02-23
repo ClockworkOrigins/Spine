@@ -151,6 +151,8 @@ namespace server {
 		
 		[[deprecated("Remove in Spine 1.30.0")]]
 		void handleRequestUserLevel(clockUtils::sockets::TcpSocket * sock, common::RequestUserLevelMessage * msg) const;
+		
+		[[deprecated("Remove in Spine 1.31.0")]]
 		void handleUpdateSucceeded(clockUtils::sockets::TcpSocket * sock, common::UpdateSucceededMessage * msg) const;
 		
 		void handleUploadScreenshots(clockUtils::sockets::TcpSocket * sock, common::UploadScreenshotsMessage * msg) const;

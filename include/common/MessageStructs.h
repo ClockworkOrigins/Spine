@@ -1186,7 +1186,7 @@ namespace common {
 		}
 	};
 
-	struct UpdateSucceededMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.31.0")]] UpdateSucceededMessage : public Message {
 		int32_t modID;
 
 		UpdateSucceededMessage() : Message(), modID() {

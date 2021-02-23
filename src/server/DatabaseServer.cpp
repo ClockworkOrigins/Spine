@@ -91,6 +91,7 @@ int DatabaseServer::run() {
 	_server->resource["^/requestAllProjectStats"]["POST"] = std::bind(&DatabaseServer::requestAllProjectStats, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/requestAllAchievementStats"]["POST"] = std::bind(&DatabaseServer::requestAllAchievementStats, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/requestAllScoreStats"]["POST"] = std::bind(&DatabaseServer::requestAllScoreStats, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/updateSucceeded"]["POST"] = std::bind(&DatabaseServer::updateSucceeded, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -4675,6 +4676,60 @@ void DatabaseServer::requestAllScoreStats(std::shared_ptr<HttpsServer::Response>
 		write_json(responseStream, responseTree);
 
 		response->write(code, responseStream.str());
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::updateSucceeded(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		const SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+
+			if (!database.query("PREPARE insertStmt FROM \"INSERT INTO downloadsPerVersion (ModID, Version, Counter) VALUES (?, CONVERT(? USING BINARY), 1) ON DUPLICATE KEY UPDATE Counter = Counter + 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("PREPARE selectVersionStmt FROM \"SELECT MajorVersion, MinorVersion, PatchVersion FROM mods WHERE ModID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+
+			for (const auto & v : pt.get_child("IDs")) {
+				if (!database.query("SET @paramModID=" + v.second.data() + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					break;
+				}
+				if (!database.query("EXECUTE selectVersionStmt USING @paramModID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					break;
+				}
+				auto results = database.getResults<std::vector<std::string>>();
+				
+				if (results.empty()) continue;
+				
+				const std::string version = results[0][0] + "." + results[0][1] + "." + results[0][2];
+				if (!database.query("SET @paramVersion='" + version + "';")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					break;
+				}
+				if (!database.query("EXECUTE insertStmt USING @paramModID, @paramVersion;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					break;
+				}
+			}
+		} while (false);
+
+		response->write(code);
 	} catch (...) {
 		response->write(SimpleWeb::StatusCode::client_error_bad_request);
 	}

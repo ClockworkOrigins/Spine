@@ -27,6 +27,8 @@
 #include "gui/OverlayMessageHandler.h"
 #include "gui/Spoiler.h"
 
+#include "https/Https.h"
+
 #include "utils/Config.h"
 #include "utils/Conversion.h"
 #include "utils/Database.h"
@@ -40,6 +42,9 @@
 #include <QDialogButtonBox>
 #include <QDebug>
 #include <QDir>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
@@ -52,6 +57,7 @@
 using namespace spine::client;
 using namespace spine::common;
 using namespace spine::gui;
+using namespace spine::https;
 using namespace spine::utils;
 using namespace spine::widgets;
 
@@ -415,21 +421,25 @@ void ModUpdateDialog::accept() {
 		success = success && !err.error;
 
 		if (success) {
-			UpdateSucceededMessage usm;
-			clockUtils::sockets::TcpSocket sock;
-			sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
+			QJsonArray jsonArr;
+			
 			for (int i = 0; i < _updates.size(); i++) {
 				if (!_checkBoxes[i]->isChecked()) continue;
 
 				Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE mods SET MajorVersion = " + std::to_string(static_cast<int>(_updates[i].majorVersion)) + ", MinorVersion = " + std::to_string(static_cast<int>(_updates[i].minorVersion)) + ", PatchVersion = " + std::to_string(static_cast<int>(_updates[i].patchVersion)) + ", SpineVersion = " + std::to_string(static_cast<int>(_updates[i].spineVersion)) + " WHERE ModID = " + std::to_string(_updates[i].modID) + ";", err);
 				success = success && !err.error;
 				if (success) {
-					usm.modID = _updates[i].modID;
-					const std::string serialized = usm.SerializePublic();
-					sock.writePacket(serialized);
+					jsonArr << _updates[i].modID;
 
 					emit updatedMod(_updates[i].modID);
 				}
+			}
+
+			if (!jsonArr.empty()) {
+				QJsonObject json;
+				json["IDs"] = jsonArr;
+
+				Https::postAsync(DATABASESERVER_PORT, "updateSucceeded", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject &, int) {});
 			}
 		}
 		if (success) {
