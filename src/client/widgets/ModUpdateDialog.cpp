@@ -49,7 +49,6 @@
 #include <QTimer>
 #include <QVBoxLayout>
 
-using namespace spine;
 using namespace spine::client;
 using namespace spine::common;
 using namespace spine::gui;
@@ -224,7 +223,7 @@ void ModUpdateDialog::accept() {
 	QSharedPointer<QList<ModFile>> installFiles(new QList<ModFile>());
 	QSharedPointer<QList<ModFile>> removeFiles(new QList<ModFile>());
 	QSharedPointer<QList<ModFile>> newFiles(new QList<ModFile>());
-	for (size_t i = 0; i < _updates.size(); i++) {
+	for (int i = 0; i < _updates.size(); i++) {
 		if (!_checkBoxes[i]->isChecked()) {
 			hides.append(_updates[i]);
 			continue;
@@ -361,7 +360,7 @@ void ModUpdateDialog::accept() {
 		});
 	}
 
-	for (size_t i = 0; i < _updates.size(); i++) {
+	for (int i = 0; i < _updates.size(); i++) {
 		if (!_checkBoxes[i]->isChecked()) continue;
 
 		emit updateStarted(_updates[i].modID);
@@ -419,10 +418,9 @@ void ModUpdateDialog::accept() {
 			UpdateSucceededMessage usm;
 			clockUtils::sockets::TcpSocket sock;
 			sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-			for (size_t i = 0; i < _updates.size(); i++) {
-				if (!_checkBoxes[i]->isChecked()) {
-					continue;
-				}
+			for (int i = 0; i < _updates.size(); i++) {
+				if (!_checkBoxes[i]->isChecked()) continue;
+
 				Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE mods SET MajorVersion = " + std::to_string(static_cast<int>(_updates[i].majorVersion)) + ", MinorVersion = " + std::to_string(static_cast<int>(_updates[i].minorVersion)) + ", PatchVersion = " + std::to_string(static_cast<int>(_updates[i].patchVersion)) + ", SpineVersion = " + std::to_string(static_cast<int>(_updates[i].spineVersion)) + " WHERE ModID = " + std::to_string(_updates[i].modID) + ";", err);
 				success = success && !err.error;
 				if (success) {
@@ -495,36 +493,7 @@ void ModUpdateDialog::checkForUpdate() {
 
 			mv.language = it->language;
 		}
-		ModVersionCheckMessage mvcm;
-		mvcm.modVersions = m;
-		mvcm.language = Config::Language.toStdString();
-		mvcm.username = Config::Username.toStdString();
-		mvcm.password = Config::Password.toStdString();
-		std::string serialized = mvcm.SerializePublic();
-		clockUtils::sockets::TcpSocket sock;
-		if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-			sock.writePacket(serialized);
-			if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-				try {
-					Message * msg = Message::DeserializePublic(serialized);
-					if (msg) {
-						const SendModsToUpdateMessage * smtum = dynamic_cast<SendModsToUpdateMessage *>(msg);
-						if (smtum) {
-							emit receivedMods(smtum->updates, false);
-						} else {
-							qDebug() << static_cast<int>(msg->type);
-							emit receivedMods(std::vector<ModUpdate>(), false);
-						}
-					} else {
-						emit receivedMods(std::vector<ModUpdate>(), false);
-					}
-					delete msg;
-				} catch (...) {
-					emit receivedMods(std::vector<ModUpdate>(), false);
-					return;
-				}
-			}
-		}
+		requestUpdates(m, false);
 	});
 }
 
@@ -538,37 +507,8 @@ void ModUpdateDialog::checkForUpdate(int32_t modID, bool forceAccept) {
 		
 		_oldVersions.insert(modID, QString("%1.%2.%3").arg(static_cast<int>(m2.empty() ? m[0].majorVersion : m2[0].majorVersion)).arg(static_cast<int>(m2.empty() ? m[0].minorVersion : m2[0].minorVersion)).arg(static_cast<int>(m2.empty() ? m[0].patchVersion : m2[0].patchVersion)));
 		m[0].language = cl.empty() ? English : cl[0];
-		
-		ModVersionCheckMessage mvcm;
-		mvcm.modVersions = m;
-		mvcm.language = Config::Language.toStdString();
-		mvcm.username = Config::Username.toStdString();
-		mvcm.password = Config::Password.toStdString();
-		std::string serialized = mvcm.SerializePublic();
-		clockUtils::sockets::TcpSocket sock;
-		if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-			sock.writePacket(serialized);
-			if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-				try {
-					Message * msg = Message::DeserializePublic(serialized);
-					if (msg) {
-						auto * smtum = dynamic_cast<SendModsToUpdateMessage *>(msg);
-						if (smtum) {
-							emit receivedMods(smtum->updates, forceAccept);
-						} else {
-							qDebug() << static_cast<int>(msg->type);
-							emit receivedMods(std::vector<ModUpdate>(), forceAccept);
-						}
-					} else {
-						emit receivedMods(std::vector<ModUpdate>(), forceAccept);
-					}
-					delete msg;
-				} catch (...) {
-					emit receivedMods(std::vector<ModUpdate>(), forceAccept);
-					return;
-				}
-			}
-		}
+
+		requestUpdates(m, forceAccept);
 	});
 }
 
@@ -694,6 +634,39 @@ void ModUpdateDialog::unzippedArchive(QString archive, QList<QPair<QString, QStr
 			f.fileserver = mf.fileserver;
 			
 			newFiles->append(f);
+		}
+	}
+}
+
+void ModUpdateDialog::requestUpdates(const std::vector<ModVersion> & m, bool forceAccept) {
+	ModVersionCheckMessage mvcm;
+	mvcm.modVersions = m;
+	mvcm.language = Config::Language.toStdString();
+	mvcm.username = Config::Username.toStdString();
+	mvcm.password = Config::Password.toStdString();
+	
+	std::string serialized = mvcm.SerializePublic();
+	clockUtils::sockets::TcpSocket sock;
+	if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
+		sock.writePacket(serialized);
+		if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
+			try {
+				Message * msg = Message::DeserializePublic(serialized);
+				if (msg) {
+					const SendModsToUpdateMessage * smtum = dynamic_cast<SendModsToUpdateMessage *>(msg);
+					if (smtum) {
+						emit receivedMods(smtum->updates, forceAccept);
+					} else {
+						qDebug() << static_cast<int>(msg->type);
+						emit receivedMods(std::vector<ModUpdate>(), forceAccept);
+					}
+				} else {
+					emit receivedMods(std::vector<ModUpdate>(), forceAccept);
+				}
+				delete msg;
+			} catch (...) {
+				emit receivedMods(std::vector<ModUpdate>(), forceAccept);
+			}
 		}
 	}
 }

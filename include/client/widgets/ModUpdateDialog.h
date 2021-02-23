@@ -30,6 +30,9 @@ class QMainWindow;
 class QVBoxLayout;
 
 namespace spine {
+namespace common {
+	struct ModVersion;
+} /* common */
 namespace widgets {
 
 	class ModUpdateDialog : public QDialog {
@@ -87,6 +90,8 @@ namespace widgets {
 		bool hasChanges(common::ModUpdate mu) const;
 
 		void unzippedArchive(QString archive, QList<QPair<QString, QString>> files, ModFile mf, QSharedPointer<QList<ModFile>> installFiles, QSharedPointer<QList<ModFile>> newFiles, QSharedPointer<QList<ModFile>> removeFiles);
+
+		void requestUpdates(const std::vector<common::ModVersion> & m, bool forceAccept);
 	};
 
 } /* namespace widgets */
