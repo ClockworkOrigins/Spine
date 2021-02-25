@@ -81,6 +81,7 @@ namespace server {
 		void requestAllAchievementStats(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
 		void requestAllScoreStats(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
 		void updateSucceeded(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
+		void projectVersionCheck(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
 		
 		void requestAllTri6ScoreStats(boost::property_tree::ptree & responseTree) const;
 	};

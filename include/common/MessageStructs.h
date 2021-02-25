@@ -323,7 +323,7 @@ namespace common {
 		}
 	};
 
-	struct ModVersionCheckMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.31.0")]] ModVersionCheckMessage : public Message {
 		std::string language;
 		std::vector<ModVersion> modVersions;
 		std::string username;
@@ -341,7 +341,7 @@ namespace common {
 		}
 	};
 
-	struct SendModsToUpdateMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.31.0")]] SendModsToUpdateMessage : public Message {
 		std::vector<ModUpdate> updates;
 		SendModsToUpdateMessage() : Message() {
 			type = MessageType::SENDMODSTOUPDATE;

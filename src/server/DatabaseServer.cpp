@@ -38,6 +38,10 @@ using namespace boost::property_tree;
 
 using namespace spine::server;
 
+namespace {
+	static const std::string DEFAULTURL = "https://clockwork-origins.de/Gothic/downloads/mods/";
+}
+
 DatabaseServer::DatabaseServer() : _server(nullptr), _runner(nullptr) {}
 
 DatabaseServer::~DatabaseServer() {
@@ -92,6 +96,7 @@ int DatabaseServer::run() {
 	_server->resource["^/requestAllAchievementStats"]["POST"] = std::bind(&DatabaseServer::requestAllAchievementStats, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/requestAllScoreStats"]["POST"] = std::bind(&DatabaseServer::requestAllScoreStats, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/updateSucceeded"]["POST"] = std::bind(&DatabaseServer::updateSucceeded, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/projectVersionCheck"]["POST"] = std::bind(&DatabaseServer::projectVersionCheck, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -4730,6 +4735,356 @@ void DatabaseServer::updateSucceeded(std::shared_ptr<HttpsServer::Response> resp
 		} while (false);
 
 		response->write(code);
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::projectVersionCheck(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		const auto language = pt.get<std::string>("Language");
+		const auto username = pt.get<std::string>("Username");
+		const auto password = pt.get<std::string>("Password");
+
+		const int userID = ServerCommon::getUserID(username, password);
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+
+			if (!database.query("PREPARE selectModStmt FROM \"SELECT MajorVersion, MinorVersion, PatchVersion, SpineVersion, Enabled, TeamID, Gothic FROM mods WHERE ModID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectFileserverStmt FROM \"SELECT Url FROM fileserver WHERE ModID = ? AND MajorVersion = ? AND MinorVersion = ? AND PatchVersion = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectEarlyStmt FROM \"SELECT * FROM earlyUnlocks WHERE ModID = ? AND UserID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectTeamStmt FROM \"SELECT UserID FROM teammembers WHERE TeamID = ? AND UserID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectFilesStmt FROM \"SELECT Path, Hash FROM modfiles WHERE ModID = ? AND (Language = ? OR Language = 'All')\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectPackagesStmt FROM \"SELECT PackageID FROM optionalpackages WHERE ModID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectPackageFilesStmt FROM \"SELECT Path, Hash FROM optionalpackagefiles WHERE PackageID = ? AND (Language = ? OR Language = 'All')\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectNewsIDStmt FROM \"SELECT NewsID FROM newsticker WHERE ProjectID = ? AND Type = ? ORDER BY NewsID DESC LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectSavegamesCompatibleStmt FROM \"SELECT SavegameCompatible FROM updateNews WHERE ProjectID = ? AND SavegameCompatible = 0 AND (MajorVersion > ? OR (MajorVersion = ? AND MinorVersion > ?) OR (MajorVersion = ? AND MinorVersion = ? AND PatchVersion > ?)) LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectChangelogStmt FROM \"SELECT CAST(Changelog AS BINARY) FROM changelogs WHERE NewsID = ? AND Language = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+
+			ptree updateNodes;
+			
+			for (const auto & v : pt.get_child("Projects")) {
+				const auto projectLanguage = static_cast<common::Language>(v.second.get<int32_t>("Language"));
+				const auto projectID = v.second.get<int32_t>("ProjectID");
+				
+				if (!database.query("SET @paramModID=" + std::to_string(projectID) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("EXECUTE selectModStmt USING @paramModID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				
+				auto lastResults = database.getResults<std::vector<std::string>>();
+				
+				if (lastResults.empty()) continue;
+				
+				const auto majorVersion = static_cast<int8_t>(std::stoi(lastResults[0][0]));
+				const auto minorVersion = static_cast<int8_t>(std::stoi(lastResults[0][1]));
+				const auto patchVersion = static_cast<int8_t>(std::stoi(lastResults[0][2]));
+				const auto spineVersion = static_cast<int8_t>(std::stoi(lastResults[0][3]));
+				
+				bool enabled = std::stoi(lastResults[0][4]) == 1;
+				const int teamID = std::stoi(lastResults[0][5]);
+				const int gothicVersion = std::stoi(lastResults[0][6]);
+
+				if (!enabled && userID == -1) continue; // can't be unlocked, so direct skip
+
+				if (!enabled) {
+					if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+					if (!database.query("EXECUTE selectEarlyStmt USING @paramModID, @paramUserID;")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+					auto lastEarlyResults = database.getResults<std::vector<std::string>>();
+					enabled = !lastEarlyResults.empty();
+
+					if (!enabled) {
+						if (!database.query("SET @paramTeamID=" + std::to_string(teamID) + ";")) {
+							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+							code = SimpleWeb::StatusCode::client_error_failed_dependency;
+							break;
+						}
+						if (!database.query("EXECUTE selectTeamStmt USING @paramTeamID, @paramUserID;")) {
+							std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+							code = SimpleWeb::StatusCode::client_error_failed_dependency;
+							break;
+						}
+						lastEarlyResults = database.getResults<std::vector<std::string>>();
+						enabled = !lastEarlyResults.empty();
+					}
+				}
+
+				if (!enabled) continue;
+				
+				const auto versionMajor = static_cast<int8_t>(v.second.get<int32_t>("VersionMajor"));
+				const auto versionMinor = static_cast<int8_t>(v.second.get<int32_t>("VersionMinor"));
+				const auto versionPatch = static_cast<int8_t>(v.second.get<int32_t>("VersionPatch"));
+				const auto versionSpine = static_cast<int8_t>(v.second.get<int32_t>("VersionSpine"));
+
+				if (versionMajor == majorVersion && versionMinor == minorVersion && versionPatch == patchVersion && versionSpine == spineVersion) continue;
+				
+				const auto projectLanguageString = LanguageConverter::convert(projectLanguage);
+
+				if (!database.query("SET @paramLanguage='" + projectLanguageString + "';")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				std::string name = ServerCommon::getProjectName(projectID, LanguageConverter::convert(language));
+
+				ptree updateNode;
+				updateNode.put("ProjectID", projectID);
+				updateNode.put("Name", name);
+				updateNode.put("VersionMajor", static_cast<int>(majorVersion));
+				updateNode.put("VersionMinor", static_cast<int>(minorVersion));
+				updateNode.put("VersionPatch", static_cast<int>(patchVersion));
+				updateNode.put("VersionSpine", static_cast<int>(spineVersion));
+				updateNode.put("Type", gothicVersion);
+
+				if (!database.query("EXECUTE selectFilesStmt USING @paramModID, @paramLanguage;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				auto lastFilesResults = database.getResults<std::vector<std::string>>();
+
+				ptree fileNodes;
+				for (const auto & vec : lastFilesResults) {
+					ptree fileNode;
+					fileNode.put("File", vec[0]);
+					fileNode.put("Hash", vec[1]);
+
+					fileNodes.push_back(std::make_pair("", fileNode));
+				}
+
+				if (!fileNodes.empty()) {
+					updateNode.add_child("Files", fileNodes);
+				}
+
+				if (!database.query("EXECUTE selectPackagesStmt USING @paramModID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				lastFilesResults = database.getResults<std::vector<std::string>>();
+				std::map<int, std::vector<std::pair<std::string, std::string>>> packageFiles;
+				for (const auto & vec : lastFilesResults) {
+					if (!database.query("SET @paramPackageID=" + vec[0] + ";")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+					if (!database.query("EXECUTE selectPackageFilesStmt USING @paramPackageID, @paramLanguage;")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+					auto pfs = database.getResults<std::vector<std::string>>();
+					for (const auto & vec2 : pfs) {
+						packageFiles[std::stoi(vec[0])].push_back(std::make_pair(vec2[0], vec2[1]));
+					}
+				}
+
+				ptree packageNodes;
+				for (auto & packageFile : packageFiles) {
+					ptree packageNode;
+					packageNode.put("PackageID", packageFile.first);
+
+					ptree packageFileNodes;
+
+					for (const auto & p : packageFile.second) {
+						ptree packageFileNode;
+						packageFileNode.put("File", p.first);
+						packageFileNode.put("Hash", p.second);
+
+						packageFileNodes.push_back(std::make_pair("", packageFileNode));
+					}
+
+					if (packageFileNodes.empty()) continue;
+
+					packageNode.add_child("Files", packageFileNodes);
+
+					packageNodes.push_back(std::make_pair("", packageNode));
+				}
+
+				if (!packageNodes.empty()) {
+					updateNode.add_child("Packages", packageNodes);
+				}
+				
+				if (!database.query("SET @paramMajorVersion=" + std::to_string(majorVersion) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("SET @paramMinorVersion=" + std::to_string(minorVersion) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("SET @paramPatchVersion=" + std::to_string(patchVersion) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("EXECUTE selectFileserverStmt USING @paramModID, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				lastResults = database.getResults<std::vector<std::string>>();
+				std::vector<std::string> possibilities = { DEFAULTURL };
+				for (const auto & vec : lastResults) {
+					possibilities.push_back(vec[0]);
+				}
+				updateNode.put("Fileserver", possibilities[std::rand() % possibilities.size()]);
+
+				if (!database.query("SET @paramType=" + std::to_string(static_cast<int>(common::NewsTickerType::Update)) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("EXECUTE selectNewsIDStmt USING @paramModID, @paramType;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				lastResults = database.getResults<std::vector<std::string>>();
+
+				if (!lastResults.empty()) { // optional at the moment
+					if (!database.query("SET @paramNewsID=" + lastResults[0][0] + ";")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+					if (!database.query("SET @paramMajorVersion=" + std::to_string(static_cast<int>(versionMajor)) + ";")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+					if (!database.query("SET @paramMinorVersion=" + std::to_string(static_cast<int>(versionMinor)) + ";")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+					if (!database.query("SET @paramPatchVersion=" + std::to_string(static_cast<int>(versionPatch)) + ";")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+					if (!database.query("EXECUTE selectSavegamesCompatibleStmt USING @paramModID, @paramMajorVersion, @paramMajorVersion, @paramMinorVersion, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion;")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+					lastResults = database.getResults<std::vector<std::string>>();
+
+					updateNode.put("SavegameCompatible", lastResults.empty() ? 0 : 1);
+
+					if (!database.query("SET @paramClientLanguage='" + language + "';")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+
+					if (!database.query("EXECUTE selectChangelogStmt USING @paramNewsID, @paramClientLanguage;")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+					lastResults = database.getResults<std::vector<std::string>>();
+
+					if (lastResults.empty() && language != "English") {
+						if (!database.query("SET @paramClientLanguage='English';")) {
+							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+							code = SimpleWeb::StatusCode::client_error_failed_dependency;
+							break;
+						}
+						if (!database.query("EXECUTE selectChangelogStmt USING @paramNewsID, @paramClientLanguage;")) {
+							std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+							code = SimpleWeb::StatusCode::client_error_failed_dependency;
+							break;
+						}
+						lastResults = database.getResults<std::vector<std::string>>();
+					}
+
+					updateNode.put("Changelog", lastResults.empty() ? "" : lastResults[0][0]);
+
+					updateNodes.push_back(std::make_pair("", updateNode));
+				} else {
+					updateNode.put("SavegameCompatible", 0);
+				}
+			}
+
+			if (!updateNodes.empty()) {
+				responseTree.add_child("Updates", updateNodes);
+			}
+		} while (false);
+
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
 	} catch (...) {
 		response->write(SimpleWeb::StatusCode::client_error_bad_request);
 	}

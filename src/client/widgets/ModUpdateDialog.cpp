@@ -21,7 +21,8 @@
 #include "IconCache.h"
 #include "SpineConfig.h"
 
-#include "common/MessageStructs.h"
+#include "common/Language.h"
+#include "common/ModVersion.h"
 
 #include "gui/DownloadQueueWidget.h"
 #include "gui/OverlayMessageHandler.h"
@@ -34,8 +35,6 @@
 #include "utils/Database.h"
 #include "utils/FileDownloader.h"
 #include "utils/MultiFileDownloader.h"
-
-#include "clockUtils/sockets/TcpSocket.h"
 
 #include <QApplication>
 #include <QCheckBox>
@@ -649,34 +648,96 @@ void ModUpdateDialog::unzippedArchive(QString archive, QList<QPair<QString, QStr
 }
 
 void ModUpdateDialog::requestUpdates(const std::vector<ModVersion> & m, bool forceAccept) {
-	ModVersionCheckMessage mvcm;
-	mvcm.modVersions = m;
-	mvcm.language = Config::Language.toStdString();
-	mvcm.username = Config::Username.toStdString();
-	mvcm.password = Config::Password.toStdString();
+	if (m.empty()) {
+		emit receivedMods(std::vector<ModUpdate>(), forceAccept);
+		
+		return;
+	}
 	
-	std::string serialized = mvcm.SerializePublic();
-	clockUtils::sockets::TcpSocket sock;
-	if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-		sock.writePacket(serialized);
-		if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-			try {
-				Message * msg = Message::DeserializePublic(serialized);
-				if (msg) {
-					const SendModsToUpdateMessage * smtum = dynamic_cast<SendModsToUpdateMessage *>(msg);
-					if (smtum) {
-						emit receivedMods(smtum->updates, forceAccept);
-					} else {
-						qDebug() << static_cast<int>(msg->type);
-						emit receivedMods(std::vector<ModUpdate>(), forceAccept);
+	QJsonObject json;
+	json["Language"] = Config::Language;
+	json["Username"] = Config::Username;
+	json["Password"] = Config::Password;
+
+	QJsonArray jsonArr;
+
+	for (const auto & mv : m) {
+		QJsonObject j;
+		j["ProjectID"] = mv.modID;
+		j["Language"] = mv.language;
+		j["VersionMajor"] = static_cast<int>(mv.majorVersion);
+		j["VersionMinor"] = static_cast<int>(mv.minorVersion);
+		j["VersionPatch"] = static_cast<int>(mv.patchVersion);
+		j["VersionSpine"] = static_cast<int>(mv.spineVersion);
+
+		jsonArr << j;
+	}
+
+	json["Projects"] = jsonArr;
+
+	Https::postAsync(DATABASESERVER_PORT, "projectVersionCheck", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, forceAccept](const QJsonObject & data, int responseCode) {
+		if (responseCode != 200) {
+			emit receivedMods(std::vector<ModUpdate>(), forceAccept);
+			return;
+		}
+
+		std::vector<ModUpdate> updates;
+
+		if (data.contains("Updates")) {
+			for (const auto jsonRef : data["Updates"].toArray()) {
+				const auto j = jsonRef.toObject();
+				
+				ModUpdate mu;
+				mu.modID = j["ProjectID"].toString().toInt();
+				mu.name = q2s(j["Name"].toString());
+				mu.majorVersion = static_cast<int8_t>(j["VersionMajor"].toString().toInt());
+				mu.minorVersion = static_cast<int8_t>(j["VersionMinor"].toString().toInt());
+				mu.patchVersion = static_cast<int8_t>(j["VersionPatch"].toString().toInt());
+				mu.spineVersion = static_cast<int8_t>(j["VersionSpine"].toString().toInt());
+				mu.fileserver = q2s(j["Fileserver"].toString());
+				mu.gothicVersion = static_cast<GameType>(j["Type"].toString().toInt());
+				mu.savegameCompatible = j["SavegameCompatible"].toString().toInt();
+				mu.changelog = q2s(j["Changelog"].toString());
+				mu.modID = j["ProjectID"].toString().toInt();
+
+				if (j.contains("Files")) {
+					for (const auto jsonRef2 : j["Files"].toArray()) {
+						const auto j2 = jsonRef2.toObject();
+
+						const auto file = q2s(j2["File"].toString());
+						const auto hash = q2s(j2["Hash"].toString());
+
+						mu.files.emplace_back(file, hash);
 					}
-				} else {
-					emit receivedMods(std::vector<ModUpdate>(), forceAccept);
 				}
-				delete msg;
-			} catch (...) {
-				emit receivedMods(std::vector<ModUpdate>(), forceAccept);
+
+				if (j.contains("Packages")) {
+					for (const auto jsonRef2 : j["Packages"].toArray()) {
+						const auto j2 = jsonRef2.toObject();
+
+						if (!j2.contains("Files")) continue;
+
+						const auto packageID = j2["PackageID"].toString().toInt();
+
+						std::vector<std::pair<std::string, std::string>> files;
+						
+						for (const auto jsonRef3 : j2["Files"].toArray()) {
+							const auto j3 = jsonRef3.toObject();
+
+							const auto file = q2s(j3["File"].toString());
+							const auto hash = q2s(j3["Hash"].toString());
+
+							mu.files.emplace_back(file, hash);
+						}
+						
+						mu.packageFiles.emplace_back(packageID, files);
+					}
+				}
+
+				updates.push_back(mu);
 			}
 		}
-	}
+
+		emit receivedMods(updates, forceAccept);
+	});
 }
