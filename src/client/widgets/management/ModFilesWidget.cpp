@@ -444,6 +444,8 @@ void ModFilesWidget::addFolder() {
 		const QString path = it.filePath().replace(dir, "");
 		const QString fileName = it.fileName();
 
+		if (fileName.endsWith(".z")) continue; // skip already compressed/uploaded files, they can corrupt the file list!
+
 		addFile(it.filePath(), path.split(fileName)[0], fileName);
 
 		fileList.removeAll(path.right(path.length() - 1));
