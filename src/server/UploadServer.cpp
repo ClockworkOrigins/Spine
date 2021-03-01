@@ -123,7 +123,7 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 		Metadata,
 		File
 	};
-	int32_t currentSize = 0;
+	int64_t currentSize = 0;
 	int currentIndex = 0;
 	int state = MetadataSize;
 	common::UploadModfilesMessage * umm = nullptr;

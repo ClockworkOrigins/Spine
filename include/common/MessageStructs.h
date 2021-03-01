@@ -1012,7 +1012,7 @@ namespace common {
 		std::string language;
 		bool changed;
 		bool deleted;
-		int32_t size;
+		int64_t size;
 
 		ModFile() : changed(false), deleted(false), size(0) {}
 
