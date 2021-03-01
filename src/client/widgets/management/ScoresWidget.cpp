@@ -37,7 +37,6 @@
 #include <QCheckBox>
 #include <QVBoxLayout>
 
-using namespace spine;
 using namespace spine::client;
 using namespace spine::client::widgets;
 using namespace spine::common;
@@ -95,7 +94,7 @@ ScoresWidget::~ScoresWidget() {
 	_futureWatcher.waitForFinished();
 }
 
-void ScoresWidget::updateModList(QList<client::ManagementMod> modList) {
+void ScoresWidget::updateModList(QList<ManagementMod> modList) {
 	_mods = modList;
 }
 
@@ -122,9 +121,14 @@ void ScoresWidget::selectedMod(int index) {
 	for (auto * t : _scoreToggles) {
 		t->deleteLater();
 	}
+
+	for (auto * w : _widgets) {
+		w->deleteLater();
+	}
 	
 	_scoreEdits.clear();
 	_scoreToggles.clear();
+	_widgets.clear();
 }
 
 void ScoresWidget::updateView() {
@@ -154,8 +158,13 @@ void ScoresWidget::updateView() {
 		t->deleteLater();
 	}
 
+	for (auto * w : _widgets) {
+		w->deleteLater();
+	}
+
 	_scoreEdits.clear();
 	_scoreToggles.clear();
+	_widgets.clear();
 
 	QJsonObject requestData;
 	requestData["Username"] = Config::Username;
@@ -191,7 +200,12 @@ void ScoresWidget::updateView() {
 }
 
 void ScoresWidget::updateData(QList<ManagementScore> scores) {		
-	for (const auto & score : scores) {
+	for (int i = 0; i < scores.count(); i++) {
+		const auto score = scores[i];
+		
+		auto * lbl = new QLabel(QString("ID: %1").arg(i), this);
+		lbl->setProperty("big", true);
+		
 		auto * germanEdit = new QLineEdit(this);
 		auto * englishEdit = new QLineEdit(this);
 		auto * polishEdit = new QLineEdit(this);
@@ -212,6 +226,8 @@ void ScoresWidget::updateData(QList<ManagementScore> scores) {
 			}
 		}
 
+		_layout->addWidget(lbl, _rowCount++, 0, 1, 4, Qt::AlignLeft);
+		
 		_layout->addWidget(germanEdit, _rowCount, 0);
 		_layout->addWidget(englishEdit, _rowCount, 1);
 		_layout->addWidget(polishEdit, _rowCount, 2);

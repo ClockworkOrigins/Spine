@@ -41,7 +41,7 @@ namespace widgets {
 
 	public:
 		ScoresWidget(QWidget * par);
-		~ScoresWidget();
+		~ScoresWidget() override;
 
 		void updateModList(QList<ManagementMod> modList);
 		void selectedMod(int index);
@@ -61,6 +61,7 @@ namespace widgets {
 		int _modIndex;
 		QGridLayout * _layout;
 		int _rowCount;
+		QList<QWidget *> _widgets;
 		QList<std::tuple<QLineEdit *, QLineEdit *, QLineEdit *, QLineEdit *>> _scoreEdits;
 		QList<QCheckBox *> _scoreToggles;
 		gui::WaitSpinner * _waitSpinner;

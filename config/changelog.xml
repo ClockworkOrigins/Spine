@@ -2115,7 +2115,9 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="28" patchVersion="0">
 		<Enhancement language="Deutsch">Gothic 3 kann jetzt über Spine gestartet werden</Enhancement>
+		<Enhancement language="Deutsch">Score-ID wird im Management jetzt angezeigt</Enhancement>
 		
 		<Enhancement language="English">Gothic 3 can be started via Spine now</Enhancement>
+		<Enhancement language="English">Score ID now gets displayed in management</Enhancement>
 	</Version>
 </Versions>
