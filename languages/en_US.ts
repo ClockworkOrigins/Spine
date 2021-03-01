@@ -1127,7 +1127,7 @@ Leave the value at 0 in case the achievement has no counter.</translation>
     </message>
     <message>
         <source>PauseDownloadDescription</source>
-        <translation>Du you want to cancel the download or just pause it to be able to continue it later on?</translation>
+        <translation>Do you want to cancel the download or just pause it to be able to continue it later on?</translation>
     </message>
     <message>
         <source>BackToProfile</source>
