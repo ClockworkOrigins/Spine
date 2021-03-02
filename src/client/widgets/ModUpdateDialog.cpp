@@ -192,6 +192,8 @@ void ModUpdateDialog::updateModList(std::vector<ModUpdate> updates, bool forceAc
 				lbl->setToolTip(QApplication::tr("SaveNotCompatibleTooltip"));
 			}
 
+			_widgets << lbl;
+
 			hl->addWidget(cb, 1);
 			hl->addWidget(lbl);
 			
