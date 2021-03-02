@@ -2117,9 +2117,11 @@
 		<Enhancement language="Deutsch">Gothic 3 kann jetzt über Spine gestartet werden</Enhancement>
 		<Enhancement language="Deutsch">Score-ID wird im Management jetzt angezeigt</Enhancement>
 		<Enhancement language="Deutsch">Support für Dateien > 2GB eingeführt</Enhancement>
+		<Bug language="Deutsch">Falsche Version bei Download von Projekten mit einer Spine-Version != 0 behoben</Bug>
 		
 		<Enhancement language="English">Gothic 3 can be started via Spine now</Enhancement>
 		<Enhancement language="English">Score ID now gets displayed in management</Enhancement>
 		<Enhancement language="English">Added support for files bigger than 2GB</Enhancement>
+		<Bug language="English">Fixed wrong version downloading a project with a Spine version != 0</Bug>
 	</Version>
 </Versions>

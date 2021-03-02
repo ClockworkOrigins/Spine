@@ -65,6 +65,7 @@ namespace common {
 			ar & majorVersion;
 			ar & minorVersion;
 			ar & patchVersion;
+			ar & spineVersion;
 			ar & devDuration;
 			ar & avgDuration;
 			ar & downloadSize;
