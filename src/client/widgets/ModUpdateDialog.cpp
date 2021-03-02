@@ -79,6 +79,7 @@ ModUpdateDialog::ModUpdateDialog(QMainWindow * mainWindow) : QDialog(nullptr), _
 	dbb->hide();
 
 	qRegisterMetaType<std::vector<ModUpdate>>("std::vector<common::ModUpdate>");
+	qRegisterMetaType<QList<QPair<QString, QString>>>("QList<QPair<QString, QString>>");
 
 	connect(this, &ModUpdateDialog::receivedMods, dbb, &QDialogButtonBox::show);
 	connect(this, &ModUpdateDialog::receivedMods, this, &ModUpdateDialog::updateModList);
