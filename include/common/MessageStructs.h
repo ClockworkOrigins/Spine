@@ -574,7 +574,7 @@ namespace common {
 
 	struct [[deprecated("Remove in Spine 1.30.0")]] SendAllScoreStatsMessage : public Message {
 		std::vector<ScoreStats> scores;
-		SendAllScoreStatsMessage() : Message(), scores() {
+		SendAllScoreStatsMessage() : Message() {
 			type = MessageType::SENDALLSCORESTATS;
 		}
 		template<class Archive>
@@ -587,7 +587,7 @@ namespace common {
 	struct RequestAllNewsMessage : public Message {
 		int32_t lastNewsID;
 		std::string language;
-		RequestAllNewsMessage() : Message(), lastNewsID(0), language() {
+		RequestAllNewsMessage() : Message(), lastNewsID(0) {
 			type = MessageType::REQUESTALLNEWS;
 		}
 		template<class Archive>
@@ -603,7 +603,7 @@ namespace common {
 			int32_t id;
 			std::string title = "";
 			std::string body;
-			int32_t timestamp;
+			int64_t timestamp;
 			std::vector<std::pair<int32_t, std::string>> referencedMods;
 			std::vector<std::pair<std::string, std::string>> imageFiles;
 
@@ -688,7 +688,7 @@ namespace common {
 		}
 	};
 
-	struct SubmitNewsMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.31.0")]] SubmitNewsMessage : public Message {
 		std::string username;
 		std::string password;
 		SendAllNewsMessage::News news;

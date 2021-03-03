@@ -38,6 +38,7 @@ namespace server {
 	private:
 		HttpsServer * _server;
 		std::thread * _runner;
+		mutable std::mutex _newsLock;
 
 		void getModnameForIDs(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
 		void getUserID(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
@@ -82,6 +83,7 @@ namespace server {
 		void requestAllScoreStats(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
 		void updateSucceeded(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
 		void projectVersionCheck(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
+		void submitNews(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
 		
 		void requestAllTri6ScoreStats(boost::property_tree::ptree & responseTree) const;
 	};

@@ -21,6 +21,8 @@
 #include "IconCache.h"
 #include "SpineConfig.h"
 
+#include "https/Https.h"
+
 #include "utils/Config.h"
 #include "utils/Compression.h"
 #include "utils/Conversion.h"
@@ -38,6 +40,9 @@
 #include <QDateEdit>
 #include <QDialogButtonBox>
 #include <QFileDialog>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
@@ -47,20 +52,21 @@
 #include <QTextBrowser>
 #include <QVBoxLayout>
 
-using namespace spine;
 using namespace spine::client;
+using namespace spine::common;
+using namespace spine::https;
 using namespace spine::utils;
 using namespace spine::widgets;
 
 NewsWriterDialog::NewsWriterDialog(QWidget * par) : QDialog(par), _newsPreviewWidget(nullptr), _titleEdit(nullptr), _dateEdit(nullptr), _bodyEdit(nullptr), _imageReferencesEdit(nullptr) {
-	QHBoxLayout * l = new QHBoxLayout();
+	auto * l = new QHBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
 	_newsPreviewWidget = new NewsWidget(common::SendAllNewsMessage::News(), true, this);
 	l->addWidget(_newsPreviewWidget);
 
 	{
-		QVBoxLayout * vl = new QVBoxLayout();
+		auto * vl = new QVBoxLayout();
 		vl->setAlignment(Qt::AlignTop);
 
 		_titleEdit = new QLineEdit(this);
@@ -70,7 +76,7 @@ NewsWriterDialog::NewsWriterDialog(QWidget * par) : QDialog(par), _newsPreviewWi
 		_dateEdit->setCalendarPopup(true);
 		_dateEdit->setDate(QDate::currentDate());
 		_dateEdit->setMinimumDate(QDate::currentDate());
-		QHBoxLayout * hbl = new QHBoxLayout();
+		auto * hbl = new QHBoxLayout();
 		hbl->addWidget(_titleEdit);
 		hbl->addWidget(_dateEdit);
 		vl->addLayout(hbl);
@@ -81,25 +87,25 @@ NewsWriterDialog::NewsWriterDialog(QWidget * par) : QDialog(par), _newsPreviewWi
 		_bodyEdit->setFontFamily("Lato Semibold");
 		vl->addWidget(_bodyEdit);
 
-		QScrollArea * scrollArea = new QScrollArea(this);
+		auto * scrollArea = new QScrollArea(this);
 		scrollArea->setWidgetResizable(true);
-		QWidget * modContainer = new QWidget(scrollArea);
+		auto * modContainer = new QWidget(scrollArea);
 		modContainer->setProperty("default", true);
 		scrollArea->setWidget(modContainer);
 		_modListLayout = new QGridLayout();
 		modContainer->setLayout(_modListLayout);
 		vl->addWidget(scrollArea);
 
-		QHBoxLayout * imageLayout = new QHBoxLayout();
+		auto * imageLayout = new QHBoxLayout();
 		_imageReferencesEdit = new QLineEdit(this);
 		_imageReferencesEdit->setPlaceholderText(QApplication::tr("ImagesPlaceholder"));
-		QPushButton * pb = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/add.svg"), "", this);
+		auto * pb = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/add.svg"), "", this);
 		connect(pb, &QPushButton::released, this, &NewsWriterDialog::addImage);
 		imageLayout->addWidget(_imageReferencesEdit, 1);
 		imageLayout->addWidget(pb);
 		vl->addLayout(imageLayout);
 
-		QDialogButtonBox * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Apply | QDialogButtonBox::StandardButton::Discard, Qt::Orientation::Horizontal, this);
+		auto * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Apply | QDialogButtonBox::StandardButton::Discard, Qt::Orientation::Horizontal, this);
 		vl->addWidget(dbb);
 
 		setLayout(l);
@@ -154,78 +160,58 @@ void NewsWriterDialog::changedNews() {
 void NewsWriterDialog::accept() {
 	if (_titleEdit->text().isEmpty() || _bodyEdit->toPlainText().isEmpty() || Config::Username.isEmpty()) return;
 
-	common::SubmitNewsMessage snm;
-	snm.username = Config::Username.toStdString();
-	snm.password = Config::Password.toStdString();
-	common::SendAllNewsMessage::News news;
+	QJsonObject json;
+	json["Username"] = Config::Username;
+	json["Password"] = Config::Password;
+	json["Title"] = encodeString(_titleEdit->text());
+	json["Body"] = encodeString(_bodyEdit->toPlainText());
+	json["Timestamp"] = QDate(2000, 1, 1).daysTo(_dateEdit->date());
+	json["Language"] = Config::Language;
 
-	news.title = q2s(_titleEdit->text());
-	news.body = q2s(_bodyEdit->toPlainText());
-	news.timestamp = QDate(2000, 1, 1).daysTo(_dateEdit->date());
-
-	for (QString imageFile : _imageReferencesEdit->text().split(";", QString::SkipEmptyParts)) {
-		Database::DBError err;
-		std::vector<std::string> images = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT Hash FROM newsImageReferences WHERE File = '" + imageFile.toStdString() + ".z' LIMIT 1;", err);
-		if (images.empty()) {
-			QString hashString;
-			// 1. calculate hash
-			utils::Hashing::hash(Config::NEWSIMAGEDIR + "/" + imageFile, hashString);
-			// 2. compress
-			utils::Compression::compress(Config::NEWSIMAGEDIR + "/" + imageFile, false);
-			imageFile += ".z";
-			// 3. add image to message
-			{
-				QFile f(imageFile);
-				if (f.open(QIODevice::ReadOnly)) {
-					QByteArray d = f.readAll();
-					std::vector<uint8_t> buffer(d.length());
-					memcpy(&buffer[0], d.data(), d.length());
-					snm.images.push_back(buffer);
-				}
-				f.close();
-				f.remove();
-			}
-			news.imageFiles.emplace_back(imageFile.toStdString(), hashString.toStdString());
-		} else {
-			news.imageFiles.emplace_back(imageFile.toStdString() + ".z", images[0]);
-			snm.images.emplace_back();
-		}
+	if (!_imageReferencesEdit->text().isEmpty()) {
+		json["Image"] = _imageReferencesEdit->text();
 	}
+
+	QJsonArray jsonArr;
+	
 	for (QCheckBox * cb : _mods) {
-		if (cb->isChecked()) {
-			snm.mods.push_back(cb->property("modid").toInt());
-		}
+		if (!cb->isChecked()) continue;
+
+		jsonArr << cb->property("modid").toInt();
 	}
 
-	snm.news = news;
-	snm.language = Config::Language.toStdString();
-
-	const std::string serialized = snm.SerializePublic();
-	clockUtils::sockets::TcpSocket sock;
-	const clockUtils::ClockError err = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-	if (clockUtils::ClockError::SUCCESS == err) {
-		if (clockUtils::ClockError::SUCCESS == sock.writePacket(serialized)) {
-			QMessageBox resultMsg(QMessageBox::Icon::Information, QApplication::tr("NewsSuccessful"), QApplication::tr("NewsSuccessfulText"), QMessageBox::StandardButton::Ok);
-			resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-			resultMsg.exec();
-			emit refresh();
-			QDialog::accept();
-			return;
-		}
+	if (!jsonArr.isEmpty()) {
+		json["Projects"] = jsonArr;
 	}
+
+	bool success = false;
+
+	Https::post(DATABASESERVER_PORT, "submitNews", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, &success](const QJsonObject &, int statusCode) {
+		success = statusCode == 200;
+	});
+
+	if (success) {
+		QMessageBox resultMsg(QMessageBox::Icon::Information, QApplication::tr("NewsSuccessful"), QApplication::tr("NewsSuccessfulText"), QMessageBox::StandardButton::Ok);
+		resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+		resultMsg.exec();
+		emit refresh();
+		QDialog::accept();
+		return;
+	}
+	
 	QMessageBox resultMsg(QMessageBox::Icon::Warning, QApplication::tr("NewsUnsuccessful"), QApplication::tr("NewsUnsuccessfulText"), QMessageBox::StandardButton::Ok);
 	resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
 	resultMsg.exec();
 	QDialog::accept();
 }
 
-void NewsWriterDialog::updateModList(std::vector<common::Mod> mods) {
-	std::sort(mods.begin(), mods.end(), [](const common::Mod & a, const common::Mod & b) {
+void NewsWriterDialog::updateModList(std::vector<Mod> mods) {
+	std::sort(mods.begin(), mods.end(), [](const Mod & a, const Mod & b) {
 		return a.name < b.name;
 	});
 	int counter = 0;
-	for (const common::Mod & mod : mods) {
-		QCheckBox * cb = new QCheckBox(s2q(mod.name), this);
+	for (const Mod & mod : mods) {
+		auto * cb = new QCheckBox(s2q(mod.name), this);
 		cb->setProperty("modid", static_cast<int>(mod.id));
 		_modListLayout->addWidget(cb, counter / 3, counter % 3);
 		_mods.append(cb);
