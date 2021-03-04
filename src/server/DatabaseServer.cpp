@@ -21,6 +21,7 @@
 #include <set>
 #include <sstream>
 
+#include "DownloadSizeChecker.h"
 #include "LanguageConverter.h"
 #include "MariaDBWrapper.h"
 #include "Server.h"
@@ -39,10 +40,10 @@ using namespace boost::property_tree;
 using namespace spine::server;
 
 namespace {
-	static const std::string DEFAULTURL = "https://clockwork-origins.de/Gothic/downloads/mods/";
+	const std::string DEFAULTURL = "https://clockwork-origins.de/Gothic/downloads/mods/";
 }
 
-DatabaseServer::DatabaseServer() : _server(nullptr), _runner(nullptr) {}
+DatabaseServer::DatabaseServer(DownloadSizeChecker * downloadSizeChecker) : _server(nullptr), _runner(nullptr), _downloadSizeChecker(downloadSizeChecker) {}
 
 DatabaseServer::~DatabaseServer() {
 	delete _server;
@@ -98,6 +99,7 @@ int DatabaseServer::run() {
 	_server->resource["^/updateSucceeded"]["POST"] = std::bind(&DatabaseServer::updateSucceeded, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/projectVersionCheck"]["POST"] = std::bind(&DatabaseServer::projectVersionCheck, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/submitNews"]["POST"] = std::bind(&DatabaseServer::submitNews, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/requestAllProjects"]["POST"] = std::bind(&DatabaseServer::requestAllProjects, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -5270,6 +5272,427 @@ void DatabaseServer::submitNews(std::shared_ptr<HttpsServer::Response> response,
 		} while (false);
 
 		response->write(code);
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::requestAllProjects(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		const auto language = pt.get<std::string>("Language");
+		const auto username = pt.get<std::string>("Username");
+		const auto password = pt.get<std::string>("Password");
+		const auto simplified = pt.count("Simplified") > 0;
+
+		const int userID = ServerCommon::getUserID(username, password);
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+
+			std::map<int32_t, std::string> teamNames;
+			if (!simplified) {
+				if (!database.query(std::string("SELECT TeamID FROM teams;"))) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				auto lastResults = database.getResults<std::vector<std::string>>();
+				if (!database.query("PREPARE selectTeamnameStmt FROM \"SELECT CAST(Name AS BINARY) FROM teamNames WHERE TeamID = ? AND Languages & ? LIMIT 1\";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("SET @paramLanguage=" + std::to_string(LanguageConverter::convert(language)) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("SET @paramFallbackLanguage=" + std::to_string(common::English) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				for (const auto & vec : lastResults) {
+					const auto id = static_cast<int32_t>(std::stoi(vec[0]));
+
+					if (!database.query("SET @paramTeamID=" + std::to_string(id) + ";")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+					if (!database.query("EXECUTE selectTeamnameStmt USING @paramTeamID, @paramLanguage;")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+					auto results = database.getResults<std::vector<std::string>>();
+					if (!results.empty()) {
+						teamNames.insert(std::make_pair(id, results[0][0]));
+					} else {
+						if (!database.query("EXECUTE selectTeamnameStmt USING @paramTeamID, @paramFallbackLanguage;")) {
+							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+							code = SimpleWeb::StatusCode::client_error_failed_dependency;
+							break;
+						}
+						results = database.getResults<std::vector<std::string>>();
+						if (!results.empty()) {
+							teamNames.insert(std::make_pair(id, results[0][0]));
+						}
+					}
+				}
+			}
+
+			if (!database.query("PREPARE selectUpdateDateStmt FROM \"SELECT Date FROM lastUpdated WHERE ProjectID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectPlayedProjectsStmt FROM \"SELECT ModID FROM playtimes WHERE Duration > 0 AND UserID = ? AND UserID != -1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+
+			// ModID | Name of the Mod shown in GUI | ID of the team | Enabled in GUI or only internal | 1 or 2 either if the mod is for Gothic 1 or 2 | Release date encoded as integer in days | one of Mod or Patch encoded as integer | major version | minor version | patch version
+			if (!database.query(std::string("SELECT ModID, TeamID, Gothic, ReleaseDate, Type, MajorVersion, MinorVersion, PatchVersion, SpineVersion FROM mods WHERE Enabled = 1;"))) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+
+			auto enabledResults = database.getResults<std::vector<std::string>>();
+			if (userID != -1) {
+				if (!database.query(std::string("SELECT ModID, TeamID, Gothic, ReleaseDate, Type, MajorVersion, MinorVersion, PatchVersion, SpineVersion FROM mods WHERE Enabled = 0;"))) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				auto disabledResults = database.getResults<std::vector<std::string>>();
+				if (!database.query("PREPARE selectIsTeammemberStmt FROM \"SELECT UserID FROM teammembers WHERE TeamID = ? AND UserID = ? LIMIT 1\";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("PREPARE selectEarlyUnlockStmt FROM \"SELECT * FROM earlyUnlocks WHERE ModID = ? AND UserID = ? LIMIT 1\";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				for (const auto & vec : disabledResults) {
+					if (!database.query("SET @paramTeamID=" + vec[1] + ";")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+					if (!database.query("EXECUTE selectIsTeammemberStmt USING @paramTeamID, @paramUserID;")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+					auto allowed = database.getResults<std::vector<std::string>>();
+					if (!allowed.empty()) {
+						enabledResults.push_back(vec);
+						continue;
+					}
+					if (!database.query("SET @paramModID=" + vec[0] + ";")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+					if (!database.query("EXECUTE selectEarlyUnlockStmt USING @paramModID, @paramUserID;")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+					allowed = database.getResults<std::vector<std::string>>();
+					if (!allowed.empty()) {
+						enabledResults.push_back(vec);
+					}
+				}
+			}
+
+			if (!database.query("PREPARE selectModnameStmt FROM \"SELECT Languages, CAST(Name AS BINARY) FROM projectNames WHERE ProjectID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectDevtimeStmt FROM \"SELECT Duration FROM devtimes WHERE ModID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectTimeStmt FROM \"SELECT IFNULL(SUM(Duration), 0), IFNULL(COUNT(Duration), 0) FROM playtimes WHERE ModID = ? AND UserID != -1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			std::map<int32_t, uint32_t> versions;
+
+			const common::Language clientLanguage = LanguageConverter::convert(language);
+			const common::Language defaultLanguage = common::Language::English;
+
+			ptree projectNodes;
+			for (const auto & vec : enabledResults) {
+				ptree projectNode;
+				
+				projectNode.put("ProjectID", std::stoi(vec[0]));
+				
+				if (!database.query("SET @paramModID=" + vec[0] + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("EXECUTE selectModnameStmt USING @paramModID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				auto results = database.getResults<std::vector<std::string>>();
+
+				if (results.empty()) continue;
+
+				std::map<int, std::string> names;
+
+				auto supportedLanguages = 0;
+
+				for (const auto & vec2 : results) {
+					const auto l = static_cast<common::Language>(std::stoi(vec2[0]));
+					const auto n = vec2[1];
+
+					names.insert(std::make_pair(l, n));
+
+					supportedLanguages |= l;
+				}
+
+				common::Language l = common::Language::None;
+
+				auto nameIt = std::find_if(names.begin(), names.end(), [clientLanguage](const std::pair<int, std::string> & p) {
+					return p.first & clientLanguage;
+				});
+
+				if (nameIt == names.end()) {
+					nameIt = std::find_if(names.begin(), names.end(), [=](const std::pair<int, std::string> & p) {
+						return p.first & defaultLanguage;
+					});
+
+					if (nameIt == names.end()) {
+						nameIt = names.begin();
+
+						l = nameIt->first & common::German ? common::German : nameIt->first & common::English ? common::English : nameIt->first & common::Polish ? common::Polish : nameIt->first & common::Russian ? common::Russian : common::None;
+					} else {
+						l = defaultLanguage;
+					}
+				} else {
+					l = clientLanguage;
+				}
+
+				projectNode.put("Name", nameIt->second);
+
+				if (simplified) {
+					projectNodes.push_back(std::make_pair("", projectNode));
+					continue;
+				}
+
+				projectNode.put("SupportedLanguages", supportedLanguages);
+
+				projectNode.put("TeamID", std::stoi(vec[1]));
+				const auto it = teamNames.find(std::stoi(vec[1]));
+				if (it != teamNames.end()) {
+					projectNode.put("TeamName", it->second);
+				}
+				projectNode.put("GameType", std::stoi(vec[2]));
+				projectNode.put("ReleaseDate", std::stoi(vec[3]));
+				projectNode.put("ModType", std::stoi(vec[4]));
+				projectNode.put("MajorVersion", std::stoi(vec[5]));
+				projectNode.put("MinorVersion", std::stoi(vec[6]));
+				projectNode.put("PatchVersion", std::stoi(vec[7]));
+				projectNode.put("SpineVersion", std::stoi(vec[8]));
+
+				if (!database.query("EXECUTE selectDevtimeStmt USING @paramModID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					continue;
+				}
+				results = database.getResults<std::vector<std::string>>();
+				if (!results.empty()) {
+					projectNode.put("DevDuration", std::stoi(results[0][0]));
+				} else {
+					projectNode.put("DevDuration", -1);
+				}
+				if (!database.query("EXECUTE selectTimeStmt USING @paramModID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					continue;
+				}
+				results = database.getResults<std::vector<std::string>>();
+				if (!results.empty()) {
+					const int sumDurations = std::stoi(results[0][0]);
+					const int countDurations = std::stoi(results[0][1]);
+					if (countDurations >= 1) {
+						projectNode.put("AvgDuration", sumDurations / countDurations);
+					} else {
+						projectNode.put("AvgDuration", -1);
+					}
+				} else {
+					projectNode.put("AvgDuration", -1);
+				}
+				uint32_t version = (std::stoi(vec[5]) << 24) + (std::stoi(vec[6]) << 16) + (std::stoi(vec[7]) << 8) + std::stoi(vec[8]);
+				const auto downloadSize = _downloadSizeChecker->getBytes(std::stoi(vec[0]), LanguageConverter::convert(l), version);
+				projectNode.put("DownloadSize", downloadSize);
+
+				if (!database.query("EXECUTE selectUpdateDateStmt USING @paramModID;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				results = database.getResults<std::vector<std::string>>();
+
+				const int updateDate = results.empty() ? 0 : std::stoi(results[0][0]);
+				projectNode.put("UpdateDate", std::max(std::stoi(vec[3]), updateDate));
+				projectNode.put("Language", l);
+
+				projectNodes.push_back(std::make_pair("", projectNode));
+				
+				versions.insert(std::make_pair(std::stoi(vec[0]), version));
+			}
+
+			if (!database.query("EXECUTE selectPlayedProjectsStmt USING @paramUserID")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			const auto results = database.getResults<std::vector<std::string>>();
+
+			if (!projectNodes.empty()) {
+				responseTree.add_child("Projects", projectNodes);
+			}
+
+			ptree playedProjectNodes;
+			
+			for (const auto & vec : results) {
+				const int32_t projectID = std::stoi(vec[0]);
+
+				ptree playedProjectNode;
+				playedProjectNode.put("ID", projectID);
+
+				playedProjectNodes.push_back(std::make_pair("", playedProjectNode));
+			}
+
+			if (!playedProjectNodes.empty()) {
+				responseTree.add_child("PlayedProjects", playedProjectNodes);
+			}
+
+			// optional packages
+
+			// PackageID | ModID | Enabled
+			if (!database.query(std::string("SELECT * FROM optionalpackages WHERE Enabled = 1;"))) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			enabledResults = database.getResults<std::vector<std::string>>();
+			if (userID != -1) {
+				if (!database.query(std::string("SELECT * FROM optionalpackages WHERE Enabled = 0;"))) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				auto disabledResults = database.getResults<std::vector<std::string>>();
+				if (!database.query("PREPARE selectEarlyUnlockStmt FROM \"SELECT * FROM earlyUnlocks WHERE ModID = ? AND UserID = ? LIMIT 1\";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				for (auto vec : disabledResults) {
+					if (!database.query("SET @paramModID=" + vec[1] + ";")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+					if (!database.query("EXECUTE selectEarlyUnlockStmt USING @paramModID, @paramUserID;")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+					auto allowed = database.getResults<std::vector<std::string>>();
+					if (!allowed.empty()) {
+						enabledResults.push_back(vec);
+					}
+				}
+			}
+
+			ptree packageNodes;
+			if (!database.query("PREPARE selectOptionalNameStmt FROM \"SELECT CAST(Name AS BINARY) FROM optionalpackagenames WHERE PackageID = ? AND Language = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+
+			if (!database.query("SET @paramLanguage='" + language + "';")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+
+			for (const auto & vec : enabledResults) {
+				ptree packageNode;
+
+				const auto projectID = std::stoi(vec[1]);
+				const auto packageID = std::stoi(vec[0]);
+
+				packageNode.put("PackageID", packageID);
+				packageNode.put("ProjectID", projectID);
+
+				if (!database.query("SET @paramPackageID=" + vec[0] + ";")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("EXECUTE selectOptionalNameStmt USING @paramPackageID, @paramLanguage;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				const auto nameResults = database.getResults<std::vector<std::string>>();
+				
+				if (nameResults.empty() || nameResults[0].empty()) continue;
+
+				packageNode.put("Name", nameResults[0][0]);
+				
+				const auto downloadSize = _downloadSizeChecker->getBytesForPackage(projectID, packageID, language, versions[packageID]);
+
+				packageNode.put("DownloadSize", downloadSize);
+
+				packageNodes.push_back(std::make_pair("", packageNode));
+			}
+
+			if (!packageNodes.empty()) {
+				responseTree.add_child("Packages", packageNodes);
+			}
+		} while (false);
+
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
 	} catch (...) {
 		response->write(SimpleWeb::StatusCode::client_error_bad_request);
 	}

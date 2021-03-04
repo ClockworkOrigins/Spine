@@ -24,15 +24,11 @@
 #include "https/Https.h"
 
 #include "utils/Config.h"
-#include "utils/Compression.h"
 #include "utils/Conversion.h"
 #include "utils/Database.h"
-#include "utils/Hashing.h"
 
 #include "widgets/GeneralSettingsWidget.h"
 #include "widgets/NewsWidget.h"
-
-#include "clockUtils/sockets/TcpSocket.h"
 
 #include <QApplication>
 #include <QCheckBox>
@@ -62,7 +58,7 @@ NewsWriterDialog::NewsWriterDialog(QWidget * par) : QDialog(par), _newsPreviewWi
 	auto * l = new QHBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
-	_newsPreviewWidget = new NewsWidget(common::SendAllNewsMessage::News(), true, this);
+	_newsPreviewWidget = new NewsWidget(SendAllNewsMessage::News(), true, this);
 	l->addWidget(_newsPreviewWidget);
 
 	{
@@ -129,7 +125,7 @@ NewsWriterDialog::NewsWriterDialog(QWidget * par) : QDialog(par), _newsPreviewWi
 		connect(_bodyEdit, &QTextEdit::textChanged, this, &NewsWriterDialog::changedNews);
 	}
 
-	qRegisterMetaType<std::vector<common::Mod>>("std::vector<common::Mod>");
+	qRegisterMetaType<std::vector<Mod>>("std::vector<common::Mod>");
 	connect(this, &NewsWriterDialog::receivedModList, this, &NewsWriterDialog::updateModList);
 
 	setLayout(l);
@@ -148,7 +144,7 @@ NewsWriterDialog::NewsWriterDialog(QWidget * par) : QDialog(par), _newsPreviewWi
 }
 
 void NewsWriterDialog::changedNews() {
-	common::SendAllNewsMessage::News news;
+	SendAllNewsMessage::News news;
 
 	news.title = q2s(_titleEdit->text());
 	news.body = q2s(_bodyEdit->toPlainText());
@@ -241,32 +237,29 @@ void NewsWriterDialog::showEvent(QShowEvent * evt) {
 }
 
 void NewsWriterDialog::requestMods() {
-	QtConcurrent::run([this]() {
-		common::RequestAllModsMessage ramm;
-		ramm.language = Config::Language.toStdString();
-		ramm.username = Config::Username.toStdString();
-		ramm.password = Config::Password.toStdString();
-		std::string serialized = ramm.SerializePublic();
-		clockUtils::sockets::TcpSocket sock;
-		clockUtils::ClockError err = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-		if (clockUtils::ClockError::SUCCESS == err) {
-			sock.writePacket(serialized);
-			if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-				try {
-					common::Message * m = common::Message::DeserializePublic(serialized);
-					if (m) {
-						common::UpdateAllModsMessage * uamm = dynamic_cast<common::UpdateAllModsMessage *>(m);
-						if (uamm) {
-							emit receivedModList(uamm->mods);
-						}
-					}
-					delete m;
-				} catch (...) {
-					return;
-				}
-			} else {
-				qDebug() << "Error occurred: " << static_cast<int>(err);
-			}
+	QJsonObject json;
+	json["Username"] = Config::Username;
+	json["Password"] = Config::Password;
+	json["Language"] = Config::Language;
+	json["Simplified"] = 1;
+
+	Https::postAsync(DATABASESERVER_PORT, "requestAllProjects", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & data, int statusCode) {
+		if (statusCode != 200) return;
+
+		if (!data.contains("Projects")) return;
+
+		std::vector<Mod> projects;
+
+		for (const auto jsonRef : data["Projects"].toArray()) {
+			const auto jsonProj = jsonRef.toObject();
+
+			Mod project;
+			project.id = jsonProj["ProjectID"].toString().toInt();
+			project.name = q2s(jsonProj["Name"].toString());
+
+			projects.push_back(project);
 		}
+
+		emit receivedModList(projects);
 	});
 }

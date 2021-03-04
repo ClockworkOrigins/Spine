@@ -25,10 +25,7 @@
 
 #include "boost/filesystem.hpp"
 
-using namespace spine;
-
-DownloadSizeChecker::DownloadSizeChecker() : _cache(), _packageCache(), _lock() {
-}
+using namespace spine::server;
 
 uint64_t DownloadSizeChecker::getBytes(int32_t modID, const std::string & language, uint32_t version) {
 	std::lock_guard<std::mutex> lg(_lock);
@@ -59,7 +56,7 @@ uint64_t DownloadSizeChecker::getBytes(int32_t modID, const std::string & langua
 	}
 	auto lastResults = database.getResults<std::vector<std::string>>();
 	uint64_t bytes = 0;
-	for (auto vec : lastResults) {
+	for (const auto & vec : lastResults) {
 		std::ifstream in("/var/www/vhosts/clockwork-origins.de/httpdocs/Gothic/downloads/mods/" + std::to_string(modID) + "/" + vec[0], std::ifstream::ate | std::ifstream::binary);
 		if (!in.good()) {
 			std::cout << "Couldn't open file: " << "/var/www/vhosts/clockwork-origins.de/httpdocs/Gothic/downloads/mods/" + std::to_string(modID) + "/" + vec[0] << std::endl;
@@ -101,7 +98,7 @@ uint64_t DownloadSizeChecker::getBytesForPackage(int32_t modID, int32_t optional
 	}
 	auto lastResults = database.getResults<std::vector<std::string>>();
 	uint64_t bytes = 0;
-	for (auto vec : lastResults) {
+	for (const auto & vec : lastResults) {
 		std::ifstream in("/var/www/vhosts/clockwork-origins.de/httpdocs/Gothic/downloads/mods/" + std::to_string(modID) + "/" + vec[0], std::ifstream::ate | std::ifstream::binary);
 		if (!in.good()) {
 			std::cout << "Couldn't open file: " << "/var/www/vhosts/clockwork-origins.de/httpdocs/Gothic/downloads/mods/" + std::to_string(modID) + "/" + vec[0] << std::endl;

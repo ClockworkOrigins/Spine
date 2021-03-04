@@ -23,11 +23,10 @@
 #include <mutex>
 
 namespace spine {
+namespace server {
 
 	class DownloadSizeChecker {
 	public:
-		DownloadSizeChecker();
-
 		uint64_t getBytes(int32_t modID, const std::string & language, uint32_t version);
 		uint64_t getBytesForPackage(int32_t modID, int32_t optionalID, const std::string & language, uint32_t version);
 		void clear();
@@ -38,4 +37,5 @@ namespace spine {
 		std::mutex _lock;
 	};
 
+} /* namespace server */
 } /* namespace spine */

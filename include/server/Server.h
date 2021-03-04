@@ -85,7 +85,6 @@ namespace common {
 	struct ProjectStats;
 } /* namespace common */
 
-	class DownloadSizeChecker;
 	class GMPServer;
 	class MatchmakingServer;
 	class UploadServer;
@@ -93,6 +92,7 @@ namespace common {
 namespace server {
 
 	class DatabaseServer;
+	class DownloadSizeChecker;
 	class ManagementServer;
 
 	class Server {

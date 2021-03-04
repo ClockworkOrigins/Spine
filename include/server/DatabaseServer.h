@@ -27,9 +27,11 @@ using HttpsServer = SimpleWeb::Server<SimpleWeb::HTTPS>;
 namespace spine {
 namespace server {
 
+	class DownloadSizeChecker;
+
 	class DatabaseServer {
 	public:
-		DatabaseServer();
+		DatabaseServer(DownloadSizeChecker * downloadSizeChecker);
 		~DatabaseServer();
 
 		int run();
@@ -39,6 +41,8 @@ namespace server {
 		HttpsServer * _server;
 		std::thread * _runner;
 		mutable std::mutex _newsLock;
+
+		DownloadSizeChecker * _downloadSizeChecker;
 
 		void getModnameForIDs(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
 		void getUserID(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
@@ -84,6 +88,7 @@ namespace server {
 		void updateSucceeded(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
 		void projectVersionCheck(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
 		void submitNews(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
+		void requestAllProjects(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
 		
 		void requestAllTri6ScoreStats(boost::property_tree::ptree & responseTree) const;
 	};
