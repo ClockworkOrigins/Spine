@@ -3368,5 +3368,9 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>JumpToOwnScore</source>
         <translation>Zum eigenen Score springen</translation>
     </message>
+    <message>
+        <source>CreateShortcut</source>
+        <translation>Desktop-Verknüpfung anlegen</translation>
+    </message>
 </context>
 </TS>

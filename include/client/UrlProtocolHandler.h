@@ -14,36 +14,34 @@
     You should have received a copy of the GNU General Public License
     along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
-// Copyright 2018 Clockwork Origins
+// Copyright 2021 Clockwork Origins
 
 #pragma once
 
-#include <QListView>
+#include <QObject>
+
+class QLocalServer;
 
 namespace spine {
-namespace widgets {
+namespace client {
 
-	class LibraryListView : public QListView {
+	class UrlProtocolHandler : public QObject {
 		Q_OBJECT
-
+	
 	public:
-		LibraryListView(QWidget * par);
+        void listen();
+        void send(const QString & command);
+        void handle(const QString & command);
 
 	signals:
-		void hideModTriggered();
-		void showModTriggered();
-		void uninstallModTriggered();
-		void forceUpdate(int projectID, bool forceAccept);
-		void checkIntegrity(int projectID);
-
-	private slots:
-		void changeLanguage(int projectID, int language);
+        void start(int projectID);
+        void install(int projectID);
 
 	private:
-		void contextMenuEvent(QContextMenuEvent * evt) override;
-
-		void createDesktopShortcut(int projectID, const QString & projectName);
+        QLocalServer * _server;
+		
+        void handleConnection();
 	};
 
-} /* namespace widgets */
+} /* namespace client */
 } /* namespace spine */

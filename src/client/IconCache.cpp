@@ -79,7 +79,7 @@ IconCache::IconCache() {
 void IconCache::loadCache() {
 	if (!QDir(QString("%1/icons").arg(Config::DOWNLOADDIR)).exists()) {
 		const auto b = QDir().mkpath(QString("%1/icons").arg(Config::DOWNLOADDIR));
-		Q_UNUSED(b);
+		Q_UNUSED(b)
 	}
 	QDirIterator it(QString("%1/icons").arg(Config::DOWNLOADDIR), { "*.bmp", "*.ico", "*.png", "*.jpg" }, QDir::Files);
 	while (it.hasNext()) {
@@ -88,7 +88,15 @@ void IconCache::loadCache() {
 		const QString fileName = it.fileName();
 		const auto split = fileName.split('.', QString::SkipEmptyParts);
 		if (!filePath.isEmpty() && !fileName.isEmpty() && split.count() == 2) {
-			_iconCache[split[0].toInt()] = QPixmap(filePath);
+			const auto id = split[0].toInt();
+			_iconCache[id] = QPixmap(filePath);
+
+			const auto icoPath = Config::DOWNLOADDIR + "/icons/" + QString::number(id) + ".ico";
+			
+			if (!QFileInfo::exists(icoPath)) {
+				QIcon ico(filePath);
+				_iconCache[id].save(icoPath);
+			}
 		}
 	}
 }

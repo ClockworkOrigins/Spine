@@ -60,6 +60,10 @@ namespace widgets {
 
 		static MainWindow * getInstance() { return instance; }
 
+	public slots:
+		void startProject(int projectID);
+		void installProject(int projectID);
+
 	private slots:
 		void selectedMod(const QModelIndex & index);
 		void pathChanged();

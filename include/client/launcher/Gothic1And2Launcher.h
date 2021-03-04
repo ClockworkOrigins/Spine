@@ -189,6 +189,8 @@ namespace launcher {
 		void updatePatchCheckboxes();
 
 		QList<int32_t> getActiveProjects() const override;
+
+		QString getDefaultIni(int projectID) const;
 	};
 
 } /* namespace launcher */

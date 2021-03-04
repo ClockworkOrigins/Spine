@@ -3364,5 +3364,9 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>JumpToOwnScore</source>
         <translation>Przejdź do własnego wyniku</translation>
     </message>
+    <message>
+        <source>CreateShortcut</source>
+        <translation>Utwórz skrót na pulpicie</translation>
+    </message>
 </context>
 </TS>

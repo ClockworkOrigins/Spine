@@ -3376,5 +3376,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>JumpToOwnScore</source>
         <translation>Jump to own score</translation>
     </message>
+    <message>
+        <source>CreateShortcut</source>
+        <translation>Create desktop shortcut</translation>
+    </message>
 </context>
 </TS>

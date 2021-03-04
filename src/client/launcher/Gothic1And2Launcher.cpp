@@ -536,7 +536,11 @@ void Gothic1And2Launcher::saveSettings() {
 }
 
 void Gothic1And2Launcher::updateView(int modID, const QString & iniFile) {
-	_iniFile = iniFile;
+	if (iniFile.isEmpty()) {
+		_iniFile = getDefaultIni(modID);
+	} else {
+		_iniFile = iniFile;
+	}
 
 	QSettings iniParser(_iniFile, QSettings::IniFormat);
 	iniParser.beginGroup("INFO");
@@ -2337,4 +2341,16 @@ QList<int32_t> Gothic1And2Launcher::getActiveProjects() const {
 	}
 
 	return activeProjects;
+}
+
+QString Gothic1And2Launcher::getDefaultIni(int projectID) const {
+	const auto path = Config::DOWNLOADDIR + "/mods/" + QString::number(projectID) + "/System";
+	QDirIterator it(path, { "*.ini" }, QDir::Files);
+	while (it.hasNext()) {
+		it.next();
+
+		return it.filePath();
+	}
+
+	return QString();
 }

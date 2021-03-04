@@ -21,6 +21,7 @@
 #include <thread>
 
 #include "SpineConfig.h"
+#include "UrlProtocolHandler.h"
 
 #include "utils/Config.h"
 #include "utils/FileLogger.h"
@@ -92,6 +93,17 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 }
 
 int main(int argc, char ** argv) {
+	QString urlCommand;
+	
+	for (int i = 0; i < argc; i++) {
+		QString command = argv[i];
+
+		if (command.startsWith("spine://")) {
+			urlCommand = command;
+			break;
+		}
+	}
+	
 	{
 		clockUtils::compression::Compression<clockUtils::compression::algorithm::HuffmanFixed> c;
 		std::string s;
@@ -102,7 +114,7 @@ int main(int argc, char ** argv) {
 		Q_UNUSED(err);
 	}
 
-	int counter = 5;
+	int counter = 2;
 	if (!CheckOneInstance()) {
 		bool pass = false;
 		while (counter--) {
@@ -110,9 +122,11 @@ int main(int argc, char ** argv) {
 			if (pass) {
 				break;
 			}
-			std::this_thread::sleep_for(std::chrono::seconds(5));
+			std::this_thread::sleep_for(std::chrono::seconds(2));
 		}
 		if (!pass) {
+			client::UrlProtocolHandler urlProtocolHandler;
+			urlProtocolHandler.send(urlCommand);
 			return 1;
 		}
 	}
@@ -141,9 +155,17 @@ int main(int argc, char ** argv) {
 
 	int ret;
 	{
-		spine::widgets::MainWindow wnd(false);
+		widgets::MainWindow wnd(false);
 
 		wnd.show();
+
+		client::UrlProtocolHandler urlProtocolHandler;
+
+		QObject::connect(&urlProtocolHandler, &client::UrlProtocolHandler::start, &wnd, &widgets::MainWindow::startProject);
+		QObject::connect(&urlProtocolHandler, &client::UrlProtocolHandler::install, &wnd, &widgets::MainWindow::installProject);
+		
+		urlProtocolHandler.listen();
+		urlProtocolHandler.handle(urlCommand);
 
 		ret = QApplication::exec();
 	}

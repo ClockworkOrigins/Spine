@@ -843,6 +843,16 @@ MainWindow::~MainWindow() {
 	delete _downloadQueue;
 }
 
+void MainWindow::startProject(int projectID) {
+	triggerModStart(projectID, QString());
+}
+
+void MainWindow::installProject(int projectID) {
+	if (!_modDatabaseView) return;
+
+	_modDatabaseView->updateModList(projectID, -1, InstallMode::Silent);
+}
+
 void MainWindow::selectedMod(const QModelIndex & index) {
 	const auto idx = _sortModel->mapToSource(index);
 	const QString modID = _modListModel->data(idx, LibraryFilterModel::ModIDRole).toString();

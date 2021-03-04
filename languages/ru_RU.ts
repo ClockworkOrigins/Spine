@@ -3369,5 +3369,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>JumpToOwnScore</source>
         <translation>Перейти к собственному счету</translation>
     </message>
+    <message>
+        <source>CreateShortcut</source>
+        <translation>Создать ярлык на рабочем столе</translation>
+    </message>
 </context>
 </TS>

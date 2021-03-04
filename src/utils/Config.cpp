@@ -268,5 +268,16 @@ int Config::Init() {
 			Q_UNUSED(b)
 		}
 	}
+	// init URL protocol
+	initUrlProtocl();
 	return 0;
+}
+
+void Config::initUrlProtocl() {
+	QSettings spineKey("HKEY_CLASSES_ROOT\\spine", QSettings::NativeFormat);
+	spineKey.setValue(".", "URL:spine Protocol");
+	spineKey.setValue("URL Protocol", "");
+	
+	QSettings spineOpenKey("HKEY_CLASSES_ROOT\\spine\\shell\\open\\command", QSettings::NativeFormat);
+	spineOpenKey.setValue(".", "\""  + QDir::toNativeSeparators(qApp->applicationFilePath()) + "\" -- \"%1\"");
 }

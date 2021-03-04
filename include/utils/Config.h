@@ -48,6 +48,9 @@ namespace utils {
 		static bool extendedLogging;
 
 		static const int ProjectID = 0;
+
+	private:
+		static void initUrlProtocl();
 	};
 
 } /* namespace utils */
