@@ -1422,16 +1422,19 @@ void DatabaseServer::requestScores(std::shared_ptr<HttpsServer::Response> respon
 				if (it != scoreOrders.end() && it->second == common::ScoreOrder::Ascending) {
 					std::reverse(score.second.begin(), score.second.end());
 				}
-				
+
+				ptree scoresNodes;
 				for (const auto & p : score.second) {
 					ptree scoreEntryNode;
 					scoreEntryNode.put("Username", p.first);
 					scoreEntryNode.put("Score", p.second);
 
-					scoreNode.push_back(std::make_pair("", scoreEntryNode));
+					scoresNodes.push_back(std::make_pair("", scoreEntryNode));
 				}
-				scoreNodes.put("ID", score.first);
-				scoreNodes.add_child("Scores", scoreNode);
+				scoreNode.put("ID", score.first);
+				scoreNode.add_child("Scores", scoresNodes);
+				
+				scoreNodes.push_back(std::make_pair("", scoreNode));
 			}
 			responseTree.add_child("Scores", scoreNodes);
 		} while (false);
