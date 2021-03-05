@@ -2118,6 +2118,7 @@
 		<Enhancement language="Deutsch">Score-ID wird im Management jetzt angezeigt</Enhancement>
 		<Enhancement language="Deutsch">Support für Dateien > 2GB eingeführt</Enhancement>
 		<Enhancement language="Deutsch">Es können jetzt Desktop-Verknüpfungen für einzelne Projekte erstellt werden</Enhancement>
+		<Enhancement language="Deutsch">Thumbnails auf Infoseiten werden jetzt ausgeblendet, wenn nur eines vorhanden ist</Enhancement>
 		<Bug language="Deutsch">Falsche Version bei Download von Projekten mit einer Spine-Version != 0 behoben</Bug>
 		<Bug language="Deutsch">Fehler beim Patchen von Projekten mit Archiv behoben</Bug>
 		<Bug language="Deutsch">Fehler behoben, wodurch ein Label beim erneuten Öffnen des Update-Dialogs nicht entfernt wurde</Bug>
@@ -2126,6 +2127,7 @@
 		<Enhancement language="English">Score ID now gets displayed in management</Enhancement>
 		<Enhancement language="English">Added support for files bigger than 2GB</Enhancement>
 		<Enhancement language="English">It's possible now to create desktop shortcuts for projects</Enhancement>
+		<Enhancement language="English">Thumbnail on info pages now are hidden when there is just one</Enhancement>
 		<Bug language="English">Fixed wrong version downloading a project with a Spine version != 0</Bug>
 		<Bug language="English">Fixed bug patching projects containing an archive</Bug>
 		<Bug language="English">Fixed bug that caused label not being deleted when opening update dialog again</Bug>

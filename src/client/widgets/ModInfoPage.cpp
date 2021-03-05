@@ -1087,5 +1087,5 @@ void ModInfoPage::showScreens() {
 	if (minWidth != std::numeric_limits<int>::max()) {
 		_thumbnailView->setFixedWidth(std::min(width() - 50, static_cast<int>(_screens.size()) * (maxWidth + 15)));
 	}
-	_thumbnailView->setVisible(!_screens.empty());
+	_thumbnailView->setVisible(_screens.size() > 1);
 }
