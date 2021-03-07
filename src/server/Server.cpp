@@ -23,6 +23,7 @@
 #include <set>
 #include <thread>
 
+#include "Cleanup.h"
 #include "DatabaseCreator.h"
 #include "DatabaseMigrator.h"
 #include "DatabaseServer.h"
@@ -57,6 +58,8 @@ Server::Server() : _listenClient(new clockUtils::sockets::TcpSocket()), _listenM
 	DatabaseMigrator::migrate();
 
 	SpineLevel::init();
+
+	Cleanup::init();
 }
 
 Server::~Server() {
