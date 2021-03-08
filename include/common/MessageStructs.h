@@ -724,7 +724,7 @@ namespace common {
 		}
 	};
 
-	struct SubmitScriptFeaturesMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.31.0")]] SubmitScriptFeaturesMessage : public Message {
 		struct Achievement {
 			std::string name;
 			std::string description;
@@ -800,7 +800,7 @@ namespace common {
 		}
 	};
 
-	struct SubmitCompatibilityMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.31.0")]] SubmitCompatibilityMessage : public Message {
 		int32_t modID;
 		int32_t patchID;
 		std::string username;
@@ -820,7 +820,7 @@ namespace common {
 		}
 	};
 
-	struct RequestOwnCompatibilitiesMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.31.0")]] RequestOwnCompatibilitiesMessage : public Message {
 		std::string username;
 		std::string password;
 		RequestOwnCompatibilitiesMessage() : Message() {
@@ -834,7 +834,7 @@ namespace common {
 		}
 	};
 
-	struct SendOwnCompatibilitiesMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.31.0")]] SendOwnCompatibilitiesMessage : public Message {
 		struct Compatibility {
 			int32_t modID;
 			int32_t patchID;

@@ -100,6 +100,8 @@ int DatabaseServer::run() {
 	_server->resource["^/projectVersionCheck"]["POST"] = std::bind(&DatabaseServer::projectVersionCheck, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/submitNews"]["POST"] = std::bind(&DatabaseServer::submitNews, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/requestAllProjects"]["POST"] = std::bind(&DatabaseServer::requestAllProjects, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/submitCompatibility"]["POST"] = std::bind(&DatabaseServer::submitCompatibility, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/requestOwnCompatibilities"]["POST"] = std::bind(&DatabaseServer::requestOwnCompatibilities, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -5506,6 +5508,8 @@ void DatabaseServer::requestAllProjects(std::shared_ptr<HttpsServer::Response> r
 				}
 
 				projectNode.put("Name", nameIt->second);
+				projectNode.put("GameType", std::stoi(vec[2]));
+				projectNode.put("ModType", std::stoi(vec[4]));
 
 				if (simplified) {
 					projectNodes.push_back(std::make_pair("", projectNode));
@@ -5519,9 +5523,7 @@ void DatabaseServer::requestAllProjects(std::shared_ptr<HttpsServer::Response> r
 				if (it != teamNames.end()) {
 					projectNode.put("TeamName", it->second);
 				}
-				projectNode.put("GameType", std::stoi(vec[2]));
 				projectNode.put("ReleaseDate", std::stoi(vec[3]));
-				projectNode.put("ModType", std::stoi(vec[4]));
 				projectNode.put("MajorVersion", std::stoi(vec[5]));
 				projectNode.put("MinorVersion", std::stoi(vec[6]));
 				projectNode.put("PatchVersion", std::stoi(vec[7]));
@@ -5690,6 +5692,142 @@ void DatabaseServer::requestAllProjects(std::shared_ptr<HttpsServer::Response> r
 
 			if (!packageNodes.empty()) {
 				responseTree.add_child("Packages", packageNodes);
+			}
+		} while (false);
+
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::submitCompatibility(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		const auto username = pt.get<std::string>("Username");
+		const auto password = pt.get<std::string>("Password");
+		const auto projectID = pt.get<int32_t>("ProjectID");
+		const auto patchID = pt.get<int32_t>("PatchID");
+		const auto compatible = pt.get<int32_t>("Compatible") == 1;
+
+		const int userID = ServerCommon::getUserID(username, password);
+
+		if (userID == -1) {
+			response->write(SimpleWeb::StatusCode::client_error_bad_request);
+			return;
+		}
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+
+			if (!database.query("PREPARE updateCompatibilityStmt FROM \"INSERT INTO compatibilityList (UserID, ModID, PatchID, Compatible) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE Compatible = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramModID=" + std::to_string(projectID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramPatchID=" + std::to_string(patchID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramCompatible=" + std::to_string(compatible) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("EXECUTE updateCompatibilityStmt USING @paramUserID, @paramModID, @paramPatchID, @paramCompatible, @paramCompatible;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+
+			SpineLevel::updateLevel(userID);
+		} while (false);
+
+		response->write(code);
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::requestOwnCompatibilities(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		const auto username = pt.get<std::string>("Username");
+		const auto password = pt.get<std::string>("Password");
+
+		const int userID = ServerCommon::getUserID(username, password);
+
+		if (userID == -1) {
+			response->write(SimpleWeb::StatusCode::client_error_bad_request);
+			return;
+		}
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+
+			if (!database.query("PREPARE selectCompatibilitiesStmt FROM \"SELECT ModID, PatchID, Compatible FROM compatibilityList WHERE UserID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("EXECUTE selectCompatibilitiesStmt USING @paramUserID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			auto lastResults = database.getResults<std::vector<std::string>>();
+
+			ptree compatibilityNodes;
+			
+			for (const auto & vec : lastResults) {
+				ptree compatibilityNode;
+				
+				compatibilityNode.put("ProjectID", std::stoi(vec[0]));
+				compatibilityNode.put("PatchID", std::stoi(vec[1]));
+				compatibilityNode.put("Compatible", std::stoi(vec[2]));
+
+				compatibilityNodes.push_back(std::make_pair("", compatibilityNode));
+			}
+
+			if (!compatibilityNodes.empty()) {
+				responseTree.add_child("Compatibilities", compatibilityNodes);
 			}
 		} while (false);
 

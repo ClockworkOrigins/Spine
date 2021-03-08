@@ -146,7 +146,11 @@ namespace server {
 		
 		[[deprecated("Remove in Spine 1.31.0")]]
 		void handleSubmitScriptFeatures(clockUtils::sockets::TcpSocket * sock, common::SubmitScriptFeaturesMessage * msg) const;
+		
+		[[deprecated("Remove in Spine 1.31.0")]]
 		void handleSubmitCompatibility(clockUtils::sockets::TcpSocket * sock, common::SubmitCompatibilityMessage * msg) const;
+		
+		[[deprecated("Remove in Spine 1.31.0")]]
 		void handleRequestOwnCompatibilities(clockUtils::sockets::TcpSocket * sock, common::RequestOwnCompatibilitiesMessage * msg) const;
 		
 		[[deprecated("Remove in Spine 1.30.0")]]
