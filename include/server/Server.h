@@ -139,6 +139,8 @@ namespace server {
 
 		[[deprecated("Remove in Spine 1.30.0")]]
 		void handleRequestAllScoreStats(clockUtils::sockets::TcpSocket * sock, common::RequestAllScoreStatsMessage * msg) const;
+		
+		[[deprecated("Remove in Spine 1.32.0")]]
 		void handleRequestAllNews(clockUtils::sockets::TcpSocket * sock, common::RequestAllNewsMessage * msg) const;
 		
 		[[deprecated("Remove in Spine 1.31.0")]]

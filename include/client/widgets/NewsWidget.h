@@ -38,7 +38,7 @@ namespace widgets {
 		Q_OBJECT
 
 	public:
-		NewsWidget(common::SendAllNewsMessage::News news, bool onlineMode, QWidget * par);
+		NewsWidget(common::News news, bool onlineMode, QWidget * par);
 
 	signals:
 		void tryInstallMod(int, int, client::InstallMode);
@@ -61,7 +61,7 @@ namespace widgets {
 		QList<QPushButton *> _installButtons;
 
 		void paintEvent(QPaintEvent* evt) override;
-		void update(common::SendAllNewsMessage::News news);
+		void update(common::News news);
 	};
 
 } /* namespace widgets */

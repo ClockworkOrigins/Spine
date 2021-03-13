@@ -91,6 +91,7 @@ namespace server {
 		void requestAllProjects(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
 		void submitCompatibility(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
 		void requestOwnCompatibilities(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
+		void requestAllNews(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
 		
 		void requestAllTri6ScoreStats(boost::property_tree::ptree & responseTree) const;
 	};

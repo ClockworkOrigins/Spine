@@ -53,7 +53,7 @@ namespace widgets {
 
 	public slots:
 		void loginChanged();
-		void setLanguage(QString);
+		void setLanguage();
 
 	private slots:
 		void updateNews();
@@ -71,7 +71,7 @@ namespace widgets {
 		QPushButton * _startModButton;
 		QVBoxLayout * _newsTickerLayout;
 		QList<QWidget *> _newsTickerWidgets;
-		QList<common::SendAllNewsMessage::NewsTicker> _newsTickers;
+		QList<common::NewsTicker> _newsTickers;
 
 		void showEvent(QShowEvent* evt) override;
 	};

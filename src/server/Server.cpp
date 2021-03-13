@@ -1625,7 +1625,7 @@ void Server::handleRequestAllNews(clockUtils::sockets::TcpSocket * sock, Request
 	auto lastResults = database.getResults<std::vector<std::string>>();
 	SendAllNewsMessage sanm;
 	for (auto vec : lastResults) {
-		SendAllNewsMessage::News news;
+		News news;
 		news.id = std::stoi(vec[0]);
 		news.title = vec[1];
 		news.body = vec[2];
@@ -1665,7 +1665,7 @@ void Server::handleRequestAllNews(clockUtils::sockets::TcpSocket * sock, Request
 		const auto projectID = std::stoi(vec[2]);
 		const auto timestamp = std::stoi(vec[3]);
 
-		SendAllNewsMessage::NewsTicker nt;
+		NewsTicker nt;
 		nt.type = type;
 		nt.projectID = projectID;
 		nt.timestamp = timestamp;

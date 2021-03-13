@@ -53,7 +53,7 @@ using namespace spine::common;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-NewsWidget::NewsWidget(SendAllNewsMessage::News news, bool onlineMode, QWidget * par) : QWidget(par), _titleLabel(nullptr), _textBrowser(nullptr), _timestampLabel(nullptr), _newsID(news.id) {
+NewsWidget::NewsWidget(News news, bool onlineMode, QWidget * par) : QWidget(par), _titleLabel(nullptr), _textBrowser(nullptr), _timestampLabel(nullptr), _newsID(news.id) {
 	setObjectName("NewsWidget");
 
 	auto * l = new QVBoxLayout();
@@ -153,7 +153,7 @@ void NewsWidget::paintEvent(QPaintEvent *) {
 	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 
-void NewsWidget::update(SendAllNewsMessage::News news) {
+void NewsWidget::update(News news) {
 	_titleLabel->setText(s2q(news.title));
 	_timestampLabel->setText(QDate(2000, 1, 1).addDays(news.timestamp).toString("dd.MM.yyyy"));
 	QString newsText = s2q(news.body);

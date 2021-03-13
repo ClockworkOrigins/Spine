@@ -58,7 +58,7 @@ NewsWriterDialog::NewsWriterDialog(QWidget * par) : QDialog(par), _newsPreviewWi
 	auto * l = new QHBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
-	_newsPreviewWidget = new NewsWidget(SendAllNewsMessage::News(), true, this);
+	_newsPreviewWidget = new NewsWidget(News(), true, this);
 	l->addWidget(_newsPreviewWidget);
 
 	{
@@ -144,7 +144,7 @@ NewsWriterDialog::NewsWriterDialog(QWidget * par) : QDialog(par), _newsPreviewWi
 }
 
 void NewsWriterDialog::changedNews() {
-	SendAllNewsMessage::News news;
+	News news;
 
 	news.title = q2s(_titleEdit->text());
 	news.body = q2s(_bodyEdit->toPlainText());

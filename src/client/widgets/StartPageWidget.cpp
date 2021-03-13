@@ -23,6 +23,8 @@
 
 #include "gui/DownloadQueueWidget.h"
 
+#include "https/Https.h"
+
 #include "utils/Config.h"
 #include "utils/Conversion.h"
 #include "utils/Database.h"
@@ -34,11 +36,12 @@
 #include "widgets/NewsWriterDialog.h"
 #include "widgets/UpdateLanguage.h"
 
-#include "clockUtils/sockets/TcpSocket.h"
-
 #include <QApplication>
 #include <QDate>
 #include <QFileInfo>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLabel>
 #include <QPushButton>
 #include <QScrollArea>
@@ -47,19 +50,20 @@
 #include <QtConcurrentRun>
 #include <QVBoxLayout>
 
-using namespace spine;
 using namespace spine::client;
+using namespace spine::common;
 using namespace spine::gui;
+using namespace spine::https;
 using namespace spine::utils;
 using namespace spine::widgets;
 
 StartPageWidget::StartPageWidget(QWidget * par) : QWidget(par) {
-	QVBoxLayout * l = new QVBoxLayout();
+	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 	
 	setProperty("default", true);
 
-	QLabel * welcomeLabel = new QLabel(QApplication::tr("WelcomeText"), this);
+	auto * welcomeLabel = new QLabel(QApplication::tr("WelcomeText"), this);
 	welcomeLabel->setWordWrap(true);
 	welcomeLabel->setAlignment(Qt::AlignCenter);
 	welcomeLabel->setProperty("StartPageWelcome", true);
@@ -68,10 +72,10 @@ StartPageWidget::StartPageWidget(QWidget * par) : QWidget(par) {
 	l->addWidget(welcomeLabel);
 
 	{
-		QHBoxLayout * hl = new QHBoxLayout();
+		auto * hl = new QHBoxLayout();
 		{
-			QScrollArea * scrollArea = new QScrollArea(this);
-			QWidget * newsTickerWidget = new QWidget(scrollArea);
+			auto * scrollArea = new QScrollArea(this);
+			auto * newsTickerWidget = new QWidget(scrollArea);
 			_newsTickerLayout = new QVBoxLayout();
 			_newsTickerLayout->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
 			newsTickerWidget->setLayout(_newsTickerLayout);
@@ -130,45 +134,73 @@ void StartPageWidget::requestNewsUpdate() {
 		if (res.empty()) {
 			res.push_back(0);
 		}
-		common::RequestAllNewsMessage ranm;
-		ranm.lastNewsID = res[0];
-		ranm.language = Config::Language.toStdString();
-		std::string serialized = ranm.SerializePublic();
-		clockUtils::sockets::TcpSocket sock;
-		const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-		if (clockUtils::ClockError::SUCCESS == cErr) {
-			sock.writePacket(serialized);
-			if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-				try {
-					common::Message * m = common::Message::DeserializePublic(serialized);
-					if (m) {
-						common::SendAllNewsMessage * sanm = dynamic_cast<common::SendAllNewsMessage *>(m);
-						for (const common::SendAllNewsMessage::News & news : sanm->news) {
-							Database::execute(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "INSERT INTO news (NewsID, Title, Body, Timestamp, Language) VALUES (" + std::to_string(news.id) + ", '" + news.title + "', '" + news.body + "', " + std::to_string(news.timestamp) + ", '" + Config::Language.toStdString() + "');", err);
-							for (const std::pair<int32_t, std::string> & mod : news.referencedMods) {
-								Database::execute(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "INSERT INTO newsModReferences (NewsID, ModID, Name, Language) VALUES (" + std::to_string(news.id) + ", " + std::to_string(mod.first) + ", '" + mod.second + "', '" + Config::Language.toStdString() + "');", err);
-							}
-							for (const std::pair<std::string, std::string> & p : news.imageFiles) {
-								Database::execute(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "INSERT INTO newsImageReferences (NewsID, File, Hash) VALUES (" + std::to_string(news.id) + ", '" + p.first + "', '" + p.second + "');", err);
-							}
-						}
 
-						_newsTickers.clear();
+		QJsonObject json;
+		json["Language"] = Config::Language;
+		json["LastNewsID"] = res[0];
 
-						for (const auto & nt : sanm->newsTicker) {
-							_newsTickers.append(nt);
+		Https::postAsync(DATABASESERVER_PORT, "requestAllNews", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & data, int statusCode) {
+			if (statusCode != 200) return;
+
+			if (data.contains("News")) {
+				for (const auto jsonRef : data["News"].toArray()) {
+					const auto jsonNews = jsonRef.toObject();
+
+					const int newsID = jsonNews["ID"].toString().toInt();
+					const QString title = jsonNews["Title"].toString();
+					const QString body = jsonNews["Body"].toString();
+					const int timestamp = jsonNews["Timestamp"].toString().toInt();
+					
+					Database::DBError err2;
+					Database::execute(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "INSERT INTO news (NewsID, Title, Body, Timestamp, Language) VALUES (" + std::to_string(newsID) + ", '" + title.toStdString() + "', '" + body.toStdString() + "', " + std::to_string(timestamp) + ", '" + Config::Language.toStdString() + "');", err2);
+
+					if (jsonNews.contains("ProjectReferences")) {
+						for (const auto jsonRef2 : jsonNews["ProjectReferences"].toArray()) {
+							const auto jsonProjectReference = jsonRef2.toObject();
+
+							const auto projectID = jsonProjectReference["ProjectID"].toString().toInt();
+							const auto name = jsonProjectReference["Name"].toString();
+							
+							Database::execute(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "INSERT INTO newsModReferences (NewsID, ModID, Name, Language) VALUES (" + std::to_string(newsID) + ", " + std::to_string(projectID) + ", '" + name.toStdString() + "', '" + Config::Language.toStdString() + "');", err2);
 						}
 					}
-					delete m;
-				} catch (...) {
+					if (jsonNews.contains("Images")) {
+						for (const auto jsonRef2 : jsonNews["Images"].toArray()) {
+							const auto jsonImage = jsonRef2.toObject();
+
+							const auto file = jsonImage["File"].toString();
+							const auto hash = jsonImage["Hash"].toString();
+
+							Database::execute(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "INSERT INTO newsImageReferences (NewsID, File, Hash) VALUES (" + std::to_string(newsID) + ", '" + file.toStdString() + "', '" + hash.toStdString() + "');", err2);
+						}
+					}
 				}
 			}
-		}
-		emit receivedNews();
+
+			_newsTickers.clear();
+			if (data.contains("NewsTicker")) {
+				for (const auto jsonRef : data["NewsTicker"].toArray()) {
+					const auto jsonNewsTicker = jsonRef.toObject();
+
+					NewsTicker nt;
+					nt.type = static_cast<NewsTickerType>(jsonNewsTicker["Type"].toString().toInt());
+					nt.name = q2s(jsonNewsTicker["Name"].toString());
+					nt.projectID = jsonNewsTicker["ProjectID"].toString().toInt();
+					nt.timestamp = jsonNewsTicker["Timestamp"].toString().toInt();
+					nt.majorVersion = static_cast<int8_t>(jsonNewsTicker["MajorVersion"].toString().toInt());
+					nt.minorVersion = static_cast<int8_t>(jsonNewsTicker["MinorVersion"].toString().toInt());
+					nt.patchVersion = static_cast<int8_t>(jsonNewsTicker["PatchVersion"].toString().toInt());
+
+					_newsTickers << nt;
+				}
+			}
+
+			emit receivedNews();
+		});
 	});
 }
 
-void StartPageWidget::setLanguage(QString) {
+void StartPageWidget::setLanguage() {
 	requestNewsUpdate();
 }
 
@@ -188,17 +220,17 @@ void StartPageWidget::updateNews() {
 	_newsTickerWidgets.clear();
 	
 	Database::DBError err;
-	std::vector<common::SendAllNewsMessage::News> news = Database::queryAll<common::SendAllNewsMessage::News, std::string, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT NewsID, Title, Body, Timestamp FROM news WHERE Language = '" + Config::Language.toStdString() + "' ORDER BY Timestamp DESC, NewsID DESC LIMIT 10;", err);
+	std::vector<News> news = Database::queryAll<News, std::string, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT NewsID, Title, Body, Timestamp FROM news WHERE Language = '" + Config::Language.toStdString() + "' ORDER BY Timestamp DESC, NewsID DESC LIMIT 10;", err);
 	if (Config::OnlineMode) {
 		const auto images = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT DISTINCT File, Hash FROM newsImageReferences;", err);
-		MultiFileDownloader * mfd = new MultiFileDownloader(this);
+		auto * mfd = new MultiFileDownloader(this);
 		bool download = false;
 		for (const auto & p : images) {
 			QString filename = QString::fromStdString(p.first);
 			filename.chop(2); // every image is compressed, so it has a .z at the end
 			if (!QFileInfo::exists(Config::NEWSIMAGEDIR + "/" + filename)) {
 				QFileInfo fi(QString::fromStdString(p.first));
-				FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/news/images/" + QString::fromStdString(p.first)), Config::NEWSIMAGEDIR + "/" + fi.path(), fi.fileName(), QString::fromStdString(p.second), mfd);
+				auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/news/images/" + QString::fromStdString(p.first)), Config::NEWSIMAGEDIR + "/" + fi.path(), fi.fileName(), QString::fromStdString(p.second), mfd);
 				mfd->addFileDownloader(fd);
 				download = true;
 			}
@@ -211,17 +243,17 @@ void StartPageWidget::updateNews() {
 			delete mfd;
 		}		
 	}
-	for (common::SendAllNewsMessage::News n : news) {
+	for (News n : news) {
 		const auto mods = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT DISTINCT ModID, Name FROM newsModReferences WHERE NewsID = " + std::to_string(n.id) + " AND Language = '" + Config::Language.toStdString() + "';", err);
 		for (const auto & p : mods) {
 			n.referencedMods.emplace_back(std::stoi(p.first), p.second);
 		}
-		NewsWidget * newsWidget = new NewsWidget(n, Config::OnlineMode, _newsContainer);
+		auto * newsWidget = new NewsWidget(n, Config::OnlineMode, _newsContainer);
 		_newsLayout->addWidget(newsWidget);
 		_news.push_back(newsWidget);
 		connect(newsWidget, &NewsWidget::tryInstallMod, this, &StartPageWidget::tryInstallMod);
-		QStandardItem * itmTitle = new QStandardItem(s2q(n.title));
-		QStandardItem * itmTimestamp = new QStandardItem(QDate(2000, 1, 1).addDays(n.timestamp).toString("dd.MM.yyyy"));
+		auto * itmTitle = new QStandardItem(s2q(n.title));
+		auto * itmTimestamp = new QStandardItem(QDate(2000, 1, 1).addDays(n.timestamp).toString("dd.MM.yyyy"));
 		itmTimestamp->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
 		itmTitle->setEditable(false);
 		itmTimestamp->setEditable(false);
@@ -236,20 +268,20 @@ void StartPageWidget::updateNews() {
 	}
 
 	for (const auto & nt : _newsTickers) {
-		if (nt.type != common::NewsTickerType::Update && nt.type != common::NewsTickerType::Release) continue;
+		if (nt.type != NewsTickerType::Update && nt.type != NewsTickerType::Release) continue;
 		
-		QPushButton * pb = new QPushButton(this);
-		QHBoxLayout * hl = new QHBoxLayout();
+		auto * pb = new QPushButton(this);
+		auto * hl = new QHBoxLayout();
 
 		QLabel * lblTitle = nullptr;
 		
-		if (nt.type == common::NewsTickerType::Update) {		
+		if (nt.type == NewsTickerType::Update) {		
 			lblTitle = new QLabel(QString("[%1] %2 %3.%4.%5").arg(QApplication::tr("Update").toUpper()).arg(s2q(nt.name)).arg(static_cast<int>(nt.majorVersion)).arg(static_cast<int>(nt.minorVersion)).arg(static_cast<int>(nt.patchVersion)), this);
-		} else if (nt.type == common::NewsTickerType::Release) {
+		} else if (nt.type == NewsTickerType::Release) {
 			lblTitle = new QLabel(QString("[%1] %2").arg(QApplication::tr("ReleaseTag").toUpper()).arg(s2q(nt.name)), this);
 		}
 		
-		QLabel * lblDate = new QLabel(QDate(2000, 1, 1).addDays(nt.timestamp).toString("dd.MM.yyyy"), this);
+		auto * lblDate = new QLabel(QDate(2000, 1, 1).addDays(nt.timestamp).toString("dd.MM.yyyy"), this);
 
 		pb->setProperty("newsTicker", true);
 		pb->setProperty("ProjectID", nt.projectID);

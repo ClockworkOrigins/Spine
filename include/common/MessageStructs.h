@@ -584,7 +584,7 @@ namespace common {
 		}
 	};
 
-	struct RequestAllNewsMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.32.0")]] RequestAllNewsMessage : public Message {
 		int32_t lastNewsID;
 		std::string language;
 		RequestAllNewsMessage() : Message(), lastNewsID(0) {
@@ -597,55 +597,53 @@ namespace common {
 			ar & language;
 		}
 	};
+	struct [[deprecated("Remove serialize in Spine 1.32.0")]] News {
+		int32_t id;
+		std::string title = "";
+		std::string body;
+		int64_t timestamp;
+		std::vector<std::pair<int32_t, std::string>> referencedMods;
+		std::vector<std::pair<std::string, std::string>> imageFiles;
 
-	struct SendAllNewsMessage : public Message {
-		struct News {
-			int32_t id;
-			std::string title = "";
-			std::string body;
-			int64_t timestamp;
-			std::vector<std::pair<int32_t, std::string>> referencedMods;
-			std::vector<std::pair<std::string, std::string>> imageFiles;
+		News() : timestamp(0) {}
 
-			News() : timestamp(0) {
-			}
+		News(std::string s1, std::string s2, std::string s3, std::string s4) : id(std::stoi(s1)), title(s2), body(s3), timestamp(std::stoi(s4)) {}
 
-			News(std::string s1, std::string s2, std::string s3, std::string s4) : id(std::stoi(s1)), title(s2), body(s3), timestamp(std::stoi(s4)) {
-			}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & id;
+			ar & title;
+			ar & body;
+			ar & timestamp;
+			ar & referencedMods;
+			ar & imageFiles;
+		}
+	};
 
-			template<class Archive>
-			void serialize(Archive & ar, const unsigned int /* file_version */) {
-				ar & id;
-				ar & title;
-				ar & body;
-				ar & timestamp;
-				ar & referencedMods;
-				ar & imageFiles;
-			}
-		};
+	struct [[deprecated("Remove serialize in Spine 1.32.0")]] NewsTicker {
+		NewsTickerType type;
+		std::string name;
+		int32_t projectID;
+		int32_t timestamp;
+		int8_t majorVersion;
+		int8_t minorVersion;
+		int8_t patchVersion;
 
-		struct NewsTicker {
-			NewsTickerType type;
-			std::string name;
-			int32_t projectID;
-			int32_t timestamp;
-			int8_t majorVersion;
-			int8_t minorVersion;
-			int8_t patchVersion;
+		NewsTicker() : type(NewsTickerType::Update), projectID(0), timestamp(0), majorVersion(0), minorVersion(0), patchVersion(0) {}
 
-			NewsTicker() : type(NewsTickerType::Update), projectID(0), timestamp(0), majorVersion(0), minorVersion(0), patchVersion(0) {}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & type;
+			ar & name;
+			ar & projectID;
+			ar & timestamp;
+			ar & majorVersion;
+			ar & minorVersion;
+			ar & patchVersion;
+		}
+	};
 
-			template<class Archive>
-			void serialize(Archive & ar, const unsigned int /* file_version */) {
-				ar & type;
-				ar & name;
-				ar & projectID;
-				ar & timestamp;
-				ar & majorVersion;
-				ar & minorVersion;
-				ar & patchVersion;
-			}
-		};
+	struct [[deprecated("Remove in Spine 1.32.0")]] SendAllNewsMessage : public Message {
 		
 		std::vector<News> news;
 		std::vector<NewsTicker> newsTicker;
@@ -691,7 +689,7 @@ namespace common {
 	struct [[deprecated("Remove in Spine 1.31.0")]] SubmitNewsMessage : public Message {
 		std::string username;
 		std::string password;
-		SendAllNewsMessage::News news;
+		News news;
 		std::vector<int32_t> mods;
 		std::vector<std::vector<uint8_t>> images;
 		std::string language;
