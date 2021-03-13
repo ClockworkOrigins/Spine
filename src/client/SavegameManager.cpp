@@ -72,7 +72,7 @@ namespace {
 		for (int i = z; i < z + l; i++) { // alle Bytes duchgehen
 			s += static_cast<char>(b[i]);
 		}
-		z += s.length() - 1; // z aktualisieren
+		z += static_cast<int>(s.length() - 1); // z aktualisieren
 		if (tagebuchmode && s == ("[]")) {
 			tagebuchmode = false;
 			return "";

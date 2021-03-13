@@ -36,7 +36,6 @@ namespace common {
 	struct DownloadSucceededMessage;
 	struct FeedbackMessage;
 	struct IsAchievementUnlockedMessage;
-	struct LinkClickedMessage;
 	struct ModVersionCheckMessage;
 	struct PackageDownloadSucceededMessage;
 	struct RequestAchievementsMessage;
@@ -131,15 +130,6 @@ namespace server {
 		void handleRequestPackageFiles(clockUtils::sockets::TcpSocket * sock, common::RequestPackageFilesMessage * msg) const;
 		void handlePackageDownloadSucceeded(clockUtils::sockets::TcpSocket * sock, common::PackageDownloadSucceededMessage * msg) const;
 		
-		[[deprecated("Remove in Spine 1.30.0")]]
-		void handleRequestAllModStats(clockUtils::sockets::TcpSocket * sock, common::RequestAllModStatsMessage * msg) const;
-
-		[[deprecated("Remove in Spine 1.30.0")]]
-		void handleRequestAllAchievementStats(clockUtils::sockets::TcpSocket * sock, common::RequestAllAchievementStatsMessage * msg) const;
-
-		[[deprecated("Remove in Spine 1.30.0")]]
-		void handleRequestAllScoreStats(clockUtils::sockets::TcpSocket * sock, common::RequestAllScoreStatsMessage * msg) const;
-		
 		[[deprecated("Remove in Spine 1.32.0")]]
 		void handleRequestAllNews(clockUtils::sockets::TcpSocket * sock, common::RequestAllNewsMessage * msg) const;
 		
@@ -155,14 +145,6 @@ namespace server {
 		[[deprecated("Remove in Spine 1.31.0")]]
 		void handleRequestOwnCompatibilities(clockUtils::sockets::TcpSocket * sock, common::RequestOwnCompatibilitiesMessage * msg) const;
 		
-		[[deprecated("Remove in Spine 1.30.0")]]
-		void handleSubmitRating(clockUtils::sockets::TcpSocket * sock, common::SubmitRatingMessage * msg) const;
-		
-		void handleRequestModsForEditor(clockUtils::sockets::TcpSocket * sock, common::RequestModsForEditorMessage * msg) const;
-		
-		[[deprecated("Remove in Spine 1.30.0")]]
-		void handleRequestUserLevel(clockUtils::sockets::TcpSocket * sock, common::RequestUserLevelMessage * msg) const;
-		
 		[[deprecated("Remove in Spine 1.31.0")]]
 		void handleUpdateSucceeded(clockUtils::sockets::TcpSocket * sock, common::UpdateSucceededMessage * msg) const;
 		
@@ -170,8 +152,6 @@ namespace server {
 
 		static bool isTeamMemberOfMod(int modID, int userID);
 
-		[[deprecated("Remove in Spine 1.30.0")]]
-		void handleRequestAllTri6ScoreStats(clockUtils::sockets::TcpSocket * sock) const;
 		static void getBestTri6Score(int userID, common::ProjectStats & projectStats);
 	};
 
