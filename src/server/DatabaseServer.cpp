@@ -5078,11 +5078,11 @@ void DatabaseServer::projectVersionCheck(std::shared_ptr<HttpsServer::Response> 
 					}
 
 					updateNode.put("Changelog", lastResults.empty() ? "" : lastResults[0][0]);
-
-					updateNodes.push_back(std::make_pair("", updateNode));
 				} else {
 					updateNode.put("SavegameCompatible", 0);
 				}
+
+				updateNodes.push_back(std::make_pair("", updateNode));
 			}
 
 			if (!updateNodes.empty()) {
