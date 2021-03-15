@@ -267,6 +267,10 @@ void SpineLevel::cacheLevel(int userID) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
+		if (!database.query("PREPARE selectUserVotesStmt FROM \"SELECT Count(*) FROM userVotes WHERE UserID = ?\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
 		
 		if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
@@ -402,6 +406,15 @@ void SpineLevel::cacheLevel(int userID) {
 		lastResults = database.getResults<std::vector<std::string>>();
 		if (!lastResults.empty()) {
 			currentXP += std::stoi(lastResults[0][0]);
+		}
+		
+		if (!database.query("EXECUTE selectUserVotesStmt USING @paramUserID;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			break;
+		}
+		lastResults = database.getResults<std::vector<std::string>>();
+		if (!lastResults.empty()) {
+			currentXP += std::stoi(lastResults[0][0]) * 250;
 		}
 
 		// bonus XP for people that support us by playing our games
