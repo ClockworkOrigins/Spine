@@ -2132,4 +2132,9 @@
 		<Bug language="English">Fixed bug patching projects containing an archive</Bug>
 		<Bug language="English">Fixed bug that caused label not being deleted when opening update dialog again</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="30" patchVersion="0">
+		<Bug language="Deutsch">Fehler behoben, wodurch bei den Originalspielen manchmal Untertitel/Sprache nicht funktioniert haben</Bug>
+		
+		<Bug language="English">Fixed bug that caused for original games sometimes subtitles/speech not to work</Bug>
+	</Version>
 </Versions>

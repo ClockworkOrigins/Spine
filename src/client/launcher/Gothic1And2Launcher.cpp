@@ -179,6 +179,12 @@ void Gothic1And2Launcher::setDirectory(const QString & directory) {
 
 	QSettings systempackIni(QString("%1/system/Systempack.ini").arg(_directory), QSettings::IniFormat);
 	systempackIni.setValue("GAME/SaveDATinASCII", 0);
+
+	const auto outputPath = QStringLiteral("%1/_work/data/Scripts/Content/Cutscene/%2");
+	
+	if (QFileInfo::exists(outputPath.arg(_directory).arg("OU.LSC"))) {
+		QFile::rename(outputPath.arg(_directory).arg("OU.LSC"), outputPath.arg(_directory).arg("OU.CSL"));
+	}
 }
 
 void Gothic1And2Launcher::setHideIncompatible(bool enabled) {
