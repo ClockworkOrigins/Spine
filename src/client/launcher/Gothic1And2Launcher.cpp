@@ -91,7 +91,7 @@ namespace {
 		int32_t modID;
 		std::string name;
 
-		Patch() : modID(-1), name() {
+		Patch() : modID(-1) {
 		}
 		Patch(std::string m, std::string n) : modID(std::stoi(m)), name(n) {
 		}
@@ -991,7 +991,7 @@ void Gothic1And2Launcher::finishedMod(int, QProcess::ExitStatus status) {
 	_systempackIniBackup.clear();
 	_skippedFiles.clear();
 
-	int duration = _timer->elapsed();
+	auto duration = _timer->elapsed();
 
 	stopCommon();
 
@@ -1623,7 +1623,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 						success = linkOrCopyFile(Config::DOWNLOADDIR + "/mods/" + QString::number(patchID) + "/" + filename, _directory + "/" + filename);
 						if (!success) {
 							if (Config::extendedLogging) {
-								LOGINFO("Missing file " << file.first << " (" << patchIDString << ")" << " " << QFileInfo::exists(_directory + "/" + filename) << " - " << QFileInfo::exists(Config::DOWNLOADDIR + "/mods/" + QString::number(patchID) + "/" + filename));
+								LOGINFO("Missing file " << file.first << " (" << patchIDString << ")" << " " << QFileInfo::exists(_directory + "/" + filename) << " - " << QFileInfo::exists(Config::DOWNLOADDIR + "/mods/" + QString::number(patchID) + "/" + filename))
 							}
 
 							std::vector<std::string> name = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Name FROM patches WHERE ModID = " + patchIDString + " LIMIT 1;", err);
