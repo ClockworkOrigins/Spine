@@ -114,7 +114,7 @@ int main(int argc, char ** argv) {
 		Q_UNUSED(err);
 	}
 
-	int counter = 2;
+	int counter = 5;
 	if (!CheckOneInstance()) {
 		bool pass = false;
 		while (counter--) {
@@ -124,7 +124,7 @@ int main(int argc, char ** argv) {
 			}
 			std::this_thread::sleep_for(std::chrono::seconds(2));
 		}
-		if (!pass) {
+		if (!pass && !urlCommand.isEmpty()) {
 			client::UrlProtocolHandler urlProtocolHandler;
 			urlProtocolHandler.send(urlCommand);
 			return 1;
