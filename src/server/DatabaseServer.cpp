@@ -1171,7 +1171,7 @@ void DatabaseServer::requestCompatibilityList(std::shared_ptr<HttpsServer::Respo
 				ptree forbbidenPatchesNodes;
 				for (const auto & v : lastResults) {
 					ptree forbiddenPatchNode;
-					forbiddenPatchNode.put("", v[0][0]);
+					forbiddenPatchNode.put("", v[0]);
 					forbbidenPatchesNodes.push_back(std::make_pair("", forbiddenPatchNode));
 				}
 				responseTree.add_child("ForbiddenPatches", forbbidenPatchesNodes);
