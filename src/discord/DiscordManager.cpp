@@ -54,6 +54,10 @@ int64_t DiscordManager::getUserID() const {
 	return _currentUser->GetId();
 }
 
+void DiscordManager::stop() {
+	_running = false;
+}
+
 DiscordManager::DiscordManager() : _currentUser(new User()), _running(true), _thread(nullptr) {
 	Core * core = nullptr;
 

@@ -46,6 +46,8 @@ namespace discord {
 
 		int64_t getUserID() const;
 
+		void stop();
+
 	signals:
 		void connected();
 

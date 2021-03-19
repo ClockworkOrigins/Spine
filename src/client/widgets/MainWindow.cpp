@@ -1212,6 +1212,8 @@ bool MainWindow::onQuit() {
 	msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
 	msg.button(QMessageBox::StandardButton::Cancel)->setText(QApplication::tr("Cancel"));
 	if (GeneralSettingsWidget::skipExitCheckbox || QMessageBox::StandardButton::Ok == msg.exec()) {
+		DiscordManager::instance()->stop();
+		
 		qApp->quit();
 		return true;
 	}
