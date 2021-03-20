@@ -921,7 +921,9 @@ void MainWindow::tabChanged(int index) {
 void MainWindow::setDeveloperMode(bool devMode) {
 	_developerModeActive = devMode;
 	_devModeAction->setChecked(devMode);
+	_modListView->clearSelection();
 	pathChanged();
+	_modInfoView->selectMod(QString::number(-1), QString());
 }
 
 void MainWindow::checkIntegrity(int projectID) {
