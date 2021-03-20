@@ -33,6 +33,8 @@ namespace https {
 	public:
 		static void post(uint16_t port, const QString & f, const QString & data, const std::function<void(const QJsonObject &, int statusCode)> & callback);
 		static QFuture<void> postAsync(uint16_t port, const QString & f, const QString & data, const std::function<void(const QJsonObject &, int statusCode)> & callback);
+		
+        static void cancelAll();
 	};
 
 } /* namespace https */

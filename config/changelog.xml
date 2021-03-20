@@ -2135,8 +2135,10 @@
 	<Version majorVersion="1" minorVersion="30" patchVersion="0">
 		<Bug language="Deutsch">Fehler behoben, wodurch bei den Originalspielen manchmal Untertitel/Sprache nicht funktioniert haben</Bug>
 		<Bug language="Deutsch">Wechsel zwischen Entwickler- und Spielmodus aktualisiert UI jetzt korrekt</Bug>
+		<Bug language="Deutsch">Fehler behoben, wodurch Spine manchmal nicht korrekt beendet wurde</Bug>
 		
 		<Bug language="English">Fixed bug that caused for original games sometimes subtitles/speech not to work</Bug>
 		<Bug language="English">Switching between developer and play mode now updates UI properly</Bug>
+		<Bug language="English">Fixed bug that caused Spine to not shut down properly sometimes</Bug>
 	</Version>
 </Versions>

@@ -30,11 +30,39 @@ using HttpsClient = SimpleWeb::Client<SimpleWeb::HTTPS>;
 
 using namespace spine::https;
 
+namespace {
+	void purgeClients();
+
+	QList<HttpsClient *> activeClientList;
+	QList<HttpsClient *> purgeClientList;
+	QMutex clientLock;
+	bool purgerRunning = true;
+	std::thread * purgeThread = new std::thread(&purgeClients);
+
+	void purgeClients() {
+		while (purgerRunning) {
+			{
+				QMutexLocker ml(&clientLock);
+				while (!purgeClientList.isEmpty()) {
+					delete purgeClientList[0];
+					purgeClientList.removeAt(0);
+				}
+			}
+			
+			std::this_thread::sleep_for(std::chrono::seconds(5));
+		}
+	}
+}
+
 void Https::post(uint16_t port, const QString & f, const QString & data, const std::function<void(const QJsonObject &, int statusCode)> & callback) {
-	HttpsClient client("clockwork-origins.com:" + std::to_string(port), false);
+	auto * client = new HttpsClient("clockwork-origins.com:" + std::to_string(port), false);
+	{
+		QMutexLocker ml(&clientLock);
+		activeClientList << client;
+	}
 
 	// Synchronous request... maybe make it asynchronous?
-	client.request("POST", "/" + q2s(f), data.toStdString(), [callback](std::shared_ptr<HttpsClient::Response> response, const SimpleWeb::error_code &) {
+	client->request("POST", "/" + q2s(f), data.toStdString(), [callback, client](std::shared_ptr<HttpsClient::Response> response, const SimpleWeb::error_code &) {
 		const QString code = s2q(response->status_code).split(" ")[0];
 
 		const int statusCode = code.toInt();
@@ -46,11 +74,35 @@ void Https::post(uint16_t port, const QString & f, const QString & data, const s
 		} else {
 			callback(QJsonObject(), statusCode);
 		}
+
+		{
+			QMutexLocker ml(&clientLock);
+			activeClientList.removeAll(client);
+			purgeClientList << client;
+		}
 	});
-	client.io_service->run();
+	client->io_service->run();
 }
 
 QFuture<void> Https::postAsync(uint16_t port, const QString & f, const QString & data, const std::function<void(const QJsonObject &, int statusCode)> & callback) {
 	auto future = QtConcurrent::run(post, port, f, data, callback);
 	return future;
+}
+
+void Https::cancelAll() {
+	purgerRunning = false;
+
+	{
+		QMutexLocker ml(&clientLock);
+		for (auto * client : activeClientList) {
+			client->io_service->stop();
+			delete client;
+		}
+		for (auto * client : purgeClientList) {
+			delete client;
+		}
+	}
+
+	purgeThread->join();
+	delete purgeThread;
 }
