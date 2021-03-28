@@ -318,14 +318,14 @@ void ModFilesWidget::uploadCurrentMod() {
 			}
 		}
 		emit updateProgressMax(static_cast<int>(maxBytes / 1024));
-		std::string serialized = umm.SerializePublic();
+		std::string serialized = umm.SerializeBlank();
 		clockUtils::sockets::TcpSocket sock;
 		const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", UPLOADSERVER_PORT, 10000);
 		if (clockUtils::ClockError::SUCCESS == cErr) {
 			QElapsedTimer startTime;
 			startTime.start();
 			qint64 writtenBytes = 0;
-			auto size = static_cast<int32_t>(serialized.size()); // TODO: support 64bit files in the future!
+			auto size = static_cast<int32_t>(serialized.size());
 			sock.write(&size, 4);
 			sock.write(serialized);
 			for (const QString & file : uploadFiles) {
@@ -342,14 +342,14 @@ void ModFilesWidget::uploadCurrentMod() {
 					const auto fileSize = in.gcount();
 					sock.write(buffer, fileSize);
 					writtenBytes += fileSize;
-					emit updateUploadText(QApplication::tr("UploadingFiles").arg(byteToString(writtenBytes), byteToString(maxBytes), bytePerTimeToString(writtenBytes, startTime.elapsed())));
+					emit updateUploadText(QApplication::tr("UploadingFiles").arg(byteToString(writtenBytes), byteToString(maxBytes), bytePerTimeToString(writtenBytes, static_cast<double>(startTime.elapsed()))));
 					emit updateProgress(static_cast<int>(writtenBytes / 1024));
 				}
 				in.close();
 				QFile::remove(file);
 			}
 			sock.receivePacket(serialized);
-			common::Message * msg = common::Message::DeserializePublic(serialized);
+			common::Message * msg = common::Message::DeserializeBlank(serialized);
 			if (msg) {
 				auto * am = dynamic_cast<common::AckMessage *>(msg);
 				if (msg) {
@@ -618,7 +618,7 @@ void ModFilesWidget::addFile(QStandardItem * itm, QString file, QString language
 		if (it == _directory.end()) {
 			auto * newItm = new QStandardItem(d);
 			newItm->setEditable(false);
-			QStandardItem * languageItm = nullptr;
+			QStandardItem * languageItm;
 			if (currentPath == currentFileName) {
 				languageItm = new QStandardItem(language);
 				languageItm->setData(currentPath, PathRole);

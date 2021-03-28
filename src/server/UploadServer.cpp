@@ -141,7 +141,7 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 			if (unreadBuffer.size() >= static_cast<size_t>(currentSize)) {
 				const std::string serialized = unreadBuffer.substr(0, currentSize);
 				unreadBuffer = unreadBuffer.substr(currentSize);
-				common::Message * msg = common::Message::DeserializePrivate(serialized);
+				common::Message * msg = common::Message::DeserializeBlank(serialized);
 				umm = dynamic_cast<common::UploadModfilesMessage *>(msg);
 				std::cout << "Updating " << umm->files.size() << std::endl;
 				state = File;
@@ -289,7 +289,7 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 	delete umm;
 	common::AckMessage am;
 	am.success = !error;
-	const std::string serialized = am.SerializePrivate();
+	const std::string serialized = am.SerializeBlank();
 	sock->writePacket(serialized);
 	delete sock;
 }
