@@ -75,19 +75,19 @@ int ServerCommon::getUserID(const std::string & username, const std::string & pa
 	}
 
 	if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT ID FROM accounts WHERE Username = ? AND Password = PASSWORD(?) LIMIT 1\";")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 		return -1;
 	}
 	if (!accountDatabase.query("SET @paramUsername='" + username + "';")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 		return -1;
 	}
 	if (!accountDatabase.query("SET @paramPassword='" + password + "';")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 		return -1;
 	}
 	if (!accountDatabase.query("EXECUTE selectStmt USING @paramUsername, @paramPassword;")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 	}
 	const auto results = accountDatabase.getResults<std::vector<std::string>>();
 
@@ -102,15 +102,15 @@ int ServerCommon::getUserID(const std::string & username) {
 	}
 
 	if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT ID FROM accounts WHERE Username = ? LIMIT 1\";")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 		return -1;
 	}
 	if (!accountDatabase.query("SET @paramUsername='" + username + "';")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 		return -1;
 	}
 	if (!accountDatabase.query("EXECUTE selectStmt USING @paramUsername;")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 	}
 	const auto results = accountDatabase.getResults<std::vector<std::string>>();
 
@@ -124,15 +124,15 @@ std::string ServerCommon::getUsername(const int id) {
 	}
 
 	if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT Username FROM accounts WHERE ID = ? LIMIT 1\";")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 		return "";
 	}
 	if (!accountDatabase.query("SET @paramID=" + std::to_string(id) + ";")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 		return "";
 	}
 	if (!accountDatabase.query("EXECUTE selectStmt USING @paramID;")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 	}
 	const auto results = accountDatabase.getResults<std::vector<std::string>>();
 
@@ -146,11 +146,11 @@ std::vector<std::string> ServerCommon::getUserList() {
 	}
 
 	if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT ID, Username FROM accounts ORDER BY Username ASC\";")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 		return {};
 	}
 	if (!accountDatabase.query("EXECUTE selectStmt;")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 		return {};
 	}
 	auto results = accountDatabase.getResults<std::vector<std::string>>();
@@ -166,11 +166,11 @@ std::vector<std::string> ServerCommon::getUserList() {
 		CONNECTTODATABASE(__LINE__)
 
 		if (!database.query("PREPARE selectStmt FROM \"SELECT UserID FROM lastLoginTimes\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			break;
 		}
 		if (!database.query("EXECUTE selectStmt;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			break;
 		}
 		results = database.getResults<std::vector<std::string>>();
@@ -208,15 +208,15 @@ bool ServerCommon::isValidUserID(int userID) {
 	}
 
 	if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT ID FROM accounts WHERE ID = ? LIMIT 1\";")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 		return false;
 	}
 	if (!accountDatabase.query("SET @paramID=" + std::to_string(userID) + ";")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 		return false;
 	}
 	if (!accountDatabase.query("EXECUTE selectStmt USING @paramID;")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 	}
 	const auto results = accountDatabase.getResults<std::vector<std::string>>();
 
@@ -228,23 +228,23 @@ std::string ServerCommon::getProjectName(int projectID, int preferredLanguage) {
 		CONNECTTODATABASE(__LINE__)
 		
 		if (!database.query("PREPARE selectProjectNameStmt FROM \"SELECT CAST(Name AS BINARY) FROM projectNames WHERE ProjectID = ? AND Languages & ? LIMIT 1\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			break;
 		}
 		if (!database.query("PREPARE selectFallbackProjectNameStmt FROM \"SELECT CAST(Name AS BINARY) FROM projectNames WHERE ProjectID = ? LIMIT 1\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			break;
 		}
 		if (!database.query("SET @paramProjectID=" + std::to_string(projectID) + ";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			break;
 		}
 		if (!database.query("SET @paramLanguage=" + std::to_string(preferredLanguage) + ";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			break;
 		}
 		if (!database.query("SET @paramEnglishLanguage=" + std::to_string(English) + ";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			break;
 		}
 		if (!database.query("EXECUTE selectProjectNameStmt USING @paramProjectID, @paramLanguage;")) {
@@ -283,11 +283,11 @@ std::string ServerCommon::filterUsername(const std::string & username) {
 	}
 
 	if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT Filter FROM textFilters\";")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 		return username;
 	}
 	if (!accountDatabase.query("EXECUTE selectStmt;")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 		return username;
 	}
 	const auto results = accountDatabase.getResults<std::vector<std::string>>();
@@ -306,15 +306,15 @@ bool ServerCommon::hasPrivilege(int userID, UserPrivilege privilege) {
 		CONNECTTODATABASE(__LINE__)
 
 		if (!database.query("PREPARE selectPrivilegeStmt FROM \"SELECT UserID FROM userPrivileges WHERE UserID = ? AND Privileges & ? LIMIT 1\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			break;
 		}
 		if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			break;
 		}
 		if (!database.query("SET @paramPrivilege=" + std::to_string(static_cast<int>(privilege)) + ";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			break;
 		}
 		if (!database.query("EXECUTE selectPrivilegeStmt USING @paramUserID, @paramPrivilege;")) {
@@ -333,19 +333,19 @@ bool ServerCommon::canAccessProject(int userID, int projectID) {
 		CONNECTTODATABASE(__LINE__)
 
 		if (!database.query("PREPARE selectProjectStmt FROM \"SELECT TeamID, Enabled FROM mods WHERE ModID = ? LIMIT 1\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			break;
 		}
 		if (!database.query("PREPARE selectMemberStmt FROM \"SELECT UserID FROM teammembers WHERE TeamID = ? AND UserID = ? LIMIT 1\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			break;
 		}
 		if (!database.query("PREPARE selectEAStmt FROM \"SELECT UserID FROM earlyUnlocks WHERE ModID = ? AND UserID = ? LIMIT 1\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			break;
 		}
 		if (!database.query("SET @paramProjectID=" + std::to_string(projectID) + ";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			break;
 		}
 		if (!database.query("EXECUTE selectProjectStmt USING @paramProjectID;")) {
@@ -361,11 +361,11 @@ bool ServerCommon::canAccessProject(int userID, int projectID) {
 		if (vec[1] == "1") return true;
 
 		if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			break;
 		}
 		if (!database.query("SET @paramTeamID=" + vec[0] + ";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			break;
 		}
 		if (!database.query("EXECUTE selectMemberStmt USING @paramTeamID, @paramUserID;")) {

@@ -51,17 +51,17 @@ void GMPServer::handleRequestUserInfosMP(clockUtils::sockets::TcpSocket * sock) 
 		}
 
 		if (!spineDatabase.query("PREPARE selectStmt FROM \"SELECT ModID FROM gmpWhitelist WHERE IP = ? LIMIT 1\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			delete sock;
 			return;
 		}
 		if (!spineDatabase.query("SET @paramIP='" + sock->getRemoteIP() + "';")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			delete sock;
 			return;
 		}
 		if (!spineDatabase.query("EXECUTE selectStmt USING @paramIP;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 		}
 		std::vector<std::vector<std::string>> results = spineDatabase.getResults<std::vector<std::string>>();
 		if (results.empty()) {
@@ -120,53 +120,53 @@ void GMPServer::handleRequestUserInfosMP(clockUtils::sockets::TcpSocket * sock) 
 			break;
 		}
 		if (!database.query("PREPARE selectUserIDStmt FROM \"SELECT UserID, Hash FROM userSessionInfos WHERE Mac = ? AND IP = ? LIMIT 1\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			errorCode = GeneralError;
 			break;
 		}
 		if (!database.query("PREPARE selectUserIDReducedStmt FROM \"SELECT UserID, Hash FROM userSessionInfos WHERE Mac = ? AND IP LIKE ? LIMIT 1\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			errorCode = GeneralError;
 			break;
 		}
 		if (!database.query("PREPARE selectUserSettingsHashStmt FROM \"SELECT IFNULL(MD5(GROUP_CONCAT(Value)), '') FROM userSettings WHERE UserID = ? ORDER BY Value ASC LIMIT 1;\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			errorCode = GeneralError;
 			break;
 		}
 		if (!database.query("PREPARE selectUserSettingsStmt FROM \"SELECT IFNULL(GROUP_CONCAT(CONCAT(Entry, ',', Value) SEPARATOR ';'), '') FROM userSettings WHERE UserID = ? ORDER BY Entry ASC\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			errorCode = GeneralError;
 			break;
 		}
 		if (!database.query("PREPARE selectHashBannedStmt FROM \"SELECT * FROM bannedHashes WHERE Hash = ? LIMIT 1\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			errorCode = GeneralError;
 			break;
 		}
 		if (!database.query("PREPARE selectUserBannedStmt FROM \"SELECT * FROM bannedUsers WHERE UserID = ? LIMIT 1\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			errorCode = GeneralError;
 			break;
 		}
 		if (!database.query("PREPARE selectProvisoricalBannedStmt FROM \"SELECT * FROM provisoricalBans WHERE UserID = ? LIMIT 1\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			errorCode = GeneralError;
 			break;
 		}
 		if (!database.query("SET @paramMac='" + mac + "';")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			errorCode = GeneralError;
 			break;
 		}
 		if (!database.query("SET @paramIP='" + ip + "';")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			errorCode = GeneralError;
 			break;
 		}
 		const std::string reducedIP = ip.substr(0, ip.find_last_of('.'));
 		if (!database.query("SET @paramIPReduced='" + reducedIP + "%';")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			errorCode = GeneralError;
 			break;
 		}
@@ -191,12 +191,12 @@ void GMPServer::handleRequestUserInfosMP(clockUtils::sockets::TcpSocket * sock) 
 		userID = std::stoi(lastResults[0][0]);
 		systemHash = lastResults[0][1];
 		if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			errorCode = GeneralError;
 			break;
 		}
 		if (!database.query("SET @paramHash='" + systemHash + "';")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			errorCode = GeneralError;
 			break;
 		}
@@ -219,7 +219,7 @@ void GMPServer::handleRequestUserInfosMP(clockUtils::sockets::TcpSocket * sock) 
 			break;
 		}
 		/*if (!database.query("EXECUTE selectProvisoricalBannedStmt USING @paramUserID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			errorCode = GeneralError;
 			break;
 		}
