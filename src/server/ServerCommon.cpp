@@ -23,7 +23,6 @@
 #include <regex>
 #include <thread>
 
-#include "LanguageConverter.h"
 #include "MariaDBWrapper.h"
 #include "SpineServerConfig.h"
 #include "Smtp.h"
@@ -226,7 +225,7 @@ bool ServerCommon::isValidUserID(int userID) {
 
 std::string ServerCommon::getProjectName(int projectID, int preferredLanguage) {
 	do {
-		CONNECTTODATABASE(__LINE__);
+		CONNECTTODATABASE(__LINE__)
 		
 		if (!database.query("PREPARE selectProjectNameStmt FROM \"SELECT CAST(Name AS BINARY) FROM projectNames WHERE ProjectID = ? AND Languages & ? LIMIT 1\";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
@@ -304,7 +303,7 @@ std::string ServerCommon::filterUsername(const std::string & username) {
 
 bool ServerCommon::hasPrivilege(int userID, UserPrivilege privilege) {
 	do {
-		CONNECTTODATABASE(__LINE__);
+		CONNECTTODATABASE(__LINE__)
 
 		if (!database.query("PREPARE selectPrivilegeStmt FROM \"SELECT UserID FROM userPrivileges WHERE UserID = ? AND Privileges & ? LIMIT 1\";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
@@ -323,6 +322,66 @@ bool ServerCommon::hasPrivilege(int userID, UserPrivilege privilege) {
 			break;
 		}
 		const auto results = database.getResults<std::vector<std::string>>();
+		return !results.empty();
+	} while (false);
+
+	return false;
+}
+
+bool ServerCommon::canAccessProject(int userID, int projectID) {
+	do {
+		CONNECTTODATABASE(__LINE__)
+
+		if (!database.query("PREPARE selectProjectStmt FROM \"SELECT TeamID, Enabled FROM mods WHERE ModID = ? LIMIT 1\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("PREPARE selectMemberStmt FROM \"SELECT UserID FROM teammembers WHERE TeamID = ? AND UserID = ? LIMIT 1\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("PREPARE selectEAStmt FROM \"SELECT UserID FROM earlyUnlocks WHERE ModID = ? AND UserID = ? LIMIT 1\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("SET @paramProjectID=" + std::to_string(projectID) + ";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("EXECUTE selectProjectStmt USING @paramProjectID;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			break;
+		}
+		auto results = database.getResults<std::vector<std::string>>();
+
+		if (results.empty()) return false;
+
+		const auto vec = results[0];
+
+		if (vec[1] == "1") return true;
+
+		if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("SET @paramTeamID=" + vec[0] + ";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("EXECUTE selectMemberStmt USING @paramTeamID, @paramUserID;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			break;
+		}
+		results = database.getResults<std::vector<std::string>>();
+
+		if (!results.empty()) return true;
+		
+		if (!database.query("EXECUTE selectEAStmt USING @paramProjectID, @paramUserID;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			break;
+		}
+		results = database.getResults<std::vector<std::string>>();
+
 		return !results.empty();
 	} while (false);
 

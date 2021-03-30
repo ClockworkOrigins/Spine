@@ -31,53 +31,18 @@ namespace sockets {
 
 namespace spine {
 namespace common {
-	struct AcceptFriendRequestMessage;
-	struct DeclineFriendRequestMessage;
 	struct DownloadSucceededMessage;
-	struct FeedbackMessage;
-	struct IsAchievementUnlockedMessage;
 	struct ModVersionCheckMessage;
 	struct PackageDownloadSucceededMessage;
-	struct RequestAchievementsMessage;
-	struct RequestAllAchievementStatsMessage;
-	struct RequestAllFriendsMessage;
 	struct RequestAllModsMessage;
-	struct RequestAllModStatsMessage;
 	struct RequestAllNewsMessage;
-	struct RequestAllScoreStatsMessage;
-	struct RequestCompatibilityListMessage;
 	struct RequestModFilesMessage;
-	struct RequestInfoPageMessage;
-	struct RequestModsForEditorMessage;
-	struct RequestOfflineDataMessage;
-	struct RequestOriginalFilesMessage;
-	struct RequestOverallSaveDataMessage;
 	struct RequestOwnCompatibilitiesMessage;
 	struct RequestPackageFilesMessage;
-	struct RequestPlayTimeMessage;
-	struct RequestRandomModMessage;
-	struct RequestScoresMessage;
-	struct RequestSingleModStatMessage;
-	struct RequestUserLevelMessage;
-	struct SendAllFriendsMessage;
-	struct SendFriendRequestMessage;
-	struct SendInfoPageMessage;
-	struct SendUserInfosMessage;
 	struct SubmitCompatibilityMessage;
-	struct SubmitInfoPageMessage;
 	struct SubmitNewsMessage;
-	struct SubmitRatingMessage;
 	struct SubmitScriptFeaturesMessage;
-	struct UnlockAchievementMessage;
-	struct UpdateAchievementProgressMessage;
-	struct UpdateChapterStatsMessage;
-	struct UpdateLoginTimeMessage;
-	struct UpdateOfflineDataMessage;
-	struct UpdateOverallSaveDataMessage;
-	struct UpdatePlayingTimeMessage;
-	struct UpdatePlayTimeMessage;
 	struct UpdateRequestMessage;
-	struct UpdateScoreMessage;
 	struct UpdateSucceededMessage;
 	struct UploadScreenshotsMessage;
 
@@ -119,15 +84,23 @@ namespace server {
 		void receiveMessage(const std::vector<uint8_t> & message, clockUtils::sockets::TcpSocket * sock, clockUtils::ClockError error) const;
 
 		void handleAutoUpdate(clockUtils::sockets::TcpSocket * sock, common::UpdateRequestMessage * msg) const;
+		
+		[[deprecated("Remove in Spine 1.32.0")]]
 		void handleModListRequest(clockUtils::sockets::TcpSocket * sock, common::RequestAllModsMessage * msg) const;
+		
+		[[deprecated("Remove in Spine 1.32.0")]]
 		void handleModFilesListRequest(clockUtils::sockets::TcpSocket * sock, common::RequestModFilesMessage * msg) const;
+		
+		[[deprecated("Remove in Spine 1.32.0")]]
 		void handleDownloadSucceeded(clockUtils::sockets::TcpSocket * sock, common::DownloadSucceededMessage * msg) const;
 		
-		void handleRequestPlaytime(clockUtils::sockets::TcpSocket * sock, common::RequestPlayTimeMessage * msg) const;
-
 		[[deprecated("Remove in Spine 1.31.0")]]
 		void handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, common::ModVersionCheckMessage * msg) const;
+		
+		[[deprecated("Remove in Spine 1.32.0")]]
 		void handleRequestPackageFiles(clockUtils::sockets::TcpSocket * sock, common::RequestPackageFilesMessage * msg) const;
+
+		[[deprecated("Remove in Spine 1.32.0")]]
 		void handlePackageDownloadSucceeded(clockUtils::sockets::TcpSocket * sock, common::PackageDownloadSucceededMessage * msg) const;
 		
 		[[deprecated("Remove in Spine 1.32.0")]]

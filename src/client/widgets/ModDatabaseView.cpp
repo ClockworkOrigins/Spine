@@ -33,6 +33,8 @@
 #include "gui/OverlayMessageHandler.h"
 #include "gui/WaitSpinner.h"
 
+#include "https/Https.h"
+
 #include "utils/Config.h"
 #include "utils/Conversion.h"
 #include "utils/Database.h"
@@ -45,8 +47,6 @@
 #include "widgets/CenteredIconDelegate.h"
 #include "widgets/UpdateLanguage.h"
 
-#include "clockUtils/sockets/TcpSocket.h"
-
 #include <QApplication>
 #include <QCheckBox>
 #include <QDate>
@@ -54,6 +54,9 @@
 #include <QDirIterator>
 #include <QGroupBox>
 #include <QHeaderView>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMessageBox>
@@ -67,9 +70,10 @@
 #include <QTreeView>
 #include <QVBoxLayout>
 
-using namespace spine;
 using namespace spine::client;
+using namespace spine::common;
 using namespace spine::gui;
+using namespace spine::https;
 using namespace spine::utils;
 using namespace spine::widgets;
 
@@ -80,11 +84,11 @@ namespace {
 }
 	
 	struct InstalledMod {
-		InstalledMod(const int i1, const int i2, const int i3, const int i4, const int i5) : id(i1), gothicVersion(static_cast<common::GameType>(i2)), majorVersion(static_cast<int8_t>(i3)), minorVersion(static_cast<int8_t>(i4)), patchVersion(static_cast<int8_t>(i5)) {
+		InstalledMod(const int i1, const int i2, const int i3, const int i4, const int i5) : id(i1), gothicVersion(static_cast<GameType>(i2)), majorVersion(static_cast<int8_t>(i3)), minorVersion(static_cast<int8_t>(i4)), patchVersion(static_cast<int8_t>(i5)) {
 		}
 
 		int32_t id;
-		common::GameType gothicVersion;
+		GameType gothicVersion;
 		int8_t majorVersion;
 		int8_t minorVersion;
 		int8_t patchVersion;
@@ -225,10 +229,10 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 	pmPL = pmPL.scaled(25, 25, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 	pmRU = pmRU.scaled(25, 25, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
-	languagePixmaps.insert(common::German, pmDE);
-	languagePixmaps.insert(common::English, pmEN);
-	languagePixmaps.insert(common::Polish, pmPL);
-	languagePixmaps.insert(common::Russian, pmRU);
+	languagePixmaps.insert(German, pmDE);
+	languagePixmaps.insert(English, pmEN);
+	languagePixmaps.insert(Polish, pmPL);
+	languagePixmaps.insert(Russian, pmRU);
 
 	const QPixmap pmDEEN = ImageMerger::merge(pmDE, pmEN);
 	const QPixmap pmDEPL = ImageMerger::merge(pmDE, pmPL);
@@ -239,14 +243,14 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 	
 	const QPixmap pmPLRU = ImageMerger::merge(pmPL, pmRU);
 
-	languagePixmaps.insert(common::German | common::English, pmDEEN);
-	languagePixmaps.insert(common::German | common::Polish, pmDEPL);
-	languagePixmaps.insert(common::German | common::Russian, pmDERU);
+	languagePixmaps.insert(German | English, pmDEEN);
+	languagePixmaps.insert(German | Polish, pmDEPL);
+	languagePixmaps.insert(German | Russian, pmDERU);
 	
-	languagePixmaps.insert(common::English | common::Polish, pmENPL);
-	languagePixmaps.insert(common::English | common::Russian, pmENRU);
+	languagePixmaps.insert(English | Polish, pmENPL);
+	languagePixmaps.insert(English | Russian, pmENRU);
 	
-	languagePixmaps.insert(common::Polish | common::Russian, pmPLRU);
+	languagePixmaps.insert(Polish | Russian, pmPLRU);
 
 	const QPixmap pmDEENPL = ImageMerger::merge(pmDE, pmEN, pmPL);
 	const QPixmap pmDEENRU = ImageMerger::merge(pmDE, pmEN, pmRU);
@@ -254,15 +258,15 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 	
 	const QPixmap pmENPLRU = ImageMerger::merge(pmEN, pmPL, pmRU);
 	
-	languagePixmaps.insert(common::German | common::English | common::Polish, pmDEENPL);
-	languagePixmaps.insert(common::German | common::English | common::Russian, pmDEENRU);
-	languagePixmaps.insert(common::German | common::Polish | common::Russian, pmDEPLRU);
+	languagePixmaps.insert(German | English | Polish, pmDEENPL);
+	languagePixmaps.insert(German | English | Russian, pmDEENRU);
+	languagePixmaps.insert(German | Polish | Russian, pmDEPLRU);
 	
-	languagePixmaps.insert(common::English | common::Polish | common::Russian, pmENPLRU);
+	languagePixmaps.insert(English | Polish | Russian, pmENPLRU);
 	
 	const QPixmap pmDEENPLRU = ImageMerger::merge(pmDE, pmEN, pmPL, pmRU);
 	
-	languagePixmaps.insert(common::German | common::English | common::Polish | common::Russian, pmDEENPLRU);
+	languagePixmaps.insert(German | English | Polish | Russian, pmDEENPLRU);
 
 	{
 		auto * filterWidget = new QWidget(this);
@@ -282,44 +286,44 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 			auto * gl = new QGridLayout();
 
 			auto * cbGerman = new QCheckBox(QApplication::tr("German"), filterWidget);
-			cbGerman->setChecked(_sortModel->isLanguageActive(common::German));
+			cbGerman->setChecked(_sortModel->isLanguageActive(German));
 			UPDATELANGUAGESETTEXT(cbGerman, "German");
 			connect(cbGerman, &QCheckBox::stateChanged, [this](int state) {
-				_sortModel->languageChanged(common::German, state);
+				_sortModel->languageChanged(German, state);
 			});
 
 			auto * cbEnglish = new QCheckBox(QApplication::tr("English"), filterWidget);
-			cbEnglish->setChecked(_sortModel->isLanguageActive(common::English));
+			cbEnglish->setChecked(_sortModel->isLanguageActive(English));
 			UPDATELANGUAGESETTEXT(cbEnglish, "English");
 			connect(cbEnglish, &QCheckBox::stateChanged, [this](int state) {
-				_sortModel->languageChanged(common::English, state);
+				_sortModel->languageChanged(English, state);
 			});
 
 			auto * cbPolish = new QCheckBox(QApplication::tr("Polish"), filterWidget);
-			cbPolish->setChecked(_sortModel->isLanguageActive(common::Polish));
+			cbPolish->setChecked(_sortModel->isLanguageActive(Polish));
 			UPDATELANGUAGESETTEXT(cbPolish, "Polish");
 			connect(cbPolish, &QCheckBox::stateChanged, [this](int state) {
-				_sortModel->languageChanged(common::Polish, state);
+				_sortModel->languageChanged(Polish, state);
 			});
 
 			auto * cbRussian = new QCheckBox(QApplication::tr("Russian"), filterWidget);
-			cbRussian->setChecked(_sortModel->isLanguageActive(common::Russian));
+			cbRussian->setChecked(_sortModel->isLanguageActive(Russian));
 			UPDATELANGUAGESETTEXT(cbRussian, "Russian");
 			connect(cbRussian, &QCheckBox::stateChanged, [this](int state) {
-				_sortModel->languageChanged(common::Russian, state);
+				_sortModel->languageChanged(Russian, state);
 			});
 
 			auto * lblGerman = new QLabel(gbLanguages);
-			lblGerman->setPixmap(languagePixmaps[common::German]);
+			lblGerman->setPixmap(languagePixmaps[German]);
 
 			auto * lblEnglish = new QLabel(gbLanguages);
-			lblEnglish->setPixmap(languagePixmaps[common::English]);
+			lblEnglish->setPixmap(languagePixmaps[English]);
 
 			auto * lblPolish = new QLabel(gbLanguages);
-			lblPolish->setPixmap(languagePixmaps[common::Polish]);
+			lblPolish->setPixmap(languagePixmaps[Polish]);
 
 			auto * lblRussian = new QLabel(gbLanguages);
-			lblRussian->setPixmap(languagePixmaps[common::Russian]);
+			lblRussian->setPixmap(languagePixmaps[Russian]);
 
 			gl->addWidget(cbGerman, 0, 0);
 			gl->addWidget(lblGerman, 0, 1);
@@ -536,16 +540,16 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 
 	setLayout(l);
 
-	qRegisterMetaType<std::vector<common::Mod>>("std::vector<common::Mod>");
+	qRegisterMetaType<std::vector<Mod>>("std::vector<common::Mod>");
 	qRegisterMetaType<std::vector<std::pair<int32_t, uint64_t>>>("std::vector<std::pair<int32_t, uint64_t>>");
-	qRegisterMetaType<common::Mod>("common::Mod");
-	qRegisterMetaType<common::UpdatePackageListMessage::Package>("common::UpdatePackageListMessage::Package");
-	qRegisterMetaType<std::vector<common::UpdatePackageListMessage::Package>>("std::vector<common::UpdatePackageListMessage::Package>");
+	qRegisterMetaType<Mod>("common::Mod");
+	qRegisterMetaType<UpdatePackageListMessage::Package>("common::UpdatePackageListMessage::Package");
+	qRegisterMetaType<std::vector<UpdatePackageListMessage::Package>>("std::vector<common::UpdatePackageListMessage::Package>");
 	qRegisterMetaType<std::vector<std::pair<std::string, std::string>>>("std::vector<std::pair<std::string, std::string>>");
 	qRegisterMetaType<QSharedPointer<QList<QPair<QString, QString>>>>("QSharedPointer<QList<QPair<QString, QString>>>");
 	qRegisterMetaType<QSet<int32_t>>("QSet<int32_t>");
 
-	connect(this, &ModDatabaseView::receivedModList, this, static_cast<void(ModDatabaseView::*)(std::vector<common::Mod>)>(&ModDatabaseView::updateModList));
+	connect(this, &ModDatabaseView::receivedModList, this, static_cast<void(ModDatabaseView::*)(std::vector<Mod>)>(&ModDatabaseView::updateModList));
 	connect(this, &ModDatabaseView::receivedModFilesList, this, &ModDatabaseView::downloadModFiles);
 	connect(_treeView, &QTreeView::clicked, this, &ModDatabaseView::selectedIndex);
 	connect(_treeView, &QTreeView::doubleClicked, this, &ModDatabaseView::doubleClickedIndex);
@@ -595,60 +599,71 @@ void ModDatabaseView::updateModList(int modID, int packageID, InstallMode mode) 
 		_waitSpinner = new WaitSpinner(QApplication::tr("LoadingDatabase"), this);
 		_sourceModel->setHorizontalHeaderLabels(QStringList() << QApplication::tr("ID") << QApplication::tr("Name") << QApplication::tr("Author") << QApplication::tr("Type") << QApplication::tr("Game") << QApplication::tr("DevTime") << QApplication::tr("AvgTime") << QApplication::tr("ReleaseDate") << QApplication::tr("UpdateDate") << QApplication::tr("Version") << QApplication::tr("Languages") << QApplication::tr("DownloadSize") << QString());
 	}
-	QtConcurrent::run([this, modID, packageID]() {
-		if (!_cached) {
-			common::RequestAllModsMessage ramm;
-			ramm.language = Config::Language.toStdString();
-			ramm.username = Config::Username.toStdString();
-			ramm.password = Config::Password.toStdString();
-			std::string serialized = ramm.SerializePublic();
-			clockUtils::sockets::TcpSocket sock;
-			clockUtils::ClockError err = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000);
-			if (clockUtils::ClockError::SUCCESS == err) {
-				sock.writePacket(serialized);
-				if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-					try {
-						common::Message * m = common::Message::DeserializePublic(serialized);
-						if (m) {
-							common::UpdateAllModsMessage * uamm = dynamic_cast<common::UpdateAllModsMessage *>(m);
-							if (uamm) {
-								_cached = true;
-								emit receivedModList(uamm->mods);
 
-								QSet<int32_t> playedProjects;
-								for (const auto id : uamm->playedProjects) {
-									playedProjects << id;
-								}
-								emit receivedPlayedProjects(playedProjects);
-							}
-						}
-						delete m;
-					} catch (...) {
-						return;
-					}
-				} else {
-					qDebug() << "Error occurred: " << static_cast<int>(err);
-				}
-				if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-					try {
-						common::Message * m = common::Message::DeserializePublic(serialized);
-						if (m) {
-							common::UpdatePackageListMessage * uplm = dynamic_cast<common::UpdatePackageListMessage *>(m);
-							if (uplm) {
-								emit receivedPackageList(uplm->packages);
-							}
-						}
-						delete m;
-					} catch (...) {
-						return;
-					}
-				} else {
-					qDebug() << "Error occurred: " << static_cast<int>(err);
-				}
-			} else {
-				qDebug() << "Error occurred: " << static_cast<int>(err);
-			}
+	QJsonObject json;
+	json["Username"] = Config::Username;
+	json["Password"] = Config::Password;
+	json["Language"] = Config::Language;
+
+	Https::postAsync(DATABASESERVER_PORT, "requestAllProjects", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, modID, packageID](const QJsonObject & data, int statusCode) {
+		if (statusCode != 200) return;
+
+		if (!data.contains("Projects")) return;
+
+		std::vector<Mod> projects;
+
+		for (const auto jsonRef : data["Projects"].toArray()) {
+			const auto jsonProj = jsonRef.toObject();
+
+			Mod project;
+			project.id = jsonProj["ProjectID"].toString().toInt();
+			project.name = q2s(jsonProj["Name"].toString());
+			project.gothic = static_cast<GameType>(jsonProj["GameType"].toString().toInt());
+			project.type = static_cast<ModType>(jsonProj["ModType"].toString().toInt());
+			project.supportedLanguages = jsonProj["SupportedLanguages"].toString().toInt();
+			project.teamID = jsonProj["TeamID"].toString().toInt();
+			project.teamName = q2s(jsonProj["TeamName"].toString());
+			project.releaseDate = jsonProj["ReleaseDate"].toString().toInt();
+			project.majorVersion = static_cast<int8_t>(jsonProj["MajorVersion"].toString().toInt());
+			project.minorVersion = static_cast<int8_t>(jsonProj["MinorVersion"].toString().toInt());
+			project.patchVersion = static_cast<int8_t>(jsonProj["PatchVersion"].toString().toInt());
+			project.spineVersion = static_cast<int8_t>(jsonProj["SpineVersion"].toString().toInt());
+			project.devDuration = jsonProj["DevDuration"].toString().toInt();
+			project.avgDuration = jsonProj["AvgDuration"].toString().toInt();
+			project.downloadSize = jsonProj["DownloadSize"].toString().toInt();
+			project.updateDate = jsonProj["UpdateDate"].toString().toInt();
+			project.language = static_cast<Language>(jsonProj["Language"].toString().toInt());
+
+			projects.push_back(project);
 		}
+
+		emit receivedModList(projects);
+		
+		QSet<int32_t> playedProjects;
+		for (const auto jsonRef : data["PlayedProjects"].toArray()) {
+			const auto jsonProj = jsonRef.toObject();
+
+			playedProjects << jsonProj["ID"].toString().toInt();
+		}
+
+		emit receivedPlayedProjects(playedProjects);
+
+		std::vector<UpdatePackageListMessage::Package> packages;
+
+		for (const auto jsonRef : data["Packages"].toArray()) {
+			const auto jsonProj = jsonRef.toObject();
+
+			UpdatePackageListMessage::Package package;
+			package.packageID = jsonProj["PackageID"].toString().toInt();
+			package.modID = jsonProj["ProjectID"].toString().toInt();
+			package.name = q2s(jsonProj["Name"].toString());
+			package.downloadSize = jsonProj["DownloadSize"].toString().toInt();
+
+			packages.push_back(package);
+		}
+
+		emit receivedPackageList(packages);
+		
 		if (modID > 0 && packageID > 0) {
 			emit triggerInstallPackage(modID, packageID);
 		} else if (modID > 0) {
@@ -696,7 +711,7 @@ void ModDatabaseView::setGothic2Directory(QString dir) {
 	_gothic2Directory = dir;
 }
 
-void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
+void ModDatabaseView::updateModList(std::vector<Mod> mods) {
 	_sourceModel->removeRows(0, _sourceModel->rowCount());
 	_parentMods.clear();
 	int row = 0;
@@ -709,7 +724,7 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 
 	const QFontMetrics fm(_treeView->font());
 	
-	for (const common::Mod & mod : mods) {
+	for (const Mod & mod : mods) {
 		const QString modname = s2q(mod.name);
 		QStandardItem * nameItem = new TextItem(fm.elidedText(modname, Qt::ElideRight, 300));
 		nameItem->setData(modname, DatabaseRole::FilterRole);
@@ -724,39 +739,39 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 		teamItem->setEditable(false);
 		QString typeName;
 		switch (mod.type) {
-		case common::ModType::TOTALCONVERSION: {
+		case ModType::TOTALCONVERSION: {
 			typeName = QApplication::tr("TotalConversion");
 			break;
 		}
-		case common::ModType::ENHANCEMENT: {
+		case ModType::ENHANCEMENT: {
 			typeName = QApplication::tr("Enhancement");
 			break;
 		}
-		case common::ModType::PATCH: {
+		case ModType::PATCH: {
 			typeName = QApplication::tr("Patch");
 			break;
 		}
-		case common::ModType::TOOL: {
+		case ModType::TOOL: {
 			typeName = QApplication::tr("Tool");
 			break;
 		}
-		case common::ModType::ORIGINAL: {
+		case ModType::ORIGINAL: {
 			typeName = QApplication::tr("Original");
 			break;
 		}
-		case common::ModType::GMP: {
+		case ModType::GMP: {
 			typeName = QApplication::tr("GothicMultiplayer");
 			break;
 		}
-		case common::ModType::FULLVERSION: {
+		case ModType::FULLVERSION: {
 			typeName = QApplication::tr("FullVersion");
 			break;
 		}
-		case common::ModType::DEMO: {
+		case ModType::DEMO: {
 			typeName = QApplication::tr("Demo");
 			break;
 		}
-		case common::ModType::PLAYTESTING: {
+		case ModType::PLAYTESTING: {
 			typeName = QApplication::tr("PlayTesting");
 			break;
 		}
@@ -768,23 +783,23 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 		typeItem->setEditable(false);
 		QString gameName;
 		switch (mod.gothic) {
-		case common::GameType::Gothic: {
+		case GameType::Gothic: {
 			gameName = QApplication::tr("Gothic");
 			break;
 		}
-		case common::GameType::Gothic2: {
+		case GameType::Gothic2: {
 			gameName = QApplication::tr("Gothic2");
 			break;
 		}
-		case common::GameType::GothicInGothic2: {
+		case GameType::GothicInGothic2: {
 			gameName = QApplication::tr("GothicInGothic2");
 			break;
 		}
-		case common::GameType::Gothic1And2: {
+		case GameType::Gothic1And2: {
 			gameName = QApplication::tr("GothicAndGothic2_2");
 			break;
 		}
-		case common::GameType::Game: {
+		case GameType::Game: {
 			gameName = QApplication::tr("Game");
 			break;
 		}
@@ -834,7 +849,7 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 		QStandardItem * idItem = new IntItem(mod.id);
 		idItem->setEditable(false);
 
-		QStandardItem * languagesItem = new QStandardItem();
+		auto * languagesItem = new QStandardItem();
 		languagesItem->setEditable(false);
 
 		const auto pm = languagePixmaps[mod.supportedLanguages];
@@ -846,7 +861,7 @@ void ModDatabaseView::updateModList(std::vector<common::Mod> mods) {
 		for (int i = 0; i < _sourceModel->columnCount(); i++) {
 			_sourceModel->setData(_sourceModel->index(row, i), Qt::AlignCenter, Qt::TextAlignmentRole);
 		}
-		if ((mod.gothic == common::GameType::Gothic && !_gothicValid) || (mod.gothic == common::GameType::Gothic2 && !_gothic2Valid) || (mod.gothic == common::GameType::GothicInGothic2 && (!_gothicValid || !_gothic2Valid)) || (mod.gothic == common::GameType::Gothic1And2 && !_gothicValid && !_gothic2Valid) || Config::DOWNLOADDIR.isEmpty() || !QDir(Config::DOWNLOADDIR).exists()) {
+		if ((mod.gothic == GameType::Gothic && !_gothicValid) || (mod.gothic == GameType::Gothic2 && !_gothic2Valid) || (mod.gothic == GameType::GothicInGothic2 && (!_gothicValid || !_gothic2Valid)) || (mod.gothic == GameType::Gothic1And2 && !_gothicValid && !_gothic2Valid) || Config::DOWNLOADDIR.isEmpty() || !QDir(Config::DOWNLOADDIR).exists()) {
 			idItem->setEnabled(false);
 			nameItem->setEnabled(false);
 			teamItem->setEnabled(false);
@@ -888,10 +903,10 @@ void ModDatabaseView::selectedIndex(const QModelIndex & index) {
 		}
 	} else if (index.column() == DatabaseColumn::Name) {
 		if (!index.parent().isValid()) { // Mod has no parent, only packages have
-			const common::Mod mod = _mods[_sortModel->mapToSource(index).row()];
+			const Mod mod = _mods[_sortModel->mapToSource(index).row()];
 			emit loadPage(mod.id);
 		} else { // package
-			const common::Mod mod = _mods[_sortModel->mapToSource(index.parent()).row()];
+			const Mod mod = _mods[_sortModel->mapToSource(index.parent()).row()];
 			emit loadPage(mod.id);
 		}
 	}
@@ -905,7 +920,7 @@ void ModDatabaseView::doubleClickedIndex(const QModelIndex & index) {
 	}
 }
 
-void ModDatabaseView::downloadModFiles(common::Mod mod, QSharedPointer<QList<QPair<QString, QString>>> fileList, QString fileserver) {
+void ModDatabaseView::downloadModFiles(Mod mod, QSharedPointer<QList<QPair<QString, QString>>> fileList, QString fileserver) {
 	const QDir dir(Config::DOWNLOADDIR + "/mods/" + QString::number(mod.id));
 	if (!dir.exists()) {
 		bool b = dir.mkpath(dir.absolutePath());
@@ -988,7 +1003,7 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, QSharedPointer<QList<QPa
 			}
 			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO modfiles (ModID, File, Hash) VALUES (" + std::to_string(mod.id) + ", '" + fileName.toStdString() + "', '" + q2s(p.second) + "');", err);
 		}
-		if (mod.type == common::ModType::PATCH || mod.type == common::ModType::TOOL) {
+		if (mod.type == ModType::PATCH || mod.type == ModType::TOOL) {
 			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO patches (ModID, Name) VALUES (" + std::to_string(mod.id) + ", '" + mod.name + "');", err);
 		}
 		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "END TRANSACTION;", err);
@@ -998,20 +1013,14 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, QSharedPointer<QList<QPa
 		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO languages (ProjectID, Language) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(static_cast<int>(mod.language)) + ");", err);
 		
 		// enable systempack by default
-		if (mod.type != common::ModType::PATCH && mod.type != common::ModType::TOOL) {
-			Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "INSERT INTO patchConfigs (ModID, PatchID, Enabled) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(mod.gothic == common::GameType::Gothic ? 57 : 40) + ", 1);", err);
+		if (mod.type != ModType::PATCH && mod.type != ModType::TOOL) {
+			Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "INSERT INTO patchConfigs (ModID, PatchID, Enabled) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(mod.gothic == GameType::Gothic ? 57 : 40) + ", 1);", err);
 		}
 
-		// notify server download was successful
-		QtConcurrent::run([mod]() {
-			common::DownloadSucceededMessage dsm;
-			dsm.modID = mod.id;
-			const std::string serialized = dsm.SerializePublic();
-			clockUtils::sockets::TcpSocket sock;
-			if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-				sock.writePacket(serialized);
-			}
-		});
+		QJsonObject json;
+		json["ID"] = mod.id;
+
+		Https::postAsync(DATABASESERVER_PORT, "downloadSucceeded", QJsonDocument(json).toJson(QJsonDocument::Compact), [](const QJsonObject &, int) {});
 
 		if (!_installSilently.contains(mod.id)) {
 			OverlayMessageHandler::getInstance()->showMessage(IconCache::getInstance()->getOrLoadIconAsImage(":/svg/download.svg"), QApplication::tr("InstallationSuccessfulText").arg(s2q(mod.name)));
@@ -1019,7 +1028,7 @@ void ModDatabaseView::downloadModFiles(common::Mod mod, QSharedPointer<QList<QPa
 		
 		emit finishedInstallation(mod.id, -1, true);
 
-		if (mod.type == common::ModType::GMP) {
+		if (mod.type == ModType::GMP) {
 			const bool gmpInstalled = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT  * FROM mods WHERE ModID = 228 LIMIT 1;", err) > 0;
 
 			Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "INSERT INTO patchConfigs (ModID, PatchID, Enabled) VALUES (" + std::to_string(mod.id) + ", 228, 1);", err);
@@ -1085,7 +1094,7 @@ void ModDatabaseView::changedFilterExpression(const QString & expression) {
 	_sortModel->setFilterRegExp(expression);
 }
 
-void ModDatabaseView::updatePackageList(std::vector<common::UpdatePackageListMessage::Package> packages) {
+void ModDatabaseView::updatePackageList(std::vector<UpdatePackageListMessage::Package> packages) {
 	_packages.clear();
 	_packageIDIconMapping.clear();
 	Database::DBError err;
@@ -1097,7 +1106,7 @@ void ModDatabaseView::updatePackageList(std::vector<common::UpdatePackageListMes
 
 	const QFontMetrics fm(_treeView->font());
 	
-	for (const common::UpdatePackageListMessage::Package & package : packages) {
+	for (const UpdatePackageListMessage::Package & package : packages) {
 		if (_parentMods.find(package.modID) == _parentMods.end()) { // hidden parent or bug, don't crash in this case
 			continue;
 		}
@@ -1201,7 +1210,7 @@ void ModDatabaseView::updatePackageList(std::vector<common::UpdatePackageListMes
 	_waitSpinner = nullptr;
 }
 
-void ModDatabaseView::downloadPackageFiles(common::Mod mod, common::UpdatePackageListMessage::Package package, QSharedPointer<QList<QPair<QString, QString>>> fileList, QString fileserver) {
+void ModDatabaseView::downloadPackageFiles(Mod mod, UpdatePackageListMessage::Package package, QSharedPointer<QList<QPair<QString, QString>>> fileList, QString fileserver) {
 	const QDir dir(Config::DOWNLOADDIR + "/mods/" + QString::number(mod.id));
 	if (!dir.exists()) {
 		bool b = dir.mkpath(dir.absolutePath());
@@ -1246,16 +1255,13 @@ void ModDatabaseView::downloadPackageFiles(common::Mod mod, common::UpdatePackag
 		}
 		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "END TRANSACTION;", err);
 		Database::close(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, err);
+		
 		// notify server download was successful
-		QtConcurrent::run([package]() {
-			common::PackageDownloadSucceededMessage pdsm;
-			pdsm.packageID = package.packageID;
-			const std::string serialized = pdsm.SerializePublic();
-			clockUtils::sockets::TcpSocket sock;
-			if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-				sock.writePacket(serialized);
-			}
-		});
+		QJsonObject json;
+		json["ID"] = package.packageID;
+
+		Https::postAsync(DATABASESERVER_PORT, "packageDownloadSucceeded", QJsonDocument(json).toJson(QJsonDocument::Compact), [](const QJsonObject &, int) {});
+
 		QMessageBox msg(QMessageBox::Icon::Information, QApplication::tr("InstallationSuccessful"), QApplication::tr("InstallationSuccessfulText").arg(s2q(package.name)), QMessageBox::StandardButton::Ok);
 		msg.setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 		msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
@@ -1333,7 +1339,7 @@ void ModDatabaseView::resizeEvent(QResizeEvent *) {
 	}
 }
 
-qint64 ModDatabaseView::getDownloadSize(common::Mod mod) const {
+qint64 ModDatabaseView::getDownloadSize(Mod mod) const {
 	qint64 size = 0;
 	for (size_t i = 0; i < _mods.size(); i++) {
 		if (_mods[i].id == mod.id) {
@@ -1347,13 +1353,13 @@ qint64 ModDatabaseView::getDownloadSize(common::Mod mod) const {
 void ModDatabaseView::selectedModIndex(const QModelIndex & index) {
 	if (!index.isValid()) return;
 
-	common::Mod mod;
+	Mod mod;
 	if (index.model() == _sortModel) {
 		mod = _mods[_sortModel->mapToSource(index).row()];
 	} else {
 		mod = _mods[index.row()];
 	}
-	if ((mod.gothic == common::GameType::Gothic && !_gothicValid) || (mod.gothic == common::GameType::Gothic2 && !_gothic2Valid) || (mod.gothic == common::GameType::Gothic1And2 && !_gothic2Valid && !_gothicValid)) {
+	if ((mod.gothic == GameType::Gothic && !_gothicValid) || (mod.gothic == GameType::Gothic2 && !_gothic2Valid) || (mod.gothic == GameType::Gothic1And2 && !_gothic2Valid && !_gothicValid)) {
 		emit finishedInstallation(mod.id, -1, false);
 		return;
 	}
@@ -1373,40 +1379,34 @@ void ModDatabaseView::selectedModIndex(const QModelIndex & index) {
 		msg.button(QMessageBox::StandardButton::Cancel)->setText(QApplication::tr("Cancel"));
 		if (_installSilently.contains(mod.id) || QMessageBox::StandardButton::Ok == msg.exec()) {
 			_downloadingList.append(mod.id);
-			
-			// step 1: request all necessary files from server
-			QtConcurrent::run([this, mod]() {
-				common::RequestModFilesMessage rmfm;
-				rmfm.modID = mod.id;
-				rmfm.language = q2s(LanguageConverter::convert(mod.language));
-				std::string serialized = rmfm.SerializePublic();
-				clockUtils::sockets::TcpSocket sock;
-				if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-					sock.writePacket(serialized);
-					if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-						try {
-							common::Message * m = common::Message::DeserializePublic(serialized);
-							if (m) {
-								common::ListModFilesMessage * lmfm = dynamic_cast<common::ListModFilesMessage *>(m);
 
-								QSharedPointer<QList<QPair<QString, QString>>> fileList(new QList<QPair<QString, QString>>());
+			QJsonObject json;
+			json["Username"] = Config::Username;
+			json["Password"] = Config::Password;
+			json["Language"] = LanguageConverter::convert(mod.language);
+			json["ProjectID"] = mod.id;
 
-								for (const auto & p : lmfm->fileList) {
-									fileList->append(qMakePair(s2q(p.first), s2q(p.second)));
-								}
-								
-								emit receivedModFilesList(mod, fileList, s2q(lmfm->fileserver));
-							}
-							delete m;
-						} catch (...) {
-							return;
-						}
-					}
+			Https::postAsync(DATABASESERVER_PORT, "requestProjectFiles", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, mod](const QJsonObject & data, int statusCode) {
+				if (statusCode != 200) return;
+
+				if (!data.contains("Files")) return;
+
+				QSharedPointer<QList<QPair<QString, QString>>> fileList(new QList<QPair<QString, QString>>());
+
+				for (const auto jsonRef : data["Files"].toArray()) {
+					const auto jsonFile = jsonRef.toObject();
+
+					const auto path = jsonFile["File"].toString();
+					const auto hash = jsonFile["Hash"].toString();
+					
+					fileList->append(qMakePair(path, hash));
 				}
+
+				emit receivedModFilesList(mod, fileList, data["Fileserver"].toString());
 			});
 		}
 	} else {
-		const bool uninstalled = Uninstaller::uninstall(mod.id, s2q(mod.name), mod.gothic == common::GameType::Gothic ? _gothicDirectory : _gothic2Directory);
+		const bool uninstalled = Uninstaller::uninstall(mod.id, s2q(mod.name), mod.gothic == GameType::Gothic ? _gothicDirectory : _gothic2Directory);
 		if (uninstalled) {
 			int row = 0;
 			for (; row < static_cast<int>(_mods.size()); row++) {
@@ -1414,7 +1414,7 @@ void ModDatabaseView::selectedModIndex(const QModelIndex & index) {
 					break;
 				}
 			}
-			TextItem * buttonItem = dynamic_cast<TextItem *>(_sourceModel->item(row, DatabaseColumn::Install));
+			auto * buttonItem = dynamic_cast<TextItem *>(_sourceModel->item(row, DatabaseColumn::Install));
 			buttonItem->setText(QChar(static_cast<int>(FontAwesome::downloado)));
 			buttonItem->setToolTip(QApplication::tr("Install"));
 			buttonItem->setData(false, Installed);
@@ -1425,8 +1425,8 @@ void ModDatabaseView::selectedModIndex(const QModelIndex & index) {
 void ModDatabaseView::selectedPackageIndex(const QModelIndex & index) {
 	if (!index.isValid()) return;
 
-	common::Mod mod = _mods[index.model() == _sortModel ? _sortModel->mapToSource(index.parent()).row() : index.parent().row()];
-	if ((mod.gothic == common::GameType::Gothic && !_gothicValid) || (mod.gothic == common::GameType::Gothic2 && !_gothic2Valid) || (mod.gothic == common::GameType::Gothic1And2 && !_gothicValid && !_gothic2Valid)) {
+	Mod mod = _mods[index.model() == _sortModel ? _sortModel->mapToSource(index.parent()).row() : index.parent().row()];
+	if ((mod.gothic == GameType::Gothic && !_gothicValid) || (mod.gothic == GameType::Gothic2 && !_gothic2Valid) || (mod.gothic == GameType::Gothic1And2 && !_gothicValid && !_gothic2Valid)) {
 		emit finishedInstallation(mod.id, -1, false);
 		return;
 	}
@@ -1445,7 +1445,7 @@ void ModDatabaseView::selectedPackageIndex(const QModelIndex & index) {
 		emit finishedInstallation(mod.id, -1, false);
 		return;
 	}
-	common::UpdatePackageListMessage::Package package = _packages[mod.id][(index.model() == _sortModel) ? _sortModel->mapToSource(index).row() : index.row()];
+	UpdatePackageListMessage::Package package = _packages[mod.id][(index.model() == _sortModel) ? _sortModel->mapToSource(index).row() : index.row()];
 
 	if (_downloadingPackageList.contains(package.packageID)) return;
 	
@@ -1456,36 +1456,28 @@ void ModDatabaseView::selectedPackageIndex(const QModelIndex & index) {
 		msg.button(QMessageBox::StandardButton::Cancel)->setText(QApplication::tr("Cancel"));
 		if (QMessageBox::StandardButton::Ok == msg.exec()) {
 			_downloadingPackageList.append(package.packageID);
-			
-			// step 1: request all necessary files from server
-			QtConcurrent::run([this, mod, package]() {
-				common::RequestPackageFilesMessage rpfm;
-				rpfm.packageID = package.packageID;
-				rpfm.language = Config::Language.toStdString();
-				std::string serialized = rpfm.SerializePublic();
-				clockUtils::sockets::TcpSocket sock;
-				if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 10000)) {
-					sock.writePacket(serialized);
-					if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-						try {
-							common::Message * m = common::Message::DeserializePublic(serialized);
-							if (m) {
-								common::ListModFilesMessage * lmfm = dynamic_cast<common::ListModFilesMessage *>(m);
 
-								QSharedPointer<QList<QPair<QString, QString>>> fileList(new QList<QPair<QString, QString>>());
+			QJsonObject json;
+			json["Language"] = Config::Language;
+			json["PackageID"] = package.packageID;
 
-								for (const auto & p : lmfm->fileList) {
-									fileList->append(qMakePair(s2q(p.first), s2q(p.second)));
-								}
-								
-								emit receivedPackageFilesList(mod, package, fileList, s2q(lmfm->fileserver));
-							}
-							delete m;
-						} catch (...) {
-							return;
-						}
-					}
+			Https::postAsync(DATABASESERVER_PORT, "requestPackageFiles", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, mod, package](const QJsonObject & data, int statusCode) {
+				if (statusCode != 200) return;
+
+				if (!data.contains("Files")) return;
+
+				QSharedPointer<QList<QPair<QString, QString>>> fileList(new QList<QPair<QString, QString>>());
+
+				for (const auto jsonRef : data["Files"].toArray()) {
+					const auto jsonFile = jsonRef.toObject();
+
+					const auto path = jsonFile["File"].toString();
+					const auto hash = jsonFile["Hash"].toString();
+
+					fileList->append(qMakePair(path, hash));
 				}
+
+				emit receivedPackageFilesList(mod, package, fileList, data["Fileserver"].toString());
 			});
 		}
 	} else {

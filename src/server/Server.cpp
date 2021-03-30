@@ -146,9 +146,6 @@ void Server::receiveMessage(const std::vector<uint8_t> & message, clockUtils::so
 			} else if (m->type == MessageType::DOWNLOADSUCCEEDED) {
 				auto * msg = dynamic_cast<DownloadSucceededMessage *>(m);
 				handleDownloadSucceeded(sock, msg);
-			} else if (m->type == MessageType::REQUESTPLAYTIME) {
-				auto * msg = dynamic_cast<RequestPlayTimeMessage *>(m);
-				handleRequestPlaytime(sock, msg);
 			} else if (m->type == MessageType::MODVERSIONCHECK) {
 				auto * msg = dynamic_cast<ModVersionCheckMessage *>(m);
 				handleModVersionCheck(sock, msg);
@@ -712,40 +709,6 @@ void Server::handleDownloadSucceeded(clockUtils::sockets::TcpSocket *, DownloadS
 				return;
 			}
 		}
-	}
-}
-
-void Server::handleRequestPlaytime(clockUtils::sockets::TcpSocket * sock, RequestPlayTimeMessage * msg) const {
-	MariaDBWrapper database;
-	if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, SPINEDATABASE, 0)) {
-		std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-		return;
-	}
-	const int userID = ServerCommon::getUserID(msg->username, msg->password);
-	if (userID != -1) {
-		if (!database.query("PREPARE selectStmt FROM \"SELECT Duration FROM playtimes WHERE ModID = ? AND UserID = ? LIMIT 1\";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			return;
-		}
-		if (!database.query("SET @paramModID=" + std::to_string(msg->modID) + ";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			return;
-		}
-		if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			return;
-		}
-		if (!database.query("EXECUTE selectStmt USING @paramModID, @paramUserID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-			return;
-		}
-		auto lastResults = database.getResults<std::vector<std::string>>();
-		SendPlayTimeMessage sptm;
-		if (!lastResults.empty()) {
-			sptm.duration = std::stoi(lastResults[0][0]);
-		}
-		const std::string serialized = sptm.SerializePrivate();
-		sock->writePacket(serialized);
 	}
 }
 

@@ -54,6 +54,8 @@ namespace server {
 		static std::string filterUsername(const std::string & username);
 
 		static bool hasPrivilege(int userID, common::UserPrivilege privilege);
+
+		static bool canAccessProject(int userID, int projectID);
 	};
 
 } /* namespace server */

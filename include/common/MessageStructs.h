@@ -107,7 +107,7 @@ namespace common {
 		}
 	};
 
-	struct RequestAllModsMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.32.0")]] RequestAllModsMessage : public Message {
 		std::string language;
 		std::string username;
 		std::string password;
@@ -123,7 +123,7 @@ namespace common {
 		}
 	};
 
-	struct UpdateAllModsMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.32.0")]] UpdateAllModsMessage : public Message {
 		std::vector<Mod> mods;
 		std::vector<int32_t> playedProjects;
 		UpdateAllModsMessage() : Message() {
@@ -169,7 +169,7 @@ namespace common {
 		}
 	};
 
-	struct DownloadSucceededMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.32.0")]] DownloadSucceededMessage : public Message {
 		int32_t modID;
 		DownloadSucceededMessage() : Message(), modID() {
 			type = MessageType::DOWNLOADSUCCEEDED;
@@ -442,7 +442,7 @@ namespace common {
 		}
 	};
 
-	struct PackageDownloadSucceededMessage : public Message {
+	struct [[deprecated("Remove in Spine 1.32.0")]] PackageDownloadSucceededMessage : public Message {
 		int32_t packageID;
 		PackageDownloadSucceededMessage() : Message(), packageID() {
 			type = MessageType::PACKAGEDOWNLOADSUCCEEDED;

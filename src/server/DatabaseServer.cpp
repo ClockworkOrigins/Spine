@@ -103,6 +103,10 @@ int DatabaseServer::run() {
 	_server->resource["^/submitCompatibility"]["POST"] = std::bind(&DatabaseServer::submitCompatibility, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/requestOwnCompatibilities"]["POST"] = std::bind(&DatabaseServer::requestOwnCompatibilities, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/requestAllNews"]["POST"] = std::bind(&DatabaseServer::requestAllNews, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/downloadSucceeded"]["POST"] = std::bind(&DatabaseServer::downloadSucceeded, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/packageDownloadSucceeded"]["POST"] = std::bind(&DatabaseServer::packageDownloadSucceeded, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/requestProjectFiles"]["POST"] = std::bind(&DatabaseServer::requestProjectFiles, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/requestPackageFiles"]["POST"] = std::bind(&DatabaseServer::requestPackageFiles, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -6123,24 +6127,346 @@ void DatabaseServer::requestAllNews(std::shared_ptr<HttpsServer::Response> respo
 	}
 }
 
+void DatabaseServer::downloadSucceeded(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		const auto id = pt.get<int32_t>("ID");
+
+		const SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+
+			if (!database.query("PREPARE insertStmt FROM \"INSERT INTO downloads (ModID, Counter) VALUES (?, 1) ON DUPLICATE KEY UPDATE Counter = Counter + 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramModID=" + std::to_string(id) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("EXECUTE insertStmt USING @paramModID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			if (!database.query("PREPARE insertPerVersionStmt FROM \"INSERT INTO downloadsPerVersion (ModID, Version, Counter) VALUES (?, CONVERT(? USING BINARY), 1) ON DUPLICATE KEY UPDATE Counter = Counter + 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("PREPARE selectVersionStmt FROM \"SELECT MajorVersion, MinorVersion, PatchVersion FROM mods WHERE ModID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("EXECUTE selectVersionStmt USING @paramModID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			auto results = database.getResults<std::vector<std::string>>();
+			if (!results.empty()) {
+				const std::string version = results[0][0] + "." + results[0][1] + "." + results[0][2];
+				if (!database.query("SET @paramVersion='" + version + "';")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+					break;
+				}
+				if (!database.query("EXECUTE insertPerVersionStmt USING @paramModID, @paramVersion;")) {
+					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					break;
+				}
+			}
+		} while (false);
+
+		response->write(code);
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::packageDownloadSucceeded(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		const auto id = pt.get<int32_t>("ID");
+
+		const SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+
+			if (!database.query("PREPARE insertStmt FROM \"INSERT INTO packagedownloads (PackageID, Counter) VALUES (?, 1) ON DUPLICATE KEY UPDATE Counter = Counter + 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramPackageID=" + std::to_string(id) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("EXECUTE insertStmt USING @paramPackageID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+		} while (false);
+
+		response->write(code);
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::requestProjectFiles(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		const auto username = pt.get<std::string>("Username");
+		const auto password = pt.get<std::string>("Password");
+		const auto projectID = pt.get<int32_t>("ProjectID");
+		const auto language = pt.get<std::string>("Language");
+
+		const int userID = ServerCommon::getUserID(username, password);
+
+		if (!ServerCommon::canAccessProject(userID, projectID)) {
+			response->write(SimpleWeb::StatusCode::client_error_bad_request);
+			return;
+		}
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+
+			if (!database.query("PREPARE selectStmt FROM \"SELECT Path, Hash FROM modfiles WHERE ModID = ? AND (Language = ? OR Language = 'All')\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("PREPARE selectVersionStmt FROM \"SELECT MajorVersion, MinorVersion, PatchVersion FROM mods WHERE ModID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("PREPARE selectFileserverStmt FROM \"SELECT Url FROM fileserver WHERE ModID = ? AND MajorVersion = ? AND MinorVersion = ? AND PatchVersion = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramModID=" + std::to_string(projectID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramLanguage='" + language + "';")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("EXECUTE selectStmt USING @paramModID, @paramLanguage;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			auto lastResults = database.getResults<std::vector<std::string>>();
+
+			ptree fileNodes;
+			for (const auto & vec : lastResults) {
+				ptree fileNode;
+				fileNode.put("File", vec[0]);
+				fileNode.put("Hash", vec[1]);
+
+				fileNodes.push_back(std::make_pair("", fileNode));
+			}
+
+			responseTree.add_child("Files", fileNodes);
+			
+			if (!database.query("EXECUTE selectVersionStmt USING @paramModID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			lastResults = database.getResults<std::vector<std::string>>();
+			
+			if (lastResults.empty()) break;
+
+			const std::string majorVersion = lastResults[0][0];
+			const std::string minorVersion = lastResults[0][1];
+			const std::string patchVersion = lastResults[0][2];
+			if (!database.query("SET @paramMajorVersion=" + majorVersion + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramMinorVersion=" + minorVersion + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramPatchVersion=" + patchVersion + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("EXECUTE selectFileserverStmt USING @paramModID, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			lastResults = database.getResults<std::vector<std::string>>();
+			std::vector<std::string> possibilities = { DEFAULTURL };
+			for (const auto & vec : lastResults) {
+				possibilities.push_back(vec[0]);
+			}
+			responseTree.put("Fileserver", possibilities[std::rand() % possibilities.size()]);
+		} while (false);
+
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::requestPackageFiles(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		const auto packageID = pt.get<int32_t>("PackageID");
+		const auto language = pt.get<std::string>("Language");
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+
+			if (!database.query("PREPARE selectStmt FROM \"SELECT Path, Hash FROM optionalpackagefiles WHERE PackageID = ? AND (Language = ? OR Language = 'All')\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("PREPARE selectModIDStmt FROM \"SELECT ModID FROM optionalpackages WHERE PackageID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("PREPARE selectVersionStmt FROM \"SELECT MajorVersion, MinorVersion, PatchVersion FROM mods WHERE ModID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("PREPARE selectFileserverStmt FROM \"SELECT Url FROM fileserver WHERE ModID = ? AND MajorVersion = ? AND MinorVersion = ? AND PatchVersion = ?\";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramPackageID=" + std::to_string(packageID) + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramLanguage='" + language + "';")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("EXECUTE selectStmt USING @paramPackageID, @paramLanguage;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			auto lastResults = database.getResults<std::vector<std::string>>();
+
+			ptree fileNodes;
+			for (const auto & vec : lastResults) {
+				ptree fileNode;
+				fileNode.put("File", vec[0]);
+				fileNode.put("Hash", vec[1]);
+
+				fileNodes.push_back(std::make_pair("", fileNode));
+			}
+
+			responseTree.add_child("Files", fileNodes);
+			
+			if (!database.query("EXECUTE selectModIDStmt USING @paramPackageID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			lastResults = database.getResults<std::vector<std::string>>();
+			if (lastResults.empty()) {
+				break;
+			}
+			if (!database.query("SET @paramModID=" + lastResults[0][0] + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+
+			if (!database.query("EXECUTE selectVersionStmt USING @paramModID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			lastResults = database.getResults<std::vector<std::string>>();
+
+			if (lastResults.empty()) break;
+
+			const std::string majorVersion = lastResults[0][0];
+			const std::string minorVersion = lastResults[0][1];
+			const std::string patchVersion = lastResults[0][2];
+			if (!database.query("SET @paramMajorVersion=" + majorVersion + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramMinorVersion=" + minorVersion + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramPatchVersion=" + patchVersion + ";")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("EXECUTE selectFileserverStmt USING @paramModID, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			lastResults = database.getResults<std::vector<std::string>>();
+			std::vector<std::string> possibilities = { DEFAULTURL };
+			for (const auto & vec : lastResults) {
+				possibilities.push_back(vec[0]);
+			}
+			responseTree.put("Fileserver", possibilities[std::rand() % possibilities.size()]);
+		} while (false);
+
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
+	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
 void DatabaseServer::requestAllTri6ScoreStats(ptree & responseTree) const {
 	do {
 		MariaDBWrapper database;
 		if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, TRI6DATABASE, 0)) {
 			std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-			return;
+			break;
 		}
 		if (!database.query("PREPARE selectScoreStmt FROM \"SELECT Score, UserID FROM scores WHERE Version = ? AND Identifier = ? ORDER BY Score DESC\";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			return;
+			break;
 		}
 		if (!database.query("PREPARE selectMaxVersionStmt FROM \"SELECT MAX(Version) FROM scores\";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			return;
+			break;
 		}
 		if (!database.query("EXECUTE selectMaxVersionStmt;")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-			return;
+			break;
 		}
 		auto lastResults = database.getResults<std::vector<std::string>>();
 
@@ -6148,7 +6474,7 @@ void DatabaseServer::requestAllTri6ScoreStats(ptree & responseTree) const {
 
 		if (!database.query("SET @paramVersion=" + version + ";")) {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-			return;
+			break;
 		}
 
 		lastResults.clear();
