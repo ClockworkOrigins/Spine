@@ -74,7 +74,7 @@ void Cleanup::cleanup() {
 			cleanupTable("donations", userList);
 		} while (false);
 
-		std::this_thread::sleep_for(std::chrono::hours(24));
+		std::this_thread::sleep_for(std::chrono::hours(8));
 	}
 }
 
