@@ -216,7 +216,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	_tabWidget->setProperty("library", true);	
 	_tabWidget->setProperty("default", true);
 
-	StartPageWidget * startPage = new StartPageWidget(_tabWidget);
+	auto * startPage = new StartPageWidget(_tabWidget);
 	connect(_settingsDialog->getGeneralSettingsWidget(), &GeneralSettingsWidget::languageChanged, startPage, &StartPageWidget::setLanguage);
 
 	_tabWidget->addTab(startPage, QApplication::tr("Startpage"));
@@ -256,14 +256,14 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 
 	_spineEditor = new SpineEditor(this);
 
-	QWidget * w = new QWidget(_tabWidget);
+	auto * w = new QWidget(_tabWidget);
 	w->setProperty("library", true);
 
-	QVBoxLayout * l = new QVBoxLayout();
+	auto * l = new QVBoxLayout();
 
-	QWidget * topWidget = new QWidget(w);
+	auto * topWidget = new QWidget(w);
 	topWidget->setProperty("library", true);
-	QHBoxLayout * topLayout = new QHBoxLayout();
+	auto * topLayout = new QHBoxLayout();
 
 	_modListView = new LibraryListView(topWidget);
 	_modListView->setProperty("library", true);
@@ -284,10 +284,10 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	_modListView->setIconSize(QSize(200, 200));
 
 	{
-		QWidget * filterWidget = new QWidget(this);
+		auto * filterWidget = new QWidget(this);
 		filterWidget->setProperty("library", true);
-		QHBoxLayout * hl = new QHBoxLayout();
-		QLineEdit * le = new QLineEdit(filterWidget);
+		auto * hl = new QHBoxLayout();
+		auto * le = new QLineEdit(filterWidget);
 		le->setProperty("library", true);
 		le->setPlaceholderText(QApplication::tr("SearchPlaceholder"));
 		UPDATELANGUAGESETPLACEHOLDERTEXT(le, "SearchPlaceholder");
@@ -296,32 +296,32 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 
 		hl->addWidget(le);
 		{
-			QGroupBox * gb = new QGroupBox(QApplication::tr("Game"), filterWidget);
+			auto * gb = new QGroupBox(QApplication::tr("Game"), filterWidget);
 			gb->setProperty("library", true);
 			UPDATELANGUAGESETTITLE(gb, "Game");
 
-			QVBoxLayout * vbl = new QVBoxLayout();
+			auto * vbl = new QVBoxLayout();
 
-			QCheckBox * cb1 = new QCheckBox(QApplication::tr("Gothic"), filterWidget);
+			auto * cb1 = new QCheckBox(QApplication::tr("Gothic"), filterWidget);
 			cb1->setProperty("library", true);
 			cb1->setChecked(_sortModel->isGothicActive());
 			UPDATELANGUAGESETTEXT(cb1, "Gothic");
 			connect(cb1, &QCheckBox::stateChanged, _sortModel, &LibraryFilterModel::gothicChanged);
 
-			QCheckBox * cb2 = new QCheckBox(QApplication::tr("Gothic2"), filterWidget);
+			auto * cb2 = new QCheckBox(QApplication::tr("Gothic2"), filterWidget);
 			cb2->setProperty("library", true);
 			cb2->setChecked(_sortModel->isGothic2Active());
 			UPDATELANGUAGESETTEXT(cb2, "Gothic2");
 			connect(cb2, &QCheckBox::stateChanged, _sortModel, &LibraryFilterModel::gothic2Changed);
 
-			QCheckBox * cb3 = new QCheckBox(QApplication::tr("GothicAndGothic2"), filterWidget);
+			auto * cb3 = new QCheckBox(QApplication::tr("GothicAndGothic2"), filterWidget);
 			cb3->setProperty("library", true);
 			cb3->setChecked(_sortModel->isGothicAndGothic2Active());
 			UPDATELANGUAGESETTEXT(cb3, "GothicAndGothic2");
 			connect(cb3, &QCheckBox::stateChanged, _sortModel, &LibraryFilterModel::gothicAndGothic2Changed);
 			cb3->hide();
 
-			QCheckBox * cb4 = new QCheckBox(QApplication::tr("Game"), filterWidget);
+			auto * cb4 = new QCheckBox(QApplication::tr("Game"), filterWidget);
 			cb4->setProperty("library", true);
 			cb4->setChecked(_sortModel->isGameActive());
 			UPDATELANGUAGESETTEXT(cb4, "Game");
@@ -337,13 +337,13 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 			hl->addWidget(gb);
 		}
 		{
-			QGroupBox * gb = new QGroupBox(QApplication::tr("General"), filterWidget);
+			auto * gb = new QGroupBox(QApplication::tr("General"), filterWidget);
 			gb->setProperty("library", true);
 			UPDATELANGUAGESETTITLE(gb, "General");
 
-			QVBoxLayout * vbl = new QVBoxLayout();
+			auto * vbl = new QVBoxLayout();
 
-			QCheckBox * cb1 = new QCheckBox(QApplication::tr("ShowHidden"), filterWidget);
+			auto * cb1 = new QCheckBox(QApplication::tr("ShowHidden"), filterWidget);
 			cb1->setProperty("library", true);
 			cb1->setChecked(_sortModel->isShowHiddenActive());
 			UPDATELANGUAGESETTEXT(cb1, "ShowHidden");
@@ -386,7 +386,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 
 	topLayout->addWidget(_modListView);
 
-	QVBoxLayout * vbl = new QVBoxLayout();
+	auto * vbl = new QVBoxLayout();
 	vbl->addWidget(_modInfoView);
 
 	topLayout->addLayout(vbl);
@@ -437,26 +437,33 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 
 	_tabWidget->setCurrentWidget(startPage);
 
-	QWidget * cw = new QWidget(this);
+	auto * cw = new QWidget(this);
 
-	QVBoxLayout * vl = new QVBoxLayout();
+	auto * vl = new QVBoxLayout();
 
 	{
-		QHBoxLayout * hl = new QHBoxLayout();
+		auto * hl = new QHBoxLayout();
 
-		QPushButton * donateButton = new QPushButton(cw);
+		auto * userVoteButton = new QPushButton("Spine User Votes", cw);
+		userVoteButton->setProperty("donateText", true);
+
+		connect(userVoteButton, &QPushButton::released, []() {
+			QDesktopServices::openUrl(QUrl("https://clockwork-origins.com/spineUserVotes.php"));
+		});
+
+		auto * donateButton = new QPushButton(cw);
 		QPixmap pixmap(":/donate.png");
 		donateButton->setIconSize(pixmap.rect().size());
 		donateButton->setFixedSize(pixmap.rect().size());
 		donateButton->setProperty("donateButton", true);
 
-		hl->addStretch(1);
-
-		QLabel * donateLabel = new QLabel(QApplication::tr("SupportUsText"), cw);
+		auto * donateLabel = new QLabel(QApplication::tr("SupportUsText"), cw);
 		UPDATELANGUAGESETTEXT(donateLabel, "SupportUsText");
 
 		donateLabel->setProperty("donateText", true);
 		
+		hl->addWidget(userVoteButton);
+		hl->addStretch(1);
 		hl->addWidget(donateLabel);
 		hl->addWidget(donateButton);
 		
