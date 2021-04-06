@@ -4472,7 +4472,17 @@ void DatabaseServer::requestAllAchievementStats(std::shared_ptr<HttpsServer::Res
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				return;
 			}
+			if (!database.query("PREPARE selectAnyAchievementNameStmt FROM \"SELECT CAST(Name AS BINARY) FROM modAchievementNames WHERE ModID = ? AND Identifier = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
 			if (!database.query("PREPARE selectAchievementDescriptionStmt FROM \"SELECT CAST(Description AS BINARY) FROM modAchievementDescriptions WHERE ModID = ? AND Identifier = ? AND Language = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				return;
+			}
+			if (!database.query("PREPARE selectAnyAchievementDescriptionStmt FROM \"SELECT CAST(Description AS BINARY) FROM modAchievementDescriptions WHERE ModID = ? AND Identifier = ? LIMIT 1\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				return;
@@ -4503,11 +4513,6 @@ void DatabaseServer::requestAllAchievementStats(std::shared_ptr<HttpsServer::Res
 				return;
 			}
 			if (!database.query("PREPARE selectAchievementMaxProgressStmt FROM \"SELECT Max FROM modAchievementProgressMax WHERE ModID = ? AND Identifier = ? LIMIT 1\";")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
-				code = SimpleWeb::StatusCode::client_error_failed_dependency;
-				return;
-			}
-			if (!database.query("SET @paramLanguage='" + language + "';")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				return;
@@ -4545,7 +4550,12 @@ void DatabaseServer::requestAllAchievementStats(std::shared_ptr<HttpsServer::Res
 			for (const auto & vec : lastResults) {
 				// get mod name in current language
 				ptree achievementNode;
-				
+
+				if (!database.query("SET @paramLanguage='" + language + "';")) {
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					continue;
+				}
 				if (!database.query("SET @paramIdentifier=" + vec[0] + ";")) {
 					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
@@ -4557,15 +4567,49 @@ void DatabaseServer::requestAllAchievementStats(std::shared_ptr<HttpsServer::Res
 					continue;
 				}
 				auto results = database.getResults<std::vector<std::string>>();
+
+				bool anyLanguage = false;
 				
+				if (results.empty()) {
+					if (!database.query("SET @paramLanguage='English';")) {
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						continue;
+					}
+					if (!database.query("EXECUTE selectAchievementNameStmt USING @paramModID, @paramIdentifier, @paramLanguage;")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						continue;
+					}
+					results = database.getResults<std::vector<std::string>>();
+
+					if (results.empty()) {
+						if (!database.query("EXECUTE selectAnyAchievementNameStmt USING @paramModID, @paramIdentifier;")) {
+							std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+							code = SimpleWeb::StatusCode::client_error_failed_dependency;
+							continue;
+						}
+						results = database.getResults<std::vector<std::string>>();
+						anyLanguage = true;
+					}
+				}
+
 				if (results.empty()) continue;
 
 				achievementNode.put("Name", results[0][0]);
 
-				if (!database.query("EXECUTE selectAchievementDescriptionStmt USING @paramModID, @paramIdentifier, @paramLanguage;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-					code = SimpleWeb::StatusCode::client_error_failed_dependency;
-					continue;
+				if (anyLanguage) {
+					if (!database.query("EXECUTE selectAnyAchievementDescriptionStmt USING @paramModID, @paramIdentifier;")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						continue;
+					}
+				} else {
+					if (!database.query("EXECUTE selectAchievementDescriptionStmt USING @paramModID, @paramIdentifier, @paramLanguage;")) {
+						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						continue;
+					}
 				}
 				results = database.getResults<std::vector<std::string>>();
 
@@ -4686,7 +4730,7 @@ void DatabaseServer::requestAllScoreStats(std::shared_ptr<HttpsServer::Response>
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				return;
 			}
-			if (!database.query("PREPARE selectScoreNameStmt FROM \"SELECT CAST(Name AS BINARY), Identifier FROM modScoreNames WHERE ModID = ? AND Language = ? ORDER BY Identifier ASC\";")) {
+			if (!database.query("PREPARE selectScoreNameStmt FROM \"SELECT CAST(Name AS BINARY), Language, Identifier FROM modScoreNames WHERE ModID = ? ORDER BY Identifier ASC\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				return;
@@ -4709,21 +4753,26 @@ void DatabaseServer::requestAllScoreStats(std::shared_ptr<HttpsServer::Response>
 			auto lastResults = database.getResults<std::vector<std::string>>();
 
 			ptree scoreNodes;
-			
-			for (const auto & vec : lastResults) {
+
+			std::string lastId;
+			std::map<std::string, std::string> names;
+
+			auto f = [language, &lastId, &names, &database, &code, &scoreNodes]() {
 				ptree scoreNode;
 
-				scoreNode.put("Name", vec[0]);
+				auto name = names.find(language) != names.end() ? names[language] : names.find("English") != names.end() ? names["English"] : names.begin()->second;
 
-				if (!database.query("SET @paramIdentifier=" + vec[1] + ";")) {
+				scoreNode.put("Name", name);
+
+				if (!database.query("SET @paramIdentifier=" + lastId + ";")) {
 					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
-					continue;
+					return;
 				}
 				if (!database.query("EXECUTE selectScoreOrderStmt USING @paramModID, @paramIdentifier;")) {
 					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
-					continue;
+					return;
 				}
 				auto results = database.getResults<std::vector<std::string>>();
 
@@ -4732,7 +4781,7 @@ void DatabaseServer::requestAllScoreStats(std::shared_ptr<HttpsServer::Response>
 				if (!database.query("EXECUTE selectScoreStmt USING @paramModID, @paramIdentifier;")) {
 					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
-					continue;
+					return;
 				}
 				results = database.getResults<std::vector<std::string>>();
 
@@ -4751,9 +4800,22 @@ void DatabaseServer::requestAllScoreStats(std::shared_ptr<HttpsServer::Response>
 				}
 
 				scoreNode.add_child("Scores", scoreEntryNodes);
-				
+
 				scoreNodes.push_back(std::make_pair("", scoreNode));
+			};
+			
+			for (const auto & vec : lastResults) {
+				if (lastId != vec[2]) {
+					names.clear();
+					lastId = vec[2];
+
+					f();
+				}
+
+				names.insert(std::make_pair(vec[1], vec[0]));
 			}
+
+			f();
 
 			responseTree.add_child("Scores", scoreNodes);
 		} while (false);
