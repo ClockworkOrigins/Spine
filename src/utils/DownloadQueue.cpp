@@ -22,6 +22,8 @@
 
 #include <QMainWindow>
 
+#include "FileDownloader.h"
+
 #ifdef Q_OS_WIN
 #include <QWinTaskbarButton>
 #include <QWinTaskbarProgress>
@@ -67,25 +69,47 @@ void DownloadQueue::setWindow(QMainWindow * mainWindow) {
 #endif
 }
 
-void DownloadQueue::checkQueue() {
-	if (_queue.isEmpty()) return;
+void DownloadQueue::cancel(MultiFileDownloader * downloader) {
+	if (!downloader) return;
+	
+	if (_running == downloader) {
+		_running->cancel();
+		_running = nullptr;
+		checkQueue();
+		return;
+	}
 
+	_cancelled << downloader;
+}
+
+void DownloadQueue::checkQueue() {
 	if (_running) return;
 
-	auto * downloader = _queue.dequeue();
+	do {
+		if (_queue.isEmpty()) return;
+		
+		_running = _queue.dequeue();
 
-	_running = true;
+		if (_cancelled.contains(_running)) {
+			_cancelled.remove(_running);
+			emit _running->downloadFailed(DownloadError::CanceledError);
+			_running = nullptr;
+			continue;
+		}
+
+		break;
+	} while (true);
 	
 #ifdef Q_OS_WIN
-	_taskbarProgress->setMaximum(static_cast<int>(_totalBytesMap[downloader] / 1024 + 1));
+	_taskbarProgress->setMaximum(static_cast<int>(_totalBytesMap[_running] / 1024 + 1));
 	_taskbarProgress->show();
 #endif
 	
-	downloader->startDownload();
+	_running->startDownload();
 }
 
 void DownloadQueue::updateTotalBytes(qint64 bytes) {
-	MultiFileDownloader * downloader = dynamic_cast<MultiFileDownloader *>(sender());
+	auto * downloader = dynamic_cast<MultiFileDownloader *>(sender());
 
 	_totalBytesMap[downloader] = bytes;
 	
@@ -95,7 +119,7 @@ void DownloadQueue::updateTotalBytes(qint64 bytes) {
 }
 
 void DownloadQueue::downloadedBytes(qint64 bytes) {
-	const MultiFileDownloader * downloader = dynamic_cast<const MultiFileDownloader *>(sender());
+	const auto * downloader = dynamic_cast<const MultiFileDownloader *>(sender());
 
 	_downloadedBytesMap[downloader] = bytes;
 	
@@ -105,12 +129,12 @@ void DownloadQueue::downloadedBytes(qint64 bytes) {
 }
 
 void DownloadQueue::finishedDownload() {
-	const MultiFileDownloader * downloader = dynamic_cast<const MultiFileDownloader *>(sender());
+	const auto * downloader = dynamic_cast<const MultiFileDownloader *>(sender());
 
 	_totalBytesMap.remove(downloader);
 	_downloadedBytesMap.remove(downloader);
 
-	_running = false;
+	_running = nullptr;
 
 	sender()->deleteLater();
 	

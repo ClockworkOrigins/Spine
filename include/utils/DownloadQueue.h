@@ -21,6 +21,7 @@
 #include <QMap>
 #include <QObject>
 #include <QQueue>
+#include <QSet>
 
 class QMainWindow;
 class QWinTaskbarButton;
@@ -43,6 +44,9 @@ namespace utils {
 
 		void setWindow(QMainWindow * mainWindow);
 
+	public slots:
+		void cancel(MultiFileDownloader * downloader);
+
 	private slots:
 		void updateTotalBytes(qint64 bytes);
 		void downloadedBytes(qint64 bytes);
@@ -54,9 +58,10 @@ namespace utils {
 		QQueue<MultiFileDownloader *> _queue;
 		QWinTaskbarButton * _taskbarButton;
 		QWinTaskbarProgress * _taskbarProgress;
-		bool _running;
+		MultiFileDownloader * _running;
 		QMap<const MultiFileDownloader *, qint64> _totalBytesMap;
 		QMap<const MultiFileDownloader *, qint64> _downloadedBytesMap;
+		QSet<const MultiFileDownloader *> _cancelled;
 
 		void checkQueue();
 	};

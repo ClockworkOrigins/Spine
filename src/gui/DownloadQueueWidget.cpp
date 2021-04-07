@@ -57,6 +57,10 @@ void DownloadQueueWidget::addDownload(const QString & name, MultiFileDownloader 
 	connect(mfd, &MultiFileDownloader::downloadProgress, dew, &DownloadEntryWidget::setCurrentBytes);
 	connect(mfd, &MultiFileDownloader::downloadSucceeded, dew, &DownloadEntryWidget::finished);
 	connect(mfd, &MultiFileDownloader::downloadFailed, dew, &DownloadEntryWidget::aborted);
+	connect(mfd, &MultiFileDownloader::startedDownload, dew, &DownloadEntryWidget::started);
+	connect(dew, &DownloadEntryWidget::canceled, DownloadQueue::getInstance(), [mfd]() {
+		DownloadQueue::getInstance()->cancel(mfd);
+	});
 
 	_entryLayout->addWidget(dew);
 

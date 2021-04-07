@@ -35,15 +35,18 @@ namespace gui {
 
 	signals:
 		void removed();
+		void canceled();
 		
 	public slots:
 		void setTotalBytes(qint64 bytes);
 		void setCurrentBytes(qint64 bytes);
+		void started();
 		void aborted();
 		void finished();
 		
 	private:
 		QPushButton * _removeButton;
+		QPushButton * _cancelButton;
 		QProgressBar * _progressBar;
 		QLabel * _downloadedBytes;
 

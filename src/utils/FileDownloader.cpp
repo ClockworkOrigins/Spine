@@ -69,6 +69,10 @@ QString FileDownloader::getFileName() const {
 	return _fileName;
 }
 
+void FileDownloader::cancel() {
+	emit abort();
+}
+
 void FileDownloader::startDownload() {
 	_blockErrors = false;
 	

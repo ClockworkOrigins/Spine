@@ -43,6 +43,7 @@ namespace utils {
 		void startDownload();
 		void querySize();
 		void setSize(qint64 size);
+		void cancel();
 
 	signals:
 		void downloadProgress(qint64);

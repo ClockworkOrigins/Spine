@@ -48,6 +48,8 @@ namespace utils {
 		void requestFileSize();
 		QString getFileName() const;
 
+		void cancel();
+
 	signals:
 		void downloadProgress(qint64);
 		void totalBytes(qint64);

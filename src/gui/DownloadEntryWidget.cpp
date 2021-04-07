@@ -34,9 +34,9 @@ using namespace spine::utils;
 DownloadEntryWidget::DownloadEntryWidget(QString name, QWidget * par) : QWidget(par) {
 	setObjectName("DownloadEntryWidget");
 	
-	QGridLayout * l = new QGridLayout();
+	auto * l = new QGridLayout();
 
-	QLabel * lbl = new QLabel(name, this);
+	auto * lbl = new QLabel(name, this);
 	
 	l->addWidget(lbl, 0, 0);
 
@@ -50,9 +50,14 @@ DownloadEntryWidget::DownloadEntryWidget(QString name, QWidget * par) : QWidget(
 	l->addWidget(_downloadedBytes, 0, 2);
 
 	_removeButton = new QPushButton("x", this);
-	_removeButton->setDisabled(true);
+	_removeButton->hide();
 
 	l->addWidget(_removeButton, 0, 3);
+
+	_cancelButton = new QPushButton("x", this);
+	_cancelButton->show();
+
+	l->addWidget(_cancelButton, 0, 4);
 
 	l->setSpacing(5);
 
@@ -60,11 +65,16 @@ DownloadEntryWidget::DownloadEntryWidget(QString name, QWidget * par) : QWidget(
 	l->setColumnStretch(1, 50);
 	l->setColumnStretch(2, 15);
 	l->setColumnStretch(3, 5);
+	l->setColumnStretch(4, 5);
 
 	setLayout(l);
 
 	connect(_removeButton, &QPushButton::released, this, &DownloadEntryWidget::removed);
 	connect(_removeButton, &QPushButton::released, this, &QObject::deleteLater);
+
+	connect(_cancelButton, &QPushButton::released, this, &DownloadEntryWidget::canceled);
+	connect(_cancelButton, &QPushButton::released, _removeButton, &QWidget::show);
+	connect(_cancelButton, &QPushButton::released, _removeButton, &QWidget::hide);
 
 	setProperty("DownloadEntryWidget", true);
 
@@ -84,13 +94,20 @@ void DownloadEntryWidget::setCurrentBytes(qint64 bytes) {
 	_downloadedBytes->setText(QApplication::tr("DownloadedBytes").arg(_currentValue, _maximumValue));
 }
 
+void DownloadEntryWidget::started() {
+	_removeButton->hide();
+	_cancelButton->show();	
+}
+
 void DownloadEntryWidget::aborted() {
-	_removeButton->setEnabled(true);
+	_removeButton->show();
+	_cancelButton->hide();
 	_progressBar->setValue(0);
 }
 
 void DownloadEntryWidget::finished() {
-	_removeButton->setEnabled(true);
+	_removeButton->show();
+	_cancelButton->hide();
 	_progressBar->setValue(_progressBar->maximum());
 }
 

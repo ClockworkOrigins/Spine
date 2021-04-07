@@ -1216,10 +1216,10 @@ void ModDatabaseView::downloadPackageFiles(Mod mod, UpdatePackageListMessage::Pa
 		bool b = dir.mkpath(dir.absolutePath());
 		Q_UNUSED(b)
 	}
-	MultiFileDownloader * mfd = new MultiFileDownloader(this);
+	auto * mfd = new MultiFileDownloader(this);
 	for (const auto & p : *fileList) {
 		QFileInfo fi(p.first);
-		FileDownloader * fd = new FileDownloader(QUrl(fileserver + QString::number(mod.id) + "/" + p.first), dir.absolutePath() + "/" + fi.path(), fi.fileName(), p.second, mfd);
+		auto * fd = new FileDownloader(QUrl(fileserver + QString::number(mod.id) + "/" + p.first), dir.absolutePath() + "/" + fi.path(), fi.fileName(), p.second, mfd);
 		mfd->addFileDownloader(fd);
 	}
 

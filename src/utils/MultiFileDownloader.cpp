@@ -68,6 +68,12 @@ void MultiFileDownloader::setSize(qint64 size) {
 	_maxSize = size;
 }
 
+void MultiFileDownloader::cancel() {
+	for (auto it = _downloadStats.begin(); it != _downloadStats.end(); ++it) {
+		it.key()->cancel();
+	}
+}
+
 void MultiFileDownloader::startDownload() {
 	if (_downloadQueue.empty()) {
 		emit downloadSucceeded();
@@ -86,7 +92,7 @@ void MultiFileDownloader::startDownloadInternal() {
 }
 
 void MultiFileDownloader::updateDownloadProgress(qint64 bytesReceived) {
-	FileDownloader * fd = dynamic_cast<FileDownloader *>(sender());
+	auto * fd = dynamic_cast<FileDownloader *>(sender());
 	assert(fd);
 	_downloadStats[fd].first = bytesReceived;
 	qint64 sum = 0;
@@ -98,7 +104,7 @@ void MultiFileDownloader::updateDownloadProgress(qint64 bytesReceived) {
 }
 
 void MultiFileDownloader::updateDownloadMax(qint64 bytesTotal) {
-	FileDownloader * fd = dynamic_cast<FileDownloader *>(sender());
+	auto * fd = dynamic_cast<FileDownloader *>(sender());
 	assert(fd);
 	_maxSize += bytesTotal;
 	_downloadStats[fd].second = bytesTotal;
