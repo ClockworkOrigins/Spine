@@ -263,7 +263,7 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 					currentIndex++;
 
 					if (umm && currentIndex == static_cast<int>(umm->files.size())) {
-						break; // finished uploadss
+						break; // finished uploads
 					}
 
 					mf = umm->files[currentIndex];
@@ -283,7 +283,7 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 			}
 		}
 		
-		if (umm && currentIndex == static_cast<int>(umm->files.size())) break; // finished uploadss
+		if (umm && currentIndex == static_cast<int>(umm->files.size())) break; // finished uploads
 	}
 	std::cout << "Finished Upload: " << !error << std::endl;
 	delete umm;

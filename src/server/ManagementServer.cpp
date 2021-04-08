@@ -1097,16 +1097,16 @@ void ManagementServer::updateModVersion(std::shared_ptr<HttpsServer::Response> r
 			return;
 		}
 
-		const int32_t modID = pt.get<int32_t>("ModID");
+		const auto projectID = pt.get<int32_t>("ModID");
 
-		if (!hasAdminAccessToMod(userID, modID)) {
+		if (!hasAdminAccessToMod(userID, projectID)) {
 			response->write(SimpleWeb::StatusCode::client_error_unauthorized);
 			return;
 		}
 
-		const int32_t versionMajor = pt.get<int32_t>("VersionMajor");
-		const int32_t versionMinor = pt.get<int32_t>("VersionMinor");
-		const int32_t versionPatch = pt.get<int32_t>("VersionPatch");
+		const auto versionMajor = pt.get<int32_t>("VersionMajor");
+		const auto versionMinor = pt.get<int32_t>("VersionMinor");
+		const auto versionPatch = pt.get<int32_t>("VersionPatch");
 		
 		int32_t date = 0;
 
@@ -1166,7 +1166,7 @@ void ManagementServer::updateModVersion(std::shared_ptr<HttpsServer::Response> r
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
+			if (!database.query("SET @paramModID=" + std::to_string(projectID) + ";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;

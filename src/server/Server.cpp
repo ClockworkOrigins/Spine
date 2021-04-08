@@ -39,7 +39,6 @@
 
 #include "common/MessageStructs.h"
 #include "common/NewsTickerTypes.h"
-#include "common/ScoreOrder.h"
 
 #include "boost/filesystem.hpp"
 
