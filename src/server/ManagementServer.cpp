@@ -18,6 +18,7 @@
 
 #include "ManagementServer.h"
 
+#include "FileSynchronizer.h"
 #include "LanguageConverter.h"
 #include "MariaDBWrapper.h"
 #include "ServerCommon.h"
@@ -1206,6 +1207,17 @@ void ManagementServer::updateModVersion(std::shared_ptr<HttpsServer::Response> r
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
+
+			FileSynchronizer::AddJob job;
+			job.operation = FileSynchronizer::Operation::RaiseVersion;
+			job.majorVersion = versionMajor;
+			job.minorVersion = versionMinor;
+			job.patchVersion = versionPatch;
+			job.spineVersion = versionSpine;
+			job.projectID = projectID;
+			
+			FileSynchronizer::addJob(job);
+			
 			if (!database.query("EXECUTE isEnabledStmt USING @paramModID;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;

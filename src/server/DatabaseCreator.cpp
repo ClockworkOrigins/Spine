@@ -270,10 +270,6 @@ void DatabaseCreator::createTables() {
 		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS fileserver (ModID INT NOT NULL, Url TEXT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL, PRIMARY KEY (ModID, Url(100)));"))) {
-		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-		return;
-	}
 	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS lastUpdated (ProjectID INT PRIMARY KEY, Date INT NOT NULL);"))) {
 		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
@@ -339,6 +335,31 @@ void DatabaseCreator::createTables() {
 		return;
 	}
 	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS scoreOrders (ProjectID INT NOT NULL, Identifier INT NOT NULL, ScoreOrder INT NOT NULL, PRIMARY KEY (ProjectID, Identifier));"))) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+
+	createFileserverTables();
+}
+
+void DatabaseCreator::createFileserverTables() {
+	MariaDBWrapper database;
+	if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, SPINEDATABASE, 0)) {
+		std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+
+	if (!database.query("CREATE TABLE IF NOT EXISTS fileserverList (ServerID INT AUTO_INCREMENT PRIMARY KEY, Enabled INT NOT NULL, PatronOnly INT NOT NULL, Username TEXT NOT NULL, Password TEXT NOT NULL, FtpHost TEXT NOT NULL, RootFolder TEXT NOT NULL, Url TEXT NOT NULL);")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+
+	if (!database.query("CREATE TABLE IF NOT EXISTS projectsOnFileservers (ServerID INT NOT NULL, ProjectID INT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL, SpineVersion INT NOT NULL, PRIMARY KEY (ServerID, ProjectID));")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+
+	if (!database.query("CREATE TABLE IF NOT EXISTS fileserverSynchronizationQueue (JobID INT AUTO_INCREMENT PRIMARY KEY, ServerID INT NOT NULL, ProjectID INT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL, SpineVersion INT NOT NULL, Path TEXT NOT NULL, Operation INT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}

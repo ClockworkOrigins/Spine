@@ -28,6 +28,7 @@
 #include "DatabaseMigrator.h"
 #include "DatabaseServer.h"
 #include "DownloadSizeChecker.h"
+#include "FileSynchronizer.h"
 #include "GMPServer.h"
 #include "LanguageConverter.h"
 #include "ManagementServer.h"
@@ -59,6 +60,8 @@ Server::Server() : _listenClient(new clockUtils::sockets::TcpSocket()), _listenM
 	SpineLevel::init();
 
 	Cleanup::init();
+
+	FileSynchronizer::init();
 }
 
 Server::~Server() {

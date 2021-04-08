@@ -20,6 +20,7 @@
 
 #include <fstream>
 
+#include "FileSynchronizer.h"
 #include "MariaDBWrapper.h"
 #include "SpineServerConfig.h"
 
@@ -115,6 +116,11 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 		delete sock;
 		error = true;
 	}
+	if (!spineDatabase.query("PREPARE selectVersionStmt FROM \"SELECT MajorVersion, MinorVersion, PatchVersion, SpineVersion FROM mods WHERE ModID = ? LIMIT 1\";")) {
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+		delete sock;
+		error = true;
+	}
 
 	std::string newBuffer;
 	std::string unreadBuffer;
@@ -126,6 +132,10 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 	int64_t currentSize = 0;
 	int currentIndex = 0;
 	int state = MetadataSize;
+	int versionMajor = 0;
+	int versionMinor = 0;
+	int versionPatch = 0;
+	int versionSpine = 0;
 	common::UploadModfilesMessage * umm = nullptr;
 	std::ofstream fs;
 	while (sock->read(newBuffer) == clockUtils::ClockError::SUCCESS && !error) {
@@ -151,6 +161,21 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 					error = true;
 					break;
 				}
+				if (!spineDatabase.query("EXECUTE selectVersionStmt USING @paramModID;")) {
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+					error = true;
+					break;
+				}
+				auto lastResults = spineDatabase.getResults<std::vector<std::string>>();
+				if (lastResults.empty()) {
+					error = true;
+					break;
+				}
+				versionMajor = std::stoi(lastResults[0][0]);
+				versionMinor = std::stoi(lastResults[0][1]);
+				versionPatch = std::stoi(lastResults[0][2]);
+				versionSpine = std::stoi(lastResults[0][3]);
+				
 				do {
 					if (currentIndex == static_cast<int>(umm->files.size())) {
 						break;
@@ -172,6 +197,17 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 							break;
 						}
 						currentIndex++;
+
+						FileSynchronizer::AddJob job;
+						job.operation = FileSynchronizer::Operation::Delete;
+						job.majorVersion = versionMajor;
+						job.minorVersion = versionMinor;
+						job.patchVersion = versionPatch;
+						job.spineVersion = versionSpine;
+						job.projectID = umm->modID;
+						job.path = mf.filename;
+
+						FileSynchronizer::addJob(job);
 					} else if (mf.changed && mf.size == 0) {
 						if (!spineDatabase.query("SET @paramLanguage='" + mf.language + "';")) {
 							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
@@ -190,6 +226,7 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 						std::cout << "Receiving File '" << mf.filename << "' with size " << mf.size << std::endl;
 						std::vector<std::string> path = split(mf.filename, "/");
 						std::string currentPath = PATH_PREFIX + std::to_string(umm->modID) + "/";
+
 						for (size_t i = 0; i < path.size() - 1; i++) {
 							currentPath += path[i] + "/";
 							if (!boost::filesystem::exists(currentPath) && !boost::filesystem::create_directories(currentPath)) {
@@ -245,12 +282,34 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 								error = true;
 								break;
 							}
+
+							FileSynchronizer::AddJob job;
+							job.operation = FileSynchronizer::Operation::Add;
+							job.majorVersion = versionMajor;
+							job.minorVersion = versionMinor;
+							job.patchVersion = versionPatch;
+							job.spineVersion = versionSpine;
+							job.projectID = umm->modID;
+							job.path = mf.filename;
+
+							FileSynchronizer::addJob(job);
 						} else {
 							if (!spineDatabase.query("EXECUTE updateFileStmt USING @paramHash, @paramLanguage, @paramModID, @paramPath;")) {
 								std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 								error = true;
 								break;
 							}
+
+							FileSynchronizer::AddJob job;
+							job.operation = FileSynchronizer::Operation::Update;
+							job.majorVersion = versionMajor;
+							job.minorVersion = versionMinor;
+							job.patchVersion = versionPatch;
+							job.spineVersion = versionSpine;
+							job.projectID = umm->modID;
+							job.path = mf.filename;
+
+							FileSynchronizer::addJob(job);
 						}
 					} else if (!mf.changed) {
 						if (!spineDatabase.query("EXECUTE insertFileStmt USING @paramModID, @paramPath, @paramLanguage, @paramHash;")) {
@@ -258,6 +317,17 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 							error = true;
 							break;
 						}
+
+						FileSynchronizer::AddJob job;
+						job.operation = FileSynchronizer::Operation::Add;
+						job.majorVersion = versionMajor;
+						job.minorVersion = versionMinor;
+						job.patchVersion = versionPatch;
+						job.spineVersion = versionSpine;
+						job.projectID = umm->modID;
+						job.path = mf.filename;
+
+						FileSynchronizer::addJob(job);
 					}
 
 					currentIndex++;

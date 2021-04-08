@@ -23,6 +23,9 @@ namespace spine {
 	class DatabaseCreator {
 	public:
 		static void createTables();
+
+	private:
+        static void createFileserverTables();
 	};
 
 } /* namespace spine */
