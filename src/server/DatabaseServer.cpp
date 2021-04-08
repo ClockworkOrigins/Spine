@@ -5140,6 +5140,9 @@ void DatabaseServer::projectVersionCheck(std::shared_ptr<HttpsServer::Response> 
 				for (const auto & vec : lastResults) {
 					possibilities.push_back(vec[0]);
 				}
+				if (possibilities.size() > 1) {
+					possibilities.erase(possibilities.begin());
+				}
 				updateNode.put("Fileserver", possibilities[std::rand() % possibilities.size()]);
 
 				if (!database.query("SET @paramType=" + std::to_string(static_cast<int>(common::NewsTickerType::Update)) + ";")) {
@@ -6499,6 +6502,9 @@ void DatabaseServer::requestPackageFiles(std::shared_ptr<HttpsServer::Response> 
 			std::vector<std::string> possibilities = { DEFAULTURL };
 			for (const auto & vec : lastResults) {
 				possibilities.push_back(vec[0]);
+			}
+			if (possibilities.size() > 1) {
+				possibilities.erase(possibilities.begin());
 			}
 			responseTree.put("Fileserver", possibilities[std::rand() % possibilities.size()]);
 		} while (false);
