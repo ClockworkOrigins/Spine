@@ -36,6 +36,7 @@
 #include "MatchmakingServer.h"
 #include "ServerCommon.h"
 #include "SpineLevel.h"
+#include "StatsCollector.h"
 #include "UploadServer.h"
 
 #include "common/MessageStructs.h"
@@ -62,6 +63,8 @@ Server::Server() : _listenClient(new clockUtils::sockets::TcpSocket()), _listenM
 	Cleanup::init();
 
 	FileSynchronizer::init();
+
+	StatsCollector::init();
 }
 
 Server::~Server() {
