@@ -19,6 +19,8 @@
 	
 	<file alias="donate.png">donate.png</file>
 	<file alias="donate_hover.png">donate_hover.png</file>
+	<file alias="Patreon.jpg">Patreon.jpg</file>
+	<file alias="Patreon_hover.jpg">Patreon_hover.jpg</file>
 	
 	<file alias="svg/add.svg">svg/add.svg</file>
 	<file alias="svg/check.svg">svg/check.svg</file>

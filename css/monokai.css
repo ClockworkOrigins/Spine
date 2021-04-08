@@ -193,6 +193,17 @@ QPushButton::hover[donateButton=true] {
 	background-color: #272822;
 }
 
+QPushButton[patreonButton=true] {
+	border: none;
+	image: url(":/Patreon.jpg");
+}
+
+QPushButton::hover[patreonButton=true] {
+	image: url(":/Patreon_hover.jpg");
+	background: #F0F0F0;
+	color: #FFFFFF;
+}
+
 QDoubleSpinBox,
 QSpinBox {
 	background-color: #272822;

@@ -148,6 +148,17 @@ QPushButton::hover[donateButton=true] {
 	color: #FFFFFF;
 }
 
+QPushButton[patreonButton=true] {
+	border: none;
+	image: url(":/Patreon.jpg");
+}
+
+QPushButton::hover[patreonButton=true] {
+	image: url(":/Patreon_hover.jpg");
+	background: #F0F0F0;
+	color: #FFFFFF;
+}
+
 QLabel[donateText=true] {
 	border: 1px solid #4f4f51;
 	border-radius: 10px;

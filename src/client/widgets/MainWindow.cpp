@@ -457,6 +457,12 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		donateButton->setFixedSize(pixmap.rect().size());
 		donateButton->setProperty("donateButton", true);
 
+		auto * patreonButton = new QPushButton(cw);
+		QPixmap patreonPixmap(":/Patreon.jpg");
+		patreonButton->setIconSize(patreonPixmap.rect().size());
+		patreonButton->setFixedSize(patreonPixmap.rect().size());
+		patreonButton->setProperty("patreonButton", true);
+
 		auto * donateLabel = new QLabel(QApplication::tr("SupportUsText"), cw);
 		UPDATELANGUAGESETTEXT(donateLabel, "SupportUsText");
 
@@ -466,11 +472,16 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		hl->addStretch(1);
 		hl->addWidget(donateLabel);
 		hl->addWidget(donateButton);
+		hl->addWidget(patreonButton);
 		
 		vl->addLayout(hl);
 
 		connect(donateButton, &QPushButton::released, []() {
 			QDesktopServices::openUrl(QUrl("https://paypal.me/ClockworkOrigins"));
+		});
+
+		connect(patreonButton, &QPushButton::released, []() {
+			QDesktopServices::openUrl(QUrl("https://www.patreon.com/spineforgothic"));
 		});
 	}	
 
@@ -554,9 +565,9 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 
 	_loginDialog = new LoginDialog(this);
 
-	QMenu * fileMenu = new QMenu(QApplication::tr("File"), this);
+	auto * fileMenu = new QMenu(QApplication::tr("File"), this);
 	UPDATELANGUAGESETTITLE(fileMenu, "File");
-	QMenu * toolsMenu = new QMenu(QApplication::tr("Tools"), this);
+	auto * toolsMenu = new QMenu(QApplication::tr("Tools"), this);
 	UPDATELANGUAGESETTITLE(toolsMenu, "Tools");
 
 	QMenu * developerMenu = nullptr;
@@ -606,7 +617,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		}
 	}
 	
-	QMenu * helpMenu = new QMenu(QApplication::tr("Help"), this);
+	auto * helpMenu = new QMenu(QApplication::tr("Help"), this);
 	UPDATELANGUAGESETTITLE(helpMenu, "Help");
 
 	QAction * exportAction = fileMenu->addAction(QApplication::tr("Export"));
@@ -695,6 +706,17 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	connect(publishingAction, &QAction::triggered, this, &MainWindow::openPublishingTutorial);
 
 	helpMenu->addSeparator();
+
+	QAction * paypalAction = helpMenu->addAction("PayPal");
+	connect(paypalAction, &QAction::triggered, this, []() {
+		QDesktopServices::openUrl(QUrl("https://paypal.me/ClockworkOrigins"));
+	});
+	QAction * patreonAction = helpMenu->addAction("Patreon");
+	connect(patreonAction, &QAction::triggered, this, []() {
+		QDesktopServices::openUrl(QUrl("https://www.patreon.com/spineforgothic"));
+	});
+		
+	helpMenu->addSeparator();
 	
 	QAction * discordAction = helpMenu->addAction(QApplication::tr("Discord"));
 	UPDATELANGUAGESETTEXT(discordAction, "Discord");
@@ -706,7 +728,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	QAction * aboutAction = helpMenu->addAction(QApplication::tr("About"));
 	UPDATELANGUAGESETTEXT(aboutAction, "About");
 
-	AboutDialog * aboutDialog = new AboutDialog(this);
+	auto * aboutDialog = new AboutDialog(this);
 
 	_changelogDialog = new ChangelogDialog(this);
 
@@ -737,7 +759,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 	menuBar()->addMenu(helpMenu);
 
 	if (Config::OnlineMode) {
-		QMenu * loginMenu = new QMenu(QApplication::tr("Login"), this);
+		auto * loginMenu = new QMenu(QApplication::tr("Login"), this);
 		UPDATELANGUAGESETTITLE(loginMenu, "Login");
 		menuBar()->addMenu(loginMenu);
 		connect(loginMenu, &QMenu::aboutToShow, _loginDialog, &LoginDialog::execute);
@@ -1055,7 +1077,7 @@ void MainWindow::openIniConfigurator() {
 }
 
 void MainWindow::setDevPath() {
-	QAction * action = qobject_cast<QAction *>(sender());
+	auto * action = qobject_cast<QAction *>(sender());
 	const int id = action->property("id").toInt();
 
 	if (!_settingsDialog->getDeveloperSettingsWidget()) return;
@@ -1249,11 +1271,11 @@ void MainWindow::openPublishingTutorial() {
 void MainWindow::findGothic() {
 	QDialog dlg;
 	dlg.setWindowFlags(dlg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-	QVBoxLayout * l = new QVBoxLayout();
-	QLabel * descriptionLabel = new QLabel(QApplication::tr("SetGothicPathText"), &dlg);
+	auto * l = new QVBoxLayout();
+	auto * descriptionLabel = new QLabel(QApplication::tr("SetGothicPathText"), &dlg);
 	descriptionLabel->setWordWrap(true);
-	LocationSettingsWidget * lsw = new LocationSettingsWidget(true, &dlg);
-	QDialogButtonBox * db = new QDialogButtonBox(QDialogButtonBox::StandardButton::Ok, &dlg);
+	auto * lsw = new LocationSettingsWidget(true, &dlg);
+	auto * db = new QDialogButtonBox(QDialogButtonBox::StandardButton::Ok, &dlg);
 	QPushButton * pb = db->button(QDialogButtonBox::StandardButton::Ok);
 	connect(pb, &QPushButton::released, &dlg, &QDialog::accept);
 	connect(pb, &QPushButton::released, &dlg, &QDialog::hide);
