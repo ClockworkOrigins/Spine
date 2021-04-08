@@ -1206,7 +1206,7 @@ void DatabaseServer::requestCompatibilityList(std::shared_ptr<HttpsServer::Respo
 					auto results = database.getResults<std::vector<std::string>>();
 					const int upVotes = std::stoi(results[0][0]);
 					const int amount = std::stoi(results[0][1]);
-					if (upVotes < amount / 2) { // if less then 50% of all users rated combination as compatible it is assumed to be incompatible
+					if (amount >= 10 && upVotes < amount / 2) { // if less then 50% of all users rated combination as compatible it is assumed to be incompatible
 						ptree impossiblePatchNode;
 						impossiblePatchNode.put("", vec[0]);
 						impossiblePatchNodes.push_back(std::make_pair("", impossiblePatchNode));
