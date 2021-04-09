@@ -28,9 +28,9 @@
 
 namespace {
 #ifdef TEST_CONFIG
-	const std::string PATH_PREFIX = "./downloads/mods/";
+	const std::string PATH_PREFIX = "./downloads/mods";
 #else
-	const std::string PATH_PREFIX = "/var/www/vhosts/clockwork-origins.de/httpdocs/Gothic/downloads/mods/";
+	const std::string PATH_PREFIX = "/var/www/vhosts/clockwork-origins.de/httpdocs/Gothic/downloads/mods";
 #endif
 }
 
@@ -283,7 +283,7 @@ void FileSynchronizer::executeJob(const ExecuteJob & job) {
 	switch (job.operation) {
 	case Operation::Add:
 	case Operation::Update: {
-		const auto cmd = "curl --ftp-create-dirs -T " + PATH_PREFIX + "/" + std::to_string(job.projectID) + "/" + job.path + " ftp://" + job.username + ":" + job.password + "@" + job.ftpHost + "/" + job.rootFolder + "/" + std::to_string(job.projectID) + "/" + job.path + "";
+		const auto cmd = "curl --ftp-create-dirs -T " + PATH_PREFIX + "/" + std::to_string(job.projectID) + "/" + job.path + " ftp://" + job.username + ":" + job.password + "@" + job.ftpHost + "/" + job.rootFolder + std::to_string(job.projectID) + "/" + job.path + "";
 
 		std::cout << "Update command: " << cmd << std::endl;
 			
