@@ -484,7 +484,20 @@ void FileSynchronizer::addJob(const AddForServerJob & job) {
 			break;
 		}
 
-		if (!database.query("EXECUTE selectStmt;")) {
+		if (!database.query("SET @paramServerID=" + std::to_string(job.serverID) + ";")) {
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("SET @paramProjectID=" + std::to_string(job.projectID) + ";")) {
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("SET @paramPath='" + job.path + "';")) {
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			break;
+		}
+
+		if (!database.query("EXECUTE selectStmt USING @paramServerID, @paramProjectID, @paramPath;")) {
 			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			break;
 		}
@@ -506,15 +519,6 @@ void FileSynchronizer::addJob(const AddForServerJob & job) {
 			updateJob(job, std::stoi(results[0][0]));
 			break;
 		}
-
-		if (!database.query("SET @paramServerID=" + std::to_string(job.serverID) + ";")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
-			break;
-		}
-		if (!database.query("SET @paramProjectID=" + std::to_string(job.projectID) + ";")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
-			break;
-		}
 		if (!database.query("SET @paramMajorVersion=" + std::to_string(job.majorVersion) + ";")) {
 			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			break;
@@ -528,10 +532,6 @@ void FileSynchronizer::addJob(const AddForServerJob & job) {
 			break;
 		}
 		if (!database.query("SET @paramSpineVersion=" + std::to_string(job.spineVersion) + ";")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
-			break;
-		}
-		if (!database.query("SET @paramPath='" + job.path + "';")) {
 			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			break;
 		}
