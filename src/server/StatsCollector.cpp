@@ -68,7 +68,7 @@ void StatsCollector::exec() {
 				auto results = database.getResults<std::vector<std::string>>();
 
 				if (results.empty() || std::stoi(results[0][0]) < days) {
-					if (!database.query("SET @paramTimestamp=" + std::to_string(timestamp) + ";")) {
+					if (!database.query("SET @paramTimestamp=" + std::to_string(timestamp / 60 / 60) + ";")) {
 						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 						break;
 					}
