@@ -6150,7 +6150,7 @@ void DatabaseServer::requestAllNews(std::shared_ptr<HttpsServer::Response> respo
 				
 				if (name.empty()) continue;
 
-				newsTickerNode.put("Name", timestamp);
+				newsTickerNode.put("Name", name);
 
 				if (type == common::NewsTickerType::Update) {
 					if (!database.query("SET @paramNewsID=" + vec[0] + ";")) {
