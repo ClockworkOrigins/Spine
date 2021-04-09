@@ -4329,6 +4329,10 @@ void DatabaseServer::requestAllProjectStats(std::shared_ptr<HttpsServer::Respons
 				if (projectID == 339) {
 					common::ProjectStats ps;
 					Server::getBestTri6Score(userID, ps);
+					
+					projectNode.put("BestScore", ps.bestScore);
+					projectNode.put("BestScoreName", ps.bestScoreName);
+					projectNode.put("BestScoreRank", ps.bestScoreRank);
 				} else {
 					if (!database.query("EXECUTE selectScoreOrderStmt USING @paramModID;")) {
 						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
