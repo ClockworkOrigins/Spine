@@ -412,7 +412,7 @@ FileSynchronizer::ExecuteJob FileSynchronizer::getFirstJobInQueue() {
 			break;
 		}
 
-		if (!database.query("PREPARE selectServerDetailsStmt FROM \"SELECT Username, Password, FtpHost, RootFolder FROM fileserverList LIMIT 1\";")) {
+		if (!database.query("PREPARE selectServerDetailsStmt FROM \"SELECT Username, Password, FtpHost, RootFolder FROM fileserverList WHERE ServerID = ? LIMIT 1\";")) {
 			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			break;
 		}
