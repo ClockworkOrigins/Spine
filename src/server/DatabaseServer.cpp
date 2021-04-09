@@ -4745,7 +4745,7 @@ void DatabaseServer::requestAllScoreStats(std::shared_ptr<HttpsServer::Response>
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				return;
 			}
-			if (!database.query("EXECUTE selectScoreNameStmt USING @paramModID, @paramLanguage;")) {
+			if (!database.query("EXECUTE selectScoreNameStmt USING @paramModID;")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				return;
@@ -4760,7 +4760,7 @@ void DatabaseServer::requestAllScoreStats(std::shared_ptr<HttpsServer::Response>
 			auto f = [language, &lastId, &names, &database, &code, &scoreNodes]() {
 				ptree scoreNode;
 
-				auto name = names.find(language) != names.end() ? names[language] : names.find("English") != names.end() ? names["English"] : names.begin()->second;
+				const auto name = names.find(language) != names.end() ? names[language] : names.find("English") != names.end() ? names["English"] : names.begin()->second;
 
 				scoreNode.put("Name", name);
 
