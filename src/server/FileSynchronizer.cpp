@@ -275,7 +275,9 @@ void FileSynchronizer::addMissing() {
 			}
 		}
 
-		std::cout << "Added " << counter << " synchronization jobs" << std::endl;
+		if (counter > 0) {
+			std::cout << "Added " << counter << " synchronization jobs" << std::endl;
+		}
 	} while (false);
 }
 
@@ -285,11 +287,12 @@ void FileSynchronizer::executeJob(const ExecuteJob & job) {
 	case Operation::Update: {
 		const auto cmd = "curl --ftp-create-dirs -T " + PATH_PREFIX + "/" + std::to_string(job.projectID) + "/" + job.path + " ftp://" + job.username + ":" + job.password + "@" + job.ftpHost + "/" + job.rootFolder + std::to_string(job.projectID) + "/" + job.path + "";
 
-		std::cout << "Update command: " << cmd << std::endl;
-			
-		const auto result = 0; // TODO: reenable system(cmd.c_str());
+		const auto result = system(cmd.c_str());
 
-		std::cout << "Update result: " << result << std::endl;
+		if (result) {
+			std::cout << "Update command: " << cmd << std::endl;
+			std::cout << "Update result: " << result << std::endl;
+		}
 
 		if (result) return;
 			
@@ -298,11 +301,13 @@ void FileSynchronizer::executeJob(const ExecuteJob & job) {
 	case Operation::Delete: {
 		const auto cmd = "curl -v -u " + job.username + ":" + job.password + " ftp://" + job.ftpHost + " -Q \'DELE " + job.rootFolder + std::to_string(job.projectID) + "/" + job.path + "\'";
 
-		std::cout << "Delete command: " << cmd << std::endl;
 			
-		const auto result = 0; // TODO: reenable system(cmd.c_str());
+		const auto result = system(cmd.c_str());
 
-		std::cout << "Delete result: " << result << std::endl;
+		if (result) {
+			std::cout << "Delete command: " << cmd << std::endl;
+			std::cout << "Delete result: " << result << std::endl;
+		}
 
 		if (result) return;
 			
@@ -468,7 +473,7 @@ FileSynchronizer::ExecuteJob FileSynchronizer::getFirstJobInQueue() {
 void FileSynchronizer::addJob(const AddForServerJob & job) {
 	const auto firstJob = getFirstJobInQueue(); // might be processed right now
 
-	bool add = !firstJob.valid; // in this case there is nothing to update anyway, so always add
+	const bool add = !firstJob.valid; // in this case there is nothing to update anyway, so always add
 	bool update = firstJob.valid && (firstJob.serverID != job.serverID || firstJob.projectID != job.projectID || firstJob.path != job.path); // in this case we can update the file in theory, but we need to check whether a job for it is queued at all
 	
 	do {
@@ -504,14 +509,9 @@ void FileSynchronizer::addJob(const AddForServerJob & job) {
 
 		const auto results = database.getResults<std::vector<std::string>>();
 
-		if (results.empty() || add) {
-			add = true;
-			update = false;
-		} else if (!update && results.size() == 1) {
-			add = true;
+		if (results.empty() || add || (!update && results.size() == 1)) {
 			update = false;
 		} else {
-			add = false;
 			update = true;
 		}
 
