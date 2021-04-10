@@ -139,7 +139,7 @@ include_directories(SYSTEM ${OPENSSL_INCLUDE_DIR})
 # Qt
 #----------------------------------------------------
 
-IF(WITH_CLIENT)
+IF(WITH_CLIENT OR WITH_G2OCHECKER)
 	IF(UNIX AND NOT ANDROID)
 		SET(ENV{Qt5_DIR} "")
 	ENDIF()
@@ -182,7 +182,7 @@ IF(WITH_CLIENT)
 		INCLUDE_DIRECTORIES(${Qt5WinExtras_INCLUDE_DIRS})
 		SET(QT_LIBRARIES ${QT_LIBRARIES} ${Qt5WinExtras_LIBRARIES})
 	ENDIF(WIN32)
-ENDIF(WITH_CLIENT)
+ENDIF(WITH_CLIENT OR WITH_G2OCHECKER)
 
 
 #----------------------------------------------------
@@ -245,7 +245,7 @@ ENDIF(WITH_SERVER)
 # zlib
 #----------------------------------------------------
 
-IF(WITH_CLIENT)
+IF(WITH_CLIENT OR WITH_G2OCHECKER)
 	IF(WIN32 AND NOT ANDROID AND NOT EXISTS "${SPINE_DEP_DIR}/zlib/")
 		execute_process(COMMAND ${CMAKE_SOURCE_DIR}/dependencies/build-zlib.bat ${VS_TOOLCHAIN} ${VS_ARCH} WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/dependencies)
 	ENDIF(WIN32 AND NOT ANDROID AND NOT EXISTS "${SPINE_DEP_DIR}/zlib/")
@@ -277,13 +277,13 @@ IF(WITH_CLIENT)
 
 		find_package(EasyFind REQUIRED COMPONENTS ${ZLIB_RELEASE_COMPONENT})
 	ENDIF(UNIX)
-ENDIF(WITH_CLIENT)
+ENDIF(WITH_CLIENT OR WITH_G2OCHECKER)
 
 #----------------------------------------------------
 # Zipper
 #----------------------------------------------------
 
-IF(WITH_CLIENT)
+IF(WITH_CLIENT OR WITH_G2OCHECKER)
 	IF(WIN32 AND NOT ANDROID AND NOT EXISTS "${SPINE_DEP_DIR}/zipper/")
 		execute_process(COMMAND ${CMAKE_SOURCE_DIR}/dependencies/build-zipper.bat ${VS_TOOLCHAIN} ${VS_ARCH} WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/dependencies)
 	ENDIF(WIN32 AND NOT ANDROID AND NOT EXISTS "${SPINE_DEP_DIR}/zipper/")
@@ -315,7 +315,7 @@ IF(WITH_CLIENT)
 
 		find_package(EasyFind REQUIRED COMPONENTS ${ZIPPER_RELEASE_COMPONENT})
 	ENDIF(UNIX)
-ENDIF(WITH_CLIENT)
+ENDIF(WITH_CLIENT OR WITH_G2OCHECKER)
 
 #----------------------------------------------------
 # Boost

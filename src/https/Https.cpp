@@ -26,6 +26,7 @@
 #include <QJsonObject>
 #include <QtConcurrentRun>
 
+using HttpClient = SimpleWeb::Client<SimpleWeb::HTTP>;
 using HttpsClient = SimpleWeb::Client<SimpleWeb::HTTPS>;
 
 using namespace spine::https;
@@ -52,6 +53,26 @@ namespace {
 			std::this_thread::sleep_for(std::chrono::seconds(5));
 		}
 	}
+}
+
+void Http::post(const QString & host, uint16_t port, const QString & f, const QString & data, const std::function<void(const QJsonObject &, int statusCode)> & callback) {
+	auto * client = new HttpClient(q2s(host) + ":" + std::to_string(port));
+
+	// Synchronous request... maybe make it asynchronous?
+	client->request("POST", "/" + q2s(f), data.toStdString(), [callback](std::shared_ptr<HttpClient::Response> response, const SimpleWeb::error_code &) {
+		const QString code = s2q(response->status_code).split(" ")[0];
+
+		const int statusCode = code.toInt();
+
+		if (statusCode == 200) {
+			const std::string content = response->content.string();
+			const QJsonDocument doc(QJsonDocument::fromJson(s2q(content).toUtf8()));
+			callback(doc.object(), code.toInt());
+		} else {
+			callback(QJsonObject(), statusCode);
+		}
+	});
+	client->io_service->run();
 }
 
 void Https::post(uint16_t port, const QString & f, const QString & data, const std::function<void(const QJsonObject &, int statusCode)> & callback) {

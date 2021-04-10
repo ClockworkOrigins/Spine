@@ -29,6 +29,11 @@ class QString;
 namespace spine {
 namespace https {
 
+	class Http {
+	public:
+		static void post(const QString & host, uint16_t port, const QString & f, const QString & data, const std::function<void(const QJsonObject &, int statusCode)> & callback);
+	};
+
 	class Https {
 	public:
 		static void post(uint16_t port, const QString & f, const QString & data, const std::function<void(const QJsonObject &, int statusCode)> & callback);
