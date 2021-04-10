@@ -1884,7 +1884,7 @@ void DatabaseServer::unlockAchievement(std::shared_ptr<HttpsServer::Response> re
 		do {
 			CONNECTTODATABASE(__LINE__)
 
-			if (!database.query("PREPARE updateStmt FROM \"INSERT INTO modAchievements (ModID, UserID, Identifier) VALUES (?, ?, ?)\";")) {
+			if (!database.query("PREPARE updateStmt FROM \"INSERT IGNORE INTO modAchievements (ModID, UserID, Identifier) VALUES (?, ?, ?)\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_bad_request;
 				break;
@@ -4762,6 +4762,8 @@ void DatabaseServer::requestAllScoreStats(std::shared_ptr<HttpsServer::Response>
 			std::map<std::string, std::string> names;
 
 			auto f = [language, &lastId, &names, &database, &code, &scoreNodes]() {
+				if (names.empty()) return;
+
 				ptree scoreNode;
 
 				const auto name = names.find(language) != names.end() ? names[language] : names.find("English") != names.end() ? names["English"] : names.begin()->second;
@@ -4810,10 +4812,10 @@ void DatabaseServer::requestAllScoreStats(std::shared_ptr<HttpsServer::Response>
 			
 			for (const auto & vec : lastResults) {
 				if (lastId != vec[2]) {
+					f();
+
 					names.clear();
 					lastId = vec[2];
-
-					f();
 				}
 
 				names.insert(std::make_pair(vec[1], vec[0]));
