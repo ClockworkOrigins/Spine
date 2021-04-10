@@ -6139,6 +6139,8 @@ void DatabaseServer::requestAllNews(std::shared_ptr<HttpsServer::Response> respo
 			}
 			lastResults = database.getResults<std::vector<std::string>>();
 
+			std::set<int> handledProjects;
+
 			ptree newsTickerNodes;
 			
 			for (const auto & vec : lastResults) {
@@ -6159,6 +6161,8 @@ void DatabaseServer::requestAllNews(std::shared_ptr<HttpsServer::Response> respo
 				newsTickerNode.put("Name", name);
 
 				if (type == common::NewsTickerType::Update) {
+					if (handledProjects.find(projectID) != handledProjects.end()) continue;
+
 					if (!database.query("SET @paramNewsID=" + vec[0] + ";")) {
 						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 						code = SimpleWeb::StatusCode::client_error_failed_dependency;
@@ -6176,6 +6180,8 @@ void DatabaseServer::requestAllNews(std::shared_ptr<HttpsServer::Response> respo
 					newsTickerNode.put("MajorVersion", std::stoi(r[0][0]));
 					newsTickerNode.put("MinorVersion", std::stoi(r[0][1]));
 					newsTickerNode.put("PatchVersion", std::stoi(r[0][2]));
+
+					handledProjects.insert(projectID);
 				} else if (type == common::NewsTickerType::Release) {
 					// nothing special here
 				} else {
