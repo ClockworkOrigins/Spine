@@ -153,7 +153,7 @@ int main(int argc, char ** argv) {
                 const auto resultFile = QStringLiteral(G2OFOLDER) + "/" + fn;
 
     			if (QFileInfo::exists(resultFile)) {
-                    QFile::remove(resultFile);
+					QFile::remove(resultFile);
     			}
     			
                 QFile::copy(file, resultFile);
@@ -162,7 +162,7 @@ int main(int argc, char ** argv) {
             QFile::remove(path);
             QDir(outfolder).removeRecursively();
     	}
-    } while (code == G2O_OUTDATED);
+	} while (code == G2O_OUTDATED);
 	
 	return 0;
 }
