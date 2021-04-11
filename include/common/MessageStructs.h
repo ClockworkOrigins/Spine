@@ -323,36 +323,6 @@ namespace common {
 		}
 	};
 
-	struct [[deprecated("Remove in Spine 1.31.0")]] ModVersionCheckMessage : public Message {
-		std::string language;
-		std::vector<ModVersion> modVersions;
-		std::string username;
-		std::string password;
-		ModVersionCheckMessage() : Message() {
-			type = MessageType::MODVERSIONCHECK;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & language;
-			ar & modVersions;
-			ar & username;
-			ar & password;
-		}
-	};
-
-	struct [[deprecated("Remove in Spine 1.31.0")]] SendModsToUpdateMessage : public Message {
-		std::vector<ModUpdate> updates;
-		SendModsToUpdateMessage() : Message() {
-			type = MessageType::SENDMODSTOUPDATE;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & updates;
-		}
-	};
-
 	struct SearchMatchMessage : public Message {
 		int32_t numPlayers;
 		int32_t identifier;
@@ -576,78 +546,6 @@ namespace common {
 		}
 	};
 
-	struct [[deprecated("Remove in Spine 1.31.0")]] SubmitNewsMessage : public Message {
-		std::string username;
-		std::string password;
-		News news;
-		std::vector<int32_t> mods;
-		std::vector<std::vector<uint8_t>> images;
-		std::string language;
-		SubmitNewsMessage() : Message() {
-			type = MessageType::SUBMITNEWS;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & username;
-			ar & password;
-			ar & news;
-			ar & mods;
-			ar & images;
-			ar & language;
-		}
-	};
-
-	struct [[deprecated("Remove in Spine 1.31.0")]] SubmitScriptFeaturesMessage : public Message {
-		struct Achievement {
-			std::string name;
-			std::string description;
-			bool hidden;
-			std::string lockedImageName;
-			std::string unlockedImageName;
-			int maxProgress;
-
-			template<class Archive>
-			void serialize(Archive & ar, const unsigned int /* file_version */) {
-				ar & name;
-				ar & description;
-				ar & hidden;
-				ar & lockedImageName;
-				ar & unlockedImageName;
-				ar & maxProgress;
-			}
-		};
-		struct Score {
-			std::string name;
-
-			template<class Archive>
-			void serialize(Archive & ar, const unsigned int /* file_version */) {
-				ar & name;
-			}
-		};
-		int32_t modID;
-		std::string language;
-		std::string username;
-		std::string password;
-		std::vector<Achievement> achievements;
-		std::vector<Score> scores;
-		std::vector<std::pair<std::pair<std::string, std::string>, std::vector<uint8_t>>> achievementImages;
-		SubmitScriptFeaturesMessage() : Message(), modID() {
-			type = MessageType::SUBMITSCRIPTFEATURES;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & modID;
-			ar & language;
-			ar & username;
-			ar & password;
-			ar & achievements;
-			ar & scores;
-			ar & achievementImages;
-		}
-	};
-
 	struct AckMessage : public Message {
 		bool success;
 		AckMessage() : Message(), success() {
@@ -671,64 +569,6 @@ namespace common {
 			ar & boost::serialization::base_object<Message>(*this);
 			ar & identifier;
 			ar & progress;
-		}
-	};
-
-	struct [[deprecated("Remove in Spine 1.31.0")]] SubmitCompatibilityMessage : public Message {
-		int32_t modID;
-		int32_t patchID;
-		std::string username;
-		std::string password;
-		bool compatible;
-		SubmitCompatibilityMessage() : Message(), modID(), patchID(), compatible() {
-			type = MessageType::SUBMITCOMPATIBILITY;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & modID;
-			ar & patchID;
-			ar & username;
-			ar & password;
-			ar & compatible;
-		}
-	};
-
-	struct [[deprecated("Remove in Spine 1.31.0")]] RequestOwnCompatibilitiesMessage : public Message {
-		std::string username;
-		std::string password;
-		RequestOwnCompatibilitiesMessage() : Message() {
-			type = MessageType::REQUESTOWNCOMPATIBILITIES;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & username;
-			ar & password;
-		}
-	};
-
-	struct [[deprecated("Remove in Spine 1.31.0")]] SendOwnCompatibilitiesMessage : public Message {
-		struct Compatibility {
-			int32_t modID;
-			int32_t patchID;
-			bool compatible;
-
-			template<class Archive>
-			void serialize(Archive & ar, const unsigned int /* file_version */) {
-				ar & modID;
-				ar & patchID;
-				ar & compatible;
-			}
-		};
-		std::vector<Compatibility> compatibilities;
-		SendOwnCompatibilitiesMessage() : Message() {
-			type = MessageType::SENDOWNCOMPATIBILITIES;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & compatibilities;
 		}
 	};
 
@@ -976,19 +816,6 @@ namespace common {
 			ar & boost::serialization::base_object<Message>(*this);
 			ar & modID;
 			ar & icons;
-		}
-	};
-
-	struct [[deprecated("Remove in Spine 1.31.0")]] UpdateSucceededMessage : public Message {
-		int32_t modID;
-
-		UpdateSucceededMessage() : Message(), modID() {
-			type = MessageType::UPDATESUCCEEDED;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & modID;
 		}
 	};
 
