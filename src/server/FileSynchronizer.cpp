@@ -285,7 +285,7 @@ void FileSynchronizer::executeJob(const ExecuteJob & job) {
 	switch (job.operation) {
 	case Operation::Add:
 	case Operation::Update: {
-		const auto cmd = "curl --ftp-create-dirs -Q \'SITE UMASK 022\' -T " + PATH_PREFIX + "/" + std::to_string(job.projectID) + "/" + job.path + " ftp://" + job.username + ":" + job.password + "@" + job.ftpHost + "/" + job.rootFolder + std::to_string(job.projectID) + "/" + job.path;
+		const auto cmd = "curl --ftp-create-dirs -Q \'SITE UMASK 022\' -T \"" + PATH_PREFIX + "/" + std::to_string(job.projectID) + "/" + job.path + "\" \"ftp://" + job.username + ":" + job.password + "@" + job.ftpHost + "/" + job.rootFolder + std::to_string(job.projectID) + "/" + job.path + "\"";
 
 		const auto result = system(cmd.c_str());
 
