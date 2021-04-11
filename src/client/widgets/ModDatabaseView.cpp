@@ -178,7 +178,7 @@ namespace {
 } /* namespace widgets */
 } /* namespace spine */
 
-ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _mainWindow(mainWindow), _treeView(nullptr), _sourceModel(nullptr), _sortModel(nullptr), _gothicValid(false), _gothic2Valid(false), _waitSpinner(nullptr), _allowRenderer(false), _cached(false) {
+ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _mainWindow(mainWindow), _treeView(nullptr), _sourceModel(nullptr), _sortModel(nullptr), _gothicValid(false), _gothic2Valid(false), _gothic3Valid(false), _waitSpinner(nullptr), _allowRenderer(false), _cached(false) {
 	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 	
@@ -572,7 +572,6 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 
 	if (err.error) {
 		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "ALTER TABLE mods ADD SpineVersion INT NOT NULL DEFAULT 0;", err);
-		//Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE mods SET SpineVersion = 0;", err);
 	}
 
 	_sortModel->setRendererAllowed(true);
@@ -605,71 +604,81 @@ void ModDatabaseView::updateModList(int modID, int packageID, InstallMode mode) 
 	json["Password"] = Config::Password;
 	json["Language"] = Config::Language;
 
-	Https::postAsync(DATABASESERVER_PORT, "requestAllProjects", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, modID, packageID](const QJsonObject & data, int statusCode) {
-		if (statusCode != 200) return;
+	if (!_cached) {
+		Https::postAsync(DATABASESERVER_PORT, "requestAllProjects", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, modID, packageID](const QJsonObject & data, int statusCode) {
+			if (statusCode != 200) return;
 
-		if (!data.contains("Projects")) return;
+			if (!data.contains("Projects")) return;
 
-		std::vector<Mod> projects;
+			std::vector<Mod> projects;
 
-		for (const auto jsonRef : data["Projects"].toArray()) {
-			const auto jsonProj = jsonRef.toObject();
+			for (const auto jsonRef : data["Projects"].toArray()) {
+				const auto jsonProj = jsonRef.toObject();
 
-			Mod project;
-			project.id = jsonProj["ProjectID"].toString().toInt();
-			project.name = q2s(jsonProj["Name"].toString());
-			project.gothic = static_cast<GameType>(jsonProj["GameType"].toString().toInt());
-			project.type = static_cast<ModType>(jsonProj["ModType"].toString().toInt());
-			project.supportedLanguages = jsonProj["SupportedLanguages"].toString().toInt();
-			project.teamID = jsonProj["TeamID"].toString().toInt();
-			project.teamName = q2s(jsonProj["TeamName"].toString());
-			project.releaseDate = jsonProj["ReleaseDate"].toString().toInt();
-			project.majorVersion = static_cast<int8_t>(jsonProj["MajorVersion"].toString().toInt());
-			project.minorVersion = static_cast<int8_t>(jsonProj["MinorVersion"].toString().toInt());
-			project.patchVersion = static_cast<int8_t>(jsonProj["PatchVersion"].toString().toInt());
-			project.spineVersion = static_cast<int8_t>(jsonProj["SpineVersion"].toString().toInt());
-			project.devDuration = jsonProj["DevDuration"].toString().toInt();
-			project.avgDuration = jsonProj["AvgDuration"].toString().toInt();
-			project.downloadSize = jsonProj["DownloadSize"].toString().toInt();
-			project.updateDate = jsonProj["UpdateDate"].toString().toInt();
-			project.language = static_cast<Language>(jsonProj["Language"].toString().toInt());
+				Mod project;
+				project.id = jsonProj["ProjectID"].toString().toInt();
+				project.name = q2s(jsonProj["Name"].toString());
+				project.gothic = static_cast<GameType>(jsonProj["GameType"].toString().toInt());
+				project.type = static_cast<ModType>(jsonProj["ModType"].toString().toInt());
+				project.supportedLanguages = jsonProj["SupportedLanguages"].toString().toInt();
+				project.teamID = jsonProj["TeamID"].toString().toInt();
+				project.teamName = q2s(jsonProj["TeamName"].toString());
+				project.releaseDate = jsonProj["ReleaseDate"].toString().toInt();
+				project.majorVersion = static_cast<int8_t>(jsonProj["MajorVersion"].toString().toInt());
+				project.minorVersion = static_cast<int8_t>(jsonProj["MinorVersion"].toString().toInt());
+				project.patchVersion = static_cast<int8_t>(jsonProj["PatchVersion"].toString().toInt());
+				project.spineVersion = static_cast<int8_t>(jsonProj["SpineVersion"].toString().toInt());
+				project.devDuration = jsonProj["DevDuration"].toString().toInt();
+				project.avgDuration = jsonProj["AvgDuration"].toString().toInt();
+				project.downloadSize = jsonProj["DownloadSize"].toString().toInt();
+				project.updateDate = jsonProj["UpdateDate"].toString().toInt();
+				project.language = static_cast<Language>(jsonProj["Language"].toString().toInt());
 
-			projects.push_back(project);
-		}
+				projects.push_back(project);
+			}
 
-		emit receivedModList(projects);
-		
-		QSet<int32_t> playedProjects;
-		for (const auto jsonRef : data["PlayedProjects"].toArray()) {
-			const auto jsonProj = jsonRef.toObject();
+			emit receivedModList(projects);
 
-			playedProjects << jsonProj["ID"].toString().toInt();
-		}
+			QSet<int32_t> playedProjects;
+			for (const auto jsonRef : data["PlayedProjects"].toArray()) {
+				const auto jsonProj = jsonRef.toObject();
 
-		emit receivedPlayedProjects(playedProjects);
+				playedProjects << jsonProj["ID"].toString().toInt();
+			}
 
-		std::vector<UpdatePackageListMessage::Package> packages;
+			emit receivedPlayedProjects(playedProjects);
 
-		for (const auto jsonRef : data["Packages"].toArray()) {
-			const auto jsonProj = jsonRef.toObject();
+			std::vector<UpdatePackageListMessage::Package> packages;
 
-			UpdatePackageListMessage::Package package;
-			package.packageID = jsonProj["PackageID"].toString().toInt();
-			package.modID = jsonProj["ProjectID"].toString().toInt();
-			package.name = q2s(jsonProj["Name"].toString());
-			package.downloadSize = jsonProj["DownloadSize"].toString().toInt();
+			for (const auto jsonRef : data["Packages"].toArray()) {
+				const auto jsonProj = jsonRef.toObject();
 
-			packages.push_back(package);
-		}
+				UpdatePackageListMessage::Package package;
+				package.packageID = jsonProj["PackageID"].toString().toInt();
+				package.modID = jsonProj["ProjectID"].toString().toInt();
+				package.name = q2s(jsonProj["Name"].toString());
+				package.downloadSize = jsonProj["DownloadSize"].toString().toInt();
 
-		emit receivedPackageList(packages);
-		
+				packages.push_back(package);
+			}
+
+			emit receivedPackageList(packages);
+
+			_cached = true;
+
+			if (modID > 0 && packageID > 0) {
+				emit triggerInstallPackage(modID, packageID);
+			} else if (modID > 0) {
+				emit triggerInstallMod(modID);
+			}
+		});
+	} else {
 		if (modID > 0 && packageID > 0) {
 			emit triggerInstallPackage(modID, packageID);
 		} else if (modID > 0) {
 			emit triggerInstallMod(modID);
 		}
-	});
+	}
 }
 
 void ModDatabaseView::gothicValidationChanged(bool valid) {

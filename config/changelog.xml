@@ -2147,4 +2147,9 @@
 		<Bug language="English">Fixed bug that caused Spine to not shut down properly sometimes</Bug>
 		<Bug language="English">Increased limit for community based patch filter</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="31" patchVersion="0">
+		<Bug language="Deutsch">Caching der Datenbank korrigiert</Bug>
+		
+		<Bug language="English">Fixed caching of database</Bug>
+	</Version>
 </Versions>
