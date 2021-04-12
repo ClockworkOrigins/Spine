@@ -353,7 +353,7 @@ void DatabaseCreator::createFileserverTables() {
 		return;
 	}
 
-	if (!database.query("CREATE TABLE IF NOT EXISTS fileserverList (ServerID INT AUTO_INCREMENT PRIMARY KEY, Enabled INT NOT NULL, PatronOnly INT NOT NULL, Username TEXT NOT NULL, Password TEXT NOT NULL, FtpHost TEXT NOT NULL, RootFolder TEXT NOT NULL, Url TEXT NOT NULL);")) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS fileserverList (ServerID INT AUTO_INCREMENT PRIMARY KEY, Enabled INT NOT NULL, ActiveDays INT NOT NULL, PatronOnly INT NOT NULL, Username TEXT NOT NULL, Password TEXT NOT NULL, FtpHost TEXT NOT NULL, RootFolder TEXT NOT NULL, Url TEXT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}

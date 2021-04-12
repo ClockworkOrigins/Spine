@@ -4916,11 +4916,6 @@ void DatabaseServer::projectVersionCheck(std::shared_ptr<HttpsServer::Response> 
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			if (!database.query("PREPARE selectFileserverStmt FROM \"SELECT Url FROM fileserver WHERE ModID = ? AND MajorVersion = ? AND MinorVersion = ? AND PatchVersion = ?\";")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
-				code = SimpleWeb::StatusCode::client_error_failed_dependency;
-				break;
-			}
 			if (!database.query("PREPARE selectEarlyStmt FROM \"SELECT * FROM earlyUnlocks WHERE ModID = ? AND UserID = ? LIMIT 1\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
@@ -5136,20 +5131,7 @@ void DatabaseServer::projectVersionCheck(std::shared_ptr<HttpsServer::Response> 
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
-				if (!database.query("EXECUTE selectFileserverStmt USING @paramModID, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-					code = SimpleWeb::StatusCode::client_error_failed_dependency;
-					break;
-				}
-				lastResults = database.getResults<std::vector<std::string>>();
-				std::vector<std::string> possibilities = { DEFAULTURL };
-				for (const auto & vec : lastResults) {
-					possibilities.push_back(vec[0]);
-				}
-				if (possibilities.size() > 1) {
-					possibilities.erase(possibilities.begin());
-				}
-				updateNode.put("Fileserver", possibilities[std::rand() % possibilities.size()]);
+				updateNode.put("Fileserver", getFileServer(userID, projectID, majorVersion, minorVersion, patchVersion, spineVersion));
 
 				if (!database.query("SET @paramType=" + std::to_string(static_cast<int>(common::NewsTickerType::Update)) + ";")) {
 					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
@@ -6333,11 +6315,7 @@ void DatabaseServer::requestProjectFiles(std::shared_ptr<HttpsServer::Response> 
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 				break;
 			}
-			if (!database.query("PREPARE selectVersionStmt FROM \"SELECT MajorVersion, MinorVersion, PatchVersion FROM mods WHERE ModID = ? LIMIT 1\";")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("PREPARE selectFileserverStmt FROM \"SELECT Url FROM fileserver WHERE ModID = ? AND MajorVersion = ? AND MinorVersion = ? AND PatchVersion = ?\";")) {
+			if (!database.query("PREPARE selectVersionStmt FROM \"SELECT MajorVersion, MinorVersion, PatchVersion, SpineVersion FROM mods WHERE ModID = ? LIMIT 1\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 				break;
 			}
@@ -6377,6 +6355,7 @@ void DatabaseServer::requestProjectFiles(std::shared_ptr<HttpsServer::Response> 
 			const std::string majorVersion = lastResults[0][0];
 			const std::string minorVersion = lastResults[0][1];
 			const std::string patchVersion = lastResults[0][2];
+			const std::string spineVersion = lastResults[0][3];
 			if (!database.query("SET @paramMajorVersion=" + majorVersion + ";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 				break;
@@ -6389,16 +6368,7 @@ void DatabaseServer::requestProjectFiles(std::shared_ptr<HttpsServer::Response> 
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 				break;
 			}
-			if (!database.query("EXECUTE selectFileserverStmt USING @paramModID, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-				break;
-			}
-			lastResults = database.getResults<std::vector<std::string>>();
-			std::vector<std::string> possibilities = { DEFAULTURL };
-			for (const auto & vec : lastResults) {
-				possibilities.push_back(vec[0]);
-			}
-			responseTree.put("Fileserver", possibilities[std::rand() % possibilities.size()]);
+			responseTree.put("Fileserver", getFileServer(userID, projectID, std::stoi(majorVersion), std::stoi(minorVersion), std::stoi(patchVersion), std::stoi(spineVersion)));
 		} while (false);
 
 		write_json(responseStream, responseTree);
@@ -6420,6 +6390,7 @@ void DatabaseServer::requestPackageFiles(std::shared_ptr<HttpsServer::Response> 
 
 		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
 
+		const auto userID = -1; // TODO
 		const auto packageID = pt.get<int32_t>("PackageID");
 		const auto language = pt.get<std::string>("Language");
 
@@ -6437,11 +6408,7 @@ void DatabaseServer::requestPackageFiles(std::shared_ptr<HttpsServer::Response> 
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 				break;
 			}
-			if (!database.query("PREPARE selectVersionStmt FROM \"SELECT MajorVersion, MinorVersion, PatchVersion FROM mods WHERE ModID = ? LIMIT 1\";")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("PREPARE selectFileserverStmt FROM \"SELECT Url FROM fileserver WHERE ModID = ? AND MajorVersion = ? AND MinorVersion = ? AND PatchVersion = ?\";")) {
+			if (!database.query("PREPARE selectVersionStmt FROM \"SELECT MajorVersion, MinorVersion, PatchVersion, SpineVersion FROM mods WHERE ModID = ? LIMIT 1\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 				break;
 			}
@@ -6478,6 +6445,9 @@ void DatabaseServer::requestPackageFiles(std::shared_ptr<HttpsServer::Response> 
 			if (lastResults.empty()) {
 				break;
 			}
+
+			const auto projectID = std::stoi(lastResults[0][0]);
+			
 			if (!database.query("SET @paramModID=" + lastResults[0][0] + ";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 				break;
@@ -6494,31 +6464,8 @@ void DatabaseServer::requestPackageFiles(std::shared_ptr<HttpsServer::Response> 
 			const std::string majorVersion = lastResults[0][0];
 			const std::string minorVersion = lastResults[0][1];
 			const std::string patchVersion = lastResults[0][2];
-			if (!database.query("SET @paramMajorVersion=" + majorVersion + ";")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("SET @paramMinorVersion=" + minorVersion + ";")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("SET @paramPatchVersion=" + patchVersion + ";")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
-				break;
-			}
-			if (!database.query("EXECUTE selectFileserverStmt USING @paramModID, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-				break;
-			}
-			lastResults = database.getResults<std::vector<std::string>>();
-			std::vector<std::string> possibilities = { DEFAULTURL };
-			for (const auto & vec : lastResults) {
-				possibilities.push_back(vec[0]);
-			}
-			if (possibilities.size() > 1) {
-				possibilities.erase(possibilities.begin());
-			}
-			responseTree.put("Fileserver", possibilities[std::rand() % possibilities.size()]);
+			const std::string spineVersion = lastResults[0][3];
+			responseTree.put("Fileserver", getFileServer(userID, projectID, std::stoi(majorVersion), std::stoi(minorVersion), std::stoi(patchVersion), std::stoi(spineVersion)));
 		} while (false);
 
 		write_json(responseStream, responseTree);
@@ -6597,4 +6544,89 @@ void DatabaseServer::requestAllTri6ScoreStats(ptree & responseTree) const {
 
 		responseTree.add_child("Scores", scoreNodes);
 	} while (false);
+}
+
+std::string DatabaseServer::getFileServer(int userID, int projectID, int majorVersion, int minorVersion, int patchVersion, int spineVersion) const {
+	std::vector<std::string> possibilities;
+
+	do {
+		CONNECTTODATABASE(__LINE__)
+
+		auto timestamp = time(nullptr);
+		timestamp /= 60; // minutes
+		timestamp /= 60; // hours
+		timestamp /= 24; // days
+		timestamp += 3; // shift be 3
+		timestamp %= 7; // day of the week
+
+		if (!database.query("PREPARE selectPotentialFileserversStmt FROM \"SELECT ServerID FROM projectsOnFileservers WHERE ProjectID = ? AND MajorVersion = ? AND MinorVersion = ? AND PatchVersion = ? AND SpineVersion = ?\";")) {
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("PREPARE selectActiveFileserversStmt FROM \"SELECT Url, PatronOnly, ActiveDays FROM fileserverList WHERE ServerID = ? AND Enabled = 1 LIMIT 1\";")) {
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			break;
+		}
+
+		if (!database.query("SET @paramProjectID=" + std::to_string(projectID) + ";")) {
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("SET @paramMajorVersion=" + std::to_string(majorVersion) + ";")) {
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("SET @paramMinorVersion=" + std::to_string(minorVersion) + ";")) {
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("SET @paramPatchVersion=" + std::to_string(patchVersion) + ";")) {
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("SET @paramSpineVersion=" + std::to_string(spineVersion) + ";")) {
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			break;
+		}
+		
+		if (!database.query("EXECUTE selectPotentialFileserversStmt USING @paramProjectID, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion, @paramSpineVersion;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			break;
+		}
+		const auto lastResults = database.getResults<std::vector<std::string>>();
+
+		if (lastResults.empty()) break;
+
+		for (const auto & vec : lastResults) {
+			if (!database.query("SET @paramServerID=" + vec[0] + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				break;
+			}
+
+			if (!database.query("EXECUTE selectActiveFileserversStmt USING @paramServerID;")) {
+				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			const auto results = database.getResults<std::vector<std::string>>();
+
+			if (results.empty()) continue;
+
+			const auto url = results[0][0];
+			const auto patronOnly = results[0][1] == "1";
+			const auto activeDays = std::stoi(results[0][2]);
+
+			if (!(activeDays & timestamp)) continue;
+
+			if (patronOnly) continue; // TODO
+
+			possibilities.push_back(url);
+		}
+	} while (false);
+
+	// only add default server when no other one is available
+	if (possibilities.empty()) {
+		possibilities.push_back(DEFAULTURL);
+	}
+
+	return possibilities[std::rand() % possibilities.size()];
 }
