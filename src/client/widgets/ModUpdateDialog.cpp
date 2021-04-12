@@ -152,13 +152,13 @@ void ModUpdateDialog::updateModList(std::vector<ModUpdate> updates, bool forceAc
 		_infoLabel->setText(QApplication::tr("SelectModUpdates"));
 		_updates.clear();
 		for (QCheckBox * cb : _checkBoxes) {
-			cb->deleteLater();
+			delete cb;
 		}
 		for (QWidget * w : _widgets) {
-			w->deleteLater();
+			delete w;
 		}
 		for (QHBoxLayout * hl : _checkBoxLayouts) {
-			hl->deleteLater();
+			delete hl;
 		}
 		_checkBoxes.clear();
 		_checkBoxLayouts.clear();

@@ -2149,7 +2149,9 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="31" patchVersion="0">
 		<Bug language="Deutsch">Caching der Datenbank korrigiert</Bug>
+		<Bug language="Deutsch">Doppelte Einträge bei übersprungenem Update im Update-Dialog korrigiert</Bug>
 		
 		<Bug language="English">Fixed caching of database</Bug>
+		<Bug language="English">Fixed duplicated entries in update dialog when skipping an update</Bug>
 	</Version>
 </Versions>
