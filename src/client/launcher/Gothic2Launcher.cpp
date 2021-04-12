@@ -108,6 +108,8 @@ void Gothic2Launcher::setDirectory(const QString & directory) {
 void Gothic2Launcher::patchCheck() {
 	if (!QFileInfo::exists(_directory + "/System/Gothic2.exe")) return;
 
+	if (!Config::OnlineMode) return;
+
 	QMap<QString, QString> fileList;
 	fileList.insert("System/ar.exe", "495fdfc1797428a184bea293f96f46e7eb148ea56de4b7e4f628be1f4a9a8165c08b03c7e5245df6076fba8508ad7b521b6630ff0e33ad7fcbec7e4d2e4f10e3");
 	fileList.insert("System/BinkW32.dll", "e6d1c3f5e33ff8fc56b4798a6155ae76411ba9a234bea599338b7af424051943b1a2e666baa6935975df3d0354ba435962d1281b88b1ea17a77b1fbeb2cecca2");
