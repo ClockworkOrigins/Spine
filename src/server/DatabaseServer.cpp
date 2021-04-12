@@ -6558,6 +6558,7 @@ std::string DatabaseServer::getFileServer(int userID, int projectID, int majorVe
 		timestamp /= 24; // days
 		timestamp += 3; // shift be 3
 		timestamp %= 7; // day of the week
+		timestamp = 1 << timestamp;
 
 		if (!database.query("PREPARE selectPotentialFileserversStmt FROM \"SELECT ServerID FROM projectsOnFileservers WHERE ProjectID = ? AND MajorVersion = ? AND MinorVersion = ? AND PatchVersion = ? AND SpineVersion = ?\";")) {
 			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
