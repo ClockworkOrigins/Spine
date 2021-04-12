@@ -5191,7 +5191,7 @@ void DatabaseServer::projectVersionCheck(std::shared_ptr<HttpsServer::Response> 
 					}
 					lastResults = database.getResults<std::vector<std::string>>();
 
-					updateNode.put("SavegameCompatible", lastResults.empty() ? 0 : 1);
+					updateNode.put("SavegameCompatible", lastResults.empty() ? 1 : 0);
 
 					if (!database.query("SET @paramClientLanguage='" + language + "';")) {
 						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
