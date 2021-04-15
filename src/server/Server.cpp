@@ -277,7 +277,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 	std::map<int32_t, std::string> teamNames;
 	{
 		if (!database.query(std::string("SELECT TeamID FROM teams;"))) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
 		auto lastResults = database.getResults<std::vector<std::string>>();
@@ -331,7 +331,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 	
 	// ModID | Name of the Mod shown in GUI | ID of the team | Enabled in GUI or only internal | 1 or 2 either if the mod is for Gothic 1 or 2 | Release date encoded as integer in days | one of Mod or Patch encoded as integer | major version | minor version | patch version
 	if (!database.query(std::string("SELECT ModID, TeamID, Gothic, ReleaseDate, Type, MajorVersion, MinorVersion, PatchVersion, SpineVersion FROM mods WHERE Enabled = 1;"))) {
-		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
 	
@@ -339,7 +339,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 	const int userID = ServerCommon::getUserID(msg->username, msg->password);
 	if (userID != -1) {
 		if (!database.query(std::string("SELECT ModID, TeamID, Gothic, ReleaseDate, Type, MajorVersion, MinorVersion, PatchVersion, SpineVersion FROM mods WHERE Enabled = 0;"))) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
 		auto disabledResults = database.getResults<std::vector<std::string>>();
@@ -361,7 +361,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 				return;
 			}
 			if (!database.query("EXECUTE selectIsTeammemberStmt USING @paramTeamID, @paramUserID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				return;
 			}
 			auto allowed = database.getResults<std::vector<std::string>>();
@@ -374,7 +374,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 				return;
 			}
 			if (!database.query("EXECUTE selectEarlyUnlockStmt USING @paramModID, @paramUserID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				return;
 			}
 			allowed = database.getResults<std::vector<std::string>>();
@@ -409,7 +409,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 			return;
 		}
 		if (!database.query("EXECUTE selectModnameStmt USING @paramModID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
 		auto results = database.getResults<std::vector<std::string>>();
@@ -465,7 +465,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 		mod.patchVersion = static_cast<int8_t>(std::stoi(vec[7]));
 		mod.spineVersion = static_cast<int8_t>(std::stoi(vec[8]));
 		if (!database.query("EXECUTE selectDevtimeStmt USING @paramModID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			continue;
 		}
 		results = database.getResults<std::vector<std::string>>();
@@ -475,7 +475,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 			mod.devDuration = -1;
 		}
 		if (!database.query("EXECUTE selectTimeStmt USING @paramModID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			continue;
 		}
 		results = database.getResults<std::vector<std::string>>();
@@ -494,7 +494,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 		mod.downloadSize = _downloadSizeChecker->getBytes(mod.id, LanguageConverter::convert(l), version);
 
 		if (!database.query("EXECUTE selectUpdateDateStmt USING @paramModID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
 		results = database.getResults<std::vector<std::string>>();
@@ -509,7 +509,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 	}
 	
 	if (!database.query("EXECUTE selectPlayedProjectsStmt USING @paramUserID")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
 	const auto results = database.getResults<std::vector<std::string>>();
@@ -527,13 +527,13 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 
 	// PackageID | ModID | Enabled
 	if (!database.query(std::string("SELECT * FROM optionalpackages WHERE Enabled = 1;"))) {
-		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
 	enabledResults = database.getResults<std::vector<std::string>>();
 	if (userID != -1) {
 		if (!database.query(std::string("SELECT * FROM optionalpackages WHERE Enabled = 0;"))) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
 		auto disabledResults = database.getResults<std::vector<std::string>>();
@@ -551,7 +551,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 				return;
 			}
 			if (!database.query("EXECUTE selectEarlyUnlockStmt USING @paramModID, @paramUserID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				return;
 			}
 			auto allowed = database.getResults<std::vector<std::string>>();
@@ -580,7 +580,7 @@ void Server::handleModListRequest(clockUtils::sockets::TcpSocket * sock, Request
 			return;
 		}
 		if (!database.query("EXECUTE selectOptionalNameStmt USING @paramPackageID, @paramLanguage;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
 		const auto nameResults = database.getResults<std::vector<std::string>>();
@@ -624,7 +624,7 @@ void Server::handleModFilesListRequest(clockUtils::sockets::TcpSocket * sock, Re
 			return;
 		}
 		if (!database.query("EXECUTE selectStmt USING @paramModID, @paramLanguage;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
 		auto lastResults = database.getResults<std::vector<std::string>>();
@@ -633,7 +633,7 @@ void Server::handleModFilesListRequest(clockUtils::sockets::TcpSocket * sock, Re
 			lmfm.fileList.emplace_back(vec[0], vec[1]);
 		}
 		if (!database.query("EXECUTE selectVersionStmt USING @paramModID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
 		lastResults = database.getResults<std::vector<std::string>>();
@@ -656,7 +656,7 @@ void Server::handleModFilesListRequest(clockUtils::sockets::TcpSocket * sock, Re
 			return;
 		}
 		if (!database.query("EXECUTE selectFileserverStmt USING @paramModID, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
 		lastResults = database.getResults<std::vector<std::string>>();
@@ -686,7 +686,7 @@ void Server::handleDownloadSucceeded(clockUtils::sockets::TcpSocket *, DownloadS
 			return;
 		}
 		if (!database.query("EXECUTE insertStmt USING @paramModID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
 		if (!database.query("PREPARE insertPerVersionStmt FROM \"INSERT INTO downloadsPerVersion (ModID, Version, Counter) VALUES (?, CONVERT(? USING BINARY), 1) ON DUPLICATE KEY UPDATE Counter = Counter + 1\";")) {
@@ -698,7 +698,7 @@ void Server::handleDownloadSucceeded(clockUtils::sockets::TcpSocket *, DownloadS
 			return;
 		}
 		if (!database.query("EXECUTE selectVersionStmt USING @paramModID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
 		auto results = database.getResults<std::vector<std::string>>();
@@ -709,7 +709,7 @@ void Server::handleDownloadSucceeded(clockUtils::sockets::TcpSocket *, DownloadS
 				return;
 			}
 			if (!database.query("EXECUTE insertPerVersionStmt USING @paramModID, @paramVersion;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				return;
 			}
 		}
@@ -772,7 +772,7 @@ void Server::handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, ModVer
 			break;
 		}
 		if (!database.query("EXECUTE selectModStmt USING @paramModID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			break;
 		}
 		auto lastResults = database.getResults<std::vector<std::string>>();
@@ -792,7 +792,7 @@ void Server::handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, ModVer
 					break;
 				}
 				if (!database.query("EXECUTE selectEarlyStmt USING @paramModID, @paramUserID;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					break;
 				}
 				auto lastEarlyResults = database.getResults<std::vector<std::string>>();
@@ -804,7 +804,7 @@ void Server::handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, ModVer
 						break;
 					}
 					if (!database.query("EXECUTE selectTeamStmt USING @paramTeamID, @paramUserID;")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 						break;
 					}
 					lastEarlyResults = database.getResults<std::vector<std::string>>();
@@ -831,7 +831,7 @@ void Server::handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, ModVer
 				mu.gothicVersion = static_cast<GameType>(gothicVersion);
 
 				if (!database.query("EXECUTE selectFilesStmt USING @paramModID, @paramLanguage;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					break;
 				}
 				auto lastFilesResults = database.getResults<std::vector<std::string>>();
@@ -840,7 +840,7 @@ void Server::handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, ModVer
 				}
 
 				if (!database.query("EXECUTE selectPackagesStmt USING @paramModID;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					break;
 				}
 				lastFilesResults = database.getResults<std::vector<std::string>>();
@@ -851,7 +851,7 @@ void Server::handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, ModVer
 						break;
 					}
 					if (!database.query("EXECUTE selectPackageFilesStmt USING @paramPackageID, @paramLanguage;")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 						break;
 					}
 					auto pfs = database.getResults<std::vector<std::string>>();
@@ -876,7 +876,7 @@ void Server::handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, ModVer
 					return;
 				}
 				if (!database.query("EXECUTE selectFileserverStmt USING @paramModID, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					return;
 				}
 				lastResults = database.getResults<std::vector<std::string>>();
@@ -891,7 +891,7 @@ void Server::handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, ModVer
 					return;
 				}
 				if (!database.query("EXECUTE selectNewsIDStmt USING @paramModID, @paramType;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					return;
 				}
 				lastResults = database.getResults<std::vector<std::string>>();
@@ -916,7 +916,7 @@ void Server::handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, ModVer
 						return;
 					}
 					if (!database.query("EXECUTE selectSavegamesCompatibleStmt USING @paramModID, @paramMajorVersion, @paramMajorVersion, @paramMinorVersion, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion;")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 						return;
 					}
 					lastResults = database.getResults<std::vector<std::string>>();
@@ -929,7 +929,7 @@ void Server::handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, ModVer
 					}
 					
 					if (!database.query("EXECUTE selectChangelogStmt USING @paramNewsID, @paramClientLanguage;")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 						return;
 					}
 					lastResults = database.getResults<std::vector<std::string>>();
@@ -940,7 +940,7 @@ void Server::handleModVersionCheck(clockUtils::sockets::TcpSocket * sock, ModVer
 							return;
 						}
 						if (!database.query("EXECUTE selectChangelogStmt USING @paramNewsID, @paramClientLanguage;")) {
-							std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 							return;
 						}
 						lastResults = database.getResults<std::vector<std::string>>();
@@ -989,7 +989,7 @@ void Server::handleRequestPackageFiles(clockUtils::sockets::TcpSocket * sock, Re
 			return;
 		}
 		if (!database.query("EXECUTE selectStmt USING @paramPackageID, @paramLanguage;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
 		auto lastResults = database.getResults<std::vector<std::string>>();
@@ -998,7 +998,7 @@ void Server::handleRequestPackageFiles(clockUtils::sockets::TcpSocket * sock, Re
 			lmfm.fileList.emplace_back(vec[0], vec[1]);
 		}
 		if (!database.query("EXECUTE selectModIDStmt USING @paramPackageID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
 		lastResults = database.getResults<std::vector<std::string>>();
@@ -1010,7 +1010,7 @@ void Server::handleRequestPackageFiles(clockUtils::sockets::TcpSocket * sock, Re
 			return;
 		}
 		if (!database.query("EXECUTE selectVersionStmt USING @paramModID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
 		lastResults = database.getResults<std::vector<std::string>>();
@@ -1033,7 +1033,7 @@ void Server::handleRequestPackageFiles(clockUtils::sockets::TcpSocket * sock, Re
 			return;
 		}
 		if (!database.query("EXECUTE selectFileserverStmt USING @paramModID, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
 		lastResults = database.getResults<std::vector<std::string>>();
@@ -1063,7 +1063,7 @@ void Server::handlePackageDownloadSucceeded(clockUtils::sockets::TcpSocket *, Pa
 			return;
 		}
 		if (!database.query("EXECUTE insertStmt USING @paramPackageID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
 	}
@@ -1120,7 +1120,7 @@ void Server::handleRequestAllNews(clockUtils::sockets::TcpSocket * sock, Request
 		return;
 	}
 	if (!database.query("EXECUTE selectNews USING @paramLanguage, @paramLastNewsID;")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
 	auto lastResults = database.getResults<std::vector<std::string>>();
@@ -1137,7 +1137,7 @@ void Server::handleRequestAllNews(clockUtils::sockets::TcpSocket * sock, Request
 			continue;
 		}
 		if (!database.query("EXECUTE selectModRefsStmt USING @paramNewsID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			continue;
 		}
 		auto results = database.getResults<std::vector<std::string>>();
@@ -1145,7 +1145,7 @@ void Server::handleRequestAllNews(clockUtils::sockets::TcpSocket * sock, Request
 			news.referencedMods.emplace_back(std::stoi(modID[0]), ServerCommon::getProjectName(std::stoi(modID[0]), LanguageConverter::convert(msg->language)));
 		}
 		if (!database.query("EXECUTE selectImagesStmt USING @paramNewsID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			continue;
 		}
 		results = database.getResults<std::vector<std::string>>();
@@ -1156,7 +1156,7 @@ void Server::handleRequestAllNews(clockUtils::sockets::TcpSocket * sock, Request
 	}
 	
 	if (!database.query("EXECUTE selectNewsTicker;")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
 	lastResults = database.getResults<std::vector<std::string>>();
@@ -1181,7 +1181,7 @@ void Server::handleRequestAllNews(clockUtils::sockets::TcpSocket * sock, Request
 				continue;
 			}
 			if (!database.query("EXECUTE selectUpdateNews USING @paramNewsID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				continue;
 			}
 			const auto r = database.getResults<std::vector<std::string>>();
@@ -1224,7 +1224,7 @@ void Server::handleSubmitNews(clockUtils::sockets::TcpSocket *, SubmitNewsMessag
 		return;
 	}
 	if (!database.query("EXECUTE selectNewsWriterStmt USING @paramUserID, @paramLanguage;")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
 	auto results = database.getResults<std::vector<std::string>>();
@@ -1289,7 +1289,7 @@ void Server::handleSubmitNews(clockUtils::sockets::TcpSocket *, SubmitNewsMessag
 			return;
 		}
 		if (!database.query("EXECUTE selectNewsIDStmt;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
 		results = database.getResults<std::vector<std::string>>();
@@ -1309,7 +1309,7 @@ void Server::handleSubmitNews(clockUtils::sockets::TcpSocket *, SubmitNewsMessag
 				return;
 			}
 			if (!database.query("EXECUTE selectImageStmt USING @paramFile;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				return;
 			}
 			results = database.getResults<std::vector<std::string>>();
@@ -1330,7 +1330,7 @@ void Server::handleSubmitNews(clockUtils::sockets::TcpSocket *, SubmitNewsMessag
 				return;
 			}
 			if (!database.query("EXECUTE insertImageRefsStmt USING @paramNewsID, @paramFile, @paramHash;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				return;
 			}
 		}
@@ -1340,7 +1340,7 @@ void Server::handleSubmitNews(clockUtils::sockets::TcpSocket *, SubmitNewsMessag
 				return;
 			}
 			if (!database.query("EXECUTE insertModRefsStmt USING @paramNewsID, @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				return;
 			}
 		}
@@ -1357,7 +1357,7 @@ void Server::handleSubmitNews(clockUtils::sockets::TcpSocket *, SubmitNewsMessag
 			return;
 		}
 		if (!database.query("EXECUTE insertNewsStmt USING @paramTitle, @paramBody, @paramTimestamp, @paramLanguage;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			return;
 		}
 	}
@@ -1443,7 +1443,7 @@ void Server::handleSubmitScriptFeatures(clockUtils::sockets::TcpSocket *, Submit
 			break;
 		}
 		if (!database.query("EXECUTE selectTeamIDStmt USING @paramModID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			break;
 		}
 		auto lastResults = database.getResults<std::vector<std::string>>();
@@ -1451,7 +1451,7 @@ void Server::handleSubmitScriptFeatures(clockUtils::sockets::TcpSocket *, Submit
 			break;
 		}
 		if (!database.query("EXECUTE checkUserPermission USING @paramUserID, @paramModID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			break;
 		}
 		lastResults = database.getResults<std::vector<std::string>>();
@@ -1464,7 +1464,7 @@ void Server::handleSubmitScriptFeatures(clockUtils::sockets::TcpSocket *, Submit
 				break;
 			}
 			if (!database.query("EXECUTE insertScoreStmt USING @paramModID, @paramIdentifier;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				break;
 			}
 			if (!database.query("SET @paramScoreName='" + msg->scores[i].name + "';")) {
@@ -1472,7 +1472,7 @@ void Server::handleSubmitScriptFeatures(clockUtils::sockets::TcpSocket *, Submit
 				break;
 			}
 			if (!database.query("EXECUTE insertScoreNameStmt USING @paramModID, @paramIdentifier, @paramScoreName, @paramLanguage, @paramScoreName;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				break;
 			}
 		}
@@ -1482,7 +1482,7 @@ void Server::handleSubmitScriptFeatures(clockUtils::sockets::TcpSocket *, Submit
 				break;
 			}
 			if (!database.query("EXECUTE insertAchievementStmt USING @paramModID, @paramIdentifier;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				break;
 			}
 			if (!database.query("SET @paramAchievementName='" + msg->achievements[i].name + "';")) {
@@ -1490,7 +1490,7 @@ void Server::handleSubmitScriptFeatures(clockUtils::sockets::TcpSocket *, Submit
 				break;
 			}
 			if (!database.query("EXECUTE insertAchievementNameStmt USING @paramModID, @paramIdentifier, @paramAchievementName, @paramLanguage, @paramAchievementName;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				break;
 			}
 			if (!database.query("SET @paramAchievementDescription='" + msg->achievements[i].description + "';")) {
@@ -1498,17 +1498,17 @@ void Server::handleSubmitScriptFeatures(clockUtils::sockets::TcpSocket *, Submit
 				break;
 			}
 			if (!database.query("EXECUTE insertAchievementDescriptionStmt USING @paramModID, @paramIdentifier, @paramAchievementDescription, @paramLanguage, @paramAchievementDescription;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				break;
 			}
 			if (msg->achievements[i].hidden) {
 				if (!database.query("EXECUTE insertAchievementHiddenStmt USING @paramModID, @paramIdentifier;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					break;
 				}
 			} else {
 				if (!database.query("EXECUTE deleteAchievementHiddenStmt USING @paramModID, @paramIdentifier;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					break;
 				}
 			}
@@ -1518,12 +1518,12 @@ void Server::handleSubmitScriptFeatures(clockUtils::sockets::TcpSocket *, Submit
 					break;
 				}
 				if (!database.query("EXECUTE insertAchievementProgressStmt USING @paramModID, @paramIdentifier, @paramAchievementProgress, @paramAchievementProgress;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					break;
 				}
 			} else {
 				if (!database.query("EXECUTE deleteAchievementProgressStmt USING @paramModID, @paramIdentifier;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					break;
 				}
 			}
@@ -1541,13 +1541,13 @@ void Server::handleSubmitScriptFeatures(clockUtils::sockets::TcpSocket *, Submit
 						break;
 					}
 					if (!database.query("EXECUTE selectLockedHashStmt USING @paramModID, @paramImage;")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 						break;
 					}
 					auto hashVec = database.getResults<std::vector<std::string>>();
 					if (hashVec.empty()) {
 						if (!database.query("EXECUTE selectUnlockedHashStmt USING @paramModID, @paramImage;")) {
-							std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 							break;
 						}
 						hashVec = database.getResults<std::vector<std::string>>();
@@ -1571,13 +1571,13 @@ void Server::handleSubmitScriptFeatures(clockUtils::sockets::TcpSocket *, Submit
 						break;
 					}
 					if (!database.query("EXECUTE selectLockedHashStmt USING @paramModID, @paramImage;")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 						break;
 					}
 					auto hashVec = database.getResults<std::vector<std::string>>();
 					if (hashVec.empty()) {
 						if (!database.query("EXECUTE selectUnlockedHashStmt USING @paramModID, @paramImage;")) {
-							std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 							break;
 						}
 						hashVec = database.getResults<std::vector<std::string>>();
@@ -1604,7 +1604,7 @@ void Server::handleSubmitScriptFeatures(clockUtils::sockets::TcpSocket *, Submit
 				break;
 			}
 			if (!database.query("EXECUTE insertAchievementIconsStmt USING @paramModID, @paramIdentifier, @paramLockedImage, @paramLockedHash, @paramUnlockedImage, @paramUnlockedHash, @paramLockedImage, @paramLockedHash, @paramUnlockedImage, @paramUnlockedHash;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				break;
 			}
 		}
@@ -1652,7 +1652,7 @@ void Server::handleSubmitCompatibility(clockUtils::sockets::TcpSocket *, SubmitC
 			break;
 		}
 		if (!database.query("EXECUTE updateCompatibilityStmt USING @paramUserID, @paramModID, @paramPatchID, @paramCompatible, @paramCompatible;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			break;
 		}
 
@@ -1681,7 +1681,7 @@ void Server::handleRequestOwnCompatibilities(clockUtils::sockets::TcpSocket * so
 			break;
 		}
 		if (!database.query("EXECUTE selectCompatibilitiesStmt USING @paramUserID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			break;
 		}
 		auto lastResults = database.getResults<std::vector<std::string>>();
@@ -1717,7 +1717,7 @@ void Server::handleUpdateSucceeded(clockUtils::sockets::TcpSocket *, UpdateSucce
 			break;
 		}
 		if (!database.query("EXECUTE selectVersionStmt USING @paramModID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			break;
 		}
 		auto results = database.getResults<std::vector<std::string>>();
@@ -1728,7 +1728,7 @@ void Server::handleUpdateSucceeded(clockUtils::sockets::TcpSocket *, UpdateSucce
 				break;
 			}
 			if (!database.query("EXECUTE insertStmt USING @paramModID, @paramVersion;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				break;
 			}
 		}
@@ -1778,7 +1778,7 @@ bool Server::isTeamMemberOfMod(int modID, int userID) {
 			break;
 		}
 		if (!database.query("EXECUTE selectTeamIDStmt USING @paramModID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			break;
 		}
 		auto lastResults = database.getResults<std::vector<std::string>>();
@@ -1790,7 +1790,7 @@ bool Server::isTeamMemberOfMod(int modID, int userID) {
 		}
 
 		if (!database.query("EXECUTE selectMemberStmt USING @paramTeamID, @paramUserID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			break;
 		}
 		lastResults = database.getResults<std::vector<std::string>>();
@@ -1816,7 +1816,7 @@ void Server::getBestTri6Score(int userID, ProjectStats & projectStats) {
 		return;
 	}
 	if (!database.query("EXECUTE selectMaxVersionStmt;")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
 	auto lastResults = database.getResults<std::vector<std::string>>();
@@ -1829,7 +1829,7 @@ void Server::getBestTri6Score(int userID, ProjectStats & projectStats) {
 	}
 	
 	if (!database.query("EXECUTE selectScoreStmt USING @paramVersion;")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
 	lastResults = database.getResults<std::vector<std::string>>();
