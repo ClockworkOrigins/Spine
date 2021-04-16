@@ -48,8 +48,6 @@
 		<File Hash="bccef157c288fb5fa597884caa7d3c4f3ee5a7952cac0ece52602abfe97fa38810a5fa32e103871413814812ba72ddfe83c1a79196556a89c460af63b06f305a">bin/Qt5Svg.dll.z</File>
 		<File Hash="10b85a4e1242d058b4e32fb95359a49296ed423bb1f4b3a4d90996452ac0b1ba38b0d08a57e5c25b1fb931a2aba27b6b2d97a6d68c1c09866d1c1ece3af6be29">bin/Qt5Widgets.dll.z</File>
 		<File Hash="9559700901153ee885beca42b6af646f8c85564edc315dd814f531aa43f280d19ec62dc640447017e40d49f08696e93aa58ebcc539ef16fd628aba71514dfcc7">bin/Qt5WinExtras.dll.z</File>
-		<File Hash="be28f2e5fa44b5c48cf7b815948a08ec62da572a96bd38dd6c9cc9fda69684c8d737ce9d8f7dd2cc6e883e76047848da9d7031cd6d186cb3ab8dcf6c755ad839">bin/TranslatorAPI.dll.z</File>
-		<File Hash="688959bf52a735a5a4fad403856c759cf80a9e24a43c9e486bc339cb00a705bc5e0299b0603b80cf866c6909c2ef236e8a217a48cca352df873452b0faa7f6a0">bin/TranslatorCommon.dll.z</File>
 		<File Hash="a0c0cb481a158cfeb7c0ecccc45656b90bda8d4e6bffabce688d77a2cbb0ce97dc46b55e224b8764d3b020e9ce9df5e898e67dd0c858f2c6b01722e6d902a7f6">bin/zlib.dll.z</File>
 		<File Hash="44bade6bf61fdc27b6bef4ed613ab94ee0218bc7dfc088250bba99a9d3e4641f9934df525138c9bf0e6fd2b9d588b564775287e6a332d5dae244549f2be5b70c">bin/plugins/imageformats/qico.dll.z</File>
 		<File Hash="1a7ed7e615fa5aad1792625896ec336164883ef65b398cc09b5006b000c84a5891012acd0b2468001e04e2f4ce5669675e0b20ec3e8312942ffe6783130590d3">bin/plugins/imageformats/qjpeg.dll.z</File>
@@ -63,10 +61,14 @@
 		<File Hash="335bedb75b03dab2fa695e633c655078a7b8fdd146a353bb26f91bdc9c1c8af4b815a87222b43f13aa5196c5889248a5ac6e9d165241f27b9f420332108cdbe8">bin/ru_RU.qm.z</File>
 	</Version>
 	<Version majorVersion="1" minorVersion="30" patchVersion="0">
+		<File Hash="300933933f02b08294abfedb0e7cca62e9845499b359c664e6e630ac07c03e9f5ee2a5ea36a5d84f4cc1611e80ced1fa57afdd1ccab73b6b3cf1e3070d85d268">styles.css.z</File>
+	</Version>
+	<Version majorVersion="1" minorVersion="31" patchVersion="0">
 		<File Hash="afd636cb80dc34fa605b8b8f39ca7ce15fc056008ee5ab8d947bb4ab9ecb25e2676e8f925d91b9c9d056165c0c452a6e78c9b58a8352f6bcb4817bb39a3ed0c6">bin/changelog.xml.z</File>
 		<File Hash="a1b9506779aea690ecd36c4ae3a9090b7a64330b7a4c0c85ae4491f36c31ffca4e423ea90717d6531900463b5b01afe8b28df4baf3288fe29566269534e875e8">bin/Spine.exe.z</File>
 		<File Hash="dcead9421219cff7e557cadbeb0c5447194467edb49ce0bd1ede4000818a89ac01d48d481c1bb6942af8b838e98c386442b62161b25e1afa79c093c674c3e983">bin/SpineAPI.dll.z</File>
 		<File Hash="d7fa9ac330bcfa52dc824339cff870231ece6be904f52c390e51e40d0b8d378d8e39028a47e7e553337909a778ad07a8e0f74158f71967102da2bea9fb758b49">bin/SpineAPI64.dll.z</File>
-		<File Hash="300933933f02b08294abfedb0e7cca62e9845499b359c664e6e630ac07c03e9f5ee2a5ea36a5d84f4cc1611e80ced1fa57afdd1ccab73b6b3cf1e3070d85d268">styles.css.z</File>
+		<File Hash="be28f2e5fa44b5c48cf7b815948a08ec62da572a96bd38dd6c9cc9fda69684c8d737ce9d8f7dd2cc6e883e76047848da9d7031cd6d186cb3ab8dcf6c755ad839">bin/TranslatorAPI.dll.z</File>
+		<File Hash="688959bf52a735a5a4fad403856c759cf80a9e24a43c9e486bc339cb00a705bc5e0299b0603b80cf866c6909c2ef236e8a217a48cca352df873452b0faa7f6a0">bin/TranslatorCommon.dll.z</File>
 	</Version>
 </Versions>
