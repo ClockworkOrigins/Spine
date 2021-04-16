@@ -248,20 +248,20 @@ std::string ServerCommon::getProjectName(int projectID, int preferredLanguage) {
 			break;
 		}
 		if (!database.query("EXECUTE selectProjectNameStmt USING @paramProjectID, @paramLanguage;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			break;
 		}
 		auto results = database.getResults<std::vector<std::string>>();
 		if (results.empty()) {
 			if (!database.query("EXECUTE selectProjectNameStmt USING @paramProjectID, @paramEnglishLanguage;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				break;
 			}
 			results = database.getResults<std::vector<std::string>>();
 			
 			if (results.empty()) {
 				if (!database.query("EXECUTE selectFallbackProjectNameStmt USING @paramProjectID;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					break;
 				}
 				results = database.getResults<std::vector<std::string>>();
@@ -318,7 +318,7 @@ bool ServerCommon::hasPrivilege(int userID, UserPrivilege privilege) {
 			break;
 		}
 		if (!database.query("EXECUTE selectPrivilegeStmt USING @paramUserID, @paramPrivilege;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			break;
 		}
 		const auto results = database.getResults<std::vector<std::string>>();
@@ -349,7 +349,7 @@ bool ServerCommon::canAccessProject(int userID, int projectID) {
 			break;
 		}
 		if (!database.query("EXECUTE selectProjectStmt USING @paramProjectID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			break;
 		}
 		auto results = database.getResults<std::vector<std::string>>();
@@ -369,7 +369,7 @@ bool ServerCommon::canAccessProject(int userID, int projectID) {
 			break;
 		}
 		if (!database.query("EXECUTE selectMemberStmt USING @paramTeamID, @paramUserID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			break;
 		}
 		results = database.getResults<std::vector<std::string>>();
@@ -377,7 +377,7 @@ bool ServerCommon::canAccessProject(int userID, int projectID) {
 		if (!results.empty()) return true;
 		
 		if (!database.query("EXECUTE selectEAStmt USING @paramProjectID, @paramUserID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			break;
 		}
 		results = database.getResults<std::vector<std::string>>();

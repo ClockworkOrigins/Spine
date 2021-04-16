@@ -137,13 +137,13 @@ void ManagementServer::getMods(std::shared_ptr<HttpsServer::Response> response, 
 			}
 			if (userID == 3) {
 				if (!database.query("EXECUTE selectAllTeamsStmt;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 			} else {
 				if (!database.query("EXECUTE selectTeamsStmt USING @paramUserID;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -158,7 +158,7 @@ void ManagementServer::getMods(std::shared_ptr<HttpsServer::Response> response, 
 					break;
 				}
 				if (!database.query("EXECUTE selectModStmt USING @paramTeamID;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -266,7 +266,7 @@ void ManagementServer::getAchievements(std::shared_ptr<HttpsServer::Response> re
 				break;
 			}
 			if (!database.query("EXECUTE selectAchievementsStmt USING @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -285,7 +285,7 @@ void ManagementServer::getAchievements(std::shared_ptr<HttpsServer::Response> re
 				}
 				
 				if (!database.query("EXECUTE selectAchievementNameStmt USING @paramModID, @paramIdentifier;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -302,7 +302,7 @@ void ManagementServer::getAchievements(std::shared_ptr<HttpsServer::Response> re
 				}
 				
 				if (!database.query("EXECUTE selectAchievementDescriptionStmt USING @paramModID, @paramIdentifier;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -319,7 +319,7 @@ void ManagementServer::getAchievements(std::shared_ptr<HttpsServer::Response> re
 				}
 
 				if (!database.query("EXECUTE selectAchievementProgressStmt USING @paramModID, @paramIdentifier;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -327,7 +327,7 @@ void ManagementServer::getAchievements(std::shared_ptr<HttpsServer::Response> re
 				achievementNode.put("MaxProgress", results2.empty() ? 0 : std::stoi(results2[0][0]));
 
 				if (!database.query("EXECUTE selectAchievementHiddenStmt USING @paramModID, @paramIdentifier;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -335,7 +335,7 @@ void ManagementServer::getAchievements(std::shared_ptr<HttpsServer::Response> re
 				achievementNode.put("Hidden", results2.empty());
 
 				if (!database.query("EXECUTE selectAchievementIconsStmt USING @paramModID, @paramIdentifier;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -357,7 +357,7 @@ void ManagementServer::getAchievements(std::shared_ptr<HttpsServer::Response> re
 			responseTree.add_child("Achievements", achievementNodes);
 			
 			if (!database.query("EXECUTE selectEnabledStmt USING @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -462,7 +462,7 @@ void ManagementServer::updateAchievements(std::shared_ptr<HttpsServer::Response>
 					break;
 				}
 				if (!database.query("EXECUTE insertAchievementStmt USING @paramModID, @paramIdentifier;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -478,7 +478,7 @@ void ManagementServer::updateAchievements(std::shared_ptr<HttpsServer::Response>
 						break;
 					}
 					if (!database.query("EXECUTE updateAchievementNameStmt USING @paramModID, @paramIdentifier, @paramLanguage, @paramName, @paramName;")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 						code = SimpleWeb::StatusCode::client_error_failed_dependency;
 						break;
 					}
@@ -495,7 +495,7 @@ void ManagementServer::updateAchievements(std::shared_ptr<HttpsServer::Response>
 						break;
 					}
 					if (!database.query("EXECUTE updateAchievementDescriptionStmt USING @paramModID, @paramIdentifier, @paramLanguage, @paramDescription, @paramDescription;")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 						code = SimpleWeb::StatusCode::client_error_failed_dependency;
 						break;
 					}
@@ -508,13 +508,13 @@ void ManagementServer::updateAchievements(std::shared_ptr<HttpsServer::Response>
 						break;
 					}
 					if (!database.query("EXECUTE updateAchievementProgressStmt USING @paramModID, @paramIdentifier, @paramProgress, @paramProgress;")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 						code = SimpleWeb::StatusCode::client_error_failed_dependency;
 						break;
 					}
 				} else {
 					if (!database.query("EXECUTE deleteAchievementProgressStmt USING @paramModID, @paramIdentifier;")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 						code = SimpleWeb::StatusCode::client_error_failed_dependency;
 						break;
 					}
@@ -522,13 +522,13 @@ void ManagementServer::updateAchievements(std::shared_ptr<HttpsServer::Response>
 				const bool hidden = achievement.second.get<bool>("Hidden");
 				if (hidden) {
 					if (!database.query("EXECUTE updateAchievementHiddenStmt USING @paramModID, @paramIdentifier;")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 						code = SimpleWeb::StatusCode::client_error_failed_dependency;
 						break;
 					}
 				} else {
 					if (!database.query("EXECUTE deleteAchievementHiddenStmt USING @paramModID, @paramIdentifier;")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 						code = SimpleWeb::StatusCode::client_error_failed_dependency;
 						break;
 					}
@@ -561,7 +561,7 @@ void ManagementServer::updateAchievements(std::shared_ptr<HttpsServer::Response>
 						break;
 					}
 					if (!database.query("EXECUTE updateAchievementIconStmt USING @paramModID, @paramIdentifier, @paramLockedIcon, @paramLockedHash, @paramUnlockedIcon, @paramUnlockedHash, @paramLockedIcon, @paramLockedHash, @paramUnlockedIcon, @paramUnlockedHash;")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 						code = SimpleWeb::StatusCode::client_error_failed_dependency;
 						break;
 					}
@@ -637,7 +637,7 @@ void ManagementServer::getGeneralConfiguration(std::shared_ptr<HttpsServer::Resp
 				break;
 			}
 			if (!database.query("EXECUTE selectModStmt USING @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -654,7 +654,7 @@ void ManagementServer::getGeneralConfiguration(std::shared_ptr<HttpsServer::Resp
 			responseTree.put("ReleaseDate", std::stoi(results[0][3]));
 			
 			if (!database.query("EXECUTE selectDevDurationStmt USING @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -663,7 +663,7 @@ void ManagementServer::getGeneralConfiguration(std::shared_ptr<HttpsServer::Resp
 			responseTree.put("Duration", results.empty() ? 0 : std::stoi(results[0][0]));
 			
 			if (!database.query("EXECUTE selectFeedbackMailStmt USING @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -674,7 +674,7 @@ void ManagementServer::getGeneralConfiguration(std::shared_ptr<HttpsServer::Resp
 			}
 			
 			if (!database.query("EXECUTE selectDiscussionUrlStmt USING @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -806,7 +806,7 @@ void ManagementServer::updateGeneralConfiguration(std::shared_ptr<HttpsServer::R
 				break;
 			}
 			if (!database.query("EXECUTE selectEnabledStateStmt USING @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -821,31 +821,31 @@ void ManagementServer::updateGeneralConfiguration(std::shared_ptr<HttpsServer::R
 					break;
 				}
 				if (!database.query("EXECUTE insertReleaseNewsStmt USING @paramModID, @paramNewsType, @paramReleaseDate;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 			}
 			
 			if (!database.query("EXECUTE updateStmt USING @paramGothicVersion, @paramModType, @paramReleaseDate, @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
 			if (!database.query("EXECUTE updateEnabledStmt USING @paramEnabled, @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
 			if (!database.query("EXECUTE updateDevDurationStmt USING @paramModID, @paramDuration, @paramDuration;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
 
 			if (pt.count("FeedbackMail") == 0) {
 				if (!database.query("EXECUTE deleteFeedbackMailStmt USING @paramModID;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -856,7 +856,7 @@ void ManagementServer::updateGeneralConfiguration(std::shared_ptr<HttpsServer::R
 					break;
 				}
 				if (!database.query("EXECUTE updateFeedbackMailStmt USING @paramModID, @paramMail, @paramMail;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -864,7 +864,7 @@ void ManagementServer::updateGeneralConfiguration(std::shared_ptr<HttpsServer::R
 
 			if (pt.count("DiscussionUrl") == 0) {
 				if (!database.query("EXECUTE deleteDiscussionUrlStmt USING @paramModID;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -875,7 +875,7 @@ void ManagementServer::updateGeneralConfiguration(std::shared_ptr<HttpsServer::R
 					break;
 				}
 				if (!database.query("EXECUTE updateDiscussionUrlStmt USING @paramModID, @paramUrl, @paramUrl;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -933,7 +933,7 @@ void ManagementServer::getCustomStatistics(std::shared_ptr<HttpsServer::Response
 				break;
 			}
 			if (!database.query("EXECUTE selectChapterStatsStmt USING @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -1035,7 +1035,7 @@ void ManagementServer::getModFiles(std::shared_ptr<HttpsServer::Response> respon
 				break;
 			}
 			if (!database.query("EXECUTE selectVersionStmt USING @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -1052,7 +1052,7 @@ void ManagementServer::getModFiles(std::shared_ptr<HttpsServer::Response> respon
 			responseTree.put("VersionSpine", std::stoi(results[0][3]));
 			
 			if (!database.query("EXECUTE selectModFilesStmt USING @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -1203,7 +1203,7 @@ void ManagementServer::updateModVersion(std::shared_ptr<HttpsServer::Response> r
 				break;
 			}
 			if (!database.query("EXECUTE updateStmt USING @paramVersionMajor, @paramVersionMinor, @paramVersionPatch, @paramVersionSpine, @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -1219,7 +1219,7 @@ void ManagementServer::updateModVersion(std::shared_ptr<HttpsServer::Response> r
 			FileSynchronizer::addJob(job);
 			
 			if (!database.query("EXECUTE isEnabledStmt USING @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -1228,17 +1228,17 @@ void ManagementServer::updateModVersion(std::shared_ptr<HttpsServer::Response> r
 			if (results.empty()) break;
 			
 			if (!database.query("EXECUTE updateDateStmt USING @paramModID, @paramDate, @paramDate;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
 			if (!database.query("EXECUTE insertNewsTickerStmt USING @paramModID, @paramDate, @paramType;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
 			if (!database.query("EXECUTE selectNewsIDStmt USING @paramModID, @paramDate, @paramType;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -1255,7 +1255,7 @@ void ManagementServer::updateModVersion(std::shared_ptr<HttpsServer::Response> r
 				break;
 			}
 			if (!database.query("EXECUTE insertUpdateNewsStmt USING @paramNewsID, @paramModID, @paramVersionMajor, @paramVersionMinor, @paramVersionPatch, @paramSavegameCompatible;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -1370,7 +1370,7 @@ void ManagementServer::getStatistics(std::shared_ptr<HttpsServer::Response> resp
 				break;
 			}
 			if (!database.query("EXECUTE selectOverallDownloadsStmt USING @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -1379,7 +1379,7 @@ void ManagementServer::getStatistics(std::shared_ptr<HttpsServer::Response> resp
 			responseTree.put("OverallDownloads", results.empty() ? 0 : std::stoi(results[0][0]));
 			
 			if (!database.query("EXECUTE selectDownloadsPerVersionStmt USING @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -1397,7 +1397,7 @@ void ManagementServer::getStatistics(std::shared_ptr<HttpsServer::Response> resp
 			responseTree.add_child("DownloadsPerVersion", downloadsPerVersionNodes);
 			
 			if (!database.query("EXECUTE selectPlaytimeStmt USING @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -1427,7 +1427,7 @@ void ManagementServer::getStatistics(std::shared_ptr<HttpsServer::Response> resp
 			responseTree.put("OverallPlayerCount", results.size());
 			
 			if (!database.query("EXECUTE selectSessiontimeStmt USING @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -1462,7 +1462,7 @@ void ManagementServer::getStatistics(std::shared_ptr<HttpsServer::Response> resp
 				break;
 			}
 			if (!database.query("EXECUTE selectIntervalPlayersStmt USING @paramModID, @paramTimestamp;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -1475,7 +1475,7 @@ void ManagementServer::getStatistics(std::shared_ptr<HttpsServer::Response> resp
 				break;
 			}
 			if (!database.query("EXECUTE selectIntervalPlayersStmt USING @paramModID, @paramTimestamp;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -1483,7 +1483,7 @@ void ManagementServer::getStatistics(std::shared_ptr<HttpsServer::Response> resp
 			responseTree.put("Last7DaysPlayerCount", static_cast<uint32_t>(std::stoi(results[0][0])));
 
 			if (!database.query("EXECUTE selectAchievementNamesStmt USING @paramModID, @paramLanguage;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -1504,7 +1504,7 @@ void ManagementServer::getStatistics(std::shared_ptr<HttpsServer::Response> resp
 					break;
 				}
 				if (!database.query("EXECUTE selectAchievementtimeStmt USING @paramModID, @paramIdentifier;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -1591,7 +1591,7 @@ void ManagementServer::getScores(std::shared_ptr<HttpsServer::Response> response
 				break;
 			}
 			if (!database.query("EXECUTE selectScoreOrdersStmt USING @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -1604,7 +1604,7 @@ void ManagementServer::getScores(std::shared_ptr<HttpsServer::Response> response
 			}
 			
 			if (!database.query("EXECUTE selectScoreNamesStmt USING @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -1715,7 +1715,7 @@ void ManagementServer::updateScores(std::shared_ptr<HttpsServer::Response> respo
 					break;
 				}
 				if (!database.query("EXECUTE insertScoreStmt USING @paramModID, @paramIdentifier;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -1731,7 +1731,7 @@ void ManagementServer::updateScores(std::shared_ptr<HttpsServer::Response> respo
 						break;
 					}
 					if (!database.query("EXECUTE updateScoreNameStmt USING @paramModID, @paramIdentifier, @paramLanguage, @paramName, @paramName;")) {
-						std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 						code = SimpleWeb::StatusCode::client_error_failed_dependency;
 						break;
 					}
@@ -1744,7 +1744,7 @@ void ManagementServer::updateScores(std::shared_ptr<HttpsServer::Response> respo
 					break;
 				}
 				if (!database.query("EXECUTE updateScoreOrderStmt USING @paramModID, @paramIdentifier, @paramScoreOrder, @paramScoreOrder;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -1804,7 +1804,7 @@ void ManagementServer::getUsers(std::shared_ptr<HttpsServer::Response> response,
 				break;
 			}
 			if (!database.query("EXECUTE selectEarlyAccessorsStmt USING @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -1901,13 +1901,13 @@ void ManagementServer::changeUserAccess(std::shared_ptr<HttpsServer::Response> r
 			}
 			if (enabled) {
 				if (!database.query("EXECUTE insertStmt USING @paramModID, @paramUserID;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 			} else {
 				if (!database.query("EXECUTE deleteStmt USING @paramModID, @paramUserID;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -1985,7 +1985,7 @@ void ManagementServer::createPlayTestSurvey(std::shared_ptr<HttpsServer::Respons
 				break;
 			}
 			if (!database.query("EXECUTE insertStmt USING @paramProjectID, @paramLanguage, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -2045,7 +2045,7 @@ void ManagementServer::enablePlayTestSurvey(std::shared_ptr<HttpsServer::Respons
 				break;
 			}
 			if (!database.query("EXECUTE updateStmt USING @paramEnabled, @paramSurveyID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -2104,7 +2104,7 @@ void ManagementServer::updatePlayTestSurvey(std::shared_ptr<HttpsServer::Respons
 				break;
 			}
 			if (!database.query("EXECUTE updateStmt USING @paramEnabled, @paramSurveyID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -2183,7 +2183,7 @@ void ManagementServer::getPlayTestSurveys(std::shared_ptr<HttpsServer::Response>
 				break;
 			}
 			if (!database.query("EXECUTE selectStmt USING @paramProjectID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -2206,7 +2206,7 @@ void ManagementServer::getPlayTestSurveys(std::shared_ptr<HttpsServer::Response>
 					break;
 				}
 				if (!database.query("EXECUTE selectQuestionCountStmt USING @paramSurveyID;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -2215,7 +2215,7 @@ void ManagementServer::getPlayTestSurveys(std::shared_ptr<HttpsServer::Response>
 				surveyNode.put("QuestionCount", results2.empty() ? "0" : results2[0][0]);
 				
 				if (!database.query("EXECUTE selectAnswerCountStmt USING @paramSurveyID;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -2281,7 +2281,7 @@ void ManagementServer::getPlayTestSurvey(std::shared_ptr<HttpsServer::Response> 
 				break;
 			}
 			if (!database.query("EXECUTE selectQuestionsStmt USING @paramSurveyID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -2475,7 +2475,7 @@ void ManagementServer::getOwnPlayTestSurveyAnswers(std::shared_ptr<HttpsServer::
 				break;
 			}
 			if (!database.query("EXECUTE selectPlayTestStmt USING @paramProjectID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -2487,7 +2487,7 @@ void ManagementServer::getOwnPlayTestSurveyAnswers(std::shared_ptr<HttpsServer::
 			}
 			
 			if (!database.query("EXECUTE selectSurveyIDStmt USING @paramProjectID, @paramLanguage, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -2500,7 +2500,7 @@ void ManagementServer::getOwnPlayTestSurveyAnswers(std::shared_ptr<HttpsServer::
 					break;
 				}
 				if (!database.query("EXECUTE selectSurveyIDStmt USING @paramProjectID, @paramLanguage, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -2518,7 +2518,7 @@ void ManagementServer::getOwnPlayTestSurveyAnswers(std::shared_ptr<HttpsServer::
 			responseTree.put("SurveyID", results[0][0]);
 			
 			if (!database.query("EXECUTE selectQuestionsStmt USING @paramSurveyID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -2533,7 +2533,7 @@ void ManagementServer::getOwnPlayTestSurveyAnswers(std::shared_ptr<HttpsServer::
 				}
 			
 				if (!database.query("EXECUTE selectAnswersStmt USING @paramSurveyID, @paramUserID, @paramQuestionID;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -2608,7 +2608,7 @@ void ManagementServer::getAllPlayTestSurveyAnswers(std::shared_ptr<HttpsServer::
 				break;
 			}
 			if (!database.query("EXECUTE selectQuestionsStmt USING @paramSurveyID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -2626,7 +2626,7 @@ void ManagementServer::getAllPlayTestSurveyAnswers(std::shared_ptr<HttpsServer::
 					break;
 				}
 				if (!database.query("EXECUTE selectAnswersStmt USING @paramQuestionID;")) {
-					std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -2709,17 +2709,17 @@ void ManagementServer::deletePlayTestSurvey(std::shared_ptr<HttpsServer::Respons
 				break;
 			}
 			if (!database.query("EXECUTE deleteSurveyStmt USING @paramSurveyID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
 			if (!database.query("EXECUTE deleteSurveyQuestionsStmt USING @paramSurveyID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
 			if (!database.query("EXECUTE deleteSurveyAnswersStmt USING @paramSurveyID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -2777,7 +2777,7 @@ void ManagementServer::clearAchievementProgress(std::shared_ptr<HttpsServer::Res
 				break;
 			}
 			if (!database.query("EXECUTE selectEnabledStmt USING @paramProjectID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -2786,7 +2786,7 @@ void ManagementServer::clearAchievementProgress(std::shared_ptr<HttpsServer::Res
 			if (results.empty()) break;
 			
 			if (!database.query("EXECUTE deleteAchievementProgressStmt USING @paramProjectID;")) {
-				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
@@ -2834,7 +2834,7 @@ bool ManagementServer::hasAdminAccessToMod(int userID, int modID) const {
 			break;
 		}
 		if (!database.query("EXECUTE selectModStmt USING @paramModID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			break;
 		}
 		auto results = database.getResults<std::vector<std::string>>();
@@ -2847,7 +2847,7 @@ bool ManagementServer::hasAdminAccessToMod(int userID, int modID) const {
 		}
 		
 		if (!database.query("EXECUTE selectMemberStmt USING @paramTeamID, @paramUserID;")) {
-			std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 			break;
 		}
 		results = database.getResults<std::vector<std::string>>();

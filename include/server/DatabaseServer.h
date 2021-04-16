@@ -98,6 +98,8 @@ namespace server {
 		void requestPackageFiles(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
 		
 		void requestAllTri6ScoreStats(boost::property_tree::ptree & responseTree) const;
+
+		std::string getFileServer(int userID, int projectID, int majorVersion, int minorVersion, int patchVersion, int spineVersion) const;
 	};
 
 } /* namespace server */
