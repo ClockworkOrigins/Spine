@@ -1408,7 +1408,7 @@ void ManagementServer::getStatistics(std::shared_ptr<HttpsServer::Response> resp
 			uint32_t medianPlaytime = 0;
 			for (size_t i = 0; i < results.size(); i++) {
 				const auto vec = results[i];
-				const uint32_t current = static_cast<uint32_t>(std::stoi(vec[0]));
+				const auto current = static_cast<uint32_t>(std::stoi(vec[0]));
 				if (current > max) {
 					max = current;
 				}
@@ -1438,7 +1438,7 @@ void ManagementServer::getStatistics(std::shared_ptr<HttpsServer::Response> resp
 			medianPlaytime = 0;
 			for (size_t i = 0; i < results.size(); i++) {
 				const auto vec = results[i];
-				const uint32_t current = static_cast<uint32_t>(std::stoi(vec[0]));
+				const auto current = static_cast<uint32_t>(std::stoi(vec[0]));
 				if (current > max) {
 					max = current;
 				}

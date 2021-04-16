@@ -2152,10 +2152,12 @@
 		<Bug language="Deutsch">Doppelte Einträge bei übersprungenem Update im Update-Dialog korrigiert</Bug>
 		<Bug language="Deutsch">Crash behoben, wenn Spine im Offline-Modus gestartet wird und Dateien gepatcht werden müssten</Bug>
 		<Bug language="Deutsch">Patchen von Gothic 1 nach jedem Start mit Union unterbunden, weil es eine Datei modifiziert</Bug>
+		<Bug language="Deutsch">Reihenfolge von Downloads pro Version korrigiert</Bug>
 		
 		<Bug language="English">Fixed caching of database</Bug>
 		<Bug language="English">Fixed duplicated entries in update dialog when skipping an update</Bug>
 		<Bug language="English">Fixed crash starting Spine in offline mode when there are files in the Gothic folders that need patches</Bug>
 		<Bug language="English">Fixed starting Gothic 1 with Union always triggering patching of Gothic 1</Bug>
+		<Bug language="English">Fixed sort order of downloads per version</Bug>
 	</Version>
 </Versions>

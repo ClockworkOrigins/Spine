@@ -344,6 +344,24 @@ void ManagementStatistics::read(const QJsonObject & json) {
 		downloadsPerVersion.append(mvd);
 	}
 
+	std::sort(downloadsPerVersion.begin(), downloadsPerVersion.end(), [](const ManagementVersionDownload & a, const ManagementVersionDownload & b) {
+		const auto split1 = a.version.split(".");
+		const auto split2 = b.version.split(".");
+
+		const int majorVersion1 = split1[0].toInt();
+		const int minorVersion1 = split1[1].toInt();
+		const int patchVersion1 = split1[2].toInt();
+
+		const int majorVersion2 = split2[0].toInt();
+		const int minorVersion2 = split2[1].toInt();
+		const int patchVersion2 = split2[2].toInt();
+
+		const auto v1 = majorVersion1 * 1000000 + minorVersion1 * 1000 + patchVersion1;
+		const auto v2 = majorVersion2 * 1000000 + minorVersion2 * 1000 + patchVersion2;
+
+		return v1 < v2;
+	});
+
 	overallPlayerCount = json["OverallPlayerCount"].toString().toInt();
 	last24HoursPlayerCount = json["Last24HoursPlayerCount"].toString().toInt();
 	last7DaysPlayerCount = json["Last7DaysPlayerCount"].toString().toInt();
