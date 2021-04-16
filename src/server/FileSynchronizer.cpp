@@ -479,7 +479,7 @@ void FileSynchronizer::addJob(const AddForServerJob & job) {
 	do {
 		CONNECTTODATABASE(__LINE__)
 
-		if (!database.query("PREPARE selectStmt FROM \"SELECT JobID FROM fileserverSynchronizationQueue WHERE ServerID = ? AND ProjectID = ? AND Path = ?\";")) {
+		if (!database.query("PREPARE selectStmt FROM \"SELECT JobID, Path FROM fileserverSynchronizationQueue WHERE ServerID = ? AND ProjectID = ? AND Path = ?\";")) {
 			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			break;
 		}
@@ -508,15 +508,24 @@ void FileSynchronizer::addJob(const AddForServerJob & job) {
 		}
 
 		const auto results = database.getResults<std::vector<std::string>>();
+		auto jobID = -1;
 
-		if (results.empty() || add || (!update && results.size() == 1)) {
+		for (const auto vec : results) {
+			if (vec[1] != job.path) continue;
+
+			jobID = std::stoi(vec[0]);
+
+			break;
+		}
+
+		if (results.empty() || add || (!update && results.size() == 1) || jobID == -1) {
 			update = false;
 		} else {
 			update = true;
 		}
 
 		if (update) {
-			updateJob(job, std::stoi(results[0][0]));
+			updateJob(job, jobID);
 			break;
 		}
 		if (!database.query("SET @paramMajorVersion=" + std::to_string(job.majorVersion) + ";")) {
