@@ -823,17 +823,17 @@ void ModDatabaseView::updateModList(std::vector<Mod> mods) {
 		avgTimeItem->setEditable(false);
 		QDate date(2000, 1, 1);
 		date = date.addDays(mod.releaseDate);
-		DateItem * releaseDateItem = new DateItem(date);
+		auto * releaseDateItem = new DateItem(date);
 		releaseDateItem->setEditable(false);
 
 		date = QDate(2000, 1, 1);
 		date = date.addDays(std::max(mod.releaseDate, mod.updateDate));
-		DateItem * updateDateItem = new DateItem(date);
+		auto * updateDateItem = new DateItem(date);
 		updateDateItem->setEditable(false);
 		
-		VersionItem * versionItem = new VersionItem(mod.majorVersion, mod.minorVersion, mod.patchVersion);
+		auto * versionItem = new VersionItem(mod.majorVersion, mod.minorVersion, mod.patchVersion);
 		versionItem->setEditable(false);
-		SizeItem * sizeItem = new SizeItem(mod.downloadSize);
+		auto * sizeItem = new SizeItem(mod.downloadSize);
 		sizeItem->setEditable(false);
 		QStandardItem * buttonItem = nullptr;
 		if (_downloadingList.contains(mod.id)) {
@@ -1129,7 +1129,7 @@ void ModDatabaseView::updatePackageList(std::vector<UpdatePackageListMessage::Pa
 			f.setUnderline(true);
 			nameItem->setFont(f);
 		}
-		SizeItem * sizeItem = new SizeItem(package.downloadSize);
+		auto * sizeItem = new SizeItem(package.downloadSize);
 		TextItem * buttonItem = nullptr;
 		if (_downloadingPackageList.contains(package.packageID)) {
 			buttonItem = new TextItem(QApplication::tr("InQueue"));
@@ -1161,52 +1161,52 @@ void ModDatabaseView::updatePackageList(std::vector<UpdatePackageListMessage::Pa
 				buttonItem->setTextAlignment(Qt::AlignCenter);
 				
 				{
-					QStandardItem * itm = new QStandardItem();
+					auto * itm = new QStandardItem();
 					itm->setEditable(false);
 					par->setChild(i, DatabaseColumn::ModID, itm);
 				}
 				{
-					QStandardItem * itm = new QStandardItem();
+					auto * itm = new QStandardItem();
 					itm->setEditable(false);
 					par->setChild(i, DatabaseColumn::Author, itm);
 				}
 				{
-					QStandardItem * itm = new QStandardItem();
+					auto * itm = new QStandardItem();
 					itm->setEditable(false);
 					par->setChild(i, DatabaseColumn::AvgDuration, itm);
 				}
 				{
-					QStandardItem * itm = new QStandardItem();
+					auto * itm = new QStandardItem();
 					itm->setEditable(false);
 					par->setChild(i, DatabaseColumn::DevDuration, itm);
 				}
 				{
-					QStandardItem * itm = new QStandardItem();
+					auto * itm = new QStandardItem();
 					itm->setEditable(false);
 					par->setChild(i, DatabaseColumn::Game, itm);
 				}
 				{
-					QStandardItem * itm = new QStandardItem();
+					auto * itm = new QStandardItem();
 					itm->setEditable(false);
 					par->setChild(i, DatabaseColumn::Release, itm);
 				}
 				{
-					QStandardItem * itm = new QStandardItem();
+					auto * itm = new QStandardItem();
 					itm->setEditable(false);
 					par->setChild(i, DatabaseColumn::Update, itm);
 				}
 				{
-					QStandardItem * itm = new QStandardItem();
+					auto * itm = new QStandardItem();
 					itm->setEditable(false);
 					par->setChild(i, DatabaseColumn::Type, itm);
 				}
 				{
-					QStandardItem * itm = new QStandardItem();
+					auto * itm = new QStandardItem();
 					itm->setEditable(false);
 					par->setChild(i, DatabaseColumn::Version, itm);
 				}
 				{
-					QStandardItem * itm = new QStandardItem();
+					auto * itm = new QStandardItem();
 					itm->setEditable(false);
 					par->setChild(i, DatabaseColumn::Languages, itm);
 				}
@@ -1519,11 +1519,11 @@ void ModDatabaseView::selectedPackageIndex(const QModelIndex & index) {
 void ModDatabaseView::updateDatabaseEntries() {
 	// Free Aiming: 223 and 227. 227 is now obsolete
 	if (isInstalled(223) && isInstalled(227)) {
-		client::Uninstaller::uninstall(227);
+		Uninstaller::uninstall(227);
 	}
 	// Workaround Helper: 225 and 234. 234 is now obsolete
 	if (isInstalled(225) && isInstalled(234)) {
-		client::Uninstaller::uninstall(234);
+		Uninstaller::uninstall(234);
 	}
 	
 	Database::DBError err;
