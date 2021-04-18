@@ -6390,7 +6390,17 @@ void DatabaseServer::requestPackageFiles(std::shared_ptr<HttpsServer::Response> 
 
 		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
 
-		const auto userID = -1; // TODO
+
+
+		auto userID = -1;
+
+		if (pt.count("Username") > 0 && pt.count("Password") > 0) {
+			const auto username = pt.get<std::string>("Username");
+			const auto password = pt.get<std::string>("Password");
+			
+			userID = ServerCommon::getUserID(username, password);
+		}
+		
 		const auto packageID = pt.get<int32_t>("PackageID");
 		const auto language = pt.get<std::string>("Language");
 

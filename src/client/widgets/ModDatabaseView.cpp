@@ -1467,6 +1467,8 @@ void ModDatabaseView::selectedPackageIndex(const QModelIndex & index) {
 			_downloadingPackageList.append(package.packageID);
 
 			QJsonObject json;
+			json["Username"] = Config::Username;
+			json["Password"] = Config::Password;
 			json["Language"] = Config::Language;
 			json["PackageID"] = package.packageID;
 
