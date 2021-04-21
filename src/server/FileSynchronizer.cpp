@@ -489,6 +489,11 @@ void FileSynchronizer::addJob(const AddForServerJob & job) {
 			break;
 		}
 
+		if (!database.query("PREPARE deleteStmt FROM \"DELETE FROM projectsOnFileservers WHERE ServerID = ? AND ProjectID = ?\";")) {
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			break;
+		}
+
 		if (!database.query("SET @paramServerID=" + std::to_string(job.serverID) + ";")) {
 			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			break;
@@ -550,6 +555,11 @@ void FileSynchronizer::addJob(const AddForServerJob & job) {
 		}
 
 		if (!database.query("EXECUTE insertStmt USING @paramServerID, @paramProjectID, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion, @paramSpineVersion, @paramPath, @paramOperation;")) {
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			break;
+		}
+
+		if (!database.query("EXECUTE deleteStmt USING @paramServerID, @paramProjectID;")) {
 			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			break;
 		}
