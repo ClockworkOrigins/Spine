@@ -515,7 +515,7 @@ void FileSynchronizer::addJob(const AddForServerJob & job) {
 		const auto results = database.getResults<std::vector<std::string>>();
 		auto jobID = -1;
 
-		for (const auto vec : results) {
+		for (const auto & vec : results) {
 			if (vec[1] != job.path) continue;
 
 			jobID = std::stoi(vec[0]);
