@@ -369,11 +369,11 @@
     </message>
     <message>
         <source>DownloadPath</source>
-        <translation>Путь к установленным модификациям</translation>
+        <translation>Путь к установленным проектам</translation>
     </message>
     <message>
         <source>SelectDownloadDir</source>
-        <translation>Выберите папку для хранения установленных модификаций</translation>
+        <translation>Выберите папку для хранения установленных проектов</translation>
     </message>
     <message>
         <source>Developer</source>

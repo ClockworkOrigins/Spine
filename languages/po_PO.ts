@@ -371,11 +371,11 @@ W przypadku znalezienia aktualizacji Spine automatycznie rozpocznie pobieranie, 
     </message>
     <message>
         <source>DownloadPath</source>
-        <translation>Ścieżka do zainstalowanych modyfikacji</translation>
+        <translation>Ścieżka do zainstalowanych projektów</translation>
     </message>
     <message>
         <source>SelectDownloadDir</source>
-        <translation>Wybierz folder do instalacji modyfikacji</translation>
+        <translation>Wybierz folder do przechowywania zainstalowanych projektów</translation>
     </message>
     <message>
         <source>Developer</source>

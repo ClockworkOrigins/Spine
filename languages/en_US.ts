@@ -375,11 +375,11 @@ If an update is found, Spine will automatically download the update and restart 
     </message>
     <message>
         <source>DownloadPath</source>
-        <translation>Path to installed modifications</translation>
+        <translation>Path to installed projects</translation>
     </message>
     <message>
         <source>SelectDownloadDir</source>
-        <translation>Choose a folder for storage of installed modifications</translation>
+        <translation>Choose a folder for storage of installed projects</translation>
     </message>
     <message>
         <source>Developer</source>

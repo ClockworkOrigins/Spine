@@ -375,11 +375,11 @@ Wenn ein Update gefunden wird, wird Spine automatisch den Download starten und s
     </message>
     <message>
         <source>DownloadPath</source>
-        <translation>Pfad zu installierten Modifikationen</translation>
+        <translation>Pfad zu installierten Projekten</translation>
     </message>
     <message>
         <source>SelectDownloadDir</source>
-        <translation>Wähle Ordner für Modifikations-Installationen</translation>
+        <translation>Wähle Ordner für Projekt-Installationen</translation>
     </message>
     <message>
         <source>Developer</source>
