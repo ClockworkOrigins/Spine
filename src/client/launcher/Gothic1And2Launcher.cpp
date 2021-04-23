@@ -325,6 +325,7 @@ void Gothic1And2Launcher::createWidget() {
 	{
 		_zSpyLabel = new QLabel(QApplication::tr("zSpyLevel"), _widget);
 		_zSpyLabel->setProperty("library", true);
+		_zSpyLabel->hide();
 		UPDATELANGUAGESETTEXT(_zSpyLabel, "zSpyLevel");
 
 		_zSpyLevel = new QSlider(Qt::Orientation::Horizontal, _widget);
@@ -332,6 +333,7 @@ void Gothic1And2Launcher::createWidget() {
 		_zSpyLevel->setMinimum(0);
 		_zSpyLevel->setMaximum(10);
 		_zSpyLevel->setPageStep(1);
+		_zSpyLevel->hide();
 
 		zSpyLayout->addWidget(_zSpyLabel);
 		zSpyLayout->addWidget(_zSpyLevel);

@@ -2154,6 +2154,7 @@
 		<Bug language="Deutsch">Patchen von Gothic 1 nach jedem Start mit Union unterbunden, weil es eine Datei modifiziert</Bug>
 		<Bug language="Deutsch">Reihenfolge von Downloads pro Version korrigiert</Bug>
 		<Bug language="Deutsch">Fehler behoben, wodurch Update-Check neu hochgeladener Dateien nicht funktioniert hat</Bug>
+		<Bug language="Deutsch">Fehler behoben, wodurch im Nicht-Entwicklermodus zSpy immer angezeigt wurde</Bug>
 		
 		<Bug language="English">Fixed caching of database</Bug>
 		<Bug language="English">Fixed duplicated entries in update dialog when skipping an update</Bug>
@@ -2161,5 +2162,6 @@
 		<Bug language="English">Fixed starting Gothic 1 with Union always triggering patching of Gothic 1</Bug>
 		<Bug language="English">Fixed sort order of downloads per version</Bug>
 		<Bug language="English">Fixed bug that caused update check not to work after new upload</Bug>
+		<Bug language="English">Fixed bug that caused zSpy to be always visible when starting without developer mode</Bug>
 	</Version>
 </Versions>
