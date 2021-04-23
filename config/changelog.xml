@@ -2158,6 +2158,7 @@
 		<Bug language="Deutsch">Fehler behoben, wodurch leere Changelogs nicht richtig leer waren</Bug>
 		<Bug language="Deutsch">Fehler behoben, wodurch Dateien mit ungültigem Dateinamen hochgeladen werden konnten</Bug>
 		<Bug language="Deutsch">Fehler behoben, wodurch kleinere oder gleiche Versionsnummern eingereicht werden konnten</Bug>
+		<Bug language="Deutsch">Fehler behoben, wodurch Zusatzpakete auf den Infoseiten teilweise nicht angezeigt wurden</Bug>
 		
 		<Bug language="English">Fixed caching of database</Bug>
 		<Bug language="English">Fixed duplicated entries in update dialog when skipping an update</Bug>
@@ -2169,5 +2170,6 @@
 		<Bug language="English">Fixed bug that caused empty changelogs to be not really empty</Bug>
 		<Bug language="English">Fixed bug that caused invalid filenames to be uploadable</Bug>
 		<Bug language="English">Fixed bug that caused smaller or same version numbers to be submittable</Bug>
+		<Bug language="English">Fixed bug that caused optional packages sometimes not being visible</Bug>
 	</Version>
 </Versions>

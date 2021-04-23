@@ -3386,12 +3386,12 @@ void DatabaseServer::requestInfoPage(std::shared_ptr<HttpsServer::Response> resp
 				std::string forceFeaturesLanguage;
 				
 				if (lastResults.empty()) { // if not available in player language try English
-					if (!database.query("SET @paramLanguage='English';")) {
+					if (!database.query("SET @paramTestLanguage='English';")) {
 						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 						code = SimpleWeb::StatusCode::client_error_failed_dependency;
 						break;
 					}
-					if (!database.query("EXECUTE selectDescriptionStmt USING @paramModID, @paramLanguage;")) {
+					if (!database.query("EXECUTE selectDescriptionStmt USING @paramModID, @paramTestLanguage;")) {
 						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 						code = SimpleWeb::StatusCode::client_error_failed_dependency;
 						break;
@@ -3414,11 +3414,6 @@ void DatabaseServer::requestInfoPage(std::shared_ptr<HttpsServer::Response> resp
 				if (!lastResults.empty()) {
 					responseTree.put("Description", lastResults[0][0]);
 				}
-				if (!database.query("SET @paramLanguage='" + language + "';")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
-					code = SimpleWeb::StatusCode::client_error_failed_dependency;
-					break;
-				}
 				if (!database.query("EXECUTE selectFeaturesStmt USING @paramModID, @paramLanguage;")) {
 					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
@@ -3427,12 +3422,12 @@ void DatabaseServer::requestInfoPage(std::shared_ptr<HttpsServer::Response> resp
 				lastResults = database.getResults<std::vector<std::string>>();
 
 				if (lastResults.empty()) { // if no features found, try English
-					if (!database.query("SET @paramLanguage='English';")) {
+					if (!database.query("SET @paramTestLanguage='English';")) {
 						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 						code = SimpleWeb::StatusCode::client_error_failed_dependency;
 						break;
 					}
-					if (!database.query("EXECUTE selectFeaturesStmt USING @paramModID, @paramLanguage;")) {
+					if (!database.query("EXECUTE selectFeaturesStmt USING @paramModID, @paramTestLanguage;")) {
 						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 						code = SimpleWeb::StatusCode::client_error_failed_dependency;
 						break;
@@ -3440,12 +3435,12 @@ void DatabaseServer::requestInfoPage(std::shared_ptr<HttpsServer::Response> resp
 					lastResults = database.getResults<std::vector<std::string>>();
 
 					if (lastResults.empty() && !forceFeaturesLanguage.empty()) { // if still not available, check if there are features in the language detected by description
-						if (!database.query("SET @paramLanguage='" + forceFeaturesLanguage + "';")) {
+						if (!database.query("SET @paramTestLanguage='" + forceFeaturesLanguage + "';")) {
 							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 							code = SimpleWeb::StatusCode::client_error_failed_dependency;
 							break;
 						}
-						if (!database.query("EXECUTE selectFeaturesStmt USING @paramModID, @paramLanguage;")) {
+						if (!database.query("EXECUTE selectFeaturesStmt USING @paramModID, @paramTestLanguage;")) {
 							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 							code = SimpleWeb::StatusCode::client_error_failed_dependency;
 							break;
