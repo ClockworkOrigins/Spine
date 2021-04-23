@@ -3389,5 +3389,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>VersionInvalidText</source>
         <translation>Данная версия недействительна. Версия должна быть старше предыдущей (%1.%2.%3.%4).</translation>
     </message>
+    <message>
+        <source>PatchingProject</source>
+        <translation>Патчинг %1</translation>
+    </message>
 </context>
 </TS>

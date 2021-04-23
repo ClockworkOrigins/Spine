@@ -3384,5 +3384,9 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>VersionInvalidText</source>
         <translation>Podana wersja jest nieprawidłowa. Wersja musi być nowsza niż poprzednia wersja (%1.%2.%3.%4).</translation>
     </message>
+    <message>
+        <source>PatchingProject</source>
+        <translation>Poprawianie %1</translation>
+    </message>
 </context>
 </TS>

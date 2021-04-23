@@ -3396,5 +3396,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>VersionInvalidText</source>
         <translation>The given version is invalid. The version must be greater than the previous version (%1.%2.%3.%4).</translation>
     </message>
+    <message>
+        <source>PatchingProject</source>
+        <translation>Patching %1</translation>
+    </message>
 </context>
 </TS>

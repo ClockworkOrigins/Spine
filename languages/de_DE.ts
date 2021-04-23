@@ -3388,5 +3388,9 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>VersionInvalidText</source>
         <translation>Die angegebene Version ist ungültig. Die Version muss größer als die bisherige Version (%1.%2.%3.%4) sein.</translation>
     </message>
+    <message>
+        <source>PatchingProject</source>
+        <translation>Patche %1</translation>
+    </message>
 </context>
 </TS>

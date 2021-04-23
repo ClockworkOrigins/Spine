@@ -25,6 +25,7 @@
 
 #include <QApplication>
 #include <QLabel>
+#include <QScrollArea>
 #include <QVBoxLayout>
 
 using namespace spine::gui;
@@ -34,16 +35,27 @@ DownloadQueueWidget * DownloadQueueWidget::instance = nullptr;
 
 DownloadQueueWidget::DownloadQueueWidget(QWidget * par) : QWidget(par) {
 	instance = this;
-	
-	_entryLayout = new QVBoxLayout();
-	_entryLayout->setAlignment(Qt::AlignTop);
+
+	auto * l = new QVBoxLayout();
 	
 	_titleLabel = new QLabel(QApplication::tr("Downloads"), this);
 	_titleLabel->setProperty("newsTitle", true);
 
-	_entryLayout->addWidget(_titleLabel, 0, Qt::AlignHCenter);
+	l->addWidget(_titleLabel, 0, Qt::AlignHCenter);
 
-	setLayout(_entryLayout);
+	_entryLayout = new QVBoxLayout();
+	_entryLayout->setAlignment(Qt::AlignTop);
+
+	auto * scrollArea = new QScrollArea(this);
+	auto * mainWidget = new QWidget(this);
+	mainWidget->setLayout(_entryLayout);
+	scrollArea->setWidget(mainWidget);
+	scrollArea->setWidgetResizable(true);
+	mainWidget->setProperty("default", true);
+
+	l->addWidget(scrollArea, 1);
+
+	setLayout(l);
 }
 
 DownloadQueueWidget * DownloadQueueWidget::getInstance() {

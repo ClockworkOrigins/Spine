@@ -92,6 +92,8 @@ namespace widgets {
 		void unzippedArchive(QString archive, QList<QPair<QString, QString>> files, ModFile mf, QSharedPointer<QList<ModFile>> installFiles, QSharedPointer<QList<ModFile>> newFiles, QSharedPointer<QList<ModFile>> removeFiles);
 
 		void requestUpdates(const std::vector<common::ModVersion> & m, bool forceAccept);
+
+		void updateProject(common::ModUpdate mu);
 	};
 
 } /* namespace widgets */

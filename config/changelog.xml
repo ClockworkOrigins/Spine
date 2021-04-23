@@ -2148,6 +2148,7 @@
 		<Bug language="English">Increased limit for community based patch filter</Bug>
 	</Version>
 	<Version majorVersion="1" minorVersion="31" patchVersion="0">
+		<Enhancement language="Deutsch">Patchen verbessert</Enhancement>
 		<Bug language="Deutsch">Caching der Datenbank korrigiert</Bug>
 		<Bug language="Deutsch">Doppelte Einträge bei übersprungenem Update im Update-Dialog korrigiert</Bug>
 		<Bug language="Deutsch">Crash behoben, wenn Spine im Offline-Modus gestartet wird und Dateien gepatcht werden müssten</Bug>
@@ -2163,6 +2164,7 @@
 		<Bug language="Deutsch">Potenziellen Fix für manchmal fehlschlagende Downloads eingebaut</Bug>
 		<Bug language="Deutsch">Crash behoben, wenn sehr viele Projekte gleichzeitig gepatcht werden</Bug>
 		
+		<Enhancement language="English">Improved patching</Enhancement>
 		<Bug language="English">Fixed caching of database</Bug>
 		<Bug language="English">Fixed duplicated entries in update dialog when skipping an update</Bug>
 		<Bug language="English">Fixed crash starting Spine in offline mode when there are files in the Gothic folders that need patches</Bug>
