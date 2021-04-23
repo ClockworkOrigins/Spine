@@ -1316,28 +1316,24 @@ void ModDatabaseView::resizeEvent(QResizeEvent *) {
 	int columnCount = _sourceModel->columnCount();
 	const int width = _treeView->width();
 	if (width < 1000) {
-		_treeView->hideColumn(DatabaseColumn::ModID);
 		_treeView->hideColumn(DatabaseColumn::Author);
 		_treeView->hideColumn(DatabaseColumn::AvgDuration);
 		_treeView->hideColumn(DatabaseColumn::Game);
 		_treeView->hideColumn(DatabaseColumn::Version);
 		columnCount -= 3;
 	} else if (width < 1300) {
-		_treeView->hideColumn(DatabaseColumn::ModID);
 		_treeView->hideColumn(DatabaseColumn::Author);
 		_treeView->hideColumn(DatabaseColumn::AvgDuration);
 		_treeView->showColumn(DatabaseColumn::Game);
 		_treeView->hideColumn(DatabaseColumn::Version);
 		columnCount -= 2;
 	} else if (width < 1600) {
-		_treeView->hideColumn(DatabaseColumn::ModID);
 		_treeView->showColumn(DatabaseColumn::Author);
 		_treeView->hideColumn(DatabaseColumn::AvgDuration);
 		_treeView->showColumn(DatabaseColumn::Game);
 		_treeView->hideColumn(DatabaseColumn::Version);
 		columnCount -= 1;
 	} else if (width > 1600) {
-		_treeView->showColumn(DatabaseColumn::ModID);
 		_treeView->showColumn(DatabaseColumn::Version);
 		_treeView->showColumn(DatabaseColumn::Author);
 		_treeView->showColumn(DatabaseColumn::AvgDuration);
