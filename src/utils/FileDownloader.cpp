@@ -49,7 +49,7 @@
 
 using namespace spine::utils;
 
-FileDownloader::FileDownloader(QUrl url, QString targetDirectory, QString fileName, QString hash, QObject * par) : QObject(par), _webAccessManager(new QNetworkAccessManager(this)), _url(url), _targetDirectory(targetDirectory), _fileName(fileName), _hash(hash), _filesize(-1), _outputFile(nullptr), _finished(false), _retried(false), _blockErrors(false) {
+FileDownloader::FileDownloader(QUrl url, QString targetDirectory, QString fileName, QString hash, QObject * par) : QObject(par), _url(url), _targetDirectory(targetDirectory), _fileName(fileName), _hash(hash), _filesize(-1), _outputFile(nullptr), _finished(false), _retried(false), _blockErrors(false) {
 	connect(this, &FileDownloader::retry, this, &FileDownloader::startDownload, Qt::QueuedConnection); // queue to process potential errors earlier so they get blocked
 }
 
@@ -59,9 +59,11 @@ FileDownloader::~FileDownloader() {
 
 void FileDownloader::requestFileSize() {
 	const QNetworkRequest request(_url);
-	QNetworkReply * reply = _webAccessManager->head(request);
+	auto * networkAccessManager = new QNetworkAccessManager(this);
+	QNetworkReply * reply = networkAccessManager->head(request);
 	reply->setReadBufferSize(Config::downloadRate * 8);
 	connect(reply, &QNetworkReply::finished, this, &FileDownloader::determineFileSize);
+	connect(reply, &QNetworkReply::finished, networkAccessManager, &QObject::deleteLater);
 	connect(this, &FileDownloader::abort, reply, &QNetworkReply::abort);
 }
 
@@ -148,7 +150,8 @@ void FileDownloader::startDownload() {
 		return;
 	}
 	const QNetworkRequest request(_url);
-	QNetworkReply * reply = _webAccessManager->get(request);
+	auto * networkAccessManager = new QNetworkAccessManager(this);
+	QNetworkReply * reply = networkAccessManager->get(request);
 	reply->setReadBufferSize(Config::downloadRate * 8);
 	connect(reply, &QNetworkReply::downloadProgress, this, &FileDownloader::updateDownloadProgress);
 	connect(reply, &QNetworkReply::readyRead, this, &FileDownloader::writeToFile);
@@ -156,6 +159,7 @@ void FileDownloader::startDownload() {
 	connect(reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::error), this, &FileDownloader::networkError);
 	connect(reply, &QNetworkReply::sslErrors, this, &FileDownloader::sslErrors);
 	connect(this, &FileDownloader::abort, reply, &QNetworkReply::abort);
+	connect(reply, &QNetworkReply::finished, networkAccessManager, &QObject::deleteLater);
 	emit startedDownload(_fileName);
 }
 
@@ -206,9 +210,6 @@ void FileDownloader::fileDownloaded() {
 			_blockErrors = true;
 			
 			emit downloadProgress(-fileSize);
-
-			_webAccessManager->deleteLater();
-			_webAccessManager = new QNetworkAccessManager(this);
 
 			emit retry();
 		}

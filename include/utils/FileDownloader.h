@@ -23,7 +23,6 @@
 #include <QUrl>
 
 class QFile;
-class QNetworkAccessManager;
 
 namespace spine {
 namespace utils {
@@ -71,7 +70,6 @@ namespace utils {
 		void sslErrors(const QList<QSslError> & errors);
 
 	private:
-		QNetworkAccessManager * _webAccessManager;
 		QUrl _url;
 		QString _targetDirectory;
 		QString _fileName;
