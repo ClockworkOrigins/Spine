@@ -47,6 +47,7 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QScrollArea>
 #include <QSet>
 #include <QtConcurrentRun>
 #include <QTextBrowser>
@@ -69,7 +70,17 @@ ModUpdateDialog::ModUpdateDialog(QMainWindow * mainWindow) : QDialog(nullptr), _
 	l->addWidget(_infoLabel);
 
 	_checkBoxLayout = new QVBoxLayout();
-	l->addLayout(_checkBoxLayout, 1);
+	_checkBoxLayout->setAlignment(Qt::AlignTop);
+	//l->addLayout(_checkBoxLayout, 1);
+
+	auto * scrollArea = new QScrollArea(this);
+	auto * mainWidget = new QWidget(this);
+	mainWidget->setLayout(_checkBoxLayout);
+	scrollArea->setWidget(mainWidget);
+	scrollArea->setWidgetResizable(true);
+	mainWidget->setProperty("default", true);
+
+	l->addWidget(scrollArea, 1, Qt::AlignHCenter);
 
 	_dontShowAgain = new QCheckBox(QApplication::tr("DontShowAgain"), this);
 	l->addWidget(_dontShowAgain);

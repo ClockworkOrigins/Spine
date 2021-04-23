@@ -177,6 +177,9 @@ void FileDownloader::fileDownloaded() {
 		const QByteArray data = reply->readAll(); // the rest
 		_outputFile->write(data);
 		_outputFile->close();
+		
+		delete _outputFile;
+		_outputFile = nullptr;
 
 		uncompressAndHash();		
 	} else {
@@ -185,6 +188,9 @@ void FileDownloader::fileDownloaded() {
 		_outputFile->close();
 		
 		_outputFile->remove();
+		
+		delete _outputFile;
+		_outputFile = nullptr;
 		
 		if (_retried) {
 			LOGERROR("Unknown Error: " << reply->error() << ", " << q2s(reply->errorString()))
@@ -254,6 +260,10 @@ void FileDownloader::sslErrors(const QList<QSslError> & errors) {
 
 void FileDownloader::uncompressAndHash() {
 	QtConcurrent::run([this]() {
+		// try a sleep in case file handle is closed with some delay
+		// for some reason it happens sometimes that uncompressing fails, but we don't have any meaningful error message
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		
 		QFileInfo fi(_fileName);
 		const QString fileNameBackup = _fileName;
 

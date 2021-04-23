@@ -73,9 +73,9 @@ bool Compression::uncompress(const QString & file, const QString & targetFile, b
 
 	{
 #ifdef Q_OS_WIN
-	const auto sfile = q2ws(file);
+		const auto sfile = q2ws(file);
 #else
-	const auto sfile = q2s(file);
+		const auto sfile = q2s(file);
 #endif
 		
 		std::ifstream compressedFile(sfile, std::ios_base::in | std::ios_base::binary);
@@ -84,9 +84,9 @@ bool Compression::uncompress(const QString & file, const QString & targetFile, b
 		in.push(compressedFile);
 					
 #ifdef Q_OS_WIN
-	const auto sTargetFile = q2ws(targetFile);
+		const auto sTargetFile = q2ws(targetFile);
 #else
-	const auto sTargetFile = q2s(targetFile);
+		const auto sTargetFile = q2s(targetFile);
 #endif
 		
 		std::ofstream uncompressedFile(sTargetFile, std::ios_base::out | std::ios_base::binary);
