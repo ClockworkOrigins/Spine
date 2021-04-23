@@ -3376,5 +3376,13 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>FileUnsupportedDescription</source>
         <translation>Plik "%1" zawiera nieobsługiwany znak "%2". Zmień nazwę pliku, aby pomyślnie go przesłać.</translation>
     </message>
+    <message>
+        <source>VersionInvalid</source>
+        <translation>Wersja nieprawidłowa</translation>
+    </message>
+    <message>
+        <source>VersionInvalidText</source>
+        <translation>Podana wersja jest nieprawidłowa. Wersja musi być nowsza niż poprzednia wersja (%1.%2.%3.%4).</translation>
+    </message>
 </context>
 </TS>

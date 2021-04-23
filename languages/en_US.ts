@@ -3388,5 +3388,13 @@ You can revoke your permission at every point in time. All necessary information
         <source>FileUnsupportedDescription</source>
         <translation>The file "%1" contains the unsupported character "%2". Please change the filename to succesfully upload it.</translation>
     </message>
+    <message>
+        <source>VersionInvalid</source>
+        <translation>Version invalid</translation>
+    </message>
+    <message>
+        <source>VersionInvalidText</source>
+        <translation>The given version is invalid. The version must be greater than the previous version (%1.%2.%3.%4).</translation>
+    </message>
 </context>
 </TS>

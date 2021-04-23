@@ -3381,5 +3381,13 @@ You can revoke your permission at every point in time. All necessary information
         <source>FileUnsupportedDescription</source>
         <translation>Файл "%1" содержит неподдерживаемый символ "%2". Пожалуйста, измените имя файла, чтобы успешно загрузить его.</translation>
     </message>
+    <message>
+        <source>VersionInvalid</source>
+        <translation>Версия недействительна</translation>
+    </message>
+    <message>
+        <source>VersionInvalidText</source>
+        <translation>Данная версия недействительна. Версия должна быть старше предыдущей (%1.%2.%3.%4).</translation>
+    </message>
 </context>
 </TS>

@@ -3380,5 +3380,13 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>FileUnsupportedDescription</source>
         <translation>Die Datei "%1" enthält das nicht unterstützte Zeichen "%2". Ändere den Dateinamen, um sie erfolgreich hochzuladen.</translation>
     </message>
+    <message>
+        <source>VersionInvalid</source>
+        <translation>Version ungültig</translation>
+    </message>
+    <message>
+        <source>VersionInvalidText</source>
+        <translation>Die angegebene Version ist ungültig. Die Version muss größer als die bisherige Version (%1.%2.%3.%4) sein.</translation>
+    </message>
 </context>
 </TS>

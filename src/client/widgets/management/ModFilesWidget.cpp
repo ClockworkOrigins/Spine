@@ -63,7 +63,6 @@
 	#include <QWinTaskbarProgress>
 #endif
 
-using namespace spine;
 using namespace spine::client;
 using namespace spine::client::widgets;
 using namespace spine::gui;
@@ -375,7 +374,7 @@ void ModFilesWidget::uploadCurrentMod() {
 	});
 }
 
-void ModFilesWidget::updateModList(QList<client::ManagementMod> modList) {
+void ModFilesWidget::updateModList(QList<ManagementMod> modList) {
 	_mods = modList;
 }
 
@@ -496,10 +495,21 @@ void ModFilesWidget::changedLanguage(QStandardItem * itm) {
 void ModFilesWidget::updateVersion() {
 	if (_modIndex == -1) return;
 
+	const auto project = _mods[_modIndex];
+
+	if (_majorVersionBox->value() < _data.versionMajor || _majorVersionBox->value() == _data.versionMajor && _minorVersionBox->value() < _data.versionMinor || _majorVersionBox->value() == _data.versionMajor && _minorVersionBox->value() == _data.versionMinor && _patchVersionBox->value() < _data.versionPatch || _majorVersionBox->value() == _data.versionMajor && _minorVersionBox->value() == _data.versionMinor && _patchVersionBox->value() == _data.versionPatch && _spineVersionBox->value() < _data.versionSpine || _majorVersionBox->value() == _data.versionMajor && _minorVersionBox->value() == _data.versionMinor && _patchVersionBox->value() == _data.versionPatch && _spineVersionBox->value() == _data.versionSpine) {
+		QMessageBox msg(QMessageBox::Icon::Information, QApplication::tr("VersionInvalid"), QApplication::tr("VersionInvalidText").arg(_data.versionMajor).arg(_data.versionMinor).arg(_data.versionPatch).arg(_data.versionSpine), QMessageBox::StandardButton::Ok);
+		msg.setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+		msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
+		msg.exec();
+		
+		return;
+	}
+
 	QJsonObject json;
 	json["Username"] = Config::Username;
 	json["Password"] = Config::Password;
-	json["ModID"] = _mods[_modIndex].id;
+	json["ModID"] = project.id;
 	json["VersionMajor"] = _majorVersionBox->value();
 	json["VersionMinor"] = _minorVersionBox->value();
 	json["VersionPatch"] = _patchVersionBox->value();
