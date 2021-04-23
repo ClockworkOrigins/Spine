@@ -2160,6 +2160,7 @@
 		<Bug language="Deutsch">Fehler behoben, wodurch kleinere oder gleiche Versionsnummern eingereicht werden konnten</Bug>
 		<Bug language="Deutsch">Fehler behoben, wodurch Zusatzpakete auf den Infoseiten teilweise nicht angezeigt wurden</Bug>
 		<Bug language="Deutsch">Scrollbar für Updates eingeführt</Bug>
+		<Bug language="Deutsch">Potenziellen Fix für manchmal fehlschlagende Downloads eingebaut</Bug>
 		
 		<Bug language="English">Fixed caching of database</Bug>
 		<Bug language="English">Fixed duplicated entries in update dialog when skipping an update</Bug>
@@ -2173,5 +2174,6 @@
 		<Bug language="English">Fixed bug that caused smaller or same version numbers to be submittable</Bug>
 		<Bug language="English">Fixed bug that caused optional packages sometimes not being visible</Bug>
 		<Bug language="English">Added scrollbar for updates</Bug>
+		<Bug language="English">Added potential fix for randomly happening failed downloads</Bug>
 	</Version>
 </Versions>
