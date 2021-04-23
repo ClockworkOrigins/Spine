@@ -27,17 +27,16 @@
 #include <QTextEdit>
 #include <QVBoxLayout>
 
-using namespace spine;
 using namespace spine::client::widgets;
 
 EnterChangelogDialog::EnterChangelogDialog(QWidget * par) : QDialog(par) {
-	QVBoxLayout * l = new QVBoxLayout();
+	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
 	{
-		QHBoxLayout * hl = new QHBoxLayout();
+		auto * hl = new QHBoxLayout();
 
-		QLabel * lbl = new QLabel(QApplication::tr("Language"), this);
+		auto * lbl = new QLabel(QApplication::tr("Language"), this);
 
 		_languageBox = new QComboBox(this);
 		_languageBox->addItems({ "Deutsch", "English", "Polish", "Russian" });
@@ -47,7 +46,7 @@ EnterChangelogDialog::EnterChangelogDialog(QWidget * par) : QDialog(par) {
 		_currentLanguage = _languageBox->currentText();
 
 		connect(_languageBox, &QComboBox::currentTextChanged, [this]() {
-			_changelogs[_currentLanguage] = _textEdit->toHtml();
+			_changelogs[_currentLanguage] = _textEdit->toPlainText();
 
 			_currentLanguage = _languageBox->currentText();
 
@@ -66,12 +65,13 @@ EnterChangelogDialog::EnterChangelogDialog(QWidget * par) : QDialog(par) {
 
 	_textEdit = new QTextEdit(this);
 	connect(_textEdit, &QTextEdit::textChanged, [this]() {
-		_changelogs[_languageBox->currentText()] = _textEdit->toPlainText();
+		const auto text = _textEdit->toPlainText();
+		_changelogs[_languageBox->currentText()] = text;
 	});
 
 	l->addWidget(_textEdit, 1);
 
-	QDialogButtonBox * dlgButtons = new QDialogButtonBox(QDialogButtonBox::StandardButton::Ok | QDialogButtonBox::StandardButton::Cancel, Qt::Orientation::Horizontal, this);
+	auto * dlgButtons = new QDialogButtonBox(QDialogButtonBox::StandardButton::Ok | QDialogButtonBox::StandardButton::Cancel, Qt::Orientation::Horizontal, this);
 
 	auto * okButton = dlgButtons->button(QDialogButtonBox::Ok);
 	auto * cancelButton = dlgButtons->button(QDialogButtonBox::Cancel);
