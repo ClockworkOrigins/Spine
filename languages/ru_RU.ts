@@ -3373,5 +3373,13 @@ You can revoke your permission at every point in time. All necessary information
         <source>CreateShortcut</source>
         <translation>Создать ярлык на рабочем столе</translation>
     </message>
+    <message>
+        <source>FileUnsupported</source>
+        <translation>Файл не поддерживается</translation>
+    </message>
+    <message>
+        <source>FileUnsupportedDescription</source>
+        <translation>Файл "%1" содержит неподдерживаемый символ "%2". Пожалуйста, измените имя файла, чтобы успешно загрузить его.</translation>
+    </message>
 </context>
 </TS>

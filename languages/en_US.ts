@@ -3380,5 +3380,13 @@ You can revoke your permission at every point in time. All necessary information
         <source>CreateShortcut</source>
         <translation>Create desktop shortcut</translation>
     </message>
+    <message>
+        <source>FileUnsupported</source>
+        <translation>File not supported</translation>
+    </message>
+    <message>
+        <source>FileUnsupportedDescription</source>
+        <translation>The file "%1" contains the unsupported character "%2". Please change the filename to succesfully upload it.</translation>
+    </message>
 </context>
 </TS>

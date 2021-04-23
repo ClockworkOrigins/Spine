@@ -162,6 +162,14 @@ ModFilesWidget::ModFilesWidget(QWidget * par) : QWidget(par), _fileList(nullptr)
 
 	connect(this, &ModFilesWidget::versionUpdated, this, &ModFilesWidget::showVersionUpdate);
 
+	QFile f(":/invalidFileChars.txt");
+	
+	if (!f.open(QIODevice::ReadOnly)) return;
+
+	QTextStream ts(&f);
+
+	_filterString = ts.readAll();
+
 #ifdef Q_OS_WIN
 	auto * button = new QWinTaskbarButton(this);
 	button->setWindow(spine::widgets::MainWindow::getInstance()->windowHandle());
@@ -560,6 +568,18 @@ void ModFilesWidget::addFile(QString fullPath, QString relativePath, QString fil
 	QString fullRelativePath = relativePath + "/" + file;
 	while (fullRelativePath.startsWith("/")) {
 		fullRelativePath.remove(0, 1);
+	}
+
+	for (const auto & c : _filterString) {
+		if (!fullRelativePath.contains(c)) continue;
+
+		// show error message
+		QMessageBox msg(QMessageBox::Icon::Critical, QApplication::tr("FileUnsupported"), QApplication::tr("FileUnsupportedDescription").arg(fullRelativePath).arg(c), QMessageBox::StandardButton::Ok);
+		msg.setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+		msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
+		msg.exec();
+		
+		return;
 	}
 
 	addFile(_directory.value("/"), fullRelativePath, "All");

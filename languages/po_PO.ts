@@ -3368,5 +3368,13 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>CreateShortcut</source>
         <translation>Utwórz skrót na pulpicie</translation>
     </message>
+    <message>
+        <source>FileUnsupported</source>
+        <translation>Plik nie jest obsługiwany</translation>
+    </message>
+    <message>
+        <source>FileUnsupportedDescription</source>
+        <translation>Plik "%1" zawiera nieobsługiwany znak "%2". Zmień nazwę pliku, aby pomyślnie go przesłać.</translation>
+    </message>
 </context>
 </TS>

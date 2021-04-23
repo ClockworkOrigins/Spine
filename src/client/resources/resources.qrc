@@ -40,5 +40,7 @@
 	<file alias="languages/en-US.png">languages/en-US.png</file>
 	<file alias="languages/pl-PL.png">languages/pl-PL.png</file>
 	<file alias="languages/ru-RU.png">languages/ru-RU.png</file>
+	
+	<file alias="invalidFileChars.txt">invalidFileChars.txt</file>
 </qresource>
 </RCC>

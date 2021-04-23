@@ -3372,5 +3372,13 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>CreateShortcut</source>
         <translation>Desktop-Verknüpfung anlegen</translation>
     </message>
+    <message>
+        <source>FileUnsupported</source>
+        <translation>Datei wird nicht unterstützt</translation>
+    </message>
+    <message>
+        <source>FileUnsupportedDescription</source>
+        <translation>Die Datei "%1" enthält das nicht unterstützte Zeichen "%2". Ändere den Dateinamen, um sie erfolgreich hochzuladen.</translation>
+    </message>
 </context>
 </TS>
