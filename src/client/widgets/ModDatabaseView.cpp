@@ -620,7 +620,7 @@ void ModDatabaseView::updateModList(int modID, int packageID, InstallMode mode) 
 				project.name = q2s(jsonProj["Name"].toString());
 				project.gothic = static_cast<GameType>(jsonProj["GameType"].toString().toInt());
 				project.type = static_cast<ModType>(jsonProj["ModType"].toString().toInt());
-				project.supportedLanguages = jsonProj["SupportedLanguages"].toString().toInt();
+				project.supportedLanguages = static_cast<uint16_t>(jsonProj["SupportedLanguages"].toString().toInt());
 				project.teamID = jsonProj["TeamID"].toString().toInt();
 				project.teamName = q2s(jsonProj["TeamName"].toString());
 				project.releaseDate = jsonProj["ReleaseDate"].toString().toInt();
@@ -630,7 +630,7 @@ void ModDatabaseView::updateModList(int modID, int packageID, InstallMode mode) 
 				project.spineVersion = static_cast<int8_t>(jsonProj["SpineVersion"].toString().toInt());
 				project.devDuration = jsonProj["DevDuration"].toString().toInt();
 				project.avgDuration = jsonProj["AvgDuration"].toString().toInt();
-				project.downloadSize = jsonProj["DownloadSize"].toString().toInt();
+				project.downloadSize = jsonProj["DownloadSize"].toString().toLongLong();
 				project.updateDate = jsonProj["UpdateDate"].toString().toInt();
 				project.language = static_cast<Language>(jsonProj["Language"].toString().toInt());
 
@@ -657,7 +657,7 @@ void ModDatabaseView::updateModList(int modID, int packageID, InstallMode mode) 
 				package.packageID = jsonProj["PackageID"].toString().toInt();
 				package.modID = jsonProj["ProjectID"].toString().toInt();
 				package.name = q2s(jsonProj["Name"].toString());
-				package.downloadSize = jsonProj["DownloadSize"].toString().toInt();
+				package.downloadSize = jsonProj["DownloadSize"].toString().toLongLong();
 
 				packages.push_back(package);
 			}
