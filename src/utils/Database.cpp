@@ -42,9 +42,9 @@ void Database::execute(const std::string & dbpath, const std::string & query, DB
 	if (r != SQLITE_OK) {
 		error.error = true;
 		error.errMsg = std::string("exec(): ") + sqlite3_errmsg(db);
-		return;
+	} else {
+		error.error = false;
 	}
-	error.error = false;
 
 	if (selfOpened) {
 		sqlite3_close(db);

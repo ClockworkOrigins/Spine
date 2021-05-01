@@ -19,6 +19,9 @@
 #include "https/Https.h"
 
 #include "utils/Conversion.h"
+#include "utils/WindowsExtensions.h"
+
+#include "clockUtils/log/Log.h"
 
 #include "simple-web-server/client_https.hpp"
 
@@ -30,6 +33,7 @@ using HttpClient = SimpleWeb::Client<SimpleWeb::HTTP>;
 using HttpsClient = SimpleWeb::Client<SimpleWeb::HTTPS>;
 
 using namespace spine::https;
+using namespace spine::utils;
 
 namespace {
 	void purgeClients();
@@ -83,7 +87,9 @@ void Https::post(uint16_t port, const QString & f, const QString & data, const s
 	}
 
 	// Synchronous request... maybe make it asynchronous?
-	client->request("POST", "/" + q2s(f), data.toStdString(), [callback, client](std::shared_ptr<HttpsClient::Response> response, const SimpleWeb::error_code &) {
+	client->request("POST", "/" + q2s(f), data.toStdString(), [callback, client, f](std::shared_ptr<HttpsClient::Response> response, const SimpleWeb::error_code &) {
+		LOGINFO("Size before " << q2s(f) << ": " << getPRAMValue())
+		
 		const QString code = s2q(response->status_code).split(" ")[0];
 
 		const int statusCode = code.toInt();
@@ -92,6 +98,8 @@ void Https::post(uint16_t port, const QString & f, const QString & data, const s
 			const std::string content = response->content.string();
 			const QJsonDocument doc(QJsonDocument::fromJson(s2q(content).toUtf8()));
 			callback(doc.object(), code.toInt());
+			
+			LOGINFO("Size after " << q2s(f) << ": " << getPRAMValue())
 		} else {
 			callback(QJsonObject(), statusCode);
 		}

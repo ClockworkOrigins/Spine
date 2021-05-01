@@ -1541,7 +1541,7 @@ void ModDatabaseView::updateDatabaseEntries() {
 			const int modID = it.key().first;
 			const int patchID = it.key().second;
 			
-			Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "DELETE FROM patchConfigs WHERE ModID = " + std::to_string(modID) + " AND PatchID = " + std::to_string(patchID) + " LIMIT 1;", err);
+			Database::execute(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "DELETE FROM patchConfigs WHERE ModID = " + std::to_string(modID) + " AND PatchID = " + std::to_string(patchID) + ";", err);
 		}
 	}
 

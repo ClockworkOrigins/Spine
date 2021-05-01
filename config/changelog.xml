@@ -2165,6 +2165,7 @@
 		<Bug language="Deutsch">Crash behoben, wenn sehr viele Projekte gleichzeitig gepatcht werden</Bug>
 		<Bug language="Deutsch">Projekt-ID wird nicht mehr ausgeblendet in kleineren Auflösungen, damit Zusatzpakete geladen werden können</Bug>
 		<Bug language="Deutsch">Fehler behoben, wodurch die Downloadgröße von großen Projekten nicht angezeigt wurde</Bug>
+		<Bug language="Deutsch">Speicherleck bei fehlschlagenden lokalen Datenbank-Aufrufen behoben</Bug>
 		
 		<Enhancement language="English">Improved patching</Enhancement>
 		<Bug language="English">Fixed caching of database</Bug>
@@ -2183,5 +2184,6 @@
 		<Bug language="English">Fixed crash when patching a lot of projects at once</Bug>
 		<Bug language="English">Project ID doesn't get hidden anymore on smaller resolutions so optional packages can be downloaded</Bug>
 		<Bug language="English">Fixed bug that caused download size of big projects not being displayed</Bug>
+		<Bug language="English">Fixed memory leak on failing local database queries</Bug>
 	</Version>
 </Versions>
