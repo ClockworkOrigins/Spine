@@ -389,6 +389,7 @@ namespace common {
 			int32_t packageID;
 			std::string name;
 			uint64_t downloadSize;
+			std::string language;
 
 			Package() : modID(), packageID(), downloadSize(0) {
 			}

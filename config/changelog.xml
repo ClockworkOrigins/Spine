@@ -2166,6 +2166,7 @@
 		<Bug language="Deutsch">Projekt-ID wird nicht mehr ausgeblendet in kleineren Auflösungen, damit Zusatzpakete geladen werden können</Bug>
 		<Bug language="Deutsch">Fehler behoben, wodurch die Downloadgröße von großen Projekten nicht angezeigt wurde</Bug>
 		<Bug language="Deutsch">Speicherleck bei fehlschlagenden lokalen Datenbank-Aufrufen behoben</Bug>
+		<Bug language="Deutsch">Fehler behoben, wodurch Zusatzpakete nicht unabhängig der UI-Sprache waren</Bug>
 		
 		<Enhancement language="English">Improved patching</Enhancement>
 		<Bug language="English">Fixed caching of database</Bug>
@@ -2185,5 +2186,6 @@
 		<Bug language="English">Project ID doesn't get hidden anymore on smaller resolutions so optional packages can be downloaded</Bug>
 		<Bug language="English">Fixed bug that caused download size of big projects not being displayed</Bug>
 		<Bug language="English">Fixed memory leak on failing local database queries</Bug>
+		<Bug language="English">Fixed bug that caused optional packages not being downloadable dependently from UI language</Bug>
 	</Version>
 </Versions>

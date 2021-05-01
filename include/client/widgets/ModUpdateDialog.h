@@ -94,6 +94,8 @@ namespace widgets {
 		void requestUpdates(const std::vector<common::ModVersion> & m, bool forceAccept);
 
 		void updateProject(common::ModUpdate mu);
+
+		void clear();
 	};
 
 } /* namespace widgets */

@@ -50,6 +50,7 @@ namespace server {
 		static bool isValidUserID(int userID);
 
 		static std::string getProjectName(int projectID, int preferredLanguage);
+		static std::string getPackageName(int packageID, int preferredLanguage);
 
 		static std::string filterUsername(const std::string & username);
 

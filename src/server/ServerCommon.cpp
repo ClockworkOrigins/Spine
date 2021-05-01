@@ -23,6 +23,7 @@
 #include <regex>
 #include <thread>
 
+#include "LanguageConverter.h"
 #include "MariaDBWrapper.h"
 #include "SpineServerConfig.h"
 #include "Smtp.h"
@@ -266,6 +267,59 @@ std::string ServerCommon::getProjectName(int projectID, int preferredLanguage) {
 				}
 				results = database.getResults<std::vector<std::string>>();
 				
+				if (results.empty()) break;
+			}
+		}
+
+		return results[0][0];
+	} while (false);
+
+	return "";
+}
+
+std::string ServerCommon::getPackageName(int packageID, int preferredLanguage) {
+	do {
+		CONNECTTODATABASE(__LINE__)
+
+		if (!database.query("PREPARE selectPackageNameStmt FROM \"SELECT CAST(Name AS BINARY) FROM optionalpackagenames WHERE PackageID = ? AND Language = ? LIMIT 1\";")) {
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("PREPARE selectFallbackPackageNameStmt FROM \"SELECT CAST(Name AS BINARY) FROM projectNames WHERE PackageID = ? LIMIT 1\";")) {
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("SET @paramPackageID=" + std::to_string(packageID) + ";")) {
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("SET @paramLanguage='" + LanguageConverter::convert(static_cast<Language>(preferredLanguage)) + "';")) {
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("SET @paramEnglishLanguage='" + LanguageConverter::convert(English) + "';")) {
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("EXECUTE selectPackageNameStmt USING @paramPackageID, @paramLanguage;")) {
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			break;
+		}
+		auto results = database.getResults<std::vector<std::string>>();
+		if (results.empty()) {
+			if (!database.query("EXECUTE selectPackageNameStmt USING @paramPackageID, @paramEnglishLanguage;")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			results = database.getResults<std::vector<std::string>>();
+
+			if (results.empty()) {
+				if (!database.query("EXECUTE selectFallbackPackageNameStmt USING @paramPackageID;")) {
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					break;
+				}
+				results = database.getResults<std::vector<std::string>>();
+
 				if (results.empty()) break;
 			}
 		}

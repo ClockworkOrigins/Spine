@@ -658,11 +658,13 @@ void ModInfoPage::updatePage(QJsonObject json) {
 			const auto jsonPackage = jsonRef.toObject();
 			const auto packageName = decodeString(jsonPackage["Name"].toString());
 			const auto packageID = jsonPackage["ID"].toString().toInt();
+			const auto language = decodeString(jsonPackage["Language"].toString());
 			
 			const bool packageInstalled = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT PackageID FROM packages WHERE ModID = " + std::to_string(_projectID) + " AND PackageID = " + std::to_string(packageID) + " LIMIT 1;", err) > 0;
 			auto * pb = new QPushButton(IconCache::getInstance()->getOrLoadIcon(":/svg/download.svg"), packageName, this);
 			pb->setVisible(!packageInstalled && installed && installAllowed);
-			pb->setProperty("packageid", static_cast<int>(packageID));
+			pb->setProperty("packageid", packageID);
+			pb->setProperty("language", language);
 			_optionalPackageButtonsLayout->addWidget(pb, 0, Qt::AlignLeft);
 			_optionalPackageButtons.append(pb);
 			connect(pb, &QPushButton::released, this, &ModInfoPage::installPackage);

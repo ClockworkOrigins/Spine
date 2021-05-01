@@ -52,10 +52,10 @@ namespace widgets {
 		static bool isInstalled(int modID);
 
 	signals:
-		void receivedModList(std::vector<common::Mod>);
-		void receivedModSizes(std::vector<std::pair<int32_t, uint64_t>>);
+		void receivedModList(QList<common::Mod>);
+		void receivedModSizes(QList<QPair<int32_t, uint64_t>>);
 		void receivedModFilesList(common::Mod, QSharedPointer<QList<QPair<QString, QString>>>, QString);
-		void receivedPackageList(std::vector<common::UpdatePackageListMessage::Package>);
+		void receivedPackageList(QList<common::UpdatePackageListMessage::Package>);
 		void receivedPackageFilesList(common::Mod, common::UpdatePackageListMessage::Package, QSharedPointer<QList<QPair<QString, QString>>>, QString fileserver);
 		void triggerInstallMod(int);
 		void triggerInstallPackage(int, int);
@@ -74,13 +74,13 @@ namespace widgets {
 		void setGothic2Directory(QString dir);
 
 	private slots:
-		void updateModList(std::vector<common::Mod> mods);
+		void updateModList(QList<common::Mod> mods);
 		void selectedIndex(const QModelIndex & index);
 		void doubleClickedIndex(const QModelIndex & index);
 		void downloadModFiles(common::Mod mod, QSharedPointer<QList<QPair<QString, QString>>> fileList, QString fileserver);
 		void sortByColumn(int column);
 		void changedFilterExpression(const QString & expression);
-		void updatePackageList(std::vector<common::UpdatePackageListMessage::Package> packages);
+		void updatePackageList(QList<common::UpdatePackageListMessage::Package> packages);
 		void downloadPackageFiles(common::Mod mod, common::UpdatePackageListMessage::Package package, QSharedPointer<QList<QPair<QString, QString>>> fileList, QString fileserver);
 		void installMod(int modID);
 		void installPackage(int modID, int packageID);
@@ -90,7 +90,7 @@ namespace widgets {
 		QTreeView * _treeView;
 		QStandardItemModel * _sourceModel;
 		DatabaseFilterModel * _sortModel;
-		std::vector<common::Mod> _mods;
+		QList<common::Mod> _mods;
 		bool _gothicValid;
 		bool _gothic2Valid;
 		bool _gothic3Valid;

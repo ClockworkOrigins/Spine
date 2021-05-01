@@ -3313,11 +3313,6 @@ void DatabaseServer::requestInfoPage(std::shared_ptr<HttpsServer::Response> resp
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			if (!database.query("PREPARE selectOptionalPackageNameStmt FROM \"SELECT CAST(Name AS BINARY) FROM optionalpackagenames WHERE PackageID = ? AND Language = ? LIMIT 1\";")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
-				code = SimpleWeb::StatusCode::client_error_failed_dependency;
-				break;
-			}
 			if (!database.query("PREPARE selectVersionStmt FROM \"SELECT MajorVersion, MinorVersion, PatchVersion, Gothic FROM mods WHERE ModID = ? LIMIT 1\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
@@ -3564,24 +3559,17 @@ void DatabaseServer::requestInfoPage(std::shared_ptr<HttpsServer::Response> resp
 					
 					lastResults = database.getResults<std::vector<std::string>>();
 					for (const auto & vec : lastResults) {
-						if (!database.query("SET @paramPackageID=" + vec[0] + ";")) {
-							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
-							code = SimpleWeb::StatusCode::client_error_failed_dependency;
-							break;
-						}
-						if (!database.query("EXECUTE selectOptionalPackageNameStmt USING @paramPackageID, @paramLanguage;")) {
-							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-							code = SimpleWeb::StatusCode::client_error_failed_dependency;
-							break;
-						}
-						auto results = database.getResults<std::vector<std::string>>();
-						if (!results.empty()) {
-							ptree packageNode;
-							packageNode.put("ID", std::stoi(vec[0]));
-							packageNode.put("Name", results[0][0]);
-							
-							packageNodes.push_back(std::make_pair("", packageNode));
-						}
+						const auto packageID = std::stoi(vec[0]);
+						
+						const auto name = ServerCommon::getPackageName(packageID, LanguageConverter::convert(language));
+
+						if (name.empty()) continue;
+						
+						ptree packageNode;
+						packageNode.put("ID", packageID);
+						packageNode.put("Name", name);
+						
+						packageNodes.push_back(std::make_pair("", packageNode));
 					}
 
 					if (!packageNodes.empty()) {
@@ -5765,17 +5753,23 @@ void DatabaseServer::requestAllProjects(std::shared_ptr<HttpsServer::Response> r
 				}
 			}
 
+			std::map<int, std::map<std::string, std::string>> packageNames;
+
 			ptree packageNodes;
-			if (!database.query("PREPARE selectOptionalNameStmt FROM \"SELECT CAST(Name AS BINARY) FROM optionalpackagenames WHERE PackageID = ? AND Language = ? LIMIT 1\";")) {
+			if (!database.query("PREPARE selectOptionalNamesStmt FROM \"SELECT PackageID, CAST(Name AS BINARY), Language FROM optionalpackagenames\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-
-			if (!database.query("SET @paramLanguage='" + language + "';")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			if (!database.query("EXECUTE selectOptionalNamesStmt;")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
+			}
+			const auto nameResults = database.getResults<std::vector<std::string>>();
+
+			for (const auto & vec : nameResults) {
+				packageNames[std::stoi(vec[0])][vec[2]] = vec[1];
 			}
 
 			for (const auto & vec : enabledResults) {
@@ -5792,18 +5786,31 @@ void DatabaseServer::requestAllProjects(std::shared_ptr<HttpsServer::Response> r
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
-				if (!database.query("EXECUTE selectOptionalNameStmt USING @paramPackageID, @paramLanguage;")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-					code = SimpleWeb::StatusCode::client_error_failed_dependency;
-					break;
-				}
-				const auto nameResults = database.getResults<std::vector<std::string>>();
-				
-				if (nameResults.empty() || nameResults[0].empty()) continue;
 
-				packageNode.put("Name", nameResults[0][0]);
+				const auto mapIt = packageNames.find(packageID);
+
+				if (mapIt == packageNames.end()) continue;
+
+				const auto map = mapIt->second;
+
+				if (map.empty()) continue;
+
+				auto it = map.find(language);
+
+				if (it == map.end()) {
+					it = map.find("English");
+				}
+
+				if (it == map.end()) {
+					it = map.begin();
+				}
 				
-				const auto downloadSize = _downloadSizeChecker->getBytesForPackage(projectID, packageID, language, versions[packageID]);
+				const auto packageName = it->second;
+
+				packageNode.put("Name", packageName);
+				packageNode.put("Language", it->first);
+				
+				const auto downloadSize = _downloadSizeChecker->getBytesForPackage(projectID, packageID, it->first, versions[packageID]);
 
 				packageNode.put("DownloadSize", downloadSize);
 

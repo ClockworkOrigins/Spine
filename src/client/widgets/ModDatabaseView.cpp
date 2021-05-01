@@ -540,16 +540,16 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 
 	setLayout(l);
 
-	qRegisterMetaType<std::vector<Mod>>("std::vector<common::Mod>");
-	qRegisterMetaType<std::vector<std::pair<int32_t, uint64_t>>>("std::vector<std::pair<int32_t, uint64_t>>");
+	qRegisterMetaType<QList<Mod>>("QList<common::Mod>");
+	qRegisterMetaType<QList<QPair<int32_t, uint64_t>>>("QList<QPair<int32_t, uint64_t>>");
 	qRegisterMetaType<Mod>("common::Mod");
 	qRegisterMetaType<UpdatePackageListMessage::Package>("common::UpdatePackageListMessage::Package");
-	qRegisterMetaType<std::vector<UpdatePackageListMessage::Package>>("std::vector<common::UpdatePackageListMessage::Package>");
-	qRegisterMetaType<std::vector<std::pair<std::string, std::string>>>("std::vector<std::pair<std::string, std::string>>");
+	qRegisterMetaType<QList<UpdatePackageListMessage::Package>>("QList<common::UpdatePackageListMessage::Package>");
+	qRegisterMetaType<QList<std::pair<std::string, std::string>>>("QList<std::pair<std::string, std::string>>");
 	qRegisterMetaType<QSharedPointer<QList<QPair<QString, QString>>>>("QSharedPointer<QList<QPair<QString, QString>>>");
 	qRegisterMetaType<QSet<int32_t>>("QSet<int32_t>");
 
-	connect(this, &ModDatabaseView::receivedModList, this, static_cast<void(ModDatabaseView::*)(std::vector<Mod>)>(&ModDatabaseView::updateModList));
+	connect(this, &ModDatabaseView::receivedModList, this, static_cast<void(ModDatabaseView::*)(QList<Mod>)>(&ModDatabaseView::updateModList));
 	connect(this, &ModDatabaseView::receivedModFilesList, this, &ModDatabaseView::downloadModFiles);
 	connect(_treeView, &QTreeView::clicked, this, &ModDatabaseView::selectedIndex);
 	connect(_treeView, &QTreeView::doubleClicked, this, &ModDatabaseView::doubleClickedIndex);
@@ -610,7 +610,7 @@ void ModDatabaseView::updateModList(int modID, int packageID, InstallMode mode) 
 
 			if (!data.contains("Projects")) return;
 
-			std::vector<Mod> projects;
+			QList<Mod> projects;
 
 			for (const auto jsonRef : data["Projects"].toArray()) {
 				const auto jsonProj = jsonRef.toObject();
@@ -648,7 +648,7 @@ void ModDatabaseView::updateModList(int modID, int packageID, InstallMode mode) 
 
 			emit receivedPlayedProjects(playedProjects);
 
-			std::vector<UpdatePackageListMessage::Package> packages;
+			QList<UpdatePackageListMessage::Package> packages;
 
 			for (const auto jsonRef : data["Packages"].toArray()) {
 				const auto jsonProj = jsonRef.toObject();
@@ -658,6 +658,7 @@ void ModDatabaseView::updateModList(int modID, int packageID, InstallMode mode) 
 				package.modID = jsonProj["ProjectID"].toString().toInt();
 				package.name = q2s(jsonProj["Name"].toString());
 				package.downloadSize = jsonProj["DownloadSize"].toString().toLongLong();
+				package.language = q2s(jsonProj["Language"].toString());
 
 				packages.push_back(package);
 			}
@@ -720,7 +721,7 @@ void ModDatabaseView::setGothic2Directory(QString dir) {
 	_gothic2Directory = dir;
 }
 
-void ModDatabaseView::updateModList(std::vector<Mod> mods) {
+void ModDatabaseView::updateModList(QList<Mod> mods) {
 	_sourceModel->removeRows(0, _sourceModel->rowCount());
 	_parentMods.clear();
 	int row = 0;
@@ -1103,7 +1104,7 @@ void ModDatabaseView::changedFilterExpression(const QString & expression) {
 	_sortModel->setFilterRegExp(expression);
 }
 
-void ModDatabaseView::updatePackageList(std::vector<UpdatePackageListMessage::Package> packages) {
+void ModDatabaseView::updatePackageList(QList<UpdatePackageListMessage::Package> packages) {
 	_packages.clear();
 	_packageIDIconMapping.clear();
 	Database::DBError err;
@@ -1465,7 +1466,7 @@ void ModDatabaseView::selectedPackageIndex(const QModelIndex & index) {
 			QJsonObject json;
 			json["Username"] = Config::Username;
 			json["Password"] = Config::Password;
-			json["Language"] = Config::Language;
+			json["Language"] = s2q(package.language);
 			json["PackageID"] = package.packageID;
 
 			Https::postAsync(DATABASESERVER_PORT, "requestPackageFiles", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, mod, package](const QJsonObject & data, int statusCode) {

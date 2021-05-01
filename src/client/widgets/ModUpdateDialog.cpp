@@ -160,19 +160,9 @@ void ModUpdateDialog::updateModList(std::vector<ModUpdate> updates, bool forceAc
 		_running = false;
 	} else {
 		_infoLabel->setText(QApplication::tr("SelectModUpdates"));
-		_updates.clear();
-		for (QCheckBox * cb : _checkBoxes) {
-			delete cb;
-		}
-		for (QWidget * w : _widgets) {
-			delete w;
-		}
-		for (QHBoxLayout * hl : _checkBoxLayouts) {
-			delete hl;
-		}
-		_checkBoxes.clear();
-		_checkBoxLayouts.clear();
-		_widgets.clear();
+
+		clear();
+		
 		int visibleCount = 0;
 		for (const ModUpdate & u : updates) {
 			Database::DBError err;
@@ -256,6 +246,8 @@ void ModUpdateDialog::accept() {
 	
 	hideUpdates(hides);
 
+	clear();
+
 	QDialog::accept();
 }
 
@@ -267,6 +259,9 @@ void ModUpdateDialog::reject() {
 	hideUpdates(list);
 	_lastTimeRejected = true;
 	_running = false;
+
+	clear();
+	
 	QDialog::reject();
 }
 
@@ -756,4 +751,20 @@ void ModUpdateDialog::updateProject(ModUpdate mu) {
 	});
 
 	DownloadQueueWidget::getInstance()->addDownload(QApplication::tr("PatchingProject").arg(s2q(mu.name)), mfd);
+}
+
+void ModUpdateDialog::clear() {
+	_updates.clear();
+	for (QCheckBox * cb : _checkBoxes) {
+		delete cb;
+	}
+	for (QWidget * w : _widgets) {
+		delete w;
+	}
+	for (QHBoxLayout * hl : _checkBoxLayouts) {
+		delete hl;
+	}
+	_checkBoxes.clear();
+	_checkBoxLayouts.clear();
+	_widgets.clear();
 }
