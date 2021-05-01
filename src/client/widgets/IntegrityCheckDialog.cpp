@@ -57,7 +57,7 @@ IntegrityCheckDialog::IntegrityCheckDialog(QMainWindow * mainWindow,  QWidget * 
 	setBar(pb);
 
 #ifdef Q_OS_WIN
-	QWinTaskbarButton * button = new QWinTaskbarButton(this);
+	auto * button = new QWinTaskbarButton(this);
 	button->setWindow(mainWindow->windowHandle());
 
 	_taskbarProgress = button->progress();
@@ -187,7 +187,7 @@ void IntegrityCheckDialog::process(int projectID) {
 	}
 	
 	std::vector<ModFile> files = Database::queryAll<ModFile, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, statement, err);
-	int amount = files.size();
+	int amount = static_cast<int>(files.size());
 	if (!_gothicDirectory.isEmpty()) {
 		amount += gothicFileList.size();
 	}
