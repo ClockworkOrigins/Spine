@@ -2167,6 +2167,7 @@
 		<Bug language="Deutsch">Fehler behoben, wodurch die Downloadgröße von großen Projekten nicht angezeigt wurde</Bug>
 		<Bug language="Deutsch">Speicherleck bei fehlschlagenden lokalen Datenbank-Aufrufen behoben</Bug>
 		<Bug language="Deutsch">Fehler behoben, wodurch Zusatzpakete nicht unabhängig der UI-Sprache waren</Bug>
+		<Bug language="Deutsch">Das gleiche Update wird in einer Session jetzt nur nochmal angezeigt, wenn min. ein neues dazu gekommen ist</Bug>
 		
 		<Enhancement language="English">Improved patching</Enhancement>
 		<Bug language="English">Fixed caching of database</Bug>
@@ -2187,5 +2188,6 @@
 		<Bug language="English">Fixed bug that caused download size of big projects not being displayed</Bug>
 		<Bug language="English">Fixed memory leak on failing local database queries</Bug>
 		<Bug language="English">Fixed bug that caused optional packages not being downloadable dependently from UI language</Bug>
+		<Bug language="English">The same update now gets only displayed again during a session when at least one new update is available</Bug>
 	</Version>
 </Versions>

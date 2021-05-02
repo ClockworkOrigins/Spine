@@ -168,7 +168,7 @@ void ModUpdateDialog::updateModList(std::vector<ModUpdate> updates, bool forceAc
 			Database::DBError err;
 			Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "DELETE FROM updates WHERE ModID = " + std::to_string(u.modID) + " AND MajorVersion != " + std::to_string(static_cast<int>(u.majorVersion)) + " AND MinorVersion != " + std::to_string(static_cast<int>(u.minorVersion)) + " AND PatchVersion != " + std::to_string(static_cast<int>(u.patchVersion)) + " AND SpineVersion != " + std::to_string(static_cast<int>(u.spineVersion)) + " LIMIT 1;", err);
 			std::vector<int> result = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "SELECT ModID FROM updates WHERE ModID = " + std::to_string(u.modID) + " AND MajorVersion = " + std::to_string(static_cast<int>(u.majorVersion)) + " AND MinorVersion = " + std::to_string(static_cast<int>(u.minorVersion)) + " AND PatchVersion = " + std::to_string(static_cast<int>(u.patchVersion)) + " AND SpineVersion = " + std::to_string(static_cast<int>(u.spineVersion)) + " LIMIT 1;", err);
-			
+
 			if (!result.empty()) continue;
 
 			QString title = QString("%1 (%2 => %3.%4.%5)").arg(s2q(u.name)).arg(_oldVersions[u.modID]).arg(static_cast<int>(u.majorVersion)).arg(static_cast<int>(u.minorVersion)).arg(static_cast<int>(u.patchVersion));
@@ -181,7 +181,9 @@ void ModUpdateDialog::updateModList(std::vector<ModUpdate> updates, bool forceAc
 			_updates.push_back(u);
 			const bool b = hasChanges(u);
 			cb->setVisible(b);
-			visibleCount += b ? 1 : 0;
+			visibleCount += b ? !_alreadyDisplayedProjects.contains(u.modID) : 0;
+
+			_alreadyDisplayedProjects.insert(u.modID);
 
 			auto * lbl = new QLabel(u.savegameCompatible ? "" : "!", this);
 			lbl->setProperty("error", true);
@@ -219,6 +221,9 @@ void ModUpdateDialog::updateModList(std::vector<ModUpdate> updates, bool forceAc
 		if (!_updates.empty()) {
 			if (visibleCount > 0 && !forceAccept) {
 				exec();
+			} else if (visibleCount == 0 && !_alreadyDisplayedProjects.isEmpty()) {
+				_updates.clear();
+				accept();
 			} else {
 				accept();
 			}

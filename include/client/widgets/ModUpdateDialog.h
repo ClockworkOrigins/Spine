@@ -22,6 +22,7 @@
 
 #include <QDialog>
 #include <QMap>
+#include <QSet>
 
 class QCheckBox;
 class QHBoxLayout;
@@ -85,6 +86,7 @@ namespace widgets {
 		QMap<int32_t, QString> _oldVersions;
 		bool _loginChecked;
 		bool _spineUpdateChecked;
+		QSet<int32_t> _alreadyDisplayedProjects;
 
 		void hideUpdates(QList<common::ModUpdate> hides) const;
 		bool hasChanges(common::ModUpdate mu) const;
