@@ -415,7 +415,7 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		_tabWidget->addTab(_friendsView, QApplication::tr("Friends"));
 		UPDATELANGUAGESETTABTEXT(_tabWidget, MainTabsOnline::Friends, "Friends");
 
-		connect(_friendsView, &FriendsView::receivedFriends, [this](const std::vector<common::Friend> &, const std::vector<common::Friend> & friendRequests) {
+		connect(_friendsView, &FriendsView::receivedFriends, _tabWidget, [this](const std::vector<common::Friend> &, const std::vector<common::Friend> & friendRequests) {
 			if (friendRequests.empty()) {
 				_tabWidget->setTabText(MainTabsOnline::Friends, QApplication::tr("Friends"));
 			} else {

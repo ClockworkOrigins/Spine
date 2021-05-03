@@ -49,7 +49,11 @@
 
 using namespace spine::utils;
 
-FileDownloader::FileDownloader(QUrl url, QString targetDirectory, QString fileName, QString hash, QObject * par) : QObject(par), _url(url), _targetDirectory(targetDirectory), _fileName(fileName), _hash(hash), _filesize(-1), _outputFile(nullptr), _finished(false), _retried(false), _blockErrors(false) {
+FileDownloader::FileDownloader(QUrl url, QString targetDirectory, QString fileName, QString hash, QObject * par) : FileDownloader(url, url, targetDirectory, fileName, hash, par) {
+	connect(this, &FileDownloader::retry, this, &FileDownloader::startDownload, Qt::QueuedConnection); // queue to process potential errors earlier so they get blocked
+}
+
+FileDownloader::FileDownloader(QUrl url, QUrl fallbackUrl, QString targetDirectory, QString fileName, QString hash, QObject * par) : QObject(par), _url(url), _fallbackUrl(fallbackUrl), _targetDirectory(targetDirectory), _fileName(fileName), _hash(hash), _filesize(-1), _outputFile(nullptr), _finished(false), _retried(false), _blockErrors(false) {
 	connect(this, &FileDownloader::retry, this, &FileDownloader::startDownload, Qt::QueuedConnection); // queue to process potential errors earlier so they get blocked
 }
 
@@ -208,6 +212,8 @@ void FileDownloader::fileDownloaded() {
 			
 			_retried = true;
 			_blockErrors = true;
+
+			_url = _fallbackUrl;
 			
 			emit downloadProgress(-fileSize);
 
@@ -218,8 +224,20 @@ void FileDownloader::fileDownloaded() {
 }
 
 void FileDownloader::determineFileSize() {
-	const qlonglong filesize = dynamic_cast<QNetworkReply *>(sender())->header(QNetworkRequest::ContentLengthHeader).toLongLong();
-	sender()->deleteLater();
+	const auto reply = dynamic_cast<QNetworkReply *>(sender());
+	
+	if (reply->error() != QNetworkReply::NoError) {
+		if (_url != _fallbackUrl) {
+			_url = _fallbackUrl;
+			requestFileSize();
+		} else {
+			emit fileFailed(DownloadError::NetworkError);
+		}
+		return;
+	}
+	
+	const qlonglong filesize = reply->header(QNetworkRequest::ContentLengthHeader).toLongLong();
+	reply->deleteLater();
 	_filesize = filesize;
 
 	if (_finished) {

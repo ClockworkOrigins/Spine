@@ -436,6 +436,7 @@ void ModUpdateDialog::unzippedArchive(QString archive, QList<QPair<QString, QStr
 			f.file = q2s(p.first);
 			f.hash = q2s(p.second);
 			f.fileserver = mf.fileserver;
+			f.fallbackFileserver = mf.fallbackFileserver;
 			
 			newFiles->append(f);
 		}
@@ -490,6 +491,7 @@ void ModUpdateDialog::requestUpdates(const std::vector<ModVersion> & m, bool for
 				mu.patchVersion = static_cast<int8_t>(j["VersionPatch"].toString().toInt());
 				mu.spineVersion = static_cast<int8_t>(j["VersionSpine"].toString().toInt());
 				mu.fileserver = q2s(j["Fileserver"].toString());
+				mu.fallbackFileserver = q2s(j["FallbackFileserver"].toString());
 				mu.gothicVersion = static_cast<GameType>(j["Type"].toString().toInt());
 				mu.savegameCompatible = j["SavegameCompatible"].toString().toInt();
 				mu.changelog = q2s(j["Changelog"].toString());
@@ -547,13 +549,13 @@ void ModUpdateDialog::updateProject(ModUpdate mu) {
 	std::vector<int> p = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT DISTINCT PackageID FROM packages WHERE ModID = " + std::to_string(mu.modID) + ";", err);
 	std::vector<ModFile> updateFiles;
 	for (const auto & pr : mu.files) {
-		updateFiles.emplace_back(mu.modID, pr.first, pr.second, -1, s2q(mu.fileserver));
+		updateFiles.emplace_back(mu.modID, pr.first, pr.second, -1, s2q(mu.fileserver), s2q(mu.fallbackFileserver));
 	}
 	for (int packageID : p) {
 		for (size_t j = 0; j < mu.packageFiles.size(); j++) {
 			if (mu.packageFiles[j].first == packageID) {
 				for (const auto & pr : mu.packageFiles[j].second) {
-					updateFiles.emplace_back(mu.modID, pr.first, pr.second, mu.packageFiles[j].first, s2q(mu.fileserver));
+					updateFiles.emplace_back(mu.modID, pr.first, pr.second, mu.packageFiles[j].first, s2q(mu.fileserver), s2q(mu.fallbackFileserver));
 				}
 				mu.files.insert(mu.files.end(), mu.packageFiles[j].second.begin(), mu.packageFiles[j].second.end());
 				break;
@@ -587,7 +589,7 @@ void ModUpdateDialog::updateProject(ModUpdate mu) {
 			}
 			if (add) {
 				for (const auto & pr : mu.packageFiles[j].second) {
-					updateFiles.emplace_back(mu.modID, pr.first, pr.second, mu.packageFiles[j].first, s2q(mu.fileserver));
+					updateFiles.emplace_back(mu.modID, pr.first, pr.second, mu.packageFiles[j].first, s2q(mu.fileserver), s2q(mu.fallbackFileserver));
 				}
 			}
 		}
@@ -637,7 +639,10 @@ void ModUpdateDialog::updateProject(ModUpdate mu) {
 			Q_UNUSED(b)
 		}
 		QFileInfo fi(QString::fromStdString(mf.file));
-		auto * fd = new FileDownloader(QUrl(mf.fileserver + QString::number(mf.modID) + "/" + QString::fromStdString(mf.file)), dir.absolutePath() + "/" + fi.path(), fi.fileName(), QString::fromStdString(mf.hash), mfd);
+
+		const auto relativePath = QString::number(mf.modID) + "/" + QString::fromStdString(mf.file);
+		
+		auto * fd = new FileDownloader(QUrl(mf.fileserver + relativePath), QUrl(mf.fallbackFileserver + relativePath), dir.absolutePath() + "/" + fi.path(), fi.fileName(), QString::fromStdString(mf.hash), mfd);
 		mfd->addFileDownloader(fd);
 
 		// zip workflow
@@ -658,7 +663,10 @@ void ModUpdateDialog::updateProject(ModUpdate mu) {
 			Q_UNUSED(b)
 		}
 		QFileInfo fi(QString::fromStdString(mf.file));
-		auto * fd = new FileDownloader(QUrl(mf.fileserver + QString::number(mf.modID) + "/" + QString::fromStdString(mf.file)), dir.absolutePath() + "/" + fi.path(), fi.fileName(), QString::fromStdString(mf.hash), mfd);
+
+		const auto relativePath = QString::number(mf.modID) + "/" + QString::fromStdString(mf.file);
+		
+		auto * fd = new FileDownloader(QUrl(mf.fileserver + relativePath), QUrl(mf.fallbackFileserver + relativePath), dir.absolutePath() + "/" + fi.path(), fi.fileName(), QString::fromStdString(mf.hash), mfd);
 		mfd->addFileDownloader(fd);
 
 		// zip workflow
@@ -670,7 +678,7 @@ void ModUpdateDialog::updateProject(ModUpdate mu) {
 		// 2. reported files need to be added to filelist and archive must be removed
 		connect(fd, &FileDownloader::unzippedArchive, this, [this, mf, installFiles, newFiles, removeFiles](const QString & archive, const QList<QPair<QString, QString>> & files) {
 			unzippedArchive(archive, files, mf, installFiles, newFiles, removeFiles);
-			});
+		});
 	}
 
 	connect(mfd, &MultiFileDownloader::downloadSucceeded, this, [this, installFiles, newFiles, removeFiles, mu]() {

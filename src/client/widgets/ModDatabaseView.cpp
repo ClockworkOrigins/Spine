@@ -930,7 +930,7 @@ void ModDatabaseView::doubleClickedIndex(const QModelIndex & index) {
 	}
 }
 
-void ModDatabaseView::downloadModFiles(Mod mod, QSharedPointer<QList<QPair<QString, QString>>> fileList, QString fileserver) {
+void ModDatabaseView::downloadModFiles(Mod mod, QSharedPointer<QList<QPair<QString, QString>>> fileList, QString fileserver, QString fallbackServer) {
 	const QDir dir(Config::DOWNLOADDIR + "/mods/" + QString::number(mod.id));
 	if (!dir.exists()) {
 		bool b = dir.mkpath(dir.absolutePath());
@@ -939,7 +939,10 @@ void ModDatabaseView::downloadModFiles(Mod mod, QSharedPointer<QList<QPair<QStri
 	auto * mfd = new MultiFileDownloader(this);
 	for (const auto & p : *fileList) {
 		QFileInfo fi(p.first);
-		auto * fd = new FileDownloader(QUrl(fileserver + QString::number(mod.id) + "/" + p.first), dir.absolutePath() + "/" + fi.path(), fi.fileName(), p.second, mfd);
+
+		const auto relativePath = QString::number(mod.id) + "/" + p.first;
+		
+		auto * fd = new FileDownloader(QUrl(fileserver + relativePath), QUrl(fallbackServer + relativePath), dir.absolutePath() + "/" + fi.path(), fi.fileName(), p.second, mfd);
 		mfd->addFileDownloader(fd);
 
 		// zip workflow
@@ -1049,7 +1052,7 @@ void ModDatabaseView::downloadModFiles(Mod mod, QSharedPointer<QList<QPair<QStri
 		}
 	});
 	
-	connect(mfd, &MultiFileDownloader::downloadFailed, [this, mod, fileList, fileserver](DownloadError error) {
+	connect(mfd, &MultiFileDownloader::downloadFailed, [this, mod, fileList, fileserver, fallbackServer](DownloadError error) {
 		bool paused = false;
 		if (error == DownloadError::CanceledError) {
 			QMessageBox msg(QMessageBox::Icon::Information, QApplication::tr("PauseDownload"), QApplication::tr("PauseDownloadDescription"), QMessageBox::StandardButton::Ok | QMessageBox::StandardButton::Cancel);
@@ -1076,7 +1079,7 @@ void ModDatabaseView::downloadModFiles(Mod mod, QSharedPointer<QList<QPair<QStri
 				msg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Retry"));
 				msg.button(QMessageBox::StandardButton::Cancel)->setText(QApplication::tr("Cancel"));
 				if (QMessageBox::StandardButton::Ok == msg.exec()) {
-					downloadModFiles(mod, fileList, fileserver);
+					downloadModFiles(mod, fileList, fileserver, fallbackServer);
 				} else {
 					dir2.removeRecursively();
 					emit finishedInstallation(mod.id, -1, false);
@@ -1220,7 +1223,7 @@ void ModDatabaseView::updatePackageList(QList<UpdatePackageListMessage::Package>
 	_waitSpinner = nullptr;
 }
 
-void ModDatabaseView::downloadPackageFiles(Mod mod, UpdatePackageListMessage::Package package, QSharedPointer<QList<QPair<QString, QString>>> fileList, QString fileserver) {
+void ModDatabaseView::downloadPackageFiles(Mod mod, UpdatePackageListMessage::Package package, QSharedPointer<QList<QPair<QString, QString>>> fileList, QString fileserver, QString fallbackServer) {
 	const QDir dir(Config::DOWNLOADDIR + "/mods/" + QString::number(mod.id));
 	if (!dir.exists()) {
 		bool b = dir.mkpath(dir.absolutePath());
@@ -1229,7 +1232,10 @@ void ModDatabaseView::downloadPackageFiles(Mod mod, UpdatePackageListMessage::Pa
 	auto * mfd = new MultiFileDownloader(this);
 	for (const auto & p : *fileList) {
 		QFileInfo fi(p.first);
-		auto * fd = new FileDownloader(QUrl(fileserver + QString::number(mod.id) + "/" + p.first), dir.absolutePath() + "/" + fi.path(), fi.fileName(), p.second, mfd);
+
+		const auto relativePath = QString::number(mod.id) + "/" + p.first;
+		
+		auto * fd = new FileDownloader(QUrl(fileserver + relativePath), QUrl(fallbackServer + relativePath), dir.absolutePath() + "/" + fi.path(), fi.fileName(), p.second, mfd);
 		mfd->addFileDownloader(fd);
 	}
 
@@ -1408,7 +1414,10 @@ void ModDatabaseView::selectedModIndex(const QModelIndex & index) {
 					fileList->append(qMakePair(path, hash));
 				}
 
-				emit receivedModFilesList(mod, fileList, data["Fileserver"].toString());
+				const auto fileserver = data["Fileserver"].toString();
+				const auto fallbackFileserver = data["FallbackFileserver"].toString();
+
+				emit receivedModFilesList(mod, fileList, fileserver, fallbackFileserver);
 			});
 		}
 	} else {
@@ -1485,7 +1494,10 @@ void ModDatabaseView::selectedPackageIndex(const QModelIndex & index) {
 					fileList->append(qMakePair(path, hash));
 				}
 
-				emit receivedPackageFilesList(mod, package, fileList, data["Fileserver"].toString());
+				const auto fileserver = data["Fileserver"].toString();
+				const auto fallbackFileserver = data["FallbackFileserver"].toString();
+
+				emit receivedPackageFilesList(mod, package, fileList, fileserver, fallbackFileserver);
 			});
 		}
 	} else {

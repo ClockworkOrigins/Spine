@@ -5115,6 +5115,7 @@ void DatabaseServer::projectVersionCheck(std::shared_ptr<HttpsServer::Response> 
 					break;
 				}
 				updateNode.put("Fileserver", getFileServer(userID, projectID, majorVersion, minorVersion, patchVersion, spineVersion));
+				updateNode.put("FallbackFileserver", DEFAULTURL);
 
 				if (!database.query("SET @paramType=" + std::to_string(static_cast<int>(common::NewsTickerType::Update)) + ";")) {
 					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
@@ -6371,6 +6372,7 @@ void DatabaseServer::requestProjectFiles(std::shared_ptr<HttpsServer::Response> 
 				break;
 			}
 			responseTree.put("Fileserver", getFileServer(userID, projectID, std::stoi(majorVersion), std::stoi(minorVersion), std::stoi(patchVersion), std::stoi(spineVersion)));
+			responseTree.put("FallbackFileserver", DEFAULTURL);
 		} while (false);
 
 		write_json(responseStream, responseTree);
@@ -6478,6 +6480,7 @@ void DatabaseServer::requestPackageFiles(std::shared_ptr<HttpsServer::Response> 
 			const std::string patchVersion = lastResults[0][2];
 			const std::string spineVersion = lastResults[0][3];
 			responseTree.put("Fileserver", getFileServer(userID, projectID, std::stoi(majorVersion), std::stoi(minorVersion), std::stoi(patchVersion), std::stoi(spineVersion)));
+			responseTree.put("FallbackFileserver", DEFAULTURL);
 		} while (false);
 
 		write_json(responseStream, responseTree);

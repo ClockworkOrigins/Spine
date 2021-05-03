@@ -41,6 +41,7 @@ namespace utils {
 
 	public:
 		FileDownloader(QUrl url, QString targetDirectory, QString fileName, QString hash, QObject * par);
+		FileDownloader(QUrl url, QUrl fallbackUrl, QString targetDirectory, QString fileName, QString hash, QObject * par);
 		~FileDownloader();
 
 		void startDownload();
@@ -71,6 +72,7 @@ namespace utils {
 
 	private:
 		QUrl _url;
+		QUrl _fallbackUrl;
 		QString _targetDirectory;
 		QString _fileName;
 		QString _hash;

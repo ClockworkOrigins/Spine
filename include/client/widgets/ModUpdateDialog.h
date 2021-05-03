@@ -65,12 +65,13 @@ namespace widgets {
 			std::string file;
 			std::string hash;
 			QString fileserver;
+			QString fallbackFileserver;
 
 			ModFile() {}
 			
 			ModFile(std::string i, std::string s1, std::string s2) : modID(std::stoi(i)), file(s1), hash(s2) {}
 			
-			ModFile(int i, std::string s1, std::string s2, int32_t p, QString fs) : packageID(p), modID(int32_t(i)), file(s1), hash(s2), fileserver(fs) {}
+			ModFile(int i, std::string s1, std::string s2, int32_t p, QString fs, QString fallbackFs) : packageID(p), modID(int32_t(i)), file(s1), hash(s2), fileserver(fs), fallbackFileserver(fallbackFs) {}
 		};
 
 		QMainWindow * _mainWindow;

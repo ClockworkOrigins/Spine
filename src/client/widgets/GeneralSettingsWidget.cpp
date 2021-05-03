@@ -121,7 +121,7 @@ GeneralSettingsWidget::GeneralSettingsWidget(QWidget * par) : QWidget(par), _lan
 
 		Config::downloadRate = Config::IniParser->value("MISC/kbps", 5120).toInt();
 		if (Config::downloadRate > 5120) {
-			Config::downloadRate = 5120;
+			Config::downloadRate = 1024;
 		}
 		auto * kbpsLabel = new QLabel(QApplication::tr("DownloadRate"), this);
 		UPDATELANGUAGESETTEXT(kbpsLabel, "DownloadRate");
