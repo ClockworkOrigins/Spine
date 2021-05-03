@@ -152,7 +152,7 @@ void StartPageWidget::requestNewsUpdate() {
 					const int timestamp = jsonNews["Timestamp"].toString().toInt();
 					
 					Database::DBError err2;
-					Database::execute(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "INSERT INTO news (NewsID, Title, Body, Timestamp, Language) VALUES (" + std::to_string(newsID) + ", '" + title.toStdString() + "', '" + body.toStdString() + "', " + std::to_string(timestamp) + ", '" + Config::Language.toStdString() + "');", err2);
+					Database::execute(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "INSERT INTO news (NewsID, Title, Body, Timestamp, Language) VALUES (" + std::to_string(newsID) + ", '" + title.toStdString() + "', '" + q2s(body) + "', " + std::to_string(timestamp) + ", '" + Config::Language.toStdString() + "');", err2);
 
 					if (jsonNews.contains("ProjectReferences")) {
 						for (const auto jsonRef2 : jsonNews["ProjectReferences"].toArray()) {
