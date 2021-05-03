@@ -1053,6 +1053,12 @@ void ModDatabaseView::downloadModFiles(Mod mod, QSharedPointer<QList<QPair<QStri
 	});
 	
 	connect(mfd, &MultiFileDownloader::downloadFailed, [this, mod, fileList, fileserver, fallbackServer](DownloadError error) {
+		static bool entered = false;
+
+		if (entered) return;
+
+		entered = true;
+		
 		bool paused = false;
 		if (error == DownloadError::CanceledError) {
 			QMessageBox msg(QMessageBox::Icon::Information, QApplication::tr("PauseDownload"), QApplication::tr("PauseDownloadDescription"), QMessageBox::StandardButton::Ok | QMessageBox::StandardButton::Cancel);
@@ -1093,6 +1099,8 @@ void ModDatabaseView::downloadModFiles(Mod mod, QSharedPointer<QList<QPair<QStri
 				emit finishedInstallation(mod.id, -1, false);
 			}
 		}
+
+		entered = false;
 	});
 
 	mfd->setSize(mod.downloadSize);
@@ -1415,7 +1423,11 @@ void ModDatabaseView::selectedModIndex(const QModelIndex & index) {
 				}
 
 				const auto fileserver = data["Fileserver"].toString();
-				const auto fallbackFileserver = data["FallbackFileserver"].toString();
+				auto fallbackFileserver = data["FallbackFileserver"].toString();
+
+				if (fallbackFileserver.isEmpty()) {
+					fallbackFileserver = fileserver;
+				}
 
 				emit receivedModFilesList(mod, fileList, fileserver, fallbackFileserver);
 			});
@@ -1495,7 +1507,11 @@ void ModDatabaseView::selectedPackageIndex(const QModelIndex & index) {
 				}
 
 				const auto fileserver = data["Fileserver"].toString();
-				const auto fallbackFileserver = data["FallbackFileserver"].toString();
+				auto fallbackFileserver = data["FallbackFileserver"].toString();
+
+				if (fallbackFileserver.isEmpty()) {
+					fallbackFileserver = fileserver;
+				}
 
 				emit receivedPackageFilesList(mod, package, fileList, fileserver, fallbackFileserver);
 			});

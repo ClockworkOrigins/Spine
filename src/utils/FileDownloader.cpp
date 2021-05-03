@@ -272,8 +272,14 @@ void FileDownloader::networkError(QNetworkReply::NetworkError err) {
 }
 
 void FileDownloader::sslErrors(const QList<QSslError> & errors) {
+	auto * reply = dynamic_cast<QNetworkReply *>(sender());
+	
 	for (const auto & err : errors) {
-		LOGINFO(err.error() << " - " << q2s(err.errorString()))
+		if (err.error() == QSslError::SelfSignedCertificate) {
+			reply->ignoreSslErrors();
+			continue;
+		}
+		LOGINFO(err.error() << " - " << q2s(err.errorString()) << " - " << q2s(err.certificate().issuerDisplayName()))
 	}
 }
 

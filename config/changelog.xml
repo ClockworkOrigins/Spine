@@ -2169,6 +2169,9 @@
 		<Bug language="Deutsch">Fehler behoben, wodurch Zusatzpakete nicht unabhängig der UI-Sprache waren</Bug>
 		<Bug language="Deutsch">Das gleiche Update wird in einer Session jetzt nur nochmal angezeigt, wenn min. ein neues dazu gekommen ist</Bug>
 		<Bug language="Deutsch">Fallback-Mechanismus eingebaut, damit auf den Hauptserver zurückgefallen wird, falls der Fileserver nicht erreichbar ist</Bug>
+		<Bug language="Deutsch">Fehler beim Erhalt von Freundschaftsanfragen behoben</Bug>
+		<Bug language="Deutsch">Fehler behoben, wodurch bei fehlgeschlagenem Download sehr viele Fenster aufgeploppt sind</Bug>
+		<Bug language="Deutsch">Crash behoben, wenn ein Download fehlgeschlagen ist</Bug>
 		
 		<Enhancement language="English">Improved patching</Enhancement>
 		<Bug language="English">Fixed caching of database</Bug>
@@ -2191,5 +2194,8 @@
 		<Bug language="English">Fixed bug that caused optional packages not being downloadable dependently from UI language</Bug>
 		<Bug language="English">The same update now gets only displayed again during a session when at least one new update is available</Bug>
 		<Bug language="English">Added fallback mechanism to use main server in case fileserver isn't reachable</Bug>
+		<Bug language="English">Fixed bug when receiving friend request</Bug>
+		<Bug language="English">Fixed bug that caused multiple windows spamming when a download failed</Bug>
+		<Bug language="English">Fixed crash when download fails</Bug>
 	</Version>
 </Versions>

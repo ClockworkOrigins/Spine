@@ -34,7 +34,7 @@ void MultiFileDownloader::addFileDownloader(FileDownloader * fileDownloader) {
 	qRegisterMetaType<DownloadError>("DownloadError");
 
 	connect(fileDownloader, &FileDownloader::downloadProgress, this, &MultiFileDownloader::updateDownloadProgress, Qt::UniqueConnection);
-	connect(fileDownloader, &FileDownloader::fileFailed, this, &MultiFileDownloader::downloadFailed, Qt::UniqueConnection);
+	connect(fileDownloader, &FileDownloader::fileFailed, this, &MultiFileDownloader::downloadFailed, Qt::QueuedConnection);
 	connect(fileDownloader, &FileDownloader::fileSucceeded, this, &MultiFileDownloader::finishedFile, Qt::UniqueConnection);
 	connect(fileDownloader, &FileDownloader::downloadFinished, this, &MultiFileDownloader::startDownloadInternal, Qt::UniqueConnection);
 	connect(this, &MultiFileDownloader::abort, fileDownloader, &FileDownloader::abort, Qt::UniqueConnection);

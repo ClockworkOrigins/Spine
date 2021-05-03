@@ -494,6 +494,10 @@ void ModUpdateDialog::requestUpdates(const std::vector<ModVersion> & m, bool for
 				mu.spineVersion = static_cast<int8_t>(j["VersionSpine"].toString().toInt());
 				mu.fileserver = j["Fileserver"].toString();
 				mu.fallbackFileserver = j["FallbackFileserver"].toString();
+
+				if (mu.fallbackFileserver.isEmpty()) {
+					mu.fallbackFileserver = mu.fileserver;
+				}
 				mu.gothicVersion = static_cast<GameType>(j["Type"].toString().toInt());
 				mu.savegameCompatible = j["SavegameCompatible"].toString().toInt();
 				mu.changelog = decodeString(j["Changelog"].toString());
