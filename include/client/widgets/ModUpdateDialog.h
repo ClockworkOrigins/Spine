@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "common/ModUpdate.h"
+#include "utils/ModUpdate.h"
 
 #include <QDialog>
 #include <QMap>
@@ -43,7 +43,7 @@ namespace widgets {
 		ModUpdateDialog(QMainWindow * mainWindow);
 
 	signals:
-		void receivedMods(std::vector<common::ModUpdate>, bool);
+		void receivedMods(QList<utils::ModUpdate>, bool);
 		void updateStarted(int);
 		void updatedMod(int);
 
@@ -54,7 +54,7 @@ namespace widgets {
 		void checkForUpdate(int32_t modID, bool forceAccept);
 
 	private slots:
-		void updateModList(std::vector<common::ModUpdate> updates, bool);
+		void updateModList(QList<utils::ModUpdate> updates, bool);
 		void accept() override;
 		void reject() override;
 
@@ -62,22 +62,22 @@ namespace widgets {
 		struct ModFile {
 			int32_t packageID = -1;
 			int32_t modID = -1;
-			std::string file;
-			std::string hash;
+			QString file;
+			QString hash;
 			QString fileserver;
 			QString fallbackFileserver;
 
-			ModFile() {}
+			ModFile() = default;
+
+			ModFile(std::string i, std::string s1, std::string s2);
 			
-			ModFile(std::string i, std::string s1, std::string s2) : modID(std::stoi(i)), file(s1), hash(s2) {}
-			
-			ModFile(int i, std::string s1, std::string s2, int32_t p, QString fs, QString fallbackFs) : packageID(p), modID(int32_t(i)), file(s1), hash(s2), fileserver(fs), fallbackFileserver(fallbackFs) {}
+			ModFile(int i, QString s1, QString s2, int32_t p, QString fs, QString fallbackFs) : packageID(p), modID(int32_t(i)), file(s1), hash(s2), fileserver(fs), fallbackFileserver(fallbackFs) {}
 		};
 
 		QMainWindow * _mainWindow;
 		QLabel * _infoLabel;
 		QVBoxLayout * _checkBoxLayout;
-		QList<common::ModUpdate> _updates;
+		QList<utils::ModUpdate> _updates;
 		QList<QCheckBox *> _checkBoxes;
 		QList<QWidget *> _widgets;
 		QList<QHBoxLayout *> _checkBoxLayouts;
@@ -89,14 +89,14 @@ namespace widgets {
 		bool _spineUpdateChecked;
 		QSet<int32_t> _alreadyDisplayedProjects;
 
-		void hideUpdates(QList<common::ModUpdate> hides) const;
-		bool hasChanges(common::ModUpdate mu) const;
+		void hideUpdates(QList<utils::ModUpdate> hides) const;
+		bool hasChanges(utils::ModUpdate mu) const;
 
 		void unzippedArchive(QString archive, QList<QPair<QString, QString>> files, ModFile mf, QSharedPointer<QList<ModFile>> installFiles, QSharedPointer<QList<ModFile>> newFiles, QSharedPointer<QList<ModFile>> removeFiles);
 
 		void requestUpdates(const std::vector<common::ModVersion> & m, bool forceAccept);
 
-		void updateProject(common::ModUpdate mu);
+		void updateProject(utils::ModUpdate mu);
 
 		void clear();
 	};

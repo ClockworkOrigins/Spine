@@ -21,7 +21,6 @@
 #include "common/MessageTypes.h"
 #include "common/Mod.h"
 #include "common/ProjectStats.h"
-#include "common/ModUpdate.h"
 #include "common/ModVersion.h"
 #include "common/NewsTickerTypes.h"
 

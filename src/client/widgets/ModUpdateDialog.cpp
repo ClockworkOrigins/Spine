@@ -61,6 +61,8 @@ using namespace spine::https;
 using namespace spine::utils;
 using namespace spine::widgets;
 
+ModUpdateDialog::ModFile::ModFile(std::string i, std::string s1, std::string s2) : modID(std::stoi(i)), file(s2q(s1)), hash(s2q(s2)) {}
+
 ModUpdateDialog::ModUpdateDialog(QMainWindow * mainWindow) : QDialog(nullptr), _mainWindow(mainWindow), _infoLabel(nullptr), _checkBoxLayout(nullptr), _running(false), _lastTimeRejected(false), _loginChecked(false), _spineUpdateChecked(false) {
 	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
@@ -88,7 +90,7 @@ ModUpdateDialog::ModUpdateDialog(QMainWindow * mainWindow) : QDialog(nullptr), _
 	l->addWidget(dbb);
 	dbb->hide();
 
-	qRegisterMetaType<std::vector<ModUpdate>>("std::vector<common::ModUpdate>");
+	qRegisterMetaType<QList<ModUpdate>>("QList<common::ModUpdate>");
 	qRegisterMetaType<QList<QPair<QString, QString>>>("QList<QPair<QString, QString>>");
 
 	connect(this, &ModUpdateDialog::receivedMods, dbb, &QDialogButtonBox::show);
@@ -154,7 +156,7 @@ void ModUpdateDialog::spineUpToDate() {
 	}
 }
 
-void ModUpdateDialog::updateModList(std::vector<ModUpdate> updates, bool forceAccept) {
+void ModUpdateDialog::updateModList(QList<ModUpdate> updates, bool forceAccept) {
 	if (updates.empty()) {
 		_infoLabel->setText(QApplication::tr("NoModUpdates"));
 		_running = false;
@@ -171,7 +173,7 @@ void ModUpdateDialog::updateModList(std::vector<ModUpdate> updates, bool forceAc
 
 			if (!result.empty()) continue;
 
-			QString title = QString("%1 (%2 => %3.%4.%5)").arg(s2q(u.name)).arg(_oldVersions[u.modID]).arg(static_cast<int>(u.majorVersion)).arg(static_cast<int>(u.minorVersion)).arg(static_cast<int>(u.patchVersion));
+			QString title = QString("%1 (%2 => %3.%4.%5)").arg(u.name).arg(_oldVersions[u.modID]).arg(static_cast<int>(u.majorVersion)).arg(static_cast<int>(u.minorVersion)).arg(static_cast<int>(u.patchVersion));
 
 			auto * hl = new QHBoxLayout();
 			
@@ -202,7 +204,7 @@ void ModUpdateDialog::updateModList(std::vector<ModUpdate> updates, bool forceAc
 			_checkBoxLayout->addLayout(hl);
 			_checkBoxLayouts << hl;
 
-			const auto changelog = s2q(u.changelog);
+			const auto changelog = u.changelog;
 
 			if (b && !changelog.isEmpty()) {
 				auto * vl = new QVBoxLayout();
@@ -321,7 +323,7 @@ void ModUpdateDialog::hideUpdates(QList<ModUpdate> hides) const {
 
 	for (const ModUpdate & mu : hides) {
 		Database::DBError err;
-		Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "INSERT INTO updates (ModID, Name, MajorVersion, MinorVersion, PatchVersion, SpineVersion) VALUES (" + std::to_string(mu.modID) + ", '" + mu.name + "', " + std::to_string(static_cast<int>(mu.majorVersion)) + ", " + std::to_string(static_cast<int>(mu.minorVersion)) + "," + std::to_string(static_cast<int>(mu.patchVersion)) + "," + std::to_string(static_cast<int>(mu.spineVersion)) + ");", err);
+		Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "INSERT INTO updates (ModID, Name, MajorVersion, MinorVersion, PatchVersion, SpineVersion) VALUES (" + std::to_string(mu.modID) + ", '" + q2s(mu.name) + "', " + std::to_string(static_cast<int>(mu.majorVersion)) + ", " + std::to_string(static_cast<int>(mu.minorVersion)) + "," + std::to_string(static_cast<int>(mu.patchVersion)) + "," + std::to_string(static_cast<int>(mu.spineVersion)) + ");", err);
 	}
 }
 
@@ -395,7 +397,7 @@ void ModUpdateDialog::unzippedArchive(QString archive, QList<QPair<QString, QStr
 	for (auto it = installFiles->begin(); it != installFiles->end(); ++it) {
 		if (it->modID != mf.modID) continue;
 		
-		if (s2q(it->file) != archive) continue;
+		if (it->file != archive) continue;
 		
 		installFiles->erase(it);
 		
@@ -405,7 +407,7 @@ void ModUpdateDialog::unzippedArchive(QString archive, QList<QPair<QString, QStr
 	for (auto it = newFiles->begin(); it != newFiles->end(); ++it) {
 		if (it->modID != mf.modID) continue;
 		
-		if (s2q(it->file) != archive) continue;
+		if (it->file != archive) continue;
 		
 		newFiles->erase(it);
 		
@@ -418,7 +420,7 @@ void ModUpdateDialog::unzippedArchive(QString archive, QList<QPair<QString, QStr
 		for (auto it = removeFiles->begin(); it != removeFiles->end(); ++it) {
 			if (it->modID != mf.modID) continue;
 
-			if (s2q(it->file) != p.first) continue;
+			if (it->file != p.first) continue;
 
 			installFiles->append(*it);
 			removeFiles->erase(it);
@@ -433,8 +435,8 @@ void ModUpdateDialog::unzippedArchive(QString archive, QList<QPair<QString, QStr
 			
 			f.modID = mf.modID;
 			f.packageID = mf.packageID;
-			f.file = q2s(p.first);
-			f.hash = q2s(p.second);
+			f.file = p.first;
+			f.hash = p.second;
 			f.fileserver = mf.fileserver;
 			f.fallbackFileserver = mf.fallbackFileserver;
 			
@@ -445,7 +447,7 @@ void ModUpdateDialog::unzippedArchive(QString archive, QList<QPair<QString, QStr
 
 void ModUpdateDialog::requestUpdates(const std::vector<ModVersion> & m, bool forceAccept) {
 	if (m.empty()) {
-		emit receivedMods(std::vector<ModUpdate>(), forceAccept);
+		emit receivedMods(QList<ModUpdate>(), forceAccept);
 		
 		return;
 	}
@@ -471,40 +473,40 @@ void ModUpdateDialog::requestUpdates(const std::vector<ModVersion> & m, bool for
 
 	json["Projects"] = jsonArr;
 
-	Https::postAsync(DATABASESERVER_PORT, "projectVersionCheck", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, forceAccept](const QJsonObject & data, int responseCode) {
+	Https::postAsync(DATABASESERVER_PORT, "projectVersionCheck", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, forceAccept](const QJsonObject & jsonData, int responseCode) {
 		if (responseCode != 200) {
-			emit receivedMods(std::vector<ModUpdate>(), forceAccept);
+			emit receivedMods(QList<ModUpdate>(), forceAccept);
 			return;
 		}
 
-		std::vector<ModUpdate> updates;
+		QList<ModUpdate> updates;
 
-		if (data.contains("Updates")) {
-			for (const auto jsonRef : data["Updates"].toArray()) {
+		if (jsonData.contains("Updates")) {
+			for (const auto jsonRef : jsonData["Updates"].toArray()) {
 				const auto j = jsonRef.toObject();
 				
 				ModUpdate mu;
 				mu.modID = j["ProjectID"].toString().toInt();
-				mu.name = q2s(j["Name"].toString());
+				mu.name = decodeString(j["Name"].toString());
 				mu.majorVersion = static_cast<int8_t>(j["VersionMajor"].toString().toInt());
 				mu.minorVersion = static_cast<int8_t>(j["VersionMinor"].toString().toInt());
 				mu.patchVersion = static_cast<int8_t>(j["VersionPatch"].toString().toInt());
 				mu.spineVersion = static_cast<int8_t>(j["VersionSpine"].toString().toInt());
-				mu.fileserver = q2s(j["Fileserver"].toString());
-				mu.fallbackFileserver = q2s(j["FallbackFileserver"].toString());
+				mu.fileserver = j["Fileserver"].toString();
+				mu.fallbackFileserver = j["FallbackFileserver"].toString();
 				mu.gothicVersion = static_cast<GameType>(j["Type"].toString().toInt());
 				mu.savegameCompatible = j["SavegameCompatible"].toString().toInt();
-				mu.changelog = q2s(j["Changelog"].toString());
+				mu.changelog = decodeString(j["Changelog"].toString());
 				mu.modID = j["ProjectID"].toString().toInt();
 
 				if (j.contains("Files")) {
 					for (const auto jsonRef2 : j["Files"].toArray()) {
 						const auto j2 = jsonRef2.toObject();
 
-						const auto file = q2s(j2["File"].toString());
-						const auto hash = q2s(j2["Hash"].toString());
+						const auto file = j2["File"].toString();
+						const auto hash = j2["Hash"].toString();
 
-						mu.files.emplace_back(file, hash);
+						mu.files << qMakePair(file, hash);
 					}
 				}
 
@@ -516,18 +518,18 @@ void ModUpdateDialog::requestUpdates(const std::vector<ModVersion> & m, bool for
 
 						const auto packageID = j2["PackageID"].toString().toInt();
 
-						std::vector<std::pair<std::string, std::string>> files;
+						QList<QPair<QString, QString>> files;
 						
 						for (const auto jsonRef3 : j2["Files"].toArray()) {
 							const auto j3 = jsonRef3.toObject();
 
-							const auto file = q2s(j3["File"].toString());
-							const auto hash = q2s(j3["Hash"].toString());
+							const auto file = j3["File"].toString();
+							const auto hash = j3["Hash"].toString();
 
-							mu.files.emplace_back(file, hash);
+							mu.files << qMakePair(file, hash);
 						}
 						
-						mu.packageFiles.emplace_back(packageID, files);
+						mu.packageFiles << qMakePair(packageID, files);
 					}
 				}
 
@@ -549,21 +551,21 @@ void ModUpdateDialog::updateProject(ModUpdate mu) {
 	std::vector<int> p = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT DISTINCT PackageID FROM packages WHERE ModID = " + std::to_string(mu.modID) + ";", err);
 	std::vector<ModFile> updateFiles;
 	for (const auto & pr : mu.files) {
-		updateFiles.emplace_back(mu.modID, pr.first, pr.second, -1, s2q(mu.fileserver), s2q(mu.fallbackFileserver));
+		updateFiles.emplace_back(mu.modID, pr.first, pr.second, -1, mu.fileserver, mu.fallbackFileserver);
 	}
 	for (int packageID : p) {
-		for (size_t j = 0; j < mu.packageFiles.size(); j++) {
+		for (int j = 0; j < mu.packageFiles.size(); j++) {
 			if (mu.packageFiles[j].first == packageID) {
 				for (const auto & pr : mu.packageFiles[j].second) {
-					updateFiles.emplace_back(mu.modID, pr.first, pr.second, mu.packageFiles[j].first, s2q(mu.fileserver), s2q(mu.fallbackFileserver));
+					updateFiles.emplace_back(mu.modID, pr.first, pr.second, mu.packageFiles[j].first, mu.fileserver, mu.fallbackFileserver);
 				}
-				mu.files.insert(mu.files.end(), mu.packageFiles[j].second.begin(), mu.packageFiles[j].second.end());
+				mu.files.append(mu.packageFiles[j].second);
 				break;
 			}
 		}
 	}
 	QSet<int> newPackages;
-	for (size_t j = 0; j < mu.packageFiles.size(); j++) {
+	for (int j = 0; j < mu.packageFiles.size(); j++) {
 		// check if package isn't already installed
 		bool found = false;
 		for (int packageID : p) {
@@ -589,7 +591,7 @@ void ModUpdateDialog::updateProject(ModUpdate mu) {
 			}
 			if (add) {
 				for (const auto & pr : mu.packageFiles[j].second) {
-					updateFiles.emplace_back(mu.modID, pr.first, pr.second, mu.packageFiles[j].first, s2q(mu.fileserver), s2q(mu.fallbackFileserver));
+					updateFiles.emplace_back(mu.modID, pr.first, pr.second, mu.packageFiles[j].first, mu.fileserver, mu.fallbackFileserver);
 				}
 			}
 		}
@@ -628,7 +630,7 @@ void ModUpdateDialog::updateProject(ModUpdate mu) {
 		}
 	}
 
-	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE patches SET Name = '" + mu.name + "' WHERE ModID = " + std::to_string(mu.modID) + ";", err);
+	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE patches SET Name = '" + q2s(mu.name) + "' WHERE ModID = " + std::to_string(mu.modID) + ";", err);
 	Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE mods SET GothicVersion = " + std::to_string(static_cast<int>(mu.gothicVersion)) + " WHERE ModID = " + std::to_string(mu.modID) + ";", err);
 
 	auto * mfd = new MultiFileDownloader(this);
@@ -638,11 +640,11 @@ void ModUpdateDialog::updateProject(ModUpdate mu) {
 			bool b = dir.mkpath(dir.absolutePath());
 			Q_UNUSED(b)
 		}
-		QFileInfo fi(QString::fromStdString(mf.file));
+		QFileInfo fi(mf.file);
 
-		const auto relativePath = QString::number(mf.modID) + "/" + QString::fromStdString(mf.file);
+		const auto relativePath = QString::number(mf.modID) + "/" + mf.file;
 		
-		auto * fd = new FileDownloader(QUrl(mf.fileserver + relativePath), QUrl(mf.fallbackFileserver + relativePath), dir.absolutePath() + "/" + fi.path(), fi.fileName(), QString::fromStdString(mf.hash), mfd);
+		auto * fd = new FileDownloader(QUrl(mf.fileserver + relativePath), QUrl(mf.fallbackFileserver + relativePath), dir.absolutePath() + "/" + fi.path(), fi.fileName(), mf.hash, mfd);
 		mfd->addFileDownloader(fd);
 
 		// zip workflow
@@ -662,11 +664,11 @@ void ModUpdateDialog::updateProject(ModUpdate mu) {
 			bool b = dir.mkpath(dir.absolutePath());
 			Q_UNUSED(b)
 		}
-		QFileInfo fi(QString::fromStdString(mf.file));
+		QFileInfo fi(mf.file);
 
-		const auto relativePath = QString::number(mf.modID) + "/" + QString::fromStdString(mf.file);
+		const auto relativePath = QString::number(mf.modID) + "/" + mf.file;
 		
-		auto * fd = new FileDownloader(QUrl(mf.fileserver + relativePath), QUrl(mf.fallbackFileserver + relativePath), dir.absolutePath() + "/" + fi.path(), fi.fileName(), QString::fromStdString(mf.hash), mfd);
+		auto * fd = new FileDownloader(QUrl(mf.fileserver + relativePath), QUrl(mf.fallbackFileserver + relativePath), dir.absolutePath() + "/" + fi.path(), fi.fileName(), mf.hash, mfd);
 		mfd->addFileDownloader(fd);
 
 		// zip workflow
@@ -687,41 +689,41 @@ void ModUpdateDialog::updateProject(ModUpdate mu) {
 		Database::open(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, err);
 		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "BEGIN TRANSACTION;", err);
 		for (ModFile mf : *installFiles) {
-			QString fileName = QString::fromStdString(mf.file);
+			QString fileName = mf.file;
 			QFileInfo fi(fileName);
 			if (fi.suffix() == "z") {
 				fileName = fileName.mid(0, fileName.size() - 2);
 			}
-			mf.file = fileName.toStdString();
-			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE modfiles SET Hash = '" + mf.hash + "' WHERE ModID = " + std::to_string(mf.modID) + " AND File = '" + mf.file + "';", err);
+			mf.file = fileName;
+			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE modfiles SET Hash = '" + q2s(mf.hash) + "' WHERE ModID = " + std::to_string(mf.modID) + " AND File = '" + q2s(mf.file) + "';", err);
 			success = success && !err.error;
 		}
 		for (ModFile mf : *newFiles) {
-			QString fileName = QString::fromStdString(mf.file);
+			QString fileName = mf.file;
 			QFileInfo fi(fileName);
 			if (fi.suffix() == "z") {
 				fileName = fileName.mid(0, fileName.size() - 2);
 			}
-			mf.file = fileName.toStdString();
-			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO modfiles (ModID, File, Hash) VALUES (" + std::to_string(mf.modID) + ", '" + mf.file + "', '" + mf.hash + "');", err);
+			mf.file = fileName;
+			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO modfiles (ModID, File, Hash) VALUES (" + std::to_string(mf.modID) + ", '" + q2s(mf.file) + "', '" + q2s(mf.hash) + "');", err);
 			success = success && !err.error;
 			if (success && mf.packageID != -1) {
-				Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO packages (ModID, PackageID, File) VALUES (" + std::to_string(mf.modID) + ", " + std::to_string(mf.packageID) + ", '" + mf.file + "');", err);
+				Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO packages (ModID, PackageID, File) VALUES (" + std::to_string(mf.modID) + ", " + std::to_string(mf.packageID) + ", '" + q2s(mf.file) + "');", err);
 				success = success && !err.error;
 			}
 		}
 		for (ModFile mf : *removeFiles) {
-			QString fileName = QString::fromStdString(mf.file);
+			QString fileName = mf.file;
 			QFileInfo fi(fileName);
 			if (fi.suffix() == "z") {
 				fileName = fileName.mid(0, fileName.size() - 2);
 			}
-			mf.file = fileName.toStdString();
+			mf.file = fileName;
 			QFile(Config::DOWNLOADDIR + "/mods/" + QString::number(mf.modID) + "/" + fileName).remove();
-			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "DELETE FROM modfiles WHERE ModID = " + std::to_string(mf.modID) + " AND File = '" + mf.file + "';", err);
+			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "DELETE FROM modfiles WHERE ModID = " + std::to_string(mf.modID) + " AND File = '" + q2s(mf.file) + "';", err);
 			success = success && !err.error;
 			if (success && mf.packageID != -1) {
-				Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "DELETE FROM packages WHERE ModID = " + std::to_string(mf.modID) + " AND PackageID = " + std::to_string(mf.packageID) + " AND File = '" + mf.file + "';", err);
+				Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "DELETE FROM packages WHERE ModID = " + std::to_string(mf.modID) + " AND PackageID = " + std::to_string(mf.packageID) + " AND File = '" + q2s(mf.file) + "';", err);
 				success = success && !err.error;
 			}
 		}
@@ -763,7 +765,7 @@ void ModUpdateDialog::updateProject(ModUpdate mu) {
 		_running = false;
 	});
 
-	DownloadQueueWidget::getInstance()->addDownload(QApplication::tr("PatchingProject").arg(s2q(mu.name)), mfd);
+	DownloadQueueWidget::getInstance()->addDownload(QApplication::tr("PatchingProject").arg(mu.name), mfd);
 }
 
 void ModUpdateDialog::clear() {

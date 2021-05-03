@@ -19,31 +19,33 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
-#include <vector>
 
-#include "GameType.h"
+#include "common/GameType.h"
+
+#include <QList>
+#include <QPair>
+#include <QString>
 
 namespace spine {
-namespace common {
+namespace utils {
 
 	struct ModUpdate {
 		int32_t modID;
-		std::string name;
+		QString name;
 		int8_t majorVersion;
 		int8_t minorVersion;
 		int8_t patchVersion;
 		int8_t spineVersion;
-		std::vector<std::pair<std::string, std::string>> files;
-		std::vector<std::pair<int32_t, std::vector<std::pair<std::string, std::string>>>> packageFiles;
-		std::string fileserver;
-		std::string fallbackFileserver;
-		GameType gothicVersion;
+		QList<QPair<QString, QString>> files;
+		QList<QPair<int32_t, QList<QPair<QString, QString>>>> packageFiles;
+		QString fileserver;
+		QString fallbackFileserver;
+		common::GameType gothicVersion;
 		bool savegameCompatible;
-		std::string changelog;
+		QString changelog;
 
-		ModUpdate() : modID(0), majorVersion(0), minorVersion(0), patchVersion(0), spineVersion(0), gothicVersion(GameType::Gothic), savegameCompatible(false) {}
+		ModUpdate() : modID(0), majorVersion(0), minorVersion(0), patchVersion(0), spineVersion(0), gothicVersion(common::GameType::Gothic), savegameCompatible(false) {}
 	};
 
 } /* namespace common */
-} /* namespace spine */
+} /* namespace utils */
