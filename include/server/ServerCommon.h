@@ -57,6 +57,8 @@ namespace server {
 		static bool hasPrivilege(int userID, common::UserPrivilege privilege);
 
 		static bool canAccessProject(int userID, int projectID);
+
+		static int getPatronLevel(int userID);
 	};
 
 } /* namespace server */

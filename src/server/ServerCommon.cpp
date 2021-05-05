@@ -441,3 +441,28 @@ bool ServerCommon::canAccessProject(int userID, int projectID) {
 
 	return false;
 }
+
+int ServerCommon::getPatronLevel(int userID) {
+	MariaDBWrapper accountDatabase;
+	if (!accountDatabase.connect("localhost", DATABASEUSER, DATABASEPASSWORD, ACCOUNTSDATABASE, 0)) {
+		return 0;
+	}
+
+	if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT Level FROM patronLevels WHERE ID = ? AND ProjectID = ? LIMIT 1\";")) {
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+		return 0;
+	}
+	if (!accountDatabase.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+		return 0;
+	}
+	if (!accountDatabase.query("EXECUTE selectStmt USING @paramUserID;")) {
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+		return 0;
+	}
+	const auto results = accountDatabase.getResults<std::vector<std::string>>();
+
+	if (results.empty()) return 0;
+
+	return std::stoi(results[0][0]);
+}

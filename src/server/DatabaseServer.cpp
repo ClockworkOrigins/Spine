@@ -6633,7 +6633,7 @@ std::string DatabaseServer::getFileServer(int userID, int projectID, int majorVe
 
 			if (!(activeDays & timestamp)) continue;
 
-			if (patronOnly) continue; // TODO
+			if (patronOnly && ServerCommon::getPatronLevel(userID) < 4) continue;
 
 			possibilities.push_back(url);
 		}
