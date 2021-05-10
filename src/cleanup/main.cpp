@@ -39,6 +39,8 @@ int main(int argc, char ** argv) {
 	QTimer::singleShot(0, &msg, &QMessageBox::exec);
 	const int result = QApplication::exec();
 
+	delete Config::IniParser;
+
 	if (QMessageBox::StandardButton::Ok == msg.result()) {
 		if (!Config::BASEDIR.isEmpty() && Config::BASEDIR.endsWith("Clockwork Origins/Spine")) {
 			QDir(Config::BASEDIR + "/").removeRecursively();

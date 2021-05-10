@@ -2200,4 +2200,9 @@
 		<Bug language="English">Fixed crash when download fails</Bug>
 		<Bug language="English">Fixed bug that caused some news not being displayed</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="32" patchVersion="0">
+		<Bug language="Deutsch">Potenziellen Fehler bei Deinstallation behoben</Bug>
+		
+		<Bug language="English">Fixed potential bug during uninstallation</Bug>
+	</Version>
 </Versions>
