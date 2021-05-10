@@ -22,6 +22,7 @@
 #include <QApplication>
 #include <QDir>
 #include <QMessageBox>
+#include <QSettings>
 #include <QTimer>
 
 using namespace spine::utils;
