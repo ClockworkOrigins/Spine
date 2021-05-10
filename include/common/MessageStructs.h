@@ -106,120 +106,6 @@ namespace common {
 		}
 	};
 
-	struct [[deprecated("Remove in Spine 1.32.0")]] RequestAllModsMessage : public Message {
-		std::string language;
-		std::string username;
-		std::string password;
-		RequestAllModsMessage() : Message() {
-			type = MessageType::REQUESTALLMODS;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & language;
-			ar & username;
-			ar & password;
-		}
-	};
-
-	struct [[deprecated("Remove in Spine 1.32.0")]] UpdateAllModsMessage : public Message {
-		std::vector<Mod> mods;
-		std::vector<int32_t> playedProjects;
-		UpdateAllModsMessage() : Message() {
-			type = MessageType::UPDATEALLMODS;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & mods;
-			ar & playedProjects;
-		}
-	};
-
-	struct RequestModFilesMessage : public Message {
-		int32_t modID;
-		std::string language;
-		RequestModFilesMessage() : Message(), modID(), language("Deutsch") {
-			type = MessageType::REQUESTMODFILES;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & modID;
-			try { // TODO (Daniel): drop this code sometime in the future
-				ar & language;
-			} catch (boost::archive::archive_exception&) {
-				language = "Deutsch";
-			}
-		}
-	};
-
-	struct ListModFilesMessage : public Message {
-		std::vector<std::pair<std::string, std::string>> fileList;
-		std::string fileserver;
-		ListModFilesMessage() : Message() {
-			type = MessageType::LISTMODFILES;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & fileList;
-			ar & fileserver;
-		}
-	};
-
-	struct [[deprecated("Remove in Spine 1.32.0")]] DownloadSucceededMessage : public Message {
-		int32_t modID;
-		DownloadSucceededMessage() : Message(), modID() {
-			type = MessageType::DOWNLOADSUCCEEDED;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & modID;
-		}
-	};
-
-	struct UpdateDownloadSizesMessage : public Message {
-		std::vector<std::pair<int32_t, uint64_t>> downloadSizes;
-		UpdateDownloadSizesMessage() : Message() {
-			type = MessageType::UPDATEDOWNLOADSIZES;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & downloadSizes;
-		}
-	};
-
-	struct RequestPlayTimeMessage : public Message {
-		std::string username;
-		std::string password;
-		int32_t modID;
-		RequestPlayTimeMessage() : Message(), modID() {
-			type = MessageType::REQUESTPLAYTIME;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & username;
-			ar & password;
-			ar & modID;
-		}
-	};
-
-	struct SendPlayTimeMessage : public Message {
-		int32_t duration;
-		SendPlayTimeMessage() : Message(), duration() {
-			type = MessageType::SENDPLAYTIME;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & duration;
-		}
-	};
-
 	struct RequestUsernameMessage : public Message {
 		RequestUsernameMessage() : Message() {
 			type = MessageType::REQUESTUSERNAME;
@@ -367,62 +253,6 @@ namespace common {
 			ar & files;
 		}
 	};
-
-	struct RequestPackageFilesMessage : public Message {
-		int32_t packageID;
-		std::string language;
-		RequestPackageFilesMessage() : Message(), packageID() {
-			type = MessageType::REQUESTPACKAGEFILES;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & packageID;
-			ar & language;
-		}
-	};
-
-	struct UpdatePackageListMessage : public Message {
-		struct Package {
-			int32_t modID;
-			int32_t packageID;
-			std::string name;
-			uint64_t downloadSize;
-			std::string language;
-
-			Package() : modID(), packageID(), downloadSize(0) {
-			}
-
-			template<class Archive>
-			void serialize(Archive & ar, const unsigned int /* file_version */) {
-				ar & modID;
-				ar & packageID;
-				ar & name;
-				ar & downloadSize;
-			}
-		};
-		std::vector<Package> packages;
-		UpdatePackageListMessage() : Message() {
-			type = MessageType::UPDATEPACKAGELIST;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & packages;
-		}
-	};
-
-	struct [[deprecated("Remove in Spine 1.32.0")]] PackageDownloadSucceededMessage : public Message {
-		int32_t packageID;
-		PackageDownloadSucceededMessage() : Message(), packageID() {
-			type = MessageType::PACKAGEDOWNLOADSUCCEEDED;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & packageID;
-		}
-	};
 	
 	struct AchievementStats {
 		std::string name;
@@ -444,20 +274,17 @@ namespace common {
 		std::vector<std::pair<std::string, int32_t>> scores;
 	};
 
-	struct [[deprecated("Remove in Spine 1.32.0")]] RequestAllNewsMessage : public Message {
-		int32_t lastNewsID;
+	struct Package {
+		int32_t modID;
+		int32_t packageID;
+		std::string name;
+		uint64_t downloadSize;
 		std::string language;
-		RequestAllNewsMessage() : Message(), lastNewsID(0) {
-			type = MessageType::REQUESTALLNEWS;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & lastNewsID;
-			ar & language;
-		}
+
+		Package() : modID(), packageID(), downloadSize(0) {}
 	};
-	struct [[deprecated("Remove serialize in Spine 1.32.0")]] News {
+
+	struct News{
 		int32_t id;
 		std::string title;
 		std::string body;
@@ -466,21 +293,10 @@ namespace common {
 		std::vector<std::pair<std::string, std::string>> imageFiles;
 
 		News() : timestamp(0) {}
-
 		News(std::string s1, std::string s2, std::string s3, std::string s4) : id(std::stoi(s1)), title(s2), body(s3), timestamp(std::stoi(s4)) {}
-
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & id;
-			ar & title;
-			ar & body;
-			ar & timestamp;
-			ar & referencedMods;
-			ar & imageFiles;
-		}
 	};
 
-	struct [[deprecated("Remove serialize in Spine 1.32.0")]] NewsTicker {
+	struct NewsTicker{
 		NewsTickerType type;
 		std::string name;
 		int32_t projectID;
@@ -490,33 +306,6 @@ namespace common {
 		int8_t patchVersion;
 
 		NewsTicker() : type(NewsTickerType::Update), projectID(0), timestamp(0), majorVersion(0), minorVersion(0), patchVersion(0) {}
-
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & type;
-			ar & name;
-			ar & projectID;
-			ar & timestamp;
-			ar & majorVersion;
-			ar & minorVersion;
-			ar & patchVersion;
-		}
-	};
-
-	struct [[deprecated("Remove in Spine 1.32.0")]] SendAllNewsMessage : public Message {
-		
-		std::vector<News> news;
-		std::vector<NewsTicker> newsTicker;
-		
-		SendAllNewsMessage() : Message() {
-			type = MessageType::SENDALLNEWS;
-		}
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & boost::serialization::base_object<Message>(*this);
-			ar & news;
-			ar & newsTicker;
-		}
 	};
 
 	struct RequestOverallSavePathMessage : public Message {

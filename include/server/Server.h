@@ -31,19 +31,7 @@ namespace sockets {
 
 namespace spine {
 namespace common {
-	struct DownloadSucceededMessage;
-	struct ModVersionCheckMessage;
-	struct PackageDownloadSucceededMessage;
-	struct RequestAllModsMessage;
-	struct RequestAllNewsMessage;
-	struct RequestModFilesMessage;
-	struct RequestOwnCompatibilitiesMessage;
-	struct RequestPackageFilesMessage;
-	struct SubmitCompatibilityMessage;
-	struct SubmitNewsMessage;
-	struct SubmitScriptFeaturesMessage;
 	struct UpdateRequestMessage;
-	struct UpdateSucceededMessage;
 	struct UploadScreenshotsMessage;
 
 	struct ProjectStats;
@@ -84,24 +72,6 @@ namespace server {
 		void receiveMessage(const std::vector<uint8_t> & message, clockUtils::sockets::TcpSocket * sock, clockUtils::ClockError error) const;
 
 		void handleAutoUpdate(clockUtils::sockets::TcpSocket * sock, common::UpdateRequestMessage * msg) const;
-		
-		[[deprecated("Remove in Spine 1.32.0")]]
-		void handleModListRequest(clockUtils::sockets::TcpSocket * sock, common::RequestAllModsMessage * msg) const;
-		
-		[[deprecated("Remove in Spine 1.32.0")]]
-		void handleModFilesListRequest(clockUtils::sockets::TcpSocket * sock, common::RequestModFilesMessage * msg) const;
-		
-		[[deprecated("Remove in Spine 1.32.0")]]
-		void handleDownloadSucceeded(clockUtils::sockets::TcpSocket * sock, common::DownloadSucceededMessage * msg) const;
-		
-		[[deprecated("Remove in Spine 1.32.0")]]
-		void handleRequestPackageFiles(clockUtils::sockets::TcpSocket * sock, common::RequestPackageFilesMessage * msg) const;
-
-		[[deprecated("Remove in Spine 1.32.0")]]
-		void handlePackageDownloadSucceeded(clockUtils::sockets::TcpSocket * sock, common::PackageDownloadSucceededMessage * msg) const;
-		
-		[[deprecated("Remove in Spine 1.32.0")]]
-		void handleRequestAllNews(clockUtils::sockets::TcpSocket * sock, common::RequestAllNewsMessage * msg) const;
 		
 		void handleUploadScreenshots(clockUtils::sockets::TcpSocket * sock, common::UploadScreenshotsMessage * msg) const;
 

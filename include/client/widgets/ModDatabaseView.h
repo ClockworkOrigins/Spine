@@ -55,8 +55,8 @@ namespace widgets {
 		void receivedModList(QList<common::Mod>);
 		void receivedModSizes(QList<QPair<int32_t, uint64_t>>);
 		void receivedModFilesList(common::Mod, QSharedPointer<QList<QPair<QString, QString>>>, QString fileserver, QString fallbackFileserver);
-		void receivedPackageList(QList<common::UpdatePackageListMessage::Package>);
-		void receivedPackageFilesList(common::Mod, common::UpdatePackageListMessage::Package, QSharedPointer<QList<QPair<QString, QString>>>, QString fileserver, QString fallbackFileserver);
+		void receivedPackageList(QList<common::Package>);
+		void receivedPackageFilesList(common::Mod, common::Package, QSharedPointer<QList<QPair<QString, QString>>>, QString fileserver, QString fallbackFileserver);
 		void triggerInstallMod(int);
 		void triggerInstallPackage(int, int);
 		void loadPage(int32_t);
@@ -80,8 +80,8 @@ namespace widgets {
 		void downloadModFiles(common::Mod mod, QSharedPointer<QList<QPair<QString, QString>>> fileList, QString fileserver, QString fallbackServer);
 		void sortByColumn(int column);
 		void changedFilterExpression(const QString & expression);
-		void updatePackageList(QList<common::UpdatePackageListMessage::Package> packages);
-		void downloadPackageFiles(common::Mod mod, common::UpdatePackageListMessage::Package package, QSharedPointer<QList<QPair<QString, QString>>> fileList, QString fileserver, QString fallbackServer);
+		void updatePackageList(QList<common::Package> packages);
+		void downloadPackageFiles(common::Mod mod, common::Package package, QSharedPointer<QList<QPair<QString, QString>>> fileList, QString fileserver, QString fallbackServer);
 		void installMod(int modID);
 		void installPackage(int modID, int packageID);
 
@@ -95,7 +95,7 @@ namespace widgets {
 		bool _gothic2Valid;
 		bool _gothic3Valid;
 		QMap<int32_t, QModelIndex> _parentMods;
-		QMap<int32_t, std::vector<common::UpdatePackageListMessage::Package>> _packages;
+		QMap<int32_t, std::vector<common::Package>> _packages;
 		QString _gothicDirectory;
 		QString _gothic2Directory;
 		QMap<int32_t, TextItem *> _packageIDIconMapping;

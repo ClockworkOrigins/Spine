@@ -46,7 +46,6 @@ namespace common {
 	struct RequestAllFriendsMessage;
 	struct RequestOverallSaveDataMessage;
 	struct RequestScoresMessage;
-	struct RequestUsernameMessage;
 	struct UnlockAchievementMessage;
 	struct UpdateAchievementProgressMessage;
 	struct UpdateScoreMessage;

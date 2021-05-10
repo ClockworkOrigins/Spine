@@ -543,8 +543,8 @@ ModDatabaseView::ModDatabaseView(QMainWindow * mainWindow, GeneralSettingsWidget
 	qRegisterMetaType<QList<Mod>>("QList<common::Mod>");
 	qRegisterMetaType<QList<QPair<int32_t, uint64_t>>>("QList<QPair<int32_t, uint64_t>>");
 	qRegisterMetaType<Mod>("common::Mod");
-	qRegisterMetaType<UpdatePackageListMessage::Package>("common::UpdatePackageListMessage::Package");
-	qRegisterMetaType<QList<UpdatePackageListMessage::Package>>("QList<common::UpdatePackageListMessage::Package>");
+	qRegisterMetaType<Package>("common::Package");
+	qRegisterMetaType<QList<Package>>("QList<common::Package>");
 	qRegisterMetaType<QList<std::pair<std::string, std::string>>>("QList<std::pair<std::string, std::string>>");
 	qRegisterMetaType<QSharedPointer<QList<QPair<QString, QString>>>>("QSharedPointer<QList<QPair<QString, QString>>>");
 	qRegisterMetaType<QSet<int32_t>>("QSet<int32_t>");
@@ -648,12 +648,12 @@ void ModDatabaseView::updateModList(int modID, int packageID, InstallMode mode) 
 
 			emit receivedPlayedProjects(playedProjects);
 
-			QList<UpdatePackageListMessage::Package> packages;
+			QList<Package> packages;
 
 			for (const auto jsonRef : data["Packages"].toArray()) {
 				const auto jsonProj = jsonRef.toObject();
 
-				UpdatePackageListMessage::Package package;
+				Package package;
 				package.packageID = jsonProj["PackageID"].toString().toInt();
 				package.modID = jsonProj["ProjectID"].toString().toInt();
 				package.name = q2s(jsonProj["Name"].toString());
@@ -1115,7 +1115,7 @@ void ModDatabaseView::changedFilterExpression(const QString & expression) {
 	_sortModel->setFilterRegExp(expression);
 }
 
-void ModDatabaseView::updatePackageList(QList<UpdatePackageListMessage::Package> packages) {
+void ModDatabaseView::updatePackageList(QList<Package> packages) {
 	_packages.clear();
 	_packageIDIconMapping.clear();
 	Database::DBError err;
@@ -1127,7 +1127,7 @@ void ModDatabaseView::updatePackageList(QList<UpdatePackageListMessage::Package>
 
 	const QFontMetrics fm(_treeView->font());
 	
-	for (const UpdatePackageListMessage::Package & package : packages) {
+	for (const Package & package : packages) {
 		if (_parentMods.find(package.modID) == _parentMods.end()) { // hidden parent or bug, don't crash in this case
 			continue;
 		}
@@ -1231,7 +1231,7 @@ void ModDatabaseView::updatePackageList(QList<UpdatePackageListMessage::Package>
 	_waitSpinner = nullptr;
 }
 
-void ModDatabaseView::downloadPackageFiles(Mod mod, UpdatePackageListMessage::Package package, QSharedPointer<QList<QPair<QString, QString>>> fileList, QString fileserver, QString fallbackServer) {
+void ModDatabaseView::downloadPackageFiles(Mod mod, Package package, QSharedPointer<QList<QPair<QString, QString>>> fileList, QString fileserver, QString fallbackServer) {
 	const QDir dir(Config::DOWNLOADDIR + "/mods/" + QString::number(mod.id));
 	if (!dir.exists()) {
 		bool b = dir.mkpath(dir.absolutePath());
@@ -1472,7 +1472,7 @@ void ModDatabaseView::selectedPackageIndex(const QModelIndex & index) {
 		emit finishedInstallation(mod.id, -1, false);
 		return;
 	}
-	UpdatePackageListMessage::Package package = _packages[mod.id][(index.model() == _sortModel) ? _sortModel->mapToSource(index).row() : index.row()];
+	Package package = _packages[mod.id][(index.model() == _sortModel) ? _sortModel->mapToSource(index).row() : index.row()];
 
 	if (_downloadingPackageList.contains(package.packageID)) return;
 	
