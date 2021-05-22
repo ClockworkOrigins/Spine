@@ -285,7 +285,7 @@ std::string ServerCommon::getPackageName(int packageID, int preferredLanguage) {
 			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			break;
 		}
-		if (!database.query("PREPARE selectFallbackPackageNameStmt FROM \"SELECT CAST(Name AS BINARY) FROM projectNames WHERE PackageID = ? LIMIT 1\";")) {
+		if (!database.query("PREPARE selectFallbackPackageNameStmt FROM \"SELECT CAST(Name AS BINARY) FROM optionalpackagenames WHERE PackageID = ? LIMIT 1\";")) {
 			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 			break;
 		}
