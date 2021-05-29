@@ -40,6 +40,8 @@ int main(int argc, char ** argv) {
 	QTimer::singleShot(0, &msg, &QMessageBox::exec);
 	const int result = QApplication::exec();
 
+	const QString screenshotsPath = Config::IniParser->value("PATH/Screenshots", Config::BASEDIR + "/screens/").toString();
+
 	delete Config::IniParser;
 
 	if (QMessageBox::StandardButton::Ok == msg.result()) {
@@ -47,7 +49,13 @@ int main(int argc, char ** argv) {
 			QDir(Config::BASEDIR + "/").removeRecursively();
 		}
 		if (!Config::DOWNLOADDIR.isEmpty()) {
+			QDir(Config::DOWNLOADDIR + "/icons/").removeRecursively();
 			QDir(Config::DOWNLOADDIR + "/mods/").removeRecursively();
+			QDir(Config::DOWNLOADDIR + "/achievements/").removeRecursively();
+			QDir(Config::DOWNLOADDIR + "/screens/").removeRecursively();
+		}
+		if (!screenshotsPath.isEmpty()) {
+			QDir(screenshotsPath).removeRecursively();
 		}
 	}
 
