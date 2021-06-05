@@ -133,11 +133,11 @@ namespace {
 
 	class SizeItem : public QStandardItem {
 	public:
-		explicit SizeItem(const uint64_t size) : QStandardItem() {
+		explicit SizeItem(const quint64 size) : QStandardItem() {
 			setSize(size);
 		}
 
-		void setSize(const uint64_t size) {
+		void setSize(const quint64 size) {
 			QString sizeString;
 			if (size == std::numeric_limits<uint64_t>::max()) {
 				sizeString = "-";
@@ -157,13 +157,13 @@ namespace {
 				sizeString = QString::number(dSize, 'f', 1) + " " + unit;
 			}
 			setText(sizeString);
-			setData(static_cast<quint64>(size), Qt::UserRole);
+			setData(size, Qt::UserRole);
 		}
 	};
 
 	class VersionItem : public QStandardItem {
 	public:
-		VersionItem(const uint8_t majorVersion, const uint8_t minorVersion, const uint8_t patchVersion) : QStandardItem(QString::number(static_cast<int>(majorVersion)) + "." + QString::number(static_cast<int>(minorVersion)) + "." + QString::number(static_cast<int>(patchVersion))) {
+		VersionItem(const uint8_t majorVersion, const uint8_t minorVersion, const uint8_t patchVersion) : QStandardItem(QString::number(majorVersion) + "." + QString::number(minorVersion) + "." + QString::number(patchVersion)) {
 			QStandardItem::setData(static_cast<quint64>(majorVersion * 256 * 256 + minorVersion * 256 + patchVersion), Qt::UserRole);
 		}
 	};
@@ -967,7 +967,7 @@ void ModDatabaseView::downloadModFiles(Mod mod, QSharedPointer<QList<QPair<QStri
 
 	{
 		int row = 0;
-		for (; row < static_cast<int>(_mods.size()); row++) {
+		for (; row < _mods.size(); row++) {
 			if (_mods[row].id == mod.id) {
 				break;
 			}
@@ -980,7 +980,7 @@ void ModDatabaseView::downloadModFiles(Mod mod, QSharedPointer<QList<QPair<QStri
 
 	connect(mfd, &MultiFileDownloader::downloadProgressPercent, [this, mod](qreal progress) {
 		int row = 0;
-		for (; row < static_cast<int>(_mods.size()); row++) {
+		for (; row < _mods.size(); row++) {
 			if (_mods[row].id == mod.id) {
 				break;
 			}
@@ -995,7 +995,7 @@ void ModDatabaseView::downloadModFiles(Mod mod, QSharedPointer<QList<QPair<QStri
 		_downloadingList.removeAll(mod.id);
 		
 		int row = 0;
-		for (; row < static_cast<int>(_mods.size()); row++) {
+		for (; row < _mods.size(); row++) {
 			if (_mods[row].id == mod.id) {
 				break;
 			}
@@ -1007,7 +1007,7 @@ void ModDatabaseView::downloadModFiles(Mod mod, QSharedPointer<QList<QPair<QStri
 		Database::DBError err;
 		Database::open(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, err);
 		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "BEGIN TRANSACTION;", err);
-		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO mods (ModID, GothicVersion, MajorVersion, MinorVersion, PatchVersion, SpineVersion) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(static_cast<int>(mod.gothic)) + ", " + std::to_string(static_cast<int>(_mods[row].majorVersion)) + ", " + std::to_string(static_cast<int>(_mods[row].minorVersion)) + ", " + std::to_string(static_cast<int>(_mods[row].patchVersion)) + ", " + std::to_string(static_cast<int>(_mods[row].spineVersion)) + ");", err);
+		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO mods (ModID, GothicVersion, MajorVersion, MinorVersion, PatchVersion, SpineVersion) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(static_cast<int>(mod.gothic)) + ", " + std::to_string(_mods[row].majorVersion) + ", " + std::to_string(_mods[row].minorVersion) + ", " + std::to_string(_mods[row].patchVersion) + ", " + std::to_string(_mods[row].spineVersion) + ");", err);
 		for (const auto & p : *fileList) {
 			QString fileName = p.first;
 			QFileInfo fi(fileName);
@@ -1023,7 +1023,7 @@ void ModDatabaseView::downloadModFiles(Mod mod, QSharedPointer<QList<QPair<QStri
 		Database::close(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, err);
 		const int currentDate = std::chrono::duration_cast<std::chrono::hours>(std::chrono::system_clock::now() - std::chrono::system_clock::time_point()).count();
 		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO installDates (ModID, InstallDate) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(currentDate) + ";", err);
-		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO languages (ProjectID, Language) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(static_cast<int>(mod.language)) + ");", err);
+		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO languages (ProjectID, Language) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(mod.language) + ");", err);
 		
 		// enable systempack by default
 		if (mod.type != ModType::PATCH && mod.type != ModType::TOOL) {
@@ -1245,6 +1245,25 @@ void ModDatabaseView::downloadPackageFiles(Mod mod, Package package, QSharedPoin
 		
 		auto * fd = new FileDownloader(QUrl(fileserver + relativePath), QUrl(fallbackServer + relativePath), dir.absolutePath() + "/" + fi.path(), fi.fileName(), p.second, mfd);
 		mfd->addFileDownloader(fd);
+
+		// zip workflow
+		const auto suffix = fi.completeSuffix();
+
+		if (suffix.compare("zip.z", Qt::CaseInsensitive) != 0) continue;
+
+		// 1. if it is a zip, register new signal. FileDownloader will send signal after extracting the archive reporting the files with hashes it contained
+		// 2. reported files need to be added to filelist and archive must be removed
+		connect(fd, &FileDownloader::unzippedArchive, [fileList](QString archive, QList<QPair<QString, QString>> files) {
+			for (auto it = fileList->begin(); it != fileList->end(); ++it) {
+				if (it->first != archive) continue;
+
+				fileList->erase(it);
+
+				break;
+			}
+
+			fileList->append(files);
+		});
 	}
 
 	{
@@ -1361,9 +1380,9 @@ void ModDatabaseView::resizeEvent(QResizeEvent *) {
 
 qint64 ModDatabaseView::getDownloadSize(Mod mod) const {
 	qint64 size = 0;
-	for (size_t i = 0; i < _mods.size(); i++) {
+	for (int i = 0; i < _mods.size(); i++) {
 		if (_mods[i].id == mod.id) {
-			size = _sourceModel->item(static_cast<int>(i), DatabaseColumn::Size)->data(Qt::UserRole).toLongLong();
+			size = _sourceModel->item(i, DatabaseColumn::Size)->data(Qt::UserRole).toLongLong();
 			break;
 		}
 	}
@@ -1436,7 +1455,7 @@ void ModDatabaseView::selectedModIndex(const QModelIndex & index) {
 		const bool uninstalled = Uninstaller::uninstall(mod.id, s2q(mod.name), mod.gothic == GameType::Gothic ? _gothicDirectory : _gothic2Directory);
 		if (uninstalled) {
 			int row = 0;
-			for (; row < static_cast<int>(_mods.size()); row++) {
+			for (; row < _mods.size(); row++) {
 				if (_mods[row].id == mod.id) {
 					break;
 				}
@@ -1581,7 +1600,7 @@ void ModDatabaseView::updateDatabaseEntries() {
 
 		if (count == 1) continue;
 		
-		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO languages (ProjectID, Language) VALUES (" + std::to_string(project) + ", " + std::to_string(static_cast<int>(LanguageConverter::convert(Config::Language))) + ");", err);
+		Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO languages (ProjectID, Language) VALUES (" + std::to_string(project) + ", " + std::to_string(LanguageConverter::convert(Config::Language)) + ");", err);
 	}
 }
 
