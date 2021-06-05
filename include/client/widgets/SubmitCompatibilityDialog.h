@@ -37,10 +37,10 @@ namespace widgets {
 		SubmitCompatibilityDialog(int32_t modID, int32_t patchID, common::GameType gothicVersion);
 
 	signals:
-		void receivedModList(std::vector<common::Mod>);
+		void receivedModList(QList<common::Mod>);
 
 	private slots:
-		void updateModList(std::vector<common::Mod> mods);
+		void updateModList(QList<common::Mod> mods);
 		void updateView();
 		void selectIndex(const QModelIndex & idx);
 		void selectPatchIndex(const QModelIndex & idx);

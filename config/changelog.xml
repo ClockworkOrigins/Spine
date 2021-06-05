@@ -2203,8 +2203,10 @@
 	<Version majorVersion="1" minorVersion="32" patchVersion="0">
 		<Bug language="Deutsch">Potenziellen Fehler bei Deinstallation behoben</Bug>
 		<Bug language="Deutsch">Fehler behoben, wodurch Archive in Zusatzpaketen nicht funktioniert haben</Bug>
+		<Bug language="Deutsch">Fehler behoben, wodurch Kompatibilitätsmeldungen nicht mehr funktioniert haben</Bug>
 		
 		<Bug language="English">Fixed potential bug during uninstallation</Bug>
 		<Bug language="English">Fixed bug that caused additional packages not working when they contained an archive</Bug>
+		<Bug language="English">Fixed bug that caused submitting compatibility not working anymore</Bug>
 	</Version>
 </Versions>

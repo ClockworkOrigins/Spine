@@ -181,7 +181,7 @@ SubmitCompatibilityDialog::SubmitCompatibilityDialog(int32_t modID, int32_t patc
 
 			if (!data.contains("Projects")) return;
 
-			std::vector<Mod> projects;
+			QList<Mod> projects;
 
 			for (const auto jsonRef : data["Projects"].toArray()) {
 				const auto jsonProj = jsonRef.toObject();
@@ -200,7 +200,7 @@ SubmitCompatibilityDialog::SubmitCompatibilityDialog(int32_t modID, int32_t patc
 	});
 }
 
-void SubmitCompatibilityDialog::updateModList(std::vector<Mod> mods) {
+void SubmitCompatibilityDialog::updateModList(QList<Mod> mods) {
 	for (const Mod & mod : mods) {
 		if (mod.gothic == GameType::Gothic && (mod.type == ModType::TOTALCONVERSION || mod.type == ModType::ENHANCEMENT || mod.type == ModType::ORIGINAL)) {
 			_g1Mods.append(mod);
