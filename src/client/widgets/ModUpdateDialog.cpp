@@ -81,7 +81,7 @@ ModUpdateDialog::ModUpdateDialog(QMainWindow * mainWindow) : QDialog(nullptr), _
 	scrollArea->setWidgetResizable(true);
 	mainWidget->setProperty("default", true);
 
-	l->addWidget(scrollArea, 1, Qt::AlignHCenter);
+	l->addWidget(scrollArea, 1);
 
 	_dontShowAgain = new QCheckBox(QApplication::tr("DontShowAgain"), this);
 	l->addWidget(_dontShowAgain);
