@@ -448,7 +448,7 @@ int ServerCommon::getPatronLevel(int userID) {
 		return 0;
 	}
 
-	if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT Level FROM patronLevels WHERE ID = ? AND ProjectID = ? LIMIT 1\";")) {
+	if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT Level FROM patronLevels WHERE ID = ? AND ProjectID = 0 LIMIT 1\";")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 		return 0;
 	}

@@ -153,7 +153,7 @@ namespace {
 							common::Message * msg = common::Message::DeserializeBlank(serialized);
 							if (msg) {
 								if (msg->type == common::MessageType::SENDACHIEVEMENTS) {
-									common::SendAchievementsMessage * sam = dynamic_cast<common::SendAchievementsMessage *>(msg);
+									auto * sam = dynamic_cast<common::SendAchievementsMessage *>(msg);
 									for (int32_t i : sam->achievements) {
 										achievements.insert(i);
 									}
@@ -183,7 +183,7 @@ namespace {
 							common::Message * msg = common::Message::DeserializeBlank(serialized);
 							if (msg) {
 								if (msg->type == common::MessageType::SENDOVERALLSAVEPATH) {
-									common::SendOverallSavePathMessage * sospm = dynamic_cast<common::SendOverallSavePathMessage *>(msg);
+									auto * sospm = dynamic_cast<common::SendOverallSavePathMessage *>(msg);
 									overallSaveName = sospm->path;
 									std::ifstream in(overallSaveName, std::ios::binary | std::ios::in);
 									try {
@@ -211,7 +211,7 @@ namespace {
 							common::Message * msg = common::Message::DeserializeBlank(serialized);
 							if (msg) {
 								if (msg->type == common::MessageType::SENDOVERALLSAVEDATA) {
-									common::SendOverallSaveDataMessage * sosdm = dynamic_cast<common::SendOverallSaveDataMessage *>(msg);
+									auto * sosdm = dynamic_cast<common::SendOverallSaveDataMessage *>(msg);
 									for (const auto & p : sosdm->data) {
 										overallSaveEntries[p.first] = p.second;
 									}
@@ -462,7 +462,7 @@ namespace {
 				if (!msg) {
 					return 0;
 				}
-				common::SendAchievementUnlockedMessage * saum = dynamic_cast<common::SendAchievementUnlockedMessage *>(msg);
+				auto * saum = dynamic_cast<common::SendAchievementUnlockedMessage *>(msg);
 				if (!saum) {
 					return 0;
 				}

@@ -417,6 +417,32 @@ void SpineLevel::cacheLevel(int userID) {
 			currentXP += std::stoi(lastResults[0][0]) * 250;
 		}
 
+		// Patreon also counts
+		{
+			MariaDBWrapper accountDatabase;
+			if (!accountDatabase.connect("localhost", DATABASEUSER, DATABASEPASSWORD, ACCOUNTSDATABASE, 0)) {
+				break;
+			}
+
+			if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT LifetimeAmount FROM patronLevels WHERE ID = ? AND ProjectID = 0 LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				break;
+			}
+			if (!accountDatabase.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				break;
+			}
+			if (!accountDatabase.query("EXECUTE selectStmt USING @paramUserID;")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				break;
+			}
+			const auto results = accountDatabase.getResults<std::vector<std::string>>();
+
+			if (!results.empty()) {
+				currentXP += std::stoi(results[0][0]);
+			}
+		}
+
 		// bonus XP for people that support us by playing our games
 		{
 			MariaDBWrapper ewDatabase;

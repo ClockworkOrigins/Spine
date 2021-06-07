@@ -482,7 +482,7 @@ void ILauncher::acceptedConnection(clockUtils::sockets::TcpSocket * sock, clockU
 void ILauncher::receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets::TcpSocket * socket, clockUtils::ClockError err) {
 	if (err == clockUtils::ClockError::SUCCESS) {
 		try {
-			std::string serialized(packet.begin(), packet.end());
+			const std::string serialized(packet.begin(), packet.end());
 			Message * msg = Message::DeserializeBlank(serialized);
 			if (msg) {
 				if (msg->type == MessageType::REQUESTUSERNAME) {
@@ -1210,7 +1210,7 @@ void ILauncher::handleRequestOverallSaveDataPath(clockUtils::sockets::TcpSocket 
 
 void ILauncher::handleRequestOverallSaveData(clockUtils::sockets::TcpSocket * socket, RequestOverallSaveDataMessage * msg) const {
 	if (_projectID == -1) {
-		SendOverallSaveDataMessage som;
+		const SendOverallSaveDataMessage som;
 		const auto serialized = som.SerializeBlank();
 		socket->writePacket(serialized);
 		return;
