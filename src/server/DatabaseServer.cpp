@@ -6563,6 +6563,7 @@ void DatabaseServer::requestAllTri6ScoreStats(ptree & responseTree) const {
 
 std::string DatabaseServer::getFileServer(int userID, int projectID, int majorVersion, int minorVersion, int patchVersion, int spineVersion) const {
 	std::vector<std::string> possibilities;
+	std::vector<std::string> patronPossibilities;
 
 	do {
 		CONNECTTODATABASE(__LINE__)
@@ -6636,6 +6637,10 @@ std::string DatabaseServer::getFileServer(int userID, int projectID, int majorVe
 			if (patronOnly && ServerCommon::getPatronLevel(userID) < 4) continue;
 
 			possibilities.push_back(url);
+
+			if (!patronOnly) continue;
+
+			patronPossibilities.push_back(url);
 		}
 	} while (false);
 
@@ -6644,5 +6649,9 @@ std::string DatabaseServer::getFileServer(int userID, int projectID, int majorVe
 		possibilities.push_back(DEFAULTURL);
 	}
 
+	// prefer Patron only server in that case
+	if (!patronPossibilities.empty()) return patronPossibilities[std::rand() % patronPossibilities.size()];
+
+	// otherwise fall back to normal selection
 	return possibilities[std::rand() % possibilities.size()];
 }
