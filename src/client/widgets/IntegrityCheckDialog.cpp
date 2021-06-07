@@ -186,7 +186,7 @@ void IntegrityCheckDialog::process(int projectID) {
 		statement = "SELECT ModID, File, Hash FROM modfiles WHERE ModID = " + std::to_string(projectID) + ";";
 	}
 	
-	std::vector<ModFile> files = Database::queryAll<ModFile, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, statement, err);
+	auto files = Database::queryAll<ModFile, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, statement, err);
 	int amount = static_cast<int>(files.size());
 	if (!_gothicDirectory.isEmpty()) {
 		amount += gothicFileList.size();

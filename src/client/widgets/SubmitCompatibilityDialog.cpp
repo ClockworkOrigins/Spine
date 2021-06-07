@@ -270,7 +270,7 @@ void SubmitCompatibilityDialog::selectIndex(const QModelIndex & idx) {
 	QList<bool> compatibles;
 	for (const Mod & mod : _currentPatches) {
 		Database::DBError err;
-		const std::vector<int> results = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, "SELECT Compatible FROM ownCompatibilityVotes WHERE ModID = " + std::to_string(_currentMods[idx.row()].id) + " AND PatchID = " + std::to_string(mod.id) + " LIMIT 1;", err);
+		const auto results = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, "SELECT Compatible FROM ownCompatibilityVotes WHERE ModID = " + std::to_string(_currentMods[idx.row()].id) + " AND PatchID = " + std::to_string(mod.id) + " LIMIT 1;", err);
 		if (results.empty() || _showSubmitted) {
 			if (results.empty()) {
 				compatibles.append(true);

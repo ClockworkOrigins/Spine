@@ -130,7 +130,7 @@ void StartPageWidget::requestNewsUpdate() {
 	}
 	QtConcurrent::run([this]() {
 		Database::DBError err;
-		std::vector<int> res = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT IFNULL(MAX(NewsID), 0) FROM news WHERE Language = '" + Config::Language.toStdString() + "';", err);
+		auto res = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT IFNULL(MAX(NewsID), 0) FROM news WHERE Language = '" + Config::Language.toStdString() + "';", err);
 		if (res.empty()) {
 			res.push_back(0);
 		}
@@ -220,7 +220,7 @@ void StartPageWidget::updateNews() {
 	_newsTickerWidgets.clear();
 	
 	Database::DBError err;
-	std::vector<News> news = Database::queryAll<News, std::string, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT NewsID, Title, Body, Timestamp FROM news WHERE Language = '" + Config::Language.toStdString() + "' ORDER BY Timestamp DESC, NewsID DESC LIMIT 10;", err);
+	auto news = Database::queryAll<News, std::string, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT NewsID, Title, Body, Timestamp FROM news WHERE Language = '" + Config::Language.toStdString() + "' ORDER BY Timestamp DESC, NewsID DESC LIMIT 10;", err);
 	if (Config::OnlineMode) {
 		const auto images = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT DISTINCT File, Hash FROM newsImageReferences;", err);
 		auto * mfd = new MultiFileDownloader(this);

@@ -1070,7 +1070,7 @@ void ILauncher::handleRequestAchievements(clockUtils::sockets::TcpSocket * socke
 	
 	if (!Config::OnlineMode || Config::Username.isEmpty()) {
 		Database::DBError dbErr;
-		std::vector<std::string> lastResults = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier FROM modAchievements WHERE ModID = " + std::to_string(_projectID) + ";", dbErr);
+		auto lastResults = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + OFFLINE_DATABASE, "SELECT Identifier FROM modAchievements WHERE ModID = " + std::to_string(_projectID) + ";", dbErr);
 
 		SendAchievementsMessage sam;
 		for (const std::string & s : lastResults) {

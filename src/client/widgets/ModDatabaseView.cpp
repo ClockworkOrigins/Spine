@@ -697,7 +697,7 @@ void ModDatabaseView::gothic3ValidationChanged(bool valid) {
 void ModDatabaseView::loginChanged() {
 	// check if a GMP mod is installed and GMP is not installed
 	Database::DBError dbErr;
-	const std::vector<int> gmpModInstalled = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID FROM mods WHERE ModID = 62 OR ModID = 117 OR ModID = 171 OR ModID = 172 OR ModID = 173 OR ModID = 218;", dbErr);
+	const auto gmpModInstalled = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID FROM mods WHERE ModID = 62 OR ModID = 117 OR ModID = 171 OR ModID = 172 OR ModID = 173 OR ModID = 218;", dbErr);
 	const bool gmpInstalled = Database::queryCount(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM mods WHERE ModID = 228 LIMIT 1;", dbErr) > 0;
 
 	if (!gmpModInstalled.empty() && !gmpInstalled) {
@@ -726,7 +726,7 @@ void ModDatabaseView::updateModList(QList<Mod> mods) {
 	_parentMods.clear();
 	int row = 0;
 	Database::DBError err;
-	std::vector<InstalledMod> ims = Database::queryAll<InstalledMod, int, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM mods;", err);
+	auto ims = Database::queryAll<InstalledMod, int, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM mods;", err);
 	QSet<int32_t> installedMods;
 	for (InstalledMod im : ims) {
 		installedMods.insert(im.id);
@@ -1119,7 +1119,7 @@ void ModDatabaseView::updatePackageList(QList<Package> packages) {
 	_packages.clear();
 	_packageIDIconMapping.clear();
 	Database::DBError err;
-	std::vector<InstalledPackage> ips = Database::queryAll<InstalledPackage, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM packages;", err);
+	auto ips = Database::queryAll<InstalledPackage, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM packages;", err);
 	QSet<int32_t> installedPackages;
 	for (const InstalledPackage & im : ips) {
 		installedPackages.insert(im.packageID);
@@ -1406,7 +1406,7 @@ void ModDatabaseView::selectedModIndex(const QModelIndex & index) {
 	if (_downloadingList.contains(mod.id)) return;
 
 	Database::DBError err;
-	std::vector<InstalledMod> ims = Database::queryAll<InstalledMod, int, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM mods;", err);
+	auto ims = Database::queryAll<InstalledMod, int, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM mods;", err);
 	QSet<int32_t> installedMods;
 	for (InstalledMod im : ims) {
 		installedMods.insert(im.id);
@@ -1477,12 +1477,12 @@ void ModDatabaseView::selectedPackageIndex(const QModelIndex & index) {
 		return;
 	}
 	Database::DBError err;
-	std::vector<InstalledMod> ims = Database::queryAll<InstalledMod, int, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM mods;", err);
+	auto ims = Database::queryAll<InstalledMod, int, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM mods;", err);
 	QSet<int32_t> installedMods;
 	for (const InstalledMod & im : ims) {
 		installedMods.insert(im.id);
 	}
-	std::vector<InstalledPackage> ips = Database::queryAll<InstalledPackage, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM packages;", err);
+	auto ips = Database::queryAll<InstalledPackage, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT * FROM packages;", err);
 	QSet<int32_t> installedPackages;
 	for (const InstalledPackage & ip : ips) {
 		installedPackages.insert(ip.packageID);

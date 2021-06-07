@@ -100,14 +100,14 @@ void ImportDialog::importMods() {
 		modSet.erase(mod);
 	}
 
-	mods = std::vector<int>(modSet.begin(), modSet.end());
+	mods = QList<int>(modSet.begin(), modSet.end());
 
 	if (mods.empty()) return;
 
-	std::vector<std::vector<std::string>> modfiles;
+	QList<QList<std::string>> modfiles;
 	for (int mod : mods) {
-		std::vector<std::vector<std::string>> newmodfiles = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, File, Hash FROM modfiles WHERE ModID = " + std::to_string(mod) + ";", dbErr);
-		modfiles.insert(modfiles.end(), newmodfiles.begin(), newmodfiles.end());
+		auto newmodfiles = Database::queryAll<QList<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, File, Hash FROM modfiles WHERE ModID = " + std::to_string(mod) + ";", dbErr);
+		modfiles << newmodfiles;
 	}
 
 	QProgressDialog dlg(QApplication::tr("Importing").arg("..."), QApplication::tr("Cancel"), 0, modfiles.size(), this);
@@ -123,7 +123,7 @@ void ImportDialog::importMods() {
 	const QFuture<void> future = QtConcurrent::run([this, modfiles, mods, importFile, &running]() {
 		std::string database = importFile.toStdString();
 		Database::DBError err;
-		for (size_t i = 0; i < modfiles.size() && running; i++) {
+		for (int i = 0; i < modfiles.size() && running; i++) {
 			emit updateProgress(static_cast<int>(i));
 			emit updateFile(QString::fromStdString(modfiles[i][1]));
 			if (!QFile(QFileInfo(importFile).path() + "/" + QString::fromStdString(modfiles[i][0]) + "/" + QString::fromStdString(modfiles[i][1]) + ".z").exists()) {
@@ -133,9 +133,9 @@ void ImportDialog::importMods() {
 			QString targetFolder = Config::DOWNLOADDIR + "/" + QString::fromStdString(modfiles[i][0]) + "/";
 			if (!QDir(targetFolder + QFileInfo(QString::fromStdString(modfiles[i][1])).path()).exists()) {
 				bool b = QDir(targetFolder + QFileInfo(QString::fromStdString(modfiles[i][1])).path()).mkpath(targetFolder + QFileInfo(QString::fromStdString(modfiles[i][1])).path());
-				Q_UNUSED(b);
+				Q_UNUSED(b)
 			}
-			utils::Compression::uncompress(QFileInfo(importFile).path() + "/" + s2q(modfiles[i][0]) + "/" + s2q(modfiles[i][1]) + ".z", targetFolder + s2q(modfiles[i][1]), false);
+			Compression::uncompress(QFileInfo(importFile).path() + "/" + s2q(modfiles[i][0]) + "/" + s2q(modfiles[i][1]) + ".z", targetFolder + s2q(modfiles[i][1]), false);
 		}
 
 		const std::string targetDatabase = Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE;

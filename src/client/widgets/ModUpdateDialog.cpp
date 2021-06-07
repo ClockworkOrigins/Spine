@@ -169,7 +169,7 @@ void ModUpdateDialog::updateModList(QList<ModUpdate> updates, bool forceAccept) 
 		for (const ModUpdate & u : updates) {
 			Database::DBError err;
 			Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "DELETE FROM updates WHERE ModID = " + std::to_string(u.modID) + " AND MajorVersion != " + std::to_string(static_cast<int>(u.majorVersion)) + " AND MinorVersion != " + std::to_string(static_cast<int>(u.minorVersion)) + " AND PatchVersion != " + std::to_string(static_cast<int>(u.patchVersion)) + " AND SpineVersion != " + std::to_string(static_cast<int>(u.spineVersion)) + " LIMIT 1;", err);
-			std::vector<int> result = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "SELECT ModID FROM updates WHERE ModID = " + std::to_string(u.modID) + " AND MajorVersion = " + std::to_string(static_cast<int>(u.majorVersion)) + " AND MinorVersion = " + std::to_string(static_cast<int>(u.minorVersion)) + " AND PatchVersion = " + std::to_string(static_cast<int>(u.patchVersion)) + " AND SpineVersion = " + std::to_string(static_cast<int>(u.spineVersion)) + " LIMIT 1;", err);
+			auto result = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "SELECT ModID FROM updates WHERE ModID = " + std::to_string(u.modID) + " AND MajorVersion = " + std::to_string(static_cast<int>(u.majorVersion)) + " AND MinorVersion = " + std::to_string(static_cast<int>(u.minorVersion)) + " AND PatchVersion = " + std::to_string(static_cast<int>(u.patchVersion)) + " AND SpineVersion = " + std::to_string(static_cast<int>(u.spineVersion)) + " LIMIT 1;", err);
 
 			if (!result.empty()) continue;
 
@@ -286,8 +286,8 @@ void ModUpdateDialog::checkForUpdate() {
 			int language;
 		};
 		
-		std::vector<ModVersion> m = Database::queryAll<ModVersion, int, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, MajorVersion, MinorVersion, PatchVersion, SpineVersion FROM mods;", err);
-		std::vector<ProjectLanguage> pl = Database::queryAll<ProjectLanguage, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ProjectID, Language FROM languages;", err);
+		auto m = Database::queryAll<ModVersion, int, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, MajorVersion, MinorVersion, PatchVersion, SpineVersion FROM mods;", err);
+		auto pl = Database::queryAll<ProjectLanguage, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ProjectID, Language FROM languages;", err);
 		for (ModVersion & mv : m) {
 			_oldVersions.insert(mv.modID, QString("%1.%2.%3").arg(static_cast<int>(mv.majorVersion)).arg(static_cast<int>(mv.minorVersion)).arg(static_cast<int>(mv.patchVersion)));
 
@@ -306,10 +306,10 @@ void ModUpdateDialog::checkForUpdate() {
 void ModUpdateDialog::checkForUpdate(int32_t modID, bool forceAccept) {
 	_running = true;
 	QtConcurrent::run([this, modID, forceAccept]() {
-		std::vector<ModVersion> m = { ModVersion(modID, 0, 0, 0, 0) };
+		QList<ModVersion> m = { ModVersion(modID, 0, 0, 0, 0) };
 		Database::DBError err;
-		std::vector<ModVersion> m2 = Database::queryAll<ModVersion, int, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, MajorVersion, MinorVersion, PatchVersion, SpineVersion FROM mods WHERE ModID = " + std::to_string(modID) + " LIMIT 1;", err);
-		std::vector<int> cl = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Language FROM languages WHERE ProjectID = " + std::to_string(modID) + " LIMIT 1;", err);
+		auto m2 = Database::queryAll<ModVersion, int, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, MajorVersion, MinorVersion, PatchVersion, SpineVersion FROM mods WHERE ModID = " + std::to_string(modID) + " LIMIT 1;", err);
+		auto cl = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Language FROM languages WHERE ProjectID = " + std::to_string(modID) + " LIMIT 1;", err);
 		
 		_oldVersions.insert(modID, QString("%1.%2.%3").arg(static_cast<int>(m2.empty() ? m[0].majorVersion : m2[0].majorVersion)).arg(static_cast<int>(m2.empty() ? m[0].minorVersion : m2[0].minorVersion)).arg(static_cast<int>(m2.empty() ? m[0].patchVersion : m2[0].patchVersion)));
 		m[0].language = cl.empty() ? English : cl[0];
@@ -329,8 +329,8 @@ void ModUpdateDialog::hideUpdates(QList<ModUpdate> hides) const {
 
 bool ModUpdateDialog::hasChanges(ModUpdate mu) const {
 	Database::DBError err;
-	std::vector<ModFile> m = Database::queryAll<ModFile, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, File, Hash FROM modfiles WHERE ModID = " + std::to_string(mu.modID) + ";", err);
-	std::vector<int> packageIDs = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT DISTINCT PackageID FROM packages WHERE ModID = " + std::to_string(mu.modID) + ";", err);
+	auto m = Database::queryAll<ModFile, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, File, Hash FROM modfiles WHERE ModID = " + std::to_string(mu.modID) + ";", err);
+	auto packageIDs = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT DISTINCT PackageID FROM packages WHERE ModID = " + std::to_string(mu.modID) + ";", err);
 
 	for (auto it = mu.packageFiles.begin(); it != mu.packageFiles.end();) {
 		bool found = false;
@@ -445,7 +445,7 @@ void ModUpdateDialog::unzippedArchive(QString archive, QList<QPair<QString, QStr
 	}
 }
 
-void ModUpdateDialog::requestUpdates(const std::vector<ModVersion> & m, bool forceAccept) {
+void ModUpdateDialog::requestUpdates(const QList<ModVersion> & m, bool forceAccept) {
 	if (m.empty()) {
 		emit receivedMods(QList<ModUpdate>(), forceAccept);
 		
@@ -551,17 +551,17 @@ void ModUpdateDialog::updateProject(ModUpdate mu) {
 	QSharedPointer<QList<ModFile>> newFiles(new QList<ModFile>());
 	
 	Database::DBError err;
-	std::vector<ModFile> m = Database::queryAll<ModFile, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, File, Hash FROM modfiles WHERE ModID = " + std::to_string(mu.modID) + ";", err);
-	std::vector<int> p = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT DISTINCT PackageID FROM packages WHERE ModID = " + std::to_string(mu.modID) + ";", err);
-	std::vector<ModFile> updateFiles;
+	auto m = Database::queryAll<ModFile, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, File, Hash FROM modfiles WHERE ModID = " + std::to_string(mu.modID) + ";", err);
+	auto p = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT DISTINCT PackageID FROM packages WHERE ModID = " + std::to_string(mu.modID) + ";", err);
+	QList<ModFile> updateFiles;
 	for (const auto & pr : mu.files) {
-		updateFiles.emplace_back(mu.modID, pr.first, pr.second, -1, mu.fileserver, mu.fallbackFileserver);
+		updateFiles << ModFile(mu.modID, pr.first, pr.second, -1, mu.fileserver, mu.fallbackFileserver);
 	}
 	for (int packageID : p) {
 		for (int j = 0; j < mu.packageFiles.size(); j++) {
 			if (mu.packageFiles[j].first == packageID) {
 				for (const auto & pr : mu.packageFiles[j].second) {
-					updateFiles.emplace_back(mu.modID, pr.first, pr.second, mu.packageFiles[j].first, mu.fileserver, mu.fallbackFileserver);
+					updateFiles << ModFile(mu.modID, pr.first, pr.second, mu.packageFiles[j].first, mu.fileserver, mu.fallbackFileserver);
 				}
 				mu.files.append(mu.packageFiles[j].second);
 				break;
@@ -595,7 +595,7 @@ void ModUpdateDialog::updateProject(ModUpdate mu) {
 			}
 			if (add) {
 				for (const auto & pr : mu.packageFiles[j].second) {
-					updateFiles.emplace_back(mu.modID, pr.first, pr.second, mu.packageFiles[j].first, mu.fileserver, mu.fallbackFileserver);
+					updateFiles << ModFile(mu.modID, pr.first, pr.second, mu.packageFiles[j].first, mu.fileserver, mu.fallbackFileserver);
 				}
 			}
 		}

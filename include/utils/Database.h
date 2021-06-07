@@ -124,16 +124,16 @@ public:
 	 * it is not guaranteed that the data is complete or correct
 	 */
 	template<typename Result, typename... Columns>
-	static std::vector<Result> queryAll(std::string dbpath, std::string query, DBError & error) {
+	static QList<Result> queryAll(std::string dbpath, std::string query, DBError & error) {
 		sqlite3 * db;
 		sqlite3_stmt * stmt;
-		std::vector<Result> v;
+		QList<Result> v;
 		bool selfOpened = false;
 		std::lock_guard<std::mutex> lg(_lock); // _lock the database vector and sqlite
 		if (_databases.find(dbpath) != _databases.end()) {
 			db = _databases[dbpath];
 		} else {
-			int r = sqlite3_open_v2(dbpath.c_str(), &db, SQLITE_OPEN_READONLY, nullptr);
+			const int r = sqlite3_open_v2(dbpath.c_str(), &db, SQLITE_OPEN_READONLY, nullptr);
 			if (r != SQLITE_OK) {
 				error.error = true;
 				error.errMsg = std::string("open(): ") + sqlite3_errmsg(db);

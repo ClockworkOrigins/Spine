@@ -163,7 +163,7 @@ namespace launcher {
 		void collectDependencies(int modID, QSet<QString> * dependencies, QSet<QString> * forbidden, QMap<QString, QStringList> * dependencyMap, QMap<QString, QStringList> * overrideFiles) const;
 		void prepareForNinja();
 		void updatePlugins(int modID);
-		void sortPatches(const QMap<QString, QStringList> & dependencyMap, std::vector<std::string> & patches) const;
+		void sortPatches(const QMap<QString, QStringList> & dependencyMap, QList<std::string> & patches) const;
 
 		bool linkOrCopyFolder(QString sourcePath, QString destinationPath);
 		bool canSkipFile(const QString & filename) const;

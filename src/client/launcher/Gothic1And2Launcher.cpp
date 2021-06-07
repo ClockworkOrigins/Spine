@@ -1202,7 +1202,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 	_copiedFiles.clear();
 
 	Database::DBError err;
-	std::vector<std::string> patches = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT PatchID FROM patchConfigs WHERE ModID = " + std::to_string(_projectID) + ";", err);
+	auto patches = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT PatchID FROM patchConfigs WHERE ModID = " + std::to_string(_projectID) + ";", err);
 	bool clockworkRenderer = false;
 	bool systempack = false;
 	bool ninja = false;
@@ -1276,7 +1276,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 		LOGINFO("Starting " << usedExecutable->toStdString() << " in " << _directory.toStdString())
 		if (!usedExecutable->isEmpty() && success) {
 			emitSplashMessage(QApplication::tr("CopyingModfiles"));
-			std::vector<std::pair<std::string, std::string>> files = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT File, Hash FROM modfiles WHERE ModID = " + std::to_string(_projectID) + ";", err);
+			auto files = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT File, Hash FROM modfiles WHERE ModID = " + std::to_string(_projectID) + ";", err);
 			if (err.error || files.empty()) {
 				return false;
 			}
@@ -1432,7 +1432,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 	if (!err.error && !patches.empty()) {
 		for (const std::string & patchIDString : patches) {
 			const int patchID = std::stoi(patchIDString);
-			std::vector<std::pair<std::string, std::string>> patchFiles = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT File, Hash FROM modfiles WHERE ModID = " + std::to_string(patchID) + ";", err);
+			auto patchFiles = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT File, Hash FROM modfiles WHERE ModID = " + std::to_string(patchID) + ";", err);
 			if (err.error || patchFiles.empty()) {
 				continue;
 			}
@@ -1628,7 +1628,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 								LOGINFO("Missing file " << file.first << " (" << patchIDString << ")" << " " << QFileInfo::exists(_directory + "/" + filename) << " - " << QFileInfo::exists(Config::DOWNLOADDIR + "/mods/" + QString::number(patchID) + "/" + filename))
 							}
 
-							std::vector<std::string> name = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Name FROM patches WHERE ModID = " + patchIDString + " LIMIT 1;", err);
+							auto name = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Name FROM patches WHERE ModID = " + patchIDString + " LIMIT 1;", err);
 							Q_ASSERT(!name.empty());
 							emit errorMessage(QApplication::tr("PatchIncomplete").arg(s2q(name[0])));
 							return false;
@@ -1738,7 +1738,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 	}
 	Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "END TRANSACTION;", err);
 	Database::close(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, err);
-	std::vector<std::string> res = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "SELECT * FROM last_directory LIMIT 1;", err);
+	auto res = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "SELECT * FROM last_directory LIMIT 1;", err);
 	if (res.empty()) {
 		Database::execute(Config::BASEDIR.toStdString() + "/" + FIX_DATABASE, "INSERT INTO last_directory (Path) VALUES ('" + _lastBaseDir.toStdString() + "');", err);
 	} else {
@@ -1887,7 +1887,7 @@ void Gothic1And2Launcher::collectDependencies(int modID, QSet<QString> * depende
 	toCheck.enqueue(QString::number(modID));
 
 	Database::DBError err;
-	std::vector<std::string> patches = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT PatchID FROM patchConfigs WHERE ModID = " + std::to_string(modID) + ";", err);
+	auto patches = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + PATCHCONFIG_DATABASE, "SELECT PatchID FROM patchConfigs WHERE ModID = " + std::to_string(modID) + ";", err);
 
 	for (const auto & p : patches) {
 		toCheck.enqueue(s2q(p));
@@ -1997,7 +1997,7 @@ void Gothic1And2Launcher::updatePlugins(int modID) {
 	}
 }
 
-void Gothic1And2Launcher::sortPatches(const QMap<QString, QStringList> & dependencyMap, std::vector<std::string> & patches) const {
+void Gothic1And2Launcher::sortPatches(const QMap<QString, QStringList> & dependencyMap, QList<std::string> & patches) const {
 	for (auto it = dependencyMap.begin(); it != dependencyMap.end(); ++it) {
 		const auto & currentID = it.key();
 		const auto & dependencies = it.value();

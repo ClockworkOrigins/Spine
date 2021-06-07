@@ -91,7 +91,7 @@ void ExportDialog::exportMods() {
 	if (_exportPathLineEdit->text().isEmpty() || !QDir(_exportPathLineEdit->text()).exists()) return;
 
 	Database::DBError dbErr;
-	std::vector<std::vector<std::string>> modfiles = Database::queryAll<std::vector<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, File, Hash FROM modfiles;", dbErr);
+	auto modfiles = Database::queryAll<QList<std::string>, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, File, Hash FROM modfiles;", dbErr);
 
 	if (modfiles.empty()) return;
 
