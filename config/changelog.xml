@@ -2211,4 +2211,9 @@
 		<Bug language="English">Fixed bug that caused submitting compatibility not working anymore</Bug>
 		<Bug language="English">Fixed bug that caused updates being displayed wrong</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="33" patchVersion="0">
+		<Enhancement language="Deutsch">Projekt-ID wird im Management jetzt angezeigt</Enhancement>
+		
+		<Enhancement language="English">Project ID now gets displayed in management</Enhancement>
+	</Version>
 </Versions>

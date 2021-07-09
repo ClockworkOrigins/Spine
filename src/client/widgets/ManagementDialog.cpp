@@ -42,19 +42,18 @@
 #include <QStandardItemModel>
 #include <QVBoxLayout>
 
-using namespace spine;
 using namespace spine::client;
 using namespace spine::client::widgets;
 using namespace spine::utils;
 
 ManagementDialog::ManagementDialog(QWidget * par) : QDialog(par), _modList(nullptr), _modIndex(-1), _generalConfigurationWidget(nullptr), _modFilesWidget(nullptr), _userManagementWidget(nullptr), _statisticsWidget(nullptr), _surveyWidget(nullptr) {
-	QVBoxLayout * l = new QVBoxLayout();
+	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
 	{
-		QHBoxLayout * hl = new QHBoxLayout();
+		auto * hl = new QHBoxLayout();
 
-		QListView * modList = new QListView(this);
+		auto * modList = new QListView(this);
 		_modList = new QStandardItemModel(modList);
 		modList->setModel(_modList);
 		connect(modList, &QListView::clicked, this, &ManagementDialog::selectedMod);
@@ -115,7 +114,7 @@ void ManagementDialog::updateModList(QList<ManagementMod> modList) {
 	});
 	_mods = modList;
 	for (const auto & m : modList) {
-		QStandardItem * itm = new QStandardItem(m.name);
+		auto * itm = new QStandardItem(m.name + QStringLiteral(" (ID: %1)").arg(m.id));
 		itm->setEditable(false);
 		_modList->appendRow(itm);
 	}
