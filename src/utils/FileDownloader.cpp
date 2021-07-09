@@ -66,6 +66,7 @@ void FileDownloader::requestFileSize() {
 	auto * networkAccessManager = new QNetworkAccessManager(this);
 	QNetworkReply * reply = networkAccessManager->head(request);
 	reply->setReadBufferSize(Config::downloadRate * 8);
+	connect(reply, &QNetworkReply::sslErrors, this, &FileDownloader::sslErrors);
 	connect(reply, &QNetworkReply::finished, this, &FileDownloader::determineFileSize);
 	connect(reply, &QNetworkReply::finished, networkAccessManager, &QObject::deleteLater);
 	connect(this, &FileDownloader::abort, reply, &QNetworkReply::abort);
@@ -225,8 +226,10 @@ void FileDownloader::fileDownloaded() {
 
 void FileDownloader::determineFileSize() {
 	const auto reply = dynamic_cast<QNetworkReply *>(sender());
+
+	const auto err = reply->error();
 	
-	if (reply->error() != QNetworkReply::NoError) {
+	if (err != QNetworkReply::NoError) {
 		if (_url != _fallbackUrl) {
 			_url = _fallbackUrl;
 			requestFileSize();

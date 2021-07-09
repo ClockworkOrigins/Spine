@@ -2213,7 +2213,9 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="33" patchVersion="0">
 		<Enhancement language="Deutsch">Projekt-ID wird im Management jetzt angezeigt</Enhancement>
+		<Bug language="Deutsch">Fehler behoben, wodurch Downloads nicht gut funktioniert haben</Bug>
 		
 		<Enhancement language="English">Project ID now gets displayed in management</Enhancement>
+		<Bug language="English">Fixed bug that caused downloads to not work properly</Bug>
 	</Version>
 </Versions>
