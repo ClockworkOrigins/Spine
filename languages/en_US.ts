@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
 <TS version="2.1" language="en_US" sourcelanguage="en_US">
 <context>
     <name>QApplication</name>
@@ -3399,6 +3398,10 @@ You can revoke your permission at every point in time. All necessary information
     <message>
         <source>PatchingProject</source>
         <translation>Patching %1</translation>
+    </message>
+    <message>
+        <source>NeitherSystempackNorUnionWarning</source>
+        <translation>You have neither Systempack nor Union enabled. Gothic most probably won't work that way.</translation>
     </message>
 </context>
 </TS>

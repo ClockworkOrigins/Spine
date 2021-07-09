@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
 <TS version="2.1" language="de_DE" sourcelanguage="de_DE">
 <context>
     <name>QApplication</name>
@@ -3391,6 +3390,10 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
     <message>
         <source>PatchingProject</source>
         <translation>Patche %1</translation>
+    </message>
+    <message>
+        <source>NeitherSystempackNorUnionWarning</source>
+        <translation>Du hast weder Systempack noch Union aktiviert. So wird Gothic höchstwahrscheinlich nicht funktionieren.</translation>
     </message>
 </context>
 </TS>

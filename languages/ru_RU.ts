@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
 <TS version="2.1" language="ru_RU" sourcelanguage="ru_RU">
 <context>
     <name>QApplication</name>
@@ -3392,6 +3391,10 @@ You can revoke your permission at every point in time. All necessary information
     <message>
         <source>PatchingProject</source>
         <translation>Патчинг %1</translation>
+    </message>
+    <message>
+        <source>NeitherSystempackNorUnionWarning</source>
+        <translation>У вас не включены ни Systempack, ни Union. Готика, скорее всего, не будет работать таким образом.</translation>
     </message>
 </context>
 </TS>

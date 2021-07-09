@@ -91,6 +91,7 @@ namespace launcher {
 		
 		QPushButton * _startSpacerButton = nullptr;
 		QLabel * _adminInfoLabel = nullptr;
+		QLabel * _errorInfoLabel = nullptr;
 		QLabel * _nameLabel = nullptr;
 		QLabel * _versionLabel = nullptr;
 		QLabel * _teamLabel = nullptr;

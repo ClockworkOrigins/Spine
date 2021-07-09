@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
 <TS version="2.1" language="po_PO" sourcelanguage="po_PO">
 <context>
     <name>QApplication</name>
@@ -3387,6 +3386,10 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
     <message>
         <source>PatchingProject</source>
         <translation>Poprawianie %1</translation>
+    </message>
+    <message>
+        <source>NeitherSystempackNorUnionWarning</source>
+        <translation>Nie masz włączonego ani Systempacka, ani Unii. Gothic najprawdopodobniej nie będzie działał w ten sposób.</translation>
     </message>
 </context>
 </TS>

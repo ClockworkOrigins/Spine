@@ -2213,10 +2213,12 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="33" patchVersion="0">
 		<Enhancement language="Deutsch">Projekt-ID wird im Management jetzt angezeigt</Enhancement>
+		<Enhancement language="Deutsch">Hinweis eingebaut, wenn Mod ohne Systempack und Union konfiguriert ist</Enhancement>
 		<Bug language="Deutsch">Fehler behoben, wodurch Downloads nicht gut funktioniert haben</Bug>
 		<Bug language="Deutsch">Fehler behoben, wodurch Speicher nicht wieder freigegeben wurde, wenn ein Server für einen Download nicht erreichbar war</Bug>
 		
 		<Enhancement language="English">Project ID now gets displayed in management</Enhancement>
+		<Enhancement language="English">Added hint when mod is configured without Systempack and Union</Enhancement>
 		<Bug language="English">Fixed bug that caused downloads to not work properly</Bug>
 		<Bug language="English">Fixed bug that caused memory not getting free'd anymore when server for download wasn't reachable</Bug>
 	</Version>

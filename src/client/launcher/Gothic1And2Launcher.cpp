@@ -210,6 +210,13 @@ void Gothic1And2Launcher::createWidget() {
 	_adminInfoLabel->setProperty("adminInfo", true);
 	_adminInfoLabel->hide();
 
+	_errorInfoLabel = new QLabel(QApplication::tr("NeitherSystempackNorUnionWarning"), _widget);
+	_errorInfoLabel->setProperty("library", true);
+	_errorInfoLabel->setAlignment(Qt::AlignCenter);
+	_errorInfoLabel->setWordWrap(true);
+	_errorInfoLabel->setProperty("adminInfo", true);
+	_errorInfoLabel->hide();
+
 	_nameLabel = new QLabel(_widget);
 	_nameLabel->setProperty("library", true);
 	_nameLabel->setAlignment(Qt::AlignCenter);
@@ -229,11 +236,12 @@ void Gothic1And2Launcher::createWidget() {
 	_homepageLabel->setOpenExternalLinks(true);
 	
 	_layout->insertWidget(4, _adminInfoLabel);
-	_layout->insertWidget(5, _nameLabel);
-	_layout->insertWidget(6, _versionLabel);
-	_layout->insertWidget(7, _teamLabel);
-	_layout->insertWidget(8, _contactLabel);
-	_layout->insertWidget(9, _homepageLabel);
+	_layout->insertWidget(5, _errorInfoLabel);
+	_layout->insertWidget(6, _nameLabel);
+	_layout->insertWidget(7, _versionLabel);
+	_layout->insertWidget(8, _teamLabel);
+	_layout->insertWidget(9, _contactLabel);
+	_layout->insertWidget(10, _homepageLabel);
 
 	_compileScripts = new QCheckBox(QApplication::tr("CompileScripts"), _widget);
 	_compileScripts->setProperty("library", true);
@@ -2305,6 +2313,8 @@ void Gothic1And2Launcher::updatePatchCheckboxes() {
 	QMap<QString, QStringList> overrideFiles;
 	collectDependencies(_projectID, &dependencies, &forbidden, &dependencyMap, &overrideFiles);
 
+	auto systempackUnionEnabled = false;
+
 	for (auto it = _checkboxPatchIDMapping.begin(); it != _checkboxPatchIDMapping.end(); ++it) {
 		const auto idString = QString::number(it.value());
 
@@ -2332,7 +2342,17 @@ void Gothic1And2Launcher::updatePatchCheckboxes() {
 		if (dependencies.contains(idString) && !it.key()->isChecked() && !isForbidden) {
 			it.key()->setChecked(true);
 		}
+
+		const auto id = it.value();
+
+		if (!it.key()->isChecked()) continue;
+		
+		if (id == 320 || id == 40 || id == 57 || id == 208) {
+			systempackUnionEnabled = true;
+		}
 	}
+
+	_errorInfoLabel->setVisible(!systempackUnionEnabled);
 }
 
 QList<int32_t> Gothic1And2Launcher::getActiveProjects() const {
