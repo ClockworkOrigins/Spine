@@ -236,6 +236,7 @@ void FileDownloader::determineFileSize() {
 		} else {
 			emit fileFailed(DownloadError::NetworkError);
 		}
+		reply->deleteLater();
 		return;
 	}
 	
