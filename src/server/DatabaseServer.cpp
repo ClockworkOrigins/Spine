@@ -842,7 +842,7 @@ void DatabaseServer::requestSingleProjectStats(std::shared_ptr<HttpsServer::Resp
 		const std::string username = pt.get<std::string>("Username");
 		const std::string password = pt.get<std::string>("Password");
 		const std::string language = pt.get<std::string>("Language");
-		const auto projectID = pt.get<int64_t>("ProjectID");
+		const auto projectID = pt.get<int32_t>("ProjectID");
 
 		if (projectID == -1) {
 			response->write(code);
@@ -1663,6 +1663,11 @@ void DatabaseServer::updateReview(std::shared_ptr<HttpsServer::Response> respons
 		do {
 			CONNECTTODATABASE(__LINE__)
 
+			if (!database.query("PREPARE selectStmt FROM \"SELECT Review FROM reviews WHERE ProjectID = ? AND UserID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
 			if (!database.query("PREPARE updateStmt FROM \"INSERT INTO reviews (ProjectID, UserID, Review, ReviewDate, PlayTime) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE Review = ?\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_bad_request;
@@ -1711,6 +1716,15 @@ void DatabaseServer::updateReview(std::shared_ptr<HttpsServer::Response> respons
 				code = SimpleWeb::StatusCode::client_error_bad_request;
 				break;
 			}
+
+			if (!database.query("EXECUTE selectStmt USING @paramProjectID, @paramUserID;")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			lastResults = database.getResults<std::vector<std::string>>();
+
+			const auto oldReview = lastResults.empty() ? "" : lastResults[0][0];
 			
 			if (!database.query("EXECUTE updateStmt USING @paramProjectID, @paramUserID, @paramReview, @paramTimestamp, @paramDuration, @paramReview;")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
@@ -1727,6 +1741,8 @@ void DatabaseServer::updateReview(std::shared_ptr<HttpsServer::Response> respons
 			lastResults = database.getResults<std::vector<std::string>>();
 
 			if (lastResults.empty()) break;
+
+			if (oldReview == review) break;
 
 			const auto feedbackMail = lastResults[0][0];
 

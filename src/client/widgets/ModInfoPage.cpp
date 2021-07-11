@@ -50,7 +50,6 @@
 
 #include <QApplication>
 #include <QCheckBox>
-#include <QDebug>
 #include <QDirIterator>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -73,7 +72,6 @@
 #include <QTextBrowser>
 #include <QVBoxLayout>
 
-using namespace spine;
 using namespace spine::client;
 using namespace spine::gui;
 using namespace spine::https;
@@ -783,7 +781,8 @@ void ModInfoPage::editReview(int projectID, const QString & review) {
 	if (_projectID != projectID) {
 		loadPage(projectID);
 	}
-	
+
+	_oldReview = review;
 	_ownReviewEdit->setText(review);
 	_ownReviewWidget->setVisible(true);
 	_scrollArea->ensureWidgetVisible(_ownReviewWidget);
@@ -825,7 +824,7 @@ void ModInfoPage::submitChanges() {
 	int projectID = _projectID;
 	const auto description = encodeString(_descriptionEdit->toPlainText());
 	QList<QString> features;
-	for (QString s : _featuresEdit->text().split(";", QString::SkipEmptyParts)) {
+	for (QString s : _featuresEdit->text().split(";", Qt::SkipEmptyParts)) {
 		features << encodeString(s);
 	}
 	int modules = 0;
@@ -1016,6 +1015,8 @@ void ModInfoPage::updateReviews(QJsonArray reviews) {
 		if (reviewer == Config::Username) {
 			_ownReviewEdit->setText(review);
 			_ownReviewWidget->setVisible(true);
+
+			_oldReview = review;
 			
 			continue;
 		}
@@ -1036,8 +1037,10 @@ void ModInfoPage::submitReview() {
 	if (!_ownReviewWidget->isVisible()) return;
 
 	const auto review = encodeString(_ownReviewEdit->toPlainText());
-	
+
 	if (review.isEmpty()) return;
+
+	if (review == _oldReview) return;
 
 	QJsonObject json;
 	json["ProjectID"] = _projectID;

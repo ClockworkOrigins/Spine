@@ -146,6 +146,8 @@ namespace widgets {
 		QList<Rating> _ratings;
 		QList<QWidget *> _reviewWidgets;
 
+		QString _oldReview;
+
 		void mouseDoubleClickEvent(QMouseEvent * evt) override;
 		void showEvent(QShowEvent * evt) override;
 

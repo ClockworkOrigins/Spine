@@ -33,7 +33,6 @@
 #include <QTextBrowser>
 #include <QVBoxLayout>
 
-using namespace spine;
 using namespace spine::client;
 using namespace spine::gui;
 using namespace spine::utils;
@@ -95,7 +94,7 @@ ReviewWidget::ReviewWidget(const QString & reviewer, const QString & review, uin
         connect(reportContentBtn, &QPushButton::released, this, [this, projectID, reviewer]() {
             ReportContentDialog dlg("Review_" + QString::number(projectID) + "_" + reviewer, this);
             dlg.exec();
-            });
+        });
 
         hlBottom->addWidget(reportContentBtn);
 
