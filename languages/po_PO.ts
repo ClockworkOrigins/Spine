@@ -3389,7 +3389,7 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
     </message>
     <message>
         <source>NeitherSystempackNorUnionWarning</source>
-        <translation>Nie masz włączonego ani Systempacka, ani Unii. Gothic najprawdopodobniej nie będzie działał w ten sposób.</translation>
+        <translation>Nie masz włączonego ani Systempacka, ani Uniona. Gothic najprawdopodobniej nie uruchomi bez nich.</translation>
     </message>
 </context>
 </TS>
