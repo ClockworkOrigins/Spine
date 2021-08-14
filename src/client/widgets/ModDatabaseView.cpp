@@ -898,7 +898,7 @@ void ModDatabaseView::updateModList(QList<Mod> mods) {
 			Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "INSERT INTO supportedLanguages (ProjectID, Languages) VALUES (" + std::to_string(mod.id) + ", " + std::to_string(mod.supportedLanguages) + ");", err2);
 
 			if (err2.error) {
-				Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE supportedLanguages SET Languges = " + std::to_string(mod.supportedLanguages) + " WHERE ProjectID = " + std::to_string(mod.id) + ";", err2);
+				Database::execute(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "UPDATE supportedLanguages SET Languages = " + std::to_string(mod.supportedLanguages) + " WHERE ProjectID = " + std::to_string(mod.id) + ";", err2);
 			}
 		}
 	});

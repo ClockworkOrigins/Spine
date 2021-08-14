@@ -2224,7 +2224,9 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="33" patchVersion="0">
 		<Bug language="Deutsch">Fehler in polnischer Übersetzung behoben</Bug>
+		<Bug language="Deutsch">Fehler behoben wodurch nachträglich ergänzte Lokalisationen nicht auswählbar waren</Bug>
 
 		<Bug language="English">Fixed error in Polish translation</Bug>
+		<Bug language="English">Fixed bug that caused localisations of projects being available after release not being selectable</Bug>
 	</Version>
 </Versions>
