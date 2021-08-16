@@ -2222,7 +2222,7 @@
 		<Bug language="English">Fixed bug that caused downloads to not work properly</Bug>
 		<Bug language="English">Fixed bug that caused memory not getting free'd anymore when server for download wasn't reachable</Bug>
 	</Version>
-	<Version majorVersion="1" minorVersion="33" patchVersion="0">
+	<Version majorVersion="1" minorVersion="34" patchVersion="0">
 		<Bug language="Deutsch">Fehler in polnischer Übersetzung behoben</Bug>
 		<Bug language="Deutsch">Fehler behoben wodurch nachträglich ergänzte Lokalisationen nicht auswählbar waren</Bug>
 		<Bug language="Deutsch">Fehler behoben wodurch Bilder in News verloren gehen</Bug>
