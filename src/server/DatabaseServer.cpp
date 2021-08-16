@@ -5338,7 +5338,10 @@ void DatabaseServer::submitNews(std::shared_ptr<HttpsServer::Response> response,
 				}
 
 				if (pt.count("Image") == 1) {
-					if (!database.query("SET @paramFile='" + pt.get<std::string>("Image") + "';")) {
+					auto file = pt.get<std::string>("Image");
+					file = std::regex_replace(file, std::regex(";"), "");
+					file += ".z";
+					if (!database.query("SET @paramFile='" + file + "';")) {
 						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 						code = SimpleWeb::StatusCode::client_error_failed_dependency;
 						break;

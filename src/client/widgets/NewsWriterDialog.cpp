@@ -170,7 +170,7 @@ void NewsWriterDialog::accept() {
 
 	QJsonArray jsonArr;
 	
-	for (QCheckBox * cb : _mods) {
+	for (const QCheckBox * cb : _mods) {
 		if (!cb->isChecked()) continue;
 
 		jsonArr << cb->property("modid").toInt();
