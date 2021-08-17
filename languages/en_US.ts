@@ -3403,5 +3403,13 @@ You can revoke your permission at every point in time. All necessary information
         <source>NeitherSystempackNorUnionWarning</source>
         <translation>You have neither Systempack nor Union enabled. Gothic most probably won't work that way.</translation>
     </message>
+    <message>
+        <source>Keywords</source>
+        <translation>Keywords</translation>
+    </message>
+    <message>
+        <source>KeywordsTooltip</source>
+        <translation>Enter keywords that help to discover the project via the search functionality. Separate entries via ;. The search is case insensitive.</translation>
+    </message>
 </context>
 </TS>

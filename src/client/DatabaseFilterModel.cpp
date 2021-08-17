@@ -167,9 +167,15 @@ void DatabaseFilterModel::playedProjectsChanged(int state) {
 	invalidateFilter();
 }
 
+void DatabaseFilterModel::setFilter(QString filter)
+{
+	_filter = filter;
+	invalidateFilter();
+}
+
 bool DatabaseFilterModel::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const {
 	bool result = true;
-	QStandardItemModel * model = dynamic_cast<QStandardItemModel *>(sourceModel());
+	const auto * model = dynamic_cast<QStandardItemModel *>(sourceModel());
 	if (!source_parent.isValid() && !model->item(source_row, DatabaseColumn::Name)->data(PackageIDRole).isValid()) {
 		const auto projectID = model->item(source_row, DatabaseColumn::ModID)->text().toInt();
 		const auto typeText = model->item(source_row, DatabaseColumn::Type)->text();
@@ -177,12 +183,27 @@ bool DatabaseFilterModel::filterAcceptsRow(int source_row, const QModelIndex & s
 		const int devDuration = model->item(source_row, DatabaseColumn::DevDuration)->data(Qt::UserRole).toInt();
 		const int languages = model->item(source_row, DatabaseColumn::Languages)->data(LanguagesRole).toInt();
 		const bool installed = model->item(source_row, DatabaseColumn::Install)->data(Installed).toBool();
-		
+
+		const auto keywordsStr = model->item(source_row, DatabaseColumn::Name)->data(KeywordsRole).toString();
+		const auto keywords = keywordsStr.split(";", Qt::SkipEmptyParts);
+
 		result = result && ((typeText == QApplication::tr("TotalConversion") && _totalConversionActive) || (typeText == QApplication::tr("Enhancement") && _enhancementActive) || (typeText == QApplication::tr("Patch") && _patchActive) || (typeText == QApplication::tr("Tool") && _toolActive) || (typeText == QApplication::tr("Original") && _originalActive) || (typeText == QApplication::tr("GothicMultiplayer") && _gmpActive) || (typeText == QApplication::tr("FullVersion") && _gamesActive) || (typeText == QApplication::tr("Demo") && _demosActive) || (typeText == QApplication::tr("PlayTesting") && _playTestingActive));
 		result = result && ((gameText == QApplication::tr("Gothic") && _gothicActive) || (gameText == QApplication::tr("Gothic2") && _gothic2Active) || (gameText == QApplication::tr("GothicAndGothic2_2") && _gothicAndGothic2Active) || (gameText == QApplication::tr("Game") && _gamesActive));
 		result = result && (typeText == QApplication::tr("Patch") || typeText == QApplication::tr("Tool") || (devDuration / 60 >= _minDuration && devDuration / 60 <= _maxDuration));
 		result = result && (!installed || _installedProjectsActive);
 		result = result && (_playedProjectsActive || !_playedProjects.contains(projectID));
+
+		if (!_filter.isEmpty()) {
+			auto found = false;
+			for (const auto & keyword : keywords) {
+				if (!keyword.contains(_filter, Qt::CaseInsensitive))
+					continue;
+
+				found = true;
+			}
+
+			result = result && found;
+		}
 
 		bool languageMatch = false;
 		for (int i = 1; i < common::Language::Count; i *= 2) {

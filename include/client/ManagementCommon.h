@@ -81,6 +81,7 @@ namespace client {
 		QDate releaseDate;
 		QString feedbackMail;
 		QUrl discussionUrl;
+		QString keywords;
 
 		void read(const QJsonObject &json);
 		void write(QJsonObject & json) const;

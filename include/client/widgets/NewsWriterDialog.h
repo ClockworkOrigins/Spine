@@ -21,6 +21,7 @@
 #include <QDialog>
 
 #include "common/MessageStructs.h"
+#include "common/Mod.h"
 
 class QCheckBox;
 class QComboBox;

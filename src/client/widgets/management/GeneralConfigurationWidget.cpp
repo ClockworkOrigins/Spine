@@ -51,14 +51,16 @@ GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(
 		auto * l = new QGridLayout();
 		l->setAlignment(Qt::AlignTop);
 
+		int row = 0;
+
 		{
 			auto * lbl = new QLabel(QApplication::tr("Enabled"), this);
 			lbl->setToolTip(QApplication::tr("ModEnabledTooltip"));
 			_enabledBox = new QCheckBox(this);
 			_enabledBox->setToolTip(QApplication::tr("ModEnabledTooltip"));
 
-			l->addWidget(lbl, 0, 0);
-			l->addWidget(_enabledBox, 0, 1);
+			l->addWidget(lbl, row, 0);
+			l->addWidget(_enabledBox, row++, 1);
 		}
 
 		{
@@ -71,8 +73,8 @@ GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(
 
 			_gothicVersionBox->addItems(items);
 
-			l->addWidget(lbl, 1, 0);
-			l->addWidget(_gothicVersionBox, 1, 1);
+			l->addWidget(lbl, row, 0);
+			l->addWidget(_gothicVersionBox, row++, 1);
 		}
 
 		{
@@ -85,8 +87,8 @@ GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(
 
 			_typeBox->addItems(items);
 
-			l->addWidget(lbl, 2, 0);
-			l->addWidget(_typeBox, 2, 1);
+			l->addWidget(lbl, row, 0);
+			l->addWidget(_typeBox, row++, 1);
 		}
 
 		{
@@ -94,8 +96,8 @@ GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(
 			_releaseDateEdit = new QDateEdit(this);
 			_releaseDateEdit->setCalendarPopup(true);
 
-			l->addWidget(lbl, 3, 0);
-			l->addWidget(_releaseDateEdit, 3, 1);
+			l->addWidget(lbl, row, 0);
+			l->addWidget(_releaseDateEdit, row++, 1);
 		}
 
 		{
@@ -104,13 +106,23 @@ GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(
 			_devDurationBox->setMinimum(0);
 			_devDurationBox->setMaximum(500 * 60); // 300h
 
-			l->addWidget(lbl, 4, 0);
-			l->addWidget(_devDurationBox, 4, 1);
+			l->addWidget(lbl, row, 0);
+			l->addWidget(_devDurationBox, row++, 1);
+		}
+
+		{
+			auto * lbl = new QLabel(QApplication::tr("Keywords"), this);
+			lbl->setToolTip(QApplication::tr("KeywordsTooltip"));
+			_keywordsEdit = new QLineEdit(this);
+			_keywordsEdit->setToolTip(QApplication::tr("KeywordsTooltip"));
+
+			l->addWidget(lbl, row, 0);
+			l->addWidget(_keywordsEdit, row++, 1);
 		}
 
 		{
 			const QRegularExpression mailRegex("[a-zA-Z0-9+ _.@-]+");
-			QValidator * mailValidator = new QRegularExpressionValidator(mailRegex, this);
+			const QValidator * mailValidator = new QRegularExpressionValidator(mailRegex, this);
 			
 			auto * lbl = new QLabel(QApplication::tr("FeedbackMail"), this);
 			lbl->setToolTip(QApplication::tr("FeedbackMailTooltip"));
@@ -118,8 +130,8 @@ GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(
 			_feedbackMailEdit ->setToolTip(QApplication::tr("FeedbackMailTooltip"));
 			_feedbackMailEdit->setValidator(mailValidator);
 
-			l->addWidget(lbl, 5, 0);
-			l->addWidget(_feedbackMailEdit, 5, 1);
+			l->addWidget(lbl, row, 0);
+			l->addWidget(_feedbackMailEdit, row++, 1);
 		}
 
 		{
@@ -128,8 +140,8 @@ GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(
 			_discussionUrlEdit = new QLineEdit(this);
 			_discussionUrlEdit ->setToolTip(QApplication::tr("DiscussionUrlTooltip"));
 
-			l->addWidget(lbl, 6, 0);
-			l->addWidget(_discussionUrlEdit, 6, 1);
+			l->addWidget(lbl, row, 0);
+			l->addWidget(_discussionUrlEdit, row++, 1);
 		}
 
 		vl->addLayout(l);
@@ -211,6 +223,7 @@ void GeneralConfigurationWidget::updateMod() {
 	mgd.releaseDate = _releaseDateEdit->date();
 	mgd.feedbackMail = _feedbackMailEdit->text();
 	mgd.discussionUrl = _discussionUrlEdit->text();
+	mgd.keywords = _keywordsEdit->text();
 
 	QJsonObject json;
 	json["Username"] = Config::Username;
@@ -238,4 +251,5 @@ void GeneralConfigurationWidget::updateData(ManagementGeneralData content) {
 	_feedbackMailEdit->setText(content.feedbackMail);
 	_discussionUrlEdit->setText(content.discussionUrl.toString());
 	_enabledBox->setVisible(!content.enabled);
+	_keywordsEdit->setText(content.keywords);
 }

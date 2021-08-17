@@ -160,6 +160,8 @@ void ManagementGeneralData::read(const QJsonObject & json) {
 	
 	if (!json.contains("Duration")) return;
 
+	if (!json.contains("Keywords")) return;
+
 	enabled = json["Enabled"].toString() == "true";
 	gothicVersion = static_cast<common::GameType>(json["GothicVersion"].toString().toInt());
 	modType = static_cast<common::ModType>(json["ModType"].toString().toInt());
@@ -178,6 +180,8 @@ void ManagementGeneralData::read(const QJsonObject & json) {
 		const auto url = json["DiscussionUrl"].toString();
 		discussionUrl = QUrl(url);
 	}
+
+	keywords = json["Keywords"].toString();
 }
 
 void ManagementGeneralData::write(QJsonObject & json) const {
@@ -198,6 +202,8 @@ void ManagementGeneralData::write(QJsonObject & json) const {
 	if (!discussionUrl.isEmpty() && discussionUrl.isValid()) {
 		json["DiscussionUrl"] = discussionUrl.toString();
 	}
+
+	json["Keywords"] = keywords;
 }
 
 void ManagementCustomStatistic::read(const QJsonObject & json) {

@@ -226,7 +226,7 @@
     </message>
     <message>
         <source>AccountInformation</source>
-        <translation>Оригинальная учётная запись Clockwork не требуется для использования основных функциональных возможностей программы Spine, но её наличие позволит вам использовать дополнительный функционал программы, например, статистика времени в игре, достижения, возможность оценки модификаций... 
+        <translation>Оригинальная учётная запись Clockwork не требуется для использования основных функциональных возможностей программы Spine, но её наличие позволит вам использовать дополнительный функционал программы, например, статистика времени в игре, достижения, возможность оценки модификаций...
 		Кроме того, он может быть использован и для других программ созданных Clockwork Origins.</translation>
     </message>
     <message>
@@ -3395,6 +3395,14 @@ You can revoke your permission at every point in time. All necessary information
     <message>
         <source>NeitherSystempackNorUnionWarning</source>
         <translation>У вас не включены ни Systempack, ни Union. Готика, скорее всего, не будет работать таким образом.</translation>
+    </message>
+    <message>
+        <source>Keywords</source>
+        <translation>Ключевые слова</translation>
+    </message>
+    <message>
+        <source>KeywordsTooltip</source>
+        <translation>Введите ключевые слова, которые помогут найти проект с помощью функции поиска. Разделяйте записи символом ;. Поиск не чувствителен к регистру.</translation>
     </message>
 </context>
 </TS>

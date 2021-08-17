@@ -28,6 +28,7 @@
 #include "Uninstaller.h"
 
 #include "common/MessageStructs.h"
+#include "common/Mod.h"
 
 #include "gui/DownloadQueueWidget.h"
 #include "gui/OverlayMessageHandler.h"
@@ -633,6 +634,7 @@ void ModDatabaseView::updateModList(int modID, int packageID, InstallMode mode) 
 				project.downloadSize = jsonProj["DownloadSize"].toString().toLongLong();
 				project.updateDate = jsonProj["UpdateDate"].toString().toInt();
 				project.language = static_cast<Language>(jsonProj["Language"].toString().toInt());
+				project.keywords = q2s(jsonProj["Keywords"].toString());
 
 				projects.push_back(project);
 			}
@@ -744,6 +746,9 @@ void ModDatabaseView::updateModList(QList<Mod> mods) {
 			f.setUnderline(true);
 			nameItem->setFont(f);
 		}
+
+		nameItem->setData(s2q(mod.keywords), KeywordsRole);
+
 		const QString teamname = s2q(mod.teamName);
 		QStandardItem * teamItem = new TextItem(fm.elidedText(teamname, Qt::ElideRight, 200));
 		teamItem->setEditable(false);
@@ -1112,7 +1117,7 @@ void ModDatabaseView::sortByColumn(int column) {
 }
 
 void ModDatabaseView::changedFilterExpression(const QString & expression) {
-	_sortModel->setFilterRegExp(expression);
+	_sortModel->setFilter(expression);
 }
 
 void ModDatabaseView::updatePackageList(QList<Package> packages) {

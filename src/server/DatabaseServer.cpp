@@ -5575,10 +5575,15 @@ void DatabaseServer::requestAllProjects(std::shared_ptr<HttpsServer::Response> r
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
+			if (!database.query("PREPARE selectKeywordsStmt FROM \"SELECT Keyword FROM keywordsPerProject WHERE ProjectID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
 			std::map<int32_t, uint32_t> versions;
 
 			const common::Language clientLanguage = LanguageConverter::convert(language);
-			const common::Language defaultLanguage = common::Language::English;
+			constexpr common::Language defaultLanguage = common::Language::English;
 
 			ptree projectNodes;
 			for (const auto & vec : enabledResults) {
@@ -5643,6 +5648,25 @@ void DatabaseServer::requestAllProjects(std::shared_ptr<HttpsServer::Response> r
 					projectNodes.push_back(std::make_pair("", projectNode));
 					continue;
 				}
+
+				std::string keywords;
+
+				for (const auto & n : names) {
+					keywords += n.second + ";";
+				}
+
+				if (!database.query("EXECUTE selectKeywordsStmt USING @paramModID;")) {
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				results = database.getResults<std::vector<std::string>>();
+
+				for (const auto & v : results) {
+					keywords += v[0] + ";";
+				}
+
+				projectNode.put("Keywords", keywords);
 
 				projectNode.put("SupportedLanguages", supportedLanguages);
 

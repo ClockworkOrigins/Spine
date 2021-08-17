@@ -22,6 +22,7 @@
 #include "InstallMode.h"
 #include "SpineConfig.h"
 
+#include "common/GameType.h"
 #include "common/SpineModules.h"
 
 #include "gui/DownloadQueueWidget.h"

@@ -342,6 +342,10 @@ void DatabaseCreator::createTables() {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}
+	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS keywordsPerProject (ProjectID INT PRIMARY KEY, Keywords TEXT NOT NULL);"))) {
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
 
 	createFileserverTables();
 }

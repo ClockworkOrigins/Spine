@@ -25,10 +25,6 @@
 #include "common/Language.h"
 #include "common/ModType.h"
 
-#include "boost/archive/text_oarchive.hpp"
-#include "boost/archive/text_iarchive.hpp"
-#include "boost/serialization/export.hpp"
-
 namespace spine {
 namespace common {
 
@@ -50,29 +46,7 @@ namespace common {
 		uint32_t updateDate = 0;
 		Language language = Language::None;
 		uint16_t supportedLanguages = 0;
-
-		Mod() {}
-
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int /* file_version */) {
-			ar & id;
-			ar & name;
-			ar & teamID;
-			ar & teamName;
-			ar & gothic;
-			ar & releaseDate;
-			ar & type;
-			ar & majorVersion;
-			ar & minorVersion;
-			ar & patchVersion;
-			//ar & spineVersion;
-			ar & devDuration;
-			ar & avgDuration;
-			ar & downloadSize;
-			ar & updateDate;
-			ar & language;
-			ar & supportedLanguages;
-		}
+		std::string keywords;
 	};
 
 } /* namespace common */

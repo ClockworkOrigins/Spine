@@ -44,7 +44,7 @@ namespace widgets {
 
 	public:
 		GeneralConfigurationWidget(QWidget * par);
-		~GeneralConfigurationWidget();
+		~GeneralConfigurationWidget() override;
 
 		void updateModList(QList<ManagementMod> modList);
 		void selectedMod(int index);
@@ -70,6 +70,7 @@ namespace widgets {
 		QSpinBox * _devDurationBox;
 		QLineEdit * _feedbackMailEdit;
 		QLineEdit * _discussionUrlEdit;
+		QLineEdit * _keywordsEdit;
 		gui::WaitSpinner * _waitSpinner;
 
 		QFutureWatcher<void> _futureWatcher;

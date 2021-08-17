@@ -46,7 +46,8 @@ namespace spine {
 		FilterRole,
 		PackageIDRole,
 		LanguagesRole,
-		Installed
+		Installed,
+		KeywordsRole
 	};
 
 	class DatabaseFilterModel : public QSortFilterProxyModel {
@@ -153,6 +154,8 @@ namespace spine {
 		void installedProjectsChanged(int state);
 		void playedProjectsChanged(int state);
 
+		void setFilter(QString filter);
+
 	private:
 		bool _gamesActive;
 		bool _demosActive;
@@ -175,6 +178,8 @@ namespace spine {
 		bool _playedProjectsActive;
 
 		QSet<int32_t> _playedProjects;
+
+		QString _filter;
 
 		bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const override;
 	};

@@ -3391,5 +3391,13 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>NeitherSystempackNorUnionWarning</source>
         <translation>Nie masz włączonego ani Systempacka, ani Uniona. Gothic najprawdopodobniej nie uruchomi bez nich.</translation>
     </message>
+    <message>
+        <source>Keywords</source>
+        <translation>Słowa kluczowe</translation>
+    </message>
+    <message>
+        <source>KeywordsTooltip</source>
+        <translation>Wprowadź słowa kluczowe, które pomogą odkryć projekt za pomocą funkcji wyszukiwania. Oddzielaj wpisy za pomocą ;. W wyszukiwaniu nie jest uwzględniana wielkość liter.</translation>
+    </message>
 </context>
 </TS>

@@ -596,7 +596,7 @@ void ManagementServer::getGeneralConfiguration(std::shared_ptr<HttpsServer::Resp
 			return;
 		}
 
-		const int32_t modID = pt.get<int32_t>("ModID");
+		const auto modID = pt.get<int32_t>("ModID");
 
 		if (!hasAdminAccessToMod(userID, modID)) {
 			response->write(SimpleWeb::StatusCode::client_error_unauthorized);
@@ -627,6 +627,11 @@ void ManagementServer::getGeneralConfiguration(std::shared_ptr<HttpsServer::Resp
 				break;
 			}
 			if (!database.query("PREPARE selectDiscussionUrlStmt FROM \"SELECT Url FROM discussionUrls WHERE ProjectID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectKeywordsStmt FROM \"SELECT Keywords FROM keywordsPerProject WHERE ProjectID = ? LIMIT 1\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
@@ -683,6 +688,15 @@ void ManagementServer::getGeneralConfiguration(std::shared_ptr<HttpsServer::Resp
 			if (!results.empty()) {
 				responseTree.put("DiscussionUrl", results[0][0]);
 			}
+
+			if (!database.query("EXECUTE selectKeywordsStmt USING @paramModID;")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			results = database.getResults<std::vector<std::string>>();
+
+			responseTree.put("Keywords", results.empty() ? 0 : std::stoi(results[0][0]));
 		} while (false);
 
 		write_json(responseStream, responseTree);
@@ -724,6 +738,7 @@ void ManagementServer::updateGeneralConfiguration(std::shared_ptr<HttpsServer::R
 		const auto modType = pt.get<int32_t>("ModType");
 		const auto duration = pt.get<int32_t>("Duration");
 		const auto releaseDate = pt.get<int32_t>("ReleaseDate");
+		const auto keywords = pt.get<std::string>("Keywords");
 
 		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
 
@@ -746,6 +761,11 @@ void ManagementServer::updateGeneralConfiguration(std::shared_ptr<HttpsServer::R
 				break;
 			}
 			if (!database.query("PREPARE updateFeedbackMailStmt FROM \"INSERT INTO feedbackMails (ProjectID, Mail) VALUES (?, ?) ON DUPLICATE KEY UPDATE Mail = ?\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE updateKeywordsStmt FROM \"INSERT INTO keywordsPerProject (ProjectID, Keywords) VALUES (?, ?) ON DUPLICATE KEY UPDATE Keywords = ?\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
@@ -805,6 +825,11 @@ void ManagementServer::updateGeneralConfiguration(std::shared_ptr<HttpsServer::R
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
+			if (!database.query("SET @paramKeywords='" + keywords + "';")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
 			if (!database.query("EXECUTE selectEnabledStateStmt USING @paramModID;")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
@@ -838,6 +863,11 @@ void ManagementServer::updateGeneralConfiguration(std::shared_ptr<HttpsServer::R
 				break;
 			}
 			if (!database.query("EXECUTE updateDevDurationStmt USING @paramModID, @paramDuration, @paramDuration;")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("EXECUTE updateKeywordsStmt USING @paramModID, @paramKeywords, @paramKeywords;")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;

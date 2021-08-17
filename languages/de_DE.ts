@@ -3395,5 +3395,13 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>NeitherSystempackNorUnionWarning</source>
         <translation>Du hast weder Systempack noch Union aktiviert. So wird Gothic höchstwahrscheinlich nicht funktionieren.</translation>
     </message>
+    <message>
+        <source>Keywords</source>
+        <translation>Schlüsselwörter</translation>
+    </message>
+    <message>
+        <source>KeywordsTooltip</source>
+        <translation>Gibt Schlüsselwörter ein, die dabei helfen das Projekt mit der Suchfunktion zu entdecken. Trenne die Einträge mit ;. Die Suche ist unabhängig von der Groß-/Kleinschreibung.</translation>
+    </message>
 </context>
 </TS>

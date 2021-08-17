@@ -23,6 +23,7 @@
 #include <QWidget>
 
 #include "common/MessageStructs.h"
+#include "common/Mod.h"
 
 class QMainWindow;
 class QResizeEvent;
