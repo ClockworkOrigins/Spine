@@ -5575,7 +5575,7 @@ void DatabaseServer::requestAllProjects(std::shared_ptr<HttpsServer::Response> r
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			if (!database.query("PREPARE selectKeywordsStmt FROM \"SELECT Keyword FROM keywordsPerProject WHERE ProjectID = ?\";")) {
+			if (!database.query("PREPARE selectKeywordsStmt FROM \"SELECT Keywords FROM keywordsPerProject WHERE ProjectID = ?\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
