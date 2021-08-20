@@ -696,7 +696,7 @@ void ManagementServer::getGeneralConfiguration(std::shared_ptr<HttpsServer::Resp
 			}
 			results = database.getResults<std::vector<std::string>>();
 
-			responseTree.put("Keywords", results.empty() ? 0 : std::stoi(results[0][0]));
+			responseTree.put("Keywords", results.empty() ? "" : results[0][0]);
 		} while (false);
 
 		write_json(responseStream, responseTree);
