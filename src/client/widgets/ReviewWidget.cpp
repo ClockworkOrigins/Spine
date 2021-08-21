@@ -78,10 +78,10 @@ ReviewWidget::ReviewWidget(const QString & reviewer, const QString & review, uin
         vl->addLayout(hl);
     }
 
-    auto * tb = new QTextBrowser(this);
-    tb->setText(review);
+	_textBrowser = new QTextBrowser(this);
+	_textBrowser->setText(review);
 
-    vl->addWidget(tb);
+    vl->addWidget(_textBrowser);
 
     {
         auto * hlBottom = new QHBoxLayout();
@@ -117,3 +117,9 @@ ReviewWidget::ReviewWidget(const QString & reviewer, const QString & review, uin
         }
     }
 }
+
+void ReviewWidget::setText(const QString& text)
+{
+	_textBrowser->setText(text);
+}
+

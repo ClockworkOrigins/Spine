@@ -23,8 +23,8 @@
 
 #include <QWidget>
 
-class QPushButton;
 class QSvgWidget;
+class QTextBrowser;
 
 namespace spine {
 namespace widgets {
@@ -35,8 +35,12 @@ namespace widgets {
 	public:
 		ReviewWidget(const QString & reviewer, const QString & review, uint64_t playTime, uint64_t playTimeAtReview, uint64_t date, int rating, int32_t projectID, QWidget * par);
 
+		void setText(const QString & text);
+
 	private:
         std::array<QSvgWidget *, 5> _svgs;
+
+		QTextBrowser * _textBrowser;
 	};
 
 } /* namespace widgets */

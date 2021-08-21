@@ -70,6 +70,7 @@ namespace widgets {
 		void openScoreView(int32_t, QString);
 		void receivedRatings(int, int, int, int, int);
 		void receivedReviews(QJsonArray reviews);
+		void reviewChanged(QString text);
 
 	public slots:
 		void loginChanged();

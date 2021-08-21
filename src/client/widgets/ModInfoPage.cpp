@@ -959,7 +959,7 @@ void ModInfoPage::startProject() {
 }
 
 void ModInfoPage::showFullscreen() {
-	QItemSelectionModel * selectionModel = _thumbnailView->selectionModel();
+	const auto * selectionModel = _thumbnailView->selectionModel();
 	const QModelIndexList list = selectionModel->selectedRows();
 	const int row = list.isEmpty() ? 0 : selectionModel->selectedRows().front().row();
 	FullscreenPreview fp(Config::DOWNLOADDIR + "/screens/" + QString::number(_projectID) + "/" + _screens[row].first, this);
@@ -1013,15 +1013,6 @@ void ModInfoPage::updateReviews(QJsonArray reviews) {
 		const auto reviewer = json["Username"].toString();
 		const auto review = json["Review"].toString();
 
-		if (reviewer == Config::Username) {
-			_ownReviewEdit->setText(review);
-			_ownReviewWidget->setVisible(true);
-
-			_oldReview = review;
-			
-			continue;
-		}
-
 		const auto rating = json["Rating"].toString().toInt();
 		const auto duration = json["Duration"].toString().toInt();
 		const auto reviewDuration = json["ReviewDuration"].toString().toInt();
@@ -1031,6 +1022,15 @@ void ModInfoPage::updateReviews(QJsonArray reviews) {
 		_reviewLayout->addWidget(rv);
 
 		_reviewWidgets << rv;
+
+		if (reviewer == Config::Username) {
+			_ownReviewEdit->setText(review);
+			_ownReviewWidget->setVisible(true);
+
+			_oldReview = review;
+
+			connect(this, &ModInfoPage::reviewChanged, rv, &ReviewWidget::setText);
+		}
 	}
 }
 
@@ -1050,6 +1050,8 @@ void ModInfoPage::submitReview() {
 	json["Review"] = review;
 
 	Https::postAsync(DATABASESERVER_PORT, "updateReview", QJsonDocument(json).toJson(QJsonDocument::Compact), [](const QJsonObject &, int) {});
+
+	emit reviewChanged(review);
 }
 
 void ModInfoPage::mouseDoubleClickEvent(QMouseEvent * evt) {

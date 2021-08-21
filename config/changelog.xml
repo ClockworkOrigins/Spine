@@ -2233,4 +2233,9 @@
 		<Bug language="English">Fixed bug that caused localisations of projects being available after release not being selectable</Bug>
 		<Bug language="English">Fixed bug that caused images in news getting lost</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="35" patchVersion="0">
+		<Enhancement language="Deutsch">Eigene Reviews werden einem jetzt auch wie andere Reviews angezeigt</Enhancement>
+
+		<Enhancement language="English">One now sees own reviews the same way as other's reviews</Enhancement>
+	</Version>
 </Versions>
