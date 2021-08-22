@@ -2235,7 +2235,9 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="35" patchVersion="0">
 		<Enhancement language="Deutsch">Eigene Reviews werden einem jetzt auch wie andere Reviews angezeigt</Enhancement>
+		<Enhancement language="Deutsch">Feedback-Button auch auf Infoseite verfügbar gemacht, damit auch Patches Feedback erhalten können</Enhancement>
 
 		<Enhancement language="English">One now sees own reviews the same way as other's reviews</Enhancement>
+		<Enhancement language="English">Added feedback button to info page as well so also patches can get feedback</Enhancement>
 	</Version>
 </Versions>

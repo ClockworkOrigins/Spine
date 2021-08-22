@@ -53,7 +53,6 @@ namespace widgets {
 	class ProjectInfoBoxWidget;
 	class RatingWidget;
 
-
 	class ModInfoPage : public QWidget {
 		Q_OBJECT
 
@@ -98,6 +97,7 @@ namespace widgets {
 		void updateRatings(int rating1, int rating2, int rating3, int rating4, int rating5);
 		void updateReviews(QJsonArray reviews);
 		void submitReview();
+		void feedbackClicked();
 
 	private:
 		QMainWindow * _mainWindow;
@@ -133,6 +133,7 @@ namespace widgets {
 		QList<QWidget *> _historyWidgets;
 		QGroupBox * _ratingsBox;
 		QScrollArea * _scrollArea = nullptr;
+		QPushButton * _feedbackButton;
 
 		QWidget * _ownReviewWidget;
 		QTextEdit * _ownReviewEdit;

@@ -41,6 +41,7 @@
 #include "utils/Hashing.h"
 #include "utils/MultiFileDownloader.h"
 
+#include "widgets/FeedbackDialog.h"
 #include "widgets/NewsWidget.h"
 #include "widgets/ProjectInfoBoxWidget.h"
 #include "widgets/RatingWidget.h"
@@ -220,6 +221,16 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 		_historyBox->setLayout(_historyLayout);
 
 		rightLayout->addWidget(_historyBox);
+
+		{
+			_feedbackButton = new QPushButton(QApplication::tr("Feedback"), widget);
+			UPDATELANGUAGESETTEXT(_feedbackButton, "Feedback");
+			_feedbackButton->setProperty("library", true);
+			_feedbackButton->hide();
+			connect(_feedbackButton, &QPushButton::released, this, &ModInfoPage::feedbackClicked);
+
+			rightLayout->addWidget(_feedbackButton);
+		}
 
 		hl->addLayout(rightLayout, 25);
 	}
@@ -717,6 +728,12 @@ void ModInfoPage::updatePage(QJsonObject json) {
 		}
 	}
 
+	if (json.contains("Feedback")) {
+		_feedbackButton->show();
+	} else {
+		_feedbackButton->hide();
+	}
+
 	if (_forceEdit) {
 		switchToEdit();
 	}
@@ -1052,6 +1069,19 @@ void ModInfoPage::submitReview() {
 	Https::postAsync(DATABASESERVER_PORT, "updateReview", QJsonDocument(json).toJson(QJsonDocument::Compact), [](const QJsonObject &, int) {});
 
 	emit reviewChanged(review);
+}
+
+void ModInfoPage::feedbackClicked()
+{
+	Database::DBError err;
+	const auto version = Database::queryNth<std::vector<int>, int, int, int>(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "SELECT MajorVersion, MinorVersion, PatchVersion FROM updates WHERE ModID = " + std::to_string(_projectID) + " LIMIT 1;", err);
+
+	const uint8_t versionMajor = version.empty() ? 0 : static_cast<uint8_t>(version[0]);
+	const uint8_t versionMinor = version.empty() ? 0 : static_cast<uint8_t>(version[1]);
+	const uint8_t versionPatch = version.empty() ? 0 : static_cast<uint8_t>(version[2]);
+
+	FeedbackDialog dlg(_projectID, FeedbackDialog::Type::Project, versionMajor, versionMinor, versionPatch);
+	dlg.exec();
 }
 
 void ModInfoPage::mouseDoubleClickEvent(QMouseEvent * evt) {

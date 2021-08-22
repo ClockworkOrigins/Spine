@@ -3354,6 +3354,11 @@ void DatabaseServer::requestInfoPage(std::shared_ptr<HttpsServer::Response> resp
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
+			if (!database.query("PREPARE selectFeedbackStmt FROM \"SELECT Mail FROM feedbackMails WHERE ProjectID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
 			if (!database.query("SET @paramLanguage='" + language + "';")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
@@ -3661,6 +3666,17 @@ void DatabaseServer::requestInfoPage(std::shared_ptr<HttpsServer::Response> resp
 
 				if (!historyNodes.empty()) {
 					responseTree.add_child("History", historyNodes);
+				}
+
+				if (!database.query("EXECUTE selectFeedbackStmt USING @paramModID;")) {
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				lastResults = database.getResults<std::vector<std::string>>();
+
+				if (!lastResults.empty()) {
+					responseTree.put("Feedback", 1);
 				}
 			}
 		} while (false);
