@@ -530,7 +530,7 @@ void ModUpdateDialog::requestUpdates(const QList<ModVersion> & m, bool forceAcce
 							const auto file = j3["File"].toString();
 							const auto hash = j3["Hash"].toString();
 
-							mu.files << qMakePair(file, hash);
+							files << qMakePair(file, hash);
 						}
 						
 						mu.packageFiles << qMakePair(packageID, files);
