@@ -63,6 +63,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QListView>
+#include <QMessageBox>
 #include <QMouseEvent>
 #include <QProgressBar>
 #include <QPushButton>
@@ -402,6 +403,7 @@ ModInfoPage::ModInfoPage(QMainWindow * mainWindow, QWidget * par) : QWidget(par)
 	connect(this, &ModInfoPage::gotRandomMod, this, &ModInfoPage::loadPage);
 	connect(this, &ModInfoPage::receivedRatings, this, &ModInfoPage::updateRatings);
 	connect(this, &ModInfoPage::receivedReviews, this, &ModInfoPage::updateReviews);
+	connect(this, &ModInfoPage::reviewSubmitted, this, &ModInfoPage::submittedReview);
 }
 
 void ModInfoPage::loginChanged() {
@@ -1066,7 +1068,11 @@ void ModInfoPage::submitReview() {
 	json["Password"] = Config::Password;
 	json["Review"] = review;
 
-	Https::postAsync(DATABASESERVER_PORT, "updateReview", QJsonDocument(json).toJson(QJsonDocument::Compact), [](const QJsonObject &, int) {});
+	Https::postAsync(DATABASESERVER_PORT, "updateReview", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject &, int code) {
+		if (code != 200) return;
+
+		emit reviewSubmitted();
+	});
 
 	emit reviewChanged(review);
 }
@@ -1082,6 +1088,14 @@ void ModInfoPage::feedbackClicked()
 
 	FeedbackDialog dlg(_projectID, FeedbackDialog::Type::Project, versionMajor, versionMinor, versionPatch);
 	dlg.exec();
+}
+
+void ModInfoPage::submittedReview()
+{
+	QMessageBox resultMsg(QMessageBox::Icon::NoIcon, QApplication::tr("ReviewSubmitted"), QApplication::tr("ReviewSubmittedText"), QMessageBox::StandardButton::Ok);
+	resultMsg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
+	resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+	resultMsg.exec();
 }
 
 void ModInfoPage::mouseDoubleClickEvent(QMouseEvent * evt) {

@@ -3399,5 +3399,13 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>KeywordsTooltip</source>
         <translation>Wprowadź słowa kluczowe, które pomogą odkryć projekt za pomocą funkcji wyszukiwania. Oddzielaj wpisy za pomocą ;. W wyszukiwaniu nie jest uwzględniana wielkość liter.</translation>
     </message>
+    <message>
+        <source>ReviewSubmitted</source>
+        <translation>Złożony przegląd</translation>
+    </message>
+    <message>
+        <source>ReviewSubmittedText</source>
+        <translation>Twoja opinia została pomyślnie przesłana i zostanie teraz wyświetlona dla innych odwiedzających.</translation>
+    </message>
 </context>
 </TS>

@@ -3404,5 +3404,13 @@ You can revoke your permission at every point in time. All necessary information
         <source>KeywordsTooltip</source>
         <translation>Введите ключевые слова, которые помогут найти проект с помощью функции поиска. Разделяйте записи символом ;. Поиск не чувствителен к регистру.</translation>
     </message>
+    <message>
+        <source>ReviewSubmitted</source>
+        <translation>Обзор представлен</translation>
+    </message>
+    <message>
+        <source>ReviewSubmittedText</source>
+        <translation>Ваш отзыв успешно отправлен и теперь будет показан другим посетителям.</translation>
+    </message>
 </context>
 </TS>

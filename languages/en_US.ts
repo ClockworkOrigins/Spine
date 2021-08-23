@@ -3411,5 +3411,13 @@ You can revoke your permission at every point in time. All necessary information
         <source>KeywordsTooltip</source>
         <translation>Enter keywords that help to discover the project via the search functionality. Separate entries via ;. The search is case insensitive.</translation>
     </message>
+    <message>
+        <source>ReviewSubmitted</source>
+        <translation>Review submitted</translation>
+    </message>
+    <message>
+        <source>ReviewSubmittedText</source>
+        <translation>Your review has been successfully submitted and will be displayed to other visitors now.</translation>
+    </message>
 </context>
 </TS>

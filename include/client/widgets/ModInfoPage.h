@@ -70,6 +70,7 @@ namespace widgets {
 		void receivedRatings(int, int, int, int, int);
 		void receivedReviews(QJsonArray reviews);
 		void reviewChanged(QString text);
+		void reviewSubmitted();
 
 	public slots:
 		void loginChanged();
@@ -98,6 +99,7 @@ namespace widgets {
 		void updateReviews(QJsonArray reviews);
 		void submitReview();
 		void feedbackClicked();
+		void submittedReview();
 
 	private:
 		QMainWindow * _mainWindow;

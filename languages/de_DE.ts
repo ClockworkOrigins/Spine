@@ -3403,5 +3403,13 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>KeywordsTooltip</source>
         <translation>Gibt Schlüsselwörter ein, die dabei helfen das Projekt mit der Suchfunktion zu entdecken. Trenne die Einträge mit ;. Die Suche ist unabhängig von der Groß-/Kleinschreibung.</translation>
     </message>
+    <message>
+        <source>ReviewSubmitted</source>
+        <translation>Review eingereicht</translation>
+    </message>
+    <message>
+        <source>ReviewSubmittedText</source>
+        <translation>Dein Review wurde erfolgreich eingereicht und wird anderen Besuchern jetzt angezeigt.</translation>
+    </message>
 </context>
 </TS>
