@@ -47,7 +47,6 @@ namespace widgets {
 		void finishedInstallation(int modID, int packageID, bool success);
 
 	private slots:
-		void urlClicked(const QUrl & link);
 		void installMod();
 
 	private:
@@ -56,7 +55,6 @@ namespace widgets {
 		QLabel * _titleLabel;
 		QTextBrowser * _textBrowser;
 		QLabel * _timestampLabel;
-		int32_t _newsID;
 
 		QList<QPushButton *> _installButtons;
 

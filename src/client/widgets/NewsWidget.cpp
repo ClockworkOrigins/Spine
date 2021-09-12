@@ -31,9 +31,7 @@
 #include "widgets/AchievementView.h"
 
 #include <QApplication>
-#include <QDate>
 #include <QDesktopServices>
-#include <QJsonDocument>
 #include <QJsonObject>
 #include <QLabel>
 #include <QPainter>
@@ -53,7 +51,7 @@ using namespace spine::common;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-NewsWidget::NewsWidget(News news, bool onlineMode, QWidget * par) : QWidget(par), _titleLabel(nullptr), _textBrowser(nullptr), _timestampLabel(nullptr), _newsID(news.id) {
+NewsWidget::NewsWidget(News news, bool onlineMode, QWidget * par) : QWidget(par), _titleLabel(nullptr), _textBrowser(nullptr), _timestampLabel(nullptr) {
 	setObjectName("NewsWidget");
 
 	auto * l = new QVBoxLayout();
@@ -99,8 +97,6 @@ NewsWidget::NewsWidget(News news, bool onlineMode, QWidget * par) : QWidget(par)
 
 	setLayout(l);
 
-	connect(_textBrowser, &QTextBrowser::anchorClicked, this, &NewsWidget::urlClicked);
-
 	_textBrowser->document()->adjustSize();
 
 	_textBrowser->verticalScrollBar()->setValue(_textBrowser->verticalScrollBar()->minimum());
@@ -127,18 +123,6 @@ void NewsWidget::finishedInstallation(int modID, int, bool success) {
 			break;
 		}
 	}
-}
-
-void NewsWidget::urlClicked(const QUrl & url) {
-	if (!url.toString().startsWith("http://") && !url.toString().startsWith("https://") && !url.toString().startsWith("www.")) return;
-	
-	QDesktopServices::openUrl(url);
-
-	QJsonObject json;
-	json["NewsID"] = _newsID;
-	json["Url"] = url.toString();
-	
-	https::Https::postAsync(MANAGEMENTSERVER_PORT, "linkClicked", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject &, int) {});
 }
 
 void NewsWidget::installMod() {

@@ -5248,12 +5248,14 @@ void DatabaseServer::submitNews(std::shared_ptr<HttpsServer::Response> response,
 		ptree pt;
 		read_json(ss, pt);
 
-		const auto language = pt.get<std::string>("Language");
 		const auto username = pt.get<std::string>("Username");
 		const auto password = pt.get<std::string>("Password");
-		const auto title = pt.get<std::string>("Title");
-		const auto body = pt.get<std::string>("Body");
 		const auto timestamp = pt.get<int64_t>("Timestamp");
+
+		if (pt.count("Entries") == 0) {
+			response->write(SimpleWeb::StatusCode::client_error_bad_request);
+			return;
+		}
 
 		const int userID = ServerCommon::getUserID(username, password);
 
@@ -5272,11 +5274,6 @@ void DatabaseServer::submitNews(std::shared_ptr<HttpsServer::Response> response,
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			if (!database.query("SET @paramLanguage='" + language + "';")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
-				code = SimpleWeb::StatusCode::client_error_failed_dependency;
-				break;
-			}
 			if (!database.query("EXECUTE selectNewsWriterStmt USING @paramUserID, @paramLanguage;")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
@@ -5284,119 +5281,121 @@ void DatabaseServer::submitNews(std::shared_ptr<HttpsServer::Response> response,
 			}
 			auto results = database.getResults<std::vector<std::string>>();
 			if (results.empty()) {
-				const std::string newsDir = std::to_string(time(nullptr));
-				if (!boost::filesystem::exists("news")) {
-					if (!boost::filesystem::create_directory("news")) {
-					}
-				}
-				if (!boost::filesystem::exists("news/" + newsDir)) {
-					if (!boost::filesystem::create_directory("news/" + newsDir)) {
-					}
-				}
-				std::stringstream ss2;
-				ss2 << "news/" << newsDir << "/news.txt";
-				std::fstream file;
-				file.open(ss.str(), std::fstream::out);
-				file << title << std::endl << std::endl;
-				file << timestamp << std::endl << std::endl;
-				file << body << std::endl << std::endl;
-				if (pt.count("Projects")) {
-					for (const auto & p : pt.get_child("Projects")) {
-						file << p.second.data() << std::endl;
-					}
-				}
-				file << std::endl;
+				ServerCommon::sendMail("New News arrived", ss.str(), "noreply@clockwork-origins.de");
 
-				ServerCommon::sendMail("New News arrived", ss.str() + "\n" + title + "\n" + body, "noreply@clockwork-origins.de");
+				break;
+			}
+
+			std::lock_guard<std::mutex> lg(_newsLock);
+			if (!database.query("PREPARE selectNewsIDStmt FROM \"SELECT NewsID FROM news ORDER BY NewsID DESC LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectImageStmt FROM \"SELECT Hash FROM newsImageReferences WHERE File = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE insertModRefsStmt FROM \"INSERT INTO newsModReferences (NewsID, ModID) VALUES (?, ?)\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE insertImageRefsStmt FROM \"INSERT INTO newsImageReferences (NewsID, File, Hash) VALUES (?, ?, ?)\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE insertNewsStmt FROM \"INSERT INTO newsV2 (Timestamp) VALUES (?)\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE insertNewsEntryStmt FROM \"INSERT INTO newsEntryV2 (NewsID, Language, Title, Body) VALUES (?, ?, CONVERT(? USING BINARY), CONVERT(? USING BINARY))\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+
+			if (!database.query("SET @paramTimestamp=" + std::to_string(timestamp) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("EXECUTE insertNewsStmt USING @paramTimestamp;")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+
+			if (!database.query("EXECUTE selectNewsIDStmt;")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			results = database.getResults<std::vector<std::string>>();
+			int newsID;
+			if (!results.empty()) {
+				newsID = std::stoi(results[0][0]);
 			} else {
-				std::lock_guard<std::mutex> lg(_newsLock);
-				if (!database.query("PREPARE selectNewsIDStmt FROM \"SELECT NewsID FROM news ORDER BY NewsID DESC LIMIT 1\";")) {
+				break;
+			}
+			if (!database.query("SET @paramNewsID=" + std::to_string(newsID) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+
+			if (pt.count("Image") == 1) {
+				auto file = pt.get<std::string>("Image");
+				file = std::regex_replace(file, std::regex(";"), "");
+				file += ".z";
+				if (!database.query("SET @paramFile='" + file + "';")) {
 					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
-				if (!database.query("PREPARE selectImageStmt FROM \"SELECT Hash FROM newsImageReferences WHERE File = ? LIMIT 1\";")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
-					code = SimpleWeb::StatusCode::client_error_failed_dependency;
-					break;
-				}
-				if (!database.query("PREPARE insertModRefsStmt FROM \"INSERT INTO newsModReferences (NewsID, ModID) VALUES (?, ?)\";")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
-					code = SimpleWeb::StatusCode::client_error_failed_dependency;
-					break;
-				}
-				if (!database.query("PREPARE insertImageRefsStmt FROM \"INSERT INTO newsImageReferences (NewsID, File, Hash) VALUES (?, ?, ?)\";")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
-					code = SimpleWeb::StatusCode::client_error_failed_dependency;
-					break;
-				}
-				if (!database.query("PREPARE insertNewsStmt FROM \"INSERT INTO news (Title, Body, Timestamp, Language) VALUES (CONVERT(? USING BINARY), CONVERT(? USING BINARY), ?, ?)\";")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
-					code = SimpleWeb::StatusCode::client_error_failed_dependency;
-					break;
-				}
-				if (!database.query("EXECUTE selectNewsIDStmt;")) {
+				if (!database.query("EXECUTE selectImageStmt USING @paramFile;")) {
 					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				results = database.getResults<std::vector<std::string>>();
-				int newsID;
 				if (!results.empty()) {
-					newsID = std::stoi(results[0][0]) + 1;
-				} else {
-					break;
-				}
-				if (!database.query("SET @paramNewsID=" + std::to_string(newsID) + ";")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
-					code = SimpleWeb::StatusCode::client_error_failed_dependency;
-					break;
-				}
-
-				if (pt.count("Image") == 1) {
-					auto file = pt.get<std::string>("Image");
-					file = std::regex_replace(file, std::regex(";"), "");
-					file += ".z";
-					if (!database.query("SET @paramFile='" + file + "';")) {
+					const auto hash = results[0][0];
+						
+					if (!database.query("SET @paramHash='" + hash + "';")) {
 						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 						code = SimpleWeb::StatusCode::client_error_failed_dependency;
 						break;
 					}
-					if (!database.query("EXECUTE selectImageStmt USING @paramFile;")) {
+					if (!database.query("EXECUTE insertImageRefsStmt USING @paramNewsID, @paramFile, @paramHash;")) {
 						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 						code = SimpleWeb::StatusCode::client_error_failed_dependency;
 						break;
 					}
-					results = database.getResults<std::vector<std::string>>();
-					if (!results.empty()) {
-						const auto hash = results[0][0];
-						
-						if (!database.query("SET @paramHash='" + hash + "';")) {
-							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
-							code = SimpleWeb::StatusCode::client_error_failed_dependency;
-							break;
-						}
-						if (!database.query("EXECUTE insertImageRefsStmt USING @paramNewsID, @paramFile, @paramHash;")) {
-							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-							code = SimpleWeb::StatusCode::client_error_failed_dependency;
-							break;
-						}
+				}
+			}
+			if (pt.count("Projects")) {
+				for (const auto & p : pt.get_child("Projects")) {
+					if (!database.query("SET @paramModID=" + p.second.data() + ";")) {
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+					if (!database.query("EXECUTE insertModRefsStmt USING @paramNewsID, @paramModID;")) {
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
 					}
 				}
-				if (pt.count("Projects")) {
-					for (const auto & p : pt.get_child("Projects")) {
-						if (!database.query("SET @paramModID=" + p.second.data() + ";")) {
-							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
-							code = SimpleWeb::StatusCode::client_error_failed_dependency;
-							break;
-						}
-						if (!database.query("EXECUTE insertModRefsStmt USING @paramNewsID, @paramModID;")) {
-							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-							code = SimpleWeb::StatusCode::client_error_failed_dependency;
-							break;
-						}
-					}
-				}
+			}
+			for (const auto & p : pt.get_child("Entries")) {
+				const auto language = p.second.get<int32_t>("Language");
+				const auto title = p.second.get<std::string>("Title");
+				const auto body = p.second.get<std::string>("Body");
+
 				if (!database.query("SET @paramTitle='" + title + "';")) {
 					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
@@ -5407,12 +5406,12 @@ void DatabaseServer::submitNews(std::shared_ptr<HttpsServer::Response> response,
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
-				if (!database.query("SET @paramTimestamp=" + std::to_string(timestamp) + ";")) {
+				if (!database.query("SET @paramLanguage=" + std::to_string(language) + ";")) {
 					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
-				if (!database.query("EXECUTE insertNewsStmt USING @paramTitle, @paramBody, @paramTimestamp, @paramLanguage;")) {
+				if (!database.query("EXECUTE insertNewsEntryStmt USING @paramsNewsID, @paramLanguage, @paramTitle, @paramBody;")) {
 					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
@@ -6037,8 +6036,9 @@ void DatabaseServer::requestAllNews(std::shared_ptr<HttpsServer::Response> respo
 
 		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
 
-		const auto language = pt.get<std::string>("Language");
-		const auto lastNewsID = pt.get<int32_t>("LastNewsID");
+		const auto language = static_cast<common::Language>(pt.get<int32_t>("Language"));
+
+		const auto languageAsString = LanguageConverter::convert(language);
 
 		std::stringstream responseStream;
 		ptree responseTree;
@@ -6046,7 +6046,17 @@ void DatabaseServer::requestAllNews(std::shared_ptr<HttpsServer::Response> respo
 		do {
 			CONNECTTODATABASE(__LINE__)
 
-			if (!database.query("PREPARE selectNews FROM \"SELECT NewsID, CAST(Title AS BINARY), CAST(Body AS BINARY), Timestamp FROM news WHERE Language = ? AND NewsID > ?\";")) {
+			if (!database.query("PREPARE selectNewsV2 FROM \"SELECT NewsID, Timestamp FROM newsV2 ORDER BY NewsID DESC LIMIT 20\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectNewsEntriesV2 FROM \"SELECT Language, CAST(Title AS BINARY), CAST(Body AS BINARY) FROM newsEntriesV2\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectNews FROM \"SELECT NewsID, CAST(Title AS BINARY), CAST(Body AS BINARY), Timestamp FROM news WHERE Language = ? ORDER BY NewsID DESC LIMIT ?\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
@@ -6071,12 +6081,12 @@ void DatabaseServer::requestAllNews(std::shared_ptr<HttpsServer::Response> respo
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			if (!database.query("SET @paramLanguage='" + language + "';")) {
+			if (!database.query("SET @paramLanguage='" + languageAsString + "';")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			if (!database.query("SET @paramLanguageI=" + std::to_string(LanguageConverter::convert(language)) + ";")) {
+			if (!database.query("SET @paramLanguageI=" + std::to_string(language) + ";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
@@ -6096,12 +6106,7 @@ void DatabaseServer::requestAllNews(std::shared_ptr<HttpsServer::Response> respo
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			if (!database.query("SET @paramLastNewsID=" + std::to_string(lastNewsID) + ";")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
-				code = SimpleWeb::StatusCode::client_error_failed_dependency;
-				break;
-			}
-			if (!database.query("EXECUTE selectNews USING @paramLanguage, @paramLastNewsID;")) {
+			if (!database.query("EXECUTE selectNewsV2;")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
@@ -6109,65 +6114,77 @@ void DatabaseServer::requestAllNews(std::shared_ptr<HttpsServer::Response> respo
 			auto lastResults = database.getResults<std::vector<std::string>>();
 
 			ptree newsNodes;
+
+			for (const auto & vec : lastResults) {
+				ptree newsNode;
+
+				const auto newsID = vec[0];
+				newsNode.put("Timestamp", std::stoi(vec[1]));
+
+				if (!database.query("SET @paramNewsID=" + newsID + ";")) {
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				if (!database.query("EXECUTE selectNewsEntriesV2 USING @paramNewsID;")) {
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+				auto entryResults = database.getResults<std::vector<std::string>>();
+
+				std::map<int, std::pair<std::string, std::string>> entries;
+
+				for (const auto & vec2 : entryResults) {
+					entries.insert(std::make_pair(std::stoi(vec2[0]), std::make_pair(vec2[1], vec2[2])));
+				}
+
+				if (entries.empty()) continue;
+
+				std::string title;
+				std::string body;
+
+				if (entries.find(language) != entries.end()) {
+					title = entries[language].first;
+					body = entries[language].second;
+				} else if (entries.find(common::Language::English) != entries.end()) {
+					title = entries[common::Language::English].first;
+					body = entries[common::Language::English].second;
+				} else {
+					title = entries.begin()->second.first;
+					body = entries.begin()->second.second;
+				}
+
+				// extract best language fit
+				newsNode.put("Title", title);
+				newsNode.put("Body", body);
+
+				attachNewsData(database, newsID, language, newsNode);
+			}
+
+			if (!database.query("SET @paramLimit=" + std::to_string(20 - lastResults.size()) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+
+			if (!database.query("EXECUTE selectNews USING @paramLanguage, @paramLimit;")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			lastResults = database.getResults<std::vector<std::string>>();
 			
 			for (const auto & vec : lastResults) {
 				ptree newsNode;
 
-				newsNode.put("ID", std::stoi(vec[0]));
+				const auto newsID = vec[0];
+
 				newsNode.put("Title", vec[1]);
 				newsNode.put("Body", vec[2]);
 				newsNode.put("Timestamp", std::stoi(vec[3]));
 
-				if (!database.query("SET @paramNewsID=" + vec[0] + ";")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
-					code = SimpleWeb::StatusCode::client_error_failed_dependency;
-					continue;
-				}
-				if (!database.query("EXECUTE selectModRefsStmt USING @paramNewsID;")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-					code = SimpleWeb::StatusCode::client_error_failed_dependency;
-					continue;
-				}
-				auto results = database.getResults<std::vector<std::string>>();
-
-				ptree projectReferenceNodes;
-				
-				for (const auto & modID : results) {
-					const auto name = ServerCommon::getProjectName(std::stoi(modID[0]), LanguageConverter::convert(language));
-
-					ptree projectReferenceNode;
-					
-					projectReferenceNode.put("ProjectID", std::stoi(modID[0]));
-					projectReferenceNode.put("Name", name);
-
-					projectReferenceNodes.push_back(std::make_pair("", projectReferenceNode));
-				}
-
-				if (!projectReferenceNodes.empty()) {
-					newsNode.add_child("ProjectReferences", projectReferenceNodes);
-				}
-				
-				if (!database.query("EXECUTE selectImagesStmt USING @paramNewsID;")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-					code = SimpleWeb::StatusCode::client_error_failed_dependency;
-					continue;
-				}
-				results = database.getResults<std::vector<std::string>>();
-
-				ptree imageNodes;
-				
-				for (const auto & p : results) {
-					ptree imageNode;
-
-					imageNode.put("File", p[0]);
-					imageNode.put("Hash", p[1]);
-
-					imageNodes.push_back(std::make_pair("", imageNode));
-				}
-
-				if (!imageNodes.empty()) {
-					newsNode.add_child("Images", imageNodes);
-				}
+				attachNewsData(database, newsID, language, newsNode);
 
 				newsNodes.push_back(std::make_pair("", newsNode));
 			}
@@ -6198,7 +6215,7 @@ void DatabaseServer::requestAllNews(std::shared_ptr<HttpsServer::Response> respo
 				newsTickerNode.put("ProjectID", projectID);
 				newsTickerNode.put("Timestamp", timestamp);
 				
-				const auto name = ServerCommon::getProjectName(std::stoi(vec[2]), LanguageConverter::convert(language));
+				const auto name = ServerCommon::getProjectName(std::stoi(vec[2]), language);
 				
 				if (name.empty()) continue;
 
@@ -6713,4 +6730,54 @@ std::string DatabaseServer::getFileServer(int userID, int projectID, int majorVe
 
 	// otherwise fall back to normal selection
 	return possibilities[std::rand() % possibilities.size()];
+}
+
+void DatabaseServer::attachNewsData(MariaDBWrapper & database, const std::string & newsID, int language, ptree & newsNode) const {
+	if (!database.query("SET @paramNewsID=" + newsID + ";")) {
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+		return;
+	}
+	if (!database.query("EXECUTE selectModRefsStmt USING @paramNewsID;")) {
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	auto results = database.getResults<std::vector<std::string>>();
+
+	ptree projectReferenceNodes;
+
+	for (const auto & modID : results) {
+		const auto name = ServerCommon::getProjectName(std::stoi(modID[0]), language);
+
+		ptree projectReferenceNode;
+
+		projectReferenceNode.put("ProjectID", std::stoi(modID[0]));
+		projectReferenceNode.put("Name", name);
+
+		projectReferenceNodes.push_back(std::make_pair("", projectReferenceNode));
+	}
+
+	if (!projectReferenceNodes.empty()) {
+		newsNode.add_child("ProjectReferences", projectReferenceNodes);
+	}
+
+	if (!database.query("EXECUTE selectImagesStmt USING @paramNewsID;")) {
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	results = database.getResults<std::vector<std::string>>();
+
+	ptree imageNodes;
+
+	for (const auto & p : results) {
+		ptree imageNode;
+
+		imageNode.put("File", p[0]);
+		imageNode.put("Hash", p[1]);
+
+		imageNodes.push_back(std::make_pair("", imageNode));
+	}
+
+	if (!imageNodes.empty()) {
+		newsNode.add_child("Images", imageNodes);
+	}
 }

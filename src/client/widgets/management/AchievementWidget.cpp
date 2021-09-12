@@ -22,6 +22,7 @@
 #include "utils/Config.h"
 #include "utils/FileDownloader.h"
 #include "utils/Hashing.h"
+#include "utils/LanguageConverter.h"
 
 #include <QApplication>
 #include <QCheckBox>
@@ -39,10 +40,9 @@ using namespace spine::client::widgets;
 using namespace spine::utils;
 
 AchievementWidget::AchievementWidget(QWidget * par) : QWidget(par), _unlockedImagePath(nullptr) {
-	QGridLayout * gl = new QGridLayout();
+	auto * gl = new QGridLayout();
 
-	QStringList languages;
-	languages << QApplication::tr("German") << QApplication::tr("English") << QApplication::tr("Polish") << QApplication::tr("Russian");
+	const QStringList languages = LanguageConverter::getLanguages();
 
 	gl->addWidget(new QLabel(QApplication::tr("Name"), this), 0, 0);
 	_nameEdit = new QLineEdit(this);
@@ -79,11 +79,11 @@ AchievementWidget::AchievementWidget(QWidget * par) : QWidget(par), _unlockedIma
 	gl->addWidget(_progressBox, 3, 1);
 
 	{
-		QHBoxLayout * hl = new QHBoxLayout();
+		auto * hl = new QHBoxLayout();
 		gl->addWidget(new QLabel(QApplication::tr("LockedImage"), this), 4, 0);
 		_lockedImagePath = new QLineEdit(this);
 		connect(_lockedImagePath, &QLineEdit::textChanged, this, &AchievementWidget::changedLockedImage);
-		QPushButton * pb = new QPushButton("...", this);
+		auto * pb = new QPushButton("...", this);
 		connect(pb, &QPushButton::released, this, &AchievementWidget::openLockedImage);
 		hl->addWidget(_lockedImagePath, 1);
 		hl->addWidget(pb);
@@ -98,11 +98,11 @@ AchievementWidget::AchievementWidget(QWidget * par) : QWidget(par), _unlockedIma
 	}
 
 	{
-		QHBoxLayout * hl = new QHBoxLayout();
+		auto * hl = new QHBoxLayout();
 		gl->addWidget(new QLabel(QApplication::tr("UnlockedImage"), this), 5, 0);
 		_unlockedImagePath = new QLineEdit(this);
 		connect(_unlockedImagePath, &QLineEdit::textChanged, this, &AchievementWidget::changedUnlockedImage);
-		QPushButton * pb = new QPushButton("...", this);
+		auto * pb = new QPushButton("...", this);
 		connect(pb, &QPushButton::released, this, &AchievementWidget::openUnlockedImage);
 		hl->addWidget(_unlockedImagePath, 1);
 		hl->addWidget(pb);
@@ -117,9 +117,6 @@ AchievementWidget::AchievementWidget(QWidget * par) : QWidget(par), _unlockedIma
 	}
 
 	setLayout(gl);
-}
-
-AchievementWidget::~AchievementWidget() {
 }
 
 void AchievementWidget::setAchievement(int32_t modID, ManagementAchievement achievement) {
@@ -143,7 +140,7 @@ void AchievementWidget::setAchievement(int32_t modID, ManagementAchievement achi
 		changedLockedImage(lockedImage);
 	} else {
 		const QString fileName = _newAchievement.lockedImageName;
-		FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(modID) + "/achievements/" + fileName), Config::DOWNLOADDIR + "/achievements/" + QString::number(modID) + "/", fileName, _newAchievement.lockedImageHash, this);
+		auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(modID) + "/achievements/" + fileName), Config::DOWNLOADDIR + "/achievements/" + QString::number(modID) + "/", fileName, _newAchievement.lockedImageHash, this);
 		connect(fd, &FileDownloader::fileSucceeded, [=]() {
 			changedLockedImage(lockedImage);
 			fd->deleteLater();
@@ -160,7 +157,7 @@ void AchievementWidget::setAchievement(int32_t modID, ManagementAchievement achi
 		changedUnlockedImage(unlockedImage);
 	} else {
 		const QString fileName = _newAchievement.unlockedImageName;
-		FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(modID) + "/achievements/" + fileName), Config::DOWNLOADDIR + "/achievements/" + QString::number(modID) + "/", fileName, _newAchievement.unlockedImageHash, this);
+		auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(modID) + "/achievements/" + fileName), Config::DOWNLOADDIR + "/achievements/" + QString::number(modID) + "/", fileName, _newAchievement.unlockedImageHash, this);
 		connect(fd, &FileDownloader::fileSucceeded, [=]() {
 			changedUnlockedImage(unlockedImage);
 			fd->deleteLater();
@@ -408,7 +405,7 @@ void AchievementWidget::changedLockedImage(QString path) {
 		achievementPixmap = QPixmap(_unlockedImagePath->text());
 		if (!achievementPixmap.isNull()) {
 			QImage img = achievementPixmap.toImage();
-			unsigned int * d = reinterpret_cast<unsigned int*>(img.bits());
+			auto * d = reinterpret_cast<unsigned int*>(img.bits());
 			const int pixelCount = img.width() * img.height();
 
 			// Convert each pixel to grayscale
@@ -430,9 +427,9 @@ void AchievementWidget::changedLockedImage(QString path) {
 		if (!path.contains(_newAchievement.lockedImageName + ".z")) {
 			// compress => add to data => delete
 			QString hashSum;
-			const bool b = utils::Hashing::hash(path, hashSum);
+			const bool b = Hashing::hash(path, hashSum);
 			if (b) {
-				utils::Compression::compress(path, false);
+				Compression::compress(path, false);
 
 				QFile compressedFile(path + ".z");
 				if (compressedFile.open(QIODevice::ReadOnly)) {
@@ -458,10 +455,10 @@ void AchievementWidget::changedLockedImage(QString path) {
 
 void AchievementWidget::changedUnlockedImage(QString path) {
 	if (_lockedImagePath->text().isEmpty() && !path.isEmpty()) {
-		QPixmap lockedAchievementPixmap = QPixmap(path);
+		QPixmap lockedAchievementPixmap(path);
 		if (!lockedAchievementPixmap.isNull()) {
 			QImage img = lockedAchievementPixmap.toImage();
-			unsigned int * d = reinterpret_cast<unsigned int*>(img.bits());
+			auto * d = reinterpret_cast<unsigned int*>(img.bits());
 			const int pixelCount = img.width() * img.height();
 
 			// Convert each pixel to grayscale
@@ -485,9 +482,9 @@ void AchievementWidget::changedUnlockedImage(QString path) {
 		if (!path.contains(_newAchievement.unlockedImageName + ".z")) {
 			// compress => add to data => delete
 			QString hashSum;
-			const bool b = utils::Hashing::hash(path, hashSum);
+			const bool b = Hashing::hash(path, hashSum);
 			if (b) {
-				utils::Compression::compress(path, false);
+				Compression::compress(path, false);
 
 				QFile compressedFile(path + ".z");
 				if (compressedFile.open(QIODevice::ReadOnly)) {

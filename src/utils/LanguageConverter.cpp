@@ -20,6 +20,7 @@
 
 #include "common/Language.h"
 
+#include <QApplication>
 #include <QMap>
 
 using namespace spine::common;
@@ -47,3 +48,10 @@ Language LanguageConverter::convert(const QString & language) {
 	return languageStrings.value(language, None);
 }
 
+QStringList LanguageConverter::getLanguages()
+{
+	QStringList languages;
+	languages << QApplication::tr("German") << QApplication::tr("English") << QApplication::tr("Polish") << QApplication::tr("Russian");
+
+	return languages;
+}

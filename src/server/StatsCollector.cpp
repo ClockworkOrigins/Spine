@@ -25,6 +25,7 @@
 #include "MariaDBWrapper.h"
 
 using namespace spine;
+using namespace spine::server;
 
 void StatsCollector::init() {
 	std::thread(&StatsCollector::exec).detach();

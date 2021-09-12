@@ -26,6 +26,7 @@
 #include "clockUtils/sockets/TcpSocket.h"
 
 using namespace spine;
+using namespace spine::server;
 
 GMPServer::GMPServer() : _listenGMPServer(new clockUtils::sockets::TcpSocket()) {
 }

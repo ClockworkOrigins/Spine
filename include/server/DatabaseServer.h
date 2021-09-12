@@ -22,12 +22,14 @@
 
 #include "simple-web-server/server_https.hpp"
 
+using namespace boost::property_tree;
 using HttpsServer = SimpleWeb::Server<SimpleWeb::HTTPS>;
 
 namespace spine {
 namespace server {
 
 	class DownloadSizeChecker;
+	class MariaDBWrapper;
 
 	class DatabaseServer {
 	public:
@@ -97,9 +99,10 @@ namespace server {
 		void requestProjectFiles(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
 		void requestPackageFiles(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
 		
-		void requestAllTri6ScoreStats(boost::property_tree::ptree & responseTree) const;
+		void requestAllTri6ScoreStats(ptree & responseTree) const;
 
 		std::string getFileServer(int userID, int projectID, int majorVersion, int minorVersion, int patchVersion, int spineVersion) const;
+		void attachNewsData(MariaDBWrapper & database, const std::string & newsID, int language, ptree & newsNode) const;
 	};
 
 } /* namespace server */

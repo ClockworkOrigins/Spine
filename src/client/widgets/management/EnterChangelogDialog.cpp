@@ -18,6 +18,8 @@
 
 #include "widgets/management/EnterChangelogDialog.h"
 
+#include "utils/LanguageConverter.h"
+
 #include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
@@ -28,6 +30,7 @@
 #include <QVBoxLayout>
 
 using namespace spine::client::widgets;
+using namespace spine::utils;
 
 EnterChangelogDialog::EnterChangelogDialog(QWidget * par) : QDialog(par) {
 	auto * l = new QVBoxLayout();
@@ -39,7 +42,7 @@ EnterChangelogDialog::EnterChangelogDialog(QWidget * par) : QDialog(par) {
 		auto * lbl = new QLabel(QApplication::tr("Language"), this);
 
 		_languageBox = new QComboBox(this);
-		_languageBox->addItems({ "Deutsch", "English", "Polish", "Russian" });
+		_languageBox->addItems(LanguageConverter::getLanguages());
 		_languageBox->setCurrentIndex(1); // always default to English
 		_languageBox->setEditable(false);
 

@@ -28,6 +28,7 @@
 #include "clockUtils/sockets/TcpSocket.h"
 
 using namespace spine;
+using namespace spine::server;
 
 MatchmakingServer::MatchmakingServer() : _listenClient(new clockUtils::sockets::TcpSocket()) {
 	_listenClient->listen(SPINE_MP_PORT, 10, true, std::bind(&MatchmakingServer::accept, this, std::placeholders::_1));

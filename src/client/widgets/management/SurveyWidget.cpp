@@ -29,6 +29,7 @@
 #include "https/Https.h"
 
 #include "utils/Config.h"
+#include "utils/LanguageConverter.h"
 
 #include <QApplication>
 #include <QComboBox>
@@ -41,25 +42,24 @@
 #include <QStackedWidget>
 #include <QVBoxLayout>
 
-using namespace spine;
 using namespace spine::client;
 using namespace spine::client::widgets;
 using namespace spine::gui;
 using namespace spine::utils;
 
 SurveyWidget::SurveyWidget(QWidget * par) : QWidget(par), _modIndex(-1), _waitSpinner(nullptr), _surveyIndex(-1) {
-	QVBoxLayout * l = new QVBoxLayout();
+	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
 	_stackedWidget = new QStackedWidget(this);
 
 	{
-		QWidget * w = new QWidget(nullptr);
+		auto * w = new QWidget(nullptr);
 		
-		QVBoxLayout * vlOuter = new QVBoxLayout();
+		auto * vlOuter = new QVBoxLayout();
 		
-		QScrollArea * sa = new QScrollArea(this);
-		QWidget * cw = new QWidget(sa);
+		auto * sa = new QScrollArea(this);
+		auto * cw = new QWidget(sa);
 		_surveysLayout = new QVBoxLayout();
 		_surveysLayout->setAlignment(Qt::AlignTop);
 		cw->setLayout(_surveysLayout);
@@ -71,9 +71,9 @@ SurveyWidget::SurveyWidget(QWidget * par) : QWidget(par), _modIndex(-1), _waitSp
 		vlOuter->addWidget(sa, 1);
 
 		{
-			QHBoxLayout * hl = new QHBoxLayout();
+			auto * hl = new QHBoxLayout();
 
-			QLabel * lbl = new QLabel(QApplication::tr("Version"), w);
+			auto * lbl = new QLabel(QApplication::tr("Version"), w);
 			_majorVersionBox = new QSpinBox(w);
 			_majorVersionBox->setMinimum(0);
 			_majorVersionBox->setMaximum(127);
@@ -87,11 +87,11 @@ SurveyWidget::SurveyWidget(QWidget * par) : QWidget(par), _modIndex(-1), _waitSp
 			_patchVersionBox->setMaximum(127);
 
 			_languageBox = new QComboBox(this);
-			_languageBox->addItems({ "Deutsch", "English", "Polish", "Russian" });
+			_languageBox->addItems(LanguageConverter::getLanguages());
 			_languageBox->setCurrentIndex(1);
 			_languageBox->setEditable(false);
 
-			QPushButton * pb = new QPushButton(QApplication::tr("CreateSurvey"));
+			auto * pb = new QPushButton(QApplication::tr("CreateSurvey"));
 
 			hl->addWidget(lbl);
 			hl->addWidget(_majorVersionBox);

@@ -72,6 +72,7 @@ namespace widgets {
 		QVBoxLayout * _newsTickerLayout;
 		QList<QWidget *> _newsTickerWidgets;
 		QList<common::NewsTicker> _newsTickers;
+		QList<common::News> _newsEntries;
 
 		void showEvent(QShowEvent* evt) override;
 	};

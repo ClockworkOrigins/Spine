@@ -29,6 +29,8 @@ namespace utils {
 	public:
 		static QString convert(common::Language language);
 		static common::Language convert(const QString & language);
+
+		static QStringList getLanguages();
 	};
 
 } /* namespace utils */

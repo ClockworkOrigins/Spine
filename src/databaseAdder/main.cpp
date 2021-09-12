@@ -22,7 +22,7 @@
 #include "SpineServerConfig.h"
 
 int main(int, char ** argv) {
-	spine::MariaDBWrapper database;
+	spine::server::MariaDBWrapper database;
 	if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, SPINEDATABASE, 0)) {
 		return 1;
 	}

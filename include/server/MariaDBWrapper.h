@@ -25,6 +25,7 @@
 #include "mariadb/mysql.h"
 
 namespace spine {
+namespace server {
 
 	class MariaDBWrapper {
 	public:
@@ -41,7 +42,7 @@ namespace spine {
 		template<typename Result>
 		std::vector<Result> getResults() {
 			if (!_database) {
-				return {};
+				return{};
 			}
 			MYSQL_RES * res = mysql_store_result(_database);
 
@@ -72,4 +73,5 @@ namespace spine {
 		MYSQL * _database;
 	};
 
+} /* namespace server */
 } /* namespace spine */

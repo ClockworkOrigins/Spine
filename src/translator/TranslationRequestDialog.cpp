@@ -24,6 +24,7 @@
 
 #include "utils/Config.h"
 #include "utils/Conversion.h"
+#include "utils/LanguageConverter.h"
 
 #include "translator/AccessRightsDialog.h"
 #include "translator/ApplyTranslationDialog.h"
@@ -74,8 +75,7 @@ TranslationRequestDialog::TranslationRequestDialog(QWidget * par) : QDialog(par)
 
 		hl->setAlignment(Qt::AlignLeft);
 
-		QStringList languages;
-		languages << "Deutsch" << "English" << "Polish" << "Russian";
+		const QStringList languages = LanguageConverter::getLanguages();
 
 		auto * projectNameLabel = new QLabel(QApplication::tr("ProjectName"), this);
 		_projectNameEdit = new QLineEdit(this);
@@ -260,8 +260,8 @@ void TranslationRequestDialog::updateRequestList(std::vector<translator::common:
 		auto * l = new QLabel(s2q(project.projectName) + " (" + s2q(project.sourceLanguage) + " => " + s2q(project.destinationLanguage) + ")", this);
 		auto * pb = new QProgressBar(this);
 		pb->setMinimum(0);
-		pb->setMaximum(project.toTranslate);
-		pb->setValue(project.translated);
+		pb->setMaximum(static_cast<int>(project.toTranslate));
+		pb->setValue(static_cast<int>(project.translated));
 		pb->setFormat("%v / %m (%p %)");
 		pb->setAlignment(Qt::AlignCenter);
 

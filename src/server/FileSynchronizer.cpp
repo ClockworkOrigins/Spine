@@ -35,6 +35,7 @@ namespace {
 }
 
 using namespace spine;
+using namespace spine::server;
 
 std::mutex FileSynchronizer::lock;
 
@@ -57,7 +58,7 @@ void FileSynchronizer::addJob(const AddJob & job) {
 			break;
 		}
 
-		auto results = database.getResults<std::vector<std::string>>();
+		const auto results = database.getResults<std::vector<std::string>>();
 
 		for (const auto & vec : results) {
 			const auto serverID = std::stoi(vec[0]);

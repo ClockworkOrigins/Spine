@@ -19,6 +19,7 @@
 #pragma once
 
 #include <QDialog>
+#include <QMap>
 
 #include "common/MessageStructs.h"
 #include "common/Mod.h"
@@ -59,6 +60,14 @@ namespace widgets {
 		QGridLayout * _modListLayout;
 		QLineEdit * _imageReferencesEdit;
 		QList<QCheckBox *> _mods;
+		QComboBox * _languageBox;
+
+		typedef struct {
+			QString title;
+			QString body;
+		} NewsEntry;
+
+		QMap<common::Language, NewsEntry> _newsEntries;
 
 		void showEvent(QShowEvent * evt) override;
 		void requestMods();

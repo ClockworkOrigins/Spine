@@ -123,11 +123,11 @@ void Https::cancelAll() {
 
 	{
 		QMutexLocker ml(&clientLock);
-		for (auto * client : activeClientList) {
+		for (const auto * client : activeClientList) {
 			client->io_service->stop();
 			delete client;
 		}
-		for (auto * client : purgeClientList) {
+		for (const auto * client : purgeClientList) {
 			delete client;
 		}
 	}

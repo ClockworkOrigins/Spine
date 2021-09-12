@@ -284,15 +284,11 @@ namespace common {
 	};
 
 	struct News{
-		int32_t id;
 		std::string title;
 		std::string body;
 		int64_t timestamp;
 		std::vector<std::pair<int32_t, std::string>> referencedMods;
 		std::vector<std::pair<std::string, std::string>> imageFiles;
-
-		News() : timestamp(0) {}
-		News(std::string s1, std::string s2, std::string s3, std::string s4) : id(std::stoi(s1)), title(s2), body(s3), timestamp(std::stoi(s4)) {}
 	};
 
 	struct NewsTicker{

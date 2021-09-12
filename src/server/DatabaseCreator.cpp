@@ -24,6 +24,7 @@
 #include "SpineServerConfig.h"
 
 using namespace spine;
+using namespace spine::server;
 
 void DatabaseCreator::createTables() {
 	MariaDBWrapper database;
@@ -343,6 +344,14 @@ void DatabaseCreator::createTables() {
 		return;
 	}
 	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS keywordsPerProject (ProjectID INT PRIMARY KEY, Keywords TEXT NOT NULL);"))) {
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS newsV2 (NewsID INT AUTO_INCREMENT PRIMARY KEY, Date INT NOT NULL) AUTO_INCREMENT=1000;"))) { // start at 1000 to keep other tables already using NewsID and not interfer with them
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS newsEntryV2 (NewsID INT NOT NULL, Language INT NOT NULL, Title TEXT NOT NULL, Body TEXT NOT NULL, PRIMARY KEY(NewsID, Language)) AUTO_INCREMENT=1000;"))) { // start at 1000 to keep other tables already using NewsID and not interfer with them
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 		return;
 	}

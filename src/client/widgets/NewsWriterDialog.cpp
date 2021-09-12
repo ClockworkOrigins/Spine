@@ -26,6 +26,7 @@
 #include "utils/Config.h"
 #include "utils/Conversion.h"
 #include "utils/Database.h"
+#include "utils/LanguageConverter.h"
 
 #include "widgets/GeneralSettingsWidget.h"
 #include "widgets/NewsWidget.h"
@@ -72,8 +73,11 @@ NewsWriterDialog::NewsWriterDialog(QWidget * par) : QDialog(par), _newsPreviewWi
 		_dateEdit->setCalendarPopup(true);
 		_dateEdit->setDate(QDate::currentDate());
 		_dateEdit->setMinimumDate(QDate::currentDate());
+		_languageBox = new QComboBox(this);
+		_languageBox->addItems(LanguageConverter::getLanguages());
 		auto * hbl = new QHBoxLayout();
 		hbl->addWidget(_titleEdit);
+		hbl->addWidget(_languageBox);
 		hbl->addWidget(_dateEdit);
 		vl->addLayout(hbl);
 
@@ -150,19 +154,49 @@ void NewsWriterDialog::changedNews() {
 	news.body = q2s(_bodyEdit->toPlainText());
 	news.timestamp = QDate(2000, 1, 1).daysTo(_dateEdit->date());
 
+	NewsEntry newsEntry;
+	newsEntry.title = _titleEdit->text();
+	newsEntry.body = _bodyEdit->toPlainText();
+
+	_newsEntries[LanguageConverter::convert(_languageBox->currentText())] = newsEntry;
+
 	_newsPreviewWidget->update(news);
 }
 
 void NewsWriterDialog::accept() {
-	if (_titleEdit->text().isEmpty() || _bodyEdit->toPlainText().isEmpty() || Config::Username.isEmpty()) return;
+	if (Config::Username.isEmpty()) return;
 
 	QJsonObject json;
 	json["Username"] = Config::Username;
 	json["Password"] = Config::Password;
-	json["Title"] = encodeString(_titleEdit->text());
-	json["Body"] = encodeString(_bodyEdit->toPlainText());
 	json["Timestamp"] = QDate(2000, 1, 1).daysTo(_dateEdit->date());
-	json["Language"] = Config::Language;
+
+	QJsonArray jsonEntriesArr;
+
+	for (auto it = _newsEntries.begin(); it != _newsEntries.end(); ++it) {
+		const auto language = it.key();
+		auto title = it.value().title;
+		auto body = it.value().body;
+
+		title = title.trimmed();
+		body = body.trimmed();
+
+		if (title.isEmpty()) continue;
+
+		if (body.isEmpty()) continue;
+
+		QJsonObject jsonEntry;
+
+		jsonEntry["Title"] = encodeString(title);
+		jsonEntry["Body"] = encodeString(body);
+		jsonEntry["Language"] = language;
+
+		jsonEntriesArr << jsonEntry;
+	}
+
+	if (jsonEntriesArr.isEmpty()) return;
+
+	json["Entries"] = jsonEntriesArr;
 
 	if (!_imageReferencesEdit->text().isEmpty()) {
 		json["Image"] = _imageReferencesEdit->text();
@@ -243,14 +277,14 @@ void NewsWriterDialog::requestMods() {
 	json["Language"] = Config::Language;
 	json["Simplified"] = 1;
 
-	Https::postAsync(DATABASESERVER_PORT, "requestAllProjects", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & data, int statusCode) {
+	Https::postAsync(DATABASESERVER_PORT, "requestAllProjects", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & content, int statusCode) {
 		if (statusCode != 200) return;
 
-		if (!data.contains("Projects")) return;
+		if (!content.contains("Projects")) return;
 
 		std::vector<Mod> projects;
 
-		for (const auto jsonRef : data["Projects"].toArray()) {
+		for (const auto jsonRef : content["Projects"].toArray()) {
 			const auto jsonProj = jsonRef.toObject();
 
 			Mod project;

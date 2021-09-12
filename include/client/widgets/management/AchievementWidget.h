@@ -37,7 +37,6 @@ namespace widgets {
 
 	public:
 		AchievementWidget(QWidget * par);
-		~AchievementWidget();
 
 		void setAchievement(int32_t modID, ManagementAchievement achievement);
 		ManagementAchievement getAchievement();

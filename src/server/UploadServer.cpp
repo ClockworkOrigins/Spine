@@ -37,6 +37,7 @@
 #endif
 	
 using namespace spine;
+using namespace spine::server;
 
 namespace {
 	std::vector<std::string> split(const std::string & str, const std::string & delim) {

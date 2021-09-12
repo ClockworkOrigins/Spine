@@ -29,6 +29,7 @@
 #include "utils/Conversion.h"
 #include "utils/Database.h"
 #include "utils/FileDownloader.h"
+#include "utils/LanguageConverter.h"
 #include "utils/MultiFileDownloader.h"
 #include "utils/WindowsExtensions.h"
 
@@ -112,11 +113,6 @@ StartPageWidget::StartPageWidget(QWidget * par) : QWidget(par) {
 
 	setLayout(l);
 
-	Database::DBError err;
-	Database::execute(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "CREATE TABLE IF NOT EXISTS news (NewsID INT NOT NULL PRIMARY KEY, Title TEXT NOT NULL, Body TEXT NOT NULL, Timestamp INT NOT NULL, Language TEXT NOT NULL);", err);
-	Database::execute(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "CREATE TABLE IF NOT EXISTS newsModReferences (NewsID INT NOT NULL, ModID INT NOT NULL, Name TEXT NOT NULL, Language TEXT NOT NULL);", err);
-	Database::execute(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "CREATE TABLE IF NOT EXISTS newsImageReferences (NewsID INT NOT NULL, File TEXT NOT NULL, Hash TEXT NOT NULL);", err);
-
 	connect(this, &StartPageWidget::receivedNews, this, &StartPageWidget::updateNews);
 	connect(_writeNewsButton, &QPushButton::released, this, &StartPageWidget::executeNewsWriter);
 
@@ -129,15 +125,8 @@ void StartPageWidget::requestNewsUpdate() {
 		return;
 	}
 	QtConcurrent::run([this]() {
-		Database::DBError err;
-		auto res = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT IFNULL(MAX(NewsID), 0) FROM news WHERE Language = '" + Config::Language.toStdString() + "';", err);
-		if (res.empty()) {
-			res.push_back(0);
-		}
-
 		QJsonObject json;
-		json["Language"] = Config::Language;
-		json["LastNewsID"] = res[0];
+		json["Language"] = LanguageConverter::convert(Config::Language);
 
 		Https::postAsync(DATABASESERVER_PORT, "requestAllNews", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & data, int statusCode) {
 			if (statusCode != 200) return;
@@ -146,13 +135,14 @@ void StartPageWidget::requestNewsUpdate() {
 				for (const auto jsonRef : data["News"].toArray()) {
 					const auto jsonNews = jsonRef.toObject();
 
-					const int newsID = jsonNews["ID"].toString().toInt();
 					const QString title = jsonNews["Title"].toString();
 					const QString body = jsonNews["Body"].toString();
 					const int timestamp = jsonNews["Timestamp"].toString().toInt();
-					
-					Database::DBError err2;
-					Database::execute(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "INSERT INTO news (NewsID, Title, Body, Timestamp, Language) VALUES (" + std::to_string(newsID) + ", '" + title.toStdString() + "', '" + q2s(body) + "', " + std::to_string(timestamp) + ", '" + Config::Language.toStdString() + "');", err2);
+
+					News news;
+					news.title = q2s(title);
+					news.body = q2s(body);
+					news.timestamp = timestamp;
 
 					if (jsonNews.contains("ProjectReferences")) {
 						for (const auto jsonRef2 : jsonNews["ProjectReferences"].toArray()) {
@@ -160,8 +150,8 @@ void StartPageWidget::requestNewsUpdate() {
 
 							const auto projectID = jsonProjectReference["ProjectID"].toString().toInt();
 							const auto name = jsonProjectReference["Name"].toString();
-							
-							Database::execute(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "INSERT INTO newsModReferences (NewsID, ModID, Name, Language) VALUES (" + std::to_string(newsID) + ", " + std::to_string(projectID) + ", '" + name.toStdString() + "', '" + Config::Language.toStdString() + "');", err2);
+
+							news.referencedMods.emplace_back(projectID, q2s(name));
 						}
 					}
 					if (jsonNews.contains("Images")) {
@@ -171,7 +161,7 @@ void StartPageWidget::requestNewsUpdate() {
 							const auto file = jsonImage["File"].toString();
 							const auto hash = jsonImage["Hash"].toString();
 
-							Database::execute(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "INSERT INTO newsImageReferences (NewsID, File, Hash) VALUES (" + std::to_string(newsID) + ", '" + file.toStdString() + "', '" + hash.toStdString() + "');", err2);
+							news.imageFiles.emplace_back(q2s(file), q2s(hash));
 						}
 					}
 				}
@@ -219,18 +209,23 @@ void StartPageWidget::updateNews() {
 	}
 	_newsTickerWidgets.clear();
 	
-	Database::DBError err;
-	auto news = Database::queryAll<News, std::string, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT NewsID, Title, Body, Timestamp FROM news WHERE Language = '" + Config::Language.toStdString() + "' ORDER BY Timestamp DESC, NewsID DESC LIMIT 10;", err);
 	if (Config::OnlineMode) {
-		const auto images = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT DISTINCT File, Hash FROM newsImageReferences;", err);
+		QSet<QPair<QString, QString>> files;
+
+		for (const auto & news : _newsEntries) {
+			for (const auto & file : news.imageFiles) {
+				files << qMakePair(s2q(file.first), s2q(file.second));
+			}
+		}
+
 		auto * mfd = new MultiFileDownloader(this);
 		bool download = false;
-		for (const auto & p : images) {
-			QString filename = QString::fromStdString(p.first);
+		for (const auto & p : files) {
+			QString filename = p.first;
 			filename.chop(2); // every image is compressed, so it has a .z at the end
 			if (!QFileInfo::exists(Config::NEWSIMAGEDIR + "/" + filename)) {
-				QFileInfo fi(QString::fromStdString(p.first));
-				auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/news/images/" + QString::fromStdString(p.first)), Config::NEWSIMAGEDIR + "/" + fi.path(), fi.fileName(), QString::fromStdString(p.second), mfd);
+				QFileInfo fi(p.first);
+				auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/news/images/" + p.first), Config::NEWSIMAGEDIR + "/" + fi.path(), fi.fileName(), p.second, mfd);
 				mfd->addFileDownloader(fd);
 				download = true;
 			}
@@ -243,11 +238,7 @@ void StartPageWidget::updateNews() {
 			delete mfd;
 		}		
 	}
-	for (News n : news) {
-		const auto mods = Database::queryAll<std::pair<std::string, std::string>, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + NEWS_DATABASE, "SELECT DISTINCT ModID, Name FROM newsModReferences WHERE NewsID = " + std::to_string(n.id) + " AND Language = '" + Config::Language.toStdString() + "';", err);
-		for (const auto & p : mods) {
-			n.referencedMods.emplace_back(std::stoi(p.first), p.second);
-		}
+	for (const News & n : _newsEntries) {
 		auto * newsWidget = new NewsWidget(n, Config::OnlineMode, _newsContainer);
 		_newsLayout->addWidget(newsWidget);
 		_news.push_back(newsWidget);
@@ -330,7 +321,7 @@ void StartPageWidget::refresh() {
 }
 
 void StartPageWidget::startMod() {
-	QObject * obj = sender();
+	const QObject * obj = sender();
 	const int modID = obj->property("projectID").toInt();
 	const QString ini = obj->property("ini").toString();
 	emit triggerModStart(modID, ini);

@@ -18,7 +18,7 @@
 
 #include "MariaDBWrapper.h"
 
-using namespace spine;
+using namespace spine::server;
 
 MariaDBWrapper::MariaDBWrapper() : _database(mysql_init(nullptr)) {
 }
