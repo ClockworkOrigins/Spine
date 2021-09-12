@@ -37,15 +37,15 @@ namespace common {
 	struct ProjectStats;
 } /* namespace common */
 
-	class GMPServer;
-	class MatchmakingServer;
-	class UploadServer;
 
 namespace server {
 
 	class DatabaseServer;
 	class DownloadSizeChecker;
+	class GMPServer;
 	class ManagementServer;
+	class MatchmakingServer;
+	class UploadServer;
 
 	class Server {
 		friend class DatabaseServer;

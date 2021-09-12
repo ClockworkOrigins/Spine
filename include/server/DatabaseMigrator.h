@@ -19,10 +19,12 @@
 #pragma once
 
 namespace spine {
+namespace server {
 
 	class DatabaseMigrator {
 	public:
 		static void migrate();
 	};
 
+} /* namespace server */
 } /* namespace spine */

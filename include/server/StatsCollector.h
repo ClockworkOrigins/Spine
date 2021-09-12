@@ -19,6 +19,7 @@
 #pragma once
 
 namespace spine {
+namespace server {
 
 	class StatsCollector {
 	public:
@@ -28,4 +29,5 @@ namespace spine {
 		static void exec();
 	};
 
+} /* namespace server */
 } /* namespace spine */

@@ -34,7 +34,6 @@ namespace {
 #endif
 }
 
-using namespace spine;
 using namespace spine::server;
 
 std::mutex FileSynchronizer::lock;

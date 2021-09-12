@@ -27,6 +27,7 @@ namespace sockets {
 } /* namespace clockUtils */
 
 namespace spine {
+namespace server {
 
 	class Smtp {
 	public:
@@ -47,4 +48,5 @@ namespace spine {
 		bool _connected;
 	};
 
+} /* namespace server */
 } /* namespace spine */

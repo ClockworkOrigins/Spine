@@ -26,6 +26,7 @@ namespace sockets {
 } /* namespace clockUtils */
 
 namespace spine {
+namespace server {
 
 	class GMPServer {
 	public:
@@ -41,4 +42,5 @@ namespace spine {
 		void handleRequestUserInfosMP(clockUtils::sockets::TcpSocket * sock) const;
 	};
 
+} /* namespace server */
 } /* namespace spine */

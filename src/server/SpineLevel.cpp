@@ -40,7 +40,7 @@ void SpineLevel::init() {
 		std::map<int, std::tuple<int, int>> cachedEntries;
 		
 		do {
-			CONNECTTODATABASE(__LINE__);
+			CONNECTTODATABASE(__LINE__)
 			
 			if (!database.query("PREPARE selectStmt FROM \"SELECT UserID, Level, XP, NextXP FROM levels\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;

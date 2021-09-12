@@ -19,13 +19,15 @@
 #pragma once
 
 namespace spine {
+namespace server {
 
 	class DatabaseCreator {
 	public:
 		static void createTables();
 
 	private:
-        static void createFileserverTables();
+		static void createFileserverTables();
 	};
 
+} /* namespace server */
 } /* namespace spine */

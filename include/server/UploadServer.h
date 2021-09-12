@@ -26,6 +26,7 @@ namespace sockets {
 } /* namespace clockUtils */
 
 namespace spine {
+namespace server {
 
 	class UploadServer {
 	public:
@@ -40,4 +41,5 @@ namespace spine {
 		void handleUploadFiles(clockUtils::sockets::TcpSocket * sock) const;
 	};
 
+} /* namespace server */
 } /* namespace spine */

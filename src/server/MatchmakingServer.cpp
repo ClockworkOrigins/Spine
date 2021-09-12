@@ -27,7 +27,7 @@
 
 #include "clockUtils/sockets/TcpSocket.h"
 
-using namespace spine;
+using namespace spine::common;
 using namespace spine::server;
 
 MatchmakingServer::MatchmakingServer() : _listenClient(new clockUtils::sockets::TcpSocket()) {
@@ -44,9 +44,9 @@ void MatchmakingServer::socketError(clockUtils::sockets::TcpSocket * sock) {
 	{
 		const auto it = _socketSearch.find(sock);
 		if (it != _socketSearch.end()) {
-			for (auto & _gameSearche : _gameSearches) {
-				if (_gameSearche == it->second) {
-					_gameSearche.members.erase(sock);
+			for (auto & gameSearch : _gameSearches) {
+				if (gameSearch == it->second) {
+					gameSearch.members.erase(sock);
 					break;
 				}
 			}
@@ -54,7 +54,7 @@ void MatchmakingServer::socketError(clockUtils::sockets::TcpSocket * sock) {
 		}
 	}
 	{
-		auto it = _games.find(sock);
+		const auto it = _games.find(sock);
 		if (it != _games.end()) {
 			it->second->members.erase(sock);
 			_games.erase(it);
@@ -62,7 +62,7 @@ void MatchmakingServer::socketError(clockUtils::sockets::TcpSocket * sock) {
 	}
 }
 
-void MatchmakingServer::handleSearchMatch(clockUtils::sockets::TcpSocket * sock, common::SearchMatchMessage * msg) {
+void MatchmakingServer::handleSearchMatch(clockUtils::sockets::TcpSocket * sock, SearchMatchMessage * msg) {
 	// first check if given mod id is valid!
 	MariaDBWrapper spineDatabase;
 	if (!spineDatabase.connect("localhost", DATABASEUSER, DATABASEPASSWORD, SPINEDATABASE, 0)) {
@@ -153,7 +153,7 @@ void MatchmakingServer::receiveMessage(const std::vector<uint8_t> & message, clo
 	} else {
 		{
 			std::lock_guard<std::mutex> lg(_lock);
-			auto it = _games.find(sock);
+			const auto it = _games.find(sock);
 			if (it != _games.end()) {
 				for (clockUtils::sockets::TcpSocket * gameSocks : it->second->members) {
 					if (gameSocks != sock) {

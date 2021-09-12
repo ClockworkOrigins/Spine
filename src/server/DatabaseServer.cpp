@@ -2170,7 +2170,6 @@ void DatabaseServer::requestAllFriends(std::shared_ptr<HttpsServer::Response> re
 			auto lastResults = database.getResults<std::vector<std::string>>();
 
 			std::vector<common::Friend> friends;
-			std::vector<common::Friend> friendRequests;
 			std::vector<common::Friend> pendingFriends;
 			
 			for (const auto & vec : lastResults) {
@@ -2199,6 +2198,7 @@ void DatabaseServer::requestAllFriends(std::shared_ptr<HttpsServer::Response> re
 			}
 
 			if (!friendsOnly) {
+				std::vector<common::Friend> friendRequests;
 				if (!database.query("EXECUTE selectRequestsStmt USING @paramUserID;")) {
 					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_bad_request;
@@ -2215,8 +2215,8 @@ void DatabaseServer::requestAllFriends(std::shared_ptr<HttpsServer::Response> re
 					}
 				}
 
-				ptree friendRequestNodes;
 				if (!friendRequests.empty()) {
+					ptree friendRequestNodes;
 					for (const auto & f : friendRequests) {
 						ptree friendNode;
 						friendNode.put("Name", f.name);
@@ -2227,8 +2227,8 @@ void DatabaseServer::requestAllFriends(std::shared_ptr<HttpsServer::Response> re
 					responseTree.add_child("FriendRequests", friendRequestNodes);
 				}
 
-				ptree pendingFriendNodes;
 				if (!pendingFriends.empty()) {
+					ptree pendingFriendNodes;
 					for (const auto & f : pendingFriends) {
 						ptree friendNode;
 						friendNode.put("Name", f.name);
@@ -2239,8 +2239,8 @@ void DatabaseServer::requestAllFriends(std::shared_ptr<HttpsServer::Response> re
 					responseTree.add_child("PendingFriends", pendingFriendNodes);
 				}
 
-				ptree userNodes;
 				if (!allUsers.empty()) {
+					ptree userNodes;
 					for (const auto & name : allUsers) {
 						ptree friendNode;
 						friendNode.put("", name);
@@ -2255,8 +2255,8 @@ void DatabaseServer::requestAllFriends(std::shared_ptr<HttpsServer::Response> re
 				return a.name < b.name;
 			});
 
-			ptree friendNodes;
 			if (!friends.empty()) {
+				ptree friendNodes;
 				for (const auto & f : friends) {
 					ptree friendNode;
 					friendNode.put("Name", f.name);

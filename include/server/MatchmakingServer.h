@@ -37,10 +37,11 @@ namespace common {
 	struct SearchMatchMessage;
 } /* namespace common */
 
+namespace server {
 	struct GameSearch {
-		int32_t modID {};
-		int32_t identifier {};
-		int32_t numPlayers {};
+		int32_t modID{};
+		int32_t identifier{};
+		int32_t numPlayers{};
 		std::set<clockUtils::sockets::TcpSocket *> members;
 		std::string friendName;
 
@@ -75,4 +76,5 @@ namespace common {
 		bool matchFriends(const std::string & username, const GameSearch & oldGame, const GameSearch & newGame) const;
 	};
 
+} /* namespace server */
 } /* namespace spine */

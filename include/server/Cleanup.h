@@ -22,6 +22,7 @@
 #include <vector>
 
 namespace spine {
+namespace server {
 
 	class Cleanup {
 	public:
@@ -32,4 +33,5 @@ namespace spine {
 		static void cleanupTable(const std::string & tableName, const std::vector<int> & userList);
 	};
 
+} /* namespace server */
 } /* namespace spine */

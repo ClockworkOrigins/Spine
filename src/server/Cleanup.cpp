@@ -25,7 +25,6 @@
 #include "ServerCommon.h"
 #include "MariaDBWrapper.h"
 
-using namespace spine;
 using namespace spine::server;
 
 void Cleanup::init() {
@@ -116,7 +115,7 @@ void Cleanup::cleanupTable(const std::string & tableName, const std::vector<int>
 			break;
 		}
 
-		auto results = database.getResults<std::vector<std::string>>();
+		const auto results = database.getResults<std::vector<std::string>>();
 
 		for (const auto & vec : results) {
 			const auto userID = std::stoi(vec[0]);

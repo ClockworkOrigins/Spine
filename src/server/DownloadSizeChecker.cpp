@@ -54,7 +54,7 @@ uint64_t DownloadSizeChecker::getBytes(int32_t modID, const std::string & langua
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 		return 0;
 	}
-	auto lastResults = database.getResults<std::vector<std::string>>();
+	const auto lastResults = database.getResults<std::vector<std::string>>();
 	uint64_t bytes = 0;
 	for (const auto & vec : lastResults) {
 		std::ifstream in("/var/www/vhosts/clockwork-origins.de/httpdocs/Gothic/downloads/mods/" + std::to_string(modID) + "/" + vec[0], std::ifstream::ate | std::ifstream::binary);
@@ -96,7 +96,7 @@ uint64_t DownloadSizeChecker::getBytesForPackage(int32_t modID, int32_t optional
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 		return 0;
 	}
-	auto lastResults = database.getResults<std::vector<std::string>>();
+	const auto lastResults = database.getResults<std::vector<std::string>>();
 	uint64_t bytes = 0;
 	for (const auto & vec : lastResults) {
 		std::ifstream in("/var/www/vhosts/clockwork-origins.de/httpdocs/Gothic/downloads/mods/" + std::to_string(modID) + "/" + vec[0], std::ifstream::ate | std::ifstream::binary);

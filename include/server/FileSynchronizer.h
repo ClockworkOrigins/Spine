@@ -23,6 +23,7 @@
 #include <vector>
 
 namespace spine {
+namespace server {
 
 	class FileSynchronizer {
 	public:
@@ -44,7 +45,7 @@ namespace spine {
 		} BaseJob;
 
 		typedef struct AddJob : BaseJob {} AddJob;
-		
+
 		typedef struct AddForServerJob : BaseJob {
 			int serverID = 0;
 
@@ -72,12 +73,12 @@ namespace spine {
 		} ExecuteJob;
 
 		static void init();
-		
+
 		static void addJob(const AddJob & job);
 
 	private:
 		static std::mutex lock;
-		
+
 		// main loop
 		static void exec();
 
@@ -89,7 +90,7 @@ namespace spine {
 
 		// called after job has been successfully finished
 		static void finishJob(const ExecuteJob & job);
-		
+
 		// check if that was the last job for the projectID and if yes unlock fileserver
 		static void updateFileserver(const ExecuteJob & job);
 
@@ -104,4 +105,5 @@ namespace spine {
 		static void updateJob(const AddForServerJob & job, int jobID);
 	};
 
-} /* namespace EW */
+} /* namespace server */
+} /* namespace spine */

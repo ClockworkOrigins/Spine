@@ -36,7 +36,6 @@
 	const std::string PATH_PREFIX = "/var/www/vhosts/clockwork-origins.de/httpdocs/Gothic/downloads/mods/";
 #endif
 	
-using namespace spine;
 using namespace spine::server;
 
 namespace {

@@ -24,7 +24,6 @@
 #include "ServerCommon.h"
 #include "MariaDBWrapper.h"
 
-using namespace spine;
 using namespace spine::server;
 
 void StatsCollector::init() {

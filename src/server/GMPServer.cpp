@@ -25,7 +25,6 @@
 
 #include "clockUtils/sockets/TcpSocket.h"
 
-using namespace spine;
 using namespace spine::server;
 
 GMPServer::GMPServer() : _listenGMPServer(new clockUtils::sockets::TcpSocket()) {
@@ -72,10 +71,10 @@ void GMPServer::handleRequestUserInfosMP(clockUtils::sockets::TcpSocket * sock) 
 	}
 	//std::cout << "Accepted connection with " << sock->getRemoteIP() << std::endl;
 	std::string serialized;
-	int ipLength = 0;
-	int macLength = 0;
+	uint32_t ipLength = 0;
+	uint32_t macLength = 0;
 	std::string buffer;
-	while (buffer.length() < static_cast<size_t>(8 + ipLength + macLength)) {
+	while (buffer.length() < 8 + ipLength + macLength) {
 		if (clockUtils::ClockError::SUCCESS != sock->read(serialized)) {
 			delete sock;
 			return;
@@ -84,7 +83,7 @@ void GMPServer::handleRequestUserInfosMP(clockUtils::sockets::TcpSocket * sock) 
 		if (buffer.length() >= 4) {
 			memcpy(&ipLength, buffer.c_str(), 4);
 		}
-		if (buffer.length() >= static_cast<size_t>(4 + 4 + ipLength)) {
+		if (buffer.length() >= 4 + 4 + ipLength) {
 			memcpy(&macLength, buffer.c_str() + 4 + ipLength, 4);
 		}
 		//std::cout << "Lengths: " << ipLength << " " << macLength << std::endl;

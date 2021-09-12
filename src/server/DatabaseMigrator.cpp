@@ -26,7 +26,6 @@
 #include "ServerCommon.h"
 #include "SpineServerConfig.h"
 
-using namespace spine;
 using namespace spine::server;
 
 void DatabaseMigrator::migrate() {
