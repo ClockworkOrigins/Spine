@@ -62,6 +62,7 @@ int DatabaseServer::run() {
 	_server->resource["^/getRatings"]["POST"] = std::bind(&DatabaseServer::getRatings, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/unlockAchievementServer"]["POST"] = std::bind(&DatabaseServer::unlockAchievementServer, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/getUserIDForDiscordID"]["POST"] = std::bind(&DatabaseServer::getUserIDForDiscordID, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/getDiscordIDForUserID"]["POST"] = std::bind(&DatabaseServer::getDiscordIDForUserID, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/getSpineLevelRanking"]["POST"] = std::bind(&DatabaseServer::getSpineLevelRanking, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/sendUserInfos"]["POST"] = std::bind(&DatabaseServer::sendUserInfos, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/requestSingleProjectStats"]["POST"] = std::bind(&DatabaseServer::requestSingleProjectStats, this, std::placeholders::_1, std::placeholders::_2);
@@ -662,6 +663,86 @@ void DatabaseServer::getUserIDForDiscordID(std::shared_ptr<HttpsServer::Response
 
 		response->write(code, responseStream.str());
 	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::getDiscordIDForUserID(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		const auto userID = pt.get<int64_t>("ID");
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+
+			if (!database.query("PREPARE validateServerStmt FROM \"SELECT * FROM gmpWhitelist WHERE IP = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!database.query("SET @paramIP='" + request->remote_endpoint_address() + "';")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!database.query("EXECUTE validateServerStmt USING @paramIP;")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			const auto results = database.getResults<std::vector<std::string>>();
+
+			if (results.empty()) {
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break; // invalid access
+			}
+		} while (false);
+
+		do {
+			if (code != SimpleWeb::StatusCode::success_ok) break;
+
+			MariaDBWrapper accountDatabase;
+			if (!accountDatabase.connect("localhost", DATABASEUSER, DATABASEPASSWORD, ACCOUNTSDATABASE, 0)) {
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+
+			if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT DiscordID FROM linkedDiscordAccounts WHERE ID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!accountDatabase.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			if (!accountDatabase.query("EXECUTE selectStmt USING @paramUserID;")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+			const auto results = accountDatabase.getResults<std::vector<std::string>>();
+
+			responseTree.put("DiscordID", results.empty() ? -1 : std::stoull(results[0][0]));
+		} while (false);
+
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
+	}
+	catch (...) {
 		response->write(SimpleWeb::StatusCode::client_error_bad_request);
 	}
 }
