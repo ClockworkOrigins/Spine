@@ -99,6 +99,7 @@ namespace server {
 		void packageDownloadSucceeded(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
 		void requestProjectFiles(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
 		void requestPackageFiles(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
+		void gmpLogin(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
 		
 		void requestAllTri6ScoreStats(ptree & responseTree) const;
 

@@ -108,6 +108,7 @@ int DatabaseServer::run() {
 	_server->resource["^/packageDownloadSucceeded"]["POST"] = std::bind(&DatabaseServer::packageDownloadSucceeded, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/requestProjectFiles"]["POST"] = std::bind(&DatabaseServer::requestProjectFiles, this, std::placeholders::_1, std::placeholders::_2);
 	_server->resource["^/requestPackageFiles"]["POST"] = std::bind(&DatabaseServer::requestPackageFiles, this, std::placeholders::_1, std::placeholders::_2);
+	_server->resource["^/gmpLogin"]["POST"] = std::bind(&DatabaseServer::gmpLogin, this, std::placeholders::_1, std::placeholders::_2);
 
 	_runner = new std::thread([this]() {
 		_server->start();
@@ -6551,8 +6552,6 @@ void DatabaseServer::requestPackageFiles(std::shared_ptr<HttpsServer::Response> 
 
 		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
 
-
-
 		auto userID = -1;
 
 		if (pt.count("Username") > 0 && pt.count("Password") > 0) {
@@ -6644,6 +6643,164 @@ void DatabaseServer::requestPackageFiles(std::shared_ptr<HttpsServer::Response> 
 
 		response->write(code, responseStream.str());
 	} catch (...) {
+		response->write(SimpleWeb::StatusCode::client_error_bad_request);
+	}
+}
+
+void DatabaseServer::gmpLogin(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	try {
+		const std::string content = ServerCommon::convertString(request->content.string());
+
+		std::stringstream ss(content);
+
+		ptree pt;
+		read_json(ss, pt);
+
+		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::client_error_bad_request;
+
+		const auto ip = pt.get<std::string>("IP");
+		const auto mac = pt.get<std::string>("Mac");
+
+		std::stringstream responseStream;
+		ptree responseTree;
+
+		enum MPErrorCode {
+			Success,
+			NotFound,
+			Banned,
+			GeneralError
+		};
+
+		do {
+			CONNECTTODATABASE(__LINE__)
+
+			if (!database.query("PREPARE selectStmt FROM \"SELECT ModID FROM gmpWhitelist WHERE IP = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("SET @paramIP='" + request->remote_endpoint->address().to_string() + "';")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				break;
+			}
+			if (!database.query("EXECUTE selectStmt USING @paramIP;")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				break;
+			}
+			auto results = database.getResults<std::vector<std::string>>();
+			if (results.empty()) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				break;
+			}
+
+			MPErrorCode errorCode = GeneralError;
+
+			if (!database.query("PREPARE selectUserIDStmt FROM \"SELECT UserID, Hash FROM userSessionInfos WHERE Mac = ? AND IP = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				errorCode = GeneralError;
+				break;
+			}
+			if (!database.query("PREPARE selectUserIDReducedStmt FROM \"SELECT UserID, Hash FROM userSessionInfos WHERE Mac = ? AND IP LIKE ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				errorCode = GeneralError;
+				break;
+			}
+			if (!database.query("PREPARE selectHashBannedStmt FROM \"SELECT * FROM bannedHashes WHERE Hash = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				errorCode = GeneralError;
+				break;
+			}
+			if (!database.query("PREPARE selectUserBannedStmt FROM \"SELECT * FROM bannedUsers WHERE UserID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				errorCode = GeneralError;
+				break;
+			}
+			if (!database.query("PREPARE selectProvisoricalBannedStmt FROM \"SELECT * FROM provisoricalBans WHERE UserID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				errorCode = GeneralError;
+				break;
+			}
+			if (!database.query("SET @paramMac='" + mac + "';")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				errorCode = GeneralError;
+				break;
+			}
+			if (!database.query("SET @paramIP='" + ip + "';")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				errorCode = GeneralError;
+				break;
+			}
+			const std::string reducedIP = ip.substr(0, ip.find_last_of('.'));
+			if (!database.query("SET @paramIPReduced='" + reducedIP + "%';")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				errorCode = GeneralError;
+				break;
+			}
+			if (!database.query("EXECUTE selectUserIDStmt USING @paramMac, @paramIP;")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				errorCode = GeneralError;
+				break;
+			}
+			auto lastResults = database.getResults<std::vector<std::string>>();
+			if (lastResults.empty()) {
+				if (!database.query("EXECUTE selectUserIDReducedStmt USING @paramMac, @paramIPReduced;")) {
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					errorCode = GeneralError;
+					break;
+				}
+				lastResults = database.getResults<std::vector<std::string>>();
+				if (lastResults.empty()) {
+					errorCode = NotFound;
+					break;
+				}
+			}
+			const auto userID = std::stoi(lastResults[0][0]);
+			const auto systemHash = lastResults[0][1];
+			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				errorCode = GeneralError;
+				break;
+			}
+			if (!database.query("SET @paramHash='" + systemHash + "';")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				errorCode = GeneralError;
+				break;
+			}
+			if (!database.query("EXECUTE selectHashBannedStmt USING @paramHash;")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				break;
+			}
+			lastResults = database.getResults<std::vector<std::string>>();
+			if (!lastResults.empty()) { // was banned
+				break;
+			}
+			if (!database.query("EXECUTE selectUserBannedStmt USING @paramUserID;")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				errorCode = GeneralError;
+				break;
+			}
+			lastResults = database.getResults<std::vector<std::string>>();
+			if (!lastResults.empty()) { // was banned
+				errorCode = Banned;
+				break;
+			}
+			errorCode = Success;
+
+			responseTree.put("Status", errorCode);
+
+			if (errorCode == Success) {
+				responseTree.put("SpineID", userID);
+				responseTree.put("SpineName", ServerCommon::getUsername(userID));
+				responseTree.put("SystemHash", systemHash);
+			}
+
+			code = SimpleWeb::StatusCode::success_ok;
+		} while (false);
+
+		write_json(responseStream, responseTree);
+
+		response->write(code, responseStream.str());
+	}
+	catch (...) {
 		response->write(SimpleWeb::StatusCode::client_error_bad_request);
 	}
 }

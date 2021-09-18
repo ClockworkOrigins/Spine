@@ -28,6 +28,7 @@ namespace sockets {
 namespace spine {
 namespace server {
 
+	// TODO: remove in 1.37
 	class GMPServer {
 	public:
 		GMPServer();
