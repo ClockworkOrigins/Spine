@@ -2251,4 +2251,9 @@
 
 		<Bug language="English">Fixed news not being displayed</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="36" patchVersion="0">
+		<Bug language="Deutsch">Fehler behoben, wodurch bei Sprachwechsel beim News schreiben die UI nicht aktualisiert wurde</Bug>
+
+		<Bug language="English">Fixed bug that caused UI not to update when changing language while writing news</Bug>
+	</Version>
 </Versions>

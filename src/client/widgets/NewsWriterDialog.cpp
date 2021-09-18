@@ -127,6 +127,7 @@ NewsWriterDialog::NewsWriterDialog(QWidget * par) : QDialog(par), _newsPreviewWi
 		connect(_titleEdit, &QLineEdit::textChanged, this, &NewsWriterDialog::changedNews);
 		connect(_dateEdit, &QDateEdit::dateChanged, this, &NewsWriterDialog::changedNews);
 		connect(_bodyEdit, &QTextEdit::textChanged, this, &NewsWriterDialog::changedNews);
+		connect(_languageBox, &QComboBox::currentTextChanged, this, &NewsWriterDialog::changedLanguage);
 	}
 
 	qRegisterMetaType<std::vector<Mod>>("std::vector<common::Mod>");
@@ -259,6 +260,13 @@ void NewsWriterDialog::addImage() {
 		QFile::copy(path, Config::NEWSIMAGEDIR + "/" + QFileInfo(path).fileName());
 	}
 	_imageReferencesEdit->setText(_imageReferencesEdit->text() + QFileInfo(path).fileName() + ";");
+}
+
+void NewsWriterDialog::changedLanguage()
+{
+	const auto news = _newsEntries.value(LanguageConverter::convert(_languageBox->currentText()));
+	_titleEdit->setText(news.title);
+	_bodyEdit->setText(news.body);
 }
 
 void NewsWriterDialog::showEvent(QShowEvent * evt) {

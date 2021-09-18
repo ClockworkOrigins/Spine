@@ -51,6 +51,7 @@ namespace widgets {
 		void accept() override;
 		void updateModList(std::vector<common::Mod> mods);
 		void addImage();
+		void changedLanguage();
 
 	private:
 		NewsWidget * _newsPreviewWidget;
