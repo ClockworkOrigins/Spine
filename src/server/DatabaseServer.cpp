@@ -6128,7 +6128,7 @@ void DatabaseServer::requestAllNews(std::shared_ptr<HttpsServer::Response> respo
 		do {
 			CONNECTTODATABASE(__LINE__)
 
-			if (!database.query("PREPARE selectNewsV2 FROM \"SELECT NewsID, Timestamp FROM newsV2 ORDER BY NewsID DESC LIMIT 20\";")) {
+			if (!database.query("PREPARE selectNewsV2 FROM \"SELECT NewsID, Date FROM newsV2 ORDER BY NewsID DESC LIMIT 20\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
