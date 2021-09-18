@@ -5400,7 +5400,7 @@ void DatabaseServer::submitNews(std::shared_ptr<HttpsServer::Response> response,
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			results = database.getResults<std::vector<std::string>>();
+			auto results = database.getResults<std::vector<std::string>>();
 			int newsID;
 			if (!results.empty()) {
 				newsID = std::stoi(results[0][0]);
