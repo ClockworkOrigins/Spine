@@ -6133,7 +6133,7 @@ void DatabaseServer::requestAllNews(std::shared_ptr<HttpsServer::Response> respo
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			if (!database.query("PREPARE selectNewsEntriesV2 FROM \"SELECT Language, CAST(Title AS BINARY), CAST(Body AS BINARY) FROM newsEntriesV2\";")) {
+			if (!database.query("PREPARE selectNewsEntriesV2 FROM \"SELECT Language, CAST(Title AS BINARY), CAST(Body AS BINARY) FROM newsEntryV2\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
