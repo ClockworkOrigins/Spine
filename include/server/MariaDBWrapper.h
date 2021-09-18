@@ -39,6 +39,8 @@ namespace server {
 
 		bool query(const std::string & query) const;
 
+		std::string getLastError() const;
+
 		template<typename Result>
 		std::vector<Result> getResults() {
 			if (!_database) {

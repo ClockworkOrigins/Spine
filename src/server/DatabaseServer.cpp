@@ -5353,7 +5353,7 @@ void DatabaseServer::submitNews(std::shared_ptr<HttpsServer::Response> response,
 			}
 
 			std::lock_guard<std::mutex> lg(_newsLock);
-			if (!database.query("PREPARE selectNewsIDStmt FROM \"SELECT NewsID FROM news ORDER BY NewsID DESC LIMIT 1\";")) {
+			if (!database.query("PREPARE selectNewsIDStmt FROM \"SELECT NewsID FROM newsV2 ORDER BY NewsID DESC LIMIT 1\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
@@ -5373,7 +5373,7 @@ void DatabaseServer::submitNews(std::shared_ptr<HttpsServer::Response> response,
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			if (!database.query("PREPARE insertNewsStmt FROM \"INSERT INTO newsV2 (Timestamp) VALUES (?)\";")) {
+			if (!database.query("PREPARE insertNewsStmt FROM \"INSERT INTO newsV2 (Date) VALUES (?)\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
@@ -5477,7 +5477,7 @@ void DatabaseServer::submitNews(std::shared_ptr<HttpsServer::Response> response,
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
-				if (!database.query("EXECUTE insertNewsEntryStmt USING @paramsNewsID, @paramLanguage, @paramTitle, @paramBody;")) {
+				if (!database.query("EXECUTE insertNewsEntryStmt USING @paramNewsID, @paramLanguage, @paramTitle, @paramBody;")) {
 					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
@@ -6117,7 +6117,7 @@ void DatabaseServer::requestAllNews(std::shared_ptr<HttpsServer::Response> respo
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
-			if (!database.query("PREPARE selectNewsEntriesV2 FROM \"SELECT Language, CAST(Title AS BINARY), CAST(Body AS BINARY) FROM newsEntryV2\";")) {
+			if (!database.query("PREPARE selectNewsEntriesV2 FROM \"SELECT Language, CAST(Title AS BINARY), CAST(Body AS BINARY) FROM newsEntryV2 WHERE NewsID = ?\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
@@ -6226,6 +6226,8 @@ void DatabaseServer::requestAllNews(std::shared_ptr<HttpsServer::Response> respo
 				newsNode.put("Body", body);
 
 				attachNewsData(database, newsID, language, newsNode);
+
+				newsNodes.push_back(std::make_pair("", newsNode));
 			}
 
 			if (!database.query("SET @paramLimit=" + std::to_string(20 - lastResults.size()) + ";")) {
