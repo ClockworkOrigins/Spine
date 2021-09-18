@@ -5346,23 +5346,7 @@ void DatabaseServer::submitNews(std::shared_ptr<HttpsServer::Response> response,
 		do {
 			CONNECTTODATABASE(__LINE__)
 
-			if (!database.query("PREPARE selectNewsWriterStmt FROM \"SELECT UserID FROM newsWriter WHERE UserID = ? AND Language = ? LIMIT 1\";")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
-				code = SimpleWeb::StatusCode::client_error_failed_dependency;
-				break;
-			}
-			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
-				code = SimpleWeb::StatusCode::client_error_failed_dependency;
-				break;
-			}
-			if (!database.query("EXECUTE selectNewsWriterStmt USING @paramUserID, @paramLanguage;")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
-				code = SimpleWeb::StatusCode::client_error_failed_dependency;
-				break;
-			}
-			auto results = database.getResults<std::vector<std::string>>();
-			if (results.empty()) {
+			if (!ServerCommon::hasPrivilege(userID, common::UserPrivilege::WriteNews)) {
 				ServerCommon::sendMail("New News arrived", ss.str(), "noreply@clockwork-origins.de");
 
 				break;
