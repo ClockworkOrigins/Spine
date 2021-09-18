@@ -32,6 +32,10 @@ bool MariaDBWrapper::query(const std::string & q) const {
 	return _database && mysql_real_query(_database, q.c_str(), static_cast<unsigned long>(q.size())) == 0;
 }
 
+std::string MariaDBWrapper::getLastError() const {
+	return _database ? mysql_error(_database) : "";
+}
+
 void MariaDBWrapper::close() {
 	if (_database) {
 		mysql_close(_database);
