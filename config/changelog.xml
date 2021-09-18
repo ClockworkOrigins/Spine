@@ -2246,4 +2246,9 @@
 		<Bug language="English">Fixed bug that caused all additional packages getting downloaded on mod update</Bug>
 		<Bug language="English">Added missing hint for submitted review</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="35" patchVersion="1">
+		<Bug language="Deutsch">News werden wieder angezeigt</Bug>
+
+		<Bug language="English">Fixed news not being displayed</Bug>
+	</Version>
 </Versions>

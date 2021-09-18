@@ -164,6 +164,8 @@ void StartPageWidget::requestNewsUpdate() {
 							news.imageFiles.emplace_back(q2s(file), q2s(hash));
 						}
 					}
+
+					_newsEntries << news;
 				}
 			}
 
