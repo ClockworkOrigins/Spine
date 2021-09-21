@@ -92,32 +92,32 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 	}
 
 	if (!spineDatabase.query("PREPARE deleteFileStmt FROM \"DELETE FROM modfiles WHERE ModID = ? AND Path = ? LIMIT 1\";")) {
-		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 		delete sock;
 		error = true;
 	}
 	if (!spineDatabase.query("PREPARE selectFileStmt FROM \"SELECT FileID FROM modfiles WHERE ModID = ? AND Path = ? LIMIT 1\";")) {
-		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 		delete sock;
 		error = true;
 	}
 	if (!spineDatabase.query("PREPARE updateFileStmt FROM \"UPDATE modfiles SET Hash = ?, Language = ? WHERE ModID = ? AND Path = ? LIMIT 1\";")) {
-		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 		delete sock;
 		error = true;
 	}
 	if (!spineDatabase.query("PREPARE insertFileStmt FROM \"INSERT INTO modfiles (ModID, Path, Language, Hash) VALUES (?, ?, ?, ?)\";")) {
-		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 		delete sock;
 		error = true;
 	}
 	if (!spineDatabase.query("PREPARE updateLanguageStmt FROM \"UPDATE modfiles SET Language = ? WHERE ModID = ? AND Path = ? LIMIT 1\";")) {
-		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 		delete sock;
 		error = true;
 	}
 	if (!spineDatabase.query("PREPARE selectVersionStmt FROM \"SELECT MajorVersion, MinorVersion, PatchVersion, SpineVersion FROM mods WHERE ModID = ? LIMIT 1\";")) {
-		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 		delete sock;
 		error = true;
 	}
@@ -157,12 +157,12 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 				state = File;
 				currentIndex = 0;
 				if (!spineDatabase.query("SET @paramModID=" + std::to_string(umm->modID) + ";")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 					error = true;
 					break;
 				}
 				if (!spineDatabase.query("EXECUTE selectVersionStmt USING @paramModID;")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 					error = true;
 					break;
 				}
@@ -187,12 +187,12 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 							break;
 						}
 						if (!spineDatabase.query("SET @paramPath='" + mf.filename + "';")) {
-							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 							error = true;
 							break;
 						}
 						if (!spineDatabase.query("EXECUTE deleteFileStmt USING @paramModID, @paramPath;")) {
-							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 							error = true;
 							break;
 						}
@@ -210,12 +210,12 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 						FileSynchronizer::addJob(job);
 					} else if (mf.changed && mf.size == 0) {
 						if (!spineDatabase.query("SET @paramLanguage='" + mf.language + "';")) {
-							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 							error = true;
 							break;
 						}
 						if (!spineDatabase.query("EXECUTE updateLanguageStmt USING @paramLanguage, @paramModID, @paramPath;")) {
-							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 							error = true;
 							break;
 						}
@@ -255,30 +255,30 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 					fs.close();
 
 					if (!spineDatabase.query("SET @paramPath='" + mf.filename + "';")) {
-						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 						error = true;
 						break;
 					}
 					if (!spineDatabase.query("SET @paramHash='" + mf.hash + "';")) {
-						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 						error = true;
 						break;
 					}
 					if (!spineDatabase.query("SET @paramLanguage='" + mf.language + "';")) {
-						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 						error = true;
 						break;
 					}
 					if (mf.changed) {
 						if (!spineDatabase.query("EXECUTE selectFileStmt USING @paramModID, @paramPath;")) {
-							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 							error = true;
 							break;
 						}
 						auto lastResults = spineDatabase.getResults<std::vector<std::string>>();
 						if (lastResults.empty()) {
 							if (!spineDatabase.query("EXECUTE insertFileStmt USING @paramModID, @paramPath, @paramLanguage, @paramHash;")) {
-								std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+								std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 								error = true;
 								break;
 							}
@@ -295,7 +295,7 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 							FileSynchronizer::addJob(job);
 						} else {
 							if (!spineDatabase.query("EXECUTE updateFileStmt USING @paramHash, @paramLanguage, @paramModID, @paramPath;")) {
-								std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+								std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 								error = true;
 								break;
 							}
@@ -313,7 +313,7 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 						}
 					} else if (!mf.changed) {
 						if (!spineDatabase.query("EXECUTE insertFileStmt USING @paramModID, @paramPath, @paramLanguage, @paramHash;")) {
-							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 							error = true;
 							break;
 						}

@@ -1295,17 +1295,17 @@ void ManagementServer::updateModVersion(std::shared_ptr<HttpsServer::Response> r
 				const std::string changelog = v.second.get<std::string>("Changelog");
 				
 				if (!database.query("SET @paramLanguage='" + language + "';")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					return;
 				}
 				if (!database.query("SET @paramChangelog='" + changelog + "';")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					return;
 				}
 				if (!database.query("EXECUTE insertChangelogStmt USING @paramNewsID, @paramLanguage, @paramChangelog;")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -2141,12 +2141,12 @@ void ManagementServer::updatePlayTestSurvey(std::shared_ptr<HttpsServer::Respons
 			for (const auto & v : pt.get_child("Questions")) {
 				const auto question = v.second.data();
 				if (!database.query("SET @paramQuestion='" + question + "';")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("EXECUTE insertStmt USING @paramSurveyID, @paramQuestion;")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
@@ -2404,12 +2404,12 @@ void ManagementServer::submitPlayTestSurveyAnswers(std::shared_ptr<HttpsServer::
 					break;
 				}
 				if (!database.query("SET @paramAnswer='" + answer + "';")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
 				if (!database.query("EXECUTE insertStmt USING @paramSurveyID, @paramUserID, @paramQuestionID, @paramAnswer, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion, @paramAnswer, @paramMajorVersion, @paramMinorVersion, @paramPatchVersion;")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}

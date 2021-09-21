@@ -255,19 +255,19 @@ bool Server::isTeamMemberOfMod(int modID, int userID) {
 			break;
 		}
 		if (!database.query("PREPARE selectTeamIDStmt FROM \"SELECT TeamID FROM mods WHERE ModID = ? LIMIT 1\";")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 			break;
 		}
 		if (!database.query("PREPARE selectMemberStmt FROM \"SELECT UserID FROM teammembers WHERE TeamID = ? AND UserID = ? LIMIT 1\";")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 			break;
 		}
 		if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 			break;
 		}
 		if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 			break;
 		}
 		if (!database.query("EXECUTE selectTeamIDStmt USING @paramModID;")) {
@@ -278,7 +278,7 @@ bool Server::isTeamMemberOfMod(int modID, int userID) {
 		if (lastResults.empty()) break;
 
 		if (!database.query("SET @paramTeamID=" + lastResults[0][0] + ";")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 			break;
 		}
 
@@ -301,11 +301,11 @@ void Server::getBestTri6Score(int userID, ProjectStats & projectStats) {
 		return;
 	}
 	if (!database.query("PREPARE selectScoreStmt FROM \"SELECT Score, Identifier, UserID FROM scores WHERE Version = ? ORDER BY Score DESC\";")) {
-		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 		return;
 	}
 	if (!database.query("PREPARE selectMaxVersionStmt FROM \"SELECT MAX(Version) FROM scores\";")) {
-		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 		return;
 	}
 	if (!database.query("EXECUTE selectMaxVersionStmt;")) {
@@ -317,7 +317,7 @@ void Server::getBestTri6Score(int userID, ProjectStats & projectStats) {
 	const auto version = lastResults.empty() ? "0" : lastResults[0][0];
 	
 	if (!database.query("SET @paramVersion=" + version + ";")) {
-		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 		return;
 	}
 	

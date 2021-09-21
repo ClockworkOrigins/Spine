@@ -46,22 +46,22 @@ void StatsCollector::exec() {
 				CONNECTTODATABASE(__LINE__)
 
 				if (!database.query("PREPARE selectStmt FROM \"SELECT IFNULL(MAX(DaysSinceEpoch), 0) AS DaysSinceEpoch FROM playersPerDay\";")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 					break;
 				}
 
 				if (!database.query("PREPARE selectPlayersStmt FROM \"SELECT IFNULL(COUNT(UserID), 0) AS Amount FROM lastLoginTimes WHERE Timestamp >= ? - 24\";")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 					break;
 				}
 
 				if (!database.query("PREPARE insertStmt FROM \"INSERT INTO playersPerDay (DaysSinceEpoch, PlayerCount) VALUES (?, ?)\";")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 					break;
 				}
 
 				if (!database.query("EXECUTE selectStmt;")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 					break;
 				}
 
@@ -69,27 +69,27 @@ void StatsCollector::exec() {
 
 				if (results.empty() || std::stoi(results[0][0]) < days) {
 					if (!database.query("SET @paramTimestamp=" + std::to_string(timestamp / 60 / 60) + ";")) {
-						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 						break;
 					}
 					if (!database.query("SET @paramDays=" + std::to_string(days) + ";")) {
-						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 						break;
 					}
 
 					if (!database.query("EXECUTE selectPlayersStmt USING @paramTimestamp;")) {
-						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 						break;
 					}
 					results = database.getResults<std::vector<std::string>>();
 					
 					if (!database.query("SET @paramCount=" + results[0][0] + ";")) {
-						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 						break;
 					}
 
 					if (!database.query("EXECUTE insertStmt USING @paramDays, @paramCount;")) {
-						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 						break;
 					}
 				}

@@ -71,15 +71,15 @@ void MatchmakingServer::handleSearchMatch(clockUtils::sockets::TcpSocket * sock,
 	}
 
 	if (!spineDatabase.query("PREPARE selectModIDStmt FROM \"SELECT ModID FROM multiplayerMods WHERE ModID = ? LIMIT 1\";")) {
-		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 		return;
 	}
 	if (!spineDatabase.query("SET @paramModID=" + std::to_string(msg->modID) + ";")) {
-		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 		return;
 	}
 	if (!spineDatabase.query("EXECUTE selectModIDStmt USING @paramModID;")) {
-		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 		return;
 	}
 	const auto lastResults = spineDatabase.getResults<std::vector<std::string>>();

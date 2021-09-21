@@ -33,39 +33,39 @@ void DatabaseMigrator::migrate() {
 		CONNECTTODATABASE(__LINE__)
 
 		if (!database.query("PREPARE selectProjectNamesStmt FROM \"SELECT * FROM projectNames\";")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 			break;
 		}
 		if (!database.query("PREPARE selectModNamesStmt FROM \"SELECT ModID, CAST(Name AS BINARY), Language FROM modnames\";")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 			break;
 		}
 		if (!database.query("PREPARE insertProjectNameStmt FROM \"INSERT INTO projectNames (ProjectID, Name, Languages) VALUES (?, CONVERT(? USING BINARY), ?)\";")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 			break;
 		}
 		if (!database.query("PREPARE selectTeamNamesV2Stmt FROM \"SELECT * FROM teamNames\";")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 			break;
 		}
 		if (!database.query("PREPARE selectTeamNamesStmt FROM \"SELECT TeamID, CAST(Name AS BINARY), Language FROM teamnames\";")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 			break;
 		}
 		if (!database.query("PREPARE insertTeamNameStmt FROM \"INSERT INTO teamNames (TeamID, Name, Languages) VALUES (?, CONVERT(? USING BINARY), ?)\";")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 			break;
 		}
 		
 		if (!database.query("EXECUTE selectProjectNamesStmt;")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 			break;
 		}
 		auto results = database.getResults<std::vector<std::string>>();
 		
 		if (results.empty()) {
 			if (!database.query("EXECUTE selectModNamesStmt;")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 				break;
 			}
 			results = database.getResults<std::vector<std::string>>();
@@ -83,20 +83,20 @@ void DatabaseMigrator::migrate() {
 
 			for (auto & it : nameMap) {
 				if (!database.query("SET @paramProjectID=" + std::to_string(it.first) + ";")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 					break;
 				}
 				for (auto & it2 : it.second) {
 					if (!database.query("SET @paramName='" + it2.first + "';")) {
-						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 						break;
 					}
 					if (!database.query("SET @paramLanguages=" + std::to_string(it2.second) + ";")) {
-						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 						break;
 					}
 					if (!database.query("EXECUTE insertProjectNameStmt USING @paramProjectID, @paramName, @paramLanguages;")) {
-						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 						break;
 					}
 				}
@@ -104,14 +104,14 @@ void DatabaseMigrator::migrate() {
 		}
 		
 		if (!database.query("EXECUTE selectTeamNamesV2Stmt;")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 			break;
 		}
 		results = database.getResults<std::vector<std::string>>();
 		
 		if (results.empty()) {
 			if (!database.query("EXECUTE selectTeamNamesStmt;")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 				break;
 			}
 			results = database.getResults<std::vector<std::string>>();
@@ -129,20 +129,20 @@ void DatabaseMigrator::migrate() {
 
 			for (auto & it : nameMap) {
 				if (!database.query("SET @paramTeamID=" + std::to_string(it.first) + ";")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 					break;
 				}
 				for (auto & it2 : it.second) {
 					if (!database.query("SET @paramName='" + it2.first + "';")) {
-						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 						break;
 					}
 					if (!database.query("SET @paramLanguages=" + std::to_string(it2.second) + ";")) {
-						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 						break;
 					}
 					if (!database.query("EXECUTE insertTeamNameStmt USING @paramTeamID, @paramName, @paramLanguages;")) {
-						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 						break;
 					}
 				}
@@ -154,14 +154,14 @@ void DatabaseMigrator::migrate() {
 		CONNECTTODATABASE(__LINE__)
 
 		if (!database.query("PREPARE addColumnStmt FROM \"ALTER TABLE mods ADD SpineVersion INT NOT NULL DEFAULT 0\";")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 			break;
 		}
 		
 		if (database.query("SELECT SpineVersion FROM mods LIMIT 1;")) break;
 
 		if (!database.query("ALTER TABLE mods ADD SpineVersion INT NOT NULL DEFAULT 0;")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 			break;
 		}
 	} while (false);

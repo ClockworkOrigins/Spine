@@ -39,19 +39,19 @@ uint64_t DownloadSizeChecker::getBytes(int32_t modID, const std::string & langua
 		return 0;
 	}
 	if (!database.query("PREPARE selectStmt FROM \"SELECT Path FROM modfiles WHERE ModID = ? AND (Language = ? OR Language = 'All')\";")) {
-		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 		return 0;
 	}
 	if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
-		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 		return 0;
 	}
 	if (!database.query("SET @paramLanguage='" + language + "';")) {
-		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 		return 0;
 	}
 	if (!database.query("EXECUTE selectStmt USING @paramModID, @paramLanguage;")) {
-		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 		return 0;
 	}
 	const auto lastResults = database.getResults<std::vector<std::string>>();
@@ -81,19 +81,19 @@ uint64_t DownloadSizeChecker::getBytesForPackage(int32_t modID, int32_t optional
 		return 0;
 	}
 	if (!database.query("PREPARE selectStmt FROM \"SELECT Path FROM optionalpackagefiles WHERE PackageID = ? AND (Language = ? OR Language = 'All')\";")) {
-		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 		return 0;
 	}
 	if (!database.query("SET @paramPackageID=" + std::to_string(optionalID) + ";")) {
-		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 		return 0;
 	}
 	if (!database.query("SET @paramLanguage='" + language + "';")) {
-		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 		return 0;
 	}
 	if (!database.query("EXECUTE selectStmt USING @paramPackageID, @paramLanguage;")) {
-		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << std::endl;
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 		return 0;
 	}
 	const auto lastResults = database.getResults<std::vector<std::string>>();
