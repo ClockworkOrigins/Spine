@@ -47,7 +47,7 @@ void SpineLevel::init() {
 				break;
 			}
 			if (!database.query("EXECUTE selectStmt;")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 				break;
 			}
 			const auto results = database.getResults<std::vector<std::string>>();
@@ -174,7 +174,7 @@ void SpineLevel::clear(const std::vector<int> & userList) {
 	}
 }
 
-void SpineLevel::addRanking(boost::property_tree::ptree & json) {
+void SpineLevel::addRanking(ptree & json) {
 	std::lock_guard<std::mutex> lg(_rankingLock);
 
 	std::sort(_rankings.begin(), _rankings.end(), [](const RankingEntry & a, const RankingEntry & b) {
@@ -277,14 +277,14 @@ void SpineLevel::cacheLevel(int userID) {
 			break;
 		}
 		if (!database.query("EXECUTE selectCheaterStmt USING @paramUserID;")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 			break;
 		}
 		auto lastResults = database.getResults<std::vector<std::string>>();
 		const bool cheater = !lastResults.empty();
 		
 		if (!database.query("EXECUTE selectAchievementsStmt USING @paramUserID;")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 			break;
 		}
 		lastResults = database.getResults<std::vector<std::string>>();
@@ -295,7 +295,7 @@ void SpineLevel::cacheLevel(int userID) {
 
 		// perfect games (all achievements)
 		if (!database.query("EXECUTE selectAchievementWithModsStmt USING @paramUserID;")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 			break;
 		}
 		lastResults = database.getResults<std::vector<std::string>>();
@@ -305,14 +305,14 @@ void SpineLevel::cacheLevel(int userID) {
 				break;
 			}
 			if (!database.query("EXECUTE selectAchievementListStmt USING @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 				break;
 			}
 			auto r = database.getResults<std::vector<std::string>>();
 			const uint32_t achievementCount = std::stoi(r[0][0]);
 			
 			if (!database.query("EXECUTE selectAchievementsPerModStmt USING @paramUserID, @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 				break;
 			}
 			r = database.getResults<std::vector<std::string>>();
@@ -324,7 +324,7 @@ void SpineLevel::cacheLevel(int userID) {
 		}
 		
 		if (!database.query("EXECUTE selectScoresStmt USING @paramUserID;")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 			break;
 		}
 		lastResults = database.getResults<std::vector<std::string>>();
@@ -335,7 +335,7 @@ void SpineLevel::cacheLevel(int userID) {
 		}
 		
 		if (!database.query("EXECUTE selectRatingsStmt USING @paramUserID;")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 			break;
 		}
 		lastResults = database.getResults<std::vector<std::string>>();
@@ -346,7 +346,7 @@ void SpineLevel::cacheLevel(int userID) {
 		}
 
 		if (!database.query("EXECUTE selectReviewsStmt USING @paramUserID;")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 			break;
 		}
 		lastResults = database.getResults<std::vector<std::string>>();
@@ -357,7 +357,7 @@ void SpineLevel::cacheLevel(int userID) {
 		}
 		
 		if (!database.query("EXECUTE selectCompatibilitiesStmt USING @paramUserID;")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 			break;
 		}
 		lastResults = database.getResults<std::vector<std::string>>();
@@ -370,7 +370,7 @@ void SpineLevel::cacheLevel(int userID) {
 		// play time over median or even third quartile gives some bonus XP
 		
 		if (!database.query("EXECUTE selectPlayedModsWithTimeStmt USING @paramUserID;")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 			break;
 		}
 		lastResults = database.getResults<std::vector<std::string>>();
@@ -381,7 +381,7 @@ void SpineLevel::cacheLevel(int userID) {
 				break;
 			}
 			if (!database.query("EXECUTE selectPlayTimesStmt USING @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 				break;
 			}
 			const auto r = database.getResults<std::vector<std::string>>();
@@ -400,7 +400,7 @@ void SpineLevel::cacheLevel(int userID) {
 			}
 		}
 		if (!database.query("EXECUTE selectDonationStmt USING @paramUserID;")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 			break;
 		}
 		lastResults = database.getResults<std::vector<std::string>>();
@@ -409,7 +409,7 @@ void SpineLevel::cacheLevel(int userID) {
 		}
 		
 		if (!database.query("EXECUTE selectUserVotesStmt USING @paramUserID;")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 			break;
 		}
 		lastResults = database.getResults<std::vector<std::string>>();
@@ -447,7 +447,7 @@ void SpineLevel::cacheLevel(int userID) {
 		{
 			MariaDBWrapper ewDatabase;
 			if (!ewDatabase.connect("localhost", DATABASEUSER, DATABASEPASSWORD, EWDATABASE, 0)) {
-				std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Couldn't connect to database: " << __LINE__ << " " << database.getLastError() << std::endl;
 				break;
 			}
 			if (!ewDatabase.query("PREPARE selectPlayedTimeStmt FROM \"SELECT Time FROM playTimes WHERE UserID = ? LIMIT 1\";")) {
@@ -460,7 +460,7 @@ void SpineLevel::cacheLevel(int userID) {
 				break;
 			}
 			if (!ewDatabase.query("EXECUTE selectPlayedTimeStmt USING @paramUserID;")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 				break;
 			}
 			const auto r = ewDatabase.getResults<std::vector<std::string>>();
@@ -471,7 +471,7 @@ void SpineLevel::cacheLevel(int userID) {
 		{
 			MariaDBWrapper tri6Database;
 			if (!tri6Database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, TRI6DATABASE, 0)) {
-				std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Couldn't connect to database: " << __LINE__ << " " << database.getLastError() << std::endl;
 				break;
 			}
 			if (!tri6Database.query("PREPARE selectPlayedTimeStmt FROM \"SELECT Time FROM playTimes WHERE UserID = ? LIMIT 1\";")) {
@@ -488,7 +488,7 @@ void SpineLevel::cacheLevel(int userID) {
 				break;
 			}
 			if (!tri6Database.query("EXECUTE selectPlayedTimeStmt USING @paramUserID;")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 				break;
 			}
 			auto r = tri6Database.getResults<std::vector<std::string>>();
@@ -496,7 +496,7 @@ void SpineLevel::cacheLevel(int userID) {
 				currentXP += 1000;
 			} else {
 				if (!tri6Database.query("EXECUTE selectPlayedTimeDemoStmt USING @paramUserID;")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 					break;
 				}
 				r = tri6Database.getResults<std::vector<std::string>>();
@@ -545,7 +545,7 @@ void SpineLevel::cacheLevel(int userID) {
 				break;
 			}
 			if (!database.query("EXECUTE insertStmt USING @paramUserID, @paramLevel, @paramCurrentXP, @paramNextXP, @paramLevel, @paramCurrentXP, @paramNextXP;")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 				break;
 			}
 		} while (false);

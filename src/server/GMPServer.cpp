@@ -115,7 +115,7 @@ void GMPServer::handleRequestUserInfosMP(clockUtils::sockets::TcpSocket * sock) 
 	do {
 		MariaDBWrapper database;
 		if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, SPINEDATABASE, 0)) {
-			std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Couldn't connect to database: " << __LINE__ << " " << database.getLastError() << std::endl;
 			errorCode = GeneralError;
 			break;
 		}
@@ -171,14 +171,14 @@ void GMPServer::handleRequestUserInfosMP(clockUtils::sockets::TcpSocket * sock) 
 			break;
 		}
 		if (!database.query("EXECUTE selectUserIDStmt USING @paramMac, @paramIP;")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 			errorCode = GeneralError;
 			break;
 		}
 		auto lastResults = database.getResults<std::vector<std::string>>();
 		if (lastResults.empty()) {
 			if (!database.query("EXECUTE selectUserIDReducedStmt USING @paramMac, @paramIPReduced;")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 				errorCode = GeneralError;
 				break;
 			}
@@ -201,7 +201,7 @@ void GMPServer::handleRequestUserInfosMP(clockUtils::sockets::TcpSocket * sock) 
 			break;
 		}
 		if (!database.query("EXECUTE selectHashBannedStmt USING @paramHash;")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 			break;
 		}
 		lastResults = database.getResults<std::vector<std::string>>();
@@ -209,7 +209,7 @@ void GMPServer::handleRequestUserInfosMP(clockUtils::sockets::TcpSocket * sock) 
 			break;
 		}
 		if (!database.query("EXECUTE selectUserBannedStmt USING @paramUserID;")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 			errorCode = GeneralError;
 			break;
 		}
@@ -229,7 +229,7 @@ void GMPServer::handleRequestUserInfosMP(clockUtils::sockets::TcpSocket * sock) 
 			break;
 		}*/
 		if (!database.query("EXECUTE selectUserSettingsHashStmt USING @paramUserID;")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 			errorCode = GeneralError;
 			break;
 		}
@@ -240,7 +240,7 @@ void GMPServer::handleRequestUserInfosMP(clockUtils::sockets::TcpSocket * sock) 
 		}
 		settingsHash = lastResults[0][0];
 		if (!database.query("EXECUTE selectUserSettingsStmt USING @paramUserID;")) {
-			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 			errorCode = GeneralError;
 			break;
 		}
