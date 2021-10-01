@@ -30,7 +30,7 @@ namespace server {
 #define CONNECTTODATABASE(line) \
 	MariaDBWrapper database;\
 	if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, SPINEDATABASE, 0)) {\
-		std::cout << "Couldn't connect to database: " << (line) << /*" " << database.getLastError() <<*/ std::endl;\
+		std::cout << "Couldn't connect to database: " << (line) << " " << database.getLastError() << std::endl;\
 		break;\
 	}
 
