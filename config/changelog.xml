@@ -2253,7 +2253,9 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="36" patchVersion="0">
 		<Bug language="Deutsch">Fehler behoben, wodurch bei Sprachwechsel beim News schreiben die UI nicht aktualisiert wurde</Bug>
+		<Bug language="Deutsch">Fehler behoben, wodurch die Tab-Reihenfolge beim News schreiben nicht richtig war</Bug>
 
 		<Bug language="English">Fixed bug that caused UI not to update when changing language while writing news</Bug>
+		<Bug language="English">Fixed bug that caused the tab order being incorrect when writing news</Bug>
 	</Version>
 </Versions>

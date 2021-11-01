@@ -68,13 +68,13 @@ NewsWriterDialog::NewsWriterDialog(QWidget * par) : QDialog(par), _newsPreviewWi
 
 		_titleEdit = new QLineEdit(this);
 		_titleEdit->setPlaceholderText(QApplication::tr("TitlePlaceholder"));
+		_languageBox = new QComboBox(this);
+		_languageBox->addItems(LanguageConverter::getLanguages());
 		_dateEdit = new QDateEdit(this);
 		_dateEdit->setAlignment(Qt::AlignRight);
 		_dateEdit->setCalendarPopup(true);
 		_dateEdit->setDate(QDate::currentDate());
 		_dateEdit->setMinimumDate(QDate::currentDate());
-		_languageBox = new QComboBox(this);
-		_languageBox->addItems(LanguageConverter::getLanguages());
 		auto * hbl = new QHBoxLayout();
 		hbl->addWidget(_titleEdit);
 		hbl->addWidget(_languageBox);
