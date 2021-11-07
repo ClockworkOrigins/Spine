@@ -41,8 +41,8 @@
 
 #include <QApplication>
 #include <QDirIterator>
-#include <QElapsedTimer>
 #include <QFileDialog>
+#include <QFutureSynchronizer>
 #include <QHeaderView>
 #include <QInputDialog>
 #include <QJsonArray>
@@ -217,7 +217,7 @@ void ModFilesWidget::addFile() {
 	
 	const QString mapping = dlg.textValue();
 	
-	QStringList realMappingSplit = mapping.split("/", QString::SkipEmptyParts);
+	QStringList realMappingSplit = mapping.split("/", Qt::SkipEmptyParts);
 	QString realMapping;
 	for (const QString & rm : realMappingSplit) {
 		if (!realMapping.isEmpty()) {
@@ -270,60 +270,74 @@ void ModFilesWidget::uploadCurrentMod() {
 		}
 		qint64 maxBytes = 0;
 		QStringList uploadFiles;
+
+		QMutex lock;
+
+		QFutureSynchronizer<void> syncher;
 		for (const auto & mmf : _data.files) {
-			common::ModFile mf;
-			mf.language = q2s(mmf.language);
-			mf.changed = mmf.changed;
-			mf.deleted = mmf.deleted;
-			mf.filename = q2s(mmf.filename);
-			mf.hash = q2s(mmf.hash);
-			mf.size = mmf.size;
-			
-			if (mf.changed) {
-				QString currentFileName = mmf.filename;
-				while (currentFileName.startsWith("/")) {
-					currentFileName.remove(0, 1);
-				}
-				if (currentFileName.endsWith(".z")) {
-					currentFileName.chop(2);
-				}
-				auto it = _fileMap.find(currentFileName);
-				if (it == _fileMap.end()) {
-					mf.size = 0;
-				} else {
-					// hash check
-					QString hashSum;
-					const bool b = Hashing::hash(it.value(), hashSum);
-					if (b) {
-						if (hashSum == s2q(mf.hash)) { // hash the same, so just update the language
-							mf.size = 0;
-						} else {
-							Compression::compress(it.value(), false);
+			const auto f = QtConcurrent::run([this, mmf, &lock, &maxBytes, &uploadFiles, &umm]() {
+				common::ModFile mf;
+				mf.language = q2s(mmf.language);
+				mf.changed = mmf.changed;
+				mf.deleted = mmf.deleted;
+				mf.filename = q2s(mmf.filename);
+				mf.hash = q2s(mmf.hash);
+				mf.size = mmf.size;
+
+				if (mf.changed) {
+					QString currentFileName = mmf.filename;
+					while (currentFileName.startsWith("/")) {
+						currentFileName.remove(0, 1);
+					}
+					if (currentFileName.endsWith(".z")) {
+						currentFileName.chop(2);
+					}
+					auto it = _fileMap.find(currentFileName);
+					if (it == _fileMap.end()) {
+						mf.size = 0;
+					} else {
+						// hash check
+						QString hashSum;
+						const bool b = Hashing::hash(it.value(), hashSum);
+						if (b) {
+							if (hashSum == s2q(mf.hash)) { // hash the same, so just update the language
+								mf.size = 0;
+							} else {
+								Compression::compress(it.value(), false);
 
 #ifdef Q_OS_WIN
-							const auto path = q2ws(it.value() + ".z");
+								const auto path = q2ws(it.value() + ".z");
 #else
-							const auto path = q2s(it.value() + ".z");
+								const auto path = q2s(it.value() + ".z");
 #endif
-							std::ifstream in(path, std::ifstream::ate | std::ifstream::binary);
-							const auto size = in.tellg();
-							maxBytes += size;
+								std::ifstream in(path, std::ifstream::ate | std::ifstream::binary);
+								const auto size = in.tellg();
 
-							mf.hash = q2s(hashSum);
-							mf.size = size;
-							uploadFiles.push_back(it.value() + ".z");
+								mf.hash = q2s(hashSum);
+								mf.size = size;
+							}
 						}
 					}
+					if (!mmf.filename.endsWith(".z")) {
+						mf.filename += ".z";
+					}
+					while (mf.filename[0] == '/') {
+						mf.filename = mf.filename.substr(1);
+					}
+
+					QMutexLocker lg(&lock);
+					if (mf.size > 0) {
+						maxBytes += mf.size;
+						uploadFiles.push_back(it.value() + ".z");
+					}
+
+					umm.files.push_back(mf);
 				}
-				if (!mmf.filename.endsWith(".z")) {
-					mf.filename += ".z";
-				}
-				while (mf.filename[0] == '/') {
-					mf.filename = mf.filename.substr(1);
-				}
-				umm.files.push_back(mf);
-			}
+			});
+			syncher.addFuture(f);
 		}
+		syncher.waitForFinished();
+
 		emit updateProgressMax(static_cast<int>(maxBytes / 1024));
 		std::string serialized = umm.SerializeBlank();
 		clockUtils::sockets::TcpSocket sock;
