@@ -58,6 +58,10 @@ GeneralConfigurationWidget::GeneralConfigurationWidget(QWidget * par) : QWidget(
 			lbl->setToolTip(QApplication::tr("ModEnabledTooltip"));
 			_enabledBox = new QCheckBox(this);
 			_enabledBox->setToolTip(QApplication::tr("ModEnabledTooltip"));
+			connect(_enabledBox, &QCheckBox::stateChanged, this, [this]() {
+				_releaseDateEdit->setDate(QDate::currentDate());
+				_releaseDateEdit->setEnabled(!_enabledBox->isChecked());
+			});
 
 			l->addWidget(lbl, row, 0);
 			l->addWidget(_enabledBox, row++, 1);
@@ -248,6 +252,7 @@ void GeneralConfigurationWidget::updateData(ManagementGeneralData content) {
 	_typeBox->setCurrentIndex(static_cast<int>(content.modType));
 	_devDurationBox->setValue(content.duration);
 	_releaseDateEdit->setDate(content.releaseDate);
+	_releaseDateEdit->setEnabled(!content.enabled);
 	_feedbackMailEdit->setText(content.feedbackMail);
 	_discussionUrlEdit->setText(content.discussionUrl.toString());
 	_enabledBox->setVisible(!content.enabled);
