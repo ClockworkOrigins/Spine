@@ -139,36 +139,12 @@ void DatabaseServer::getModnameForIDs(std::shared_ptr<HttpsServer::Response> res
 		ptree responseTree;
 
 		do {
-			CONNECTTODATABASE(__LINE__)
-
-			if (!database.query("PREPARE selectStmt FROM \"SELECT Name FROM modnames WHERE ModID = ? AND Language = ? LIMIT 1\";")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
-				code = SimpleWeb::StatusCode::client_error_failed_dependency;
-				break;
-			}
-			if (!database.query("SET @paramLanguage='" + language + "';")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
-				code = SimpleWeb::StatusCode::client_error_failed_dependency;
-				break;
-			}
-
 			ptree nameNodes;
 			for (const auto & v : pt.get_child("ModIDs")) {
-				if (!database.query("SET @paramModID=" + v.second.data() + ";")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
-					code = SimpleWeb::StatusCode::client_error_failed_dependency;
-					break;
-				}
-				if (!database.query("EXECUTE selectStmt USING @paramModID, @paramLanguage;")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
-					code = SimpleWeb::StatusCode::client_error_failed_dependency;
-					break;
-				}
-				const auto results = database.getResults<std::vector<std::string>>();
-				if (results.empty()) continue;
+				const auto name = ServerCommon::getProjectName(std::stoi(v.second.data()), LanguageConverter::convert(language));
 
 				ptree nameNode;
-				nameNode.put("", results[0][0]);
+				nameNode.put("", name);
 				nameNodes.push_back(std::make_pair("", nameNode));
 			}
 			responseTree.add_child("Names", nameNodes);

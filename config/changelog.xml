@@ -2256,10 +2256,12 @@
 		<Enhancement language="Deutsch">Uploads mit vielen geänderten Dateien werden jetzt deutlich schneller vorbereitet</Enhancement>
 		<Bug language="Deutsch">Fehler behoben, wodurch bei Sprachwechsel beim News schreiben die UI nicht aktualisiert wurde</Bug>
 		<Bug language="Deutsch">Fehler behoben, wodurch die Tab-Reihenfolge beim News schreiben nicht richtig war</Bug>
+		<Bug language="Deutsch">Fehler behoben, wodurch Projektnamen von Abhängigkeiten nicht immer angezeigt wurden</Bug>
 
 		<Enhancement language="English">Improved release date handling in management</Enhancement>
 		<Enhancement language="English">Uploads of many changed files now are prepared a lot faster</Enhancement>
 		<Bug language="English">Fixed bug that caused UI not to update when changing language while writing news</Bug>
 		<Bug language="English">Fixed bug that caused the tab order being incorrect when writing news</Bug>
+		<Bug language="English">Fixed bug that caused project names of dependencies not always being displayed</Bug>
 	</Version>
 </Versions>
