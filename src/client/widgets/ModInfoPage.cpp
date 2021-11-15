@@ -705,7 +705,7 @@ void ModInfoPage::updatePage(QJsonObject json) {
 
 			const auto jsonHistory = jsonRef.toObject();
 
-			const auto changelog = decodeString(jsonHistory["Changelog"].toString()).trimmed();
+			const auto changelog = decodeString(jsonHistory["Changelog"].toString()).trimmed().replace("&quot;", "\"");
 
 			tb->setText(changelog.isEmpty() ? QApplication::tr("NoChangelogAvailable") : changelog);
 			vl->addWidget(tb);

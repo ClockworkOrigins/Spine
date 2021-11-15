@@ -500,7 +500,7 @@ void ModUpdateDialog::requestUpdates(const QList<ModVersion> & m, bool forceAcce
 				}
 				mu.gothicVersion = static_cast<GameType>(j["Type"].toString().toInt());
 				mu.savegameCompatible = j["SavegameCompatible"].toString().toInt();
-				mu.changelog = decodeString(j["Changelog"].toString());
+				mu.changelog = decodeString(j["Changelog"].toString()).replace("&quot;", "\"");
 				mu.modID = j["ProjectID"].toString().toInt();
 
 				if (j.contains("Files")) {
