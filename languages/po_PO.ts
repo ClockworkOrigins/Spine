@@ -241,7 +241,7 @@ Ponadto może być ono używane do wszystkich produktów Clockwork Origins.</tra
     </message>
     <message>
         <source>PasswordsDontMatch</source>
-        <translation>Hasła się ze sobą nie zgadzają</translation>
+        <translation>Hasła nie zgadzają się ze sobą</translation>
     </message>
     <message>
         <source>WrongLoginData</source>
@@ -570,15 +570,15 @@ W przypadku znalezienia aktualizacji Spine automatycznie rozpocznie pobieranie, 
     </message>
     <message>
         <source>InvalidGothicPath</source>
-        <translation>Wskazana ścieżka do Gothic I jest nieważna. Upewnij się, że jest to katalog główny z twoim zainstalowanym GI. Poznasz go po folderze o nazwie „System”, w którym znajduje się Gothic.exe.</translation>
+        <translation>Wskazana ścieżka do Gothic I jest nieprawidłowa. Upewnij się, że jest to katalog główny z twoim zainstalowanym GI. Poznasz go po folderze o nazwie „System”, w którym znajduje się Gothic.exe.</translation>
     </message>
     <message>
         <source>InvalidGothic2Path</source>
-        <translation>Wskazana ścieżka do Gothic II jest nieważna. Upewnij się, że jest to katalog główny z twoim zainstalowanym GII. Poznasz go po folderze o nazwie „System”, w którym znajduje się Gothic2.exe.</translation>
+        <translation>Wskazana ścieżka do Gothic II jest nieprawidłowa. Upewnij się, że jest to katalog główny z twoim zainstalowanym GII. Poznasz go po folderze o nazwie „System”, w którym znajduje się Gothic2.exe.</translation>
     </message>
     <message>
         <source>InvalidGothic3Path</source>
-        <translation>Wskazana ścieżka do Gothic 3 jest nieważna. Upewnij się, że jest to katalog główny z twoim zainstalowanym G3. Poznasz go po folderze w którym znajduje się Gothic3.exe.</translation>
+        <translation>Wskazana ścieżka do Gothic 3 jest nieprawidłowa. Upewnij się, że jest to katalog główny z twoim zainstalowanym G3. Poznasz go po folderze w którym znajduje się Gothic3.exe.</translation>
     </message>
     <message>
         <source>VersionUpToDate</source>
@@ -590,11 +590,11 @@ W przypadku znalezienia aktualizacji Spine automatycznie rozpocznie pobieranie, 
     </message>
     <message>
         <source>IntegrityRepairSuccess</source>
-        <translation>Naprawiono z powodzeniem wszystkie pliki.</translation>
+        <translation>Udało się naprawić wszystkie pliki.</translation>
     </message>
     <message>
         <source>IntegrityRepairFailure</source>
-        <translation>Nie udało się skutecznie naprawić wszystkich plików. Prawdopodobnie powinieneś uruchomić Spine ponownie. Możliwe też, że występują problemy z połączeniem internetowym. Przeprowadź potem sprawdzanie integralności jeszcze raz.</translation>
+        <translation>Nie udało się naprawić wszystkich plików. Prawdopodobnie powinieneś uruchomić Spine ponownie. Możliwe też, że występują problemy z połączeniem internetowym. Przeprowadź potem sprawdzanie integralności jeszcze raz.</translation>
     </message>
     <message>
         <source>ActivateZSpy</source>
@@ -3389,7 +3389,7 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
     </message>
     <message>
         <source>NeitherSystempackNorUnionWarning</source>
-        <translation>Nie masz włączonego ani Systempacka, ani Uniona. Gothic najprawdopodobniej nie uruchomi bez nich.</translation>
+        <translation>Nie masz włączonego ani Systempacka, ani Uniona. Gothic najprawdopodobniej nie uruchomi się bez nich.</translation>
     </message>
     <message>
         <source>Keywords</source>
