@@ -270,7 +270,7 @@ void FileDownloader::networkError(QNetworkReply::NetworkError err) {
 	
 	if (err == QNetworkReply::NetworkError::OperationCanceledError) {
 		emit fileFailed(DownloadError::CanceledError);
-	} else {
+	} else if (_retried) {
 		emit fileFailed(DownloadError::NetworkError);
 	}
 }

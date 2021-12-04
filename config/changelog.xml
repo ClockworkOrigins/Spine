@@ -2258,6 +2258,7 @@
 		<Bug language="Deutsch">Fehler behoben, wodurch die Tab-Reihenfolge beim News schreiben nicht richtig war</Bug>
 		<Bug language="Deutsch">Fehler behoben, wodurch Projektnamen von Abhängigkeiten nicht immer angezeigt wurden</Bug>
 		<Bug language="Deutsch">Fehler behoben, wodurch Changelogs noch &quot; angezeigt haben</Bug>
+		<Bug language="Deutsch">Fehler behoben, wodurch der Server-Fallback nicht richtig funktioniert hat, wenn der eigentliche Server nicht erreichbar war</Bug>
 
 		<Enhancement language="English">Improved release date handling in management</Enhancement>
 		<Enhancement language="English">Uploads of many changed files now are prepared a lot faster</Enhancement>
@@ -2265,5 +2266,6 @@
 		<Bug language="English">Fixed bug that caused the tab order being incorrect when writing news</Bug>
 		<Bug language="English">Fixed bug that caused project names of dependencies not always being displayed</Bug>
 		<Bug language="English">Fixed bug that caused changelogs to display &quot;</Bug>
+		<Bug language="English">Fixed bug that caused the server fallback not working properly when the actual server can't be reached</Bug>
 	</Version>
 </Versions>
