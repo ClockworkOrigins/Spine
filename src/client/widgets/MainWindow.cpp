@@ -184,16 +184,6 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 		showChangelog = true;
 	}
 
-	if (Config::OnlineMode) {
-		{
-			clockUtils::sockets::TcpSocket sock;
-			const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", SERVER_PORT, 5000);
-			const bool cuTest = cErr == clockUtils::ClockError::SUCCESS;
-
-			Config::OnlineMode = cuTest;
-		}
-	}
-
 	// remove High Vegetation Mod from patches
 	{
 		Database::DBError err;
