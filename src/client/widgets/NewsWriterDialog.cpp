@@ -266,7 +266,7 @@ void NewsWriterDialog::changedLanguage()
 {
 	const auto news = _newsEntries.value(LanguageConverter::convert(_languageBox->currentText()));
 	_titleEdit->setText(news.title);
-	_bodyEdit->setText(news.body);
+	_bodyEdit->setPlainText(news.body);
 }
 
 void NewsWriterDialog::showEvent(QShowEvent * evt) {

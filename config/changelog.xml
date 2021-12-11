@@ -2268,4 +2268,9 @@
 		<Bug language="English">Fixed bug that caused changelogs to display &quot;</Bug>
 		<Bug language="English">Fixed bug that caused the server fallback not working properly when the actual server can't be reached</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="37" patchVersion="0">
+		<Bug language="Deutsch">Fehler behoben, wodurch bei Sprachwechsel beim News schreiben Links und Bilder kaputt gegangen sind</Bug>
+
+		<Bug language="English">Fixed bug that caused links and images to break when changing language while writing news</Bug>
+	</Version>
 </Versions>
