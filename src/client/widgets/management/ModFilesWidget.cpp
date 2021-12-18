@@ -292,7 +292,7 @@ void ModFilesWidget::uploadCurrentMod() {
 					if (currentFileName.endsWith(".z")) {
 						currentFileName.chop(2);
 					}
-					auto it = _fileMap.find(currentFileName);
+					const auto it = _fileMap.find(currentFileName);
 					if (it == _fileMap.end()) {
 						mf.size = 0;
 					} else {
@@ -303,18 +303,12 @@ void ModFilesWidget::uploadCurrentMod() {
 							if (hashSum == s2q(mf.hash)) { // hash the same, so just update the language
 								mf.size = 0;
 							} else {
+								mf.uncompressedSize = getSize(it.value());
+
 								Compression::compress(it.value(), false);
 
-#ifdef Q_OS_WIN
-								const auto path = q2ws(it.value() + ".z");
-#else
-								const auto path = q2s(it.value() + ".z");
-#endif
-								std::ifstream in(path, std::ifstream::ate | std::ifstream::binary);
-								const auto size = in.tellg();
-
 								mf.hash = q2s(hashSum);
-								mf.size = size;
+								mf.size = getSize(it.value() + ".z");
 							}
 						}
 					}
@@ -723,4 +717,10 @@ QString ModFilesWidget::getPathSuggestion(const QString & file) const {
 	}
 	
 	return "";
+}
+
+int64_t ModFilesWidget::getSize(const QString& path) const
+{
+	const QFileInfo fi(path);
+	return fi.size();
 }

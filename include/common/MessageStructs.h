@@ -493,8 +493,9 @@ namespace common {
 		bool changed;
 		bool deleted;
 		int64_t size;
+		int64_t uncompressedSize;
 
-		ModFile() : changed(false), deleted(false), size(0) {}
+		ModFile() : changed(false), deleted(false), size(0), uncompressedSize(0) {}
 
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int /* file_version */) {
@@ -504,6 +505,7 @@ namespace common {
 			ar & changed;
 			ar & deleted;
 			ar & size;
+			ar & uncompressedSize;
 		}
 	};
 

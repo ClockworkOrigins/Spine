@@ -126,7 +126,7 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 		delete sock;
 		error = true;
 	}
-	if (!spineDatabase.query("PREPARE insertSizeStmt FROM \"INSERT INTO fileSizes (FileID, CompressedSize, UncompressedSize) VALUES (?, ?, 0) ON DUPLICATE KEY UPDATE CompressedSize = ?\";")) {
+	if (!spineDatabase.query("PREPARE insertSizeStmt FROM \"INSERT INTO fileSizes (FileID, CompressedSize, UncompressedSize) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE CompressedSize = ?, UncompressedSize = ?\";")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 		delete sock;
 		error = true;
@@ -380,12 +380,17 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 						error = true;
 						break;
 					}
-					if (!spineDatabase.query("SET @paramSize=" + std::to_string(umm->files[currentIndex].size) + ";")) {
+					if (!spineDatabase.query("SET @paramSize=" + std::to_string(mf.size) + ";")) {
 						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 						error = true;
 						break;
 					}
-					if (!spineDatabase.query("EXECUTE insertSizeStmt USING @paramFileID, @paramSize, @paramSize;")) {
+					if (!spineDatabase.query("SET @paramUncompressedSize=" + std::to_string(mf.uncompressedSize) + ";")) {
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
+						error = true;
+						break;
+					}
+					if (!spineDatabase.query("EXECUTE insertSizeStmt USING @paramFileID, @paramSize, @paramUncompressedSize, @paramSize, @paramUncompressedSize;")) {
 						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 						error = true;
 						break;

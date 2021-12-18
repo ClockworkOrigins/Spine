@@ -101,6 +101,8 @@ namespace widgets {
 		void addFile(QStandardItem * itm, QString file, QString language);
 		void deleteFile(const QModelIndex & idx);
 		QString getPathSuggestion(const QString & file) const;
+
+		int64_t getSize(const QString & path) const;
 	};
 
 } /* namespace widgets */
