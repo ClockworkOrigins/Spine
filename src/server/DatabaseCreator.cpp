@@ -354,6 +354,14 @@ void DatabaseCreator::createTables() {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
+	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS fileSizes (FileID INT PRIMARY KEY, CompressedSize BIGINT NOT NULL, UncompressedSize BIGINT NOT NULL);"))) {
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
+		return;
+	}
+	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS packageFileSizes (FileID INT PRIMARY KEY, CompressedSize BIGINT NOT NULL, UncompressedSize BIGINT NOT NULL);"))) {
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
+		return;
+	}
 
 	createFileserverTables();
 }

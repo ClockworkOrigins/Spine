@@ -155,7 +155,6 @@ void Gothic1Launcher::patchCheck() {
 	fileList.insert("system/IMAGEHL2.dll", { "64f2ea18af80b67ad570baa1e43542a9c3ca851232e1d14a9e1ed1796ce2261b33fa2f873507b1dfb5d98a3688c195e283d069e8c2e23cf5ea104d6e95ab157a" });
 	fileList.insert("system/mallocwin32debug.dll", { "72ef3859256706ea517e59dae52d8a93e8ab1c7a3777c3e74af1346f29d94991a337b9b5cab2d7f10b812f062f32b9aba6ed1b315a39e726e650fdbd285fc224" });
 	fileList.insert("system/MSDBI.dll", { "1b110d089258f26ec9dc77a0fb74e5adb1d010ae385ac4fc8af838dfdb383ef271b9010d895ae4699cd928aa5c5685fea207ddd521e89681da6cfe8ab55af0a6" });
-	fileList.insert("system/Mss32.dll", { "feaa427b8ea557979a3325c07d552162b74380216b70aff8b865514822c2e4da68fea94159b22d2bb75cbec935d9502cee4ee655fa3908ffae1de065e107717e" });
 	fileList.insert("system/paths.d", { "4e239ae79b6039f55ba4fec21a66becc36a2a53148a8d78ebb0232af01ec22db63645c6d717c4165f591dd76d18ebb1a5f27d9789ffae2632f644d420c810252", "2cc26529596230e92c6bc4ac857356e0312e883f6529e7adbd2afb054e5a80449007bfedbd7e25572d428447a24ecfccea3decb4de1cc8a88856baca8740e365" });
 
 	auto * mfd = new MultiFileDownloader(this);

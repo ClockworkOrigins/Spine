@@ -2269,8 +2269,10 @@
 		<Bug language="English">Fixed bug that caused the server fallback not working properly when the actual server can't be reached</Bug>
 	</Version>
 	<Version majorVersion="1" minorVersion="37" patchVersion="0">
+		<Enhancement language="Deutsch">Komprimierte Dateigröße wird serverseitig jetzt gespeichert</Enhancement>
 		<Bug language="Deutsch">Fehler behoben, wodurch bei Sprachwechsel beim News schreiben Links und Bilder kaputt gegangen sind</Bug>
 
+		<Enhancement language="English">Compressed file size now gets stored on server side</Enhancement>
 		<Bug language="English">Fixed bug that caused links and images to break when changing language while writing news</Bug>
 	</Version>
 </Versions>

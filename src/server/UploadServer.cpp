@@ -121,6 +121,21 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 		delete sock;
 		error = true;
 	}
+	if (!spineDatabase.query("PREPARE selectFileIDStmt FROM \"SELECT FileID FROM modfiles WHERE ModID = ? AND Path = ? LIMIT 1\";")) {
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
+		delete sock;
+		error = true;
+	}
+	if (!spineDatabase.query("PREPARE insertSizeStmt FROM \"INSERT INTO fileSizes (FileID, CompressedSize, UncompressedSize) VALUES (?, ?, 0) ON DUPLICATE KEY UPDATE CompressedSize = ?\";")) {
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
+		delete sock;
+		error = true;
+	}
+	if (!spineDatabase.query("PREPARE deleteSizeStmt FROM \"DELETE FROM fileSizes WHERE FileID = ? LIMIT 1\";")) {
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
+		delete sock;
+		error = true;
+	}
 
 	std::string newBuffer;
 	std::string unreadBuffer;
@@ -191,7 +206,28 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 							error = true;
 							break;
 						}
+						if (!spineDatabase.query("EXECUTE selectFileIDStmt USING @paramModID, @paramPath;")) {
+							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
+							error = true;
+							break;
+						}
+						lastResults = spineDatabase.getResults<std::vector<std::string>>();
+						if (lastResults.empty()) {
+							error = true;
+							break;
+						}
+						if (!spineDatabase.query("SET @paramFileID=" + lastResults[0][0] + ";")) {
+							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
+							error = true;
+							break;
+						}
+
 						if (!spineDatabase.query("EXECUTE deleteFileStmt USING @paramModID, @paramPath;")) {
+							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
+							error = true;
+							break;
+						}
+						if (!spineDatabase.query("EXECUTE deleteSizeStmt USING @paramFileID;")) {
 							std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 							error = true;
 							break;
@@ -328,6 +364,31 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 						job.path = mf.filename;
 
 						FileSynchronizer::addJob(job);
+					}
+					if (!spineDatabase.query("EXECUTE selectFileIDStmt USING @paramModID, @paramPath;")) {
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
+						error = true;
+						break;
+					}
+					auto lastResults = spineDatabase.getResults<std::vector<std::string>>();
+					if (lastResults.empty()) {
+						error = true;
+						break;
+					}
+					if (!spineDatabase.query("SET @paramFileID=" + lastResults[0][0] + ";")) {
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
+						error = true;
+						break;
+					}
+					if (!spineDatabase.query("SET @paramSize=" + std::to_string(umm->files[currentIndex].size) + ";")) {
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
+						error = true;
+						break;
+					}
+					if (!spineDatabase.query("EXECUTE insertSizeStmt USING @paramFileID, @paramSize, @paramSize;")) {
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
+						error = true;
+						break;
 					}
 
 					currentIndex++;

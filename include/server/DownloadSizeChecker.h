@@ -29,11 +29,15 @@ namespace server {
 	public:
 		uint64_t getBytes(int32_t modID, const std::string & language, uint32_t version);
 		uint64_t getBytesForPackage(int32_t modID, int32_t optionalID, const std::string & language, uint32_t version);
+
+		void init();
 		void clear();
 
 	private:
 		std::map<std::tuple<int32_t, std::string, uint32_t>, uint64_t> _cache;
 		std::map<std::tuple<int32_t, std::string, uint32_t>, uint64_t> _packageCache;
+		std::map<int32_t, uint64_t> _fileSizes;
+		std::map<int32_t, uint64_t> _packageFileSizes;
 		std::mutex _lock;
 	};
 

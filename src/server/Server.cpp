@@ -61,6 +61,8 @@ Server::Server() : _listenClient(new clockUtils::sockets::TcpSocket()), _listenM
 	FileSynchronizer::init();
 
 	StatsCollector::init();
+
+	_downloadSizeChecker->init();
 }
 
 Server::~Server() {
