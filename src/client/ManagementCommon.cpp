@@ -254,6 +254,7 @@ void ManagementModFile::read(const QJsonObject & json) {
 
 	filename = json["Name"].toString();
 	hash = json["Hash"].toString();
+	oldHash = hash;
 	language = json["Language"].toString();
 
 	changed = false;

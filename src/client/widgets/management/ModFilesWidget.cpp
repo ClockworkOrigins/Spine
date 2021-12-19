@@ -225,7 +225,12 @@ void ModFilesWidget::addFile() {
 		realMapping += rm;
 	}
 
-	addFile(path, realMapping, QFileInfo(path).fileName());
+	QString hash;
+	const bool b = Hashing::hash(path, hash);
+
+	if (!b) return;
+
+	addFile(path, realMapping, QFileInfo(path).fileName(), hash);
 }
 
 void ModFilesWidget::deleteFile() {
@@ -250,6 +255,8 @@ void ModFilesWidget::uploadCurrentMod() {
 		common::UploadModfilesMessage umm;
 		umm.modID = _mods[_modIndex].id;
 		for (const auto & mmf : _data.files) {
+			if (!mmf.deleted) continue;
+
 			common::ModFile mf;
 			mf.language = q2s(mmf.language);
 			mf.changed = mmf.changed;
@@ -257,15 +264,14 @@ void ModFilesWidget::uploadCurrentMod() {
 			mf.filename = q2s(mmf.filename);
 			mf.hash = q2s(mmf.hash);
 			mf.size = mmf.size;
-			if (mf.deleted) {
-				if (!mmf.filename.endsWith(".z")) {
-					mf.filename += ".z";
-				}
-				while (mf.filename[0] == '/') {
-					mf.filename = mf.filename.substr(1);
-				}
-				umm.files.push_back(mf);
+
+			if (!mmf.filename.endsWith(".z")) {
+				mf.filename += ".z";
 			}
+			while (mf.filename[0] == '/') {
+				mf.filename = mf.filename.substr(1);
+			}
+			umm.files.push_back(mf);
 		}
 		qint64 maxBytes = 0;
 		QStringList uploadFiles;
@@ -296,19 +302,14 @@ void ModFilesWidget::uploadCurrentMod() {
 						mf.size = 0;
 					} else {
 						// hash check
-						QString hashSum;
-						const bool b = Hashing::hash(it.value(), hashSum);
-						if (b) {
-							if (hashSum == s2q(mf.hash)) { // hash the same, so just update the language
-								mf.size = 0;
-							} else {
-								mf.uncompressedSize = getSize(it.value());
+						if (mmf.oldHash == mmf.hash) { // hash the same, so just update the language
+							mf.size = 0;
+						} else {
+							mf.uncompressedSize = getSize(it.value());
 
-								Compression::compress(it.value(), false);
+							Compression::compress(it.value(), false);
 
-								mf.hash = q2s(hashSum);
-								mf.size = getSize(it.value() + ".z");
-							}
+							mf.size = getSize(it.value() + ".z");
 						}
 					}
 					if (!mmf.filename.endsWith(".z")) {
@@ -442,15 +443,27 @@ void ModFilesWidget::addFolder() {
 	
 	if (dir.isEmpty()) return;
 
-	QList<QString> fileList;
+	QStringList fileList;
 
 	for (const auto & mmf : _data.files) {
 		auto fileName = mmf.filename;
 		if (fileName.endsWith(".z")) {
 			fileName.chop(2);
 		}
-		fileList.append(fileName);
+		fileList << fileName;
 	}
+
+	struct FileToAdd {
+		QString fullPath;
+		QString relativePath;
+		QString file;
+		QString path;
+		QFuture<QString> hashFuture;
+	};
+
+	QFutureSynchronizer<QString> syncer;
+	QList<FileToAdd> filesToAdd;
+	QFutureWatcher<void> watcher;
 
 	QDirIterator it(dir, QDir::Files, QDirIterator::Subdirectories);
 	while (it.hasNext()) {
@@ -460,9 +473,40 @@ void ModFilesWidget::addFolder() {
 
 		if (fileName.endsWith(".z")) continue; // skip already compressed/uploaded files, they can corrupt the file list!
 
-		addFile(it.filePath(), path.split(fileName)[0], fileName);
+		FileToAdd fta;
+		fta.fullPath = it.filePath();
+		fta.relativePath = path.split(fileName)[0];
+		fta.file = fileName;
+		fta.path = path;
+		fta.hashFuture = QtConcurrent::run([fta] {
+			QString hash;
+			Hashing::hash(fta.fullPath, hash);
 
-		fileList.removeAll(path.right(path.length() - 1));
+			return hash;
+		});
+
+		filesToAdd << fta;
+
+		syncer.addFuture(fta.hashFuture);
+	}
+
+	_waitSpinner = new WaitSpinner(QApplication::tr("Updating"), this);
+
+	const auto f = QtConcurrent::run([&syncer] {
+		syncer.waitForFinished();
+	});
+	watcher.setFuture(f);
+
+	QEventLoop loop;
+	connect(&watcher, &QFutureWatcher<void>::finished, &loop, &QEventLoop::quit);
+	loop.exec();
+
+	for (const auto & fta : filesToAdd) {
+		addFile(fta.fullPath, fta.relativePath, fta.file, fta.hashFuture.result());
+
+		fileList.removeAll(fta.path.right(fta.path.length() - 1));
+
+		loop.processEvents();
 	}
 
 	for (const QString & file : fileList) {
@@ -471,7 +515,11 @@ void ModFilesWidget::addFolder() {
 		if (idxList.isEmpty()) continue;
 		
 		deleteFile(idxList[0]);
+
+		loop.processEvents();
 	}
+
+	delete _waitSpinner;
 }
 
 void ModFilesWidget::showVersionUpdate(bool success) {
@@ -578,7 +626,7 @@ void ModFilesWidget::testUpdate() {
 	emit checkForUpdate(_mods[_modIndex].id, false);
 }
 
-void ModFilesWidget::addFile(QString fullPath, QString relativePath, QString file) {
+void ModFilesWidget::addFile(QString fullPath, QString relativePath, QString file, const QString & hash) {
 	while (relativePath.endsWith("/")) {
 		relativePath.resize(relativePath.length() - 1);
 	}
@@ -603,6 +651,7 @@ void ModFilesWidget::addFile(QString fullPath, QString relativePath, QString fil
 	_fileTreeView->expandAll();
 	_fileTreeView->resizeColumnToContents(0);
 	_fileTreeView->resizeColumnToContents(1);
+
 	bool found = false;
 	for (auto & it : _data.files) {
 		QString currentFileName = it.filename;
@@ -616,10 +665,10 @@ void ModFilesWidget::addFile(QString fullPath, QString relativePath, QString fil
 			if (it.deleted) {
 				it.deleted = false;
 			}
-			// check hash of new file
-			const bool b = Hashing::checkHash(fullPath, it.hash);
-			if (!b) { // hash changed
+			// check hash of new file			
+			if (hash != it.hash) { // hash changed
 				it.changed = true;
+				it.hash = hash;
 				markAsChanged(fullRelativePath);
 				_fileMap.insert(fullRelativePath, fullPath);
 			}
@@ -634,6 +683,7 @@ void ModFilesWidget::addFile(QString fullPath, QString relativePath, QString fil
 		mf.changed = true;
 		mf.deleted = false;
 		mf.newFile = true;
+		mf.hash = hash;
 		_data.files.append(mf);
 		_fileMap.insert(fullRelativePath, fullPath);
 	}

@@ -102,6 +102,7 @@ namespace client {
 
 	typedef struct ManagementModFile {
 		QString filename;
+		QString oldHash;
 		QString hash;
 		QString language;
 		bool changed = false;

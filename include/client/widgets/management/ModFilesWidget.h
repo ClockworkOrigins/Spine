@@ -97,7 +97,7 @@ namespace widgets {
 
 		QString _filterString;
 
-		void addFile(QString fullPath, QString relativePath, QString file);
+		void addFile(QString fullPath, QString relativePath, QString file, const QString & hash);
 		void addFile(QStandardItem * itm, QString file, QString language);
 		void deleteFile(const QModelIndex & idx);
 		QString getPathSuggestion(const QString & file) const;
