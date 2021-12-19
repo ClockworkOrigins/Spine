@@ -103,6 +103,7 @@ namespace widgets {
 		QString getPathSuggestion(const QString & file) const;
 
 		int64_t getSize(const QString & path) const;
+		void markAsChanged(const QString & relativePath);
 	};
 
 } /* namespace widgets */

@@ -73,7 +73,7 @@ namespace {
 	};
 }
 
-ModFilesWidget::ModFilesWidget(QWidget * par) : QWidget(par), _fileList(nullptr), _fileTreeView(nullptr), _modIndex(-1), _majorVersionBox(nullptr), _minorVersionBox(nullptr), _patchVersionBox(nullptr), _spineVersionBox(nullptr), _waitSpinner(nullptr) {
+ModFilesWidget::ModFilesWidget(QWidget * par) : QWidget(par), _fileList(nullptr), _fileTreeView(new QTreeView(this)), _modIndex(-1), _majorVersionBox(nullptr), _minorVersionBox(nullptr), _patchVersionBox(nullptr), _spineVersionBox(nullptr), _waitSpinner(nullptr) {
 	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
@@ -107,7 +107,6 @@ ModFilesWidget::ModFilesWidget(QWidget * par) : QWidget(par), _fileList(nullptr)
 		l->addLayout(hl2);
 	}
 
-	_fileTreeView = new QTreeView(this);
 	_fileList = new QStandardItemModel(_fileTreeView);
 	_fileTreeView->header()->hide();
 	_fileTreeView->setModel(_fileList);
@@ -621,6 +620,7 @@ void ModFilesWidget::addFile(QString fullPath, QString relativePath, QString fil
 			const bool b = Hashing::checkHash(fullPath, it.hash);
 			if (!b) { // hash changed
 				it.changed = true;
+				markAsChanged(fullRelativePath);
 				_fileMap.insert(fullRelativePath, fullPath);
 			}
 			found = true;
@@ -723,4 +723,18 @@ int64_t ModFilesWidget::getSize(const QString& path) const
 {
 	const QFileInfo fi(path);
 	return fi.size();
+}
+
+void ModFilesWidget::markAsChanged(const QString& relativePath) {
+	const auto idxList = _fileList->match(_fileList->index(0, 0), PathRole, QVariant::fromValue(relativePath), 2, Qt::MatchRecursive);
+
+	if (idxList.isEmpty()) return;
+
+	auto * itm = _fileList->itemFromIndex(idxList[0]);
+
+	const auto text = itm->data(Qt::DisplayRole).toString();
+
+	if (text.endsWith(" *")) return;
+
+	itm->setText(text + " *");
 }

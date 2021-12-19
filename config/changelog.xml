@@ -2270,9 +2270,11 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="37" patchVersion="0">
 		<Enhancement language="Deutsch">Dateigrößen werden serverseitig jetzt gespeichert</Enhancement>
+		<Enhancement language="Deutsch">Geänderte Dateien werden im Management jetzt angezeigt</Enhancement>
 		<Bug language="Deutsch">Fehler behoben, wodurch bei Sprachwechsel beim News schreiben Links und Bilder kaputt gegangen sind</Bug>
 
 		<Enhancement language="English">File size now get stored on server side</Enhancement>
+		<Enhancement language="English">Changed files now are displayed in management</Enhancement>
 		<Bug language="English">Fixed bug that caused links and images to break when changing language while writing news</Bug>
 	</Version>
 </Versions>
