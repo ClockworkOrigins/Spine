@@ -173,7 +173,7 @@ void ModUpdateDialog::updateModList(QList<ModUpdate> updates, bool forceAccept) 
 
 			if (!result.empty()) continue;
 
-			QString title = QString("%1 (%2 => %3.%4.%5)").arg(u.name).arg(_oldVersions[u.modID]).arg(static_cast<int>(u.majorVersion)).arg(static_cast<int>(u.minorVersion)).arg(static_cast<int>(u.patchVersion));
+			QString title = QString("%1 (%2 => %3.%4.%5, %6)").arg(u.name).arg(_oldVersions[u.modID]).arg(static_cast<int>(u.majorVersion)).arg(static_cast<int>(u.minorVersion)).arg(static_cast<int>(u.patchVersion)).arg(byteToString(u.size));
 
 			auto * hl = new QHBoxLayout();
 			
@@ -503,6 +503,10 @@ void ModUpdateDialog::requestUpdates(const QList<ModVersion> & m, bool forceAcce
 				mu.changelog = decodeString(j["Changelog"].toString()).replace("&quot;", "\"");
 				mu.modID = j["ProjectID"].toString().toInt();
 
+				Database::DBError err;
+				auto localFiles = Database::queryAll<ModFile, std::string, std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, File, Hash FROM modfiles WHERE ModID = " + std::to_string(mu.modID) + ";", err);
+				auto localPackages = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT DISTINCT PackageID FROM packages WHERE ModID = " + std::to_string(mu.modID) + ";", err);
+
 				if (j.contains("Files")) {
 					for (const auto jsonRef2 : j["Files"].toArray()) {
 						const auto j2 = jsonRef2.toObject();
@@ -511,12 +515,27 @@ void ModUpdateDialog::requestUpdates(const QList<ModVersion> & m, bool forceAcce
 						const auto hash = j2["Hash"].toString();
 						const auto size = j2["Size"].toString().toInt();
 
+						auto found = false;
+
+						const auto it = std::find_if(localFiles.begin(), localFiles.end(), [file](const ModFile & mf) {
+							return mf.file == file || mf.file + ".z" == file;
+						});
+
+						if (it != localFiles.end()) {
+							found = it->hash == hash;
+							localFiles.erase(it);
+						}
+
+						if (found) continue;
+
 						ModUpdate::File f;
 						f.path = file;
 						f.hash = hash;
 						f.size = size == 0 ? -1 : size;
 
 						mu.files << f;
+
+						mu.size += size;
 					}
 				}
 
@@ -528,6 +547,8 @@ void ModUpdateDialog::requestUpdates(const QList<ModVersion> & m, bool forceAcce
 
 						const auto packageID = j2["PackageID"].toString().toInt();
 
+						if (!localPackages.contains(packageID)) continue;
+
 						QList<ModUpdate::File> files;
 						
 						for (const auto jsonRef3 : j2["Files"].toArray()) {
@@ -537,12 +558,27 @@ void ModUpdateDialog::requestUpdates(const QList<ModVersion> & m, bool forceAcce
 							const auto hash = j3["Hash"].toString();
 							const auto size = j2["Size"].toString().toInt();
 
+							auto found = false;
+
+							const auto it = std::find_if(localFiles.begin(), localFiles.end(), [file](const ModFile & mf) {
+								return mf.file == file || mf.file + ".z" == file;
+							});
+
+							if (it != localFiles.end()) {
+								found = it->hash == hash;
+								localFiles.erase(it);
+							}
+
+							if (found) continue;
+
 							ModUpdate::File f;
 							f.path = file;
 							f.hash = hash;
 							f.size = size == 0 ? -1 : size;
 
 							files << f;
+
+							mu.size += size;
 						}
 						
 						mu.packageFiles << qMakePair(packageID, files);

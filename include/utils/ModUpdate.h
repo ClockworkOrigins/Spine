@@ -49,8 +49,9 @@ namespace utils {
 		common::GameType gothicVersion;
 		bool savegameCompatible;
 		QString changelog;
+		int64_t size;
 
-		ModUpdate() : modID(0), majorVersion(0), minorVersion(0), patchVersion(0), spineVersion(0), gothicVersion(common::GameType::Gothic), savegameCompatible(false) {}
+		ModUpdate() : modID(0), majorVersion(0), minorVersion(0), patchVersion(0), spineVersion(0), gothicVersion(common::GameType::Gothic), savegameCompatible(false), size(0) {}
 	};
 
 } /* namespace common */
