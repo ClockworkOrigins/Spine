@@ -18,6 +18,7 @@
 
 #include "launcher/Gothic1And2Launcher.h"
 
+#include "InstallMode.h"
 #include "LibraryFilterModel.h"
 #include "SpineConfig.h"
 
@@ -47,7 +48,6 @@
 #include <QApplication>
 #include <QCheckBox>
 #include <QDirIterator>
-#include <QElapsedTimer>
 #include <QFile>
 #include <QFutureWatcher>
 #include <QGroupBox>
@@ -744,6 +744,7 @@ void Gothic1And2Launcher::start() {
 	QFuture<bool> future = QtConcurrent::run<bool>(this, &Gothic1And2Launcher::prepareModStart, &usedExecutable, &backgroundExecutables, &newGMP, &dependencies, &renderer);
 	watcher.setFuture(future);
 	loop.exec();
+
 	if (!future.result()) {
 		splash.hide();
 		if (!dependencies.isEmpty()) {
@@ -762,7 +763,13 @@ void Gothic1And2Launcher::start() {
 						}
 					}
 				}
-				emit errorMessage(msg);
+				emit errorMessage(msg, true, [this, dependencies] {
+					for (const auto & s : dependencies) {
+						const auto id = s.toInt();
+
+						emit installMod(id, -1, InstallMode::Silent);
+					}
+				});
 			});
 		}
 		widgets::MainWindow::getInstance()->setEnabled(true);
@@ -1638,7 +1645,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 
 							auto name = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Name FROM patches WHERE ModID = " + patchIDString + " LIMIT 1;", err);
 							Q_ASSERT(!name.empty());
-							emit errorMessage(QApplication::tr("PatchIncomplete").arg(s2q(name[0])));
+							emit errorMessage(QApplication::tr("PatchIncomplete").arg(s2q(name[0])), false, nullptr);
 							return false;
 						}
 					}
@@ -1668,8 +1675,8 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 		}
 	}
 	emitSplashMessage(QApplication::tr("CopyingModfiles"));
-	QSettings iniParser(_iniFile, QSettings::IniFormat);
 	{
+		QSettings iniParser(_iniFile, QSettings::IniFormat);
 		QString modFiles = iniParser.value("FILES/VDF", "").toString();
 		QString executable = stripRelativePath(iniParser.value("FILES/Executable", "").toString());
 		if (!executable.isEmpty()) {

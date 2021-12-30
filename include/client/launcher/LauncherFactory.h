@@ -50,7 +50,7 @@ namespace launcher {
 
 	signals:
 		void restartAsAdmin();
-		void errorMessage(QString);
+		void errorMessage(QString, bool canFix, const std::function<void()> & fixCallback);
 		void openAchievementView(int32_t, QString);
 		void openScoreView(int32_t, QString);
 		void finishedInstallation(int, int, bool);

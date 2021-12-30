@@ -41,10 +41,11 @@ using namespace spine::utils;
 using namespace spine::widgets;
 
 ModInfoView::ModInfoView(GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _layout(nullptr) {
+	qRegisterMetaType<std::function<void()>>("std::function<void()>");
 	connect(this, &ModInfoView::errorMessage, this, &ModInfoView::showErrorMessage);
 
 	{
-		auto * const factory = LauncherFactory::getInstance();
+		const auto * factory = LauncherFactory::getInstance();
 		connect(factory, &LauncherFactory::restartAsAdmin, this, &ModInfoView::restartSpineAsAdmin);
 		connect(factory, &LauncherFactory::errorMessage, this, &ModInfoView::errorMessage);
 		
@@ -176,11 +177,30 @@ void ModInfoView::restartSpineAsAdmin() {
 #endif
 }
 
-void ModInfoView::showErrorMessage(QString msg) {
-	QMessageBox msgBox(QMessageBox::Icon::Information, QApplication::tr("ErrorOccurred"), msg, QMessageBox::StandardButton::Ok);
+void ModInfoView::showErrorMessage(QString msg, bool canFix, const std::function<void()> & fixCallback) {
+	QMessageBox::StandardButtons buttons = QMessageBox::StandardButton::Ok;
+
+	if (canFix) {
+		buttons |= QMessageBox::Apply;
+	}
+
+	QMessageBox msgBox(QMessageBox::Icon::Information, QApplication::tr("ErrorOccurred"), msg, buttons);
 	msgBox.setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 	msgBox.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
-	msgBox.exec();
+
+	if (canFix) {
+		msgBox.button(QMessageBox::StandardButton::Apply)->setText(QApplication::tr("FixError"));
+	}
+
+	const auto btn = msgBox.exec();
+
+	if (!canFix || btn != QMessageBox::Apply) return;
+
+	Q_ASSERT(fixCallback);
+
+	if (!fixCallback) return;
+
+	fixCallback();
 }
 
 void ModInfoView::restoreSettings() {

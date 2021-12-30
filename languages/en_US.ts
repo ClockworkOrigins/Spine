@@ -3419,5 +3419,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>ReviewSubmittedText</source>
         <translation>Your review has been successfully submitted and will be displayed to other visitors now.</translation>
     </message>
+    <message>
+        <source>FixError</source>
+        <translation>Fix error</translation>
+    </message>
 </context>
 </TS>

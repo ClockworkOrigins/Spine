@@ -3407,5 +3407,9 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>ReviewSubmittedText</source>
         <translation>Twoja opinia została pomyślnie przesłana i zostanie teraz wyświetlona dla innych odwiedzających.</translation>
     </message>
+    <message>
+        <source>FixError</source>
+        <translation>Napraw błąd</translation>
+    </message>
 </context>
 </TS>

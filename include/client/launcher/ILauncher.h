@@ -93,7 +93,7 @@ namespace launcher {
 	signals:
 		void restartAsAdmin();
 		void receivedModStats(common::ProjectStats);
-		void errorMessage(QString);
+		void errorMessage(QString, bool canFix, const std::function<void()> & fixCallback);
 		void openAchievementView(int32_t, QString);
 		void openScoreView(int32_t, QString);
 		void loadedSurvey(widgets::Survey survey, int versionMajor, int versionMinor, int versionPatch);

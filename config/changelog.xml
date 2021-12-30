@@ -2273,12 +2273,14 @@
 		<Enhancement language="Deutsch">Geänderte Dateien werden im Management jetzt angezeigt</Enhancement>
 		<Enhancement language="Deutsch">Geschwindigkeit des Upload-Processings optimiert</Enhancement>
 		<Enhancement language="Deutsch">Dateigrößen für Updates werden jetzt angezeigt</Enhancement>
+		<Enhancement language="Deutsch">Möglichkeit eingebaut fehlende Abhängigkeiten direkt im Dialog mit der Fehlermeldung zu installieren</Enhancement>
 		<Bug language="Deutsch">Fehler behoben, wodurch bei Sprachwechsel beim News schreiben Links und Bilder kaputt gegangen sind</Bug>
 
 		<Enhancement language="English">File size now get stored on server side</Enhancement>
 		<Enhancement language="English">Changed files now are displayed in management</Enhancement>
 		<Enhancement language="English">Optimized speed of upload processing</Enhancement>
 		<Enhancement language="English">File sizes for updates now are getting displayed</Enhancement>
+		<Enhancement language="English">Added possibility to install missing dependencies directly in the dialog with the error message</Enhancement>
 		<Bug language="English">Fixed bug that caused links and images to break when changing language while writing news</Bug>
 	</Version>
 </Versions>

@@ -52,7 +52,7 @@ namespace widgets {
 		void openAchievementView(int32_t, QString);
 		void openScoreView(int32_t, QString);
 		void updatedG2Path();
-		void errorMessage(QString);
+		void errorMessage(QString, bool canFix, const std::function<void()> & fixCallback);
 		void installMod(int, int, client::InstallMode);
 
 	public slots:
@@ -65,7 +65,7 @@ namespace widgets {
 
 	private slots:
 		void restartSpineAsAdmin();
-		void showErrorMessage(QString msg);
+		void showErrorMessage(QString msg, bool canFix, const std::function<void()> & fixCallback);
 		void showSurvey(Survey survey, int versionMajor, int versionMinor, int versionPatch);
 
 	private:

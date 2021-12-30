@@ -3411,5 +3411,9 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>ReviewSubmittedText</source>
         <translation>Dein Review wurde erfolgreich eingereicht und wird anderen Besuchern jetzt angezeigt.</translation>
     </message>
+    <message>
+        <source>FixError</source>
+        <translation>Fehler beheben</translation>
+    </message>
 </context>
 </TS>

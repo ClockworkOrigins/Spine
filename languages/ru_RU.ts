@@ -3412,5 +3412,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>ReviewSubmittedText</source>
         <translation>Ваш отзыв успешно отправлен и теперь будет показан другим посетителям.</translation>
     </message>
+    <message>
+        <source>FixError</source>
+        <translation>Исправить ошибку</translation>
+    </message>
 </context>
 </TS>
