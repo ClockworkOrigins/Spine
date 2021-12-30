@@ -947,7 +947,7 @@ void ModDatabaseView::downloadModFiles(Mod mod, QSharedPointer<QList<QPair<QStri
 
 		const auto relativePath = QString::number(mod.id) + "/" + p.first;
 		
-		auto * fd = new FileDownloader(QUrl(fileserver + relativePath), QUrl(fallbackServer + relativePath), dir.absolutePath() + "/" + fi.path(), fi.fileName(), p.second, mfd);
+		auto * fd = new FileDownloader(QUrl(fileserver + relativePath), QUrl(fallbackServer + relativePath), dir.absolutePath() + "/" + fi.path(), fi.fileName(), p.second, -1, mfd);
 		mfd->addFileDownloader(fd);
 
 		// zip workflow
@@ -1248,7 +1248,7 @@ void ModDatabaseView::downloadPackageFiles(Mod mod, Package package, QSharedPoin
 
 		const auto relativePath = QString::number(mod.id) + "/" + p.first;
 		
-		auto * fd = new FileDownloader(QUrl(fileserver + relativePath), QUrl(fallbackServer + relativePath), dir.absolutePath() + "/" + fi.path(), fi.fileName(), p.second, mfd);
+		auto * fd = new FileDownloader(QUrl(fileserver + relativePath), QUrl(fallbackServer + relativePath), dir.absolutePath() + "/" + fi.path(), fi.fileName(), p.second, -1, mfd);
 		mfd->addFileDownloader(fd);
 
 		// zip workflow

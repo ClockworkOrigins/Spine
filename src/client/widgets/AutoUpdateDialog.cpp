@@ -143,7 +143,7 @@ void AutoUpdateDialog::checkForUpdate() {
 		return;
 	}
 #endif
-	MultiFileDownloader * mfd = new MultiFileDownloader(this);
+	auto * mfd = new MultiFileDownloader(this);
 	connect(mfd, &MultiFileDownloader::downloadFailed, mfd, &MultiFileDownloader::deleteLater);
 	connect(mfd, &MultiFileDownloader::downloadSucceeded, mfd, &MultiFileDownloader::deleteLater);
 	QStringList removedFiles;
@@ -164,7 +164,7 @@ void AutoUpdateDialog::checkForUpdate() {
 			removeFiles << shortFilename;
 		}
 		QFileInfo fi(QString::fromStdString(p.first));
-		FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/Spine/" + QString::fromStdString(p.first)), qApp->applicationDirPath() + "/../" + fi.path(), fi.fileName(), QString::fromStdString(p.second), mfd);
+		auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/Spine/" + QString::fromStdString(p.first)), qApp->applicationDirPath() + "/../" + fi.path(), fi.fileName(), QString::fromStdString(p.second), -1, mfd);
 		mfd->addFileDownloader(fd);
 	}
 	delete ufm;

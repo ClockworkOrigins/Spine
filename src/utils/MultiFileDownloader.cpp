@@ -96,7 +96,7 @@ void MultiFileDownloader::updateDownloadProgress(qint64 bytesReceived) {
 	assert(fd);
 	_downloadStats[fd].first = bytesReceived;
 	qint64 sum = 0;
-	for (auto & downloadStat : _downloadStats) {
+	for (const auto & downloadStat : _downloadStats) {
 		sum += downloadStat.first;
 	}
 	emit downloadProgress(sum);

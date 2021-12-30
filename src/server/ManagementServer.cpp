@@ -18,6 +18,7 @@
 
 #include "ManagementServer.h"
 
+#include "DownloadSizeChecker.h"
 #include "FileSynchronizer.h"
 #include "LanguageConverter.h"
 #include "MariaDBWrapper.h"
@@ -1247,6 +1248,8 @@ void ManagementServer::updateModVersion(std::shared_ptr<HttpsServer::Response> r
 			job.projectID = projectID;
 			
 			FileSynchronizer::addJob(job);
+
+			DownloadSizeChecker::refresh();
 			
 			if (!database.query("EXECUTE isEnabledStmt USING @paramModID;")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;

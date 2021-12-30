@@ -49,7 +49,7 @@
 using namespace spine::common;
 using namespace spine::server;
 
-Server::Server() : _listenClient(new clockUtils::sockets::TcpSocket()), _listenMPServer(new clockUtils::sockets::TcpSocket()), _downloadSizeChecker(new DownloadSizeChecker()), _matchmakingServer(new MatchmakingServer()), _gmpServer(new GMPServer()), _uploadServer(new UploadServer()), _databaseServer(new DatabaseServer(_downloadSizeChecker)), _managementServer(new ManagementServer()) {
+Server::Server() : _listenClient(new clockUtils::sockets::TcpSocket()), _listenMPServer(new clockUtils::sockets::TcpSocket()), _matchmakingServer(new MatchmakingServer()), _gmpServer(new GMPServer()), _uploadServer(new UploadServer()), _databaseServer(new DatabaseServer()), _managementServer(new ManagementServer()) {
 	DatabaseCreator::createTables();
 
 	DatabaseMigrator::migrate();
@@ -62,7 +62,7 @@ Server::Server() : _listenClient(new clockUtils::sockets::TcpSocket()), _listenM
 
 	StatsCollector::init();
 
-	_downloadSizeChecker->init();
+	DownloadSizeChecker::init();
 }
 
 Server::~Server() {
@@ -71,7 +71,6 @@ Server::~Server() {
 	
 	delete _listenClient;
 	delete _listenMPServer;
-	delete _downloadSizeChecker;
 	delete _matchmakingServer;
 	delete _gmpServer;
 	delete _uploadServer;
@@ -105,7 +104,7 @@ int Server::run() {
 			break;
 		}
 		case 'c': {
-			_downloadSizeChecker->clear();
+			DownloadSizeChecker::clear();
 			break;
 		}
 		default: {

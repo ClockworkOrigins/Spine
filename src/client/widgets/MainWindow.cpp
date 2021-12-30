@@ -1009,17 +1009,17 @@ void MainWindow::checkIntegrity(int projectID) {
 				auto * mfd = new MultiFileDownloader(this);
 				for (const IntegrityCheckDialog::ModFile & file : fixFiles) {
 					QFileInfo fi(file.file);
-					auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(file.modID) + "/" + file.file), Config::DOWNLOADDIR + "/mods/" + QString::number(file.modID) + "/" + fi.path(), fi.fileName(), file.hash, mfd);
+					auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(file.modID) + "/" + file.file), Config::DOWNLOADDIR + "/mods/" + QString::number(file.modID) + "/" + fi.path(), fi.fileName(), file.hash, -1, mfd);
 					mfd->addFileDownloader(fd);
 				}
 				for (const IntegrityCheckDialog::ModFile & file : corruptGothicFiles) {
 					QFileInfo fi(file.file);
-					auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/g1/" + file.file), _gothicDirectory + "/" + fi.path(), fi.fileName(), file.hash, mfd);
+					auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/g1/" + file.file), _gothicDirectory + "/" + fi.path(), fi.fileName(), file.hash, -1, mfd);
 					mfd->addFileDownloader(fd);
 				}
 				for (const IntegrityCheckDialog::ModFile & file : corruptGothic2Files) {
 					QFileInfo fi(file.file);
-					auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/g2/" + file.file), _gothic2Directory + "/" + fi.path(), fi.fileName(), file.hash, mfd);
+					auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/g2/" + file.file), _gothic2Directory + "/" + fi.path(), fi.fileName(), file.hash, -1, mfd);
 					mfd->addFileDownloader(fd);
 				}
 

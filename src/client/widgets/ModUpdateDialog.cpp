@@ -61,7 +61,7 @@ using namespace spine::https;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-ModUpdateDialog::ModFile::ModFile(std::string i, std::string s1, std::string s2) : modID(std::stoi(i)), file(s2q(s1)), hash(s2q(s2)) {}
+ModUpdateDialog::ModFile::ModFile(std::string i, std::string s1, std::string s2) : modID(std::stoi(i)), file(s2q(s1)), hash(s2q(s2)), size(-1) {}
 
 ModUpdateDialog::ModUpdateDialog(QMainWindow * mainWindow) : QDialog(nullptr), _mainWindow(mainWindow), _infoLabel(nullptr), _checkBoxLayout(nullptr), _running(false), _lastTimeRejected(false), _loginChecked(false), _spineUpdateChecked(false) {
 	auto * l = new QVBoxLayout();
@@ -334,7 +334,7 @@ bool ModUpdateDialog::hasChanges(ModUpdate mu) const {
 
 	for (auto it = mu.packageFiles.begin(); it != mu.packageFiles.end();) {
 		bool found = false;
-		for (int i : packageIDs) {
+		for (const int i : packageIDs) {
 			if (it->first == i) {
 				found = true;
 				break;
@@ -351,7 +351,7 @@ bool ModUpdateDialog::hasChanges(ModUpdate mu) const {
 		while (!b && !mu.files.empty()) {
 			bool found = false;
 			for (auto it = m.begin(); it != m.end(); ++it) {
-				if ((it->file == mu.files[0].first || it->file + ".z" == mu.files[0].first) && it->hash == mu.files[0].second) {
+				if ((it->file == mu.files[0].path || it->file + ".z" == mu.files[0].path) && it->hash == mu.files[0].hash) {
 					mu.files.erase(mu.files.begin());
 					m.erase(it);
 					found = true;
@@ -367,7 +367,7 @@ bool ModUpdateDialog::hasChanges(ModUpdate mu) const {
 			for (auto it = m.begin(); it != m.end(); ++it) {
 				for (auto it2 = mu.packageFiles.begin(); it2 != mu.packageFiles.end(); ++it2) {
 					for (auto it3 = it2->second.begin(); it3 != it2->second.end(); ++it3) {
-						if ((it->file == it3->first || it->file + ".z" == it3->first) && it->hash == it3->second) {
+						if ((it->file == it3->path || it->file + ".z" == it3->path) && it->hash == it3->hash) {
 							it2->second.erase(it3);
 							if (it2->second.empty()) {
 								mu.packageFiles.erase(it2);
@@ -509,8 +509,14 @@ void ModUpdateDialog::requestUpdates(const QList<ModVersion> & m, bool forceAcce
 
 						const auto file = j2["File"].toString();
 						const auto hash = j2["Hash"].toString();
+						const auto size = j2["Size"].toString().toInt();
 
-						mu.files << qMakePair(file, hash);
+						ModUpdate::File f;
+						f.path = file;
+						f.hash = hash;
+						f.size = size == 0 ? -1 : size;
+
+						mu.files << f;
 					}
 				}
 
@@ -522,15 +528,21 @@ void ModUpdateDialog::requestUpdates(const QList<ModVersion> & m, bool forceAcce
 
 						const auto packageID = j2["PackageID"].toString().toInt();
 
-						QList<QPair<QString, QString>> files;
+						QList<ModUpdate::File> files;
 						
 						for (const auto jsonRef3 : j2["Files"].toArray()) {
 							const auto j3 = jsonRef3.toObject();
 
 							const auto file = j3["File"].toString();
 							const auto hash = j3["Hash"].toString();
+							const auto size = j2["Size"].toString().toInt();
 
-							files << qMakePair(file, hash);
+							ModUpdate::File f;
+							f.path = file;
+							f.hash = hash;
+							f.size = size == 0 ? -1 : size;
+
+							files << f;
 						}
 						
 						mu.packageFiles << qMakePair(packageID, files);
@@ -555,13 +567,13 @@ void ModUpdateDialog::updateProject(ModUpdate mu) {
 	auto p = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT DISTINCT PackageID FROM packages WHERE ModID = " + std::to_string(mu.modID) + ";", err);
 	QList<ModFile> updateFiles;
 	for (const auto & pr : mu.files) {
-		updateFiles << ModFile(mu.modID, pr.first, pr.second, -1, mu.fileserver, mu.fallbackFileserver);
+		updateFiles << ModFile(mu.modID, pr.path, pr.hash, -1, mu.fileserver, mu.fallbackFileserver, pr.size);
 	}
 	for (int packageID : p) {
 		for (int j = 0; j < mu.packageFiles.size(); j++) {
 			if (mu.packageFiles[j].first == packageID) {
 				for (const auto & pr : mu.packageFiles[j].second) {
-					updateFiles << ModFile(mu.modID, pr.first, pr.second, mu.packageFiles[j].first, mu.fileserver, mu.fallbackFileserver);
+					updateFiles << ModFile(mu.modID, pr.path, pr.hash, mu.packageFiles[j].first, mu.fileserver, mu.fallbackFileserver, pr.size);
 				}
 				mu.files.append(mu.packageFiles[j].second);
 				break;
@@ -583,7 +595,7 @@ void ModUpdateDialog::updateProject(ModUpdate mu) {
 			bool add = false;
 			for (const auto & pr : mu.packageFiles[j].second) {
 				for (const auto & mf : m) {
-					if (mf.file == pr.first) {
+					if (mf.file == pr.path) {
 						newPackages.insert(mu.packageFiles[j].first);
 						add = true;
 						break;
@@ -595,7 +607,7 @@ void ModUpdateDialog::updateProject(ModUpdate mu) {
 			}
 			if (add) {
 				for (const auto & pr : mu.packageFiles[j].second) {
-					updateFiles << ModFile(mu.modID, pr.first, pr.second, mu.packageFiles[j].first, mu.fileserver, mu.fallbackFileserver);
+					updateFiles << ModFile(mu.modID, pr.path, pr.hash, mu.packageFiles[j].first, mu.fileserver, mu.fallbackFileserver, pr.size);
 				}
 			}
 		}
@@ -648,7 +660,7 @@ void ModUpdateDialog::updateProject(ModUpdate mu) {
 
 		const auto relativePath = QString::number(mf.modID) + "/" + mf.file;
 		
-		auto * fd = new FileDownloader(QUrl(mf.fileserver + relativePath), QUrl(mf.fallbackFileserver + relativePath), dir.absolutePath() + "/" + fi.path(), fi.fileName(), mf.hash, mfd);
+		auto * fd = new FileDownloader(QUrl(mf.fileserver + relativePath), QUrl(mf.fallbackFileserver + relativePath), dir.absolutePath() + "/" + fi.path(), fi.fileName(), mf.hash, mf.size, mfd);
 		mfd->addFileDownloader(fd);
 
 		// zip workflow
@@ -660,7 +672,7 @@ void ModUpdateDialog::updateProject(ModUpdate mu) {
 		// 2. reported files need to be added to filelist and archive must be removed
 		connect(fd, &FileDownloader::unzippedArchive, this, [this, mf, installFiles, newFiles, removeFiles](const QString & archive, const QList<QPair<QString, QString>> & files) {
 			unzippedArchive(archive, files, mf, installFiles, newFiles, removeFiles);
-			});
+		});
 	}
 	for (const ModFile & mf : *newFiles) {
 		QDir dir(Config::DOWNLOADDIR + "/mods/" + QString::number(mf.modID));
@@ -672,7 +684,7 @@ void ModUpdateDialog::updateProject(ModUpdate mu) {
 
 		const auto relativePath = QString::number(mf.modID) + "/" + mf.file;
 		
-		auto * fd = new FileDownloader(QUrl(mf.fileserver + relativePath), QUrl(mf.fallbackFileserver + relativePath), dir.absolutePath() + "/" + fi.path(), fi.fileName(), mf.hash, mfd);
+		auto * fd = new FileDownloader(QUrl(mf.fileserver + relativePath), QUrl(mf.fallbackFileserver + relativePath), dir.absolutePath() + "/" + fi.path(), fi.fileName(), mf.hash, mf.size, mfd);
 		mfd->addFileDownloader(fd);
 
 		// zip workflow
@@ -774,13 +786,13 @@ void ModUpdateDialog::updateProject(ModUpdate mu) {
 
 void ModUpdateDialog::clear() {
 	_updates.clear();
-	for (QCheckBox * cb : _checkBoxes) {
+	for (const QCheckBox * cb : _checkBoxes) {
 		delete cb;
 	}
-	for (QWidget * w : _widgets) {
+	for (const QWidget * w : _widgets) {
 		delete w;
 	}
-	for (QHBoxLayout * hl : _checkBoxLayouts) {
+	for (const QHBoxLayout * hl : _checkBoxLayouts) {
 		delete hl;
 	}
 	_checkBoxes.clear();

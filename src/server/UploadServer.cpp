@@ -20,6 +20,7 @@
 
 #include <fstream>
 
+#include "DownloadSizeChecker.h"
 #include "FileSynchronizer.h"
 #include "MariaDBWrapper.h"
 #include "SpineServerConfig.h"
@@ -428,4 +429,6 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 	const std::string serialized = am.SerializeBlank();
 	sock->writePacket(serialized);
 	delete sock;
+
+	DownloadSizeChecker::refresh();
 }

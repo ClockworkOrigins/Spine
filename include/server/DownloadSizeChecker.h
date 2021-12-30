@@ -27,18 +27,23 @@ namespace server {
 
 	class DownloadSizeChecker {
 	public:
-		uint64_t getBytes(int32_t modID, const std::string & language, uint32_t version);
-		uint64_t getBytesForPackage(int32_t modID, int32_t optionalID, const std::string & language, uint32_t version);
+		static uint64_t getBytes(int32_t modID, const std::string & language, uint32_t version);
+		static uint64_t getBytesForPackage(int32_t modID, int32_t optionalID, const std::string & language, uint32_t version);
+		static uint64_t getSizeForFile(int32_t projectID, const std::string & path);
+		static uint64_t getSizeForPackageFile(int32_t packageID, const std::string & path);
 
-		void init();
-		void clear();
+		static void init();
+		static void clear();
+		static void refresh();
 
 	private:
-		std::map<std::tuple<int32_t, std::string, uint32_t>, uint64_t> _cache;
-		std::map<std::tuple<int32_t, std::string, uint32_t>, uint64_t> _packageCache;
-		std::map<int32_t, uint64_t> _fileSizes;
-		std::map<int32_t, uint64_t> _packageFileSizes;
-		std::mutex _lock;
+		static std::map<std::tuple<int32_t, std::string, uint32_t>, uint64_t> _cache;
+		static std::map<std::tuple<int32_t, std::string, uint32_t>, uint64_t> _packageCache;
+		static std::map<int32_t, uint64_t> _fileSizes;
+		static std::map<int32_t, uint64_t> _packageFileSizes;
+		static std::map<std::pair<int32_t, std::string>, int32_t> _fileToFileIDs;
+		static std::map<std::pair<int32_t, std::string>, int32_t> _fileToPackageIDs;
+		static std::recursive_mutex _lock;
 	};
 
 } /* namespace server */

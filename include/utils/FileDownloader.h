@@ -40,8 +40,8 @@ namespace utils {
 		Q_OBJECT
 
 	public:
-		FileDownloader(QUrl url, QString targetDirectory, QString fileName, QString hash, QObject * par);
-		FileDownloader(QUrl url, QUrl fallbackUrl, QString targetDirectory, QString fileName, QString hash, QObject * par);
+		FileDownloader(QUrl url, QString targetDirectory, QString fileName, QString hash, int64_t size, QObject * par);
+		FileDownloader(QUrl url, QUrl fallbackUrl, QString targetDirectory, QString fileName, QString hash, int64_t size, QObject * par);
 		~FileDownloader();
 
 		void startDownload();

@@ -26,9 +26,16 @@
 #include "boost/filesystem.hpp"
 
 using namespace spine::server;
+std::map<std::tuple<int32_t, std::string, uint32_t>, uint64_t> DownloadSizeChecker::_cache;
+std::map<std::tuple<int32_t, std::string, uint32_t>, uint64_t> DownloadSizeChecker::_packageCache;
+std::map<int32_t, uint64_t> DownloadSizeChecker::_fileSizes;
+std::map<int32_t, uint64_t> DownloadSizeChecker::_packageFileSizes;
+std::map<std::pair<int32_t, std::string>, int32_t> DownloadSizeChecker::_fileToFileIDs;
+std::map<std::pair<int32_t, std::string>, int32_t> DownloadSizeChecker::_fileToPackageIDs;
+std::recursive_mutex DownloadSizeChecker::_lock;
 
 uint64_t DownloadSizeChecker::getBytes(int32_t modID, const std::string & language, uint32_t version) {
-	std::lock_guard<std::mutex> lg(_lock);
+	std::lock_guard<std::recursive_mutex> lg(_lock);
 	const auto it = _cache.find(std::make_tuple(modID, language, version));
 	if (it != _cache.end()) {
 		return it->second;
@@ -99,7 +106,7 @@ uint64_t DownloadSizeChecker::getBytes(int32_t modID, const std::string & langua
 }
 
 uint64_t DownloadSizeChecker::getBytesForPackage(int32_t modID, int32_t optionalID, const std::string & language, uint32_t version) {
-	std::lock_guard<std::mutex> lg(_lock);
+	std::lock_guard<std::recursive_mutex> lg(_lock);
 	const auto it = _packageCache.find(std::make_tuple(optionalID, language, version));
 	if (it != _packageCache.end()) {
 		return it->second;
@@ -169,8 +176,46 @@ uint64_t DownloadSizeChecker::getBytesForPackage(int32_t modID, int32_t optional
 	return bytes;
 }
 
+uint64_t DownloadSizeChecker::getSizeForFile(int32_t projectID, const std::string& path) {
+	std::lock_guard<std::recursive_mutex> lg(_lock);
+	const auto p = std::make_pair(projectID, path);
+
+	const auto it = _fileToFileIDs.find(p);
+
+	// this case should never happen
+	if (it == _fileToFileIDs.end()) return 0;
+
+	const auto fileID = it->second;
+
+	const auto it2 = _fileSizes.find(fileID);
+
+	// this could happen for the first call before database got cached a first time
+	if (it2 == _fileSizes.end()) return 0;
+
+	return it2->second;
+}
+
+uint64_t DownloadSizeChecker::getSizeForPackageFile(int32_t packageID, const std::string& path) {
+	std::lock_guard<std::recursive_mutex> lg(_lock);
+	const auto p = std::make_pair(packageID, path);
+
+	const auto it = _fileToPackageIDs.find(p);
+
+	// this case should never happen
+	if (it == _fileToPackageIDs.end()) return 0;
+
+	const auto fileID = it->second;
+
+	const auto it2 = _packageFileSizes.find(fileID);
+
+	// this could happen for the first call before database got cached a first time
+	if (it2 == _packageFileSizes.end()) return 0;
+
+	return it2->second;
+}
+
 void DownloadSizeChecker::init() {
-	std::lock_guard<std::mutex> lg(_lock);
+	std::lock_guard<std::recursive_mutex> lg(_lock);
 	MariaDBWrapper database;
 	if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, SPINEDATABASE, 0)) {
 		std::cout << "Couldn't connect to database: " << __LINE__ << " " << database.getLastError() << std::endl;
@@ -181,6 +226,14 @@ void DownloadSizeChecker::init() {
 		return;
 	}
 	if (!database.query("PREPARE selectPackagesStmt FROM \"SELECT FileID, CompressedSize FROM packageFileSizes\";")) {
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
+		return;
+	}
+	if (!database.query("PREPARE selectFileIDsStmt FROM \"SELECT PackageID, FileID, Path FROM optionalpackagefiles\";")) {
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
+		return;
+	}
+	if (!database.query("PREPARE selectPackageFileIDsStmt FROM \"SELECT ModID, FileID, Path FROM modfiles\";")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 		return;
 	}
@@ -207,10 +260,53 @@ void DownloadSizeChecker::init() {
 		const auto size = std::stoull(vec[1]);
 		_packageFileSizes.insert(std::make_pair(fileID, size));
 	}
+
+	if (!database.query("EXECUTE selectFileIDsStmt;")) {
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
+		return;
+	}
+	lastResults = database.getResults<std::vector<std::string>>();
+
+	for (const auto & vec : lastResults) {
+		const auto projectID = std::stoi(vec[0]);
+		const auto fileID = std::stoi(vec[1]);
+		const auto path = vec[0];
+
+		_fileToFileIDs.insert(std::make_pair(std::make_pair(projectID, path), fileID));
+	}
+
+	if (!database.query("EXECUTE selectPackageFileIDsStmt;")) {
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
+		return;
+	}
+	lastResults = database.getResults<std::vector<std::string>>();
+
+	for (const auto & vec : lastResults) {
+		const auto projectID = std::stoi(vec[0]);
+		const auto packageFileID = std::stoi(vec[1]);
+		const auto path = vec[0];
+
+		_fileToPackageIDs.insert(std::make_pair(std::make_pair(projectID, path), packageFileID));
+	}
 }
 
 void DownloadSizeChecker::clear() {
-	std::lock_guard<std::mutex> lg(_lock);
+	std::lock_guard<std::recursive_mutex> lg(_lock);
 	_cache.clear();
 	_packageCache.clear();
+}
+
+void DownloadSizeChecker::refresh() {
+	std::thread([] {
+		std::lock_guard<std::recursive_mutex> lg(_lock);
+
+		clear();
+
+		_fileSizes.clear();
+		_packageFileSizes.clear();
+		_fileToFileIDs.clear();
+		_fileToPackageIDs.clear();
+
+		init();
+	}).detach();
 }

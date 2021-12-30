@@ -147,7 +147,7 @@ void Gothic2Launcher::patchCheck() {
 			empty = false;
 			
 			QFileInfo fi(it.key());
-			auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/g2/" + it.key()), _directory + "/" + fi.path(), fi.fileName(), it.value(), mfd);
+			auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/g2/" + it.key()), _directory + "/" + fi.path(), fi.fileName(), it.value(), -1, mfd);
 			mfd->addFileDownloader(fd);
 		}
 	}

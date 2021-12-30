@@ -227,7 +227,7 @@ void StartPageWidget::updateNews() {
 			filename.chop(2); // every image is compressed, so it has a .z at the end
 			if (!QFileInfo::exists(Config::NEWSIMAGEDIR + "/" + filename)) {
 				QFileInfo fi(p.first);
-				auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/news/images/" + p.first), Config::NEWSIMAGEDIR + "/" + fi.path(), fi.fileName(), p.second, mfd);
+				auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/news/images/" + p.first), Config::NEWSIMAGEDIR + "/" + fi.path(), fi.fileName(), p.second, -1, mfd);
 				mfd->addFileDownloader(fd);
 				download = true;
 			}

@@ -30,14 +30,20 @@ namespace spine {
 namespace utils {
 
 	struct ModUpdate {
+		struct File {
+			QString path;
+			QString hash;
+			int64_t size;
+		};
+
 		int32_t modID;
 		QString name;
 		int8_t majorVersion;
 		int8_t minorVersion;
 		int8_t patchVersion;
 		int8_t spineVersion;
-		QList<QPair<QString, QString>> files;
-		QList<QPair<int32_t, QList<QPair<QString, QString>>>> packageFiles;
+		QList<File> files;
+		QList<QPair<int32_t, QList<File>>> packageFiles;
 		QString fileserver;
 		QString fallbackFileserver;
 		common::GameType gothicVersion;

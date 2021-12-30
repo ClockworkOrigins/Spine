@@ -43,7 +43,7 @@ namespace {
 	const std::string DEFAULTURL = "https://clockwork-origins.de/Gothic/downloads/mods/";
 }
 
-DatabaseServer::DatabaseServer(DownloadSizeChecker * downloadSizeChecker) : _server(nullptr), _runner(nullptr), _downloadSizeChecker(downloadSizeChecker) {}
+DatabaseServer::DatabaseServer() : _server(nullptr), _runner(nullptr) {}
 
 DatabaseServer::~DatabaseServer() {
 	delete _server;
@@ -5131,6 +5131,7 @@ void DatabaseServer::projectVersionCheck(std::shared_ptr<HttpsServer::Response> 
 					ptree fileNode;
 					fileNode.put("File", vec[0]);
 					fileNode.put("Hash", vec[1]);
+					fileNode.put("Size", DownloadSizeChecker::getSizeForFile(projectID, vec[0]));
 
 					fileNodes.push_back(std::make_pair("", fileNode));
 				}
@@ -5174,6 +5175,7 @@ void DatabaseServer::projectVersionCheck(std::shared_ptr<HttpsServer::Response> 
 						ptree packageFileNode;
 						packageFileNode.put("File", p.first);
 						packageFileNode.put("Hash", p.second);
+						packageFileNode.put("Size", DownloadSizeChecker::getSizeForPackageFile(packageFile.first, p.first));
 
 						packageFileNodes.push_back(std::make_pair("", packageFileNode));
 					}
@@ -5765,7 +5767,7 @@ void DatabaseServer::requestAllProjects(std::shared_ptr<HttpsServer::Response> r
 					projectNode.put("AvgDuration", -1);
 				}
 				uint32_t version = (std::stoi(vec[5]) << 24) + (std::stoi(vec[6]) << 16) + (std::stoi(vec[7]) << 8) + std::stoi(vec[8]);
-				const auto downloadSize = _downloadSizeChecker->getBytes(std::stoi(vec[0]), LanguageConverter::convert(l), version);
+				const auto downloadSize = DownloadSizeChecker::getBytes(std::stoi(vec[0]), LanguageConverter::convert(l), version);
 				projectNode.put("DownloadSize", downloadSize);
 
 				if (!database.query("EXECUTE selectUpdateDateStmt USING @paramModID;")) {
@@ -5911,7 +5913,7 @@ void DatabaseServer::requestAllProjects(std::shared_ptr<HttpsServer::Response> r
 				packageNode.put("Name", packageName);
 				packageNode.put("Language", it->first);
 				
-				const auto downloadSize = _downloadSizeChecker->getBytesForPackage(projectID, packageID, it->first, versions[packageID]);
+				const auto downloadSize = DownloadSizeChecker::getBytesForPackage(projectID, packageID, it->first, versions[packageID]);
 
 				packageNode.put("DownloadSize", downloadSize);
 

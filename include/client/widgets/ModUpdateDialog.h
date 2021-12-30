@@ -66,12 +66,13 @@ namespace widgets {
 			QString hash;
 			QString fileserver;
 			QString fallbackFileserver;
+			int64_t size;
 
 			ModFile() = default;
 
 			ModFile(std::string i, std::string s1, std::string s2);
 			
-			ModFile(int i, QString s1, QString s2, int32_t p, QString fs, QString fallbackFs) : packageID(p), modID(int32_t(i)), file(s1), hash(s2), fileserver(fs), fallbackFileserver(fallbackFs) {}
+			ModFile(int i, QString s1, QString s2, int32_t p, QString fs, QString fallbackFs, int64_t s) : packageID(p), modID(int32_t(i)), file(s1), hash(s2), fileserver(fs), fallbackFileserver(fallbackFs), size(s) {}
 		};
 
 		QMainWindow * _mainWindow;

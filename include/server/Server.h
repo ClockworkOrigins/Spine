@@ -41,7 +41,6 @@ namespace common {
 namespace server {
 
 	class DatabaseServer;
-	class DownloadSizeChecker;
 	class GMPServer;
 	class ManagementServer;
 	class MatchmakingServer;
@@ -59,7 +58,6 @@ namespace server {
 	private:
 		clockUtils::sockets::TcpSocket * _listenClient;
 		clockUtils::sockets::TcpSocket * _listenMPServer;
-		DownloadSizeChecker * _downloadSizeChecker;
 		MatchmakingServer * _matchmakingServer;
 		mutable std::mutex _newsLock;
 		GMPServer * _gmpServer;

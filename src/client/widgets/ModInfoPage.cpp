@@ -553,7 +553,7 @@ void ModInfoPage::updatePage(QJsonObject json) {
 				empty = false;
 				
 				QFileInfo fi(p.first);
-				auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(_projectID) + "/screens/" + p.first), Config::DOWNLOADDIR + "/screens/" + QString::number(_projectID) + "/" + fi.path(), fi.fileName(), p.second, mfd);
+				auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(_projectID) + "/screens/" + p.first), Config::DOWNLOADDIR + "/screens/" + QString::number(_projectID) + "/" + fi.path(), fi.fileName(), p.second, -1, mfd);
 				mfd->addFileDownloader(fd);
 			}
 		}

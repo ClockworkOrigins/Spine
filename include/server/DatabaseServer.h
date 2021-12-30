@@ -28,12 +28,11 @@ using HttpsServer = SimpleWeb::Server<SimpleWeb::HTTPS>;
 namespace spine {
 namespace server {
 
-	class DownloadSizeChecker;
 	class MariaDBWrapper;
 
 	class DatabaseServer {
 	public:
-		DatabaseServer(DownloadSizeChecker * downloadSizeChecker);
+		DatabaseServer();
 		~DatabaseServer();
 
 		int run();
@@ -43,8 +42,6 @@ namespace server {
 		HttpsServer * _server;
 		std::thread * _runner;
 		mutable std::mutex _newsLock;
-
-		DownloadSizeChecker * _downloadSizeChecker;
 
 		void getModnameForIDs(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;
 		void getUserID(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const;

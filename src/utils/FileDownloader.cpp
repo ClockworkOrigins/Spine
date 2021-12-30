@@ -49,11 +49,11 @@
 
 using namespace spine::utils;
 
-FileDownloader::FileDownloader(QUrl url, QString targetDirectory, QString fileName, QString hash, QObject * par) : FileDownloader(url, url, targetDirectory, fileName, hash, par) {
+FileDownloader::FileDownloader(QUrl url, QString targetDirectory, QString fileName, QString hash, int64_t size, QObject * par) : FileDownloader(url, url, targetDirectory, fileName, hash, size, par) {
 	connect(this, &FileDownloader::retry, this, &FileDownloader::startDownload, Qt::QueuedConnection); // queue to process potential errors earlier so they get blocked
 }
 
-FileDownloader::FileDownloader(QUrl url, QUrl fallbackUrl, QString targetDirectory, QString fileName, QString hash, QObject * par) : QObject(par), _url(url), _fallbackUrl(fallbackUrl), _targetDirectory(targetDirectory), _fileName(fileName), _hash(hash), _filesize(-1), _outputFile(nullptr), _finished(false), _retried(false), _blockErrors(false) {
+FileDownloader::FileDownloader(QUrl url, QUrl fallbackUrl, QString targetDirectory, QString fileName, QString hash, int64_t size, QObject * par) : QObject(par), _url(url), _fallbackUrl(fallbackUrl), _targetDirectory(targetDirectory), _fileName(fileName), _hash(hash), _filesize(size), _outputFile(nullptr), _finished(false), _retried(false), _blockErrors(false) {
 	connect(this, &FileDownloader::retry, this, &FileDownloader::startDownload, Qt::QueuedConnection); // queue to process potential errors earlier so they get blocked
 }
 
@@ -62,6 +62,16 @@ FileDownloader::~FileDownloader() {
 }
 
 void FileDownloader::requestFileSize() {
+	if (_filesize > 0) {
+		if (_finished) {
+			emit fileSizeDetermined();
+		} else {
+			emit totalBytes(_filesize);
+		}
+
+		return;
+	}
+
 	const QNetworkRequest request(_url);
 	auto * networkAccessManager = new QNetworkAccessManager(this);
 	QNetworkReply * reply = networkAccessManager->head(request);

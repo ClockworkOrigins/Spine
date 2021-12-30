@@ -174,7 +174,7 @@ void Gothic1Launcher::patchCheck() {
 		}
 		if (!b) {
 			QFileInfo fi(it.key());
-			auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/g1/" + it.key()), _directory + "/" + fi.path(), fi.fileName(), it.value()[0], mfd); // first hash is always the one on the server
+			auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/g1/" + it.key()), _directory + "/" + fi.path(), fi.fileName(), it.value()[0], -1, mfd); // first hash is always the one on the server
 			mfd->addFileDownloader(fd);
 			empty = false;
 			if (Config::extendedLogging) {

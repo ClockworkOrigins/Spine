@@ -245,7 +245,7 @@ void SpineEditor::installSpineScripts() {
 	connect(mfd, &MultiFileDownloader::downloadSucceeded, mfd, &MultiFileDownloader::deleteLater);
 	for (const QPair<QString, QString> & p : spineFiles) {
 		QFileInfo fi(p.first);
-		FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/scripts/Spine/" + p.first), _model->getPath() + "/_work/data/Scripts/Content/Spine/" + fi.path(), fi.fileName(), p.second, mfd);
+		FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/scripts/Spine/" + p.first), _model->getPath() + "/_work/data/Scripts/Content/Spine/" + fi.path(), fi.fileName(), p.second, -1, mfd);
 		mfd->addFileDownloader(fd);
 	}
 
@@ -299,7 +299,7 @@ void SpineEditor::updateSpineScripts() {
 	MultiFileDownloader * mfd = new MultiFileDownloader(this);
 	for (const QPair<QString, QString> & p : spineFiles) {
 		QFileInfo fi(p.first);
-		FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/scripts/Spine/" + p.first), _model->getPath() + "/_work/data/Scripts/Content/Spine/" + fi.path(), fi.fileName(), p.second, mfd);
+		FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/scripts/Spine/" + p.first), _model->getPath() + "/_work/data/Scripts/Content/Spine/" + fi.path(), fi.fileName(), p.second, -1, mfd);
 		mfd->addFileDownloader(fd);
 	}
 	
@@ -399,7 +399,7 @@ void SpineEditor::updateIkarusScripts() {
 	MultiFileDownloader * mfd = new MultiFileDownloader(this);
 	for (const QPair<QString, QString> & p : realFiles) {
 		QFileInfo fi(p.first);
-		FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/scripts/Ikarus/" + p.first), _model->getPath() + "/_work/data/Scripts/Content/Ikarus/" + fi.path(), fi.fileName(), p.second, mfd);
+		FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/scripts/Ikarus/" + p.first), _model->getPath() + "/_work/data/Scripts/Content/Ikarus/" + fi.path(), fi.fileName(), p.second, -1, mfd);
 		mfd->addFileDownloader(fd);
 	}
 	
@@ -455,7 +455,7 @@ void SpineEditor::installLeGoScripts() {
 	MultiFileDownloader * mfd = new MultiFileDownloader(this);
 	for (const QPair<QString, QString> & p : legoFiles) {
 		QFileInfo fi(p.first);
-		FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/scripts/LeGo/" + p.first), _model->getPath() + "/_work/data/Scripts/Content/LeGo/" + fi.path(), fi.fileName(), p.second, mfd);
+		FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/scripts/LeGo/" + p.first), _model->getPath() + "/_work/data/Scripts/Content/LeGo/" + fi.path(), fi.fileName(), p.second, -1, mfd);
 		mfd->addFileDownloader(fd);
 	}
 	connect(mfd, &MultiFileDownloader::downloadSucceeded, [this]() {
@@ -537,7 +537,7 @@ void SpineEditor::updateLeGoScripts() {
 	MultiFileDownloader * mfd = new MultiFileDownloader(this);
 	for (const QPair<QString, QString> & p : legoFiles) {
 		QFileInfo fi(p.first);
-		FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/scripts/LeGo/" + p.first), _model->getPath() + "/_work/data/Scripts/Content/LeGo/" + fi.path(), fi.fileName(), p.second, mfd);
+		FileDownloader * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/scripts/LeGo/" + p.first), _model->getPath() + "/_work/data/Scripts/Content/LeGo/" + fi.path(), fi.fileName(), p.second, -1, mfd);
 		mfd->addFileDownloader(fd);
 	}
 	

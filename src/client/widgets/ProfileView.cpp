@@ -447,7 +447,7 @@ void ProfileView::updateAchievements(int32_t modID, std::vector<AchievementStats
 		auto * mfd = new MultiFileDownloader(this);
 		for (const auto & p : images) {
 			QFileInfo fi(p.first);
-			auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(modID) + "/achievements/" + p.first), Config::DOWNLOADDIR + "/achievements/" + QString::number(modID) + "/" + fi.path(), fi.fileName(), p.second, mfd);
+			auto * fd = new FileDownloader(QUrl("https://clockwork-origins.de/Gothic/downloads/mods/" + QString::number(modID) + "/achievements/" + p.first), Config::DOWNLOADDIR + "/achievements/" + QString::number(modID) + "/" + fi.path(), fi.fileName(), p.second, -1, mfd);
 			mfd->addFileDownloader(fd);
 		}
 
