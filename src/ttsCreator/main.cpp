@@ -23,55 +23,49 @@
 #include <QRegularExpression>
 #include <QSet>
 #include <QTextStream>
-#include <QXmlStreamReader>
 
 int main(const int argc, char ** argv) {
 	if (argc < 4) {
+		std::cout << "Usage:" << std::endl;
+		std::cout << argv[0] << " <config file> <script input folder> <sound output folder> <csv output file>" << std::endl;
 		return -1;
 	}
-	struct Voice {
-		QString name;
-		QString speed;
-		QString pitch;
-	};
-	QMap<QString, Voice> voices;
+	QMap<int, int> voices;
 
-	QFile xmlFile(argv[1]);
+	QFile configFile(argv[1]);
 
-	if (!xmlFile.open(QIODevice::ReadOnly)) return -1;
+	if (!configFile.open(QIODevice::ReadOnly)) {
+		std::cout << "Can't open config file" << std::endl;
+		return -1;
+	}
 	
-	QXmlStreamReader xml(&xmlFile);
+	QTextStream configReader(&configFile);
+	while (!configReader.atEnd()) {
+		const auto line = configReader.readLine();
 
-	const auto n = xml.name();
+		if (line.isEmpty()) continue;
 
-	/*tinyxml2::XMLDocument doc;
+		const auto split = line.split("=>");
 
-	const tinyxml2::XMLError e = doc.LoadFile(argv[1]);
+		if (split.count() != 2) continue;
 
-	if (e) {
-		return -1;
+		const auto gothicVoice = split[0].toInt();
+		const auto ttsVoice = split[1].toInt();
+
+		voices.insert(gothicVoice, ttsVoice);
 	}
-
-	tinyxml2::XMLElement * rootNode = doc.FirstChildElement("TTS");
-	for (tinyxml2::XMLElement * node = rootNode->FirstChildElement("Voice"); node != nullptr; node = node->NextSiblingElement("Voice")) {
-		Voice voice;
-		Q_ASSERT(node->Attribute("name"));
-		Q_ASSERT(node->Attribute("number"));
-		voice.name = node->Attribute("name");
-		voice.speed = node->Attribute("speed") ? node->Attribute("speed") : "0";
-		voice.pitch = node->Attribute("pitch") ? node->Attribute("pitch") : "0";
-		voices[node->Attribute("number")] = voice;
-	}*/
 
 	const QString inputFolder = argv[2];
 	const QString outputFolder = argv[3];
 
 	if (!QDir().exists(inputFolder)) {
+		std::cout << "Input folder does not exist" << std::endl;
 		return -1;
 	}
+
 	if (!QDir().exists(outputFolder)) {
-		bool b = QDir().mkpath(outputFolder);
-		Q_UNUSED(b);
+		const bool b = QDir().mkpath(outputFolder);
+		Q_UNUSED(b)
 	}
 
 	QSet<QString> files;
@@ -81,26 +75,39 @@ int main(const int argc, char ** argv) {
 	const QRegularExpression svmStartRegex(R"(instance[\s]+SVM_(\d+)[\s]*\(C_SVM\))", QRegularExpression::CaseInsensitiveOption);
 	const QRegularExpression svmRegex("[\\s]*[^\\s]+[\\s]*=[\\s]*\"([^\"]+)\"[\\s]*;[\\s]*//([^\\\n]+)", QRegularExpression::CaseInsensitiveOption);
 	const QRegularExpression svmSmalltakRegex("_Smalltalk", QRegularExpression::CaseInsensitiveOption);
+
+	QFile outFile(argv[4]);
+
+	if (!outFile.open(QIODevice::WriteOnly)) {
+		std::cout << "Can't open output file" << std::endl;
+		return -1;
+	}
+
+	QTextStream fileWriter(&outFile);
+
 	QDirIterator it(inputFolder, QStringList() << "*.d", QDir::Filter::Files, QDirIterator::IteratorFlag::Subdirectories);
 	while (it.hasNext()) {
 		it.next();
 		QString filePath = it.filePath();
-		QString svmVoiceNumber;
 		QFile f(filePath);
 		if (f.open(QIODevice::ReadOnly)) {
+			int svmVoiceNumber = 0;
 			QTextStream ts(&f);
 			while (!ts.atEnd()) {
 				QString line = ts.readLine();
 				if (line.contains(regex)) {
 					QRegularExpressionMatch match = regex.match(line);
 					QString wavName = match.captured(1);
-					QString voiceNumber = QString::number(match.captured(2).toInt());
+					auto voiceNumber = match.captured(2).toInt();
 					QString text = match.captured(3);
-					static QSet<QString> missingVoice;
+					static QSet<int> missingVoice;
 					if (!voices.contains(voiceNumber) && !missingVoice.contains(voiceNumber)) {
-						std::cout << "Missing Voice number: " << voiceNumber.toStdString() << " in " << filePath.toStdString() << std::endl;
+						std::cout << "Missing Voice number: " << voiceNumber << " in " << filePath.toStdString() << std::endl;
 						missingVoice.insert(voiceNumber);
 					}
+
+					if (!voices.contains(voiceNumber)) continue;
+
 					while (text.contains("(") && text.contains(")")) {
 						const int indexOfStartBracket = text.indexOf("(");
 						const int indexOfEndBracket = text.indexOf(")") + 1;
@@ -111,35 +118,33 @@ int main(const int argc, char ** argv) {
 					}
 					text = text.remove('\"');
 					text = text.trimmed();
-					if (text.isEmpty()) {
-						continue;
-					}
-					QStringList args;
-					args << "-enc" << "utf8";
-					args << "-n" << voices[voiceNumber].name;
-					args << "-s" << voices[voiceNumber].speed;
-					args << "-p" << voices[voiceNumber].pitch;
-					args << "-t" << text.toUtf8();
-					args << "-w" << outputFolder + "/" + wavName + ".wav";
+
+					if (text.isEmpty()) continue;
+
+					//const auto outFileName = outputFolder + "/" + wavName + ".wav";
+					const auto outFileName = wavName;
+
+					fileWriter << text << "|" << voices[voiceNumber] << "|" << outFileName << "\n";
+
 					files.insert(wavName.toUpper());
-					QProcess process;
-					process.start("D:/Balcon/Balcon.exe", args);
-					process.waitForFinished();
 				} else if (line.contains(outputRegex)) {
 					QRegularExpressionMatch match = outputRegex.match(line);
 					std::cout << match.captured(0).toStdString() << std::endl;
 				} else if (line.contains(svmStartRegex)) {
 					QRegularExpressionMatch match = svmStartRegex.match(line);
-					svmVoiceNumber = QString::number(match.captured(1).toInt());
+					svmVoiceNumber = match.captured(1).toInt();
 				} else if (line.contains(svmRegex)) {
 					QRegularExpressionMatch match = svmRegex.match(line);
 					QString wavName = match.captured(1);
 					QString text = match.captured(2);
-					static QSet<QString> missingVoice;
+					static QSet<int> missingVoice;
 					if (!voices.contains(svmVoiceNumber) && !missingVoice.contains(svmVoiceNumber)) {
-						std::cout << "Missing Voice number: " << svmVoiceNumber.toStdString() << " in " << filePath.toStdString() << std::endl;
+						std::cout << "Missing Voice number: " << svmVoiceNumber << " in " << filePath.toStdString() << std::endl;
 						missingVoice.insert(svmVoiceNumber);
 					}
+
+					if (!voices.contains(svmVoiceNumber)) continue;
+
 					while (text.contains("(") && text.contains(")")) {
 						const int indexOfStartBracket = text.indexOf("(");
 						const int indexOfEndBracket = text.indexOf(")") + 1;
@@ -150,22 +155,15 @@ int main(const int argc, char ** argv) {
 					}
 					text = text.remove('\"');
 					text = text.trimmed();
-					if (text.isEmpty()) {
-						continue;
-					}
-					QStringList args;
-					args << "-n" << voices[svmVoiceNumber].name;
-					args << "-s" << voices[svmVoiceNumber].speed;
-					args << "-p" << voices[svmVoiceNumber].pitch;
-					args << "-t" << text.trimmed().remove('\"');
-					args << "-w" << outputFolder + "/" + wavName + ".wav";
-					if (wavName.contains(svmSmalltakRegex)) {
-						args << "-v" << "33";
-					}
+
+					if (text.isEmpty()) continue;
+
+					//const auto outFileName = outputFolder + "/" + wavName + ".wav";
+					const auto outFileName = wavName;
+
+					fileWriter << text << "|" << voices[svmVoiceNumber] << "|" << outFileName << "\n";
+
 					files.insert(wavName.toUpper());
-					QProcess process;
-					process.start("D:/Balcon/Balcon.exe", args);
-					process.waitForFinished();
 				}
 			}
 		}
