@@ -19,6 +19,7 @@
 #include "IconCache.h"
 
 #include "utils/Config.h"
+#include "utils/Hashing.h"
 
 #include <QDirIterator>
 #include <QPainter>
@@ -32,7 +33,7 @@ IconCache * IconCache::getInstance() {
 }
 
 QPixmap IconCache::getIcon(int32_t projectID) const {
-	return _iconCache.value(projectID, QPixmap());
+	return _iconCache.value(projectID, Icon()).icon;
 }
 
 bool IconCache::hasIcon(int32_t projectID) const {
@@ -46,14 +47,23 @@ void IconCache::cacheIcon(int32_t projectID, const QString & icon) {
 
 	if (!fi.exists()) return;
 
+	QString hash;
+	Hashing::hash(icon, hash);
+
+	if (hasIcon(projectID)) {
+		if (hash == _iconCache.value(projectID).hash) return;
+	}
+
 	QFile::copy(icon, QString("%1/icons/%2.%3").arg(Config::DOWNLOADDIR).arg(projectID).arg(fi.suffix()));
 	
 	const auto fileName = fi.fileName();
-	const auto split = fileName.split('.', QString::SkipEmptyParts);
-	if (!fileName.isEmpty() && split.count() == 2) {
-		_iconCache[projectID] = QPixmap(icon);
-	}
-	_iconCache[projectID] = icon;
+	const auto split = fileName.split('.', Qt::SkipEmptyParts);
+
+	Icon i;
+	i.hash = hash;
+	i.icon = icon;
+
+	_iconCache[projectID] = i;
 }
 
 QIcon IconCache::getOrLoadIcon(const QString & path) {
@@ -86,16 +96,25 @@ void IconCache::loadCache() {
 		it.next();
 		const QString filePath = it.filePath();
 		const QString fileName = it.fileName();
-		const auto split = fileName.split('.', QString::SkipEmptyParts);
+		const auto split = fileName.split('.', Qt::SkipEmptyParts);
 		if (!filePath.isEmpty() && !fileName.isEmpty() && split.count() == 2) {
 			const auto id = split[0].toInt();
-			_iconCache[id] = QPixmap(filePath);
+
+			QString hash;
+			Hashing::hash(filePath, hash);
+
+			Icon i;
+			i.icon = filePath;
+			i.hash = hash;
+
+			_iconCache[id] = i;
 
 			const auto icoPath = Config::DOWNLOADDIR + "/icons/" + QString::number(id) + ".ico";
 			
 			if (!QFileInfo::exists(icoPath)) {
 				QIcon ico(filePath);
-				_iconCache[id].save(icoPath);
+				const auto b = _iconCache[id].icon.save(icoPath);
+				Q_UNUSED(b)
 			}
 		}
 	}

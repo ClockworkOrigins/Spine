@@ -2227,9 +2227,7 @@ void Gothic1And2Launcher::parseIni(QString file) {
 	modIDString = modIDString.split("/", QString::SkipEmptyParts).front();
 	int32_t modID = modIDString.toInt();
 	
-	if (!IconCache::getInstance()->hasIcon(modID)) {
-		IconCache::getInstance()->cacheIcon(modID, iconPath);
-	}
+	IconCache::getInstance()->cacheIcon(modID, iconPath);
 	
 	QPixmap pixmap = IconCache::getInstance()->getIcon(modID);
 

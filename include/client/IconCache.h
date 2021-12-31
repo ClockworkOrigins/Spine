@@ -40,7 +40,12 @@ namespace client {
 		QImage getOrLoadIconAsImage(const QString & path);
 
 	private:
-		QMap<int32_t, QPixmap> _iconCache;
+		struct Icon {
+			QPixmap icon;
+			QString hash;
+		};
+
+		QMap<int32_t, Icon> _iconCache;
 		QMap<QString, QIcon> _pathIconCache;
 
 		IconCache();

@@ -213,9 +213,7 @@ void GameLauncher::parseGame(int gameID, int gameType) {
 
 	const auto iconPath = QString("%1/mods/%2/%3").arg(Config::DOWNLOADDIR).arg(gameID).arg(icon);
 
-	if (!IconCache::getInstance()->hasIcon(gameID)) {
-		IconCache::getInstance()->cacheIcon(gameID, iconPath);
-	}
+	IconCache::getInstance()->cacheIcon(gameID, iconPath);
 	
 	QPixmap pixmap = IconCache::getInstance()->getIcon(gameID);
 
