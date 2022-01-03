@@ -333,7 +333,7 @@ void ManagementServer::getAchievements(std::shared_ptr<HttpsServer::Response> re
 					break;
 				}
 				results2 = database.getResults<std::vector<std::string>>();
-				achievementNode.put("Hidden", results2.empty());
+				achievementNode.put("Hidden", !results2.empty());
 
 				if (!database.query("EXECUTE selectAchievementIconsStmt USING @paramModID, @paramIdentifier;")) {
 					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;

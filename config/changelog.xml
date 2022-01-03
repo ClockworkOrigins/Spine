@@ -2277,6 +2277,7 @@
 		<Bug language="Deutsch">Fehler behoben, wodurch bei Sprachwechsel beim News schreiben Links und Bilder kaputt gegangen sind</Bug>
 		<Bug language="Deutsch">Fehler behoben, wodurch der Iconcache bei geänderten Icons nicht aktualisiert wurde</Bug>
 		<Bug language="Deutsch">Fehler behoben, wodurch die Score-IDs im Management bei Tabwechsel nicht entfernt wurden</Bug>
+		<Bug language="Deutsch">Fehler behoben, wodurch der Versteckt-Status von Erfolgen im Management falsch geladen wurde</Bug>
 
 		<Enhancement language="English">File size now get stored on server side</Enhancement>
 		<Enhancement language="English">Changed files now are displayed in management</Enhancement>
@@ -2286,5 +2287,6 @@
 		<Bug language="English">Fixed bug that caused links and images to break when changing language while writing news</Bug>
 		<Bug language="English">Fixed bug that caused the icon cache not to update when icons got replaced</Bug>
 		<Bug language="English">Fixed bug that caused score IDs not to get removed on tab change</Bug>
+		<Bug language="English">Fixed bug that caused hidden status of achievements to be loaded wrong in management</Bug>
 	</Version>
 </Versions>
