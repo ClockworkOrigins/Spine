@@ -111,6 +111,8 @@ void SpineLevel::init() {
 				_rankings.push_back(re);
 			}
 		} while (false);
+
+		cachedEntries.clear();
 		
 		while (true) {
 			_updateQueueLock.lock();
