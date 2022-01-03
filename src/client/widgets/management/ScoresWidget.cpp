@@ -237,6 +237,7 @@ void ScoresWidget::updateData(QList<ManagementScore> scores) {
 		_scoreEdits.push_back(std::make_tuple(germanEdit, englishEdit, polishEdit, russianEdit));
 
 		_scoreToggles << orderToggle;
+		_widgets << lbl;
 
 		_rowCount++;
 		_rowCount++;
@@ -258,12 +259,12 @@ void ScoresWidget::updateScores() {
 		
 		bool toAdd = false;
 
-		QLineEdit * germanEdit = std::get<0>(scoreEdit);
-		QLineEdit * englishEdit = std::get<1>(scoreEdit);
-		QLineEdit * polishEdit = std::get<2>(scoreEdit);
-		QLineEdit * russianEdit = std::get<3>(scoreEdit);
+		const auto * germanEdit = std::get<0>(scoreEdit);
+		const auto * englishEdit = std::get<1>(scoreEdit);
+		const auto * polishEdit = std::get<2>(scoreEdit);
+		const auto * russianEdit = std::get<3>(scoreEdit);
 		
-		QCheckBox * orderToggle = _scoreToggles[i];
+		const auto * orderToggle = _scoreToggles[i];
 
 		ManagementScore ms;
 
