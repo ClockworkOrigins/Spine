@@ -24,6 +24,7 @@
 #include "DownloadSizeChecker.h"
 #include "LanguageConverter.h"
 #include "MariaDBWrapper.h"
+#include "RamChecker.h"
 #include "Server.h"
 #include "ServerCommon.h"
 #include "SpineLevel.h"
@@ -123,6 +124,7 @@ void DatabaseServer::stop() {
 }
 
 void DatabaseServer::getModnameForIDs(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc("DatabaseServer::getModnameForIDs");
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -159,6 +161,7 @@ void DatabaseServer::getModnameForIDs(std::shared_ptr<HttpsServer::Response> res
 }
 
 void DatabaseServer::getUserID(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc("DatabaseServer::getUserID");
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -188,6 +191,7 @@ void DatabaseServer::getUserID(std::shared_ptr<HttpsServer::Response> response, 
 }
 
 void DatabaseServer::getOwnRating(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc("DatabaseServer::getOwnRating");
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -297,6 +301,7 @@ void DatabaseServer::getOwnRating(std::shared_ptr<HttpsServer::Response> respons
 }
 
 void DatabaseServer::getWeightedRating(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc("DatabaseServer::getWeightedRating");
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -409,6 +414,7 @@ void DatabaseServer::getWeightedRating(std::shared_ptr<HttpsServer::Response> re
 }
 
 void DatabaseServer::getRatings(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc("DatabaseServer::getRatings");
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -483,6 +489,7 @@ void DatabaseServer::getRatings(std::shared_ptr<HttpsServer::Response> response,
 }
 
 void DatabaseServer::unlockAchievementServer(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc("DatabaseServer::unlockAchievementServer");
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -566,6 +573,7 @@ void DatabaseServer::unlockAchievementServer(std::shared_ptr<HttpsServer::Respon
 }
 
 void DatabaseServer::getUserIDForDiscordID(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc("DatabaseServer::getUserIDForDiscordID");
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -645,6 +653,7 @@ void DatabaseServer::getUserIDForDiscordID(std::shared_ptr<HttpsServer::Response
 }
 
 void DatabaseServer::getDiscordIDForUserID(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc("DatabaseServer::getDiscordIDForUserID");
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -725,6 +734,7 @@ void DatabaseServer::getDiscordIDForUserID(std::shared_ptr<HttpsServer::Response
 }
 
 void DatabaseServer::getSpineLevelRanking(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc("DatabaseServer::getSpineLevelRanking");
 	try {
 		std::stringstream responseStream;
 		ptree responseTree;
@@ -740,6 +750,7 @@ void DatabaseServer::getSpineLevelRanking(std::shared_ptr<HttpsServer::Response>
 }
 
 void DatabaseServer::sendUserInfos(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc("DatabaseServer::sendUserInfos");
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -884,6 +895,7 @@ void DatabaseServer::sendUserInfos(std::shared_ptr<HttpsServer::Response> respon
 }
 
 void DatabaseServer::requestSingleProjectStats(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc("DatabaseServer::requestSingleProjectStats");
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -1184,6 +1196,7 @@ void DatabaseServer::requestSingleProjectStats(std::shared_ptr<HttpsServer::Resp
 }
 
 void DatabaseServer::requestCompatibilityList(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc("DatabaseServer::requestCompatibilityList");
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -1286,6 +1299,7 @@ void DatabaseServer::requestCompatibilityList(std::shared_ptr<HttpsServer::Respo
 }
 
 void DatabaseServer::updatePlayTime(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -1416,6 +1430,7 @@ void DatabaseServer::updatePlayTime(std::shared_ptr<HttpsServer::Response> respo
 }
 
 void DatabaseServer::requestScores(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -1513,6 +1528,7 @@ void DatabaseServer::requestScores(std::shared_ptr<HttpsServer::Response> respon
 }
 
 void DatabaseServer::updateScore(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -1604,6 +1620,7 @@ void DatabaseServer::updateScore(std::shared_ptr<HttpsServer::Response> response
 }
 
 void DatabaseServer::getReviews(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -1696,6 +1713,7 @@ void DatabaseServer::getReviews(std::shared_ptr<HttpsServer::Response> response,
 }
 
 void DatabaseServer::updateReview(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -1815,6 +1833,7 @@ void DatabaseServer::updateReview(std::shared_ptr<HttpsServer::Response> respons
 }
 
 void DatabaseServer::requestAchievements(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -1932,6 +1951,7 @@ void DatabaseServer::requestAchievements(std::shared_ptr<HttpsServer::Response> 
 }
 
 void DatabaseServer::unlockAchievement(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -2036,6 +2056,7 @@ void DatabaseServer::unlockAchievement(std::shared_ptr<HttpsServer::Response> re
 }
 
 void DatabaseServer::updateAchievementProgress(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -2101,6 +2122,7 @@ void DatabaseServer::updateAchievementProgress(std::shared_ptr<HttpsServer::Resp
 }
 
 void DatabaseServer::requestOverallSaveData(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -2171,6 +2193,7 @@ void DatabaseServer::requestOverallSaveData(std::shared_ptr<HttpsServer::Respons
 }
 
 void DatabaseServer::requestAllFriends(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -2335,6 +2358,7 @@ void DatabaseServer::requestAllFriends(std::shared_ptr<HttpsServer::Response> re
 }
 
 void DatabaseServer::updateChapterStats(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -2398,6 +2422,7 @@ void DatabaseServer::updateChapterStats(std::shared_ptr<HttpsServer::Response> r
 }
 
 void DatabaseServer::isAchievementUnlocked(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -2467,6 +2492,7 @@ void DatabaseServer::isAchievementUnlocked(std::shared_ptr<HttpsServer::Response
 }
 
 void DatabaseServer::updateOfflineData(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -2626,6 +2652,7 @@ void DatabaseServer::updateOfflineData(std::shared_ptr<HttpsServer::Response> re
 }
 
 void DatabaseServer::requestOfflineData(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -2829,6 +2856,7 @@ void DatabaseServer::requestOfflineData(std::shared_ptr<HttpsServer::Response> r
 }
 
 void DatabaseServer::friendRequest(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -2889,6 +2917,7 @@ void DatabaseServer::friendRequest(std::shared_ptr<HttpsServer::Response> respon
 }
 
 void DatabaseServer::feedback(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -2995,6 +3024,7 @@ void DatabaseServer::feedback(std::shared_ptr<HttpsServer::Response> response, s
 }
 
 void DatabaseServer::acceptFriend(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -3055,6 +3085,7 @@ void DatabaseServer::acceptFriend(std::shared_ptr<HttpsServer::Response> respons
 }
 
 void DatabaseServer::declineFriend(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -3115,6 +3146,7 @@ void DatabaseServer::declineFriend(std::shared_ptr<HttpsServer::Response> respon
 }
 
 void DatabaseServer::updateLoginTime(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -3168,6 +3200,7 @@ void DatabaseServer::updateLoginTime(std::shared_ptr<HttpsServer::Response> resp
 }
 
 void DatabaseServer::requestRandomPage(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -3309,6 +3342,7 @@ void DatabaseServer::requestRandomPage(std::shared_ptr<HttpsServer::Response> re
 }
 
 void DatabaseServer::requestInfoPage(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -3748,6 +3782,7 @@ void DatabaseServer::requestInfoPage(std::shared_ptr<HttpsServer::Response> resp
 }
 
 void DatabaseServer::submitInfoPage(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -3935,6 +3970,7 @@ void DatabaseServer::submitInfoPage(std::shared_ptr<HttpsServer::Response> respo
 }
 
 void DatabaseServer::removeFriend(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -4001,6 +4037,7 @@ void DatabaseServer::removeFriend(std::shared_ptr<HttpsServer::Response> respons
 }
 
 void DatabaseServer::requestOriginalFiles(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -4100,6 +4137,7 @@ void DatabaseServer::requestOriginalFiles(std::shared_ptr<HttpsServer::Response>
 }
 
 void DatabaseServer::linkClicked(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -4145,6 +4183,7 @@ void DatabaseServer::linkClicked(std::shared_ptr<HttpsServer::Response> response
 }
 
 void DatabaseServer::submitRating(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -4207,6 +4246,7 @@ void DatabaseServer::submitRating(std::shared_ptr<HttpsServer::Response> respons
 }
 
 void DatabaseServer::requestUserLevel(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -4245,6 +4285,7 @@ void DatabaseServer::requestUserLevel(std::shared_ptr<HttpsServer::Response> res
 }
 
 void DatabaseServer::requestAllProjectStats(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -4510,6 +4551,7 @@ void DatabaseServer::requestAllProjectStats(std::shared_ptr<HttpsServer::Respons
 }
 
 void DatabaseServer::requestAllAchievementStats(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -4773,6 +4815,7 @@ void DatabaseServer::requestAllAchievementStats(std::shared_ptr<HttpsServer::Res
 }
 
 void DatabaseServer::requestAllScoreStats(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -4908,6 +4951,7 @@ void DatabaseServer::requestAllScoreStats(std::shared_ptr<HttpsServer::Response>
 }
 
 void DatabaseServer::updateSucceeded(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -4962,6 +5006,7 @@ void DatabaseServer::updateSucceeded(std::shared_ptr<HttpsServer::Response> resp
 }
 
 void DatabaseServer::projectVersionCheck(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -5300,6 +5345,7 @@ void DatabaseServer::projectVersionCheck(std::shared_ptr<HttpsServer::Response> 
 }
 
 void DatabaseServer::submitNews(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -5470,6 +5516,7 @@ void DatabaseServer::submitNews(std::shared_ptr<HttpsServer::Response> response,
 }
 
 void DatabaseServer::requestAllProjects(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -5934,6 +5981,7 @@ void DatabaseServer::requestAllProjects(std::shared_ptr<HttpsServer::Response> r
 }
 
 void DatabaseServer::submitCompatibility(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -6001,6 +6049,7 @@ void DatabaseServer::submitCompatibility(std::shared_ptr<HttpsServer::Response> 
 }
 
 void DatabaseServer::requestOwnCompatibilities(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -6070,6 +6119,7 @@ void DatabaseServer::requestOwnCompatibilities(std::shared_ptr<HttpsServer::Resp
 }
 
 void DatabaseServer::requestAllNews(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -6312,6 +6362,7 @@ void DatabaseServer::requestAllNews(std::shared_ptr<HttpsServer::Response> respo
 }
 
 void DatabaseServer::downloadSucceeded(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -6372,6 +6423,7 @@ void DatabaseServer::downloadSucceeded(std::shared_ptr<HttpsServer::Response> re
 }
 
 void DatabaseServer::packageDownloadSucceeded(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -6408,6 +6460,7 @@ void DatabaseServer::packageDownloadSucceeded(std::shared_ptr<HttpsServer::Respo
 }
 
 void DatabaseServer::requestProjectFiles(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -6506,6 +6559,7 @@ void DatabaseServer::requestProjectFiles(std::shared_ptr<HttpsServer::Response> 
 }
 
 void DatabaseServer::requestPackageFiles(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -6612,6 +6666,7 @@ void DatabaseServer::requestPackageFiles(std::shared_ptr<HttpsServer::Response> 
 }
 
 void DatabaseServer::gmpLogin(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
 
@@ -6770,6 +6825,7 @@ void DatabaseServer::gmpLogin(std::shared_ptr<HttpsServer::Response> response, s
 }
 
 void DatabaseServer::requestAllTri6ScoreStats(ptree & responseTree) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	do {
 		MariaDBWrapper database;
 		if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, TRI6DATABASE, 0)) {
@@ -6840,6 +6896,7 @@ void DatabaseServer::requestAllTri6ScoreStats(ptree & responseTree) const {
 }
 
 std::string DatabaseServer::getFileServer(int userID, int projectID, int majorVersion, int minorVersion, int patchVersion, int spineVersion) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	std::vector<std::string> possibilities;
 	std::vector<std::string> patronPossibilities;
 
@@ -6852,7 +6909,7 @@ std::string DatabaseServer::getFileServer(int userID, int projectID, int majorVe
 		timestamp /= 24; // days
 		timestamp += 3; // shift be 3
 		timestamp %= 7; // day of the week
-		timestamp = 1 << timestamp;
+		timestamp = 1ULL << timestamp;
 
 		if (!database.query("PREPARE selectPotentialFileserversStmt FROM \"SELECT ServerID FROM projectsOnFileservers WHERE ProjectID = ? AND MajorVersion = ? AND MinorVersion = ? AND PatchVersion = ? AND SpineVersion = ?\";")) {
 			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
@@ -6935,6 +6992,7 @@ std::string DatabaseServer::getFileServer(int userID, int projectID, int majorVe
 }
 
 void DatabaseServer::attachNewsData(MariaDBWrapper & database, const std::string & newsID, int language, ptree & newsNode) const {
+	RamChecker rc(std::string(__FILE__) + std::string(": ") + std::to_string(__LINE__));
 	if (!database.query("SET @paramNewsID=" + newsID + ";")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 		return;
