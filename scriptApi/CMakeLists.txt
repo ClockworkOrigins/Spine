@@ -16,5 +16,5 @@ IF(WIN32)
 	configure_file(${CMAKE_SOURCE_DIR}/scriptApi/Spine_UserConstants.d ${CMAKE_BINARY_DIR}/scriptApi/Spine/Spine_UserConstants.d COPYONLY)
 	configure_file(${CMAKE_SOURCE_DIR}/scriptApi/Spine_Utils.d ${CMAKE_BINARY_DIR}/scriptApi/Spine/Spine_Utils.d COPYONLY)
 
-	add_custom_target(ScriptPackage COMMAND winrar.exe a -afzip ${CMAKE_BINARY_DIR}/scriptApi/Spine_${VERSION_MAJOR}_${VERSION_MINOR}_${VERSION_PATCH}.zip Spine Changelog.txt WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/scriptAPI)
+	add_custom_target(ScriptPackage COMMAND 7z.exe a -r ${CMAKE_BINARY_DIR}/scriptApi/Spine_${VERSION_MAJOR}_${VERSION_MINOR}_${VERSION_PATCH}.zip Spine Changelog.txt WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/scriptAPI)
 ENDIF(WIN32)
