@@ -183,6 +183,8 @@ void Gothic3Launcher::finishedInstallation(int gameID, int packageID, bool succe
 
 	Database::DBError err;
 	const auto gameType = Database::queryNth<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + std::to_string(gameID) + " LIMIT 1;", err);
+
+	if (static_cast<GameType>(gameType) != GameType::Gothic3) return;
 	
 	parseGame(gameID, gameType);
 	updateModStats();
