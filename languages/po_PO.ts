@@ -3277,7 +3277,7 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
     </message>
     <message>
         <source>Patching</source>
-        <translation>Poprawianie</translation>
+        <translation>Łatanie</translation>
     </message>
     <message>
         <source>AchievementIcons</source>
@@ -3385,7 +3385,7 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
     </message>
     <message>
         <source>PatchingProject</source>
-        <translation>Poprawianie %1</translation>
+        <translation>Łatanie %1</translation>
     </message>
     <message>
         <source>NeitherSystempackNorUnionWarning</source>
