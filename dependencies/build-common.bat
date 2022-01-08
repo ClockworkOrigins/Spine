@@ -23,6 +23,12 @@ IF [%1] == [msvc17] (
 	SET ARCH_DIR=msvc17_
 	SET CONFIG_BAT_PATH="%VS17%"
 )
+IF [%1] == [msvc19] (
+	SET VSCOMPILER=Visual Studio 16 2019
+	SET BOOSTCOMPILER=msvc-16.0
+	SET ARCH_DIR=msvc19_
+	SET CONFIG_BAT_PATH="%VS19%"
+)
 
 IF [%2] == [32] (
 	SET VSARCH=
@@ -66,7 +72,7 @@ echo "Downloaded %DOWNLOADEDARCHIVE%"
 IF EXIST %3 RD /S /Q "%DOWNLOADEDARCHIVE%"
 winrar.exe x -ibck %DOWNLOADEDARCHIVE%
 IF NOT "%ERRORLEVEL%" == "0" (
-	
+
 	if "%%2:~-6%" neq "tar.gz" (
 		echo "Trying unzip tar for %DOWNLOADEDARCHIVE%"
 		SET NEXTDOWNLOADEDARCHIVE=!DOWNLOADEDARCHIVE:~0,-3!

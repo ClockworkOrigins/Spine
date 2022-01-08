@@ -31,8 +31,13 @@ ELSEIF(WIN32)
 		SET(VS_TOOLCHAIN "msvc17")
 		SET(VSENV VS17)
 		SET(Qt5_Platform msvc2017)
+	ELSEIF(CMAKE_GENERATOR MATCHES "Visual Studio 16 2019")
+		SET(DEP_DIR_BUILD "msvc19")
+		SET(VS_TOOLCHAIN "msvc19")
+		SET(VSENV VS19)
+		SET(Qt5_Platform msvc2019)
 	ENDIF()
-	
+
 	IF(CMAKE_GENERATOR_PLATFORM MATCHES "x64")
 		SET(VS_ARCH "64")
 		SET(VSSCRIPTARCH "amd64")
@@ -44,7 +49,7 @@ ELSEIF(WIN32)
 		SET(DEP_DIR_BUILD ${DEP_DIR_BUILD}_32)
 	ELSE()
 	ENDIF()
-	
+
 	SET(Qt5_DIR ${Qt5_BaseDir}/${Qt5_Platform})
 	SET(Qt5_libDir "${Qt5_BaseDir}/lib" CACHE STRING "Directory containing the qt libs")
 ENDIF()
