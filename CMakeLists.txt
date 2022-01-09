@@ -1,7 +1,5 @@
 cmake_minimum_required (VERSION 3.7.0)
 
-set(CMAKE_CXX_STANDARD 14)
-
 #########################################################################
 #########################################################################
 #
@@ -32,6 +30,14 @@ SET(SSLPRIVKEYNPATH "" CACHE STRING "path to the private key of the SSL certific
 SET(DISCORDKEY "12345" CACHE STRING "Discord API Key")
 
 project(Spine CXX)
+
+MESSAGE(STATUS "${MSVC_VERSION}")
+
+IF(NOT WIN32 OR ${MSVC_VERSION} GREATER_EQUAL 1920)
+	SET(CMAKE_CXX_STANDARD 17)
+ELSE()
+	SET(CMAKE_CXX_STANDARD 14)
+ENDIF()
 
 SET(VERSION_MAJOR 1)
 SET(VERSION_MINOR 36)

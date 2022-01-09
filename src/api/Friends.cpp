@@ -30,12 +30,12 @@ namespace api {
 namespace {
 	std::vector<common::Friend> friends;
 
-	const size_t FRIENDNAMELENGTH = 100;
+	constexpr size_t FRIENDNAMELENGTH = 100;
 }
 
 	bool initializeFriends() {
 		bool success = true;
-		common::RequestAllFriendsMessage rum;
+		const common::RequestAllFriendsMessage rum;
 		std::string serialized = rum.SerializeBlank();
 		if (clockUtils::ClockError::SUCCESS == sock->writePacket(serialized)) {
 			if (clockUtils::ClockError::SUCCESS == sock->receivePacket(serialized)) {

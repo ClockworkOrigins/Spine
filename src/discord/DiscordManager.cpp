@@ -18,6 +18,7 @@
 
 #include "DiscordManager.h"
 
+#include <iostream>
 #include <thread>
 
 #include "SpineConfig.h"

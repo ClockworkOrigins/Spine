@@ -18,6 +18,8 @@
 
 #include "GMPServer.h"
 
+#include <iostream>
+
 #include "MariaDBWrapper.h"
 #include "SpineServerConfig.h"
 

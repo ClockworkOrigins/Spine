@@ -1,0 +1,41 @@
+--- "SimpleWebServer - Kopie/include/simple-web-server/server_http.hpp"	2018-08-04 09:30:31.540838500 +0200
++++ SimpleWebServer/include/simple-web-server/server_http.hpp	2022-01-09 12:22:57.696335600 +0100
+@@ -245,7 +245,7 @@
+           return;
+         }
+ 
+-        timer = std::unique_ptr<asio::steady_timer>(new asio::steady_timer(socket->get_io_service()));
++        timer = std::unique_ptr<asio::steady_timer>(new asio::steady_timer(socket->get_executor()));
+         timer->expires_from_now(std::chrono::seconds(seconds));
+         auto self = this->shared_from_this();
+         timer->async_wait([self](const error_code &ec) {
+@@ -412,20 +412,20 @@
+ 
+     template <typename... Args>
+     std::shared_ptr<Connection> create_connection(Args &&... args) {
+-      auto connections = this->connections;
+-      auto connections_mutex = this->connections_mutex;
+-      auto connection = std::shared_ptr<Connection>(new Connection(handler_runner, std::forward<Args>(args)...), [connections, connections_mutex](Connection *connection) {
++      auto connections2 = this->connections;
++      auto connections_mutex2 = this->connections_mutex;
++      auto connection = std::shared_ptr<Connection>(new Connection(handler_runner, std::forward<Args>(args)...), [connections2, connections_mutex2](Connection *connection) {
+         {
+-          std::unique_lock<std::mutex> lock(*connections_mutex);
+-          auto it = connections->find(connection);
+-          if(it != connections->end())
+-            connections->erase(it);
++          std::unique_lock<std::mutex> lock(*connections_mutex2);
++          auto it = connections2->find(connection);
++          if(it != connections2->end())
++            connections2->erase(it);
+         }
+         delete connection;
+       });
+       {
+-        std::unique_lock<std::mutex> lock(*connections_mutex);
+-        connections->emplace(connection.get());
++        std::unique_lock<std::mutex> lock(*connections_mutex2);
++        connections2->emplace(connection.get());
+       }
+       return connection;
+     }

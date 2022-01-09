@@ -32,3 +32,5 @@ echo "Cleaning up"
 cd %DEP_DIR%
 RD /S /Q "%TMP_DIR%"
 
+patch.exe -u %PREFIX%/include/simple-web-server/client_http.hpp %DEP_DIR%/../ext/patches/SimpleWebServer/client_http.patch
+patch.exe -u %PREFIX%/include/simple-web-server/server_http.hpp %DEP_DIR%/../ext/patches/SimpleWebServer/server_http.patch

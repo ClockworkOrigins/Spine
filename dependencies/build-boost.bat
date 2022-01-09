@@ -6,15 +6,15 @@ IF "%1" == "build" (goto build)
 call build-common.bat %1 %2
 
 echo "Extracting Boost"
-Set ARCHIVE=boost_1_62_0.tar.gz
-Set BUILD_DIR=%TMP_DIR%/boost_1_62_0
+Set ARCHIVE=boost_1_78_0.tar.gz
+Set BUILD_DIR=%TMP_DIR%/boost_1_78_0
 
 Set ZLIBARCHIVE=zlib1211.zip
 Set ZLIBBUILD_DIR=%TMP_DIR%/zlib-1.2.11
 
 echo "Extracting Boost"
 
-call build-common.bat downloadAndUnpack %ARCHIVE% %BUILD_DIR% https://sourceforge.net/projects/boost/files/boost/1.62.0/
+call build-common.bat downloadAndUnpack %ARCHIVE% %BUILD_DIR% https://sourceforge.net/projects/boost/files/boost/1.78.0/
 
 cd %DEP_DIR%
 
@@ -53,6 +53,7 @@ echo "Installing Boost"
 
 echo #define BOOST_ALL_NO_LIB >> "%PREFIX%\include\boost\config\user.hpp"
 echo #define BOOST_SYMBOL_EXPORT >> "%PREFIX%\include\boost\config\user.hpp"
+echo #define BOOST_USE_WINDOWS_H >> "%PREFIX%\include\boost\config\user.hpp"
 for /f %%a IN ('dir /b %PREFIX%\lib\libboost_*.lib') do (
 	SET str=%%a
 	SET str=!str:libboost_=boost_!

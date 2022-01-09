@@ -18,7 +18,12 @@
 
 #include "UploadServer.h"
 
+#if __cplusplus >= 201703L
+#include <filesystem>
+#endif
+
 #include <fstream>
+#include <iostream>
 
 #include "DownloadSizeChecker.h"
 #include "FileSynchronizer.h"
@@ -27,7 +32,9 @@
 
 #include "common/MessageStructs.h"
 
+#if __cplusplus < 201703L
 #include "boost/filesystem.hpp"
+#endif
 
 #include "clockUtils/sockets/TcpSocket.h"
 
@@ -38,6 +45,12 @@
 #endif
 	
 using namespace spine::server;
+
+#if __cplusplus >= 201703L
+#define FILESYSTEM std::filesystem;
+#else
+#define FILESYSTEM boost::filesystem;
+#endif
 
 namespace {
 	std::vector<std::string> split(const std::string & str, const std::string & delim) {
@@ -66,8 +79,8 @@ namespace {
 
 UploadServer::UploadServer() : _listenUploadServer(new clockUtils::sockets::TcpSocket()) {
 #ifdef TEST_CONFIG
-	if (!boost::filesystem::exists(PATH_PREFIX)) {
-		boost::filesystem::create_directories(PATH_PREFIX);
+	if (!FILESYSTEM::exists(PATH_PREFIX)) {
+		FILESYSTEM::create_directories(PATH_PREFIX);
 	}
 #endif
 }
@@ -198,7 +211,11 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 					}
 					const common::ModFile mf = umm->files[currentIndex];
 					if (mf.deleted) {
+#if __cplusplus >= 201703L
+						if (std::filesystem::exists(PATH_PREFIX + std::to_string(umm->modID) + "/" + mf.filename) && !std::filesystem::remove(PATH_PREFIX + std::to_string(umm->modID) + "/" + mf.filename)) {
+#else
 						if (boost::filesystem::exists(PATH_PREFIX + std::to_string(umm->modID) + "/" + mf.filename) && !boost::filesystem::remove(PATH_PREFIX + std::to_string(umm->modID) + "/" + mf.filename)) {
+#endif
 							error = true;
 							break;
 						}
@@ -266,7 +283,11 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 
 						for (size_t i = 0; i < path.size() - 1; i++) {
 							currentPath += path[i] + "/";
+#if __cplusplus >= 201703L
+							if (!std::filesystem::exists(currentPath) && !std::filesystem::create_directories(currentPath)) {
+#else
 							if (!boost::filesystem::exists(currentPath) && !boost::filesystem::create_directories(currentPath)) {
+#endif
 								error = true;
 								break;
 							}
@@ -410,7 +431,11 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 					std::string currentPath = PATH_PREFIX + std::to_string(umm->modID) + "/";
 					for (size_t i = 0; i < path.size() - 1; i++) {
 						currentPath += path[i] + "/";
+#if __cplusplus >= 201703L
+						if (!std::filesystem::exists(currentPath) && !std::filesystem::create_directories(currentPath)) {
+#else
 						if (!boost::filesystem::exists(currentPath) && !boost::filesystem::create_directories(currentPath)) {
+#endif
 							error = true;
 							break;
 						}

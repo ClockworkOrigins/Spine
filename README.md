@@ -11,6 +11,7 @@ To build Spine yourself to add bugfixes or new features, you need to set up the 
 * Download & install **CMake**
 * Download & install **Perl** (e.g. Strawberry Perl) [required for building OpenSSL]
 * Ensure either 7zip or WinRar are in PATH
+* Ensure patch.exe (e.g. part of Git for Windows) is in PATH
 * Set the environment variable **VS15** to the path of the **vcvarsall.bat** (e.g. C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat)
 * Set the environment variable **VS17** to the path of the **vcvars64.bat** (e.g. C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat)
 * Set the environment variable **VS19** to the path of the **vcvars64.bat** (e.g. C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat)
