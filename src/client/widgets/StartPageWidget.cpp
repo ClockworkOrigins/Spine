@@ -128,11 +128,11 @@ void StartPageWidget::requestNewsUpdate() {
 		QJsonObject json;
 		json["Language"] = LanguageConverter::convert(Config::Language);
 
-		Https::postAsync(DATABASESERVER_PORT, "requestAllNews", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & data, int statusCode) {
+		Https::postAsync(DATABASESERVER_PORT, "requestAllNews", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & jsonData, int statusCode) {
 			if (statusCode != 200) return;
 
-			if (data.contains("News")) {
-				for (const auto jsonRef : data["News"].toArray()) {
+			if (jsonData.contains("News")) {
+				for (const auto jsonRef : jsonData["News"].toArray()) {
 					const auto jsonNews = jsonRef.toObject();
 
 					const QString title = jsonNews["Title"].toString();
@@ -170,8 +170,8 @@ void StartPageWidget::requestNewsUpdate() {
 			}
 
 			_newsTickers.clear();
-			if (data.contains("NewsTicker")) {
-				for (const auto jsonRef : data["NewsTicker"].toArray()) {
+			if (jsonData.contains("NewsTicker")) {
+				for (const auto jsonRef : jsonData["NewsTicker"].toArray()) {
 					const auto jsonNewsTicker = jsonRef.toObject();
 
 					NewsTicker nt;

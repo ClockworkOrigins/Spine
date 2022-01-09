@@ -145,17 +145,17 @@ SubmitCompatibilityDialog::SubmitCompatibilityDialog(int32_t modID, int32_t patc
 			json["Username"] = Config::Username;
 			json["Password"] = Config::Password;
 
-			Https::post(DATABASESERVER_PORT, "requestOwnCompatibilities", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & data, int statusCode) {
+			Https::post(DATABASESERVER_PORT, "requestOwnCompatibilities", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & jsonData, int statusCode) {
 				if (statusCode != 200) return;
 
-				if (!data.contains("Compatibilities")) return;
+				if (!jsonData.contains("Compatibilities")) return;
 
 				Database::DBError dbErr;
 				Database::execute(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, "DELETE FROM ownCompatibilityVotes;", dbErr);
 				Database::open(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, dbErr);
 				Database::execute(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, "BEGIN TRANSACTION;", dbErr);
 				
-				for (const auto jsonRef : data["Compatibilities"].toArray()) {
+				for (const auto jsonRef : jsonData["Compatibilities"].toArray()) {
 					const auto jsonProj = jsonRef.toObject();
 
 					const auto projectID = jsonProj["ProjectID"].toString().toInt();
@@ -176,14 +176,14 @@ SubmitCompatibilityDialog::SubmitCompatibilityDialog(int32_t modID, int32_t patc
 		json["Language"] = Config::Language;
 		json["Simplified"] = 1;
 
-		Https::postAsync(DATABASESERVER_PORT, "requestAllProjects", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & data, int statusCode) {
+		Https::postAsync(DATABASESERVER_PORT, "requestAllProjects", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & jsonData, int statusCode) {
 			if (statusCode != 200) return;
 
-			if (!data.contains("Projects")) return;
+			if (!jsonData.contains("Projects")) return;
 
 			QList<Mod> projects;
 
-			for (const auto jsonRef : data["Projects"].toArray()) {
+			for (const auto jsonRef : jsonData["Projects"].toArray()) {
 				const auto jsonProj = jsonRef.toObject();
 
 				Mod project;

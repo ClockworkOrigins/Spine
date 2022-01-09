@@ -23,7 +23,13 @@
 
 #include "clockUtils/log/Log.h"
 
+#ifdef WIN32
+#pragma warning(disable : 4996)
+#endif
 #include "simple-web-server/client_https.hpp"
+#ifdef WIN32
+#pragma warning(error : 4996)
+#endif
 
 #include <QJsonDocument>
 #include <QJsonObject>

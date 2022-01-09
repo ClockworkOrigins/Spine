@@ -781,7 +781,7 @@ void Gothic1And2Launcher::start() {
 		auto * bp = new QProcess(process);
 		connect(process, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), bp, &QProcess::terminate);
 		bp->setWorkingDirectory(_directory + "/" + QFileInfo(backgroundProcess).path());
-		bp->start("\"" + _directory + "/" + backgroundProcess + "\"");
+		bp->start("\"" + _directory + "/" + backgroundProcess + "\"", QStringList());
 	}
 	connect(process, &QProcess::errorOccurred, this, &Gothic1And2Launcher::errorOccurred);
 	connect(process, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), this, &Gothic1And2Launcher::finishedMod, Qt::QueuedConnection);
@@ -792,16 +792,16 @@ void Gothic1And2Launcher::start() {
 	QStringList args;
 	args << "-game:" + _iniFile.split("/").back();
 	if (_zSpyActivated && _zSpyLevel->value() > 0) {
-		QProcess::startDetached("\"" + _directory + "/_work/tools/zSpy/zSpy.exe\"");
+		QProcess::startDetached("\"" + _directory + "/_work/tools/zSpy/zSpy.exe\"", QStringList());
 		args << "-zlog:" + QString::number(_zSpyLevel->value()) + ",s";
 		LOGINFO("Started zSpy")
 	}
 	if (!Config::Username.isEmpty() && Config::OnlineMode) {
 		QJsonObject json;
 		QJsonArray jsonArray;
-		
-		QSettings gothicIniParser(_directory + "/System/Gothic.ini", QSettings::IniFormat);
+
 		{
+			QSettings gothicIniParser(_directory + "/System/Gothic.ini", QSettings::IniFormat);
 			QString zVidResFullscreenX = gothicIniParser.value("VIDEO/zVidResFullscreenX", "0").toString();
 			QString zVidResFullscreenY = gothicIniParser.value("VIDEO/zVidResFullscreenY", "0").toString();
 
@@ -1688,7 +1688,7 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 			QDir sd = fi.absolutePath() + "/..";
 			sourceDir = sd.absolutePath();
 		}
-		QStringList l = modFiles.split(" ", QString::SkipEmptyParts);
+		QStringList l = modFiles.split(" ", Qt::SkipEmptyParts);
 		for (const QString & s : l) {
 			linkOrCopyFile(sourceDir + "/Data/modvdf/" + s, _directory + "/Data/" + s);
 			_copiedFiles.append("Data/" + s);
@@ -1916,7 +1916,7 @@ void Gothic1And2Launcher::collectDependencies(int modID, QSet<QString> * depende
 
 			auto required = configParser.value("DEPENDENCIES/Required", "").toString();
 			
-			auto split = required.split(',', QString::SkipEmptyParts);
+			auto split = required.split(',', Qt::SkipEmptyParts);
 			for (const auto & s : split) {
 				(*dependencyMap)[id].append(required);
 				
@@ -1928,14 +1928,14 @@ void Gothic1And2Launcher::collectDependencies(int modID, QSet<QString> * depende
 			
 			auto blocked = configParser.value("DEPENDENCIES/Blocked", "").toString();
 			
-			split = blocked.split(',', QString::SkipEmptyParts);
+			split = blocked.split(',', Qt::SkipEmptyParts);
 			for (const auto & s : split) {
 				forbidden->insert(s);
 			}
 			
 			auto overrides = configParser.value("DEPENDENCIES/Overrides", "").toString();
 			
-			split = overrides.split(',', QString::SkipEmptyParts);
+			split = overrides.split(',', Qt::SkipEmptyParts);
 			for (const auto & s : split) {
 				(*overrideFiles)[id].append(s);
 			}
@@ -1967,7 +1967,7 @@ void Gothic1And2Launcher::updatePlugins(int modID) {
 	{
 		const auto systempackEntries = configParser.value("LOADER/SPpreload", "").toString();
 				
-		const auto split = systempackEntries.split(',', QString::SkipEmptyParts);
+		const auto split = systempackEntries.split(',', Qt::SkipEmptyParts);
 
 		QFile f(_directory + "/System/pre.load");
 		f.open(QIODevice::Append);
@@ -1980,7 +1980,7 @@ void Gothic1And2Launcher::updatePlugins(int modID) {
 	{
 		const auto unionEntries = configParser.value("LOADER/UnionIni", "").toString();
 				
-		const auto split = unionEntries.split(',', QString::SkipEmptyParts);
+		const auto split = unionEntries.split(',', Qt::SkipEmptyParts);
 
 		_unionPlugins << split;
 
@@ -2224,7 +2224,7 @@ void Gothic1And2Launcher::parseIni(QString file) {
 	QString modIDString = fi.absolutePath();
 	QDir md(Config::DOWNLOADDIR + "/mods");
 	modIDString.replace(md.absolutePath(), "");
-	modIDString = modIDString.split("/", QString::SkipEmptyParts).front();
+	modIDString = modIDString.split("/", Qt::SkipEmptyParts).front();
 	int32_t modID = modIDString.toInt();
 	
 	IconCache::getInstance()->cacheIcon(modID, iconPath);

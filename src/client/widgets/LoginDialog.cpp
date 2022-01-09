@@ -54,7 +54,13 @@
 #include <QtConcurrentRun>
 #include <QVBoxLayout>
 
+#ifdef Q_OS_WIN
+#pragma warning(disable: 4996)
+#endif
 #include "simple-web-server/client_https.hpp"
+#ifdef Q_OS_WIN
+#pragma warning(error: 4996)
+#endif
 
 using HttpsClient = SimpleWeb::Client<SimpleWeb::HTTPS>;
 

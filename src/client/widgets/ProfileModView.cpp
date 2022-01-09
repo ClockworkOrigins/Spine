@@ -82,7 +82,7 @@ ProfileModView::ProfileModView(common::ProjectStats ms, QString gothicDirectory,
 			QString modIDString = fi.absolutePath();
 			QDir md(Config::DOWNLOADDIR + "/mods");
 			modIDString.replace(md.absolutePath(), "");
-			modIDString = modIDString.split("/", QString::SkipEmptyParts).front();
+			modIDString = modIDString.split("/", Qt::SkipEmptyParts).front();
 
 			const int32_t modID = modIDString.toInt();
 

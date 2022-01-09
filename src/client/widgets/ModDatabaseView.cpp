@@ -606,14 +606,14 @@ void ModDatabaseView::updateModList(int modID, int packageID, InstallMode mode) 
 	json["Language"] = Config::Language;
 
 	if (!_cached) {
-		Https::postAsync(DATABASESERVER_PORT, "requestAllProjects", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, modID, packageID](const QJsonObject & data, int statusCode) {
+		Https::postAsync(DATABASESERVER_PORT, "requestAllProjects", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, modID, packageID](const QJsonObject & jsonData, int statusCode) {
 			if (statusCode != 200) return;
 
-			if (!data.contains("Projects")) return;
+			if (!jsonData.contains("Projects")) return;
 
 			QList<Mod> projects;
 
-			for (const auto jsonRef : data["Projects"].toArray()) {
+			for (const auto jsonRef : jsonData["Projects"].toArray()) {
 				const auto jsonProj = jsonRef.toObject();
 
 				Mod project;
@@ -642,7 +642,7 @@ void ModDatabaseView::updateModList(int modID, int packageID, InstallMode mode) 
 			emit receivedModList(projects);
 
 			QSet<int32_t> playedProjects;
-			for (const auto jsonRef : data["PlayedProjects"].toArray()) {
+			for (const auto jsonRef : jsonData["PlayedProjects"].toArray()) {
 				const auto jsonProj = jsonRef.toObject();
 
 				playedProjects << jsonProj["ID"].toString().toInt();
@@ -652,7 +652,7 @@ void ModDatabaseView::updateModList(int modID, int packageID, InstallMode mode) 
 
 			QList<Package> packages;
 
-			for (const auto jsonRef : data["Packages"].toArray()) {
+			for (const auto jsonRef : jsonData["Packages"].toArray()) {
 				const auto jsonProj = jsonRef.toObject();
 
 				Package package;
@@ -1341,7 +1341,7 @@ void ModDatabaseView::installPackage(int modID, int packageID) {
 	const QModelIndex idx = _parentMods.value(modID);
 	int row = 0;
 	QModelIndex packageIdx;
-	while ((packageIdx = idx.child(row++, DatabaseColumn::Name)).isValid()) {
+	while ((packageIdx = _sourceModel->index(row++, DatabaseColumn::Name, idx)).isValid()) {
 		if (packageIdx.data(DatabaseRole::PackageIDRole).toInt() == packageID) {
 			break;
 		}
@@ -1430,14 +1430,14 @@ void ModDatabaseView::selectedModIndex(const QModelIndex & index) {
 			json["Language"] = LanguageConverter::convert(mod.language);
 			json["ProjectID"] = mod.id;
 
-			Https::postAsync(DATABASESERVER_PORT, "requestProjectFiles", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, mod](const QJsonObject & data, int statusCode) {
+			Https::postAsync(DATABASESERVER_PORT, "requestProjectFiles", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, mod](const QJsonObject & jsonData, int statusCode) {
 				if (statusCode != 200) return;
 
-				if (!data.contains("Files")) return;
+				if (!jsonData.contains("Files")) return;
 
-				QSharedPointer<QList<QPair<QString, QString>>> fileList(new QList<QPair<QString, QString>>());
+				const QSharedPointer<QList<QPair<QString, QString>>> fileList(new QList<QPair<QString, QString>>());
 
-				for (const auto jsonRef : data["Files"].toArray()) {
+				for (const auto jsonRef : jsonData["Files"].toArray()) {
 					const auto jsonFile = jsonRef.toObject();
 
 					const auto path = jsonFile["File"].toString();
@@ -1446,8 +1446,8 @@ void ModDatabaseView::selectedModIndex(const QModelIndex & index) {
 					fileList->append(qMakePair(path, hash));
 				}
 
-				const auto fileserver = data["Fileserver"].toString();
-				auto fallbackFileserver = data["FallbackFileserver"].toString();
+				const auto fileserver = jsonData["Fileserver"].toString();
+				auto fallbackFileserver = jsonData["FallbackFileserver"].toString();
 
 				if (fallbackFileserver.isEmpty()) {
 					fallbackFileserver = fileserver;
@@ -1514,14 +1514,14 @@ void ModDatabaseView::selectedPackageIndex(const QModelIndex & index) {
 			json["Language"] = s2q(package.language);
 			json["PackageID"] = package.packageID;
 
-			Https::postAsync(DATABASESERVER_PORT, "requestPackageFiles", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, mod, package](const QJsonObject & data, int statusCode) {
+			Https::postAsync(DATABASESERVER_PORT, "requestPackageFiles", QJsonDocument(json).toJson(QJsonDocument::Compact), [this, mod, package](const QJsonObject & jsonData, int statusCode) {
 				if (statusCode != 200) return;
 
-				if (!data.contains("Files")) return;
+				if (!jsonData.contains("Files")) return;
 
-				QSharedPointer<QList<QPair<QString, QString>>> fileList(new QList<QPair<QString, QString>>());
+				const QSharedPointer<QList<QPair<QString, QString>>> fileList(new QList<QPair<QString, QString>>());
 
-				for (const auto jsonRef : data["Files"].toArray()) {
+				for (const auto jsonRef : jsonData["Files"].toArray()) {
 					const auto jsonFile = jsonRef.toObject();
 
 					const auto path = jsonFile["File"].toString();
@@ -1530,8 +1530,8 @@ void ModDatabaseView::selectedPackageIndex(const QModelIndex & index) {
 					fileList->append(qMakePair(path, hash));
 				}
 
-				const auto fileserver = data["Fileserver"].toString();
-				auto fallbackFileserver = data["FallbackFileserver"].toString();
+				const auto fileserver = jsonData["Fileserver"].toString();
+				auto fallbackFileserver = jsonData["FallbackFileserver"].toString();
 
 				if (fallbackFileserver.isEmpty()) {
 					fallbackFileserver = fileserver;

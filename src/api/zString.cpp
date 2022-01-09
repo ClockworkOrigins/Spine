@@ -26,7 +26,7 @@ zString::zString() : _vtbl(nullptr), _allocater(0), _ptr(new char[256]), _len(25
 zString::zString(const zString & other) : _vtbl(other._vtbl), _allocater(other._allocater), _ptr(other._ptr), _len(other._len), _res(other._res) {
 }
 
-zString::zString(const std::string & other) : _vtbl(nullptr), _allocater(0), _ptr(new char[256]), _len(other.size()), _res(other.size()) {
+zString::zString(const std::string & other) : _vtbl(nullptr), _allocater(0), _ptr(new char[256]), _len(static_cast<int32_t>(other.size())), _res(static_cast<int32_t>(other.size())) {
 	strcpy(_ptr, other.data());
 }
 

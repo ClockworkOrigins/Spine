@@ -107,7 +107,9 @@ GeneralSettingsWidget::GeneralSettingsWidget(QWidget * par) : QWidget(par), _lan
 
 		l->addSpacing(10);
 
-		connect(_styleComboBox, QOverload<const QString&>::of(&QComboBox::currentIndexChanged), this, &GeneralSettingsWidget::changedStyle);
+		connect(_styleComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int idx) {
+			changedStyle(_styleComboBox->itemText(idx));
+		});
 	}
 	{
 		auto * pb = new QPushButton(QApplication::tr("ReactivateModUpdates"), this);

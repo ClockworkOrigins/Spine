@@ -112,14 +112,14 @@ void FriendsView::updateFriendList() {
 	json["Username"] = Config::Username;
 	json["Password"] = Config::Password;
 
-	Https::postAsync(DATABASESERVER_PORT, "requestAllFriends", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & data, int statusCode) {
+	Https::postAsync(DATABASESERVER_PORT, "requestAllFriends", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & jsonData, int statusCode) {
 		if (statusCode != 200) return;
 
 		std::vector<Friend> friends;
 		std::vector<Friend> friendRequests;
 		
-		if (data.contains("Friends")) {
-			const auto arr = data["Friends"].toArray();
+		if (jsonData.contains("Friends")) {
+			const auto arr = jsonData["Friends"].toArray();
 			for (const auto jsonRef : arr) {
 				const auto json2 = jsonRef.toObject();
 
@@ -129,8 +129,8 @@ void FriendsView::updateFriendList() {
 			}
 		}
 
-		if (data.contains("FriendRequests")) {
-			const auto arr = data["FriendRequests"].toArray();
+		if (jsonData.contains("FriendRequests")) {
+			const auto arr = jsonData["FriendRequests"].toArray();
 			for (const auto jsonRef : arr) {
 				const auto json2 = jsonRef.toObject();
 
@@ -140,8 +140,8 @@ void FriendsView::updateFriendList() {
 			}
 		}
 
-		if (data.contains("Users")) {
-			const auto arr = data["Users"].toArray();
+		if (jsonData.contains("Users")) {
+			const auto arr = jsonData["Users"].toArray();
 			for (const auto jsonRef : arr) {
 				const auto name = jsonRef.toString();
 
@@ -201,5 +201,5 @@ void FriendsView::removeFriend(const QString & friendName) {
 	json["Password"] = Config::Password;
 	json["Friend"] = friendName;
 
-	Https::postAsync(DATABASESERVER_PORT, "removeFriend", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject & data, int statusCode) {});
+	Https::postAsync(DATABASESERVER_PORT, "removeFriend", QJsonDocument(json).toJson(QJsonDocument::Compact), [this](const QJsonObject &, int) {});
 }
