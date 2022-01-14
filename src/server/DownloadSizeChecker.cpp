@@ -230,11 +230,11 @@ void DownloadSizeChecker::init() {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query("PREPARE selectFileIDsStmt FROM \"SELECT PackageID, FileID, Path FROM optionalpackagefiles\";")) {
+	if (!database.query("PREPARE selectPackageFileIDsStmt FROM \"SELECT PackageID, FileID, Path FROM optionalpackagefiles\";")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query("PREPARE selectPackageFileIDsStmt FROM \"SELECT ModID, FileID, Path FROM modfiles\";")) {
+	if (!database.query("PREPARE selectFileIDsStmt FROM \"SELECT ModID, FileID, Path FROM modfiles\";")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 		return;
 	}
@@ -271,7 +271,7 @@ void DownloadSizeChecker::init() {
 	for (const auto & vec : lastResults) {
 		const auto projectID = std::stoi(vec[0]);
 		const auto fileID = std::stoi(vec[1]);
-		const auto path = vec[0];
+		const auto path = vec[2];
 
 		_fileToFileIDs.insert(std::make_pair(std::make_pair(projectID, path), fileID));
 	}
@@ -285,7 +285,7 @@ void DownloadSizeChecker::init() {
 	for (const auto & vec : lastResults) {
 		const auto projectID = std::stoi(vec[0]);
 		const auto packageFileID = std::stoi(vec[1]);
-		const auto path = vec[0];
+		const auto path = vec[2];
 
 		_fileToPackageIDs.insert(std::make_pair(std::make_pair(projectID, path), packageFileID));
 	}
