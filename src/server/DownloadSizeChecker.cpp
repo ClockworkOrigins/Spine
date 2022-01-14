@@ -19,6 +19,7 @@
 #include "DownloadSizeChecker.h"
 
 #include <iostream>
+#include <thread>
 
 #include "MariaDBWrapper.h"
 #include "SpineServerConfig.h"
