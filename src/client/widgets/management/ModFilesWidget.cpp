@@ -531,6 +531,7 @@ void ModFilesWidget::showVersionUpdate(bool success) {
 
 void ModFilesWidget::changedLanguage(QStandardItem * itm) {
 	const QVariant v = itm->data(PathRole);
+
 	if (!v.isValid()) return;
 
 	const QString path = v.toString();
@@ -786,5 +787,6 @@ void ModFilesWidget::markAsChanged(const QString& relativePath) {
 
 	if (text.endsWith(" *")) return;
 
+	QSignalBlocker sb(_fileList);
 	itm->setText(text + " *");
 }
