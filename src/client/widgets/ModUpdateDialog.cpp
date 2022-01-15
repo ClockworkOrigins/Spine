@@ -513,7 +513,7 @@ void ModUpdateDialog::requestUpdates(const QList<ModVersion> & m, bool forceAcce
 
 						const auto file = j2["File"].toString();
 						const auto hash = j2["Hash"].toString();
-						const auto size = j2["Size"].toString().toInt();
+						auto size = j2["Size"].toString().toInt();
 
 						auto found = false;
 
@@ -526,7 +526,10 @@ void ModUpdateDialog::requestUpdates(const QList<ModVersion> & m, bool forceAcce
 							localFiles.erase(it);
 						}
 
-						if (found) continue;
+						if (found) {
+							// set size 0 as file won't be downloaded again, but DON'T skip it, otherwise it will be treated as file that needs to get deleted!
+							size = 0;
+						}
 
 						ModUpdate::File f;
 						f.path = file;
@@ -556,7 +559,7 @@ void ModUpdateDialog::requestUpdates(const QList<ModVersion> & m, bool forceAcce
 
 							const auto file = j3["File"].toString();
 							const auto hash = j3["Hash"].toString();
-							const auto size = j2["Size"].toString().toInt();
+							auto size = j2["Size"].toString().toInt();
 
 							auto found = false;
 
@@ -569,7 +572,10 @@ void ModUpdateDialog::requestUpdates(const QList<ModVersion> & m, bool forceAcce
 								localFiles.erase(it);
 							}
 
-							if (found) continue;
+							if (found) {
+								// set size 0 as file won't be downloaded again, but DON'T skip it, otherwise it will be treated as file that needs to get deleted!
+								size = 0;
+							}
 
 							ModUpdate::File f;
 							f.path = file;
