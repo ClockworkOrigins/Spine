@@ -2300,4 +2300,9 @@
 		<Bug language="English">Fixed bug that caused updates corrupting projects</Bug>
 		<Bug language="English">Fixed bug in Polish translation</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="37" patchVersion="1">
+		<Bug language="Deutsch">Fehler behoben, wodurch Dateisprache bei Updates verstellt wurde</Bug>
+
+		<Bug language="English">Fixed bug that caused file language to change on updates</Bug>
+	</Version>
 </Versions>
