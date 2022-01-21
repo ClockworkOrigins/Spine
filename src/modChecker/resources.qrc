@@ -1,0 +1,6 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+	<file alias="g1.txt">g1.txt</file>
+	<file alias="g2.txt">g2.txt</file>
+</qresource>
+</RCC>
