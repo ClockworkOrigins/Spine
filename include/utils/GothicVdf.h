@@ -14,21 +14,59 @@
     You should have received a copy of the GNU General Public License
     along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
-// Copyright 2019 Clockwork Origins
+// Copyright 2022 Clockwork Origins
 
 #pragma once
 
+#include <QFile>
+#include <QList>
 #include <QString>
 
 namespace spine {
 namespace utils {
 
-	class Hashing {
+	class GothicVdf {
 	public:
-		static bool hash(const QString & file, QString & hash);
-		static bool hash(const QByteArray & bytes, QString & hash);
-		static bool checkHash(const QString & file, const QString & referenceHash);
+		GothicVdf(const QString & path);
+		~GothicVdf();
+
+		bool parse();
+		void close();
+
+		QStringList getFiles() const;
+
+		QString getHash(int idx);
+
+	private:
+		typedef struct {
+			QString comment;
+			QString signature;
+			qint32 numEntries;
+			qint32 numFiles;
+			qint32 timestamp;
+			qint32 dataSize;
+			qint32 rootOffset;
+			qint32 entrySize;
+		} Header;
+
+		typedef struct {
+			QString name;
+			qint32 offset;
+			qint32 size;
+			qint32 type;
+			qint32 attributes;
+			QString path;
+			bool isDir;
+		} EntryHeader;
+
+		QFile _file;
+
+		Header _header;
+
+		QList<EntryHeader> _entries;
+
+		qint32 toInt(const QByteArray & bytes) const;
 	};
 
+} /* namespace common */
 } /* namespace utils */
-} /* namespace spine */

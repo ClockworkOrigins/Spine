@@ -37,6 +37,14 @@ bool Hashing::hash(const QString & file, QString & hash) {
 	return false;
 }
 
+bool Hashing::hash(const QByteArray & bytes, QString & hash) {
+	QCryptographicHash cryptoHash(QCryptographicHash::Sha512);
+	cryptoHash.addData(bytes);
+
+	hash = QString::fromLatin1(cryptoHash.result().toHex());
+	return true;
+}
+
 bool Hashing::checkHash(const QString & file, const QString & referenceHash) {
 	QString h;
 	const bool b = hash(file, h);

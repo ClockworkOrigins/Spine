@@ -32,7 +32,7 @@ int main(const int argc, char ** argv) {
 		spine::utils::Compression::uncompress(fileName, false);
 	} else {
 		QString hash;
-		const bool b = spine::utils::Hashing::hash(argv[1], hash);
+		const bool b = spine::utils::Hashing::hash(fileName, hash);
 		
 		if (!b) return 1;
 		
