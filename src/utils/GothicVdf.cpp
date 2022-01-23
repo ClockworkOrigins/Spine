@@ -175,7 +175,7 @@ bool GothicVdf::parse() {
 				dirPath += "/" + entryHeader.name;
 		}
 
-		entryHeader.path = dirList.count() == 1 && (isDir || isMultiDir) ? entryHeader.name : dirPath;
+		entryHeader.path = (dirList.count() == 0 && (isDir || isMultiDir)) || closestBelow == 0 ? entryHeader.name : dirPath;
 
 		if (isLastFileInFolder && !dirList.isEmpty()) {
 			if (entryHeader.path.endsWith(dirList.back().head())) {
