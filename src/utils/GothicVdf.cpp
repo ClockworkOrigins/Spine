@@ -81,6 +81,10 @@ bool GothicVdf::parse() {
 
 	_header.entrySize = toInt(entrySize);
 
+	// must be 80 for valid G1/G2 files, other value implies some compressed/encrypted Union stuff which is not supported as of now
+	if (_header.entrySize != 80)
+		return false;
+
 	_entries.clear();
 
 	QList<QQueue<QString>> dirList;
@@ -173,7 +177,7 @@ bool GothicVdf::parse() {
 
 		entryHeader.path = dirList.count() == 1 && (isDir || isMultiDir) ? entryHeader.name : dirPath;
 
-		if (isLastFileInFolder) {
+		if (isLastFileInFolder && !dirList.isEmpty()) {
 			if (entryHeader.path.endsWith(dirList.back().head())) {
 				dirList.back().dequeue();
 			}
@@ -199,7 +203,7 @@ bool GothicVdf::parse() {
 			break;
 	}
 
-	return true;
+	return parsedEntries == _header.numEntries;
 }
 
 void GothicVdf::close() {
@@ -278,6 +282,12 @@ void GothicVdf::remove(const QString & file) {
 	}
 }
 
+void GothicVdf::remove(const QStringList & fileList) {
+	for (const auto & file : fileList) {
+		remove(file);
+	}
+}
+
 QStringList GothicVdf::getFiles() const {
 	QStringList files;
 
@@ -290,7 +300,7 @@ QStringList GothicVdf::getFiles() const {
 	return files;
 }
 
-QString GothicVdf::getHash(int idx) {
+QString GothicVdf::getHash(int idx) const {
 	quint64 offset = HEADER_SIZE;
 
 	for (int i = 0; i < _entries.count(); i++) {
@@ -318,6 +328,50 @@ QString GothicVdf::getHash(int idx) {
 	}
 
 	return QString();
+}
+
+QStringList GothicVdf::getDeletableFiles(const QMap<QString, QString> & modkitFiles) const {
+	QStringList deletableFiles;
+
+	const auto files = getFiles();
+
+	for (int i = 0; i < files.count(); i++) {
+		auto f = files[i];
+
+		if (!f.startsWith("_WORK")) {
+			if (!f.startsWith("NINJA") && !f.startsWith("SYSTEM/AUTORUN") && !f.startsWith("/")) { // skip Ninja and Union folders
+				deletableFiles << f;
+			}
+		} else {
+			auto copyF = f;
+			copyF = copyF.replace("_WORK/", "");
+			copyF = copyF.toLower();
+
+			const auto it2 = modkitFiles.find(copyF);
+
+			const auto suffix = QFileInfo(copyF).suffix();
+
+			if (suffix == "mds" || suffix == "src" || suffix == "d" || suffix == "asc" || suffix == "tga" || suffix == "csl" || suffix == "3ds" || suffix == "fnt") {
+				deletableFiles << f;
+			} else if (copyF.endsWith("ouinfo.inf")) {
+				deletableFiles << f;
+			} else if (copyF.startsWith("demo/")) {
+				deletableFiles << f;
+			} else if (copyF.startsWith("tools/")) {
+				deletableFiles << f;
+			} else if (copyF.startsWith("data/scripts/content/cutscene/") && !copyF.endsWith("ou.bin")) {
+				deletableFiles << f;
+			} else if (it2 != modkitFiles.end()) {
+				QString modFileHash = getHash(i);
+
+				if (modFileHash == it2.value()) {
+					deletableFiles << f;
+				}
+			}
+		}
+	}
+
+	return deletableFiles;
 }
 
 quint32 GothicVdf::toInt(const QByteArray & bytes) const {

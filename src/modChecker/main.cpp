@@ -103,31 +103,15 @@ int main(const int argc, char ** argv) {
 
 		const auto files = vdf.getFiles();
 
-		for (int i = 0; i < files.count(); i++) {
-			auto f = files[i];
+		const auto deletableFiles = vdf.getDeletableFiles(modkitFiles);
 
-			if (!f.startsWith("_WORK")) {
-				strippedCounter++;
-				vdf.remove(f);
+		counter = files.count();
+		strippedCounter = deletableFiles.count();
 
-				logStream << f << "\n";
-			} else {
-				auto copyF = f;
-				const auto it2 = modkitFiles.find(copyF.replace("_WORK/", "").toLower());
+		for (const auto & f : deletableFiles) {
+			vdf.remove(f);
 
-				if (it2 != modkitFiles.end()) {
-					QString modFileHash = vdf.getHash(i - strippedCounter);
-
-					if (modFileHash == it2.value()) {
-						strippedCounter++;
-						vdf.remove(f);
-
-						logStream << f << "\n";
-					}
-				}
-			}
-
-			counter++;
+			logStream << f << "\n";
 		}
 
 		const auto strippedPath = resultPath + "/" + modPath.split("/").back();

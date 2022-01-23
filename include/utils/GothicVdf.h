@@ -36,10 +36,13 @@ namespace utils {
 		void write(const QString & outPath) const;
 
 		void remove(const QString & file);
+		void remove(const QStringList & fileList);
 
 		QStringList getFiles() const;
 
-		QString getHash(int idx);
+		QString getHash(int idx) const;
+
+		QStringList getDeletableFiles(const QMap<QString, QString> & modkitFiles) const;
 
 	private:
 		typedef struct {
