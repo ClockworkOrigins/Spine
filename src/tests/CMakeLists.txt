@@ -7,6 +7,7 @@ SET(UnitTesterSrc
 	${srcdir}/main.cpp
 
 	${srcdir}/test_GothicParser.cpp
+	${srcdir}/test_GothicVdf.cpp
 )
 
 ADD_EXECUTABLE(UnitTester ${UnitTesterSrc} ${UnitTesterGuiHeader})
@@ -27,6 +28,9 @@ ENDIF(UNIX)
 IF(WIN32)
 	target_link_libraries(UnitTester ws2_32)
 ENDIF(WIN32)
+
+ADD_DEFINITIONS(-DVDF_PATH="${CMAKE_SOURCE_DIR}/media/Spine.vdf")
+ADD_DEFINITIONS(-DTEST_RESOURCES_PATH="${CMAKE_CURRENT_SOURCE_DIR}/resources")
 
 LINK_TO_FOLDER("${CMAKE_CURRENT_SOURCE_DIR}/resources" "${CMAKE_BINARY_DIR}/bin/Debug/tests")
 LINK_TO_FOLDER("${CMAKE_CURRENT_SOURCE_DIR}/resources" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/tests")

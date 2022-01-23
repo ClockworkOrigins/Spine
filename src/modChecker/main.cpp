@@ -18,6 +18,7 @@
 
 #include <iostream>
 
+#include "utils/GothicVdf.h"
 #include "utils/Hashing.h"
 
 #include <QDirIterator>
@@ -54,7 +55,7 @@ QMap<QString, QString> parse(const QString & path) {
 
 int main(const int argc, char ** argv) {
 	if (argc != 4) {
-		std::cout << "Usage: " << argv[0] << " <g1|g2> <path to your mod files (_work folder)> <path for results>" << std::endl;
+		std::cout << "Usage: " << argv[0] << " <g1|g2> <path to your mod files (_work folder) or a vdf/mod file> <path for results>" << std::endl;
 		return 1;
 	}
 
@@ -88,60 +89,112 @@ int main(const int argc, char ** argv) {
 	}
 	QTextStream logStream(&logFile);
 
-	QFutureSynchronizer<void> syncer;
 
 	QElapsedTimer timer;
 	timer.start();
 
-	QDirIterator it(modPath, QDir::Filter::Files, QDirIterator::IteratorFlag::Subdirectories);
-	while (it.hasNext()) {
-		const QString file = it.next();
-		const auto future = QtConcurrent::run([file, &modPath, &resultPath, &modkitFiles, &counter, &strippedCounter, &strippedSizeCounter, &logStream, &lock] {
-			QString absolutePath = QFileInfo(file).absolutePath();
-			absolutePath.replace(modPath, "");
-			QString strippedPath = file;
-			strippedPath.replace(modPath, "");
-			while (strippedPath.at(0) == '/') {
-				strippedPath.remove(0, 1);
+	if (modPath.endsWith("vdf", Qt::CaseInsensitive) || modPath.endsWith("mod", Qt::CaseInsensitive)) {
+		spine::utils::GothicVdf vdf(modPath);
+		const auto b = vdf.parse();
+		if (!b) {
+			std::cout << "File couldn't be parsed" << std::endl;
+			return 1;
+		}
+
+		const auto files = vdf.getFiles();
+
+		for (int i = 0; i < files.count(); i++) {
+			auto f = files[i];
+
+			if (!f.startsWith("_WORK")) {
+				strippedCounter++;
+				vdf.remove(f);
+
+				logStream << f << "\n";
+			} else {
+				auto copyF = f;
+				const auto it2 = modkitFiles.find(copyF.replace("_WORK/", "").toLower());
+
+				if (it2 != modkitFiles.end()) {
+					QString modFileHash = vdf.getHash(i - strippedCounter);
+
+					if (modFileHash == it2.value()) {
+						strippedCounter++;
+						vdf.remove(f);
+
+						logStream << f << "\n";
+					}
+				}
 			}
 
-			strippedPath = strippedPath.toLower();
+			counter++;
+		}
 
-			const auto it2 = modkitFiles.find(strippedPath);
+		const auto strippedPath = resultPath + "/" + modPath.split("/").back();
+		if (!QDir(resultPath).exists()) {
+			QDir(resultPath).mkpath(resultPath);
+		}
+		if (strippedCounter > 0) {
+			vdf.write(strippedPath);
+			vdf.close();
+		} else {
+			vdf.close();
+			QFile::copy(modPath, strippedPath);
+		}
+		strippedSizeCounter = QFileInfo(modPath).size() - QFileInfo(strippedPath).size();
+	} else {
+		QFutureSynchronizer<void> syncer;
 
-			if (it2 == modkitFiles.end()) {
-				const QString resultDir = QFileInfo(resultPath + "/" + strippedPath).absolutePath();
-				const bool b = QDir(resultPath).mkpath(resultDir);
-				Q_UNUSED(b)
-				QFile::copy(file, resultPath + "/" + strippedPath);
-			} else {
-				QString modFileHash;
-				bool b = spine::utils::Hashing::hash(file, modFileHash);
-				if (!b) {
-					std::cout << "Hash Generation not possible for mod file" << std::endl;
-					return;
+		QDirIterator it(modPath, QDir::Filter::Files, QDirIterator::IteratorFlag::Subdirectories);
+		while (it.hasNext()) {
+			const QString file = it.next();
+			const auto future = QtConcurrent::run([file, &modPath, &resultPath, &modkitFiles, &counter, &strippedCounter, &strippedSizeCounter, &logStream, &lock] {
+				QString absolutePath = QFileInfo(file).absolutePath();
+				absolutePath.replace(modPath, "");
+				QString strippedPath = file;
+				strippedPath.replace(modPath, "");
+				while (strippedPath.at(0) == '/') {
+					strippedPath.remove(0, 1);
 				}
 
-				if (modFileHash != it2.value()) {
-					const QString resultDir = resultPath + "/" + absolutePath;
-					b = QDir(resultPath).mkpath(resultDir);
+				strippedPath = strippedPath.toLower();
+
+				const auto it2 = modkitFiles.find(strippedPath);
+
+				if (it2 == modkitFiles.end()) {
+					const QString resultDir = QFileInfo(resultPath + "/" + strippedPath).absolutePath();
+					const bool b = QDir(resultPath).mkpath(resultDir);
 					Q_UNUSED(b)
 					QFile::copy(file, resultPath + "/" + strippedPath);
 				} else {
-					QMutexLocker ml(&lock);
-					strippedCounter++;
-					strippedSizeCounter += QFileInfo(file).size();
+					QString modFileHash;
+					bool b = spine::utils::Hashing::hash(file, modFileHash);
+					if (!b) {
+						std::cout << "Hash Generation not possible for mod file" << std::endl;
+						return;
+					}
 
-					logStream << file << "\n";
+					if (modFileHash != it2.value()) {
+						const QString resultDir = resultPath + "/" + absolutePath;
+						b = QDir(resultPath).mkpath(resultDir);
+						Q_UNUSED(b)
+						QFile::copy(file, resultPath + "/" + strippedPath);
+					} else {
+						QMutexLocker ml(&lock);
+						strippedCounter++;
+						strippedSizeCounter += QFileInfo(file).size();
+
+						logStream << file << "\n";
+					}
 				}
-			}
-			QMutexLocker ml(&lock);
-			counter++;
-		});
-		syncer.addFuture(future);
-	}
+				QMutexLocker ml(&lock);
+				counter++;
+			});
+			syncer.addFuture(future);
+		}
 
-	syncer.waitForFinished();
+		syncer.waitForFinished();
+	}
 
 	std::cout << "Duration: " << timer.elapsed() << "ms" << std::endl;
 	std::cout << "Processed files: " << counter << std::endl;

@@ -33,6 +33,10 @@ namespace utils {
 		bool parse();
 		void close();
 
+		void write(const QString & outPath) const;
+
+		void remove(const QString & file);
+
 		QStringList getFiles() const;
 
 		QString getHash(int idx);
@@ -41,31 +45,39 @@ namespace utils {
 		typedef struct {
 			QString comment;
 			QString signature;
-			qint32 numEntries;
-			qint32 numFiles;
-			qint32 timestamp;
-			qint32 dataSize;
-			qint32 rootOffset;
-			qint32 entrySize;
+			quint32 numEntries;
+			quint32 numFiles;
+			quint32 timestamp;
+			quint32 dataSize;
+			quint32 rootOffset;
+			quint32 entrySize;
 		} Header;
 
 		typedef struct {
 			QString name;
-			qint32 offset;
-			qint32 size;
-			qint32 type;
-			qint32 attributes;
+			quint32 offset;
+			quint32 size;
+			quint32 type;
+			quint32 attributes;
 			QString path;
 			bool isDir;
 		} EntryHeader;
 
-		QFile _file;
+		mutable QFile _file;
 
 		Header _header;
 
 		QList<EntryHeader> _entries;
 
-		qint32 toInt(const QByteArray & bytes) const;
+		quint32 toInt(const QByteArray & bytes) const;
+		QByteArray fromInt(quint32 v) const;
+
+		void createHeaders(const QString & path, const QMap<QString, QStringList> & fileTree, QList<EntryHeader> & headers, Header & header) const;
+		void adjustHeader(QList<EntryHeader> & headers, Header & header) const;
+
+		void writeHeader(QFile & f, const Header & header) const;
+		void writeEntryHeaders(QFile & f, const QList<EntryHeader> & entryHeaders) const;
+		void writeEntries(QFile & f, const QList<EntryHeader> & entryHeaders) const;
 	};
 
 } /* namespace common */
