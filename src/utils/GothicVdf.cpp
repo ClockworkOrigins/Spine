@@ -112,9 +112,11 @@ bool GothicVdf::parse() {
 
 		const auto typeStr = type.toHex();
 
-		const auto isDir = toInt(type) == 0xc0000000;
-		const auto isMultiDir = toInt(type) == 0x80000000;
-		const auto isLastFileInFolder = toInt(type) == 0x40000000;
+		entryHeader.type = toInt(type);
+
+		const auto isDir = entryHeader.type == 0xc0000000;
+		const auto isMultiDir = entryHeader.type == 0x80000000;
+		const auto isLastFileInFolder = entryHeader.type == 0x40000000;
 
 		if ((isDir || isMultiDir) && !wasMultiDir) {
 			QQueue<QString> q;
@@ -470,7 +472,7 @@ void GothicVdf::createHeaders(const QString & path, const QMap<QString, QStringL
 				if (entry.path != p2) continue;
 
 				auto e = entry;
-				e.type = p == list.back() || list[i + 1].contains(".") ? 0xc0000000 : 0x80000000;
+				e.type = p == list.back() ? 0xc0000000 : 0x80000000;
 
 				headers << e;
 
