@@ -90,6 +90,11 @@ namespace launcher {
 
 		bool isRunning() const;
 
+		static void removeScore(int32_t projectID, int32_t identifier);
+		static void removeAchievement(int32_t projectID, int32_t identifier);
+		static void removeAchievementProgress(int32_t projectID, int32_t identifier);
+		static void removeOverallSaveData(int32_t projectID, const std::string & key);
+
 	signals:
 		void restartAsAdmin();
 		void receivedModStats(common::ProjectStats);
@@ -189,21 +194,13 @@ namespace launcher {
 		void acceptedConnection(clockUtils::sockets::TcpSocket * sock, clockUtils::ClockError err);
 		void receivedMessage(std::vector<uint8_t> packet, clockUtils::sockets::TcpSocket * socket, clockUtils::ClockError err);
 
-		void tryCleanCaches();
-
 		void cacheScore(int32_t projectID, int32_t identifier, int32_t score) const;
-		void removeScore(int32_t projectID, int32_t identifier) const;
 
 		void cacheAchievement(int32_t projectID, int32_t identifier) const;
-		void removeAchievement(int32_t projectID, int32_t identifier) const;
 
 		void cacheAchievementProgress(int32_t projectID, int32_t identifier, int32_t progress) const;
-		void removeAchievementProgress(int32_t projectID, int32_t identifier) const;
 
 		void cacheOverallSaveData(int32_t projectID, const std::string & key, const std::string & value) const;
-		void removeOverallSaveData(int32_t projectID, const std::string & key) const;
-
-		void synchronizeOfflineData();
 
 		void handleRequestUsername(clockUtils::sockets::TcpSocket * socket) const;
 		void handleRequestScores(clockUtils::sockets::TcpSocket * socket, common::RequestScoresMessage * msg) const;

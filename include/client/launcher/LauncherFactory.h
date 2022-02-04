@@ -65,6 +65,9 @@ namespace launcher {
 		LauncherFactory();
 		
 		void initLauncher(const ILauncherPtr & launcher) const;
+
+		static void tryCleanCaches();
+		static void synchronizeOfflineData();
 	};
 
 } /* namespace launcher */
