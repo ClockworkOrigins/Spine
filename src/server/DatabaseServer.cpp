@@ -2970,40 +2970,41 @@ void DatabaseServer::feedback(std::shared_ptr<HttpsServer::Response> response, s
 		if (projectID == -1) {
 			ServerCommon::sendMail("[Spine] New Feedback arrived", ss.str() + "\n" + text + "\n" + std::to_string(majorVersion) + "." + std::to_string(minorVersion) + "." + std::to_string(patchVersion) + "\n\n" + username, replyMail);
 		} else {
-			MariaDBWrapper accountDatabase;
 			do {
-				if (!accountDatabase.connect("localhost", DATABASEUSER, DATABASEPASSWORD, ACCOUNTSDATABASE, 0)) {
+				CONNECTTODATABASE(__LINE__)
+
+				if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, ACCOUNTSDATABASE, 0)) {
 					std::cout << "Couldn't connect to database" << std::endl;
 					break;
 				}
 
-				if (!accountDatabase.query("PREPARE selectMailStmt FROM \"SELECT Mail FROM feedbackMails WHERE ProjectID = ? LIMIT 1\";")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << accountDatabase.getLastError() << std::endl;
+				if (!database.query("PREPARE selectMailStmt FROM \"SELECT Mail FROM feedbackMails WHERE ProjectID = ? LIMIT 1\";")) {
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 					break;
 				}
-				if (!accountDatabase.query("PREPARE selectProjectNameStmt FROM \"SELECT Name FROM projectNames WHERE ProjectID = ? LIMIT 1\";")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << accountDatabase.getLastError() << std::endl;
+				if (!database.query("PREPARE selectProjectNameStmt FROM \"SELECT Name FROM projectNames WHERE ProjectID = ? LIMIT 1\";")) {
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 					break;
 				}
-				if (!accountDatabase.query("SET @paramProjectID=" + std::to_string(projectID) + ";")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << accountDatabase.getLastError() << std::endl;
+				if (!database.query("SET @paramProjectID=" + std::to_string(projectID) + ";")) {
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 					break;
 				}
-				if (!accountDatabase.query("EXECUTE selectMailStmt USING @paramProjectID;")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << accountDatabase.getLastError() << std::endl;
+				if (!database.query("EXECUTE selectMailStmt USING @paramProjectID;")) {
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 					break;
 				}
-				auto results = accountDatabase.getResults<std::vector<std::string>>();
+				auto results = database.getResults<std::vector<std::string>>();
 
 				if (results.empty()) break;
 
 				const auto receiver = results[0][0];
 
-				if (!accountDatabase.query("EXECUTE selectProjectNameStmt USING @paramProjectID;")) {
-					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << accountDatabase.getLastError() << std::endl;
+				if (!database.query("EXECUTE selectProjectNameStmt USING @paramProjectID;")) {
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 					break;
 				}
-				results = accountDatabase.getResults<std::vector<std::string>>();
+				results = database.getResults<std::vector<std::string>>();
 
 				if (results.empty()) break;
 
