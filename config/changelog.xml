@@ -2301,8 +2301,10 @@
 		<Bug language="English">Fixed bug in Polish translation</Bug>
 	</Version>
 	<Version majorVersion="1" minorVersion="37" patchVersion="1">
+		<Enhancement language="Deutsch">Spielstand-Editor kann jetzt auch nach Variablen-Werten gefiltert werden</Enhancement>
 		<Bug language="Deutsch">Fehler behoben, wodurch Dateisprache bei Updates verstellt wurde</Bug>
 
+		<Enhancement language="English">Savegame editor now can also be filtered for variable values</Enhancement>
 		<Bug language="English">Fixed bug that caused file language to change on updates</Bug>
 	</Version>
 </Versions>

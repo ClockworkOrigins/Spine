@@ -66,7 +66,7 @@ SavegameDialog::SavegameDialog(LocationSettingsWidget * locationSettingsWidget, 
 	QSortFilterProxyModel * filterModel = new QSortFilterProxyModel(tv);
 	filterModel->setSourceModel(_model);
 	filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-	filterModel->setFilterKeyColumn(0);
+	filterModel->setFilterKeyColumn(-1);
 	tv->setModel(filterModel);
 	l->addWidget(tv);
 	tv->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Stretch);
