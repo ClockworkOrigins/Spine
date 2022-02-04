@@ -19,11 +19,6 @@
 #pragma once
 
 #include <QObject>
-#include <QString>
-
-namespace std {
-	class thread;
-} /* namespace std */
 
 namespace spine {
 
@@ -40,10 +35,9 @@ namespace spine {
 	class SavegameManager : public QObject {
 	public:
 		SavegameManager(QObject * par);
-		~SavegameManager();
 
-		void load(QString saveFile);
-		void save(QString saveFile, QList<Variable> variables);
+		void load(const QString & saveFile);
+		static void save(const QString & saveFile, const QList<Variable> & variables);
 
 		QList<Variable> getVariables() const {
 			return _variables;

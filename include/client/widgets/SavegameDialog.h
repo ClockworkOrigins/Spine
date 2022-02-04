@@ -36,12 +36,12 @@ namespace widgets {
 
 	public:
 		SavegameDialog(LocationSettingsWidget * locationSettingsWidget, QWidget * par);
-		~SavegameDialog();
+		~SavegameDialog() override;
 
 	private slots:
 		void openG1Save();
 		void openG2Save();
-		void save();
+		void save() const;
 		void itemChanged(QStandardItem * itm);
 
 	private:
@@ -55,7 +55,7 @@ namespace widgets {
 
 		void updateView();
 		void restoreSettings();
-		void saveSettings();
+		void saveSettings() const;
 	};
 
 } /* namespace widgets */

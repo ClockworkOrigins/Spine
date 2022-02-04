@@ -41,13 +41,13 @@ using namespace spine::utils;
 using namespace spine::widgets;
 
 SavegameDialog::SavegameDialog(LocationSettingsWidget * locationSettingsWidget, QWidget * par) : QDialog(par), _filterModel(nullptr), _model(nullptr), _savegameManager(new SavegameManager(this)), _gothicDirectory(locationSettingsWidget->getGothicDirectory()), _gothic2Directory(locationSettingsWidget->getGothic2Directory()) {
-	QVBoxLayout * l = new QVBoxLayout();
+	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
 	{
-		QHBoxLayout * hl = new QHBoxLayout();
-		QPushButton * g1Button = new QPushButton(QApplication::tr("Gothic1Save"), this);
-		QPushButton * g2Button = new QPushButton(QApplication::tr("Gothic2Save"), this);
+		auto * hl = new QHBoxLayout();
+		auto * g1Button = new QPushButton(QApplication::tr("Gothic1Save"), this);
+		auto * g2Button = new QPushButton(QApplication::tr("Gothic2Save"), this);
 		hl->addWidget(g1Button);
 		hl->addWidget(g2Button);
 		g1Button->setVisible(locationSettingsWidget->isGothicValid(true));
@@ -58,12 +58,12 @@ SavegameDialog::SavegameDialog(LocationSettingsWidget * locationSettingsWidget, 
 		l->addLayout(hl);
 	}
 
-	QLineEdit * filterEdit = new QLineEdit(this);
+	auto * filterEdit = new QLineEdit(this);
 	l->addWidget(filterEdit);
 
-	QTableView * tv = new QTableView(this);
+	auto * tv = new QTableView(this);
 	_model = new QStandardItemModel(tv);
-	QSortFilterProxyModel * filterModel = new QSortFilterProxyModel(tv);
+	auto * filterModel = new QSortFilterProxyModel(tv);
 	filterModel->setSourceModel(_model);
 	filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 	filterModel->setFilterKeyColumn(-1);
@@ -75,7 +75,7 @@ SavegameDialog::SavegameDialog(LocationSettingsWidget * locationSettingsWidget, 
 	connect(filterEdit, &QLineEdit::textChanged, filterModel, &QSortFilterProxyModel::setFilterFixedString);
 	connect(_model, &QStandardItemModel::itemChanged, this, &SavegameDialog::itemChanged);
 
-	QDialogButtonBox * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Ok | QDialogButtonBox::StandardButton::Cancel, Qt::Orientation::Horizontal, this);
+	auto * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Ok | QDialogButtonBox::StandardButton::Cancel, Qt::Orientation::Horizontal, this);
 	l->addWidget(dbb);
 
 	setLayout(l);
@@ -123,8 +123,8 @@ void SavegameDialog::openG2Save() {
 	}
 }
 
-void SavegameDialog::save() {
-	_savegameManager->save(_openedFile, _variables);
+void SavegameDialog::save() const {
+	SavegameManager::save(_openedFile, _variables);
 }
 
 void SavegameDialog::itemChanged(QStandardItem * itm) {
@@ -138,9 +138,9 @@ void SavegameDialog::updateView() {
 	_variables = _savegameManager->getVariables();
 	_model->clear();
 	for (const Variable & v : _variables) {
-		QStandardItem * itmName = new QStandardItem(QString::fromStdString(v.name));
+		auto * itmName = new QStandardItem(QString::fromStdString(v.name));
 		itmName->setEditable(false);
-		QStandardItem * itmValue = new QStandardItem();
+		auto * itmValue = new QStandardItem();
 		itmValue->setEditable(true);
 		itmValue->setData(v.value, Qt::DisplayRole);
 		_model->appendRow(QList<QStandardItem *>() << itmName << itmValue);
@@ -154,6 +154,6 @@ void SavegameDialog::restoreSettings() {
 	}
 }
 
-void SavegameDialog::saveSettings() {
+void SavegameDialog::saveSettings() const {
 	Config::IniParser->setValue("WINDOWGEOMETRY/SavegameDialogGeometry", saveGeometry());
 }
