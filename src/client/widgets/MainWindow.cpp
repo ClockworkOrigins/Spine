@@ -1328,7 +1328,7 @@ void MainWindow::changedOnlineMode() {
 	Config::IniParser->setValue("MISC/OnlineMode", Config::OnlineMode);
 	const QString exeFileName = qApp->applicationDirPath() + "/" + qApp->applicationName();
 #ifdef Q_OS_WIN
-	const int result = reinterpret_cast<int>(::ShellExecuteA(nullptr, "runas", exeFileName.toUtf8().constData(), nullptr, nullptr, SW_SHOWNORMAL));
+	const auto result = reinterpret_cast<int64_t>(::ShellExecuteA(nullptr, "runas", exeFileName.toUtf8().constData(), nullptr, nullptr, SW_SHOWNORMAL));
 	if (result > 32) { // no error
 		qApp->quit();
 	}

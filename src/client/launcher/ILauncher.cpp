@@ -45,7 +45,6 @@
 #include <QApplication>
 #include <QDate>
 #include <QDesktopServices>
-#include <QElapsedTimer>
 #include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>

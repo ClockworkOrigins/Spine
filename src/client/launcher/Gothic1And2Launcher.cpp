@@ -2018,8 +2018,8 @@ void Gothic1And2Launcher::sortPatches(const QMap<QString, QStringList> & depende
 		const auto & dependencies = it.value();
 
 		for (const auto & dependency : dependencies) {
-			size_t currentIndex = std::numeric_limits<size_t>::max();
-			for (size_t i = 0; i < patches.size(); i++) {
+			int currentIndex = std::numeric_limits<int>::max();
+			for (int i = 0; i < patches.size(); i++) {
 				const auto patchID = s2q(patches[i]);
 				
 				if (patchID == currentID) {
@@ -2027,7 +2027,8 @@ void Gothic1And2Launcher::sortPatches(const QMap<QString, QStringList> & depende
 				}
 
 				if (patchID == dependency) {
-					if (currentIndex == std::numeric_limits<size_t>::max()) break; // patch is in front of dependent project
+					if (currentIndex == std::numeric_limits<int>::max())
+						break; // patch is in front of dependent project
 
 					std::swap(patches[i], patches[currentIndex]);
 

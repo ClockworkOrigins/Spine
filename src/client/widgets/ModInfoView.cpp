@@ -40,7 +40,8 @@ using namespace spine::launcher;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-ModInfoView::ModInfoView(GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _layout(nullptr) {
+ModInfoView::ModInfoView(GeneralSettingsWidget * generalSettingsWidget, QWidget * par) : QWidget(par), _layout(new QVBoxLayout()), _lastWidget(nullptr)
+{
 	qRegisterMetaType<std::function<void()>>("std::function<void()>");
 	connect(this, &ModInfoView::errorMessage, this, &ModInfoView::showErrorMessage);
 
@@ -78,9 +79,7 @@ ModInfoView::ModInfoView(GeneralSettingsWidget * generalSettingsWidget, QWidget 
 
 	restoreSettings();
 
-	_layout = new QVBoxLayout();
 	setLayout(_layout);
-	_lastWidget = nullptr;
 }
 
 ModInfoView::~ModInfoView() {
@@ -105,23 +104,23 @@ void ModInfoView::selectMod(const QString & modID, const QString & iniFile) {
 }
 
 void ModInfoView::setGothicDirectory(QString directory) {
-	auto * const factory = LauncherFactory::getInstance();
+	const auto * factory = LauncherFactory::getInstance();
 	const auto launcher = factory->getLauncher(common::GameType::Gothic);
-	auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
+	const auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
 	gothicLauncher->setDirectory(directory);
 }
 
 void ModInfoView::setGothic2Directory(QString directory) {
-	auto * const factory = LauncherFactory::getInstance();
+	const auto * factory = LauncherFactory::getInstance();
 	const auto launcher = factory->getLauncher(common::GameType::Gothic2);
-	auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
+	const auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
 	gothicLauncher->setDirectory(directory);
 }
 
 void ModInfoView::setGothic3Directory(QString directory) {
-	auto * const factory = LauncherFactory::getInstance();
+	const auto * factory = LauncherFactory::getInstance();
 	const auto launcher = factory->getLauncher(common::GameType::Gothic3);
-	auto gothicLauncher = launcher.dynamicCast<Gothic3Launcher>();
+	const auto gothicLauncher = launcher.dynamicCast<Gothic3Launcher>();
 	gothicLauncher->setDirectory(directory);
 }
 
@@ -150,15 +149,15 @@ void ModInfoView::setShowAchievements(bool showAchievements) {
 }
 
 void ModInfoView::setHideIncompatible(bool enabled) {
-	auto * const factory = LauncherFactory::getInstance();
+	const auto * factory = LauncherFactory::getInstance();
 	{
 		const auto launcher = factory->getLauncher(common::GameType::Gothic);
-		auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
+		const auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
 		gothicLauncher->setHideIncompatible(enabled);
 	}
 	{
 		const auto launcher = factory->getLauncher(common::GameType::Gothic2);
-		auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
+		const auto gothicLauncher = launcher.dynamicCast<Gothic1And2Launcher>();
 		gothicLauncher->setHideIncompatible(enabled);
 	}
 }
@@ -170,7 +169,7 @@ void ModInfoView::updatedMod(int modID) {
 void ModInfoView::restartSpineAsAdmin() {
 #ifdef Q_OS_WIN
 	const QString exeFileName = qApp->applicationDirPath() + "/" + qApp->applicationName();
-	const int result = reinterpret_cast<int>(::ShellExecuteA(nullptr, "runas", exeFileName.toUtf8().constData(), nullptr, nullptr, SW_SHOWNORMAL));
+	const auto result = reinterpret_cast<int64_t>(::ShellExecuteA(nullptr, "runas", exeFileName.toUtf8().constData(), nullptr, nullptr, SW_SHOWNORMAL));
 	if (result > 32) { // no error
 		qApp->quit();
 	}
