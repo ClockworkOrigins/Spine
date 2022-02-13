@@ -2300,7 +2300,7 @@
 		<Bug language="English">Fixed bug that caused updates corrupting projects</Bug>
 		<Bug language="English">Fixed bug in Polish translation</Bug>
 	</Version>
-	<Version majorVersion="1" minorVersion="37" patchVersion="1">
+	<Version majorVersion="1" minorVersion="38" patchVersion="0">
 		<Enhancement language="Deutsch">Spielstand-Editor kann jetzt auch nach Variablen-Werten gefiltert werden</Enhancement>
 		<Bug language="Deutsch">Fehler behoben, wodurch Dateisprache bei Updates verstellt wurde</Bug>
 		<Bug language="Deutsch">Fehler behoben, wodurch Synchronisation von Offline-Daten oder bei Fehlern den Start von Spine stark verlangsamen konnten</Bug>
@@ -2308,5 +2308,10 @@
 		<Enhancement language="English">Savegame editor now can also be filtered for variable values</Enhancement>
 		<Bug language="English">Fixed bug that caused file language to change on updates</Bug>
 		<Bug language="English">Fixed bug that caused starting Spine to slown down a lot when synchronizing offline data or errors</Bug>
+	</Version>
+	<Version majorVersion="1" minorVersion="39" patchVersion="0">
+		<Bug language="Deutsch">Fehler behoben, wodurch Patch-Konfiguration bei Deinstallation nicht gelöscht wurde</Bug>
+
+		<Bug language="English">Fixed bug that caused patch configuration not being removed on uninstallation</Bug>
 	</Version>
 </Versions>
