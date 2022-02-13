@@ -222,8 +222,8 @@ void LauncherFactory::tryCleanCaches() {
 			json["ProjectID"] = std::stoi(t[0]);
 			json["Username"] = Config::Username;
 			json["Password"] = Config::Password;
-			json["Key"] = s2q(t[1]);
-			json["Value"] = s2q(t[2]);
+			json["Key"] = encodeString(s2q(t[1]));
+			json["Value"] = encodeString(s2q(t[2]));
 
 			Https::postAsync(DATABASESERVER_PORT, "updateOverallSaveData", QJsonDocument(json).toJson(QJsonDocument::Compact), [t](const QJsonObject &, int statusCode) {
 				if (statusCode != 200) {

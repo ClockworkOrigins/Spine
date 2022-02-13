@@ -1022,8 +1022,8 @@ void ILauncher::handleUpdateOverallSaveData(UpdateOverallSaveDataMessage * msg) 
 		json["ProjectID"] = _projectID;
 		json["Username"] = Config::Username;
 		json["Password"] = Config::Password;
-		json["Key"] = s2q(msg->entry);
-		json["Value"] = s2q(msg->value);
+		json["Key"] = encodeString(s2q(msg->entry));
+		json["Value"] = encodeString(s2q(msg->value));
 
 		const auto key = msg->entry;
 		const auto value = msg->value;
