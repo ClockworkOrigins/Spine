@@ -472,6 +472,30 @@ void SpineLevel::cacheLevel(int userID) {
 			}
 		}
 		{
+			MariaDBWrapper ew2Database;
+			if (!ew2Database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, EW2DATABASE, 0)) {
+				std::cout << "Couldn't connect to database: " << __LINE__ << " " << database.getLastError() << std::endl;
+				break;
+			}
+			if (!ew2Database.query("PREPARE selectPlayedTimeStmt FROM \"SELECT Time FROM playTimes WHERE UserID = ? LIMIT 1\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
+				break;
+			}
+
+			if (!ew2Database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
+				break;
+			}
+			if (!ew2Database.query("EXECUTE selectPlayedTimeStmt USING @paramUserID;")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
+				break;
+			}
+			const auto r = ew2Database.getResults<std::vector<std::string>>();
+			if (!r.empty()) {
+				currentXP += 1000;
+			}
+		}
+		{
 			MariaDBWrapper tri6Database;
 			if (!tri6Database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, TRI6DATABASE, 0)) {
 				std::cout << "Couldn't connect to database: " << __LINE__ << " " << database.getLastError() << std::endl;
