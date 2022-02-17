@@ -121,10 +121,7 @@ int main(const int argc, char ** argv) {
 
 					if (text.isEmpty()) continue;
 
-					//const auto outFileName = outputFolder + "/" + wavName + ".wav";
-					const auto outFileName = wavName;
-
-					fileWriter << text << "|" << voices[voiceNumber] << "|" << outFileName << "\n";
+					fileWriter << text << "|" << voices[voiceNumber] << "|" << wavName << "\n";
 
 					files.insert(wavName.toUpper());
 				} else if (line.contains(outputRegex)) {
@@ -158,10 +155,7 @@ int main(const int argc, char ** argv) {
 
 					if (text.isEmpty()) continue;
 
-					//const auto outFileName = outputFolder + "/" + wavName + ".wav";
-					const auto outFileName = wavName;
-
-					fileWriter << text << "|" << voices[svmVoiceNumber] << "|" << outFileName << "\n";
+					fileWriter << text << "|" << voices[svmVoiceNumber] << "|" << wavName << "\n";
 
 					files.insert(wavName.toUpper());
 				}
