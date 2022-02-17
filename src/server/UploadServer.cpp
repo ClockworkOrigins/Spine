@@ -47,9 +47,9 @@
 using namespace spine::server;
 
 #if __cplusplus >= 201703L
-#define FILESYSTEM std::filesystem;
+#define FILESYSTEM std::filesystem
 #else
-#define FILESYSTEM boost::filesystem;
+#define FILESYSTEM boost::filesystem
 #endif
 
 namespace {
