@@ -92,6 +92,10 @@ void Cleanup::cleanup() {
 			cleanupTable("donations", userList);
 		} while (false);
 
+#ifdef TEST_CONFIG
+		std::cout << "Finished cleanup" << std::endl;
+#endif
+
 		std::this_thread::sleep_for(std::chrono::hours(8));
 	}
 }

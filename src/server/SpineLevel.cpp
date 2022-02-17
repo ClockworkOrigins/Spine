@@ -114,6 +114,10 @@ void SpineLevel::init() {
 		} while (false);
 
 		cachedEntries.clear();
+
+#ifdef TEST_CONFIG
+		std::cout << "Finished Init" << std::endl;
+#endif
 		
 		while (true) {
 			_updateQueueLock.lock();
