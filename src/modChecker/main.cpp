@@ -22,7 +22,6 @@
 #include "utils/Hashing.h"
 
 #include <QDirIterator>
-#include <QElapsedTimer>
 #include <QFileInfo>
 #include <QFutureSynchronizer>
 #include <QMap>
@@ -30,45 +29,23 @@
 #include <QTextStream>
 #include <QtConcurrentRun>
 
-QMap<QString, QString> parse(const QString & path) {
-	QFile f(path);
-
-	QMap<QString, QString> results;
-
-	if (!f.open(QIODevice::ReadOnly)) return results;
-
-	QTextStream ts(&f);
-
-	while (!ts.atEnd()) {
-		const auto line = ts.readLine();
-
-		const auto split = line.split(";");
-
-		Q_ASSERT(split.count() == 2);
-		if (split.count() != 2) continue;
-
-		results.insert(split[0].toLower(), split[1]);
-	}
-
-	return results;
-}
-
 int main(const int argc, char ** argv) {
-	if (argc != 4) {
-		std::cout << "Usage: " << argv[0] << " <g1|g2> <path to your mod files (_work folder) or a vdf/mod file> <path for results>" << std::endl;
+	if (argc != 4 && argc != 3) {
+		std::cout << "Usage: " << argv[0] << " <g1|g2> <path to your mod files (_work folder) or a vdf/mod file> (<path for results>)" << std::endl;
+		std::cout << "\t\twithout path for results it will replace the input file with the optimized one" << std::endl;
 		return 1;
 	}
 
 	const QString gothicVersion(argv[1]);
 	QString modPath(argv[2]);
-	QString resultPath(argv[3]);
+	QString resultPath(argc == 4 ? argv[3] : argv[2]);
 
 	QMap<QString, QString> modkitFiles;
 
 	if (gothicVersion == "g1") {
-		modkitFiles = parse(":/g1.txt");
+		modkitFiles = spine::utils::GothicVdf::parseResource(":/g1.txt");
 	} else if (gothicVersion == "g2") {
-		modkitFiles = parse(":/g2.txt");
+		modkitFiles = spine::utils::GothicVdf::parseResource(":/g2.txt");
 	} else {
 		std::cout << "First parameter must be either g1 or g2 depending on the Gothic version your modification is made for." << std::endl;
 		return 1;
@@ -77,9 +54,9 @@ int main(const int argc, char ** argv) {
 	modPath.replace("\\", "/");
 	resultPath.replace("\\", "/");
 
-	uint32_t counter = 0;
-	uint32_t strippedCounter = 0;
-	uint64_t strippedSizeCounter = 0;
+	quint64 counter = 0;
+	quint64 strippedCounter = 0;
+	quint64 strippedSizeCounter = 0;
 
 	QMutex lock;
 
@@ -89,43 +66,21 @@ int main(const int argc, char ** argv) {
 	}
 	QTextStream logStream(&logFile);
 
-
 	QElapsedTimer timer;
 	timer.start();
 
 	if (modPath.endsWith("vdf", Qt::CaseInsensitive) || modPath.endsWith("mod", Qt::CaseInsensitive)) {
-		spine::utils::GothicVdf vdf(modPath);
-		const auto b = vdf.parse();
-		if (!b) {
+		const auto result = modPath == resultPath ? spine::utils::GothicVdf::optimize(modPath, gothicVersion == "g1" ? ":/g1.txt" : ":/g2.txt") : spine::utils::GothicVdf::optimize(modPath, resultPath, gothicVersion == "g1" ? ":/g1.txt" : ":/g2.txt");
+
+		if (result.status == spine::utils::GothicVdf::Result::Status::Fail) {
 			std::cout << "File couldn't be parsed" << std::endl;
 			return 1;
 		}
 
-		const auto files = vdf.getFiles();
-
-		const auto deletableFiles = vdf.getDeletableFiles(modkitFiles);
-
-		counter = files.count();
-		strippedCounter = deletableFiles.count();
-
-		for (const auto & f : deletableFiles) {
-			vdf.remove(f);
-
-			logStream << f << "\n";
-		}
-
-		const auto strippedPath = resultPath + "/" + modPath.split("/").back();
-		if (!QDir(resultPath).exists()) {
-			QDir(resultPath).mkpath(resultPath);
-		}
-		if (strippedCounter > 0) {
-			vdf.write(strippedPath);
-			vdf.close();
-		} else {
-			vdf.close();
-			QFile::copy(modPath, strippedPath);
-		}
-		strippedSizeCounter = QFileInfo(modPath).size() - QFileInfo(strippedPath).size();
+		counter = result.fileCount;
+		strippedCounter = result.strippedFileCount;
+		logStream << result.log;
+		strippedSizeCounter = result.strippedSize;
 	} else {
 		QFutureSynchronizer<void> syncer;
 

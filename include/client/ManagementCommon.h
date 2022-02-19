@@ -120,6 +120,7 @@ namespace client {
 		int32_t versionMinor;
 		int32_t versionPatch;
 		int32_t versionSpine;
+		common::GameType gameType;
 
 		QList<ManagementModFile> files;
 

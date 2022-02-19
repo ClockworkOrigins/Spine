@@ -1051,7 +1051,7 @@ void ManagementServer::getModFiles(std::shared_ptr<HttpsServer::Response> respon
 		do {
 			CONNECTTODATABASE(__LINE__)
 			
-			if (!database.query("PREPARE selectVersionStmt FROM \"SELECT MajorVersion, MinorVersion, PatchVersion, SpineVersion FROM mods WHERE ModID = ? LIMIT 1\";")) {
+			if (!database.query("PREPARE selectVersionStmt FROM \"SELECT MajorVersion, MinorVersion, PatchVersion, SpineVersion, Gothic FROM mods WHERE ModID = ? LIMIT 1\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				break;
 			}
@@ -1081,6 +1081,7 @@ void ManagementServer::getModFiles(std::shared_ptr<HttpsServer::Response> respon
 			responseTree.put("VersionMinor", std::stoi(results[0][1]));
 			responseTree.put("VersionPatch", std::stoi(results[0][2]));
 			responseTree.put("VersionSpine", std::stoi(results[0][3]));
+			responseTree.put("GameType", std::stoi(results[0][4]));
 			
 			if (!database.query("EXECUTE selectModFilesStmt USING @paramModID;")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;

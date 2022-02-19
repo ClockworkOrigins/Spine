@@ -27,6 +27,20 @@ namespace utils {
 
 	class GothicVdf {
 	public:
+		typedef struct {
+			enum class Status {
+				Success,
+				Fail
+			};
+
+			Status status = Status::Success;
+			quint64 fileCount = 0;
+			quint64 strippedFileCount = 0;
+			quint64 strippedSize = 0;
+			QString log;
+			QString resultPath;
+		} Result;
+
 		GothicVdf(const QString & path);
 		~GothicVdf();
 
@@ -43,6 +57,11 @@ namespace utils {
 		QString getHash(int idx) const;
 
 		QStringList getDeletableFiles(const QMap<QString, QString> & modkitFiles) const;
+
+		static Result optimize(const QString & path, const QString & gothicVersion);
+		static Result optimize(const QString & path, const QString & outFolder, const QString & gothicVersion);
+
+		static QMap<QString, QString> parseResource(const QString & file);
 
 	private:
 		typedef struct {

@@ -274,6 +274,8 @@ void ManagementModFilesData::read(const QJsonObject & json) {
 	if (!json.contains("VersionPatch")) return;
 	
 	if (!json.contains("VersionSpine")) return;
+
+	if (!json.contains("GameType")) return;
 	
 	if (!json.contains("Files")) return;
 
@@ -281,6 +283,8 @@ void ManagementModFilesData::read(const QJsonObject & json) {
 	versionMinor = json["VersionMinor"].toString().toInt();
 	versionPatch = json["VersionPatch"].toString().toInt();
 	versionSpine = json["VersionSpine"].toString().toInt();
+
+	gameType = static_cast<GameType>(json["GameType"].toString().toInt());
 			
 	const auto arr = json["Files"].toArray();
 	for (const auto entry : arr) {

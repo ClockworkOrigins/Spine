@@ -1,12 +1,14 @@
 SET(srcdir ${CMAKE_CURRENT_SOURCE_DIR})
 SET(includedir ${CMAKE_SOURCE_DIR}/include/utils)
 
+SET(ResourceFile ${srcdir}/resources.qrc)
+
 INCLUDE_DIRECTORIES(${includedir})
 
 FILE(GLOB SpineUtilsSrc ${srcdir}/*.cpp)
 FILE(GLOB SpineUtilsHeader ${includedir}/*.h)
 
-ADD_LIBRARY(SpineUtils STATIC ${SpineUtilsSrc} ${SpineUtilsHeader})
+ADD_LIBRARY(SpineUtils STATIC ${SpineUtilsSrc} ${SpineUtilsHeader} ${ResourceFile})
 
 target_link_libraries(SpineUtils ${SQLITE3_LIBRARIES})
 

@@ -33,6 +33,7 @@
 #include "utils/Compression.h"
 #include "utils/Config.h"
 #include "utils/Conversion.h"
+#include "utils/GothicVdf.h"
 #include "utils/Hashing.h"
 
 #include "widgets/MainWindow.h"
@@ -191,7 +192,8 @@ void ModFilesWidget::addFile() {
 	// adds a file... if already existing => just update internally
 	const QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectFile"));
 	
-	if (path.isEmpty()) return;
+	if (path.isEmpty())
+		return;
 
 	const auto pathSuggestion = getPathSuggestion(path);
 
@@ -225,10 +227,31 @@ void ModFilesWidget::addFile() {
 		realMapping += rm;
 	}
 
-	QString hash;
-	const bool b = Hashing::hash(path, hash);
+	QFutureWatcher<QString> watcher;
 
-	if (!b) return;
+	watcher.setFuture(QtConcurrent::run([this, path] {
+		if (_data.gameType == common::GameType::Gothic || _data.gameType == common::GameType::Gothic2) {
+			if (path.endsWith(".mod", Qt::CaseInsensitive) || path.endsWith(".vdf", Qt::CaseInsensitive)) {
+				GothicVdf::optimize(path, _data.gameType == common::GameType::Gothic ? ":/g1.txt" : ":/g2.txt");
+			}
+		}
+
+		QString hash;
+		const bool b = Hashing::hash(path, hash);
+
+		return b ? hash : QString();
+	}));
+
+	_waitSpinner = new WaitSpinner(QApplication::tr("Updating"), this);
+
+	QEventLoop loop;
+	connect(&watcher, &QFutureWatcher<void>::finished, &loop, &QEventLoop::quit);
+	loop.exec();
+
+	const auto hash = watcher.result();
+
+	if (hash.isEmpty())
+		return;
 
 	addFile(path, realMapping, QFileInfo(path).fileName(), hash);
 }
@@ -453,14 +476,6 @@ void ModFilesWidget::addFolder() {
 		fileList << fileName;
 	}
 
-	struct FileToAdd {
-		QString fullPath;
-		QString relativePath;
-		QString file;
-		QString path;
-		QFuture<QString> hashFuture;
-	};
-
 	QFutureSynchronizer<QString> syncer;
 	QList<FileToAdd> filesToAdd;
 	QFutureWatcher<void> watcher;
@@ -471,14 +486,23 @@ void ModFilesWidget::addFolder() {
 		const QString path = it.filePath().replace(dir, "");
 		const QString fileName = it.fileName();
 
-		if (fileName.endsWith(".z")) continue; // skip already compressed/uploaded files, they can corrupt the file list!
+		if (fileName.endsWith(".z"))
+			continue; // skip already compressed/uploaded files, they can corrupt the file list!
+
+		const auto fullPath = it.filePath();
 
 		FileToAdd fta;
-		fta.fullPath = it.filePath();
+		fta.fullPath = fullPath;
 		fta.relativePath = path.split(fileName)[0];
 		fta.file = fileName;
 		fta.path = path;
-		fta.hashFuture = QtConcurrent::run([fta] {
+		fta.hashFuture = QtConcurrent::run([this, fta] {
+			if (_data.gameType == common::GameType::Gothic || _data.gameType == common::GameType::Gothic2) {
+				if (fta.file.endsWith(".mod", Qt::CaseInsensitive) || fta.file.endsWith(".vdf", Qt::CaseInsensitive)) {
+					GothicVdf::optimize(fta.fullPath, _data.gameType == common::GameType::Gothic ? ":/g1.txt" : ":/g2.txt");
+				}
+			}
+
 			QString hash;
 			Hashing::hash(fta.fullPath, hash);
 

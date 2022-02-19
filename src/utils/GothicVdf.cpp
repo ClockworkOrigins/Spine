@@ -20,9 +20,10 @@
 
 #include "utils/Hashing.h"
 
+#include <QDir>
 #include <QFileInfo>
-#include <QMultiMap>
 #include <QQueue>
+#include <QTextStream>
 
 using namespace spine::utils;
 
@@ -374,6 +375,93 @@ QStringList GothicVdf::getDeletableFiles(const QMap<QString, QString> & modkitFi
 	}
 
 	return deletableFiles;
+}
+
+GothicVdf::Result GothicVdf::optimize(const QString & path, const QString & gothicVersion) {
+	const auto tmpPath = QDir::tempPath();
+
+	auto result = optimize(path, tmpPath, gothicVersion);
+
+	if (result.status == Result::Status::Fail)
+		return result;
+
+	QFile::moveToTrash(path);
+
+	QFile::copy(result.resultPath, path);
+
+	QFile::remove(result.resultPath);
+
+	return result;
+}
+
+GothicVdf::Result GothicVdf::optimize(const QString & path, const QString & outFolder, const QString & gothicVersion) {
+	Result result;
+	result.status = Result::Status::Success;
+
+	GothicVdf vdf(path);
+	const auto b = vdf.parse();
+	if (!b) {
+		result.status = Result::Status::Fail;
+		return result;
+	}
+
+	const auto files = vdf.getFiles();
+
+	const auto modkitFiles = parseResource(gothicVersion);
+
+	const auto deletableFiles = vdf.getDeletableFiles(modkitFiles);
+
+	result.fileCount = files.count();
+	result.strippedFileCount = deletableFiles.count();
+
+	for (const auto & f : deletableFiles) {
+		vdf.remove(f);
+
+		result.log += f + "\n";
+	}
+
+	result.resultPath = outFolder + "/" + path.split("/").back();
+	if (!QDir(outFolder).exists()) {
+		const auto b2 = QDir(outFolder).mkpath(outFolder);
+		Q_UNUSED(b2)
+	}
+	if (result.strippedFileCount > 0) {
+		vdf.write(result.resultPath);
+		vdf.close();
+	}
+	else {
+		vdf.close();
+		QFile::copy(path, result.resultPath);
+	}
+	result.strippedSize = QFileInfo(path).size() - QFileInfo(result.resultPath).size();
+
+	return result;
+}
+
+QMap<QString, QString> GothicVdf::parseResource(const QString & file) {
+	QFile f(file);
+
+	QMap<QString, QString> results;
+
+	if (!f.open(QIODevice::ReadOnly))
+		return results;
+
+	QTextStream ts(&f);
+
+	while (!ts.atEnd()) {
+		const auto line = ts.readLine();
+
+		const auto split = line.split(";");
+
+		Q_ASSERT(split.count() == 2);
+
+		if (split.count() != 2)
+			continue;
+
+		results.insert(split[0].toLower(), split[1]);
+	}
+
+	return results;
 }
 
 quint32 GothicVdf::toInt(const QByteArray & bytes) const {

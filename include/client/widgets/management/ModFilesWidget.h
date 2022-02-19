@@ -79,8 +79,16 @@ namespace widgets {
 		void showVersionUpdate(bool success);
 
 	private:
+		struct FileToAdd {
+			QString fullPath;
+			QString relativePath;
+			QString file;
+			QString path;
+			QFuture<QString> hashFuture;
+		};
+
 		QStandardItemModel * _fileList;
-		QList<client::ManagementMod> _mods;
+		QList<ManagementMod> _mods;
 		QTreeView * _fileTreeView;
 		int _modIndex;
 		QMap<QString, QStandardItem *> _directory;

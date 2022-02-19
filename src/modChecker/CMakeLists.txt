@@ -4,9 +4,7 @@ SET(ModCheckerSrc
 	${srcdir}/main.cpp
 )
 
-SET(ResourceFile ${srcdir}/resources.qrc)
-
-ADD_EXECUTABLE(ModChecker ${ModCheckerSrc} ${ResourceFile})
+ADD_EXECUTABLE(ModChecker ${ModCheckerSrc})
 
 target_link_libraries(ModChecker SpineUtils ${BOOST_LIBRARIES} ${QT_LIBRARIES} ${ZLIB_LIBRARIES})
 
