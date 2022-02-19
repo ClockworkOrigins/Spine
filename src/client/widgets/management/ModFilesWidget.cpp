@@ -248,6 +248,8 @@ void ModFilesWidget::addFile() {
 	connect(&watcher, &QFutureWatcher<void>::finished, &loop, &QEventLoop::quit);
 	loop.exec();
 
+	delete _waitSpinner;
+
 	const auto hash = watcher.result();
 
 	if (hash.isEmpty())
