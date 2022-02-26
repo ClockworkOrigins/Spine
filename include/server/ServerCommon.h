@@ -59,6 +59,8 @@ namespace server {
 		static bool canAccessProject(int userID, int projectID);
 
 		static int getPatronLevel(int userID);
+
+		static int getYear();
 	};
 
 } /* namespace server */

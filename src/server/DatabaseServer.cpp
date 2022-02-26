@@ -1330,6 +1330,11 @@ void DatabaseServer::updatePlayTime(std::shared_ptr<HttpsServer::Response> respo
 				code = SimpleWeb::StatusCode::client_error_bad_request;
 				break;
 			}
+			if (!database.query("PREPARE insertPerYearStmt FROM \"INSERT INTO playedPerYear (UserID, ProjectID, Year, Duration) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE Duration = Duration + ?\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
 			if (!database.query("PREPARE insertSessionTimeStmt FROM \"INSERT INTO sessionTimes (ModID, Duration) VALUES (?, ?)\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 				code = SimpleWeb::StatusCode::client_error_bad_request;
@@ -1356,6 +1361,14 @@ void DatabaseServer::updatePlayTime(std::shared_ptr<HttpsServer::Response> respo
 				break;
 			}
 			if (!database.query("SET @paramDuration=" + std::to_string(duration) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
+				code = SimpleWeb::StatusCode::client_error_bad_request;
+				break;
+			}
+
+			const auto currentYear = ServerCommon::getYear();
+
+			if (!database.query("SET @paramYear=" + std::to_string(currentYear) + ";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
 				code = SimpleWeb::StatusCode::client_error_bad_request;
 				break;
@@ -1408,6 +1421,12 @@ void DatabaseServer::updatePlayTime(std::shared_ptr<HttpsServer::Response> respo
 
 				for (const auto & vec : lastResults) {
 					userList.insert(std::stoi(vec[0]));
+				}
+
+				if (!database.query("EXECUTE insertPerYearStmt USING @paramUserID, @paramModID, @paramYear, @paramDuration, @paramDuration;")) {
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
+					code = SimpleWeb::StatusCode::client_error_bad_request;
+					break;
 				}
 			}
 			if (!database.query("EXECUTE deleteSessionInfosStmt USING @paramUserID;")) {

@@ -90,6 +90,7 @@ void Cleanup::cleanup() {
 			cleanupTable("userPrivileges", userList);
 			cleanupTable("teamPrivileges", userList);
 			cleanupTable("donations", userList);
+			cleanupTable("playedPerYear", userList);
 		} while (false);
 
 #ifdef TEST_CONFIG

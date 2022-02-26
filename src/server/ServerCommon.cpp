@@ -466,3 +466,11 @@ int ServerCommon::getPatronLevel(int userID) {
 
 	return std::stoi(results[0][0]);
 }
+
+int ServerCommon::getYear() {
+	const auto now = std::chrono::system_clock::now();
+	const auto now2 = std::chrono::system_clock::to_time_t(now);
+	const auto parts = std::localtime(&now2);
+
+	return 1900 + parts->tm_year;
+}

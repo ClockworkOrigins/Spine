@@ -362,6 +362,10 @@ void DatabaseCreator::createTables() {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
+	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS playedPerYear (UserID INT NOT NULL, ProjectID INT NOT NULL, Year INT NOT NULL, Duration BIGINT NOT NULL, PRIMARY KEY (UserID, ProjectID, Year));"))) {
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
+		return;
+	}
 
 	createFileserverTables();
 }
