@@ -151,11 +151,13 @@ void ManagementDialog::loadModList() {
 	requestData["Language"] = Config::Language;
 	
 	const auto f = https::Https::postAsync(MANAGEMENTSERVER_PORT, "getMods", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
-		if (statusCode != 200) return;
+		if (statusCode != 200)
+			return;
 		
 		const auto it = json.find("Mods");
 		
-		if (it == json.end()) return;
+		if (it == json.end())
+			return;
 
 		const auto mods = it->toArray();
 
@@ -165,9 +167,11 @@ void ManagementDialog::loadModList() {
 			const auto jo = mod.toObject();
 
 			ManagementMod entry;
-			entry.read(jo);
-			
-			modList.append(entry);
+			auto packages = entry.read(jo);
+
+			modList << entry;
+
+			modList << packages;
 		}
 
 		emit receivedMods(modList);

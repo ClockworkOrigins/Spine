@@ -2311,9 +2311,11 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="39" patchVersion="0">
 		<Enhancement language="Deutsch">ModChecker in normalen Upload-Workflow integriert, um automatisch mod/vdf Dateien zu optimieren</Enhancement>
+		<Enhancement language="Deutsch">Zusatzpakete können jetzt ebenfalls im Management aktualisiert werden</Enhancement>
 		<Bug language="Deutsch">Fehler behoben, wodurch Patch-Konfiguration bei Deinstallation nicht gelöscht wurde</Bug>
 
 		<Enhancement language="English">Integrated ModChecker into normal upload workflow to automatically optimize mod/vdf files</Enhancement>
+		<Enhancement language="English">Additional packages now can be updated via management as well</Enhancement>
 		<Bug language="English">Fixed bug that caused patch configuration not being removed on uninstallation</Bug>
 	</Version>
 </Versions>

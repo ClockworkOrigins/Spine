@@ -132,7 +132,15 @@ void ScoresWidget::selectedMod(int index) {
 }
 
 void ScoresWidget::updateView() {
-	if (_modIndex == -1 || _modIndex >= _mods.size()) return;
+	if (_modIndex == -1 || _modIndex >= _mods.size())
+		return;
+
+	selectedMod(_modIndex);
+
+	setDisabled(_mods[_modIndex].packageID >= 0);
+
+	if (_mods[_modIndex].packageID >= 0)
+		return;
 	
 	delete _waitSpinner;
 	_waitSpinner = new WaitSpinner(QApplication::tr("Updating"), this);

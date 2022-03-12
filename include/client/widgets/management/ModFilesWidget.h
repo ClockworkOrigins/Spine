@@ -26,17 +26,12 @@
 #include <QMap>
 #include <QWidget>
 
+class QPushButton;
 class QSpinBox;
 class QStandardItem;
 class QStandardItemModel;
 class QTreeView;
 class QWinTaskbarProgress;
-
-namespace clockUtils {
-namespace iniParser {
-	class IniParser;
-} /* namespace iniParser */
-} /* namespace clockUtils */
 
 namespace spine {
 namespace gui {
@@ -97,6 +92,7 @@ namespace widgets {
 		QSpinBox * _minorVersionBox;
 		QSpinBox * _patchVersionBox;
 		QSpinBox * _spineVersionBox;
+		QPushButton * _versionButton;
 		gui::WaitSpinner * _waitSpinner;
 		QWinTaskbarProgress * _taskbarProgress;
 		ManagementModFilesData _data;

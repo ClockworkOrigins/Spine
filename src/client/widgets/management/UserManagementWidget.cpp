@@ -45,18 +45,18 @@ using namespace spine::gui;
 using namespace spine::utils;
 
 UserManagementWidget::UserManagementWidget(QWidget * par) : QWidget(par), _mods(), _modIndex(-1), _waitSpinner(nullptr) {
-	QVBoxLayout * l = new QVBoxLayout();
+	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
 	{
-		QLineEdit * le = new QLineEdit(this);
+		auto * le = new QLineEdit(this);
 		connect(le, &QLineEdit::textChanged, this, &UserManagementWidget::changedNameFilter);
 
 		l->addWidget(le);
 	}
 
 	{
-		QHBoxLayout * hl = new QHBoxLayout();
+		auto * hl = new QHBoxLayout();
 
 		_userListView = new QListView(this);
 		_userListView->setToolTip(QApplication::tr("UserlistTooltip"));
@@ -69,7 +69,7 @@ UserManagementWidget::UserManagementWidget(QWidget * par) : QWidget(par), _mods(
 		hl->addWidget(_userListView);
 
 		{
-			QVBoxLayout * vl = new QVBoxLayout();
+			auto * vl = new QVBoxLayout();
 			_addUserButton = new QPushButton("->", this);
 			_addUserButton->setToolTip(QApplication::tr("UnlockUserTooltip"));
 			_removeUserButton = new QPushButton("<-", this);
@@ -126,7 +126,15 @@ void UserManagementWidget::selectedMod(int index) {
 }
 
 void UserManagementWidget::updateView() {
-	if (_modIndex == -1 || _modIndex >= _mods.size()) return;
+	if (_modIndex == -1 || _modIndex >= _mods.size())
+		return;
+
+	selectedMod(_modIndex);
+
+	setDisabled(_mods[_modIndex].packageID >= 0);
+
+	if (_mods[_modIndex].packageID >= 0)
+		return;
 	
 	delete _waitSpinner;
 	_waitSpinner = new WaitSpinner(QApplication::tr("Updating"), this);

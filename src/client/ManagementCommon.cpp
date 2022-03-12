@@ -26,15 +26,42 @@ using namespace spine::common;
 
 // boost ptree serializes everything as string, so this has be taken into account here
 
-void ManagementMod::read(const QJsonObject & json) {
-	if (json.isEmpty()) return;
+QList<ManagementMod> ManagementMod::read(const QJsonObject & json) {
+	if (json.isEmpty())
+		return {};
 
-	if (!json.contains("Name")) return;
+	if (!json.contains("Name"))
+		return {};
 			
-	if (!json.contains("ID")) return;
+	if (!json.contains("ID"))
+		return {};
 
 	name = json["Name"].toString();
 	id = json["ID"].toString().toInt();
+	packageID = -1;
+
+	if (!json.contains("Packages"))
+		return {};
+
+	QList<ManagementMod> packages;
+
+	const auto packagesNode = json["Packages"];
+	auto arr = packagesNode.toArray();
+
+	for (auto & e : arr) {
+		const auto packageEntry = e.toObject();
+
+		ManagementMod m;
+		m.read(packageEntry);
+
+		m.packageID = m.id;
+		m.id = id;
+		m.name.prepend(name + " - ");
+
+		packages << m;
+	}
+
+	return packages;
 }
 
 void ManagementTranslation::read(const QJsonObject & json) {
@@ -267,17 +294,23 @@ bool ManagementModFile::operator==(const ManagementModFile & other) const {
 }
 
 void ManagementModFilesData::read(const QJsonObject & json) {
-	if (!json.contains("VersionMajor")) return;
+	if (!json.contains("VersionMajor"))
+		return;
 	
-	if (!json.contains("VersionMinor")) return;
+	if (!json.contains("VersionMinor"))
+		return;
 	
-	if (!json.contains("VersionPatch")) return;
+	if (!json.contains("VersionPatch"))
+		return;
 	
-	if (!json.contains("VersionSpine")) return;
+	if (!json.contains("VersionSpine"))
+		return;
 
-	if (!json.contains("GameType")) return;
+	if (!json.contains("GameType"))
+		return;
 	
-	if (!json.contains("Files")) return;
+	if (!json.contains("Files"))
+		return;
 
 	versionMajor = json["VersionMajor"].toString().toInt();
 	versionMinor = json["VersionMinor"].toString().toInt();

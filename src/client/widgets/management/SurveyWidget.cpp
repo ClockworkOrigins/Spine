@@ -151,13 +151,21 @@ void SurveyWidget::updateModList(QList<ManagementMod> modList) {
 
 void SurveyWidget::selectedMod(int index) {
 	_modIndex = index;
+
+	qDeleteAll(_surveyWidgetList);
+	_surveyWidgetList.clear();
 }
 
 void SurveyWidget::updateView() {
-	if (_modIndex == -1 || _modIndex >= _mods.size()) return;
-	
-	qDeleteAll(_surveyWidgetList);
-	_surveyWidgetList.clear();
+	if (_modIndex == -1 || _modIndex >= _mods.size())
+		return;
+
+	selectedMod(_modIndex);
+
+	setDisabled(_mods[_modIndex].packageID >= 0);
+
+	if (_mods[_modIndex].packageID >= 0)
+		return;
 	
 	_stackedWidget->setCurrentIndex(0);
 	

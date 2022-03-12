@@ -100,10 +100,10 @@ ModFilesWidget::ModFilesWidget(QWidget * par) : QWidget(par), _fileList(nullptr)
 		hl2->addWidget(_minorVersionBox);
 		hl2->addWidget(_patchVersionBox);
 		hl2->addWidget(_spineVersionBox);
-		auto * submitButton = new QPushButton(QApplication::tr("Submit"), this);
-		submitButton->setToolTip(QApplication::tr("UpdateVersionNumberTooltip"));
-		hl2->addWidget(submitButton);
-		connect(submitButton, &QPushButton::released, this, &ModFilesWidget::updateVersion);
+		_versionButton = new QPushButton(QApplication::tr("Submit"), this);
+		_versionButton->setToolTip(QApplication::tr("UpdateVersionNumberTooltip"));
+		hl2->addWidget(_versionButton);
+		connect(_versionButton, &QPushButton::released, this, &ModFilesWidget::updateVersion);
 
 		l->addLayout(hl2);
 	}
@@ -260,7 +260,8 @@ void ModFilesWidget::addFile() {
 
 void ModFilesWidget::deleteFile() {
 	// removes selected modfile
-	if (_fileTreeView->selectionModel()->selectedIndexes().isEmpty()) return;
+	if (_fileTreeView->selectionModel()->selectedIndexes().isEmpty())
+		return;
 
 	const QModelIndex idx = _fileTreeView->selectionModel()->selectedIndexes().front();
 
@@ -279,6 +280,8 @@ void ModFilesWidget::uploadCurrentMod() {
 	QtConcurrent::run([this]() {
 		common::UploadModfilesMessage umm;
 		umm.modID = _mods[_modIndex].id;
+		umm.packageID = _mods[_modIndex].packageID;
+
 		for (const auto & mmf : _data.files) {
 			if (!mmf.deleted) continue;
 
@@ -412,6 +415,10 @@ void ModFilesWidget::updateModList(QList<ManagementMod> modList) {
 }
 
 void ModFilesWidget::selectedMod(int index) {
+	if (_directory.contains("/")) {
+		delete _directory["/"];
+	}
+
 	_modIndex = index;
 	_fileList->clear();
 	_fileList->setColumnCount(2);
@@ -419,7 +426,16 @@ void ModFilesWidget::selectedMod(int index) {
 }
 
 void ModFilesWidget::updateView() {
-	if (_modIndex == -1 || _modIndex >= _mods.size()) return;
+	if (_modIndex == -1 || _modIndex >= _mods.size())
+		return;
+
+	selectedMod(_modIndex);
+
+	_majorVersionBox->setDisabled(_mods[_modIndex].packageID >= 0);
+	_minorVersionBox->setDisabled(_mods[_modIndex].packageID >= 0);
+	_patchVersionBox->setDisabled(_mods[_modIndex].packageID >= 0);
+	_spineVersionBox->setDisabled(_mods[_modIndex].packageID >= 0);
+	_versionButton->setDisabled(_mods[_modIndex].packageID >= 0);
 
 	delete _waitSpinner;
 	_waitSpinner = new WaitSpinner(QApplication::tr("Updating"), this);
@@ -428,6 +444,7 @@ void ModFilesWidget::updateView() {
 	requestData["Username"] = Config::Username;
 	requestData["Password"] = Config::Password;
 	requestData["ModID"] = _mods[_modIndex].id;
+	requestData["PackageID"] = _mods[_modIndex].packageID;
 	
 	const auto f = https::Https::postAsync(MANAGEMENTSERVER_PORT, "getModFiles", QJsonDocument(requestData).toJson(QJsonDocument::Compact), [this](const QJsonObject & json, int statusCode) {
 		if (statusCode != 200) {

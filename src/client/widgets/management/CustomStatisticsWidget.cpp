@@ -55,12 +55,12 @@ CustomStatisticsWidget::CustomStatisticsWidget(QWidget * par) : QWidget(par), _m
 	sortModel->setSourceModel(_sourceModel);
 
 	{
-		QHBoxLayout * hl = new QHBoxLayout();
-		QLabel * identifierLabel = new QLabel(QApplication::tr("Identifier"), this);
+		auto * hl = new QHBoxLayout();
+		auto * identifierLabel = new QLabel(QApplication::tr("Identifier"), this);
 		_identifierBox = new QComboBox(this);
-		QLabel * guildLabel = new QLabel(QApplication::tr("Guild"), this);
+		auto * guildLabel = new QLabel(QApplication::tr("Guild"), this);
 		_guildBox = new QComboBox(this);
-		QLabel * nameLabel = new QLabel(QApplication::tr("Name"), this);
+		auto * nameLabel = new QLabel(QApplication::tr("Name"), this);
 		_nameBox = new QComboBox(this);
 
 		hl->addWidget(identifierLabel);
@@ -83,7 +83,7 @@ CustomStatisticsWidget::CustomStatisticsWidget(QWidget * par) : QWidget(par), _m
 		});
 	}
 
-	QTreeView * treeView = new QTreeView(this);
+	auto * treeView = new QTreeView(this);
 	l->addWidget(treeView, 1);
 	treeView->header()->setSortIndicatorShown(true);
 	treeView->header()->setStretchLastSection(true);
@@ -121,7 +121,15 @@ void CustomStatisticsWidget::selectedMod(int index) {
 }
 
 void CustomStatisticsWidget::updateView() {
-	if (_modIndex == -1 || _modIndex >= _mods.size()) return;
+	if (_modIndex == -1 || _modIndex >= _mods.size())
+		return;
+
+	selectedMod(_modIndex);
+
+	setDisabled(_mods[_modIndex].packageID >= 0);
+
+	if (_mods[_modIndex].packageID >= 0)
+		return;
 	
 	_sourceModel->clear();
 	_identifierBox->clear();

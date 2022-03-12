@@ -131,6 +131,11 @@ void ManagementServer::getMods(std::shared_ptr<HttpsServer::Response> response, 
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
+			if (!database.query("PREPARE selectPackagesStmt FROM \"SELECT PackageID FROM optionalpackages WHERE ModID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
 			if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
@@ -167,11 +172,44 @@ void ManagementServer::getMods(std::shared_ptr<HttpsServer::Response> response, 
 				for (auto mod : results) {
 					const auto projectName = ServerCommon::getProjectName(std::stoi(mod[0]), LanguageConverter::convert(language));
 
-					if (projectName.empty()) continue;
+					if (projectName.empty())
+						continue;
 
 					ptree modNode;
 					modNode.put("Name", projectName);
 					modNode.put("ID", std::stoi(mod[0]));
+
+					if (!database.query("SET @paramModID=" + mod[0] + ";")) {
+						std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+					if (!database.query("EXECUTE selectPackagesStmt USING @paramModID;")) {
+						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
+						code = SimpleWeb::StatusCode::client_error_failed_dependency;
+						break;
+					}
+
+					const auto packageResults = database.getResults<std::vector<std::string>>();
+
+					ptree packageNodes;
+
+					for (const auto & vec2 : packageResults) {
+						const auto packageName = ServerCommon::getPackageName(std::stoi(vec2[0]), LanguageConverter::convert(language));
+
+						if (packageName.empty())
+							continue;
+
+						ptree packageNode;
+						packageNode.put("Name", packageName);
+						packageNode.put("ID", std::stoi(vec2[0]));
+
+						packageNodes.push_back(std::make_pair("", packageNode));
+					}
+
+					if (!packageNodes.empty())
+						modNode.add_child("Packages", packageNodes);
+
 					modNodes.push_back(std::make_pair("", modNode));
 				}
 			}
@@ -1043,6 +1081,8 @@ void ManagementServer::getModFiles(std::shared_ptr<HttpsServer::Response> respon
 			return;
 		}
 
+		const int32_t packageID = pt.get<int32_t>("PackageID");
+
 		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
 
 		std::stringstream responseStream;
@@ -1060,7 +1100,17 @@ void ManagementServer::getModFiles(std::shared_ptr<HttpsServer::Response> respon
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
+			if (!database.query("PREPARE selectPackageFilesStmt FROM \"SELECT Path, Hash, Language FROM optionalpackagefiles WHERE PackageID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
 			if (!database.query("SET @paramModID=" + std::to_string(modID) + ";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("SET @paramPackageID=" + std::to_string(packageID) + ";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
@@ -1082,11 +1132,19 @@ void ManagementServer::getModFiles(std::shared_ptr<HttpsServer::Response> respon
 			responseTree.put("VersionPatch", std::stoi(results[0][2]));
 			responseTree.put("VersionSpine", std::stoi(results[0][3]));
 			responseTree.put("GameType", std::stoi(results[0][4]));
-			
-			if (!database.query("EXECUTE selectModFilesStmt USING @paramModID;")) {
-				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
-				code = SimpleWeb::StatusCode::client_error_failed_dependency;
-				break;
+
+			if (packageID >= 0) {
+				if (!database.query("EXECUTE selectPackageFilesStmt USING @paramPackageID;")) {
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
+			} else {
+				if (!database.query("EXECUTE selectModFilesStmt USING @paramModID;")) {
+					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
+					code = SimpleWeb::StatusCode::client_error_failed_dependency;
+					break;
+				}
 			}
 			results = database.getResults<std::vector<std::string>>();
 

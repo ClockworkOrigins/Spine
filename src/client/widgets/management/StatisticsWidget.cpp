@@ -114,13 +114,21 @@ void StatisticsWidget::updateModList(QList<ManagementMod> modList) {
 
 void StatisticsWidget::selectedMod(int index) {
 	_modIndex = index;
+
+	qDeleteAll(_labelList);
+	_labelList.clear();
 }
 
 void StatisticsWidget::updateView() {
-	if (_modIndex == -1 || _modIndex >= _mods.size()) return;
-	
-	qDeleteAll(_labelList);
-	_labelList.clear();
+	if (_modIndex == -1 || _modIndex >= _mods.size())
+		return;
+
+	selectedMod(_modIndex);
+
+	setDisabled(_mods[_modIndex].packageID >= 0);
+
+	if (_mods[_modIndex].packageID >= 0)
+		return;
 	
 	delete _waitSpinner;
 	_waitSpinner = new WaitSpinner(QApplication::tr("Updating"), this);

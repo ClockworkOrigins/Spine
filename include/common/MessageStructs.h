@@ -522,14 +522,16 @@ namespace common {
 
 	struct UploadModfilesMessage : public Message {
 		int32_t modID;
+		int32_t packageID;
 		std::vector<ModFile> files;
-		UploadModfilesMessage() : Message(), modID() {
+		UploadModfilesMessage() : Message(), modID(), packageID(-1) {
 			type = MessageType::UPLOADMODFILES;
 		}
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int /* file_version */) {
 			ar & boost::serialization::base_object<Message>(*this);
 			ar & modID;
+			ar & packageID;
 			ar & files;
 		}
 	};
