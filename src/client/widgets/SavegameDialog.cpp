@@ -29,6 +29,7 @@
 #include <QFileDialog>
 #include <QHeaderView>
 #include <QLineEdit>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QSettings>
 #include <QSortFilterProxyModel>
@@ -40,7 +41,7 @@ using namespace spine;
 using namespace spine::utils;
 using namespace spine::widgets;
 
-SavegameDialog::SavegameDialog(LocationSettingsWidget * locationSettingsWidget, QWidget * par) : QDialog(par), _filterModel(nullptr), _model(nullptr), _savegameManager(new SavegameManager(this)), _gothicDirectory(locationSettingsWidget->getGothicDirectory()), _gothic2Directory(locationSettingsWidget->getGothic2Directory()) {
+SavegameDialog::SavegameDialog(LocationSettingsWidget * locationSettingsWidget, QWidget * par) : QDialog(par), _filterModel(nullptr), _model(nullptr), _savegameManager(new SavegameManager(this)), _savegameManager2(new SavegameManager(this)), _gothicDirectory(locationSettingsWidget->getGothicDirectory()), _gothic2Directory(locationSettingsWidget->getGothic2Directory()) {
 	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
@@ -106,21 +107,11 @@ SavegameDialog::~SavegameDialog() {
 }
 
 void SavegameDialog::openG1Save() {
-	const QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectSave"), _gothicDirectory, "SAVEDAT.SAV");
-	if (!path.isEmpty()) {
-		_openedFile = path;
-		_savegameManager->load(path);
-		updateView();
-	}
+	openSave(_gothicDirectory);
 }
 
 void SavegameDialog::openG2Save() {
-	const QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectSave"), _gothic2Directory, "SAVEDAT.SAV");
-	if (!path.isEmpty()) {
-		_openedFile = path;
-		_savegameManager->load(path);
-		updateView();
-	}
+	openSave(_gothic2Directory);
 }
 
 void SavegameDialog::save() const {
@@ -128,22 +119,71 @@ void SavegameDialog::save() const {
 }
 
 void SavegameDialog::itemChanged(QStandardItem * itm) {
-	if (itm->model() == _model) {
-		_variables[itm->index().row()].changed = _variables[itm->index().row()].value != itm->data(Qt::DisplayRole).toInt();
-		_variables[itm->index().row()].value = itm->data(Qt::DisplayRole).toInt();
-	}
+	if (itm->model() != _model)
+		return;
+
+	_variables[itm->index().row()].changed = _variables[itm->index().row()].value != itm->data(Qt::DisplayRole).toInt();
+	_variables[itm->index().row()].value = itm->data(Qt::DisplayRole).toInt();
 }
 
-void SavegameDialog::updateView() {
-	_variables = _savegameManager->getVariables();
+void SavegameDialog::openSave(const QString & basePath) {
+	const QString path = QFileDialog::getOpenFileName(this, QApplication::tr("SelectSave"), basePath, "SAVEDAT.SAV");
+	if (path.isEmpty())
+		return;
+
+	auto replace = true;
+
+	if (!_savegameManager->getVariables().isEmpty()) {
+		QMessageBox resultMsg(QMessageBox::Icon::NoIcon, QApplication::tr("SavegameAlreadyLoaded"), QApplication::tr("SavegameAlreadyLoadedDescription"), QMessageBox::StandardButton::Ok | QMessageBox::StandardButton::No);
+		resultMsg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Replace"));
+		resultMsg.button(QMessageBox::StandardButton::No)->setText(QApplication::tr("Compare"));
+		resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
+		replace = resultMsg.exec() == QMessageBox::StandardButton::Ok;
+	}
+
+	QList<Variable> variables;
+
+	if (replace) {
+		_openedFile = path;
+		_savegameManager->load(path);
+		variables = _savegameManager->getVariables();
+	} else {
+		variables = _savegameManager->getVariables();
+		_savegameManager2->load(path);
+		const auto diffVariables = _savegameManager2->getVariables();
+
+		merge(variables, diffVariables);
+	}
+
+	updateView(variables, !replace);
+}
+
+void SavegameDialog::updateView(const QList<Variable> & variables, bool showDiff) {
+	_variables = variables;
 	_model->clear();
+
 	for (const Variable & v : _variables) {
 		auto * itmName = new QStandardItem(QString::fromStdString(v.name));
 		itmName->setEditable(false);
+
 		auto * itmValue = new QStandardItem();
 		itmValue->setEditable(true);
 		itmValue->setData(v.value, Qt::DisplayRole);
-		_model->appendRow(QList<QStandardItem *>() << itmName << itmValue);
+
+		QList<QStandardItem *> items;
+
+		items << itmName << itmValue;
+
+		if (showDiff) {
+			auto * itmDiff = new QStandardItem();
+			itmDiff->setEditable(false);
+			itmDiff->setData(v.diffValue, Qt::DisplayRole);
+
+			items << itmDiff;
+		}
+
+		_model->appendRow(items);
 	}
 }
 
@@ -156,4 +196,17 @@ void SavegameDialog::restoreSettings() {
 
 void SavegameDialog::saveSettings() const {
 	Config::IniParser->setValue("WINDOWGEOMETRY/SavegameDialogGeometry", saveGeometry());
+}
+
+void SavegameDialog::merge(QList<Variable> & variables, const QList<Variable> & diffVariables) const {
+	for (auto it = variables.begin(); it != variables.end(); ++it) {
+		for (auto it2 = diffVariables.begin(); it2 != diffVariables.end(); ++it2) {
+			if (it->name != it2->name)
+				continue;
+
+			it->diffValue = it2->value;
+
+			break;
+		}
+	}
 }

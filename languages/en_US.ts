@@ -3423,5 +3423,21 @@ You can revoke your permission at every point in time. All necessary information
         <source>FixError</source>
         <translation>Fix error</translation>
     </message>
+    <message>
+        <source>SavegameAlreadyLoaded</source>
+        <translation>Savegame already loaded</translation>
+    </message>
+    <message>
+        <source>SavegameAlreadyLoadedDescription</source>
+        <translation>You alreaded loaded a savegame. Du you want to load a new one instead or compare the new one with loaded one?</translation>
+    </message>
+    <message>
+        <source>Replace</source>
+        <translation>Replace</translation>
+    </message>
+    <message>
+        <source>Compare</source>
+        <translation>Compare</translation>
+    </message>
 </context>
 </TS>

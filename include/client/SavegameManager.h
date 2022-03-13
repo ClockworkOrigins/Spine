@@ -25,10 +25,11 @@ namespace spine {
 	struct Variable {
 		std::string name;
 		int value;
+		int diffValue;
 		bool changed;
 		int pos;
 
-		Variable(std::string n, int v, int p) : name(n), value(v), changed(false), pos(p) {
+		Variable(std::string n, int v, int p) : name(n), value(v), diffValue(0), changed(false), pos(p) {
 		}
 	};
 

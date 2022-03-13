@@ -48,14 +48,17 @@ namespace widgets {
 		QSortFilterProxyModel * _filterModel;
 		QStandardItemModel * _model;
 		SavegameManager * _savegameManager;
+		SavegameManager * _savegameManager2;
 		QString _gothicDirectory;
 		QString _gothic2Directory;
 		QString _openedFile;
 		QList<Variable> _variables;
 
-		void updateView();
+		void openSave(const QString & basePath);
+		void updateView(const QList<Variable> & variables, bool showDiff);
 		void restoreSettings();
 		void saveSettings() const;
+		void merge(QList<Variable> & variables, const QList<Variable> & diffVariables) const;
 	};
 
 } /* namespace widgets */

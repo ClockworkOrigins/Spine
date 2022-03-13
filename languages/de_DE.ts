@@ -3415,5 +3415,21 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>FixError</source>
         <translation>Fehler beheben</translation>
     </message>
+    <message>
+        <source>SavegameAlreadyLoaded</source>
+        <translation>Spielstand bereits geladen</translation>
+    </message>
+    <message>
+        <source>SavegameAlreadyLoadedDescription</source>
+        <translation>Du hast bereits einen Spielstand geladen. Möchtest du stattdessen einen neuen laden oder einen weiteren mit dem bisher geladenen vergleichen?</translation>
+    </message>
+    <message>
+        <source>Replace</source>
+        <translation>Ersetzen</translation>
+    </message>
+    <message>
+        <source>Compare</source>
+        <translation>Vergleichen</translation>
+    </message>
 </context>
 </TS>

@@ -3411,5 +3411,21 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>FixError</source>
         <translation>Napraw błąd</translation>
     </message>
+    <message>
+        <source>SavegameAlreadyLoaded</source>
+        <translation>Savegame już załadowany</translation>
+    </message>
+    <message>
+        <source>SavegameAlreadyLoadedDescription</source>
+        <translation>Wczytałeś już savegame. Czy chcesz załadować nowy zapis, czy porównać nowy z załadowanym?</translation>
+    </message>
+    <message>
+        <source>Replace</source>
+        <translation>Wymienić</translation>
+    </message>
+    <message>
+        <source>Compare</source>
+        <translation>Porównaj</translation>
+    </message>
 </context>
 </TS>

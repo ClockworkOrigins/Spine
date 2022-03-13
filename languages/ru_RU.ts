@@ -3416,5 +3416,21 @@ You can revoke your permission at every point in time. All necessary information
         <source>FixError</source>
         <translation>Исправить ошибку</translation>
     </message>
+    <message>
+        <source>SavegameAlreadyLoaded</source>
+        <translation>Сохраненная игра уже загружена</translation>
+    </message>
+    <message>
+        <source>SavegameAlreadyLoadedDescription</source>
+        <translation>Вы уже загрузили сохраненную игру. Вы хотите загрузить новую или сравнить новую с загруженной?</translation>
+    </message>
+    <message>
+        <source>Replace</source>
+        <translation>Заменить</translation>
+    </message>
+    <message>
+        <source>Compare</source>
+        <translation>Сравнить</translation>
+    </message>
 </context>
 </TS>
