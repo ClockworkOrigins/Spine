@@ -18,9 +18,9 @@
 
 #pragma once
 
-#include <QDialog>
+#include "common/MessageStructs.h"
 
-#include "translator/common/MessageStructs.h"
+#include <QDialog>
 
 class QComboBox;
 class QProgressBar;
@@ -43,7 +43,7 @@ namespace translation {
 		~TranslatorDialog();
 
 	signals:
-		void receivedProjects(std::vector<translator::common::SendProjectsMessage::Project>);
+		void receivedProjects(std::vector<common::SendProjectsMessage::Project>);
 		void receivedTextToTranslate();
 		void receivedTextToReview();
 		void receivedProgress(std::pair<uint32_t, uint32_t>);
@@ -51,7 +51,7 @@ namespace translation {
 	private slots:
 		void submit();
 		void discard();
-		void updateProjects(std::vector<translator::common::SendProjectsMessage::Project> projects);
+		void updateProjects(std::vector<common::SendProjectsMessage::Project> projects);
 		void requestText();
 		void requestReview();
 		void updateTextToTranslate();
@@ -62,12 +62,12 @@ namespace translation {
 	private:
 		QComboBox * _projectsComboBox;
 		QProgressBar * _progressBar;
-		std::vector<translator::common::SendProjectsMessage::Project> _projects;
+		std::vector<common::SendProjectsMessage::Project> _projects;
 		QPushButton * _requestTextButton;
 		QPushButton * _requestReviewButton;
-		translator::common::SendProjectsMessage::Project _activeProject;
-		translator::common::SendTextToTranslateMessage * _textToTranslateMsg;
-		translator::common::SendTextToReviewMessage * _textToReviewMsg;
+		common::SendProjectsMessage::Project _activeProject;
+		common::SendTextToTranslateMessage * _textToTranslateMsg;
+		common::SendTextToReviewMessage * _textToReviewMsg;
 		QTextBrowser * _sourcePreview;
 		QTextBrowser * _destinationPreview;
 		QTextBrowser * _hintPreview;

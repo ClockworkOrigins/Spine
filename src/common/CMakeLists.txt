@@ -3,12 +3,8 @@ SET(includedir ${CMAKE_SOURCE_DIR}/include/common)
 
 INCLUDE_DIRECTORIES(${includedir})
 
-SET(CommonSrc
-	${srcdir}/Encryption.cpp
-	${srcdir}/MessageStructs.cpp
-)
-
-FILE(GLOB CommonHeader ${includedir}/*.h)
+FILE(GLOB_RECURSE CommonSrc ${srcdir}/*.cpp)
+FILE(GLOB_RECURSE CommonHeader ${includedir}/*.h)
 
 ADD_LIBRARY(SpineCommon STATIC ${CommonSrc} ${CommonHeader})
 

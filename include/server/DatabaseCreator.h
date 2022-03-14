@@ -27,6 +27,7 @@ namespace server {
 
 	private:
 		static void createFileserverTables();
+		static void createTranslatorTables();
 	};
 
 } /* namespace server */

@@ -36,6 +36,7 @@
 #include "ServerCommon.h"
 #include "SpineLevel.h"
 #include "StatsCollector.h"
+#include "TranslatorServer.h"
 #include "UploadServer.h"
 
 #include "common/MessageStructs.h"
@@ -49,7 +50,7 @@
 using namespace spine::common;
 using namespace spine::server;
 
-Server::Server() : _listenClient(new clockUtils::sockets::TcpSocket()), _listenMPServer(new clockUtils::sockets::TcpSocket()), _matchmakingServer(new MatchmakingServer()), _gmpServer(new GMPServer()), _uploadServer(new UploadServer()), _databaseServer(new DatabaseServer()), _managementServer(new ManagementServer()) {
+Server::Server() : _listenClient(new clockUtils::sockets::TcpSocket()), _listenMPServer(new clockUtils::sockets::TcpSocket()), _matchmakingServer(new MatchmakingServer()), _gmpServer(new GMPServer()), _uploadServer(new UploadServer()), _databaseServer(new DatabaseServer()), _managementServer(new ManagementServer()), _translatorServer(new TranslatorServer()) {
 	DatabaseCreator::createTables();
 
 	DatabaseMigrator::migrate();
@@ -76,6 +77,7 @@ Server::~Server() {
 	delete _uploadServer;
 	delete _databaseServer;
 	delete _managementServer;
+	delete _translatorServer;
 }
 
 int Server::run() {
@@ -88,6 +90,7 @@ int Server::run() {
 #endif
 	_databaseServer->run();
 	_managementServer->run();
+	_translatorServer->run();
 
 	bool running = true;
 

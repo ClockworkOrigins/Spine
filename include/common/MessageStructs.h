@@ -28,6 +28,8 @@
 
 namespace spine {
 namespace common {
+
+	class TranslationModel;
 	
 	struct Message {
 		MessageType type;
@@ -671,6 +673,345 @@ namespace common {
 			ar & username;
 			ar & password;
 			ar & screenshots;
+		}
+	};
+
+	struct TranslationRequestMessage : public Message {
+		TranslationModel * translationModel;
+		std::string username;
+		TranslationRequestMessage() : Message(), translationModel(), username() {
+			type = MessageType::TRANSLATIONREQUEST;
+		}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & boost::serialization::base_object<Message>(*this);
+			ar & translationModel;
+			ar & username;
+		}
+	};
+
+	struct TranslationRequestedMessage : public Message {
+		uint32_t id;
+		TranslationRequestedMessage() : Message(), id() {
+			type = MessageType::TRANSLATIONREQUESTED;
+		}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & boost::serialization::base_object<Message>(*this);
+			ar & id;
+		}
+	};
+
+	struct QueryTextToTranslateMessage : public Message {
+		std::string username;
+		std::string projectName;
+		std::string sourceLanguage;
+		std::string destinationLanguage;
+		QueryTextToTranslateMessage() : Message() {
+			type = MessageType::QUERYTEXTTOTRANSLATE;
+		}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & boost::serialization::base_object<Message>(*this);
+			ar & username;
+			ar & projectName;
+			ar & sourceLanguage;
+			ar & destinationLanguage;
+		}
+	};
+
+	struct SendTextToTranslateMessage : public Message {
+		uint32_t id;
+		std::string name;
+		std::string text;
+		std::vector<std::string> dialog;
+		std::vector<std::pair<std::string, std::string>> hints;
+		SendTextToTranslateMessage() : Message(), id() {
+			type = MessageType::SENDTEXTTOTRANSLATE;
+		}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & boost::serialization::base_object<Message>(*this);
+			ar & id;
+			ar & name;
+			ar & text;
+			ar & dialog;
+			ar & hints;
+		}
+	};
+
+	struct SendTranslationDraftMessage : public Message {
+		std::string username;
+		std::string destinationLanguage;
+		uint32_t id;
+		std::string name;
+		std::string text;
+		std::vector<std::string> dialog;
+		SendTranslationDraftMessage() : Message(), id() {
+			type = MessageType::SENDTRANSLATIONDRAFT;
+		}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & boost::serialization::base_object<Message>(*this);
+			ar & username;
+			ar & destinationLanguage;
+			ar & id;
+			ar & name;
+			ar & text;
+			ar & dialog;
+		}
+	};
+
+	struct RequestTranslationProgressMessage : public Message {
+		std::string projectName;
+		std::string sourceLanguage;
+		std::string destinationLanguage;
+		RequestTranslationProgressMessage() : Message() {
+			type = MessageType::REQUESTTRANSLATIONPROGRESS;
+		}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & boost::serialization::base_object<Message>(*this);
+			ar & projectName;
+			ar & sourceLanguage;
+			ar & destinationLanguage;
+		}
+	};
+
+	struct SendTranslationProgressMessage : public Message {
+		uint32_t translated;
+		uint32_t toTranslate;
+		SendTranslationProgressMessage() : Message(), translated(), toTranslate() {
+			type = MessageType::SENDTRANSLATIONPROGRESS;
+		}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & boost::serialization::base_object<Message>(*this);
+			ar & translated;
+			ar & toTranslate;
+		}
+	};
+
+	struct QueryTextToReviewMessage : public Message {
+		std::string username;
+		std::string projectName;
+		std::string sourceLanguage;
+		std::string destinationLanguage;
+		QueryTextToReviewMessage() : Message() {
+			type = MessageType::QUERYTEXTTOREVIEW;
+		}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & boost::serialization::base_object<Message>(*this);
+			ar & username;
+			ar & projectName;
+			ar & sourceLanguage;
+			ar & destinationLanguage;
+		}
+	};
+
+	struct SendTextToReviewMessage : public Message {
+		uint32_t id;
+		std::pair<std::string, std::string> name;
+		std::pair<std::string, std::string> text;
+		std::pair<std::vector<std::string>, std::vector<std::string>> dialog;
+		std::vector<std::pair<std::string, std::string>> hints;
+		SendTextToReviewMessage() : Message(), id() {
+			type = MessageType::SENDTEXTTOREVIEW;
+		}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & boost::serialization::base_object<Message>(*this);
+			ar & id;
+			ar & name;
+			ar & text;
+			ar & dialog;
+			ar & hints;
+		}
+	};
+
+	struct SendTranslationReviewMessage : public Message {
+		std::string username;
+		std::string sourceLanguage;
+		std::string destinationLanguage;
+		uint32_t id;
+		std::string name;
+		std::string text;
+		std::vector<std::string> dialog;
+		bool changed;
+		SendTranslationReviewMessage() : Message(), id(), changed() {
+			type = MessageType::SENDTRANSLATIONREVIEW;
+		}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & boost::serialization::base_object<Message>(*this);
+			ar & username;
+			ar & sourceLanguage;
+			ar & destinationLanguage;
+			ar & id;
+			ar & name;
+			ar & text;
+			ar & dialog;
+			ar & changed;
+		}
+	};
+
+	struct RequestProjectsMessage : public Message {
+		std::string username;
+		RequestProjectsMessage() : Message() {
+			type = MessageType::REQUESTPROJECTS;
+		}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & boost::serialization::base_object<Message>(*this);
+			ar & username;
+		}
+	};
+
+	struct SendProjectsMessage : public Message {
+		struct Project {
+			bool accessRights;
+			std::string projectName;
+			std::string sourceLanguage;
+			std::string destinationLanguage;
+
+			template<class Archive>
+			void serialize(Archive & ar, const unsigned int /* file_version */) {
+				ar & accessRights;
+				ar & projectName;
+				ar & sourceLanguage;
+				ar & destinationLanguage;
+			}
+		};
+
+		std::vector<Project> projects;
+
+		SendProjectsMessage() : Message() {
+			type = MessageType::SENDPROJECTS;
+		}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & boost::serialization::base_object<Message>(*this);
+			ar & projects;
+		}
+	};
+
+	struct RequestOwnProjectsMessage : public Message {
+		std::string username;
+		RequestOwnProjectsMessage() : Message() {
+			type = MessageType::REQUESTOWNPROJECTS;
+		}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & boost::serialization::base_object<Message>(*this);
+			ar & username;
+		}
+	};
+
+	struct SendOwnProjectsMessage : public Message {
+		struct Project {
+			uint32_t requestID;
+			std::string projectName;
+			std::string sourceLanguage;
+			std::string destinationLanguage;
+			uint32_t translated;
+			uint32_t toTranslate;
+
+			template<class Archive>
+			void serialize(Archive & ar, const unsigned int /* file_version */) {
+				ar & requestID;
+				ar & projectName;
+				ar & sourceLanguage;
+				ar & destinationLanguage;
+				ar & translated;
+				ar & toTranslate;
+			}
+		};
+
+		std::vector<Project> projects;
+
+		SendOwnProjectsMessage() : Message() {
+			type = MessageType::SENDOWNPROJECTS;
+		}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & boost::serialization::base_object<Message>(*this);
+			ar & projects;
+		}
+	};
+
+	struct RequestTranslatorsMessage : public Message {
+		uint32_t requestID;
+
+		RequestTranslatorsMessage() : Message(), requestID() {
+			type = MessageType::REQUESTTRANSLATORS;
+		}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & boost::serialization::base_object<Message>(*this);
+			ar & requestID;
+		}
+	};
+
+	struct SendTranslatorsMessage : public Message {
+		std::vector<std::string> lockedUsers;
+		std::vector<std::string> translators;
+
+		SendTranslatorsMessage() : Message() {
+			type = MessageType::SENDTRANSLATORS;
+		}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & boost::serialization::base_object<Message>(*this);
+			ar & lockedUsers;
+			ar & translators;
+		}
+	};
+
+	struct ChangeTranslationRightsMessage : public Message {
+		uint32_t requestID;
+		std::string username;
+		bool accessRights;
+
+		ChangeTranslationRightsMessage() : Message(), requestID(), accessRights() {
+			type = MessageType::CHANGETRANSLATIONRIGHTS;
+		}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & boost::serialization::base_object<Message>(*this);
+			ar & requestID;
+			ar & username;
+			ar & accessRights;
+		}
+	};
+
+	struct RequestTranslationDownloadMessage : public Message {
+		uint32_t requestID;
+
+		RequestTranslationDownloadMessage() : Message(), requestID() {
+			type = MessageType::REQUESTTRANSLATIONDOWNLOAD;
+		}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & boost::serialization::base_object<Message>(*this);
+			ar & requestID;
+		}
+	};
+
+	struct SendTranslationDownloadMessage : public Message {
+		std::map<std::string, std::string> names;
+		std::map<std::string, std::string> texts;
+		std::vector<std::pair<std::vector<std::string>, std::vector<std::string>>> dialogs;
+
+		SendTranslationDownloadMessage() : Message() {
+			type = MessageType::SENDTRANSLATIONDOWNLOAD;
+		}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & boost::serialization::base_object<Message>(*this);
+			ar & names;
+			ar & texts;
+			ar & dialogs;
 		}
 	};
 

@@ -16,15 +16,13 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifdef WITH_TRANSLATOR
-
 #include "translator/GothicParser.h"
 
 #include <iostream>
 
-#include "utils/Conversion.h"
+#include "common/TranslationModel.h"
 
-#include "translator/common/TranslationModel.h"
+#include "utils/Conversion.h"
 
 #include <QDirIterator>
 #include <QFutureWatcher>
@@ -42,12 +40,13 @@ const QSet<QString> IGNORE_FUNCTIONS = {
 };
 const QList<QRegularExpression> IGNORE_REGEX = { QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*wp[ \t]*="), QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*visual[ \t]*="), QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*scemeName[ \t]*="), QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*visual_change[ \t]*="), QRegularExpression("[ \t]*[a-zA-Z_0-9]*[.]*effect[ \t]*="), QRegularExpression("[ \t]*TA_[a-zA-Z_0-9]+[ \t]*\\([ \t]*[0-9]+[ \t]*,[ \t]*[0-9]+[ \t]*,[ \t]*[0-9]+[ \t]*,[ \t]*[0-9]+[ \t]*,[ \t]*\""), QRegularExpression("items\\[[0-9]+\\]"), QRegularExpression("musictheme[ \t]*="), QRegularExpression("backPic[ \t]*="), QRegularExpression("onChgSetOption[ \t]*="), QRegularExpression("onChgSetOptionSection[ \t]*="), QRegularExpression("hideIfOptionSectionSet[ \t]*="), QRegularExpression("hideIfOptionSet[ \t]*="), QRegularExpression("fontName[ \t]*="), QRegularExpression("BIP01 ") };
 
+using namespace spine::common;
 using namespace spine::translation;
 
 GothicParser::GothicParser(QObject * par) : QObject(par), _currentProgress(0), _maxProgress(0) {
 }
 
-void GothicParser::parseTexts(QString path, translator::common::TranslationModel * model) {
+void GothicParser::parseTexts(QString path, TranslationModel * model) {
 	// 1. determine all files
 	_currentProgress = 0;
 	QStringList filesToParse;
@@ -100,7 +99,7 @@ void GothicParser::parseTexts(QString path, translator::common::TranslationModel
 	std::cout << (model->getNames().size() + model->getTexts().size() + model->getDialogTextCount()) << " Overall" << std::endl;
 }
 
-void GothicParser::parseFile(QString filePath, translator::common::TranslationModel * model) {
+void GothicParser::parseFile(QString filePath, TranslationModel * model) {
 	//static QMutex l;
 	//QMutexLocker lg(&l);
 	QFile f(filePath);
@@ -222,7 +221,7 @@ void GothicParser::parseFile(QString filePath, translator::common::TranslationMo
 	}
 }
 
-void GothicParser::parseName(QString line, translator::common::TranslationModel * model) {
+void GothicParser::parseName(QString line, TranslationModel * model) {
 	bool started = false;
 	QString name;
 	for (int i = 0; i < line.size(); i++) {
@@ -243,5 +242,3 @@ void GothicParser::parseName(QString line, translator::common::TranslationModel 
 		model->addName(q2s(name.trimmed()));
 	}
 }
-
-#endif /* WITH_TRANSLATOR */

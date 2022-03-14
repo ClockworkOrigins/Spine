@@ -366,44 +366,6 @@ ELSEIF(WIN32)
 ENDIF(UNIX)
 
 #----------------------------------------------------
-# Translator
-#----------------------------------------------------
-
-IF(WITH_CLIENT AND WITH_TRANSLATOR)
-	IF(WIN32 AND NOT ANDROID AND NOT EXISTS "${SPINE_DEP_DIR}/translator/")
-		execute_process(COMMAND ${CMAKE_SOURCE_DIR}/dependencies/build-translator.bat ${VS_TOOLCHAIN} ${VS_ARCH} WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/dependencies)
-	ENDIF(WIN32 AND NOT ANDROID AND NOT EXISTS "${SPINE_DEP_DIR}/translator/")
-	IF(UNIX AND NOT ANDROID AND NOT EXISTS "${SPINE_DEP_DIR}/translator/")
-		execute_process(COMMAND ${CMAKE_SOURCE_DIR}/dependencies/build-translator.sh ${UNIX_COMPILER} WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/dependencies)
-	ENDIF(UNIX AND NOT ANDROID AND NOT EXISTS "${SPINE_DEP_DIR}/translator/")
-
-	IF(UNIX)
-		SET(LIBNAME "TRANSLATOR")
-		SET(LIBHEADER "translator/api/TranslatorAPI.h")
-		SET(TRANSLATOR_ROOT ${SPINE_DEP_DIR}/translator)
-		find_package(EasyFind REQUIRED COMPONENTS ${TRANSLATOR_COMPONENT})
-		include_directories(SYSTEM ${TRANSLATOR_INCLUDE_DIR})
-
-		SET(TRANSLATOR_DEBUG_LIBRARIES ${TRANSLATOR_LIBRARIES})
-		SET(TRANSLATOR_RELEASE_LIBRARIES ${TRANSLATOR_LIBRARIES})
-	ELSEIF(WIN32)
-		SET(LIBNAME "TRANSLATOR_DEBUG")
-		SET(LIBHEADER "translator/api/TranslatorAPI.h")
-		SET(TRANSLATOR_DEBUG_ROOT ${SPINE_DEP_DIR}/translator/Debug)
-		SET(TRANSLATOR_DEBUG_COMPONENT TranslatorAPI TranslatorCommon)
-
-		find_package(EasyFind REQUIRED COMPONENTS ${TRANSLATOR_DEBUG_COMPONENT})
-		include_directories(SYSTEM ${TRANSLATOR_DEBUG_INCLUDE_DIR})
-
-		SET(LIBNAME "TRANSLATOR_RELEASE")
-		SET(TRANSLATOR_RELEASE_ROOT ${SPINE_DEP_DIR}/translator/Release)
-		SET(TRANSLATOR_RELEASE_COMPONENT TranslatorAPI TranslatorCommon)
-
-		find_package(EasyFind REQUIRED COMPONENTS ${TRANSLATOR_RELEASE_COMPONENT})
-	ENDIF(UNIX)
-ENDIF(WITH_CLIENT AND WITH_TRANSLATOR)
-
-#----------------------------------------------------
 # SimpleWebServer
 #----------------------------------------------------
 

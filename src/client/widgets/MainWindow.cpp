@@ -37,6 +37,9 @@
 
 #include "models/SpineEditorModel.h"
 
+#include "translator/TranslationRequestDialog.h"
+#include "translator/TranslatorDialog.h"
+
 #include "utils/Config.h"
 #include "utils/Conversion.h"
 #include "utils/Database.h"
@@ -79,11 +82,6 @@
 #include "widgets/SubmitCompatibilityDialog.h"
 #include "widgets/UpdateLanguage.h"
 
-#ifdef WITH_TRANSLATOR
-	#include "translator/TranslationRequestDialog.h"
-	#include "translator/TranslatorDialog.h"
-#endif
-
 #include "clockUtils/sockets/TcpSocket.h"
 
 #include <QApplication>
@@ -118,12 +116,9 @@ using namespace spine::discord;
 using namespace spine::gui;
 using namespace spine::https;
 using namespace spine::launcher;
+using namespace spine::translation;
 using namespace spine::utils;
 using namespace spine::widgets;
-
-#ifdef WITH_TRANSLATOR
-using namespace spine::translation;
-#endif
 
 enum MainTabsOnline {
 	StartOnline,
@@ -1203,17 +1198,13 @@ void MainWindow::uninstallMod() {
 }
 
 void MainWindow::openTranslator() {
-#ifdef WITH_TRANSLATOR
 	TranslatorDialog dlg(this);
 	dlg.exec();
-#endif
 }
 
 void MainWindow::openTranslationRequest() {
-#ifdef WITH_TRANSLATOR
 	TranslationRequestDialog dlg(this);
 	dlg.exec();
-#endif
 }
 
 void MainWindow::generateReports() {

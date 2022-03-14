@@ -16,14 +16,12 @@
  */
 // Copyright 2018 Clockwork Origins
 
-#ifdef WITH_TRANSLATOR
-
 #include "translator/GothicParser.h"
 
 #include "utils/Conversion.h"
 
-#include "translator/common/TranslationModel.h"
-#include "translator/api/TranslatorAPI.h"
+#include "common/TranslationModel.h"
+#include "translator/TranslatorAPI.h"
 
 #include "gtest/gtest.h"
 
@@ -33,7 +31,7 @@
 class GothicParserTest : public ::testing::Test {
 protected:
 	void SetUp() override {
-		model = translator::api::TranslatorAPI::createModel("", "", "");
+		model = spine::translation::TranslatorAPI::createModel("", "", "");
 	}
 
 	void TearDown() override {
@@ -123,7 +121,7 @@ protected:
 		compare();
 	}
 
-	translator::common::TranslationModel * model = nullptr;
+	spine::common::TranslationModel * model = nullptr;
 	std::vector<std::string> names;
 	std::vector<std::string> texts;
 	std::vector<std::vector<std::string>> dialogs;
@@ -148,5 +146,3 @@ TEST_F(GothicParserTest, Test4) {
 TEST_F(GothicParserTest, Test5) {
 	performTest("test5");
 }
-
-#endif /* WITH_TRANSLATOR */

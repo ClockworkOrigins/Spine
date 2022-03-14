@@ -18,6 +18,8 @@
 
 #include "translator/TranslationRequestDialog.h"
 
+#include "common/TranslationModel.h"
+
 #include "gui/WaitSpinner.h"
 
 #include "translator/GothicParser.h"
@@ -28,6 +30,7 @@
 
 #include "translator/AccessRightsDialog.h"
 #include "translator/ApplyTranslationDialog.h"
+#include "translator/TranslatorAPI.h"
 
 #include <QApplication>
 #include <QComboBox>
@@ -42,9 +45,7 @@
 #include <QPushButton>
 #include <QSettings>
 
-#include "translator/api/TranslatorAPI.h"
-#include "translator/common/TranslationModel.h"
-
+using namespace spine::common;
 using namespace spine::translation;
 using namespace spine::utils;
 
@@ -170,7 +171,7 @@ TranslationRequestDialog::TranslationRequestDialog(QWidget * par) : QDialog(par)
 
 	restoreSettings();
 
-	qRegisterMetaType<std::vector<translator::common::SendOwnProjectsMessage::Project>>("std::vector<translator::common::SendOwnProjectsMessage::Project>");
+	qRegisterMetaType<std::vector<SendOwnProjectsMessage::Project>>("std::vector<translator::common::SendOwnProjectsMessage::Project>");
 	connect(this, &TranslationRequestDialog::receivedRequestList, this, &TranslationRequestDialog::updateRequestList);
 
 	requestList();
@@ -196,7 +197,7 @@ void TranslationRequestDialog::parseScripts() {
 
 	GothicParser gp(this);
 
-	_model = translator::api::TranslatorAPI::createModel(q2s(_projectNameEdit->text()), q2s(_sourceLanguageBox->currentText()), q2s(_destinationLanguageBox->currentText()));
+	_model = TranslatorAPI::createModel(q2s(_projectNameEdit->text()), q2s(_sourceLanguageBox->currentText()), q2s(_destinationLanguageBox->currentText()));
 	_progressDialog = new QProgressDialog(QApplication::tr("ParseScripts"), "", 0, 100, this);
 	_progressDialog->setCancelButton(nullptr);
 	_progressDialog->setWindowFlags(_progressDialog->windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -228,7 +229,7 @@ void TranslationRequestDialog::requestTranslation() {
 	QFutureWatcher<void> watcher;
 	connect(&watcher, &QFutureWatcher<void>::finished, &loop, &QEventLoop::quit);
 	const QFuture<void> future = QtConcurrent::run([this]() {
-		translator::api::TranslatorAPI::requestTranslation(q2s(Config::Username), _model);
+		TranslatorAPI::requestTranslation(q2s(Config::Username), _model);
 		delete _model;
 		_model = nullptr;
 	});
@@ -249,7 +250,7 @@ void TranslationRequestDialog::checkParsePossible() {
 	_parseButton->setEnabled(!Config::Username.isEmpty() && !_pathEdit->text().isEmpty() && !_projectNameEdit->text().isEmpty() && _sourceLanguageBox->currentIndex() != _destinationLanguageBox->currentIndex());
 }
 
-void TranslationRequestDialog::updateRequestList(std::vector<translator::common::SendOwnProjectsMessage::Project> projects) {
+void TranslationRequestDialog::updateRequestList(std::vector<SendOwnProjectsMessage::Project> projects) {
 	for (QWidget * w : _widgets) {
 		w->deleteLater();
 	}
@@ -318,7 +319,7 @@ void TranslationRequestDialog::saveSettings() {
 
 void TranslationRequestDialog::requestList() {
 	QtConcurrent::run([this]() {
-		translator::common::SendOwnProjectsMessage * sopm = translator::api::TranslatorAPI::requestOwnProjects(q2s(Config::Username));
+		SendOwnProjectsMessage * sopm = TranslatorAPI::requestOwnProjects(q2s(Config::Username));
 		if (sopm) {
 			emit receivedRequestList(sopm->projects);
 		}

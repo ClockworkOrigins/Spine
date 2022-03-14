@@ -12,7 +12,6 @@ OPTION(WITH_SERVER "builds with server" OFF)
 OPTION(WITH_API "builds with API" OFF)
 OPTION(WITH_CONSOLE "build with console" OFF)
 OPTION(WITH_TOOLS "build with helper tools" ON)
-OPTION(WITH_TRANSLATOR "build with translator" OFF)
 OPTION(WITH_G2OCHECKER "build with G2O Checker" OFF)
 OPTION(TEST_CONFIG "build with test server" OFF)
 SET(DATABASEUSER "foobar" CACHE STRING "user used on the server for database access")
@@ -87,9 +86,6 @@ IF(WIN32)
 ENDIF(WIN32)
 
 ADD_DEFINITIONS(-DSPINE_PRIVATE_KEY="${SPINE_PRIVATE_KEY}")
-IF(WITH_TRANSLATOR)
-	ADD_DEFINITIONS(-DWITH_TRANSLATOR)
-ENDIF(WITH_TRANSLATOR)
 
 #########################################################################
 # Library Section

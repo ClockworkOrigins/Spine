@@ -46,7 +46,7 @@ IF(WITH_API)
 	add_dependencies(Spine SpineAPI${ARCH_POSTFIX})
 ENDIF(WITH_API)
 
-target_link_libraries(Spine SpineCommon SpineDiscord SpineGui SpineHttps SpineSecurity SpineUtils ${DISCORD_LIBRARIES} ${OPENSSL_LIBRARIES} ${QT_LIBRARIES} ${SQLITE3_LIBRARIES})
+target_link_libraries(Spine SpineCommon SpineDiscord SpineGui SpineHttps SpineSecurity SpineTranslator SpineUtils ${DISCORD_LIBRARIES} ${OPENSSL_LIBRARIES} ${QT_LIBRARIES} ${SQLITE3_LIBRARIES})
 #target_link_libraries(Spine debug ${BOOST_DEBUG_BOOST_FILESYSTEM_LIBRARY} optimized ${BOOST_RELEASE_BOOST_FILESYSTEM_LIBRARY})
 target_link_libraries(Spine debug ${BOOST_DEBUG_BOOST_IOSTREAMS_LIBRARY} optimized ${BOOST_RELEASE_BOOST_IOSTREAMS_LIBRARY})
 target_link_libraries(Spine debug ${BOOST_DEBUG_BOOST_SERIALIZATION_LIBRARY} optimized ${BOOST_RELEASE_BOOST_SERIALIZATION_LIBRARY})
@@ -56,11 +56,6 @@ target_link_libraries(Spine debug ${CLOCKUTILS_DEBUG_CLOCK_LOG_LIBRARY} optimize
 target_link_libraries(Spine debug ${CLOCKUTILS_DEBUG_CLOCK_SOCKETS_LIBRARY} optimized ${CLOCKUTILS_RELEASE_CLOCK_SOCKETS_LIBRARY})
 target_link_libraries(Spine debug ${ZIPPER_DEBUG_LIBRARIES} optimized ${ZIPPER_RELEASE_LIBRARIES})
 target_link_libraries(Spine debug ${ZLIB_DEBUG_LIBRARIES} optimized ${ZLIB_RELEASE_LIBRARIES})
-
-IF(WITH_TRANSLATOR)
-	target_link_libraries(Spine debug ${TRANSLATOR_DEBUG_LIBRARIES} optimized ${TRANSLATOR_RELEASE_LIBRARIES})
-	target_link_libraries(Spine SpineTranslator)
-ENDIF(WITH_TRANSLATOR)
 
 IF(UNIX)
 	target_link_libraries(Spine pthread)

@@ -33,341 +33,342 @@ void DatabaseCreator::createTables() {
 	}
 
 	// ModID | ID of the team | Enabled in GUI or only internal | 1 or 2 either if the mod is for Gothic 1 or 2 | Release date encoded as integer in days | one of Mod or Patch encoded as integer
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS mods (ModID INT AUTO_INCREMENT PRIMARY KEY, TeamID INT NOT NULL, Enabled INT NOT NULL, Gothic INT NOT NULL, ReleaseDate INT NOT NULL, Type INT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL, SpineVersion INT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS mods (ModID INT AUTO_INCREMENT PRIMARY KEY, TeamID INT NOT NULL, Enabled INT NOT NULL, Gothic INT NOT NULL, ReleaseDate INT NOT NULL, Type INT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL, SpineVersion INT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS optionalpackages (PackageID INT AUTO_INCREMENT PRIMARY KEY, ModID INT NOT NULL, Enabled INT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS optionalpackages (PackageID INT AUTO_INCREMENT PRIMARY KEY, ModID INT NOT NULL, Enabled INT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS modnames (ModID INT NOT NULL, Name TEXT NOT NULL, Language TEXT NOT NULL) CHARACTER SET utf8;"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS modnames (ModID INT NOT NULL, Name TEXT NOT NULL, Language TEXT NOT NULL) CHARACTER SET utf8;")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS optionalpackagenames (PackageID INT NOT NULL, Name TEXT NOT NULL, Language TEXT NOT NULL) CHARACTER SET utf8;"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS optionalpackagenames (PackageID INT NOT NULL, Name TEXT NOT NULL, Language TEXT NOT NULL) CHARACTER SET utf8;")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS modfiles (FileID INT AUTO_INCREMENT PRIMARY KEY, ModID INT NOT NULL, Path TEXT NOT NULL, Language TEXT NOT NULL, Hash TEXT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS modfiles (FileID INT AUTO_INCREMENT PRIMARY KEY, ModID INT NOT NULL, Path TEXT NOT NULL, Language TEXT NOT NULL, Hash TEXT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS optionalpackagefiles (FileID INT AUTO_INCREMENT PRIMARY KEY, PackageID INT NOT NULL, Path TEXT NOT NULL, Language TEXT NOT NULL, Hash TEXT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS optionalpackagefiles (FileID INT AUTO_INCREMENT PRIMARY KEY, PackageID INT NOT NULL, Path TEXT NOT NULL, Language TEXT NOT NULL, Hash TEXT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS news (NewsID INT AUTO_INCREMENT PRIMARY KEY, Title TEXT NOT NULL, Body TEXT NOT NULL, Timestamp INT NOT NULL, Language TEXT NOT NULL) CHARACTER SET utf8;"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS news (NewsID INT AUTO_INCREMENT PRIMARY KEY, Title TEXT NOT NULL, Body TEXT NOT NULL, Timestamp INT NOT NULL, Language TEXT NOT NULL) CHARACTER SET utf8;")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
 	// used for direct download links from news
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS newsModReferences (NewsID INT NOT NULL, ModID INT NOT NULL, PRIMARY KEY (NewsID, ModID));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS newsModReferences (NewsID INT NOT NULL, ModID INT NOT NULL, PRIMARY KEY (NewsID, ModID));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS newsImageReferences (NewsID INT NOT NULL, File TEXT NOT NULL, Hash TEXT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS newsImageReferences (NewsID INT NOT NULL, File TEXT NOT NULL, Hash TEXT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS ratings (ModID INT NOT NULL, UserID INT NOT NULL, Rating INT NOT NULL, PRIMARY KEY (ModID, UserID));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS ratings (ModID INT NOT NULL, UserID INT NOT NULL, Rating INT NOT NULL, PRIMARY KEY (ModID, UserID));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS reviews (ProjectID INT NOT NULL, UserID INT NOT NULL, Review TEXT NOT NULL, ReviewDate INT NOT NULL, PlayTime INT NOT NULL, PRIMARY KEY (ProjectID, UserID));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS reviews (ProjectID INT NOT NULL, UserID INT NOT NULL, Review TEXT NOT NULL, ReviewDate INT NOT NULL, PlayTime INT NOT NULL, PRIMARY KEY (ProjectID, UserID));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS teams (TeamID INT AUTO_INCREMENT PRIMARY KEY, Homepage TEXT);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS teams (TeamID INT AUTO_INCREMENT PRIMARY KEY, Homepage TEXT);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS teamnames (TeamID INT NOT NULL, Name TEXT NOT NULL, Language TEXT NOT NULL) CHARACTER SET utf8;"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS teamnames (TeamID INT NOT NULL, Name TEXT NOT NULL, Language TEXT NOT NULL) CHARACTER SET utf8;")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS descriptions (ModID INT NOT NULL, Description TEXT NOT NULL, Language TEXT NOT NULL, PRIMARY KEY (ModID, Language(100))) CHARACTER SET utf8;"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS descriptions (ModID INT NOT NULL, Description TEXT NOT NULL, Language TEXT NOT NULL, PRIMARY KEY (ModID, Language(100))) CHARACTER SET utf8;")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS features (ModID INT NOT NULL, Feature TEXT NOT NULL, Language TEXT NOT NULL) CHARACTER SET utf8;"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS features (ModID INT NOT NULL, Feature TEXT NOT NULL, Language TEXT NOT NULL) CHARACTER SET utf8;")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS screens (ModID INT NOT NULL, Image TEXT NOT NULL, Hash TEXT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS screens (ModID INT NOT NULL, Image TEXT NOT NULL, Hash TEXT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS spinefeatures (ModID INT PRIMARY KEY, Features INT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS spinefeatures (ModID INT PRIMARY KEY, Features INT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS playtimes (ModID INT NOT NULL, UserID INT NOT NULL, Duration INT NOT NULL, PRIMARY KEY (ModID, UserID));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS playtimes (ModID INT NOT NULL, UserID INT NOT NULL, Duration INT NOT NULL, PRIMARY KEY (ModID, UserID));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS devtimes (ModID INT PRIMARY KEY, Duration INT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS devtimes (ModID INT PRIMARY KEY, Duration INT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS downloads (ModID INT PRIMARY KEY, Counter INT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS downloads (ModID INT PRIMARY KEY, Counter INT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS downloadsPerVersion (ModID INT NOT NULL, Version TEXT NOT NULL, Counter INT NOT NULL, PRIMARY KEY (ModID, Version(20)));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS downloadsPerVersion (ModID INT NOT NULL, Version TEXT NOT NULL, Counter INT NOT NULL, PRIMARY KEY (ModID, Version(20)));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS sessionTimes (ModID INT NOT NULL, Duration INT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS sessionTimes (ModID INT NOT NULL, Duration INT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS achievementTimes (ModID INT NOT NULL, Identifier INT NOT NULL, Duration INT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS achievementTimes (ModID INT NOT NULL, Identifier INT NOT NULL, Duration INT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS packagedownloads (PackageID INT PRIMARY KEY, Counter INT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS packagedownloads (PackageID INT PRIMARY KEY, Counter INT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS earlyUnlocks (ModID INT NOT NULL, UserID INT NOT NULL, PRIMARY KEY (ModID, UserID));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS earlyUnlocks (ModID INT NOT NULL, UserID INT NOT NULL, PRIMARY KEY (ModID, UserID));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS modScores (ModID INT NOT NULL, UserID INT NOT NULL, Identifier INT NOT NULL, Score INT NOT NULL, PRIMARY KEY (ModID, UserID, Identifier));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS modScores (ModID INT NOT NULL, UserID INT NOT NULL, Identifier INT NOT NULL, Score INT NOT NULL, PRIMARY KEY (ModID, UserID, Identifier));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS modScoreList (ModID INT NOT NULL, Identifier INT NOT NULL, PRIMARY KEY (ModID, Identifier));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS modScoreList (ModID INT NOT NULL, Identifier INT NOT NULL, PRIMARY KEY (ModID, Identifier));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS modScoreNames (ModID INT NOT NULL, Identifier INT NOT NULL, Name TEXT NOT NULL, Language TEXT NOT NULL, PRIMARY KEY (ModID, Identifier, Language(100))) CHARACTER SET utf8;"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS modScoreNames (ModID INT NOT NULL, Identifier INT NOT NULL, Name TEXT NOT NULL, Language TEXT NOT NULL, PRIMARY KEY (ModID, Identifier, Language(100))) CHARACTER SET utf8;")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS modAchievements (ModID INT NOT NULL, UserID INT NOT NULL, Identifier INT NOT NULL, PRIMARY KEY (ModID, UserID, Identifier));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS modAchievements (ModID INT NOT NULL, UserID INT NOT NULL, Identifier INT NOT NULL, PRIMARY KEY (ModID, UserID, Identifier));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS modAchievementList (ModID INT NOT NULL, Identifier INT NOT NULL, PRIMARY KEY (ModID, Identifier));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS modAchievementList (ModID INT NOT NULL, Identifier INT NOT NULL, PRIMARY KEY (ModID, Identifier));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS modAchievementNames (ModID INT NOT NULL, Identifier INT NOT NULL, Name TEXT NOT NULL, Language TEXT NOT NULL, PRIMARY KEY (ModID, Identifier, Language(100))) CHARACTER SET utf8;"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS modAchievementNames (ModID INT NOT NULL, Identifier INT NOT NULL, Name TEXT NOT NULL, Language TEXT NOT NULL, PRIMARY KEY (ModID, Identifier, Language(100))) CHARACTER SET utf8;")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS modAchievementProgressMax (ModID INT NOT NULL, Identifier INT NOT NULL, Max INT NOT NULL, PRIMARY KEY (ModID, Identifier));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS modAchievementProgressMax (ModID INT NOT NULL, Identifier INT NOT NULL, Max INT NOT NULL, PRIMARY KEY (ModID, Identifier));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS modAchievementProgress (ModID INT NOT NULL, UserID INT NOT NULL, Identifier INT NOT NULL, Current INT NOT NULL, PRIMARY KEY (ModID, UserID, Identifier));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS modAchievementProgress (ModID INT NOT NULL, UserID INT NOT NULL, Identifier INT NOT NULL, Current INT NOT NULL, PRIMARY KEY (ModID, UserID, Identifier));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS modAchievementDescriptions (ModID INT NOT NULL, Identifier INT NOT NULL, Description TEXT NOT NULL, Language TEXT NOT NULL, PRIMARY KEY (ModID, Identifier, Language(100))) CHARACTER SET utf8;"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS modAchievementDescriptions (ModID INT NOT NULL, Identifier INT NOT NULL, Description TEXT NOT NULL, Language TEXT NOT NULL, PRIMARY KEY (ModID, Identifier, Language(100))) CHARACTER SET utf8;")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS modAchievementIcons (ModID INT NOT NULL, Identifier INT NOT NULL, LockedIcon TEXT NOT NULL, LockedHash TEXT NOT NULL, UnlockedIcon TEXT NOT NULL, UnlockedHash TEXT NOT NULL, PRIMARY KEY (ModID, Identifier));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS modAchievementIcons (ModID INT NOT NULL, Identifier INT NOT NULL, LockedIcon TEXT NOT NULL, LockedHash TEXT NOT NULL, UnlockedIcon TEXT NOT NULL, UnlockedHash TEXT NOT NULL, PRIMARY KEY (ModID, Identifier));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS modAchievementHidden (ModID INT NOT NULL, Identifier INT NOT NULL, PRIMARY KEY (ModID, Identifier));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS modAchievementHidden (ModID INT NOT NULL, Identifier INT NOT NULL, PRIMARY KEY (ModID, Identifier));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS lastLoginTimes (UserID INT NOT NULL, Timestamp INT NOT NULL, PRIMARY KEY (UserID));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS lastLoginTimes (UserID INT NOT NULL, Timestamp INT NOT NULL, PRIMARY KEY (UserID));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS lastPlayTimes (ModID INT NOT NULL, UserID INT NOT NULL, Timestamp INT NOT NULL, PRIMARY KEY (ModID, UserID));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS lastPlayTimes (ModID INT NOT NULL, UserID INT NOT NULL, Timestamp INT NOT NULL, PRIMARY KEY (ModID, UserID));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS teammembers (TeamID INT NOT NULL, UserID INT NOT NULL, PRIMARY KEY (TeamID, UserID));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS teammembers (TeamID INT NOT NULL, UserID INT NOT NULL, PRIMARY KEY (TeamID, UserID));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS linksClicked (NewsID INT NOT NULL, Url TEXT NOT NULL, Counter INT NOT NULL, PRIMARY KEY (NewsID, Url(256)));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS linksClicked (NewsID INT NOT NULL, Url TEXT NOT NULL, Counter INT NOT NULL, PRIMARY KEY (NewsID, Url(256)));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS editrights (ModID INT NOT NULL, UserID INT NOT NULL, PRIMARY KEY (ModID, UserID));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS editrights (ModID INT NOT NULL, UserID INT NOT NULL, PRIMARY KEY (ModID, UserID));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS userHashes (UserID INT NOT NULL, Hash TEXT NOT NULL, PRIMARY KEY (UserID, Hash(100)));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS userHashes (UserID INT NOT NULL, Hash TEXT NOT NULL, PRIMARY KEY (UserID, Hash(100)));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS userSessionInfos (UserID INT PRIMARY KEY, Mac TEXT NOT NULL, IP TEXT NOT NULL, Hash TEXT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS userSessionInfos (UserID INT PRIMARY KEY, Mac TEXT NOT NULL, IP TEXT NOT NULL, Hash TEXT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS userSettings (UserID INT NOT NULL, Entry TEXT NOT NULL, Value TEXT NOT NULL, PRIMARY KEY (UserID, Entry(100)));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS userSettings (UserID INT NOT NULL, Entry TEXT NOT NULL, Value TEXT NOT NULL, PRIMARY KEY (UserID, Entry(100)));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS bannedUsers (UserID INT PRIMARY KEY);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS bannedUsers (UserID INT PRIMARY KEY);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS bannedHashes (Hash TEXT NOT NULL, PRIMARY KEY (Hash(100)));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS bannedHashes (Hash TEXT NOT NULL, PRIMARY KEY (Hash(100)));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS provisoricalBans (UserID INT PRIMARY KEY);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS provisoricalBans (UserID INT PRIMARY KEY);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS compatibilityList (UserID INT NOT NULL, ModID INT NOT NULL, PatchID INT NOT NULL, Compatible INT NOT NULL, PRIMARY KEY (UserID, ModID, PatchID));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS compatibilityList (UserID INT NOT NULL, ModID INT NOT NULL, PatchID INT NOT NULL, Compatible INT NOT NULL, PRIMARY KEY (UserID, ModID, PatchID));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS overallSaveData (UserID INT NOT NULL, ModID INT NOT NULL, Entry TEXT NOT NULL, Value TEXT NOT NULL, PRIMARY KEY (UserID, ModID, Entry(100)));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS overallSaveData (UserID INT NOT NULL, ModID INT NOT NULL, Entry TEXT NOT NULL, Value TEXT NOT NULL, PRIMARY KEY (UserID, ModID, Entry(100)));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS userLanguages (UserID INT PRIMARY KEY, Language TEXT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS userLanguages (UserID INT PRIMARY KEY, Language TEXT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS newsWriter (UserID INT NOT NULL, Language TEXT NOT NULL, PRIMARY KEY (UserID, Language(100)));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS newsWriter (UserID INT NOT NULL, Language TEXT NOT NULL, PRIMARY KEY (UserID, Language(100)));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS gmpWhitelist (IP TEXT NOT NULL, ModID INT NOT NULL, PRIMARY KEY (ModID, IP(15)));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS gmpWhitelist (IP TEXT NOT NULL, ModID INT NOT NULL, PRIMARY KEY (ModID, IP(15)));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS multiplayerMods (ModID INT PRIMARY KEY);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS multiplayerMods (ModID INT PRIMARY KEY);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS forbiddenPatches (ModID INT NOT NULL, PatchID INT NOT NULL, PRIMARY KEY (ModID, PatchID));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS forbiddenPatches (ModID INT NOT NULL, PatchID INT NOT NULL, PRIMARY KEY (ModID, PatchID));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS startTimes (DayOfWeek INT NOT NULL, Hour INT NOT NULL, Counter INT NOT NULL, PRIMARY KEY (DayOfWeek, Hour));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS startTimes (DayOfWeek INT NOT NULL, Hour INT NOT NULL, Counter INT NOT NULL, PRIMARY KEY (DayOfWeek, Hour));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS playingTimes (DayOfWeek INT NOT NULL, Hour INT NOT NULL, Counter INT NOT NULL, PRIMARY KEY (DayOfWeek, Hour));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS playingTimes (DayOfWeek INT NOT NULL, Hour INT NOT NULL, Counter INT NOT NULL, PRIMARY KEY (DayOfWeek, Hour));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS friends (UserID INT NOT NULL, FriendID INT NOT NULL, PRIMARY KEY (UserID, FriendID));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS friends (UserID INT NOT NULL, FriendID INT NOT NULL, PRIMARY KEY (UserID, FriendID));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS chapterStats (ModID INT NOT NULL, Identifier INT NOT NULL, Guild INT NOT NULL, StatName TEXT NOT NULL, StatValue INT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS chapterStats (ModID INT NOT NULL, Identifier INT NOT NULL, Guild INT NOT NULL, StatName TEXT NOT NULL, StatValue INT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS cheaters (UserID INT PRIMARY KEY);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS cheaters (UserID INT PRIMARY KEY);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS lastUpdated (ProjectID INT PRIMARY KEY, Date INT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS lastUpdated (ProjectID INT PRIMARY KEY, Date INT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS feedbackMails (ProjectID INT PRIMARY KEY, Mail TEXT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS feedbackMails (ProjectID INT PRIMARY KEY, Mail TEXT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS discussionUrls (ProjectID INT PRIMARY KEY, Url TEXT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS discussionUrls (ProjectID INT PRIMARY KEY, Url TEXT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS playTestSurveys (SurveyID INT AUTO_INCREMENT PRIMARY KEY, ProjectID INT NOT NULL, Language TEXT NOT NULL, Enabled INT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS playTestSurveys (SurveyID INT AUTO_INCREMENT PRIMARY KEY, ProjectID INT NOT NULL, Language TEXT NOT NULL, Enabled INT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS playTestSurveyQuestions (QuestionID INT AUTO_INCREMENT PRIMARY KEY, SurveyID INT NOT NULL, Question TEXT NOT NULL) CHARACTER SET utf8;"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS playTestSurveyQuestions (QuestionID INT AUTO_INCREMENT PRIMARY KEY, SurveyID INT NOT NULL, Question TEXT NOT NULL) CHARACTER SET utf8;")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS playTestSurveyAnswers (SurveyID INT NOT NULL, UserID INT NOT NULL, QuestionID INT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL, Answer TEXT NOT NULL, PRIMARY KEY(SurveyID, UserID, QuestionID)) CHARACTER SET utf8;"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS playTestSurveyAnswers (SurveyID INT NOT NULL, UserID INT NOT NULL, QuestionID INT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL, Answer TEXT NOT NULL, PRIMARY KEY(SurveyID, UserID, QuestionID)) CHARACTER SET utf8;")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS newsticker (NewsID INT AUTO_INCREMENT PRIMARY KEY, ProjectID INT NOT NULL, Type INT NOT NULL, Date INT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS newsticker (NewsID INT AUTO_INCREMENT PRIMARY KEY, ProjectID INT NOT NULL, Type INT NOT NULL, Date INT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS updateNews (NewsID INT PRIMARY KEY, ProjectID INT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL, SavegameCompatible INT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS updateNews (NewsID INT PRIMARY KEY, ProjectID INT NOT NULL, MajorVersion INT NOT NULL, MinorVersion INT NOT NULL, PatchVersion INT NOT NULL, SavegameCompatible INT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS changelogs (NewsID INT NOT NULL, Changelog TEXT NOT NULL, Language TEXT NOT NULL, PRIMARY KEY(NewsID, Language(20))) CHARACTER SET utf8;"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS changelogs (NewsID INT NOT NULL, Changelog TEXT NOT NULL, Language TEXT NOT NULL, PRIMARY KEY(NewsID, Language(20))) CHARACTER SET utf8;")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS levels (UserID INT PRIMARY KEY, Level INT NOT NULL, XP INT NOT NULL, NextXP INT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS levels (UserID INT PRIMARY KEY, Level INT NOT NULL, XP INT NOT NULL, NextXP INT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS teamNames (TeamID INT NOT NULL, Name TEXT NOT NULL, Languages INT NOT NULL) CHARACTER SET utf8;"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS teamNames (TeamID INT NOT NULL, Name TEXT NOT NULL, Languages INT NOT NULL) CHARACTER SET utf8;")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS projectNames (ProjectID INT NOT NULL, Name TEXT NOT NULL, Languages INT NOT NULL) CHARACTER SET utf8;"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS projectNames (ProjectID INT NOT NULL, Name TEXT NOT NULL, Languages INT NOT NULL) CHARACTER SET utf8;")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS projectPrivileges (ProjectID INT NOT NULL, UserID INT NOT NULL, Privileges BIGINT NOT NULL, PRIMARY KEY (ProjectID, UserID));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS projectPrivileges (ProjectID INT NOT NULL, UserID INT NOT NULL, Privileges BIGINT NOT NULL, PRIMARY KEY (ProjectID, UserID));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS userPrivileges (UserID INT PRIMARY KEY, Privileges BIGINT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS userPrivileges (UserID INT PRIMARY KEY, Privileges BIGINT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS teamPrivileges (TeamID INT NOT NULL, UserID INT NOT NULL, Privileges BIGINT NOT NULL, PRIMARY KEY (TeamID, UserID));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS teamPrivileges (TeamID INT NOT NULL, UserID INT NOT NULL, Privileges BIGINT NOT NULL, PRIMARY KEY (TeamID, UserID));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS donations (UserID INT PRIMARY KEY, Amount INT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS donations (UserID INT PRIMARY KEY, Amount INT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS scoreOrders (ProjectID INT NOT NULL, Identifier INT NOT NULL, ScoreOrder INT NOT NULL, PRIMARY KEY (ProjectID, Identifier));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS scoreOrders (ProjectID INT NOT NULL, Identifier INT NOT NULL, ScoreOrder INT NOT NULL, PRIMARY KEY (ProjectID, Identifier));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS playersPerDay (DaysSinceEpoch INT PRIMARY KEY, PlayerCount INT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS playersPerDay (DaysSinceEpoch INT PRIMARY KEY, PlayerCount INT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS keywordsPerProject (ProjectID INT PRIMARY KEY, Keywords TEXT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS keywordsPerProject (ProjectID INT PRIMARY KEY, Keywords TEXT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS newsV2 (NewsID INT AUTO_INCREMENT PRIMARY KEY, Date INT NOT NULL) AUTO_INCREMENT=1000;"))) { // start at 1000 to keep other tables already using NewsID and not interfer with them
+	if (!database.query("CREATE TABLE IF NOT EXISTS newsV2 (NewsID INT AUTO_INCREMENT PRIMARY KEY, Date INT NOT NULL) AUTO_INCREMENT=1000;")) { // start at 1000 to keep other tables already using NewsID and not interfer with them
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS newsEntryV2 (NewsID INT NOT NULL, Language INT NOT NULL, Title TEXT NOT NULL, Body TEXT NOT NULL, PRIMARY KEY(NewsID, Language));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS newsEntryV2 (NewsID INT NOT NULL, Language INT NOT NULL, Title TEXT NOT NULL, Body TEXT NOT NULL, PRIMARY KEY(NewsID, Language));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS fileSizes (FileID INT PRIMARY KEY, CompressedSize BIGINT NOT NULL, UncompressedSize BIGINT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS fileSizes (FileID INT PRIMARY KEY, CompressedSize BIGINT NOT NULL, UncompressedSize BIGINT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS packageFileSizes (FileID INT PRIMARY KEY, CompressedSize BIGINT NOT NULL, UncompressedSize BIGINT NOT NULL);"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS packageFileSizes (FileID INT PRIMARY KEY, CompressedSize BIGINT NOT NULL, UncompressedSize BIGINT NOT NULL);")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
-	if (!database.query(std::string("CREATE TABLE IF NOT EXISTS playedPerYear (UserID INT NOT NULL, ProjectID INT NOT NULL, Year INT NOT NULL, Duration BIGINT NOT NULL, PRIMARY KEY (UserID, ProjectID, Year));"))) {
+	if (!database.query("CREATE TABLE IF NOT EXISTS playedPerYear (UserID INT NOT NULL, ProjectID INT NOT NULL, Year INT NOT NULL, Duration BIGINT NOT NULL, PRIMARY KEY (UserID, ProjectID, Year));")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 		return;
 	}
 
 	createFileserverTables();
+	createTranslatorTables();
 }
 
 void DatabaseCreator::createFileserverTables() {
@@ -392,3 +393,90 @@ void DatabaseCreator::createFileserverTables() {
 		return;
 	}
 }
+
+void DatabaseCreator::createTranslatorTables()
+{
+	MariaDBWrapper database;
+	if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, "translator", 0)) {
+		std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+
+	if (!database.query("CREATE TABLE IF NOT EXISTS names (NameID INT AUTO_INCREMENT PRIMARY KEY, Name TEXT NOT NULL, Language TEXT NOT NULL) CHARACTER SET utf8;")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query("CREATE TABLE IF NOT EXISTS texts (TextID INT AUTO_INCREMENT PRIMARY KEY, String TEXT NOT NULL, Language TEXT NOT NULL) CHARACTER SET utf8;")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query("CREATE TABLE IF NOT EXISTS dialogs (DialogID INT AUTO_INCREMENT PRIMARY KEY, Language TEXT NOT NULL) CHARACTER SET utf8;")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query("CREATE TABLE IF NOT EXISTS dialogTexts (DialogTextID INT AUTO_INCREMENT PRIMARY KEY, DialogID INT NOT NULL, String TEXT NOT NULL) CHARACTER SET utf8;")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query("CREATE TABLE IF NOT EXISTS nameDrafts (SourceID INT NOT NULL, Translation TEXT NOT NULL, Language TEXT NOT NULL, State INT NOT NULL, Timestamp INT NOT NULL, UserID INT NOT NULL, PRIMARY KEY (SourceID, Language(20))) CHARACTER SET utf8;")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query("CREATE TABLE IF NOT EXISTS textDrafts (SourceID INT NOT NULL, Translation TEXT NOT NULL, Language TEXT NOT NULL, State INT NOT NULL, Timestamp INT NOT NULL, UserID INT NOT NULL, PRIMARY KEY (SourceID, Language(20))) CHARACTER SET utf8;")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query("CREATE TABLE IF NOT EXISTS dialogDrafts (SourceID INT NOT NULL, Language TEXT NOT NULL, State INT NOT NULL, Timestamp INT NOT NULL, UserID INT NOT NULL, PRIMARY KEY (SourceID, Language(20))) CHARACTER SET utf8;")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query("CREATE TABLE IF NOT EXISTS dialogTextDrafts (SourceID INT NOT NULL, Translation TEXT NOT NULL, Language TEXT NOT NULL, PRIMARY KEY (SourceID, Language(20))) CHARACTER SET utf8;")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query("CREATE TABLE IF NOT EXISTS translationRequests (RequestID INT AUTO_INCREMENT PRIMARY KEY, Name TEXT NOT NULL, SourceLanguage TEXT NOT NULL, DestinationLanguage TEXT NOT NULL, UserID INT NOT NULL) CHARACTER SET utf8;")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query("CREATE TABLE IF NOT EXISTS nameRequests (RequestID INT NOT NULL, NameID INT NOT NULL, PRIMARY KEY (RequestID, NameID));")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query("CREATE TABLE IF NOT EXISTS textRequests (RequestID INT NOT NULL, TextID INT NOT NULL, PRIMARY KEY (RequestID, TextID));")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query("CREATE TABLE IF NOT EXISTS dialogRequests (RequestID INT NOT NULL, DialogID INT NOT NULL, PRIMARY KEY (RequestID, DialogID));")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query("CREATE TABLE IF NOT EXISTS nameTranslations (SourceID INT NOT NULL, TargetID INT NOT NULL, TargetLanguage TEXT NOT NULL, PRIMARY KEY (SourceID, TargetID));")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query("CREATE TABLE IF NOT EXISTS textTranslations (SourceID INT NOT NULL, TargetID INT NOT NULL, TargetLanguage TEXT NOT NULL, PRIMARY KEY (SourceID, TargetID));")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query("CREATE TABLE IF NOT EXISTS dialogTranslations (SourceID INT NOT NULL, TargetID INT NOT NULL, TargetLanguage TEXT NOT NULL, PRIMARY KEY (SourceID, TargetID));")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query("CREATE TABLE IF NOT EXISTS requestPermissions (RequestID INT NOT NULL, UserID INT NOT NULL, PRIMARY KEY (RequestID, UserID));")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query("CREATE TABLE IF NOT EXISTS nameDeepLTranslations (NameID INT NOT NULL, Translation TEXT NOT NULL, TargetLanguage TEXT NOT NULL, PRIMARY KEY (NameID, TargetLanguage(20)));")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query("CREATE TABLE IF NOT EXISTS textDeepLTranslations (TextID INT NOT NULL, Translation TEXT NOT NULL, TargetLanguage TEXT NOT NULL, PRIMARY KEY (TextID, TargetLanguage(20)));")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+	if (!database.query("CREATE TABLE IF NOT EXISTS dialogTextDeepLTranslations (DialogTextID INT NOT NULL, Translation TEXT NOT NULL, TargetLanguage TEXT NOT NULL, PRIMARY KEY (DialogTextID, TargetLanguage(20)));")) {
+		std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+		return;
+	}
+}
+

@@ -18,6 +18,10 @@
 
 #include "translator/AccessRightsDialog.h"
 
+#include "common/MessageStructs.h"
+
+#include "translator/TranslatorAPI.h"
+
 #include "utils/Config.h"
 #include "utils/Conversion.h"
 
@@ -31,9 +35,7 @@
 #include <QtConcurrentRun>
 #include <QVBoxLayout>
 
-#include "translator/api/TranslatorAPI.h"
-#include "translator/common/MessageStructs.h"
-
+using namespace spine::common;
 using namespace spine::translation;
 using namespace spine::utils;
 
@@ -160,7 +162,7 @@ void AccessRightsDialog::changedNameFilter(QString filter) {
 
 void AccessRightsDialog::requestUsers() {
 	QtConcurrent::run([this]() {
-		translator::common::SendTranslatorsMessage * stm = translator::api::TranslatorAPI::requestTranslators(_requestID);
+		SendTranslatorsMessage * stm = TranslatorAPI::requestTranslators(_requestID);
 		if (stm) {
 			emit receivedUserList(stm->lockedUsers, stm->translators);
 			delete stm;
@@ -169,7 +171,7 @@ void AccessRightsDialog::requestUsers() {
 }
 
 void AccessRightsDialog::changeAccessRight(QString username, bool enabled) {
-	translator::api::TranslatorAPI::changeTranslatorRights(_requestID, q2s(username), enabled);
+	TranslatorAPI::changeTranslatorRights(_requestID, q2s(username), enabled);
 }
 
 void AccessRightsDialog::restoreSettings() {

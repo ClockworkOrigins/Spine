@@ -22,13 +22,10 @@
 
 #include <QObject>
 
-namespace translator {
+namespace spine {
 namespace common {
 	class TranslationModel;
 } /* namespace common */
-} /* namespace translator */
-
-namespace spine {
 namespace translation {
 
 	class GothicParser : public QObject {
@@ -37,8 +34,8 @@ namespace translation {
 	public:
 		GothicParser(QObject * par);
 
-		void parseTexts(QString path, translator::common::TranslationModel * model);
-		void parseFile(QString filePath, translator::common::TranslationModel * model);
+		void parseTexts(QString path, common::TranslationModel * model);
+		void parseFile(QString filePath, common::TranslationModel * model);
 
 	signals:
 		void updatedProgress(int current, int max);
@@ -48,7 +45,7 @@ namespace translation {
 		std::atomic<int> _currentProgress;
 		int _maxProgress;
 
-		void parseName(QString line, translator::common::TranslationModel * model);
+		void parseName(QString line, common::TranslationModel * model);
 	};
 
 } /* namespace translation */

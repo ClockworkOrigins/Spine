@@ -44,6 +44,7 @@ namespace server {
 	class GMPServer;
 	class ManagementServer;
 	class MatchmakingServer;
+	class TranslatorServer;
 	class UploadServer;
 
 	class Server {
@@ -64,6 +65,7 @@ namespace server {
 		UploadServer * _uploadServer;
 		DatabaseServer * _databaseServer;
 		ManagementServer * _managementServer;
+		TranslatorServer * _translatorServer;
 
 		void accept(clockUtils::sockets::TcpSocket * sock);
 

@@ -18,21 +18,15 @@
 
 #pragma once
 
-#include <QDialog>
+#include "common/MessageStructs.h"
 
-#include "translator/common/MessageStructs.h"
+#include <QDialog>
 
 class QComboBox;
 class QLabel;
 class QLineEdit;
 class QProgressDialog;
 class QVBoxLayout;
-
-namespace translator {
-namespace common {
-	class TranslationModel;
-} /* namespace common */
-} /* namespace translator */
 
 namespace spine {
 namespace translation {
@@ -45,7 +39,7 @@ namespace translation {
 		~TranslationRequestDialog();
 
 	signals:
-		void receivedRequestList(std::vector<translator::common::SendOwnProjectsMessage::Project>);
+		void receivedRequestList(std::vector<common::SendOwnProjectsMessage::Project>);
 
 	private slots:
 		void openFileDialog();
@@ -53,7 +47,7 @@ namespace translation {
 		void requestTranslation();
 		void updateProgress(int current, int max);
 		void checkParsePossible();
-		void updateRequestList(std::vector<translator::common::SendOwnProjectsMessage::Project> projects);
+		void updateRequestList(std::vector<common::SendOwnProjectsMessage::Project> projects);
 		void openAccessDialog();
 		void applyTranslation();
 
@@ -64,7 +58,7 @@ namespace translation {
 		QComboBox * _destinationLanguageBox;
 		QPushButton * _parseButton;
 		QPushButton * _requestButton;
-		translator::common::TranslationModel * _model;
+		common::TranslationModel * _model;
 		QProgressDialog * _progressDialog;
 		QLabel * _nameLabel;
 		QLabel * _nameCountLabel;
