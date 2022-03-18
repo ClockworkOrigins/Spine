@@ -166,7 +166,7 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 		delete sock;
 		error = true;
 	}
-	if (!spineDatabase.query("PREPARE insertSizeStmt FROM \"INSERT INTO packageFileSizes (FileID, CompressedSize, UncompressedSize) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE CompressedSize = ?, UncompressedSize = ?\";")) {
+	if (!spineDatabase.query("PREPARE insertPackageSizeStmt FROM \"INSERT INTO packageFileSizes (FileID, CompressedSize, UncompressedSize) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE CompressedSize = ?, UncompressedSize = ?\";")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 		delete sock;
 		error = true;
