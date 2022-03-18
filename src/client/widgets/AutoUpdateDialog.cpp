@@ -112,7 +112,7 @@ void AutoUpdateDialog::checkForUpdate() {
 		
 		return;
 	}
-	common::UpdateFilesMessage * ufm = dynamic_cast<common::UpdateFilesMessage *>(m);
+	auto * ufm = dynamic_cast<common::UpdateFilesMessage *>(m);
 
 	if (ufm->files.empty()) {
 		if (_manuallyChecking) {

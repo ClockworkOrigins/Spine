@@ -59,6 +59,8 @@ void DatabaseMigrator::migrate() {
 		
 		if (!database.query("EXECUTE selectProjectNamesStmt;")) {
 			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
+			// if this happens most certainly server crashed in the last run, so force another restart until this error is gone
+			exit(1);
 			break;
 		}
 		auto results = database.getResults<std::vector<std::string>>();
