@@ -21,7 +21,7 @@
 ; TODO: Eigenschaften der Modifikation
 !define GAME_FILE "Spine"                  ; Game-Titel
 !define GAME_NAME "Spine"                  ; Game-Titel
-!define GAME_COPY "Copyright 2017 - 2020, Clockwork Origins"  ; Game-Copyright
+!define GAME_COPY "Copyright 2017 - 2022, Clockwork Origins"  ; Game-Copyright
 !define GAME_COMP "Clockwork Origins"                    ; Game-Herausgeber
 !define GAME_LINK "http://clockwork-origins.de/"     ; Herausgeber-Link
 !define GAME_HELP "http://clockwork-origins.de/contact" ; Support-Link
@@ -222,7 +222,6 @@ Section !$(NameSecModFiles) SecModFiles
   File      "@CMAKE_SOURCE_DIR@\config\*.conf"
   File      "@SPINE_DEP_DIR@\openSSL\bin\*.dll"
   File      "@SQLITE3_ROOT@\bin\sqlite3.dll"
-  File      "@TRANSLATOR_RELEASE_ROOT@\bin\*.dll"
   File      "@DISCORD_ROOT@\lib\*.dll"
   File      "@CMAKE_BINARY_DIR@\installer\Qt\*.dll"
   SetOutPath "$INSTDIR\${GAME_NAME}\bin\plugins\imageformats"
@@ -266,7 +265,7 @@ SectionEnd
 Section !un.$(NameSecModFiles) unSecModFiles
 
   SectionIn RO  ; nicht abwählbar
-  
+
   ExecWait '"$INSTDIR\bin\cleanup.exe"';
 
   ; Mod-Volume und Mod-Volume-Map entfernen
@@ -283,7 +282,7 @@ Section !un.$(NameSecModFiles) unSecModFiles
   !insertmacro CWGames_RemoveDirectory "$INSTDIR\${GAME_FILE}\copyright"
   !insertmacro CWGames_RemoveDirectory "$INSTDIR\${GAME_FILE}\media"
   !insertmacro CWGames_RemoveDirectory "$INSTDIR\${GAME_FILE}"
-  
+
   !insertmacro CWGames_DeleteFile "$INSTDIR\bin\*"
   !insertmacro CWGames_DeleteFile "$INSTDIR\bin\plugins\imageformats\*"
   !insertmacro CWGames_DeleteFile "$INSTDIR\bin\plugins\platforms\*"
@@ -297,7 +296,7 @@ Section !un.$(NameSecModFiles) unSecModFiles
   !insertmacro CWGames_RemoveDirectory "$INSTDIR\copyright"
   !insertmacro CWGames_RemoveDirectory "$INSTDIR\media"
   !insertmacro CWGames_RemoveDirectory "$INSTDIR"
-  
+
   ; Einträge im Startmenü entfernen
   SetShellVarContext all
   !insertmacro CWGames_DeleteFile "$SMPROGRAMS\Clockwork Origins\${GAME_FILE}.lnk"
@@ -355,7 +354,7 @@ SectionEnd
 
 Function .onInit
   !insertmacro MUI_LANGDLL_DISPLAY
-  
+
   Push $R0
 
   SetCurInstType 0
@@ -365,7 +364,7 @@ Function .onInit
 
   ; Kein 'unsichtbares' Setup
   SetSilent normal
-  
+
   ; $INSTDIR bereits gültig?
   IfFileExists "$INSTDIR\${GAME_NAME}\bin\${GAME_FILE}.exe" done
 
@@ -475,7 +474,7 @@ Var VerifyMessageOnce
 
 Function .onVerifyInstDir
 
-  
+
 
   done:
 FunctionEnd
