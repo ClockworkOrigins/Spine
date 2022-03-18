@@ -56,25 +56,6 @@ int TranslatorServer::run() {
 		return 1;
 	}
 
-	bool running = true;
-
-	while (running) {
-		std::cout << "Possible actions:" << std::endl;
-		std::cout << "\tx:\t\tshutdown server" << std::endl;
-
-		int c = getchar();
-
-		switch (c) {
-		case 'x': {
-			running = false;
-			break;
-		}
-		default: {
-			break;
-		}
-		}
-	}
-
 	return 0;
 }
 
