@@ -171,7 +171,7 @@ TranslationRequestDialog::TranslationRequestDialog(QWidget * par) : QDialog(par)
 
 	restoreSettings();
 
-	qRegisterMetaType<std::vector<SendOwnProjectsMessage::Project>>("std::vector<translator::common::SendOwnProjectsMessage::Project>");
+	qRegisterMetaType<std::vector<SendOwnProjectsMessage::Project>>("std::vector<spine::common::SendOwnProjectsMessage::Project>");
 	connect(this, &TranslationRequestDialog::receivedRequestList, this, &TranslationRequestDialog::updateRequestList);
 
 	requestList();

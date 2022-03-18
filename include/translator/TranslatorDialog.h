@@ -43,7 +43,7 @@ namespace translation {
 		~TranslatorDialog();
 
 	signals:
-		void receivedProjects(std::vector<common::SendProjectsMessage::Project>);
+		void receivedProjects(std::vector<spine::common::SendProjectsMessage::Project>);
 		void receivedTextToTranslate();
 		void receivedTextToReview();
 		void receivedProgress(std::pair<uint32_t, uint32_t>);
@@ -51,7 +51,7 @@ namespace translation {
 	private slots:
 		void submit();
 		void discard();
-		void updateProjects(std::vector<common::SendProjectsMessage::Project> projects);
+		void updateProjects(std::vector<spine::common::SendProjectsMessage::Project> projects);
 		void requestText();
 		void requestReview();
 		void updateTextToTranslate();

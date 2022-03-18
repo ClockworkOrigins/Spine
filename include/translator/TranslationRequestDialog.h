@@ -39,7 +39,7 @@ namespace translation {
 		~TranslationRequestDialog();
 
 	signals:
-		void receivedRequestList(std::vector<common::SendOwnProjectsMessage::Project>);
+		void receivedRequestList(std::vector<spine::common::SendOwnProjectsMessage::Project>);
 
 	private slots:
 		void openFileDialog();
@@ -47,7 +47,7 @@ namespace translation {
 		void requestTranslation();
 		void updateProgress(int current, int max);
 		void checkParsePossible();
-		void updateRequestList(std::vector<common::SendOwnProjectsMessage::Project> projects);
+		void updateRequestList(std::vector<spine::common::SendOwnProjectsMessage::Project> projects);
 		void openAccessDialog();
 		void applyTranslation();
 
