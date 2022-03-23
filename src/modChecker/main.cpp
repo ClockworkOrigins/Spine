@@ -70,7 +70,7 @@ int main(const int argc, char ** argv) {
 	timer.start();
 
 	if (modPath.endsWith("vdf", Qt::CaseInsensitive) || modPath.endsWith("mod", Qt::CaseInsensitive)) {
-		const auto result = modPath == resultPath ? spine::utils::GothicVdf::optimize(modPath, gothicVersion == "g1" ? ":/g1.txt" : ":/g2.txt") : spine::utils::GothicVdf::optimize(modPath, resultPath, gothicVersion == "g1" ? ":/g1.txt" : ":/g2.txt");
+		const auto result = modPath == resultPath ? spine::utils::GothicVdf::optimize(modPath, gothicVersion == "g1" ? ":/g1.txt" : ":/g2.txt") : spine::utils::GothicVdf::optimize(modPath, resultPath, gothicVersion);
 
 		if (result.status == spine::utils::GothicVdf::Result::Status::Fail) {
 			std::cout << "File couldn't be parsed" << std::endl;

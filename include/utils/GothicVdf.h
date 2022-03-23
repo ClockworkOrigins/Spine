@@ -56,7 +56,7 @@ namespace utils {
 
 		QString getHash(int idx) const;
 
-		QStringList getDeletableFiles(const QMap<QString, QString> & modkitFiles) const;
+		QStringList getDeletableFiles(const QMap<QString, QString> & modkitFiles, const QString & gothicVersion) const;
 
 		static Result optimize(const QString & path, const QString & gothicVersion);
 		static Result optimize(const QString & path, const QString & outFolder, const QString & gothicVersion);

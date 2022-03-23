@@ -23,6 +23,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QQueue>
+#include <QRegularExpression>
 #include <QTextStream>
 
 using namespace spine::utils;
@@ -333,7 +334,7 @@ QString GothicVdf::getHash(int idx) const {
 	return QString();
 }
 
-QStringList GothicVdf::getDeletableFiles(const QMap<QString, QString> & modkitFiles) const {
+QStringList GothicVdf::getDeletableFiles(const QMap<QString, QString> & modkitFiles, const QString & gothicVersion) const {
 	QStringList deletableFiles;
 
 	const auto files = getFiles();
@@ -354,7 +355,15 @@ QStringList GothicVdf::getDeletableFiles(const QMap<QString, QString> & modkitFi
 
 			const auto suffix = QFileInfo(copyF).suffix();
 
-			if (suffix == "mds" || suffix == "src" || suffix == "d" || suffix == "asc" || suffix == "tga" || suffix == "csl" || suffix == "3ds" || suffix == "fnt") {
+			if (it2 != modkitFiles.end()) {
+				QString modFileHash = getHash(i);
+
+				if (modFileHash == it2.value()) {
+					deletableFiles << f;
+				}
+			} else if (suffix == "src" || suffix == "d" || suffix == "asc" || suffix == "tga" || suffix == "csl" || suffix == "3ds" || suffix == "fnt") {
+				deletableFiles << f;
+			} else if (suffix == "mds" && gothicVersion != "g1") {
 				deletableFiles << f;
 			} else if (copyF.endsWith("ouinfo.inf")) {
 				deletableFiles << f;
@@ -362,14 +371,10 @@ QStringList GothicVdf::getDeletableFiles(const QMap<QString, QString> & modkitFi
 				deletableFiles << f;
 			} else if (copyF.startsWith("tools/")) {
 				deletableFiles << f;
+			} else if (copyF.contains(QRegularExpression("_compiled/[^/]+/"))) {
+				deletableFiles << f;
 			} else if (copyF.startsWith("data/scripts/content/cutscene/") && !copyF.endsWith("ou.bin")) {
 				deletableFiles << f;
-			} else if (it2 != modkitFiles.end()) {
-				QString modFileHash = getHash(i);
-
-				if (modFileHash == it2.value()) {
-					deletableFiles << f;
-				}
 			}
 		}
 	}
@@ -407,9 +412,9 @@ GothicVdf::Result GothicVdf::optimize(const QString & path, const QString & outF
 
 	const auto files = vdf.getFiles();
 
-	const auto modkitFiles = parseResource(gothicVersion);
+	const auto modkitFiles = parseResource(QString(":/%1.txt").arg(gothicVersion));
 
-	const auto deletableFiles = vdf.getDeletableFiles(modkitFiles);
+	const auto deletableFiles = vdf.getDeletableFiles(modkitFiles, gothicVersion);
 
 	result.fileCount = files.count();
 	result.strippedFileCount = deletableFiles.count();
@@ -428,8 +433,7 @@ GothicVdf::Result GothicVdf::optimize(const QString & path, const QString & outF
 	if (result.strippedFileCount > 0) {
 		vdf.write(result.resultPath);
 		vdf.close();
-	}
-	else {
+	} else {
 		vdf.close();
 		QFile::copy(path, result.resultPath);
 	}
@@ -536,9 +540,11 @@ void GothicVdf::createHeaders(const QString & path, const QMap<QString, QStringL
 			const auto p2 = list2.join("/");
 
 			for (const auto & entry : _entries) {
-				if (entry.name != name) continue;
+				if (entry.name != name)
+					continue;
 
-				if (entry.path != p2) continue;
+				if (entry.path != p2)
+					continue;
 
 				auto e = entry;
 				e.type = p == list.back() ? 0x40000000 : 0x00000000;
@@ -555,9 +561,11 @@ void GothicVdf::createHeaders(const QString & path, const QMap<QString, QStringL
 			const auto p2 = list2.join("/");
 
 			for (const auto & entry : _entries) {
-				if (entry.name != name) continue;
+				if (entry.name != name)
+					continue;
 
-				if (entry.path != p2) continue;
+				if (entry.path != p2)
+					continue;
 
 				auto e = entry;
 				e.type = p == list.back() ? 0xc0000000 : 0x80000000;
