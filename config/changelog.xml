@@ -2324,9 +2324,11 @@
 		<Enhancement language="Deutsch">ModChecker-Regeln erweitert, um mehr Dateien zu filtern</Enhancement>
 		<Bug language="Deutsch">Fehler behoben, der Übersetzer nicht funktioniert hat</Bug>
 		<Bug language="Deutsch">Fehler behoben, wodurch G1-Mods beim Upload potenziell beschädigt werden konnten</Bug>
+		<Bug language="Deutsch">Fehler behoben, wodurch Screenshots aufnehmen nicht richtig funktioniert hat</Bug>
 
 		<Enhancement language="English">Improved ModChecker rules to filter out more files</Enhancement>
 		<Bug language="English">Fixed bug that caused translator not to work</Bug>
 		<Bug language="English">Fixed bug that caused G1 mods to potentially become corrupted on upload</Bug>
+		<Bug language="English">Fixed bug that caused taking screenshots not working properly</Bug>
 	</Version>
 </Versions>
