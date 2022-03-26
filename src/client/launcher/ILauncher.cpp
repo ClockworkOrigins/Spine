@@ -435,7 +435,7 @@ void ILauncher::stopCommon() {
 
 		s.surveyID = json["SurveyID"].toString().toInt();
 
-		auto it = json.find("Questions");
+		const auto it = json.find("Questions");
 		if (it != json.end()) {
 			const auto q = it->toArray();
 			for (auto questionEntry : q) {
