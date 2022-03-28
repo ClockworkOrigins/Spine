@@ -228,6 +228,9 @@ void GothicVdf::write(const QString & outPath) const {
 	for (const auto & file : files) {
 		const auto splits = file.split("/");
 
+		if (splits[0] == "SPLASH.BMP")
+			continue;
+
 		QString path = "/";
 		for (int i = 0; i < splits.count(); i++) {
 			const auto newPath = path + "/" + splits[i];
@@ -375,6 +378,7 @@ QStringList GothicVdf::getDeletableFiles(const QMap<QString, QString> & modkitFi
 			} else if (suffix == "src" || suffix == "d") {
 				deletableFiles << f;
 			} else if (suffix == "csl" && containsOuBin) {
+				deletableFiles << f;
 			} else if (copyF.endsWith("ouinfo.inf")) {
 				deletableFiles << f;
 			} else if (copyF.startsWith("demo/")) {
@@ -544,6 +548,7 @@ void GothicVdf::createHeaders(const QString & path, const QMap<QString, QStringL
 		if (it2 == fileTree.end()) {
 			// it's a file
 			auto list2 = p.split("/", Qt::SkipEmptyParts);
+
 			auto name = list2.back();
 			list2.pop_back();
 
