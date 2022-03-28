@@ -334,16 +334,27 @@ QString GothicVdf::getHash(int idx) const {
 	return QString();
 }
 
-QStringList GothicVdf::getDeletableFiles(const QMap<QString, QString> & modkitFiles, const QString & gothicVersion) const {
+QStringList GothicVdf::getDeletableFiles(const QMap<QString, QString> & modkitFiles) const {
 	QStringList deletableFiles;
 
 	const auto files = getFiles();
+
+	auto containsOuBin = false;
+
+	for (const auto & f : files) {
+		if (!f.contains("OU.BIN", Qt::CaseInsensitive))
+			continue;
+
+		containsOuBin = true;
+
+		break;
+	}
 
 	for (int i = 0; i < files.count(); i++) {
 		auto f = files[i];
 
 		if (!f.startsWith("_WORK")) {
-			if (!f.startsWith("NINJA") && !f.startsWith("SYSTEM/AUTORUN") && !f.startsWith("/")) { // skip Ninja and Union folders
+			if (!f.startsWith("NINJA") && !f.startsWith("SYSTEM/AUTORUN") && !f.startsWith("/") && !f.contains("SPLASH.BMP", Qt::CaseInsensitive)) { // skip Ninja and Union folders
 				deletableFiles << f;
 			}
 		} else {
@@ -361,10 +372,9 @@ QStringList GothicVdf::getDeletableFiles(const QMap<QString, QString> & modkitFi
 				if (modFileHash == it2.value()) {
 					deletableFiles << f;
 				}
-			} else if (suffix == "src" || suffix == "d" || suffix == "asc" || suffix == "tga" || suffix == "csl" || suffix == "3ds" || suffix == "fnt") {
+			} else if (suffix == "src" || suffix == "d") {
 				deletableFiles << f;
-			} else if (suffix == "mds" && gothicVersion != "g1") {
-				deletableFiles << f;
+			} else if (suffix == "csl" && containsOuBin) {
 			} else if (copyF.endsWith("ouinfo.inf")) {
 				deletableFiles << f;
 			} else if (copyF.startsWith("demo/")) {
@@ -414,7 +424,7 @@ GothicVdf::Result GothicVdf::optimize(const QString & path, const QString & outF
 
 	const auto modkitFiles = parseResource(QString(":/%1.txt").arg(gothicVersion));
 
-	const auto deletableFiles = vdf.getDeletableFiles(modkitFiles, gothicVersion);
+	const auto deletableFiles = vdf.getDeletableFiles(modkitFiles);
 
 	result.fileCount = files.count();
 	result.strippedFileCount = deletableFiles.count();
