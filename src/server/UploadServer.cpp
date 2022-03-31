@@ -146,6 +146,11 @@ void UploadServer::handleUploadFiles(clockUtils::sockets::TcpSocket * sock) cons
 		error = true;
 	}
 
+	if (!spineDatabase.query("PREPARE deletePackageFileStmt FROM \"DELETE FROM optionalpackagefiles WHERE PackageID = ? AND Path = ? LIMIT 1\";")) {
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
+		delete sock;
+		error = true;
+	}
 	if (!spineDatabase.query("PREPARE selectPackageFileStmt FROM \"SELECT FileID FROM optionalpackagefiles WHERE PackageID = ? AND Path = ? LIMIT 1\";")) {
 		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << spineDatabase.getLastError() << std::endl;
 		delete sock;
