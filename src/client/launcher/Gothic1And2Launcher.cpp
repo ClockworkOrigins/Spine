@@ -2187,6 +2187,10 @@ void Gothic1And2Launcher::parseInstalledMods() {
 	if (Config::extendedLogging) {
 		LOGINFO("Checking Files in " << Config::DOWNLOADDIR.toStdString())
 	}
+
+	if (_directory.isEmpty() || !QDir(_directory).exists())
+		return;
+
 	QDirIterator it(Config::DOWNLOADDIR + "/mods", QStringList() << "*.ini", QDir::Files, QDirIterator::Subdirectories);
 	while (it.hasNext()) {
 		it.next();

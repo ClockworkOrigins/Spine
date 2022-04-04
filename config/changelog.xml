@@ -2331,4 +2331,9 @@
 		<Bug language="English">Fixed bug that caused G1 mods to potentially become corrupted on upload</Bug>
 		<Bug language="English">Fixed bug that caused taking screenshots not working properly</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="40" patchVersion="0">
+		<Bug language="Deutsch">Fehler behoben, wodurch Mods noch in der Bibliothek angezeigt wurden, obwohl das zugehörige Gothic nicht mehr installiert war</Bug>
+
+		<Bug language="English">Fixed bug that caused mods still being displayed in the library even though the corresponding Gothic wasn't installed anymore</Bug>
+	</Version>
 </Versions>

@@ -107,10 +107,15 @@ void Gothic1Launcher::setDirectory(const QString & directory) {
 	emit updatedPath();
 }
 
-void Gothic1Launcher::patchCheck() {		
-	if (!QFileInfo::exists(_directory + "/System/Gothic.exe")) return;
+void Gothic1Launcher::patchCheck() {
+	if (_directory.isEmpty() || !QDir(_directory).exists())
+		return;
 
-	if (!Config::OnlineMode) return;
+	if (!QFileInfo::exists(_directory + "/System/Gothic.exe"))
+		return;
+
+	if (!Config::OnlineMode)
+		return;
 
 	QMap<QString, QStringList> fileList;
 	fileList.insert("system/Autopan.flt", { "3b72d25d0ddeb6085657ec74b51cf5c03dc61c9f26ed75faa6ed4033ab051082e3b232b310f67bbc1e9eaf063451fe098da456e8a89699e49abbca99ac1005cb" });
