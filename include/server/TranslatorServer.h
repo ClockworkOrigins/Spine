@@ -80,12 +80,6 @@ namespace server {
 		void handleRequestTranslators(clockUtils::sockets::TcpSocket * sock, common::RequestTranslatorsMessage * msg);
 		void handleRequestTranslationDownload(clockUtils::sockets::TcpSocket * sock, common::RequestTranslationDownloadMessage * msg);
 
-		/**
-		 * \brief returns the id in the table for the username
-		 */
-		int getUserID(const std::string & username) const;
-		std::string getUsername(int id) const;
-
 		std::vector<std::pair<std::string, std::string>> getHints(const std::string & sourceLanguage, const std::string & destinationLanguage, const std::vector<std::string> & strings) const;
 		std::string toLower(const std::string & s) const;
 		std::vector<std::pair<std::string, std::string>> getHints(const std::string & sourceLanguage, const std::string & destinationLanguage, std::string s) const;

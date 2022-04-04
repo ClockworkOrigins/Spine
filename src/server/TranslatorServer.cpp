@@ -25,6 +25,7 @@
 #include <thread>
 
 #include "MariaDBWrapper.h"
+#include "ServerCommon.h"
 #include "SpineServerConfig.h"
 
 #include "common/MessageStructs.h"
@@ -128,7 +129,7 @@ void TranslatorServer::handleTranslationRequest(clockUtils::sockets::TcpSocket *
 		if (msg->translationModel->empty()) {
 			break;
 		}
-		int userID = getUserID(msg->username);
+		int userID = ServerCommon::getUserID(msg->username);
 		if (userID == -1) {
 			break;
 		}
@@ -786,7 +787,7 @@ void TranslatorServer::handleQueryTextToTranslate(clockUtils::sockets::TcpSocket
 void TranslatorServer::handleSendTranslationDraft(clockUtils::sockets::TcpSocket *, SendTranslationDraftMessage * msg) {
 	std::lock_guard<std::mutex> lg(_lock);
 	do {
-		const int userID = getUserID(msg->username);
+		const int userID = ServerCommon::getUserID(msg->username);
 		if (userID == -1) {
 			break;
 		}
@@ -934,7 +935,7 @@ void TranslatorServer::handleQueryTextToReview(clockUtils::sockets::TcpSocket * 
 	SendTextToReviewMessage sttrm;
 	sttrm.id = UINT32_MAX;
 	do {
-		int userID = getUserID(msg->username);
+		int userID = ServerCommon::getUserID(msg->username);
 		if (userID == -1) {
 			std::cout << "Invalid user" << std::endl;
 			break;
@@ -1243,7 +1244,7 @@ void TranslatorServer::handleSendTranslationReview(clockUtils::sockets::TcpSocke
 	}
 	std::lock_guard<std::mutex> lg(_lock);
 	do {
-		int userID = getUserID(msg->username);
+		int userID = ServerCommon::getUserID(msg->username);
 		if (userID == -1) {
 			break;
 		}
@@ -1623,7 +1624,7 @@ void TranslatorServer::handleSendTranslationReview(clockUtils::sockets::TcpSocke
 void TranslatorServer::handleRequestProjects(clockUtils::sockets::TcpSocket * sock, RequestProjectsMessage * msg) {
 	SendProjectsMessage spm;
 	do {
-		const int userID = getUserID(msg->username);
+		const int userID = ServerCommon::getUserID(msg->username);
 		if (userID == -1) {
 			break;
 		}
@@ -1680,7 +1681,7 @@ void TranslatorServer::handleRequestProjects(clockUtils::sockets::TcpSocket * so
 void TranslatorServer::handleRequestOwnProjects(clockUtils::sockets::TcpSocket * sock, RequestOwnProjectsMessage * msg) {
 	SendOwnProjectsMessage sopm;
 	do {
-		const int userID = getUserID(msg->username);
+		const int userID = ServerCommon::getUserID(msg->username);
 		if (userID == -1) {
 			break;
 		}
@@ -1763,7 +1764,7 @@ void TranslatorServer::handleRequestTranslators(clockUtils::sockets::TcpSocket *
 		const auto results = database.getResults<std::vector<std::string>>();
 		for (const auto & vec : results) {
 			const auto userID = std::stoi(vec[0]);
-			std::string username = getUsername(userID);
+			std::string username = ServerCommon::getUsername(userID);
 			if (!username.empty()) {
 				stm.translators.push_back(username);
 				allUsers.erase(std::remove_if(allUsers.begin(), allUsers.end(), [username](const std::string & o) { return o == username; }), allUsers.end());
@@ -1777,7 +1778,7 @@ void TranslatorServer::handleRequestTranslators(clockUtils::sockets::TcpSocket *
 
 void TranslatorServer::handleChangeTranslationRights(clockUtils::sockets::TcpSocket *, ChangeTranslationRightsMessage * msg) {
 	do {
-		const int userID = getUserID(msg->username);
+		const int userID = ServerCommon::getUserID(msg->username);
 		if (userID == -1) {
 			break;
 		}
@@ -2051,57 +2052,6 @@ void TranslatorServer::handleRequestTranslationDownload(clockUtils::sockets::Tcp
 	} while (false);
 	std::string serialized = stdm.SerializePrivate();
 	sock->writePacket(serialized);
-}
-
-int TranslatorServer::getUserID(const std::string & username) const {
-	MariaDBWrapper accountDatabase;
-	if (!accountDatabase.connect("localhost", DATABASEUSER, DATABASEPASSWORD, "master", 0)) {
-		std::cout << "Couldn't connect to database" << std::endl;
-		return -1;
-	}
-
-	if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT ID FROM accounts WHERE Username = ? LIMIT 1\";")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-		return -1;
-	}
-	if (!accountDatabase.query("SET @paramUsername='" + username + "';")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-		return -1;
-	}
-	if (!accountDatabase.query("EXECUTE selectStmt USING @paramUsername;")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-	}
-	const auto results = accountDatabase.getResults<std::vector<std::string>>();
-	accountDatabase.close();
-	if (results.empty()) {
-		return -1;
-	} else {
-		return std::stoi(results[0][0]);
-	}
-}
-
-std::string TranslatorServer::getUsername(int id) const {
-	MariaDBWrapper accountDatabase;
-	if (!accountDatabase.connect("localhost", DATABASEUSER, DATABASEPASSWORD, "master", 0)) {
-		return "";
-	}
-
-	if (!accountDatabase.query("PREPARE selectStmt FROM \"SELECT Username FROM accounts WHERE ID = ? LIMIT 1\";")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-		return "";
-	}
-	if (!accountDatabase.query("SET @paramID=" + std::to_string(id) + ";")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-		return "";
-	}
-	if (!accountDatabase.query("EXECUTE selectStmt USING @paramID;")) {
-		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
-	}
-	const auto results = accountDatabase.getResults<std::vector<std::string>>();
-	if (results.empty())
-		return "";
-
-	return results[0][0];
 }
 
 std::vector<std::pair<std::string, std::string>> TranslatorServer::getHints(const std::string & sourceLanguage, const std::string & destinationLanguage, const std::vector<std::string> & strings) const {
