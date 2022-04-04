@@ -49,7 +49,7 @@ using namespace spine::common;
 using namespace spine::translation;
 using namespace spine::utils;
 
-TranslationRequestDialog::TranslationRequestDialog(QWidget * par) : QDialog(par), _model(nullptr), _progressDialog(nullptr) {
+TranslationRequestDialog::TranslationRequestDialog(QWidget * par) : QDialog(par), _model(nullptr), _progressDialog(nullptr), _requestList(new QVBoxLayout()) {
 	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
@@ -159,7 +159,6 @@ TranslationRequestDialog::TranslationRequestDialog(QWidget * par) : QDialog(par)
 		l->addLayout(gl);
 	}
 
-	_requestList = new QVBoxLayout();
 	_requestList->setAlignment(Qt::AlignTop);
 
 	l->addLayout(_requestList);

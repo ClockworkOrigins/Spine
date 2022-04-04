@@ -23,12 +23,10 @@
 
 using namespace spine::translation;
 
-TranslationWidget::TranslationWidget(QString sourceText, QString targetText, QWidget * par) : QWidget(par), _sourceEdit(nullptr), _translationEdit(nullptr) {
+TranslationWidget::TranslationWidget(QString sourceText, QString targetText, QWidget * par) : QWidget(par), _sourceEdit(new QLineEdit(sourceText, this)), _translationEdit(new QLineEdit(targetText, this)) {
 	auto * l = new QHBoxLayout();
-	
-	_sourceEdit = new QLineEdit(sourceText, this);
+
 	_sourceEdit->setReadOnly(true);
-	_translationEdit = new QLineEdit(targetText, this);
 
 	l->addWidget(_sourceEdit);
 	l->addWidget(_translationEdit);

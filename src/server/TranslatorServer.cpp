@@ -18,17 +18,13 @@
 
 #include "TranslatorServer.h"
 
-#include <fstream>
 #include <iostream>
 #include <map>
 #include <regex>
 #include <set>
 #include <thread>
 
-#include <sys/types.h>
-
 #include "MariaDBWrapper.h"
-#include "Smtp.h"
 #include "SpineServerConfig.h"
 
 #include "common/MessageStructs.h"
@@ -39,7 +35,7 @@
 using namespace spine::common;
 using namespace spine::server;
 
-TranslatorServer::TranslatorServer() : _deepLThread(new std::thread(std::bind(&TranslatorServer::createFakeTranslation, this))), _listenClient(new clockUtils::sockets::TcpSocket()), _cleanupThread(new std::thread(std::bind(&TranslatorServer::cleanup, this))), _running(true) {
+TranslatorServer::TranslatorServer() : _listenClient(new clockUtils::sockets::TcpSocket()), _cleanupThread(new std::thread(std::bind(&TranslatorServer::cleanup, this))), _deepLThread(new std::thread(std::bind(&TranslatorServer::createFakeTranslation, this))), _running(true) {
 }
 
 TranslatorServer::~TranslatorServer() {
@@ -295,7 +291,7 @@ void TranslatorServer::handleTranslationRequest(clockUtils::sockets::TcpSocket *
 			break;
 		}
 		std::vector<std::string> names = msg->translationModel->getNames();
-		for (std::string name : names) {
+		for (const std::string & name : names) {
 			if (!database.query("SET @paramName='" + name + "';")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				break;
@@ -350,7 +346,7 @@ void TranslatorServer::handleTranslationRequest(clockUtils::sockets::TcpSocket *
 		}
 
 		std::vector<std::string> texts = msg->translationModel->getTexts();
-		for (std::string text : texts) {
+		for (const std::string & text : texts) {
 			if (!database.query("SET @paramText='" + text + "';")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				break;
@@ -410,7 +406,7 @@ void TranslatorServer::handleTranslationRequest(clockUtils::sockets::TcpSocket *
 		}
 		results = database.getResults<std::vector<std::string>>();
 		std::map<int, std::vector<std::string>> dialogTexts;
-		for (auto vec : results) {
+		for (const auto & vec : results) {
 			int dialogID = std::stoi(vec[0]);
 			std::string dialogText = vec[1];
 			dialogTexts[dialogID].push_back(dialogText);
@@ -418,8 +414,8 @@ void TranslatorServer::handleTranslationRequest(clockUtils::sockets::TcpSocket *
 		std::vector<std::vector<std::string>> dialogs = msg->translationModel->getDialogs();
 		for (std::vector<std::string> dialog : dialogs) {
 			std::string dialogID;
-			for (auto it = dialogTexts.begin(); it != dialogTexts.end(); ++it) {
-				std::vector<std::string> realDialogTexts = it->second;
+			for (auto & dialogText : dialogTexts) {
+				std::vector<std::string> realDialogTexts = dialogText.second;
 				if (dialog.size() == realDialogTexts.size()) { // Dialog already exists, so reuse id
 					bool same = true;
 					for (size_t i = 0; i < dialog.size(); i++) {
@@ -429,7 +425,7 @@ void TranslatorServer::handleTranslationRequest(clockUtils::sockets::TcpSocket *
 						}
 					}
 					if (same) {
-						dialogID = std::to_string(it->first);
+						dialogID = std::to_string(dialogText.first);
 						break;
 					}
 				}
@@ -449,7 +445,7 @@ void TranslatorServer::handleTranslationRequest(clockUtils::sockets::TcpSocket *
 					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 					break;
 				}
-				for (std::string dialogText : dialog) {
+				for (const std::string & dialogText : dialog) {
 					if (!database.query("SET @paramText='" + dialogText + "';")) {
 						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 						break;
@@ -485,7 +481,7 @@ void TranslatorServer::handleTranslationRequest(clockUtils::sockets::TcpSocket *
 						break;
 					}
 					tmpResults = database.getResults<std::vector<std::string>>();
-					for (auto vec : tmpResults) {
+					for (const auto & vec : tmpResults) {
 						if (!database.query("SET @paramDialogTextID=" + vec[0] + ";")) {
 							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 							break;
@@ -612,7 +608,7 @@ void TranslatorServer::handleQueryTextToTranslate(clockUtils::sockets::TcpSocket
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
-		if (!database.query("SET @paramWorkTimestamp=" + std::to_string(time(nullptr) + 60 * 60) + ";")) { // 1 hour time per text?
+		if (!database.query("SET @paramWorkTimestamp=" + std::to_string(time(nullptr) + 60LL * 60) + ";")) { // 1 hour time per text?
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
@@ -624,7 +620,7 @@ void TranslatorServer::handleQueryTextToTranslate(clockUtils::sockets::TcpSocket
 		results = database.getResults<std::vector<std::string>>();
 		if (!results.empty()) {
 			std::set<std::string> nameIDs;
-			for (auto vec : results) {
+			for (const auto & vec : results) {
 				nameIDs.insert(vec[0]);
 			}
 			if (!database.query("EXECUTE selectNameDraftsStmt USING @paramDestinationLanguage, @paramTimestamp;")) {
@@ -636,7 +632,7 @@ void TranslatorServer::handleQueryTextToTranslate(clockUtils::sockets::TcpSocket
 			for (size_t i = 0; i < results.size(); i++) {
 				draftIDs[i] = results[i][0];
 			}
-			for (std::string draftID : draftIDs) {
+			for (const std::string & draftID : draftIDs) {
 				if (nameIDs.find(draftID) != nameIDs.end()) {
 					if (!database.query("SET @paramNameID=" + draftID + ";")) {
 						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
@@ -660,7 +656,7 @@ void TranslatorServer::handleQueryTextToTranslate(clockUtils::sockets::TcpSocket
 					}
 					tmpResults = database.getResults<std::vector<std::string>>();
 					if (!tmpResults.empty()) {
-						stttm.hints.push_back(std::make_pair(stttm.name, tmpResults[0][0]));
+						stttm.hints.emplace_back(stttm.name, tmpResults[0][0]);
 					}
 					break;
 				}
@@ -677,7 +673,7 @@ void TranslatorServer::handleQueryTextToTranslate(clockUtils::sockets::TcpSocket
 		results = database.getResults<std::vector<std::string>>();
 		if (!results.empty()) {
 			std::set<std::string> textIDs;
-			for (auto vec : results) {
+			for (const auto & vec : results) {
 				textIDs.insert(vec[0]);
 			}
 			if (!database.query("EXECUTE selectTextDraftsStmt USING @paramDestinationLanguage, @paramTimestamp;")) {
@@ -689,7 +685,7 @@ void TranslatorServer::handleQueryTextToTranslate(clockUtils::sockets::TcpSocket
 			for (size_t i = 0; i < results.size(); i++) {
 				draftIDs[i] = results[i][0];
 			}
-			for (std::string draftID : draftIDs) {
+			for (const std::string & draftID : draftIDs) {
 				if (textIDs.find(draftID) != textIDs.end()) {
 					if (!database.query("SET @paramTextID=" + draftID + ";")) {
 						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
@@ -713,7 +709,7 @@ void TranslatorServer::handleQueryTextToTranslate(clockUtils::sockets::TcpSocket
 					}
 					tmpResults = database.getResults<std::vector<std::string>>();
 					if (!tmpResults.empty()) {
-						stttm.hints.push_back(std::make_pair(stttm.text, tmpResults[0][0]));
+						stttm.hints.emplace_back(stttm.text, tmpResults[0][0]);
 					}
 					break;
 				}
@@ -730,7 +726,7 @@ void TranslatorServer::handleQueryTextToTranslate(clockUtils::sockets::TcpSocket
 		results = database.getResults<std::vector<std::string>>();
 		if (!results.empty()) {
 			std::set<std::string> dialogIDs;
-			for (auto vec : results) {
+			for (const auto & vec : results) {
 				dialogIDs.insert(vec[0]);
 			}
 			if (!database.query("EXECUTE selectDialogDraftsStmt USING @paramDestinationLanguage, @paramTimestamp;")) {
@@ -742,7 +738,7 @@ void TranslatorServer::handleQueryTextToTranslate(clockUtils::sockets::TcpSocket
 			for (size_t i = 0; i < results.size(); i++) {
 				draftIDs[i] = results[i][0];
 			}
-			for (std::string draftID : draftIDs) {
+			for (const std::string & draftID : draftIDs) {
 				if (dialogIDs.find(draftID) != dialogIDs.end()) {
 					if (!database.query("SET @paramDialogID=" + draftID + ";")) {
 						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
@@ -759,7 +755,7 @@ void TranslatorServer::handleQueryTextToTranslate(clockUtils::sockets::TcpSocket
 					auto tmpResults = database.getResults<std::vector<std::string>>();
 					stttm.id = std::stoi(draftID);
 					std::vector<std::pair<std::string, std::string>> hints;
-					for (auto dt : tmpResults) {
+					for (const auto & dt : tmpResults) {
 						stttm.dialog.push_back(dt[1]);
 						if (!database.query("SET @paramDialogTextID=" + dt[0] + ";")) {
 							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
@@ -771,11 +767,11 @@ void TranslatorServer::handleQueryTextToTranslate(clockUtils::sockets::TcpSocket
 						}
 						auto newTmpResults = database.getResults<std::vector<std::string>>();
 						if (!newTmpResults.empty()) {
-							hints.push_back(std::make_pair(dt[1], newTmpResults[0][0]));
+							hints.emplace_back(dt[1], newTmpResults[0][0]);
 						}
 					}
 					stttm.hints = getHints(msg->sourceLanguage, msg->destinationLanguage, stttm.dialog);
-					for (auto p : hints) {
+					for (const auto & p : hints) {
 						stttm.hints.push_back(p);
 					}
 					break;
@@ -790,7 +786,7 @@ void TranslatorServer::handleQueryTextToTranslate(clockUtils::sockets::TcpSocket
 void TranslatorServer::handleSendTranslationDraft(clockUtils::sockets::TcpSocket *, SendTranslationDraftMessage * msg) {
 	std::lock_guard<std::mutex> lg(_lock);
 	do {
-		int userID = getUserID(msg->username);
+		const int userID = getUserID(msg->username);
 		if (userID == -1) {
 			break;
 		}
@@ -869,7 +865,7 @@ void TranslatorServer::handleSendTranslationDraft(clockUtils::sockets::TcpSocket
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				break;
 			}
-			std::vector<std::vector<std::string>> results = database.getResults<std::vector<std::string>>();
+			const auto results = database.getResults<std::vector<std::string>>();
 			if (results.empty()) {
 				break;
 			}
@@ -923,13 +919,13 @@ void TranslatorServer::handleRequestTranslationProgress(clockUtils::sockets::Tcp
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
-		std::vector<std::vector<std::string>> results = database.getResults<std::vector<std::string>>();
-		if (results.empty()) {
+		const auto results = database.getResults<std::vector<std::string>>();
+		if (results.empty())
 			break;
-		}
-		determineProjectProgress(uint32_t(std::stoi(results[0][0])), msg->destinationLanguage, stpm.translated, stpm.toTranslate);
+
+		determineProjectProgress(static_cast<uint32_t>(std::stoi(results[0][0])), msg->destinationLanguage, stpm.translated, stpm.toTranslate);
 	} while (false);
-	std::string serialized = stpm.SerializePrivate();
+	const std::string serialized = stpm.SerializePrivate();
 	sock->writePacket(serialized);
 }
 
@@ -1049,7 +1045,7 @@ void TranslatorServer::handleQueryTextToReview(clockUtils::sockets::TcpSocket * 
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
-		if (!database.query("SET @paramWorkTimestamp=" + std::to_string(time(nullptr) + 60 * 60) + ";")) { // 1 hour time per text?
+		if (!database.query("SET @paramWorkTimestamp=" + std::to_string(time(nullptr) + 60LL * 60) + ";")) { // 1 hour time per text?
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
@@ -1061,7 +1057,7 @@ void TranslatorServer::handleQueryTextToReview(clockUtils::sockets::TcpSocket * 
 		results = database.getResults<std::vector<std::string>>();
 		if (!results.empty()) {
 			std::set<std::string> nameIDs;
-			for (auto vec : results) {
+			for (const auto & vec : results) {
 				nameIDs.insert(vec[0]);
 			}
 			if (!database.query("EXECUTE selectNameDraftsStmt USING @paramDestinationLanguage, @paramTimestamp, @paramUserID;")) {
@@ -1073,7 +1069,7 @@ void TranslatorServer::handleQueryTextToReview(clockUtils::sockets::TcpSocket * 
 			for (size_t i = 0; i < results.size(); i++) {
 				draftIDs[i] = std::make_pair(results[i][0], results[i][1]);
 			}
-			for (auto draft : draftIDs) {
+			for (const auto & draft : draftIDs) {
 				if (nameIDs.find(draft.first) != nameIDs.end()) {
 					if (!database.query("SET @paramNameID=" + draft.first + ";")) {
 						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
@@ -1097,7 +1093,7 @@ void TranslatorServer::handleQueryTextToReview(clockUtils::sockets::TcpSocket * 
 					}
 					tmpResults = database.getResults<std::vector<std::string>>();
 					if (!tmpResults.empty()) {
-						sttrm.hints.push_back(std::make_pair(sttrm.name.first, tmpResults[0][0]));
+						sttrm.hints.emplace_back(sttrm.name.first, tmpResults[0][0]);
 					}
 					break;
 				}
@@ -1114,7 +1110,7 @@ void TranslatorServer::handleQueryTextToReview(clockUtils::sockets::TcpSocket * 
 		results = database.getResults<std::vector<std::string>>();
 		if (!results.empty()) {
 			std::set<std::string> textIDs;
-			for (auto vec : results) {
+			for (const auto & vec : results) {
 				textIDs.insert(vec[0]);
 			}
 			if (!database.query("EXECUTE selectTextDraftsStmt USING @paramDestinationLanguage, @paramTimestamp, @paramUserID;")) {
@@ -1126,7 +1122,7 @@ void TranslatorServer::handleQueryTextToReview(clockUtils::sockets::TcpSocket * 
 			for (size_t i = 0; i < results.size(); i++) {
 				draftIDs[i] = std::make_pair(results[i][0], results[i][1]);
 			}
-			for (auto draft : draftIDs) {
+			for (const auto & draft : draftIDs) {
 				if (textIDs.find(draft.first) != textIDs.end()) {
 					if (!database.query("SET @paramTextID=" + draft.first + ";")) {
 						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
@@ -1150,7 +1146,7 @@ void TranslatorServer::handleQueryTextToReview(clockUtils::sockets::TcpSocket * 
 					}
 					tmpResults = database.getResults<std::vector<std::string>>();
 					if (!tmpResults.empty()) {
-						sttrm.hints.push_back(std::make_pair(sttrm.text.first, tmpResults[0][0]));
+						sttrm.hints.emplace_back(sttrm.text.first, tmpResults[0][0]);
 					}
 					break;
 				}
@@ -1167,7 +1163,7 @@ void TranslatorServer::handleQueryTextToReview(clockUtils::sockets::TcpSocket * 
 		results = database.getResults<std::vector<std::string>>();
 		if (!results.empty()) {
 			std::set<std::string> dialogIDs;
-			for (auto vec : results) {
+			for (const auto & vec : results) {
 				dialogIDs.insert(vec[0]);
 			}
 			if (!database.query("EXECUTE selectDialogDraftsStmt USING @paramDestinationLanguage, @paramTimestamp, @paramUserID;")) {
@@ -1179,7 +1175,7 @@ void TranslatorServer::handleQueryTextToReview(clockUtils::sockets::TcpSocket * 
 			for (size_t i = 0; i < results.size(); i++) {
 				draftIDs[i] = results[i][0];
 			}
-			for (auto draftID : draftIDs) {
+			for (const auto & draftID : draftIDs) {
 				if (dialogIDs.find(draftID) != dialogIDs.end()) {
 					if (!database.query("SET @paramDialogID=" + draftID + ";")) {
 						std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
@@ -1216,12 +1212,12 @@ void TranslatorServer::handleQueryTextToReview(clockUtils::sockets::TcpSocket * 
 						}
 						auto newTmpResults = database.getResults<std::vector<std::string>>();
 						if (!newTmpResults.empty()) {
-							hints.push_back(std::make_pair(dt[1], newTmpResults[0][0]));
+							hints.emplace_back(dt[1], newTmpResults[0][0]);
 						}
 					}
 					sttrm.dialog = std::make_pair(sources, drafts);
 					sttrm.hints = getHints(msg->sourceLanguage, msg->destinationLanguage, sources);
-					for (auto p : hints) {
+					for (const auto & p : hints) {
 						sttrm.hints.push_back(p);
 					}
 					break;
@@ -1401,7 +1397,7 @@ void TranslatorServer::handleSendTranslationReview(clockUtils::sockets::TcpSocke
 				break;
 			}
 			tmpResults = database.getResults<std::vector<std::string>>();
-			for (auto vec : tmpResults) {
+			for (const auto & vec : tmpResults) {
 				if (!database.query("SET @paramNewTargetID=" + vec[0] + ";")) {
 					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 					break;
@@ -1419,7 +1415,7 @@ void TranslatorServer::handleSendTranslationReview(clockUtils::sockets::TcpSocke
 				break;
 			}
 			tmpResults = database.getResults<std::vector<std::string>>();
-			for (auto vec : tmpResults) {
+			for (const auto & vec : tmpResults) {
 				if (!database.query("SET @paramNewTargetID=" + vec[0] + ";")) {
 					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 					break;
@@ -1484,7 +1480,7 @@ void TranslatorServer::handleSendTranslationReview(clockUtils::sockets::TcpSocke
 				break;
 			}
 			tmpResults = database.getResults<std::vector<std::string>>();
-			for (auto vec : tmpResults) {
+			for (const auto & vec : tmpResults) {
 				if (!database.query("SET @paramNewTargetID=" + vec[0] + ";")) {
 					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 					break;
@@ -1502,7 +1498,7 @@ void TranslatorServer::handleSendTranslationReview(clockUtils::sockets::TcpSocke
 				break;
 			}
 			tmpResults = database.getResults<std::vector<std::string>>();
-			for (auto vec : tmpResults) {
+			for (const auto & vec : tmpResults) {
 				if (!database.query("SET @paramNewTargetID=" + vec[0] + ";")) {
 					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 					break;
@@ -1541,7 +1537,7 @@ void TranslatorServer::handleSendTranslationReview(clockUtils::sockets::TcpSocke
 				break;
 			}
 			auto results = database.getResults<std::vector<std::string>>();
-			for (auto vec : results) {
+			for (const auto & vec : results) {
 				if (!database.query("SET @paramDialogTextID=" + vec[0] + ";")) {
 					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 					break;
@@ -1572,7 +1568,7 @@ void TranslatorServer::handleSendTranslationReview(clockUtils::sockets::TcpSocke
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 				break;
 			}
-			for (std::string s : msg->dialog) {
+			for (const std::string & s : msg->dialog) {
 				if (!database.query("SET @paramTranslation='" + s + "';")) {
 					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 					break;
@@ -1588,7 +1584,7 @@ void TranslatorServer::handleSendTranslationReview(clockUtils::sockets::TcpSocke
 				break;
 			}
 			tmpResults = database.getResults<std::vector<std::string>>();
-			for (auto vec : tmpResults) {
+			for (const auto & vec : tmpResults) {
 				if (!database.query("SET @paramNewTargetID=" + vec[0] + ";")) {
 					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 					break;
@@ -1597,8 +1593,9 @@ void TranslatorServer::handleSendTranslationReview(clockUtils::sockets::TcpSocke
 					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 					break;
 				}
-				database.query("EXECUTE insertDialogTranslationStmt USING @paramDialogID, @paramNewTargetID, @paramNewDestinationLanguage;");
-				database.query("EXECUTE insertDialogTranslationStmt USING @paramNewTargetID, @paramDialogID, @paramSourceLanguage;");
+				auto b = database.query("EXECUTE insertDialogTranslationStmt USING @paramDialogID, @paramNewTargetID, @paramNewDestinationLanguage;");
+				b = database.query("EXECUTE insertDialogTranslationStmt USING @paramNewTargetID, @paramDialogID, @paramSourceLanguage;");
+				static_cast<void>(b);
 			}
 
 			if (!database.query("EXECUTE selectDialogIDsStmt USING @paramTargetID, @paramDialogID;")) {
@@ -1606,7 +1603,7 @@ void TranslatorServer::handleSendTranslationReview(clockUtils::sockets::TcpSocke
 				break;
 			}
 			tmpResults = database.getResults<std::vector<std::string>>();
-			for (auto vec : tmpResults) {
+			for (const auto & vec : tmpResults) {
 				if (!database.query("SET @paramNewTargetID=" + vec[0] + ";")) {
 					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 					break;
@@ -1615,8 +1612,9 @@ void TranslatorServer::handleSendTranslationReview(clockUtils::sockets::TcpSocke
 					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 					break;
 				}
-				database.query("EXECUTE insertDialogTranslationStmt USING @paramDialogID, @paramNewTargetID, @paramNewDestinationLanguage;");
-				database.query("EXECUTE insertDialogTranslationStmt USING @paramNewTargetID, @paramDialogID, @paramSourceLanguage;");
+				auto b = database.query("EXECUTE insertDialogTranslationStmt USING @paramDialogID, @paramNewTargetID, @paramNewDestinationLanguage;");
+				b = database.query("EXECUTE insertDialogTranslationStmt USING @paramNewTargetID, @paramDialogID, @paramSourceLanguage;");
+				static_cast<void>(b);
 			}
 		}
 	} while (false);
@@ -1625,7 +1623,7 @@ void TranslatorServer::handleSendTranslationReview(clockUtils::sockets::TcpSocke
 void TranslatorServer::handleRequestProjects(clockUtils::sockets::TcpSocket * sock, RequestProjectsMessage * msg) {
 	SendProjectsMessage spm;
 	do {
-		int userID = getUserID(msg->username);
+		const int userID = getUserID(msg->username);
 		if (userID == -1) {
 			break;
 		}
@@ -1650,9 +1648,9 @@ void TranslatorServer::handleRequestProjects(clockUtils::sockets::TcpSocket * so
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
-		std::vector<std::vector<std::string>> results = database.getResults<std::vector<std::string>>();
+		const auto results = database.getResults<std::vector<std::string>>();
 		bool isTranslator = false;
-		for (auto vec : results) {
+		for (const auto & vec : results) {
 			std::string requestID = vec[0];
 			SendProjectsMessage::Project project;
 			project.projectName = vec[1];
@@ -1675,14 +1673,14 @@ void TranslatorServer::handleRequestProjects(clockUtils::sockets::TcpSocket * so
 			spm.projects.clear();
 		}
 	} while (false);
-	std::string serialized = spm.SerializePrivate();
+	const std::string serialized = spm.SerializePrivate();
 	sock->writePacket(serialized);
 }
 
 void TranslatorServer::handleRequestOwnProjects(clockUtils::sockets::TcpSocket * sock, RequestOwnProjectsMessage * msg) {
 	SendOwnProjectsMessage sopm;
 	do {
-		int userID = getUserID(msg->username);
+		const int userID = getUserID(msg->username);
 		if (userID == -1) {
 			break;
 		}
@@ -1703,12 +1701,12 @@ void TranslatorServer::handleRequestOwnProjects(clockUtils::sockets::TcpSocket *
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
-		std::vector<std::vector<std::string>> results = database.getResults<std::vector<std::string>>();
+		const auto results = database.getResults<std::vector<std::string>>();
 		if (results.empty()) {
 			break;
 		}
-		for (auto vec : results) {
-			uint32_t requestID = uint32_t(std::stoi(vec[0]));
+		for (const auto & vec : results) {
+			const auto requestID = static_cast<uint32_t>(std::stoi(vec[0]));
 			SendOwnProjectsMessage::Project project;
 			project.requestID = requestID;
 			project.projectName = vec[1];
@@ -1718,7 +1716,7 @@ void TranslatorServer::handleRequestOwnProjects(clockUtils::sockets::TcpSocket *
 			sopm.projects.push_back(project);
 		}
 	} while (false);
-	std::string serialized = sopm.SerializePrivate();
+	const std::string serialized = sopm.SerializePrivate();
 	sock->writePacket(serialized);
 }
 
@@ -1740,8 +1738,8 @@ void TranslatorServer::handleRequestTranslators(clockUtils::sockets::TcpSocket *
 				std::cout << "Query couldn't be started: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
 				break;
 			}
-			auto lastResults = database.getResults<std::vector<std::string>>();
-			for (auto vec : lastResults) {
+			const auto lastResults = database.getResults<std::vector<std::string>>();
+			for (const auto & vec : lastResults) {
 				allUsers.push_back(vec[0]);
 			}
 		}
@@ -1762,9 +1760,9 @@ void TranslatorServer::handleRequestTranslators(clockUtils::sockets::TcpSocket *
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
-		std::vector<std::vector<std::string>> results = database.getResults<std::vector<std::string>>();
-		for (auto vec : results) {
-			uint32_t userID = uint32_t(std::stoi(vec[0]));
+		const auto results = database.getResults<std::vector<std::string>>();
+		for (const auto & vec : results) {
+			const auto userID = std::stoi(vec[0]);
 			std::string username = getUsername(userID);
 			if (!username.empty()) {
 				stm.translators.push_back(username);
@@ -1773,13 +1771,13 @@ void TranslatorServer::handleRequestTranslators(clockUtils::sockets::TcpSocket *
 		}
 		stm.lockedUsers = allUsers;
 	} while (false);
-	std::string serialized = stm.SerializePrivate();
+	const std::string serialized = stm.SerializePrivate();
 	sock->writePacket(serialized);
 }
 
 void TranslatorServer::handleChangeTranslationRights(clockUtils::sockets::TcpSocket *, ChangeTranslationRightsMessage * msg) {
 	do {
-		int userID = getUserID(msg->username);
+		const int userID = getUserID(msg->username);
 		if (userID == -1) {
 			break;
 		}
@@ -1903,7 +1901,7 @@ void TranslatorServer::handleRequestTranslationDownload(clockUtils::sockets::Tcp
 			break;
 		}
 		results = database.getResults<std::vector<std::string>>();
-		for (auto vec : results) {
+		for (const auto & vec : results) {
 			nameIDs.insert(vec[0]);
 		}
 
@@ -1912,7 +1910,7 @@ void TranslatorServer::handleRequestTranslationDownload(clockUtils::sockets::Tcp
 			break;
 		}
 		results = database.getResults<std::vector<std::string>>();
-		for (auto vec : results) {
+		for (const auto & vec : results) {
 			textIDs.insert(vec[0]);
 		}
 
@@ -1921,7 +1919,7 @@ void TranslatorServer::handleRequestTranslationDownload(clockUtils::sockets::Tcp
 			break;
 		}
 		results = database.getResults<std::vector<std::string>>();
-		for (auto vec : results) {
+		for (const auto & vec : results) {
 			dialogIDs.insert(vec[0]);
 		}
 
@@ -1933,7 +1931,7 @@ void TranslatorServer::handleRequestTranslationDownload(clockUtils::sockets::Tcp
 			break;
 		}
 		results = database.getResults<std::vector<std::string>>();
-		for (auto vec : results) {
+		for (const auto & vec : results) {
 			names.insert(std::make_pair(vec[0], vec[1]));
 		}
 
@@ -1942,7 +1940,7 @@ void TranslatorServer::handleRequestTranslationDownload(clockUtils::sockets::Tcp
 			break;
 		}
 		results = database.getResults<std::vector<std::string>>();
-		for (auto vec : results) {
+		for (const auto & vec : results) {
 			texts.insert(std::make_pair(vec[0], vec[1]));
 		}
 
@@ -1951,7 +1949,7 @@ void TranslatorServer::handleRequestTranslationDownload(clockUtils::sockets::Tcp
 			break;
 		}
 		results = database.getResults<std::vector<std::string>>();
-		for (auto vec : results) {
+		for (const auto & vec : results) {
 			dialogs[vec[0]].push_back(std::make_pair(vec[1], vec[2]));
 		}
 
@@ -1963,7 +1961,7 @@ void TranslatorServer::handleRequestTranslationDownload(clockUtils::sockets::Tcp
 			break;
 		}
 		results = database.getResults<std::vector<std::string>>();
-		for (auto vec : results) {
+		for (const auto & vec : results) {
 			namesDeepL[vec[0]] = vec[1];
 		}
 		if (!database.query("EXECUTE selectTextsDeepLStmt USING @paramDestinationLanguage;")) {
@@ -1971,7 +1969,7 @@ void TranslatorServer::handleRequestTranslationDownload(clockUtils::sockets::Tcp
 			break;
 		}
 		results = database.getResults<std::vector<std::string>>();
-		for (auto vec : results) {
+		for (const auto & vec : results) {
 			textsDeepL[vec[0]] = vec[1];
 		}
 		if (!database.query("EXECUTE selectDialogTextsDeepLStmt USING @paramDestinationLanguage;")) {
@@ -1979,7 +1977,7 @@ void TranslatorServer::handleRequestTranslationDownload(clockUtils::sockets::Tcp
 			break;
 		}
 		results = database.getResults<std::vector<std::string>>();
-		for (auto vec : results) {
+		for (const auto & vec : results) {
 			dialogTextsDeepL[vec[0]] = vec[1];
 		}
 
@@ -1991,10 +1989,10 @@ void TranslatorServer::handleRequestTranslationDownload(clockUtils::sockets::Tcp
 			break;
 		}
 		results = database.getResults<std::vector<std::string>>();
-		for (auto vec : results) {
+		for (const auto & vec : results) {
 			nameMap.insert(std::make_pair(vec[0], vec[1]));
 		}
-		for (std::string nameID : nameIDs) {
+		for (const std::string & nameID : nameIDs) {
 			auto it = nameMap.find(nameID);
 			if (it == nameMap.end()) {
 				stdm.names.insert(std::make_pair(names[nameID], namesDeepL[nameID]));
@@ -2008,10 +2006,10 @@ void TranslatorServer::handleRequestTranslationDownload(clockUtils::sockets::Tcp
 			break;
 		}
 		results = database.getResults<std::vector<std::string>>();
-		for (auto vec : results) {
+		for (const auto & vec : results) {
 			textMap.insert(std::make_pair(vec[0], vec[1]));
 		}
-		for (std::string textID : textIDs) {
+		for (const std::string & textID : textIDs) {
 			auto it = textMap.find(textID);
 			if (it == textMap.end()) {
 				stdm.texts.insert(std::make_pair(texts[textID], textsDeepL[textID]));
@@ -2025,29 +2023,29 @@ void TranslatorServer::handleRequestTranslationDownload(clockUtils::sockets::Tcp
 			break;
 		}
 		results = database.getResults<std::vector<std::string>>();
-		for (auto vec : results) {
+		for (const auto & vec : results) {
 			dialogMap.insert(std::make_pair(vec[0], vec[1]));
 		}
-		for (std::string dialogID : dialogIDs) {
+		for (const std::string & dialogID : dialogIDs) {
 			auto it = dialogMap.find(dialogID);
 			if (it == dialogMap.end()) {
 				std::vector<std::string> originalDialogList;
 				std::vector<std::string> dialogList;
-				for (auto p : dialogs[dialogID]) {
+				for (const auto & p : dialogs[dialogID]) {
 					originalDialogList.push_back(p.second);
 					dialogList.push_back(dialogTextsDeepL[p.first]);
 				}
-				stdm.dialogs.push_back(std::make_pair(originalDialogList, dialogList));
+				stdm.dialogs.emplace_back(originalDialogList, dialogList);
 			} else {
 				std::vector<std::string> originalDialogList;
-				for (auto p : dialogs[dialogID]) {
+				for (const auto & p : dialogs[dialogID]) {
 					originalDialogList.push_back(p.second);
 				}
 				std::vector<std::string> dialogList;
-				for (auto p : dialogs[it->second]) {
+				for (const auto & p : dialogs[it->second]) {
 					dialogList.push_back(p.second);
 				}
-				stdm.dialogs.push_back(std::make_pair(originalDialogList, dialogList));
+				stdm.dialogs.emplace_back(originalDialogList, dialogList);
 			}
 		}
 	} while (false);
@@ -2073,7 +2071,7 @@ int TranslatorServer::getUserID(const std::string & username) const {
 	if (!accountDatabase.query("EXECUTE selectStmt USING @paramUsername;")) {
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 	}
-	std::vector<std::vector<std::string>> results = accountDatabase.getResults<std::vector<std::string>>();
+	const auto results = accountDatabase.getResults<std::vector<std::string>>();
 	accountDatabase.close();
 	if (results.empty()) {
 		return -1;
@@ -2099,25 +2097,16 @@ std::string TranslatorServer::getUsername(int id) const {
 	if (!accountDatabase.query("EXECUTE selectStmt USING @paramID;")) {
 		std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 	}
-	std::vector<std::vector<std::string>> results = accountDatabase.getResults<std::vector<std::string>>();
-	if (results.empty()) {
+	const auto results = accountDatabase.getResults<std::vector<std::string>>();
+	if (results.empty())
 		return "";
-	} else {
-		return results[0][0];
-	}
+
+	return results[0][0];
 }
 
-void TranslatorServer::sendMail(const std::string & subject, const std::string & body) {
-	std::thread([subject, body]() {
-		const Smtp s("127.0.0.1");
-		s.sendMail("contact@clockwork-origins.de", "bonne@clockwork-origins.de", subject, body, "contact@clockwork-origins.de");
-	}).detach();
-}
-
-std::vector<std::pair<std::string, std::string>> TranslatorServer::getHints(const std::string & sourceLanguage, const std::string & destinationLanguage, std::vector<std::string> strings) const {
+std::vector<std::pair<std::string, std::string>> TranslatorServer::getHints(const std::string & sourceLanguage, const std::string & destinationLanguage, const std::vector<std::string> & strings) const {
 	std::vector<std::pair<std::string, std::string>> hints;
-	for (size_t i = 0; i < strings.size(); i++) {
-		std::string s = strings[i];
+	for (const auto & s : strings) {
 		mergeHints(getHints(sourceLanguage, destinationLanguage, s), hints);
 	}
 	return hints;
@@ -2125,8 +2114,8 @@ std::vector<std::pair<std::string, std::string>> TranslatorServer::getHints(cons
 
 std::string TranslatorServer::toLower(const std::string & s) const {
 	std::string result;
-	for (char c : s) {
-		result += char(::tolower(c));
+	for (const char c : s) {
+		result += static_cast<char>(::tolower(c));
 	}
 	return result;
 }
@@ -2194,7 +2183,7 @@ std::vector<std::pair<std::string, std::string>> TranslatorServer::getHints(cons
 		auto results = database.getResults<std::vector<std::string>>();
 		if (!results.empty()) {
 			std::map<int, std::string> names;
-			for (auto vec : results) {
+			for (const auto & vec : results) {
 				names.insert(std::make_pair(std::stoi(vec[0]), vec[1]));
 			}
 
@@ -2203,7 +2192,7 @@ std::vector<std::pair<std::string, std::string>> TranslatorServer::getHints(cons
 				break;
 			}
 			results = database.getResults<std::vector<std::string>>();
-			for (auto vec : results) {
+			for (const auto & vec : results) {
 				int sourceID = std::stoi(vec[0]);
 				auto it = names.find(sourceID);
 				if (it != names.end()) {
@@ -2218,7 +2207,7 @@ std::vector<std::pair<std::string, std::string>> TranslatorServer::getHints(cons
 							break;
 						}
 						auto tmpResults = database.getResults<std::vector<std::string>>();
-						hints.push_back(std::make_pair(it->second, tmpResults[0][0]));
+						hints.emplace_back(it->second, tmpResults[0][0]);
 					}
 				}
 			}
@@ -2231,7 +2220,7 @@ std::vector<std::pair<std::string, std::string>> TranslatorServer::getHints(cons
 		results = database.getResults<std::vector<std::string>>();
 		if (!results.empty()) {
 			std::map<int, std::string> texts;
-			for (auto vec : results) {
+			for (const auto & vec : results) {
 				texts.insert(std::make_pair(std::stoi(vec[0]), vec[1]));
 			}
 
@@ -2240,7 +2229,7 @@ std::vector<std::pair<std::string, std::string>> TranslatorServer::getHints(cons
 				break;
 			}
 			results = database.getResults<std::vector<std::string>>();
-			for (auto vec : results) {
+			for (const auto & vec : results) {
 				int sourceID = std::stoi(vec[0]);
 				auto it = texts.find(sourceID);
 				if (it != texts.end()) {
@@ -2255,7 +2244,7 @@ std::vector<std::pair<std::string, std::string>> TranslatorServer::getHints(cons
 							break;
 						}
 						auto tmpResults = database.getResults<std::vector<std::string>>();
-						hints.push_back(std::make_pair(it->second, tmpResults[0][0]));
+						hints.emplace_back(it->second, tmpResults[0][0]);
 					}
 				}
 			}
@@ -2268,7 +2257,7 @@ std::vector<std::pair<std::string, std::string>> TranslatorServer::getHints(cons
 		results = database.getResults<std::vector<std::string>>();
 		if (!results.empty()) {
 			std::map<int, std::vector<std::string>> dialogTexts;
-			for (auto vec : results) {
+			for (const auto & vec : results) {
 				dialogTexts[std::stoi(vec[0])].push_back(vec[1]);
 			}
 
@@ -2277,7 +2266,7 @@ std::vector<std::pair<std::string, std::string>> TranslatorServer::getHints(cons
 				break;
 			}
 			results = database.getResults<std::vector<std::string>>();
-			for (auto vec : results) {
+			for (const auto & vec : results) {
 				int sourceID = std::stoi(vec[0]);
 				auto it = dialogTexts.find(sourceID);
 				if (it != dialogTexts.end()) {
@@ -2286,7 +2275,7 @@ std::vector<std::pair<std::string, std::string>> TranslatorServer::getHints(cons
 						if (equals(s, text)) {
 							auto it2 = dialogTexts.find(std::stoi(vec[1]));
 							if (it2 != dialogTexts.end() && it2->second.size() == it->second.size()) {
-								hints.push_back(std::make_pair(it->second[i], it2->second[i]));
+								hints.emplace_back(it->second[i], it2->second[i]);
 							}
 						}
 					}
@@ -2299,7 +2288,7 @@ std::vector<std::pair<std::string, std::string>> TranslatorServer::getHints(cons
 }
 
 void TranslatorServer::mergeHints(const std::vector<std::pair<std::string, std::string>> & strings, std::vector<std::pair<std::string, std::string>> & hints) const {
-	for (std::pair<std::string, std::string> s : strings) {
+	for (const auto & s : strings) {
 		if (std::find_if(hints.begin(), hints.end(), [s](const std::pair<std::string, std::string> & s2) { return s.first == s2.first; }) == hints.end()) {
 			hints.push_back(s);
 		}
@@ -2311,7 +2300,7 @@ bool TranslatorServer::equals(const std::string & translatedText, const std::str
 	if (newText.find(translatedText) != std::string::npos || translatedText.find(newText) != std::string::npos) {
 		equal = true;
 	} else {
-		size_t diff = levensthein(translatedText, newText);
+		const size_t diff = levensthein(translatedText, newText);
 		if (diff <= newText.length() / 4u) { // at least 25% of the text are the same?
 			equal = true;
 		}
@@ -2395,9 +2384,9 @@ void TranslatorServer::determineProjectProgress(uint32_t requestID, const std::s
 			break;
 		}
 		auto results = database.getResults<std::vector<std::string>>();
-		toTranslate += uint32_t(results.size());
+		toTranslate += static_cast<uint32_t>(results.size());
 
-		for (auto vec : results) {
+		for (const auto & vec : results) {
 			std::string nameID = vec[0];
 			if (!database.query("SET @paramNameID=" + nameID + ";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
@@ -2408,7 +2397,7 @@ void TranslatorServer::determineProjectProgress(uint32_t requestID, const std::s
 				break;
 			}
 			auto tmpResults = database.getResults<std::vector<std::string>>();
-			translated += uint32_t(tmpResults.size());
+			translated += static_cast<uint32_t>(tmpResults.size());
 		}
 
 		if (!database.query("EXECUTE selectTextRequestsStmt USING @paramRequestID;")) {
@@ -2416,9 +2405,9 @@ void TranslatorServer::determineProjectProgress(uint32_t requestID, const std::s
 			break;
 		}
 		results = database.getResults<std::vector<std::string>>();
-		toTranslate += uint32_t(results.size());
+		toTranslate += static_cast<uint32_t>(results.size());
 
-		for (auto vec : results) {
+		for (const auto & vec : results) {
 			std::string textID = vec[0];
 			if (!database.query("SET @paramTextID=" + textID + ";")) {
 				std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
@@ -2429,7 +2418,7 @@ void TranslatorServer::determineProjectProgress(uint32_t requestID, const std::s
 				break;
 			}
 			auto tmpResults = database.getResults<std::vector<std::string>>();
-			translated += uint32_t(tmpResults.size());
+			translated += static_cast<uint32_t>(tmpResults.size());
 		}
 
 		if (!database.query("EXECUTE selectDialogRequestsStmt USING @paramRequestID;")) {
@@ -2511,7 +2500,7 @@ std::string TranslatorServer::requestDeepL(const std::string & text, const std::
 void TranslatorServer::createFakeTranslation() const {
 	return; // currently not supported
 
-	const time_t COOLDOWN = 60 * 60 * 24;
+	constexpr time_t COOLDOWN = 60LL * 60 * 24;
 	time_t startTime = time(nullptr) - COOLDOWN;
 	do {
 		const time_t currentTime = time(nullptr);
@@ -2576,7 +2565,7 @@ void TranslatorServer::createFakeTranslation() const {
 				break;
 			}
 			auto results = database.getResults<std::vector<std::string>>();
-			for (auto vec : results) {
+			for (const auto & vec : results) {
 				names.insert(std::make_pair(std::stoi(vec[0]), std::make_pair(vec[1], vec[2])));
 			}
 
@@ -2585,7 +2574,7 @@ void TranslatorServer::createFakeTranslation() const {
 				break;
 			}
 			results = database.getResults<std::vector<std::string>>();
-			for (auto vec : results) {
+			for (const auto & vec : results) {
 				texts.insert(std::make_pair(std::stoi(vec[0]), std::make_pair(vec[1], vec[2])));
 			}
 
@@ -2594,7 +2583,7 @@ void TranslatorServer::createFakeTranslation() const {
 				break;
 			}
 			results = database.getResults<std::vector<std::string>>();
-			for (auto vec : results) {
+			for (const auto & vec : results) {
 				dialogs.insert(std::make_pair(std::stoi(vec[0]), vec[1]));
 			}
 
@@ -2603,7 +2592,7 @@ void TranslatorServer::createFakeTranslation() const {
 				break;
 			}
 			results = database.getResults<std::vector<std::string>>();
-			for (auto vec : results) {
+			for (const auto & vec : results) {
 				dialogTexts.insert(std::make_pair(std::stoi(vec[1]), std::make_pair(vec[2], dialogs[std::stoi(vec[0])])));
 			}
 
@@ -2612,7 +2601,7 @@ void TranslatorServer::createFakeTranslation() const {
 				break;
 			}
 			results = database.getResults<std::vector<std::string>>();
-			for (auto vec : results) {
+			for (const auto & vec : results) {
 				namesDeepL.insert(std::make_pair(std::stoi(vec[0]), vec[1]));
 			}
 
@@ -2621,7 +2610,7 @@ void TranslatorServer::createFakeTranslation() const {
 				break;
 			}
 			results = database.getResults<std::vector<std::string>>();
-			for (auto vec : results) {
+			for (const auto & vec : results) {
 				textsDeepL.insert(std::make_pair(std::stoi(vec[0]), vec[1]));
 			}
 
@@ -2630,31 +2619,31 @@ void TranslatorServer::createFakeTranslation() const {
 				break;
 			}
 			results = database.getResults<std::vector<std::string>>();
-			for (auto vec : results) {
+			for (const auto & vec : results) {
 				dialogTextsDeepL.insert(std::make_pair(std::stoi(vec[0]), vec[1]));
 			}
 
 			std::vector<std::string> languages = { "Deutsch", "English", "Polish", "Russian" };
-			for (std::string language : languages) {
+			for (const std::string & language : languages) {
 				if (!database.query("SET @paramTargetLanguage='" + language + "';")) {
 					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 					break;
 				}
-				for (auto it = names.cbegin(); it != names.cend(); ++it) {
-					if (it->second.second == language) {
+				for (const auto & p : names) {
+					if (p.second.second == language) {
 						continue;
 					}
-					size_t count = namesDeepL.count(std::make_pair(it->first, language));
+					size_t count = namesDeepL.count(std::make_pair(p.first, language));
 					if (count == 0) {
-						std::string name = it->second.first;
+						std::string name = p.second.first;
 						name = std::regex_replace(name, std::regex("&apos;"), "'");
 
-						std::string translatedName = requestDeepL(name, it->second.second, language);
+						std::string translatedName = requestDeepL(name, p.second.second, language);
 						translatedName = std::regex_replace(translatedName, std::regex("'"), "&apos;");
 						if (translatedName.empty()) {
 							continue;
 						}
-						if (!database.query("SET @paramNameID=" + std::to_string(it->first) + ";")) {
+						if (!database.query("SET @paramNameID=" + std::to_string(p.first) + ";")) {
 							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 							break;
 						}
@@ -2668,21 +2657,21 @@ void TranslatorServer::createFakeTranslation() const {
 						}
 					}
 				}
-				for (auto it = texts.cbegin(); it != texts.cend(); ++it) {
-					if (it->second.second == language) {
+				for (const auto & p : texts) {
+					if (p.second.second == language) {
 						continue;
 					}
-					size_t count = textsDeepL.count(std::make_pair(it->first, language));
+					size_t count = textsDeepL.count(std::make_pair(p.first, language));
 					if (count == 0) {
-						std::string text = it->second.first;
+						std::string text = p.second.first;
 						text = std::regex_replace(text, std::regex("&apos;"), "'");
 
-						std::string translatedText = requestDeepL(text, it->second.second, language);
+						std::string translatedText = requestDeepL(text, p.second.second, language);
 						translatedText = std::regex_replace(translatedText, std::regex("'"), "&apos;");
 						if (translatedText.empty()) {
 							continue;
 						}
-						if (!database.query("SET @paramTextID=" + std::to_string(it->first) + ";")) {
+						if (!database.query("SET @paramTextID=" + std::to_string(p.first) + ";")) {
 							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 							break;
 						}
@@ -2696,21 +2685,21 @@ void TranslatorServer::createFakeTranslation() const {
 						}
 					}
 				}
-				for (auto it = dialogTexts.cbegin(); it != dialogTexts.cend(); ++it) {
-					if (it->second.second == language) {
+				for (const auto & p : dialogTexts) {
+					if (p.second.second == language) {
 						continue;
 					}
-					size_t count = dialogTextsDeepL.count(std::make_pair(it->first, language));
+					size_t count = dialogTextsDeepL.count(std::make_pair(p.first, language));
 					if (count == 0) {
-						std::string dialogText = it->second.first;
+						std::string dialogText = p.second.first;
 						dialogText = std::regex_replace(dialogText, std::regex("&apos;"), "'");
 
-						std::string translatedDialogText = requestDeepL(dialogText, it->second.second, language);
+						std::string translatedDialogText = requestDeepL(dialogText, p.second.second, language);
 						translatedDialogText = std::regex_replace(translatedDialogText, std::regex("'"), "&apos;");
 						if (translatedDialogText.empty()) {
 							continue;
 						}
-						if (!database.query("SET @paramDialogTextID=" + std::to_string(it->first) + ";")) {
+						if (!database.query("SET @paramDialogTextID=" + std::to_string(p.first) + ";")) {
 							std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 							break;
 						}
@@ -2733,7 +2722,7 @@ void TranslatorServer::createFakeTranslation() const {
 }
 
 void TranslatorServer::cleanup() const {
-	const time_t COOLDOWN = 60 * 60 * 24;
+	constexpr time_t COOLDOWN = 60LL * 60 * 24;
 	time_t startTime = time(nullptr) - COOLDOWN;
 	do {
 		const time_t currentTime = time(nullptr);
@@ -2777,12 +2766,12 @@ void TranslatorServer::removeDialogs() const {
 			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
 			break;
 		}
-		auto results = database.getResults<std::vector<std::string>>();
-		for (auto vec : results) {
+		const auto results = database.getResults<std::vector<std::string>>();
+		for (const auto & vec : results) {
 			std::string textID = vec[0];
 			std::string text = vec[1];
-			size_t foundSpaces = std::count(text.begin(), text.end(), ' ');
-			size_t foundUnderScores = std::count(text.begin(), text.end(), '_');
+			const size_t foundSpaces = std::count(text.begin(), text.end(), ' ');
+			const size_t foundUnderScores = std::count(text.begin(), text.end(), '_');
 			if (foundSpaces == 0 && foundUnderScores >= 2) {
 				std::cout << text << std::endl;
 				if (!database.query("SET @paramTextID=" + textID + ";")) {
@@ -2850,7 +2839,7 @@ void TranslatorServer::removeUnusedReferences() const {
 		std::set<std::string> existingRequestIDs;
 		std::set<std::string> foundRequestIDs;
 
-		for (auto vec : results) {
+		for (const auto & vec : results) {
 			existingRequestIDs.insert(vec[0]);
 		}
 
@@ -2859,7 +2848,7 @@ void TranslatorServer::removeUnusedReferences() const {
 			break;
 		}
 		results = database.getResults<std::vector<std::string>>();
-		for (auto vec : results) {
+		for (const auto & vec : results) {
 			foundRequestIDs.insert(vec[0]);
 		}
 
@@ -2868,7 +2857,7 @@ void TranslatorServer::removeUnusedReferences() const {
 			break;
 		}
 		results = database.getResults<std::vector<std::string>>();
-		for (auto vec : results) {
+		for (const auto & vec : results) {
 			foundRequestIDs.insert(vec[0]);
 		}
 
@@ -2877,11 +2866,11 @@ void TranslatorServer::removeUnusedReferences() const {
 			break;
 		}
 		results = database.getResults<std::vector<std::string>>();
-		for (auto vec : results) {
+		for (const auto & vec : results) {
 			foundRequestIDs.insert(vec[0]);
 		}
 
-		for (std::string requestID : foundRequestIDs) {
+		for (const std::string & requestID : foundRequestIDs) {
 			if (existingRequestIDs.count(requestID) == 0) {
 				if (!database.query("SET @paramRequestID=" + requestID + ";")) {
 					std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
@@ -2941,7 +2930,7 @@ void TranslatorServer::removeNewlinesFromDeepL() const {
 			break;
 		}
 		auto results = database.getResults<std::vector<std::string>>();
-		for (auto vec : results) {
+		for (const auto & vec : results) {
 			std::string translation = vec[1];
 			bool changed = false;
 			while (translation.back() == '\n') {
@@ -2973,7 +2962,7 @@ void TranslatorServer::removeNewlinesFromDeepL() const {
 			break;
 		}
 		results = database.getResults<std::vector<std::string>>();
-		for (auto vec : results) {
+		for (const auto & vec : results) {
 			std::string translation = vec[1];
 			bool changed = false;
 			while (translation.back() == '\n') {
@@ -3005,7 +2994,7 @@ void TranslatorServer::removeNewlinesFromDeepL() const {
 			break;
 		}
 		results = database.getResults<std::vector<std::string>>();
-		for (auto vec : results) {
+		for (const auto & vec : results) {
 			std::string translation = vec[1];
 			bool changed = false;
 			while (translation.back() == '\n') {

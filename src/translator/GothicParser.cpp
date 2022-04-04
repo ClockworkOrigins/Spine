@@ -100,8 +100,6 @@ void GothicParser::parseTexts(QString path, TranslationModel * model) {
 }
 
 void GothicParser::parseFile(QString filePath, TranslationModel * model) {
-	//static QMutex l;
-	//QMutexLocker lg(&l);
 	QFile f(filePath);
 	if (f.open(QIODevice::ReadOnly)) {
 		QTextStream ts(&f);

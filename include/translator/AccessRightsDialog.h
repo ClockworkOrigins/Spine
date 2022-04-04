@@ -36,7 +36,6 @@ namespace translation {
 
 	public:
 		AccessRightsDialog(uint32_t requestID, QString title, QWidget * par);
-		~AccessRightsDialog();
 
 	signals:
 		void receivedUserList(std::vector<std::string>, std::vector<std::string>);

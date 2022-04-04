@@ -152,7 +152,7 @@ void TranslatorDialog::submit() {
 		const std::string text = _textToTranslateMsg->text.empty() ? "" : q2s(_translationWidgets[0]->getTranslation());
 		std::vector<std::string> dialog;
 		if (!_textToTranslateMsg->dialog.empty()) {
-			for (TranslationWidget * tw : _translationWidgets) {
+			for (const TranslationWidget * tw : _translationWidgets) {
 				dialog.push_back(q2s(tw->getTranslation()));
 			}
 		}
@@ -168,7 +168,7 @@ void TranslatorDialog::submit() {
 		changed |= text != _textToReviewMsg->text.second;
 		std::vector<std::string> dialog;
 		if (!_textToReviewMsg->dialog.first.empty()) {
-			for (TranslationWidget * tw : _translationWidgets) {
+			for (const TranslationWidget * tw : _translationWidgets) {
 				dialog.push_back(q2s(tw->getTranslation()));
 				changed |= dialog[dialog.size() - 1] != _textToReviewMsg->dialog.second[dialog.size() - 1];
 			}
@@ -422,7 +422,7 @@ void TranslatorDialog::reset() {
 
 bool TranslatorDialog::eventFilter(QObject * o, QEvent * evt) {
 	if (evt->type() == QEvent::KeyPress) {
-		auto * keyEvent = dynamic_cast<QKeyEvent *>(evt);
+		const auto * keyEvent = dynamic_cast<QKeyEvent *>(evt);
 		if (keyEvent->key() == Qt::Key_Return) {
 			evt->ignore();
 			return false;

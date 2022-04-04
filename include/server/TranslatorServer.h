@@ -85,9 +85,8 @@ namespace server {
 		 */
 		int getUserID(const std::string & username) const;
 		std::string getUsername(int id) const;
-		void sendMail(const std::string & subject, const std::string & body);
 
-		std::vector<std::pair<std::string, std::string>> getHints(const std::string & sourceLanguage, const std::string & destinationLanguage, std::vector<std::string> strings) const;
+		std::vector<std::pair<std::string, std::string>> getHints(const std::string & sourceLanguage, const std::string & destinationLanguage, const std::vector<std::string> & strings) const;
 		std::string toLower(const std::string & s) const;
 		std::vector<std::pair<std::string, std::string>> getHints(const std::string & sourceLanguage, const std::string & destinationLanguage, std::string s) const;
 		void mergeHints(const std::vector<std::pair<std::string, std::string>> & strings, std::vector<std::pair<std::string, std::string>> & hints) const;

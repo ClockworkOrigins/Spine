@@ -76,7 +76,7 @@ void TranslationApplier::parseTexts(QString path) {
 			if (QFileInfo::exists(newPath)) {
 				QFile::remove(newPath);
 			}
-			bool b = QDir().mkpath(QFileInfo(newPath).absolutePath());
+			const bool b = QDir().mkpath(QFileInfo(newPath).absolutePath());
 			Q_UNUSED(b)
 			const bool copied = QFile::copy(filePath, newPath);
 			Q_ASSERT(copied);
@@ -131,7 +131,7 @@ void TranslationApplier::parseFile(QString filePath, QString basePath, QString t
 	newPath = newPath.replace(basePath, translatedPath);
 	const QString absolutePath = QFileInfo(newPath).absolutePath();
 	if (!QDir().exists(absolutePath)) {
-		bool b = QDir().mkpath(absolutePath);
+		const bool b = QDir().mkpath(absolutePath);
 		Q_UNUSED(b)
 	}
 	QFile inFile(filePath);

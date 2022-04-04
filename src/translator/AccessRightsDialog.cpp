@@ -104,9 +104,6 @@ AccessRightsDialog::AccessRightsDialog(uint32_t requestID, QString title, QWidge
 	requestUsers();
 }
 
-AccessRightsDialog::~AccessRightsDialog() {
-}
-
 void AccessRightsDialog::updateUserList(std::vector<std::string> userList, std::vector<std::string> translators) {
 	QSet<QString> unlockedUsers;
 	for (const std::string s : translators) {
