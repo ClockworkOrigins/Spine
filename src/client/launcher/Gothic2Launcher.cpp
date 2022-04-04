@@ -37,6 +37,7 @@
 
 #include <QAbstractButton>
 #include <QApplication>
+#include <QDir>
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QProcessEnvironment>
@@ -106,9 +107,14 @@ void Gothic2Launcher::setDirectory(const QString & directory) {
 }
 
 void Gothic2Launcher::patchCheck() {
-	if (!QFileInfo::exists(_directory + "/System/Gothic2.exe")) return;
+	if (_directory.isEmpty() || !QDir(_directory).exists())
+		return;
 
-	if (!Config::OnlineMode) return;
+	if (!QFileInfo::exists(_directory + "/System/Gothic2.exe"))
+		return;
+
+	if (!Config::OnlineMode)
+		return;
 
 	QMap<QString, QString> fileList;
 	fileList.insert("System/ar.exe", "495fdfc1797428a184bea293f96f46e7eb148ea56de4b7e4f628be1f4a9a8165c08b03c7e5245df6076fba8508ad7b521b6630ff0e33ad7fcbec7e4d2e4f10e3");
