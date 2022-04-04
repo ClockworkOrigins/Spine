@@ -32,25 +32,23 @@ SendProjectsMessage * TranslatorAPI::getProjects(const std::string & username) {
 	RequestProjectsMessage rpm;
 	rpm.username = username;
 	clockUtils::sockets::TcpSocket sock;
-	if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", TRANSLATORSERVER_PORT, 10000)) {
-		std::string serialized = rpm.SerializePublic();
-		sock.writePacket(serialized);
-		if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-			try {
-				Message * msg = Message::DeserializePublic(serialized);
-				if (msg && msg->type == MessageType::SENDPROJECTS) {
-					auto * spm = dynamic_cast<SendProjectsMessage *>(msg);
-					return spm;
-				} else {
-					return nullptr;
-				}
-			} catch (...) {
-				return nullptr;
-			}
-		} else {
-			return nullptr;
+	if (clockUtils::ClockError::SUCCESS != sock.connectToHostname("clockwork-origins.de", TRANSLATORSERVER_PORT, 10000))
+		return nullptr;
+
+	std::string serialized = rpm.SerializePublic();
+	sock.writePacket(serialized);
+	if (clockUtils::ClockError::SUCCESS != sock.receivePacket(serialized))
+		return nullptr;
+
+	try {
+		Message * msg = Message::DeserializePublic(serialized);
+		if (msg && msg->type == MessageType::SENDPROJECTS) {
+			auto * spm = dynamic_cast<SendProjectsMessage *>(msg);
+			return spm;
 		}
-	} else {
+
+		return nullptr;
+	} catch (...) {
 		return nullptr;
 	}
 }
@@ -65,21 +63,25 @@ uint32_t TranslatorAPI::requestTranslation(const std::string & username, Transla
 	trm.translationModel = model;
 	clockUtils::sockets::TcpSocket sock;
 	uint32_t id = UINT32_MAX;
-	if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", TRANSLATORSERVER_PORT, 10000)) {
-		std::string serialized = trm.SerializePublic();
-		sock.writePacket(serialized);
-		if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-			try {
-				Message * msg = Message::DeserializePublic(serialized);
-				if (msg && msg->type == MessageType::TRANSLATIONREQUESTED) {
-					const auto * trqm = dynamic_cast<TranslationRequestedMessage *>(msg);
-					id = trqm->id;
-					delete trqm;
-				}
-			} catch (...) {
-			}
+
+	if (clockUtils::ClockError::SUCCESS != sock.connectToHostname("clockwork-origins.de", TRANSLATORSERVER_PORT, 10000))
+		return id;
+
+	std::string serialized = trm.SerializePublic();
+	sock.writePacket(serialized);
+
+	if (clockUtils::ClockError::SUCCESS != sock.receivePacket(serialized))
+		return id;
+
+	try {
+		Message * msg = Message::DeserializePublic(serialized);
+		if (msg && msg->type == MessageType::TRANSLATIONREQUESTED) {
+			const auto * trqm = dynamic_cast<TranslationRequestedMessage *>(msg);
+			id = trqm->id;
+			delete trqm;
 		}
-	}
+	} catch (...) {}
+
 	return id;
 }
 
@@ -90,27 +92,24 @@ SendTextToTranslateMessage * TranslatorAPI::requestTextToTranslate(const std::st
 	qtttm.sourceLanguage = sourceLanguage;
 	qtttm.destinationLanguage = destinationLanguage;
 	clockUtils::sockets::TcpSocket sock;
-	if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", TRANSLATORSERVER_PORT, 10000)) {
-		std::string serialized = qtttm.SerializePublic();
-		sock.writePacket(serialized);
-		if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-			try {
-				Message * msg = Message::DeserializePublic(serialized);
-				if (msg && msg->type == MessageType::SENDTEXTTOTRANSLATE) {
-					auto * stttm = dynamic_cast<SendTextToTranslateMessage *>(msg);
-					return stttm;
-				} else {
-					return nullptr;
-				}
-			} catch (...) {
-				return nullptr;
-			}
-		} else {
-			return nullptr;
-		}
-	} else {
+
+	if (clockUtils::ClockError::SUCCESS != sock.connectToHostname("clockwork-origins.de", TRANSLATORSERVER_PORT, 10000))
 		return nullptr;
-	}
+
+	std::string serialized = qtttm.SerializePublic();
+	sock.writePacket(serialized);
+
+	if (clockUtils::ClockError::SUCCESS != sock.receivePacket(serialized))
+		return nullptr;
+
+	try {
+		Message * msg = Message::DeserializePublic(serialized);
+		if (msg && msg->type == MessageType::SENDTEXTTOTRANSLATE) {
+			auto * stttm = dynamic_cast<SendTextToTranslateMessage *>(msg);
+			return stttm;
+		}
+	} catch (...) {}
+	return nullptr;
 }
 
 bool TranslatorAPI::sendTranslationDraft(const std::string & username, const std::string & destinationLanguage, const std::string & name, const std::string & text, const std::vector<std::string> & dialog, uint32_t id) {
@@ -122,11 +121,13 @@ bool TranslatorAPI::sendTranslationDraft(const std::string & username, const std
 	stdm.dialog = dialog;
 	stdm.id = id;
 	clockUtils::sockets::TcpSocket sock;
-	if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", TRANSLATORSERVER_PORT, 10000)) {
-		std::string serialized = stdm.SerializePublic();
-		return sock.writePacket(serialized) == clockUtils::ClockError::SUCCESS;
-	}
-	return false;
+
+	if (clockUtils::ClockError::SUCCESS != sock.connectToHostname("clockwork-origins.de", TRANSLATORSERVER_PORT, 10000))
+		return false;
+
+	std::string serialized = stdm.SerializePublic();
+
+	return sock.writePacket(serialized) == clockUtils::ClockError::SUCCESS;
 }
 
 SendTextToReviewMessage * TranslatorAPI::requestTextToReview(const std::string & username, const std::string & projectName, const std::string & sourceLanguage, const std::string & destinationLanguage) {
@@ -136,27 +137,25 @@ SendTextToReviewMessage * TranslatorAPI::requestTextToReview(const std::string &
 	qttrm.sourceLanguage = sourceLanguage;
 	qttrm.destinationLanguage = destinationLanguage;
 	clockUtils::sockets::TcpSocket sock;
-	if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", TRANSLATORSERVER_PORT, 10000)) {
-		std::string serialized = qttrm.SerializePublic();
-		sock.writePacket(serialized);
-		if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-			try {
-				Message * msg = Message::DeserializePublic(serialized);
-				if (msg && msg->type == MessageType::SENDTEXTTOREVIEW) {
-					auto * sttrm = dynamic_cast<SendTextToReviewMessage *>(msg);
-					return sttrm;
-				} else {
-					return nullptr;
-				}
-			} catch (...) {
-				return nullptr;
-			}
-		} else {
-			return nullptr;
-		}
-	} else {
+
+	if (clockUtils::ClockError::SUCCESS != sock.connectToHostname("clockwork-origins.de", TRANSLATORSERVER_PORT, 10000))
 		return nullptr;
-	}
+
+	std::string serialized = qttrm.SerializePublic();
+	sock.writePacket(serialized);
+
+	if (clockUtils::ClockError::SUCCESS != sock.receivePacket(serialized))
+		return nullptr;
+
+	try {
+		Message * msg = Message::DeserializePublic(serialized);
+		if (msg && msg->type == MessageType::SENDTEXTTOREVIEW) {
+			auto * sttrm = dynamic_cast<SendTextToReviewMessage *>(msg);
+			return sttrm;
+		}
+	} catch (...) {}
+
+	return nullptr;
 }
 
 bool TranslatorAPI::sendTranslationReview(const std::string & username, const std::string & sourceLanguage, const std::string & destinationLanguage, const std::string & name, const std::string & text, const std::vector<std::string> & dialog, uint32_t id, bool changed) {
@@ -170,11 +169,12 @@ bool TranslatorAPI::sendTranslationReview(const std::string & username, const st
 	strm.id = id;
 	strm.changed = changed;
 	clockUtils::sockets::TcpSocket sock;
-	if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", TRANSLATORSERVER_PORT, 10000)) {
-		const std::string serialized = strm.SerializePublic();
-		return sock.writePacket(serialized) == clockUtils::ClockError::SUCCESS;
-	}
-	return false;
+
+	if (clockUtils::ClockError::SUCCESS != sock.connectToHostname("clockwork-origins.de", TRANSLATORSERVER_PORT, 10000))
+		return false;
+
+	const std::string serialized = strm.SerializePublic();
+	return sock.writePacket(serialized) == clockUtils::ClockError::SUCCESS;
 }
 
 std::pair<uint32_t, uint32_t> TranslatorAPI::requestTranslationProgress(const std::string & projectName, const std::string & sourceLanguage, const std::string & destinationLanguage) {
@@ -184,21 +184,25 @@ std::pair<uint32_t, uint32_t> TranslatorAPI::requestTranslationProgress(const st
 	rtpm.destinationLanguage = destinationLanguage;
 	std::pair<uint32_t, uint32_t> progress;
 	clockUtils::sockets::TcpSocket sock;
-	if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", TRANSLATORSERVER_PORT, 10000)) {
-		std::string serialized = rtpm.SerializePublic();
-		sock.writePacket(serialized);
-		if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-			try {
-				Message * msg = Message::DeserializePublic(serialized);
-				if (msg && msg->type == MessageType::SENDTRANSLATIONPROGRESS) {
-					auto * stpm = dynamic_cast<SendTranslationProgressMessage *>(msg);
-					progress = std::make_pair(stpm->translated, stpm->toTranslate);
-					delete stpm;
-				}
-			} catch (...) {
-			}
+
+	if (clockUtils::ClockError::SUCCESS != sock.connectToHostname("clockwork-origins.de", TRANSLATORSERVER_PORT, 10000))
+		return progress;
+
+	std::string serialized = rtpm.SerializePublic();
+	sock.writePacket(serialized);
+
+	if (clockUtils::ClockError::SUCCESS != sock.receivePacket(serialized))
+		return progress;
+
+	try {
+		Message * msg = Message::DeserializePublic(serialized);
+		if (msg && msg->type == MessageType::SENDTRANSLATIONPROGRESS) {
+			auto * stpm = dynamic_cast<SendTranslationProgressMessage *>(msg);
+			progress = std::make_pair(stpm->translated, stpm->toTranslate);
+			delete stpm;
 		}
-	}
+	} catch (...) {}
+
 	return progress;
 }
 
@@ -206,54 +210,50 @@ SendOwnProjectsMessage * TranslatorAPI::requestOwnProjects(const std::string & u
 	RequestOwnProjectsMessage ropm;
 	ropm.username = username;
 	clockUtils::sockets::TcpSocket sock;
-	if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", TRANSLATORSERVER_PORT, 10000)) {
-		std::string serialized = ropm.SerializePublic();
-		sock.writePacket(serialized);
-		if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-			try {
-				Message * msg = Message::DeserializePublic(serialized);
-				if (msg && msg->type == MessageType::SENDOWNPROJECTS) {
-					auto * sopm = dynamic_cast<SendOwnProjectsMessage *>(msg);
-					return sopm;
-				} else {
-					return nullptr;
-				}
-			} catch (...) {
-				return nullptr;
-			}
-		} else {
-			return nullptr;
-		}
-	} else {
+
+	if (clockUtils::ClockError::SUCCESS != sock.connectToHostname("clockwork-origins.de", TRANSLATORSERVER_PORT, 10000))
 		return nullptr;
-	}
+
+	std::string serialized = ropm.SerializePublic();
+	sock.writePacket(serialized);
+
+	if (clockUtils::ClockError::SUCCESS != sock.receivePacket(serialized))
+		return nullptr;
+
+	try {
+		Message * msg = Message::DeserializePublic(serialized);
+		if (msg && msg->type == MessageType::SENDOWNPROJECTS) {
+			auto * sopm = dynamic_cast<SendOwnProjectsMessage *>(msg);
+			return sopm;
+		}
+	} catch (...) {}
+
+	return nullptr;
 }
 
 SendTranslatorsMessage * TranslatorAPI::requestTranslators(uint32_t requestID) {
 	RequestTranslatorsMessage rtm;
 	rtm.requestID = requestID;
 	clockUtils::sockets::TcpSocket sock;
-	if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", TRANSLATORSERVER_PORT, 10000)) {
-		std::string serialized = rtm.SerializePublic();
-		sock.writePacket(serialized);
-		if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-			try {
-				Message * msg = Message::DeserializePublic(serialized);
-				if (msg && msg->type == MessageType::SENDTRANSLATORS) {
-					auto * stm = dynamic_cast<SendTranslatorsMessage *>(msg);
-					return stm;
-				} else {
-					return nullptr;
-				}
-			} catch (...) {
-				return nullptr;
-			}
-		} else {
-			return nullptr;
-		}
-	} else {
+
+	if (clockUtils::ClockError::SUCCESS != sock.connectToHostname("clockwork-origins.de", TRANSLATORSERVER_PORT, 10000))
 		return nullptr;
-	}
+
+	std::string serialized = rtm.SerializePublic();
+	sock.writePacket(serialized);
+
+	if (clockUtils::ClockError::SUCCESS != sock.receivePacket(serialized))
+		return nullptr;
+
+	try {
+		Message * msg = Message::DeserializePublic(serialized);
+		if (msg && msg->type == MessageType::SENDTRANSLATORS) {
+			auto * stm = dynamic_cast<SendTranslatorsMessage *>(msg);
+			return stm;
+		}
+	} catch (...) {}
+
+	return nullptr;
 }
 
 void TranslatorAPI::changeTranslatorRights(uint32_t requestID, const std::string & username, bool accessRights) {
@@ -262,35 +262,35 @@ void TranslatorAPI::changeTranslatorRights(uint32_t requestID, const std::string
 	ctrm.requestID = requestID;
 	ctrm.accessRights = accessRights;
 	clockUtils::sockets::TcpSocket sock;
-	if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", TRANSLATORSERVER_PORT, 10000)) {
-		const std::string serialized = ctrm.SerializePublic();
-		sock.writePacket(serialized);
-	}
+
+	if (clockUtils::ClockError::SUCCESS != sock.connectToHostname("clockwork-origins.de", TRANSLATORSERVER_PORT, 10000))
+		return;
+
+	const std::string serialized = ctrm.SerializePublic();
+	sock.writePacket(serialized);
 }
 
 SendTranslationDownloadMessage * TranslatorAPI::requestTranslationDownload(uint32_t requestID) {
 	RequestTranslationDownloadMessage rtdm;
 	rtdm.requestID = requestID;
 	clockUtils::sockets::TcpSocket sock;
-	if (clockUtils::ClockError::SUCCESS == sock.connectToHostname("clockwork-origins.de", TRANSLATORSERVER_PORT, 10000)) {
-		std::string serialized = rtdm.SerializePublic();
-		sock.writePacket(serialized);
-		if (clockUtils::ClockError::SUCCESS == sock.receivePacket(serialized)) {
-			try {
-				Message * msg = Message::DeserializePublic(serialized);
-				if (msg && msg->type == MessageType::SENDTRANSLATIONDOWNLOAD) {
-					auto * stdm = dynamic_cast<SendTranslationDownloadMessage *>(msg);
-					return stdm;
-				} else {
-					return nullptr;
-				}
-			} catch (...) {
-				return nullptr;
-			}
-		} else {
-			return nullptr;
-		}
-	} else {
+
+	if (clockUtils::ClockError::SUCCESS != sock.connectToHostname("clockwork-origins.de", TRANSLATORSERVER_PORT, 10000))
 		return nullptr;
-	}
+
+	std::string serialized = rtdm.SerializePublic();
+	sock.writePacket(serialized);
+
+	if (clockUtils::ClockError::SUCCESS != sock.receivePacket(serialized))
+		return nullptr;
+
+	try {
+		Message * msg = Message::DeserializePublic(serialized);
+		if (msg && msg->type == MessageType::SENDTRANSLATIONDOWNLOAD) {
+			auto * stdm = dynamic_cast<SendTranslationDownloadMessage *>(msg);
+			return stdm;
+		}
+	} catch (...) {}
+
+	return nullptr;
 }
