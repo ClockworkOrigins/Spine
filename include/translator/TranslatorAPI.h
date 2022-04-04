@@ -22,6 +22,8 @@
 #include <string>
 #include <vector>
 
+#include <QString>
+
 namespace spine {
 namespace common {
 	class TranslationModel;
@@ -59,6 +61,8 @@ namespace translation {
 		static void changeTranslatorRights(uint32_t requestID, const std::string & username, bool accessRights);
 
 		static common::SendTranslationDownloadMessage * requestTranslationDownload(uint32_t requestID);
+
+		static QString requestCsvDownload(uint32_t requestID);
 	};
 
 } /* namespace translation */

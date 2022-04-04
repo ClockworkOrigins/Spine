@@ -40,6 +40,7 @@ namespace translation {
 
 	signals:
 		void receivedRequestList(std::vector<spine::common::SendOwnProjectsMessage::Project>);
+		void downloadedCsv();
 
 	private slots:
 		void openFileDialog();
@@ -50,6 +51,7 @@ namespace translation {
 		void updateRequestList(std::vector<spine::common::SendOwnProjectsMessage::Project> projects);
 		void openAccessDialog();
 		void applyTranslation();
+		void downloadCsv();
 
 	private:
 		QLineEdit * _pathEdit;

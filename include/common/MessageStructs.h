@@ -1015,5 +1015,31 @@ namespace common {
 		}
 	};
 
+	struct RequestCsvDownloadMessage : public Message {
+		uint32_t requestID;
+
+		RequestCsvDownloadMessage() : Message(), requestID() {
+			type = MessageType::REQUESTCSVDOWNLOAD;
+		}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & boost::serialization::base_object<Message>(*this);
+			ar & requestID;
+		}
+	};
+
+	struct SendCsvDownloadMessage : public Message {
+		std::string csvString;
+
+		SendCsvDownloadMessage() : Message() {
+			type = MessageType::SENDCSVDOWNLOAD;
+		}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int /* file_version */) {
+			ar & boost::serialization::base_object<Message>(*this);
+			ar & csvString;
+		}
+	};
+
 } /* namespace common */
 } /* namespace spine */

@@ -106,6 +106,9 @@ void TranslatorServer::receiveMessage(const std::vector<uint8_t> & message, cloc
 			} else if (m->type == MessageType::REQUESTTRANSLATIONDOWNLOAD) {
 				auto * msg = dynamic_cast<RequestTranslationDownloadMessage *>(m);
 				handleRequestTranslationDownload(sock, msg);
+			} else if (m->type == MessageType::REQUESTCSVDOWNLOAD) {
+				auto * msg = dynamic_cast<RequestCsvDownloadMessage *>(m);
+				handleRequestCsvDownload(sock, msg);
 			} else {
 				std::cerr << "unexpected control message arrived: " << static_cast<int>(m->type) << std::endl;
 				delete m;
@@ -2051,6 +2054,235 @@ void TranslatorServer::handleRequestTranslationDownload(clockUtils::sockets::Tcp
 		}
 	} while (false);
 	std::string serialized = stdm.SerializePrivate();
+	sock->writePacket(serialized);
+}
+
+void TranslatorServer::handleRequestCsvDownload(clockUtils::sockets::TcpSocket * sock, RequestCsvDownloadMessage * msg) {
+	SendCsvDownloadMessage scdm;
+	scdm.csvString = "Original\tDeepL\tTranslation\n";
+	do {
+		MariaDBWrapper database;
+		if (!database.connect("localhost", DATABASEUSER, DATABASEPASSWORD, "translator", 0)) {
+			std::cout << "Couldn't connect to database: " << __LINE__ << /*" " << database.getLastError() <<*/ std::endl;
+			break;
+		}
+		if (!database.query("PREPARE selectDestinationLanguageStmt FROM \"SELECT DestinationLanguage FROM translationRequests WHERE RequestID = ? LIMIT 1\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("PREPARE selectNameRequestsStmt FROM \"SELECT NameID FROM nameRequests WHERE RequestID = ?\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("PREPARE selectTextRequestsStmt FROM \"SELECT TextID FROM textRequests WHERE RequestID = ?\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("PREPARE selectDialogRequestsStmt FROM \"SELECT DialogID FROM dialogRequests WHERE RequestID = ?\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("PREPARE selectNamesStmt FROM \"SELECT NameID, Name FROM names\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("PREPARE selectTextsStmt FROM \"SELECT TextID, String FROM texts\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("PREPARE selectDialogTextsStmt FROM \"SELECT DialogID, DialogTextID, String FROM dialogTexts ORDER BY DialogTextID ASC\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("PREPARE selectNameTranslationsStmt FROM \"SELECT SourceID, TargetID FROM nameTranslations WHERE TargetLanguage = CONVERT(? USING BINARY)\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("PREPARE selectTextTranslationsStmt FROM \"SELECT SourceID, TargetID FROM textTranslations WHERE TargetLanguage = CONVERT(? USING BINARY)\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("PREPARE selectDialogTranslationsStmt FROM \"SELECT SourceID, TargetID FROM dialogTranslations WHERE TargetLanguage = CONVERT(? USING BINARY)\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("PREPARE selectNamesDeepLStmt FROM \"SELECT NameID, CAST(Translation AS BINARY) FROM nameDeepLTranslations WHERE TargetLanguage = CONVERT(? USING BINARY)\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("PREPARE selectTextsDeepLStmt FROM \"SELECT TextID, CAST(Translation AS BINARY) FROM textDeepLTranslations WHERE TargetLanguage = CONVERT(? USING BINARY)\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("PREPARE selectDialogTextsDeepLStmt FROM \"SELECT DialogTextID, CAST(Translation AS BINARY) FROM dialogTextDeepLTranslations WHERE TargetLanguage = CONVERT(? USING BINARY)\";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("SET @paramRequestID=" + std::to_string(msg->requestID) + ";")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		if (!database.query("EXECUTE selectDestinationLanguageStmt USING @paramRequestID;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		std::vector<std::vector<std::string>> results = database.getResults<std::vector<std::string>>();
+		if (results.empty()) {
+			break;
+		}
+		if (!database.query("SET @paramDestinationLanguage='" + results[0][0] + "';")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+
+		std::set<std::string> nameIDs;
+		std::set<std::string> textIDs;
+		std::set<std::string> dialogIDs;
+		if (!database.query("EXECUTE selectNameRequestsStmt USING @paramRequestID;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		results = database.getResults<std::vector<std::string>>();
+		for (const auto & vec : results) {
+			nameIDs.insert(vec[0]);
+		}
+
+		if (!database.query("EXECUTE selectTextRequestsStmt USING @paramRequestID;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		results = database.getResults<std::vector<std::string>>();
+		for (const auto & vec : results) {
+			textIDs.insert(vec[0]);
+		}
+
+		if (!database.query("EXECUTE selectDialogRequestsStmt USING @paramRequestID;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		results = database.getResults<std::vector<std::string>>();
+		for (const auto & vec : results) {
+			dialogIDs.insert(vec[0]);
+		}
+
+		std::map<std::string, std::string> names;
+		std::map<std::string, std::string> texts;
+		std::map<std::string, std::vector<std::pair<std::string, std::string>>> dialogs;
+		if (!database.query("EXECUTE selectNamesStmt;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		results = database.getResults<std::vector<std::string>>();
+		for (const auto & vec : results) {
+			names.insert(std::make_pair(vec[0], vec[1]));
+		}
+
+		if (!database.query("EXECUTE selectTextsStmt;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		results = database.getResults<std::vector<std::string>>();
+		for (const auto & vec : results) {
+			texts.insert(std::make_pair(vec[0], vec[1]));
+		}
+
+		if (!database.query("EXECUTE selectDialogTextsStmt;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		results = database.getResults<std::vector<std::string>>();
+		for (const auto & vec : results) {
+			dialogs[vec[0]].push_back(std::make_pair(vec[1], vec[2]));
+		}
+
+		std::map<std::string, std::string> namesDeepL;
+		std::map<std::string, std::string> textsDeepL;
+		std::map<std::string, std::string> dialogTextsDeepL;
+		if (!database.query("EXECUTE selectNamesDeepLStmt USING @paramDestinationLanguage;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		results = database.getResults<std::vector<std::string>>();
+		for (const auto & vec : results) {
+			namesDeepL[vec[0]] = vec[1];
+		}
+		if (!database.query("EXECUTE selectTextsDeepLStmt USING @paramDestinationLanguage;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		results = database.getResults<std::vector<std::string>>();
+		for (const auto & vec : results) {
+			textsDeepL[vec[0]] = vec[1];
+		}
+		if (!database.query("EXECUTE selectDialogTextsDeepLStmt USING @paramDestinationLanguage;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		results = database.getResults<std::vector<std::string>>();
+		for (const auto & vec : results) {
+			dialogTextsDeepL[vec[0]] = vec[1];
+		}
+
+		std::map<std::string, std::string> nameMap;
+		std::map<std::string, std::string> textMap;
+		std::map<std::string, std::string> dialogMap;
+		if (!database.query("EXECUTE selectNameTranslationsStmt USING @paramDestinationLanguage;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		results = database.getResults<std::vector<std::string>>();
+		for (const auto & vec : results) {
+			nameMap.insert(std::make_pair(vec[0], vec[1]));
+		}
+		for (const std::string & nameID : nameIDs) {
+			scdm.csvString += names[nameID] + "\t";
+			scdm.csvString += namesDeepL[nameID] + "\t";
+
+			auto it = nameMap.find(nameID);
+
+			scdm.csvString = (it != nameMap.end() ? names[it->second] : "") + "\n";
+		}
+
+		if (!database.query("EXECUTE selectTextTranslationsStmt USING @paramDestinationLanguage;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		results = database.getResults<std::vector<std::string>>();
+		for (const auto & vec : results) {
+			textMap.insert(std::make_pair(vec[0], vec[1]));
+		}
+		for (const std::string & textID : textIDs) {
+			scdm.csvString += texts[textID] + "\t";
+			scdm.csvString += textsDeepL[textID] + "\t";
+
+			auto it = textMap.find(textID);
+
+			scdm.csvString = (it != textMap.end() ? texts[it->second] : "") + "\n";
+		}
+
+		if (!database.query("EXECUTE selectDialogTranslationsStmt USING @paramDestinationLanguage;")) {
+			std::cout << "Query couldn't be started: " << __LINE__ << std::endl;
+			break;
+		}
+		results = database.getResults<std::vector<std::string>>();
+		for (const auto & vec : results) {
+			dialogMap.insert(std::make_pair(vec[0], vec[1]));
+		}
+		for (const std::string & dialogID : dialogIDs) {
+			int i = 0;
+			auto it = dialogMap.find(dialogID);
+
+			for (const auto & p : dialogs[dialogID]) {
+				scdm.csvString += p.second + "\t";
+				scdm.csvString += dialogTextsDeepL[p.first] + "\t";
+
+				scdm.csvString = (it != dialogMap.end() ? dialogs[it->second][i].second : "") + "\n";
+
+				i++;
+			}
+		}
+	} while (false);
+	std::string serialized = scdm.SerializePrivate();
 	sock->writePacket(serialized);
 }
 

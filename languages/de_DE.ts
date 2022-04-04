@@ -3431,5 +3431,9 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>Compare</source>
         <translation>Vergleichen</translation>
     </message>
+    <message>
+        <source>DownloadCsv</source>
+        <translation>csv herunterladen</translation>
+    </message>
 </context>
 </TS>

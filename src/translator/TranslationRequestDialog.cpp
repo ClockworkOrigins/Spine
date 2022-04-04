@@ -46,6 +46,7 @@
 #include <QSettings>
 
 using namespace spine::common;
+using namespace spine::gui;
 using namespace spine::translation;
 using namespace spine::utils;
 
@@ -275,10 +276,16 @@ void TranslationRequestDialog::updateRequestList(std::vector<SendOwnProjectsMess
 		applyTranslationButton->setProperty("title", l->text());
 		connect(applyTranslationButton, &QPushButton::released, this, &TranslationRequestDialog::applyTranslation);
 
+		auto * downloadCsvButton = new QPushButton(QApplication::tr("DownloadCsv"), this);
+		downloadCsvButton->setProperty("requestID", static_cast<int>(project.requestID));
+		downloadCsvButton->setProperty("title", l->text());
+		connect(downloadCsvButton, &QPushButton::released, this, &TranslationRequestDialog::downloadCsv);
+
 		hl->addWidget(l, 1);
 		hl->addWidget(pb, 1);
 		hl->addWidget(accessButton, 0);
 		hl->addWidget(applyTranslationButton, 0);
+		hl->addWidget(downloadCsvButton, 0);
 
 		_requestList->addLayout(hl);
 
@@ -286,6 +293,7 @@ void TranslationRequestDialog::updateRequestList(std::vector<SendOwnProjectsMess
 		_widgets.append(pb);
 		_widgets.append(accessButton);
 		_widgets.append(applyTranslationButton);
+		_widgets.append(downloadCsvButton);
 	}
 }
 
@@ -305,6 +313,30 @@ void TranslationRequestDialog::applyTranslation() {
 	dlg.exec();
 }
 
+void TranslationRequestDialog::downloadCsv() {
+	Q_ASSERT(sender());
+	const int requestID = sender()->property("requestID").toInt();
+	const QString title = sender()->property("title").toString();
+
+	const auto * spinner = new WaitSpinner(QApplication::tr("Downloading"), this);
+
+	connect(this, &TranslationRequestDialog::downloadedCsv, spinner, &WaitSpinner::deleteLater, Qt::QueuedConnection);
+
+	QtConcurrent::run([this, requestID, title] {
+		auto title2 = title;
+		const auto csvString = TranslatorAPI::requestCsvDownload(requestID);
+		title2 = title2.replace(QRegExp("[" + QRegExp::escape("\\/:*?\"<>|") + "]"), QString("_"));
+		const auto path = QString("%1/%2.csv").arg(qApp->applicationDirPath()).arg(title2);
+		QFile f(path);
+		if (f.open(QIODevice::WriteOnly)) {
+			QTextStream ts(&f);
+			ts << csvString;
+		}
+
+		emit downloadedCsv();
+	});
+}
+
 void TranslationRequestDialog::restoreSettings() {
 	const QByteArray arr = Config::IniParser->value("WINDOWGEOMETRY/TranslationRequestDialogGeometry", QByteArray()).toByteArray();
 	if (!restoreGeometry(arr)) {
@@ -317,7 +349,10 @@ void TranslationRequestDialog::saveSettings() {
 }
 
 void TranslationRequestDialog::requestList() {
-	QtConcurrent::run([this]() {
+	const auto * spinner = new WaitSpinner(QApplication::tr("Updating"), this);
+	connect(this, &TranslationRequestDialog::receivedRequestList, spinner, &WaitSpinner::deleteLater);
+
+	QtConcurrent::run([this] {
 		SendOwnProjectsMessage * sopm = TranslatorAPI::requestOwnProjects(q2s(Config::Username));
 		if (sopm) {
 			emit receivedRequestList(sopm->projects);

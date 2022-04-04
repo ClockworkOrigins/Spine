@@ -39,6 +39,7 @@ namespace common {
 	struct ChangeTranslationRightsMessage;
 	struct QueryTextToReviewMessage;
 	struct QueryTextToTranslateMessage;
+	struct RequestCsvDownloadMessage;
 	struct RequestOwnProjectsMessage;
 	struct RequestProjectsMessage;
 	struct RequestTranslationDownloadMessage;
@@ -79,6 +80,7 @@ namespace server {
 		void handleChangeTranslationRights(clockUtils::sockets::TcpSocket * sock, common::ChangeTranslationRightsMessage * msg);
 		void handleRequestTranslators(clockUtils::sockets::TcpSocket * sock, common::RequestTranslatorsMessage * msg);
 		void handleRequestTranslationDownload(clockUtils::sockets::TcpSocket * sock, common::RequestTranslationDownloadMessage * msg);
+		void handleRequestCsvDownload(clockUtils::sockets::TcpSocket * sock, common::RequestCsvDownloadMessage * msg);
 
 		std::vector<std::pair<std::string, std::string>> getHints(const std::string & sourceLanguage, const std::string & destinationLanguage, const std::vector<std::string> & strings) const;
 		std::string toLower(const std::string & s) const;

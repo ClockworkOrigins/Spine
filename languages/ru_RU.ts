@@ -3432,5 +3432,9 @@ You can revoke your permission at every point in time. All necessary information
         <source>Compare</source>
         <translation>Сравнить</translation>
     </message>
+    <message>
+        <source>DownloadCsv</source>
+        <translation>Скачать csv</translation>
+    </message>
 </context>
 </TS>

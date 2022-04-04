@@ -3427,5 +3427,9 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>Compare</source>
         <translation>Porównaj</translation>
     </message>
+    <message>
+        <source>DownloadCsv</source>
+        <translation>Pobierz csv</translation>
+    </message>
 </context>
 </TS>

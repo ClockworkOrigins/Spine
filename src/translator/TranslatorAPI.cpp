@@ -23,6 +23,8 @@
 #include "common/MessageStructs.h"
 #include "common/TranslationModel.h"
 
+#include "utils/Conversion.h"
+
 #include "clockUtils/sockets/TcpSocket.h"
 
 using namespace spine::common;
@@ -293,4 +295,32 @@ SendTranslationDownloadMessage * TranslatorAPI::requestTranslationDownload(uint3
 	} catch (...) {}
 
 	return nullptr;
+}
+
+QString TranslatorAPI::requestCsvDownload(uint32_t requestID) {
+	RequestCsvDownloadMessage rtdm;
+	rtdm.requestID = requestID;
+	clockUtils::sockets::TcpSocket sock;
+
+	if (clockUtils::ClockError::SUCCESS != sock.connectToHostname("clockwork-origins.de", TRANSLATORSERVER_PORT, 10000))
+		return QString();
+
+	std::string serialized = rtdm.SerializePublic();
+	sock.writePacket(serialized);
+
+	if (clockUtils::ClockError::SUCCESS != sock.receivePacket(serialized))
+		return QString();
+
+	try {
+		Message * msg = Message::DeserializePublic(serialized);
+		if (msg && msg->type == MessageType::SENDCSVDOWNLOAD) {
+			const auto * scdm = dynamic_cast<SendCsvDownloadMessage *>(msg);
+			auto result = s2q(scdm->csvString);
+			delete scdm;
+
+			return result;
+		}
+	} catch (...) {}
+
+	return QString();
 }

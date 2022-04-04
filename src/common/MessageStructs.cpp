@@ -215,3 +215,7 @@ BOOST_CLASS_EXPORT_GUID(spine::common::RequestTranslationDownloadMessage, "TR_18
 BOOST_CLASS_IMPLEMENTATION(spine::common::RequestTranslationDownloadMessage, boost::serialization::object_serializable)
 BOOST_CLASS_EXPORT_GUID(spine::common::SendTranslationDownloadMessage, "TR_19")
 BOOST_CLASS_IMPLEMENTATION(spine::common::SendTranslationDownloadMessage, boost::serialization::object_serializable)
+BOOST_CLASS_EXPORT_GUID(spine::common::RequestCsvDownloadMessage, "TR_20")
+BOOST_CLASS_IMPLEMENTATION(spine::common::RequestCsvDownloadMessage, boost::serialization::object_serializable)
+BOOST_CLASS_EXPORT_GUID(spine::common::SendCsvDownloadMessage, "TR_21")
+BOOST_CLASS_IMPLEMENTATION(spine::common::SendCsvDownloadMessage, boost::serialization::object_serializable)
