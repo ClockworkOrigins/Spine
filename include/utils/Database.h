@@ -31,9 +31,9 @@ class Database {
 public:
 	/**
 	 * \brief struct to store errors
-	 * error flag indicates whether an error occured.
-	 * if the error occured, a more sophisticated message is available in errorMsg
-	 * if no error occured, the errorMsg string will not be modified and thus can contain arbitary content
+	 * error flag indicates whether an error occurred.
+	 * if the error occurred, a more sophisticated message is available in errorMsg
+	 * if no error occurred, the errorMsg string will not be modified and thus can contain arbitrary content
 	 */
 	struct DBError {
 		DBError() : error(false) {}
@@ -42,7 +42,7 @@ public:
 	};
 
 	/**
-	 * \brief executes an arbitary sql operation
+	 * \brief executes an arbitrary sql operation
 	 * \param[in] dbpath filename of the database to be used
 	 * \param[in] query Query string to be executed
 	 */
@@ -67,7 +67,7 @@ public:
 	 * \param[out] error strcut containing the result code
 	 * \param[in] n index of row to return
 	 * \returns requested row
-	 * if an error occured, an default constructed Result object is returned
+	 * if an error occurred, a default constructed Result object is returned
 	 */
 	template<typename Result, typename... Columns>
 	static Result queryNth(std::string dbpath, std::string query, DBError & error, unsigned int n = 0) {
@@ -120,7 +120,7 @@ public:
 	 * \param[in] query query to execute
 	 * \param[out] error strcut containing the result code
 	 * \returns vector containing all rows
-	 * if an error occured, the returned vector may still contain some data, but
+	 * if an error occurred, the returned vector may still contain some data, but
 	 * it is not guaranteed that the data is complete or correct
 	 */
 	template<typename Result, typename... Columns>
@@ -180,7 +180,7 @@ public:
 	 * \param[in] dbpath path to the database file
 	 * \param[in] query query to execute
 	 * \param[out] error strcut containing the result code
-	 * \returns number of rows the query produces, or -1 if an error occured
+	 * \returns number of rows the query produces, or -1 if an error occurred
 	 */
 	static int queryCount(std::string dbpath, std::string query, DBError & error) {
 		sqlite3 * db;
@@ -254,7 +254,7 @@ private:
 	 * \brief recursive struct. retrieves all columns
 	 * This struct will retrieve all the columns
 	 * Itself only Column1 whereas the recursion will retrieve the remaining Column2 and OtherColumns
-	 * Note: Column2 is needed for a correct recursion. There's no other reason why to seperate it from OtherColumns
+	 * Note: Column2 is needed for a correct recursion. There's no other reason why to separate it from OtherColumns
 	 * \param[in] Template:Index index of the current column to be used
 	 * \param[in] Template:Column1 type of this column
 	 * \param[in] Template:Column2 type of the next column
