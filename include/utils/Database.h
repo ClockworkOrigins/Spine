@@ -71,19 +71,21 @@ public:
 	 */
 	template<typename Result, typename... Columns>
 	static Result queryNth(std::string dbpath, std::string query, DBError & error, unsigned int n = 0) {
-		sqlite3 * db;
-		sqlite3_stmt * stmt;
+		sqlite3 * db = nullptr;
+		sqlite3_stmt * stmt = nullptr;
 		std::lock_guard<std::mutex> lg(_lock); // _lock the database vector and sqlite
 		int r = sqlite3_open_v2(dbpath.c_str(), &db, SQLITE_OPEN_READONLY, nullptr);
 		if (r != SQLITE_OK) {
 			error.error = true;
 			error.errMsg = std::string("open(): ") + sqlite3_errmsg(db);
+			sqlite3_close(db);
 			return Result();
 		}
 		r = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr);
 		if (r != SQLITE_OK) {
 			error.error = true;
 			error.errMsg = std::string("prepare(): ") + sqlite3_errmsg(db);
+			sqlite3_close(db);
 			return Result();
 		}
 		for (unsigned int i = 0; i <= n; i++) {
@@ -95,6 +97,8 @@ public:
 				} else {
 					error.errMsg = std::string("step(): ") + sqlite3_errmsg(db);
 				}
+				sqlite3_finalize(stmt);
+				sqlite3_close(db);
 				return Result();
 			}
 		}
@@ -106,6 +110,8 @@ public:
 		if (sqlite3_errcode(db) != SQLITE_OK && sqlite3_errcode(db) != SQLITE_ROW && sqlite3_errcode(db) != SQLITE_DONE) {
 			error.error = true;
 			error.errMsg = std::string("column_*(): ") + sqlite3_errstr(sqlite3_errcode(db)); // sqlite3_errmsg() doesn't work here, because a later call to queryColumn may have succeeded
+			sqlite3_finalize(stmt);
+			sqlite3_close(db);
 			return Result();
 		}
 		sqlite3_finalize(stmt);
@@ -125,8 +131,8 @@ public:
 	 */
 	template<typename Result, typename... Columns>
 	static QList<Result> queryAll(std::string dbpath, std::string query, DBError & error) {
-		sqlite3 * db;
-		sqlite3_stmt * stmt;
+		sqlite3 * db = nullptr;
+		sqlite3_stmt * stmt = nullptr;
 		QList<Result> v;
 		bool selfOpened = false;
 		std::lock_guard<std::mutex> lg(_lock); // _lock the database vector and sqlite
@@ -137,6 +143,7 @@ public:
 			if (r != SQLITE_OK) {
 				error.error = true;
 				error.errMsg = std::string("open(): ") + sqlite3_errmsg(db);
+				sqlite3_close(db);
 				return v;
 			}
 			selfOpened = true;
@@ -145,6 +152,9 @@ public:
 		if (r != SQLITE_OK) {
 			error.error = true;
 			error.errMsg = std::string("prepare(): ") + sqlite3_errmsg(db);
+			if (selfOpened) {
+				sqlite3_close(db);
+			}
 			return v;
 		}
 		while ((r = sqlite3_step(stmt)) == SQLITE_ROW) {
@@ -157,16 +167,23 @@ public:
 			if (sqlite3_errcode(db) != SQLITE_OK && sqlite3_errcode(db) != SQLITE_ROW && sqlite3_errcode(db) != SQLITE_DONE) {
 				error.error = true;
 				error.errMsg = std::string("column_*(): ") + sqlite3_errstr(sqlite3_errcode(db)); // sqlite3_errmsg() doesn't work here, because a later call to queryColumn may have succeeded
+				sqlite3_finalize(stmt);
+				if (selfOpened) {
+					sqlite3_close(db);
+				}
 				return v;
 			}
 			v.push_back(ret);
 		}
+		sqlite3_finalize(stmt);
 		if (r != SQLITE_DONE) {
 			error.error = true;
 			error.errMsg = std::string("step(): ") + sqlite3_errmsg(db);
+			if (selfOpened) {
+				sqlite3_close(db);
+			}
 			return v;
 		}
-		sqlite3_finalize(stmt);
 
 		if (selfOpened) {
 			sqlite3_close(db);
@@ -183,31 +200,34 @@ public:
 	 * \returns number of rows the query produces, or -1 if an error occurred
 	 */
 	static int queryCount(std::string dbpath, std::string query, DBError & error) {
-		sqlite3 * db;
-		sqlite3_stmt * stmt;
+		sqlite3 * db = nullptr;
+		sqlite3_stmt * stmt = nullptr;
 		std::lock_guard<std::mutex> lg(_lock); // _lock the database vector and sqlite
 		int r = sqlite3_open_v2(dbpath.c_str(), &db, SQLITE_OPEN_READONLY, nullptr);
 		if (r != SQLITE_OK) {
 			error.error = true;
 			error.errMsg = std::string("open(): ") + sqlite3_errmsg(db);
+			sqlite3_close(db);
 			return -1;
 		}
 		r = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr);
 		if (r != SQLITE_OK) {
 			error.error = true;
 			error.errMsg = std::string("prepare(): ") + sqlite3_errmsg(db);
+			sqlite3_close(db);
 			return -1;
 		}
 		int counter = 0;
 		while((r = sqlite3_step(stmt)) == SQLITE_ROW) {
 			counter++;
 		}
+		sqlite3_finalize(stmt);
 		if (r != SQLITE_DONE) {
 			error.error = true;
 			error.errMsg = std::string("step(): ") + sqlite3_errmsg(db);
+			sqlite3_close(db);
 			return -1;
 		}
-		sqlite3_finalize(stmt);
 		sqlite3_close(db);
 		error.error = false;
 		return counter;
@@ -217,14 +237,11 @@ public:
 	 * \brief returns whether the given Database exists and can be opend
 	 */
 	static bool exists(std::string dbpath) {
-		sqlite3 * db;
+		sqlite3 * db = nullptr;
 		std::lock_guard<std::mutex> lg(_lock); // _lock the database vector and sqlite
 		int r = sqlite3_open_v2(dbpath.c_str(), &db, SQLITE_OPEN_READONLY, nullptr);
-		if (r != SQLITE_OK) {
-			return false;
-		}
 		sqlite3_close(db);
-		return true;
+		return (r == SQLITE_OK);
 	}
 
 private:
