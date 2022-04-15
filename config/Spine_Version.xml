@@ -62,13 +62,13 @@
 	<Version majorVersion="1" minorVersion="39" patchVersion="0">
 		<File Hash="b837a27d011359ffec90f7774bdf3f3c9602af80d36fdf7fc14cf9d717335c6684d34e6a7f259266e3d7c6956a834217422a85e11508af3491cc4b93512ec19f">bin/SpineAPI.dll.z</File>
 		<File Hash="1ccda3a025eb72329c73c3dba3883d7c948b71b4e1cf98111257fc1165f42b2bdf244f3c61c7e0d879d25e7eb87398df1e74b7a444bf0349b7c8fc5323ea5a22">bin/SpineAPI64.dll.z</File>
-		<File Hash="5760be651d90e2660d0b5f78da60ddd143f2fb9c7c5a88ecdc5f8250704b5946175946278b90567087a8cdf908eeb3752eb78d8e500a913c0bea98b1f0d0d20c">bin/de_DE.qm.z</File>
-		<File Hash="8ff8289a3ed995d0e5b4721d4ae5a4795d8f3822b0ba140f8a1d8dd1c28dc794676e2c8d98e85ea0ac8e835d78d55d477385d1acf8dd3c7303dd21908f3ad22e">bin/en_US.qm.z</File>
-		<File Hash="2e2fe545afb239ba06ae60308b37095c6832224cd7ece4e314213d740bf65340eedd36292dbe3ea9fe1e5d5987d52bedbad56d9ff1a80781b3a8e10deaf14c07">bin/po_PO.qm.z</File>
-		<File Hash="6c6e435817729444846ab5d154c197314dc00ba8048c98b367f6d8b2ad55dbff11552c178f268a9af3a08a814ac0a63d2ee3d8978abf0ebf771bd17032660527">bin/ru_RU.qm.z</File>
 	</Version>
-	<Version majorVersion="1" minorVersion="39" patchVersion="1">
-		<File Hash="231cbf9a2ef5a03d6d3c0fc5101af7f5504f3b17e7f5d7fd4fe00683657c65250b8c65fc707f6f7520be09bd71db78c1840626d4a5332ad3afadb3c5645a5b7a">bin/changelog.xml.z</File>
-		<File Hash="9e6599ebae35b59cb4cd89d51d770ea73fe081d13cf8ec440fd92634efb309105dc6c3c9fb7bdf4776d912af31bbb68d69083bdbf666fc6a3b9b9efcc7602747">bin/Spine.exe.z</File>
+	<Version majorVersion="1" minorVersion="40" patchVersion="0">
+		<File Hash="3f9d34b2c1ef108c222f6c2a777dc1390c0015111a28b8db75f3bb8a59434f64e22655fe18f0652c10de09b7d79a2899980bf2040d9eb8b97df291032ea717bd">bin/changelog.xml.z</File>
+		<File Hash="11806ea76b8073465e50ad1be26a21ab19133954c953d3cbfa6a31c4202f5b948cfac1e79e4a10971c5eb74ad7ce11d289ffd69fce39ef3967aecea8448f9b75">bin/Spine.exe.z</File>
+		<File Hash="95a25f13dcba6b5c604744d686a618357b10f4691d9d4aef9549199573d5a971dadc63ce20550abeca3cdccd679ca6a6f8a03e1ac6c056d9ea69261d8eb05f19">bin/de_DE.qm.z</File>
+		<File Hash="f4556cf7c7a50a71f90165a8077eecb4051585b4d6d3f9eb21d5a603cceffffc1ec1a6a3d003e309e1beedf100a33c5c48152f8c2f19c7a8cb77a7d2038ffedb">bin/en_US.qm.z</File>
+		<File Hash="98ee32311181955af2733e68b04eb5eea5ed29b5004b00d7c5e67222397020a3ead5c711fe5bd5045d9bfa527522fd2d4eac8cf6e147e622bc4c5e0d83d79780">bin/po_PO.qm.z</File>
+		<File Hash="397300029719410cdb1c8413de34b32a4d41327bfa42dba25b46b84a1461cf74fd81e6c1ab5d6a0908b3b33fbe9b5ad9264796348981ce4b6824bba3973f1346">bin/ru_RU.qm.z</File>
 	</Version>
 </Versions>
