@@ -59,7 +59,9 @@ Server::Server() : _listenClient(new clockUtils::sockets::TcpSocket()), _listenM
 
 	Cleanup::init();
 
+#ifndef TEST_CONFIG
 	FileSynchronizer::init();
+#endif
 
 	StatsCollector::init();
 

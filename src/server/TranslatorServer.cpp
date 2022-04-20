@@ -56,9 +56,11 @@ TranslatorServer::~TranslatorServer() {
 }
 
 int TranslatorServer::run() {
+#ifndef TEST_CONFIG
 	if (_listenClient->listen(TRANSLATORSERVER_PORT, 10, true, std::bind(&TranslatorServer::accept, this, std::placeholders::_1)) != clockUtils::ClockError::SUCCESS) {
 		return 1;
 	}
+#endif
 
 	return 0;
 }
