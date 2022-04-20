@@ -1,5 +1,4 @@
-#ifndef __SPINE_GMMCONFIG_H__
-#define __SPINE_GMMCONFIG_H__
+#pragma once
 
 #include <cstdint>
 #include <string>
@@ -37,4 +36,4 @@ const std::string BACKUP_DATABASE = "databases/backup.db";
 
 const int64_t DISCORD_CLIENTID = @DISCORDKEY@;
 
-#endif /* __SPINE_GMMCONFIG_H__ */
+const std::string DEEPLKEY = "@DEEPLKEY@";

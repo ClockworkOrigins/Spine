@@ -28,6 +28,7 @@ SET(VCREDIST_PATH "" CACHE STRING "path to the vcredist for the used Visual Stud
 SET(SSLCHAINPATH "" CACHE STRING "path to the fullchain path of the SSL certificate")
 SET(SSLPRIVKEYNPATH "" CACHE STRING "path to the private key of the SSL certificate")
 SET(DISCORDKEY "12345" CACHE STRING "Discord API Key")
+SET(DEEPLKEY "12345" CACHE STRING "DeepL API Key")
 
 project(Spine CXX)
 

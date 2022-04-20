@@ -28,13 +28,20 @@
 #include "ServerCommon.h"
 #include "SpineServerConfig.h"
 
+#include "boost/property_tree/ptree.hpp"
+#include "boost/property_tree/json_parser.hpp"
+
 #include "common/MessageStructs.h"
 #include "common/TranslationModel.h"
 
 #include "clockUtils/sockets/TcpSocket.h"
 
+#include "simple-web-server/client_https.hpp"
+
 using namespace spine::common;
 using namespace spine::server;
+
+using HttpsClient = SimpleWeb::Client<SimpleWeb::HTTPS>;
 
 TranslatorServer::TranslatorServer() : _listenClient(new clockUtils::sockets::TcpSocket()), _cleanupThread(new std::thread(std::bind(&TranslatorServer::cleanup, this))), _deepLThread(new std::thread(std::bind(&TranslatorServer::createFakeTranslation, this))), _running(true) {
 }
@@ -2657,31 +2664,43 @@ std::string TranslatorServer::requestDeepL(const std::string & text, const std::
 		{ "Russian", "RU" }
 	};
 
-	std::string sl = languageMap[sourceLanguage];
-	std::string tl = languageMap[targetLanguage];
+	const std::string sl = languageMap[sourceLanguage];
+	const std::string tl = languageMap[targetLanguage];
 
-#ifndef WIN32
-	std::string cmd = "python deepl.py -s " + sl + " -l " + tl + " \"" + escapedText + "\"";
-	std::array<char, 128> buffer;
-	std::shared_ptr<FILE> pipe(popen(cmd.c_str(), "r"), pclose);
-	if (!pipe) {
-		throw std::runtime_error("popen() failed!");
-	}
-	while (!feof(pipe.get())) {
-		if (fgets(buffer.data(), 128, pipe.get()) != nullptr)
-			result += buffer.data();
-	}
+	auto * client = new HttpsClient("api-free.deepl.com", false);
 
-	while (result.back() == '\n') {
-		result = result.substr(0, result.size() - 1);
-	}
-#endif
+	std::string function = "/v2/translate?auth_key=";
+	function += DEEPLKEY;
+	function += "&source_lang=" + sl;
+	function += "&target_lang=" + tl;
+	function += "&text=text";
+
+	client->request("POST", function, [&result](std::shared_ptr<HttpsClient::Response> response, const SimpleWeb::error_code &) {
+		const std::string content = response->content.string();
+
+		std::cout << "Received result: " << content << std::endl;
+
+		if (response->status_code.find("200") != std::string::npos) {
+			std::stringstream ss(content);
+
+			boost::property_tree::ptree pt;
+			read_json(ss, pt);
+
+			if (pt.count("translations") == 0)
+				return;
+
+			const auto tChild = pt.get_child("translations");
+			result = tChild.get<std::string>("text");
+		} else {
+			result = "";
+		}
+	});
+	client->io_service->run();
+
 	return result;
 }
 
 void TranslatorServer::createFakeTranslation() const {
-	return; // currently not supported
-
 	constexpr time_t COOLDOWN = 60LL * 60 * 24;
 	time_t startTime = time(nullptr) - COOLDOWN;
 	do {
