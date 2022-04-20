@@ -2656,6 +2656,16 @@ std::string TranslatorServer::requestDeepL(const std::string & text, const std::
 	std::string result;
 	std::string escapedText = std::regex_replace(text, std::regex("´"), "'");
 	escapedText = std::regex_replace(escapedText, std::regex("`"), "'");
+	escapedText = std::regex_replace(escapedText, std::regex(" "), "%20");
+	escapedText = std::regex_replace(escapedText, std::regex("!"), "%21");
+	escapedText = std::regex_replace(escapedText, std::regex("\""), "%22");
+	escapedText = std::regex_replace(escapedText, std::regex("#"), "%23");
+	escapedText = std::regex_replace(escapedText, std::regex("$"), "%24");
+	escapedText = std::regex_replace(escapedText, std::regex("%"), "%25");
+	escapedText = std::regex_replace(escapedText, std::regex("&"), "%26");
+	escapedText = std::regex_replace(escapedText, std::regex("'"), "%27");
+	escapedText = std::regex_replace(escapedText, std::regex("("), "%28");
+	escapedText = std::regex_replace(escapedText, std::regex(")"), "%29");
 
 	static std::map<std::string, std::string> languageMap = {
 		{ "Deutsch", "DE" },
@@ -2673,12 +2683,11 @@ std::string TranslatorServer::requestDeepL(const std::string & text, const std::
 	function += DEEPLKEY;
 	function += "&source_lang=" + sl;
 	function += "&target_lang=" + tl;
-	function += "&text=text";
+
+	function += "&text=" + escapedText;
 
 	client->request("POST", function, [&result](std::shared_ptr<HttpsClient::Response> response, const SimpleWeb::error_code &) {
 		const std::string content = response->content.string();
-
-		std::cout << "Received result: " << content << std::endl;
 
 		if (response->status_code.find("200") != std::string::npos) {
 			std::stringstream ss(content);
@@ -2689,8 +2698,10 @@ std::string TranslatorServer::requestDeepL(const std::string & text, const std::
 			if (pt.count("translations") == 0)
 				return;
 
-			const auto tChild = pt.get_child("translations");
-			result = tChild.get<std::string>("text");
+			for (const auto tChild : pt.get_child("translations")) {
+				result = tChild.second.get<std::string>("text");
+				break;
+			}
 		} else {
 			result = "";
 		}
