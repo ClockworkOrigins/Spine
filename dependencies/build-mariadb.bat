@@ -21,7 +21,7 @@ cmake -DCMAKE_INSTALL_PREFIX=%PREFIX% -G "%VSCOMPILER%" -A "%VSARCH%" .
 
 echo "Building MariaDB"
 
-MSBuild.exe mariadb-client.sln /m:%NUMBER_OF_PROCESSORS% /p:Configuration=Release /p:Platform=%VSSOLUTIONARCH%
+MSBuild.exe mariadb-connector-c.sln /m:%NUMBER_OF_PROCESSORS% /p:Configuration=Release /p:Platform=%VSSOLUTIONARCH%
 
 echo "Installing MariaDB"
 
