@@ -39,7 +39,6 @@
 #include <QApplication>
 #include <QCheckBox>
 #include <QDialogButtonBox>
-#include <QDebug>
 #include <QDir>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -63,7 +62,7 @@ using namespace spine::widgets;
 
 ModUpdateDialog::ModFile::ModFile(std::string i, std::string s1, std::string s2) : modID(std::stoi(i)), file(s2q(s1)), hash(s2q(s2)), size(-1) {}
 
-ModUpdateDialog::ModUpdateDialog(QMainWindow * mainWindow) : QDialog(nullptr), _mainWindow(mainWindow), _infoLabel(nullptr), _checkBoxLayout(nullptr), _running(false), _lastTimeRejected(false), _loginChecked(false), _spineUpdateChecked(false) {
+ModUpdateDialog::ModUpdateDialog(QMainWindow * mainWindow) : QDialog(nullptr), _mainWindow(mainWindow), _infoLabel(nullptr), _checkBoxLayout(new QVBoxLayout()), _running(false), _lastTimeRejected(false), _loginChecked(false), _spineUpdateChecked(false) {
 	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
@@ -71,7 +70,6 @@ ModUpdateDialog::ModUpdateDialog(QMainWindow * mainWindow) : QDialog(nullptr), _
 	_infoLabel->setWordWrap(true);
 	l->addWidget(_infoLabel);
 
-	_checkBoxLayout = new QVBoxLayout();
 	_checkBoxLayout->setAlignment(Qt::AlignTop);
 
 	auto * scrollArea = new QScrollArea(this);
@@ -246,7 +244,8 @@ void ModUpdateDialog::accept() {
 	}
 
 	for (int i = 0; i < _updates.size(); i++) {
-		if (!_checkBoxes[i]->isChecked()) continue;
+		if (!_checkBoxes[i]->isChecked())
+			continue;
 
 		emit updateStarted(_updates[i].modID);
 	}
@@ -273,9 +272,11 @@ void ModUpdateDialog::reject() {
 }
 
 void ModUpdateDialog::checkForUpdate() {
-	if (!_loginChecked) return;
+	if (!_loginChecked)
+		return;
 
-	if (!_spineUpdateChecked) return;
+	if (!_spineUpdateChecked)
+		return;
 	
 	_running = true;
 	QtConcurrent::run([this]() {
@@ -295,7 +296,8 @@ void ModUpdateDialog::checkForUpdate() {
 				return p.id == mv.modID;
 			});
 
-			if (it == pl.end()) continue;
+			if (it == pl.end())
+				continue;
 
 			mv.language = it->language;
 		}
@@ -395,9 +397,11 @@ bool ModUpdateDialog::hasChanges(ModUpdate mu) const {
 
 void ModUpdateDialog::unzippedArchive(QString archive, QList<QPair<QString, QString>> files, ModFile mf, QSharedPointer<QList<ModFile>> installFiles, QSharedPointer<QList<ModFile>> newFiles, QSharedPointer<QList<ModFile>> removeFiles) {
 	for (auto it = installFiles->begin(); it != installFiles->end(); ++it) {
-		if (it->modID != mf.modID) continue;
+		if (it->modID != mf.modID)
+			continue;
 		
-		if (it->file != archive) continue;
+		if (it->file != archive)
+			continue;
 		
 		installFiles->erase(it);
 		
@@ -405,9 +409,11 @@ void ModUpdateDialog::unzippedArchive(QString archive, QList<QPair<QString, QStr
 	}
 	
 	for (auto it = newFiles->begin(); it != newFiles->end(); ++it) {
-		if (it->modID != mf.modID) continue;
+		if (it->modID != mf.modID)
+			continue;
 		
-		if (it->file != archive) continue;
+		if (it->file != archive)
+			continue;
 		
 		newFiles->erase(it);
 		
@@ -418,9 +424,11 @@ void ModUpdateDialog::unzippedArchive(QString archive, QList<QPair<QString, QStr
 		bool found = false;
 		
 		for (auto it = removeFiles->begin(); it != removeFiles->end(); ++it) {
-			if (it->modID != mf.modID) continue;
+			if (it->modID != mf.modID)
+				continue;
 
-			if (it->file != p.first) continue;
+			if (it->file != p.first)
+				continue;
 
 			installFiles->append(*it);
 			removeFiles->erase(it);
@@ -546,11 +554,13 @@ void ModUpdateDialog::requestUpdates(const QList<ModVersion> & m, bool forceAcce
 					for (const auto jsonRef2 : j["Packages"].toArray()) {
 						const auto j2 = jsonRef2.toObject();
 
-						if (!j2.contains("Files")) continue;
+						if (!j2.contains("Files"))
+							continue;
 
 						const auto packageID = j2["PackageID"].toString().toInt();
 
-						if (!localPackages.contains(packageID)) continue;
+						if (!localPackages.contains(packageID))
+							continue;
 
 						QList<ModUpdate::File> files;
 						

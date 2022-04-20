@@ -283,7 +283,8 @@ void ModFilesWidget::uploadCurrentMod() {
 		umm.packageID = _mods[_modIndex].packageID;
 
 		for (const auto & mmf : _data.files) {
-			if (!mmf.deleted) continue;
+			if (!mmf.deleted)
+				continue;
 
 			common::ModFile mf;
 			mf.language = q2s(mmf.language);
@@ -391,7 +392,13 @@ void ModFilesWidget::uploadCurrentMod() {
 				in.close();
 				QFile::remove(file);
 			}
-			sock.receivePacket(serialized);
+			auto cErrReceive = sock.receivePacket(serialized);
+
+			if (cErrReceive != clockUtils::ClockError::SUCCESS) {
+				emit finishedUpload(false, uploadFiles.size());
+				return;
+			}
+
 			common::Message * msg = common::Message::DeserializeBlank(serialized);
 			if (msg) {
 				auto * am = dynamic_cast<common::AckMessage *>(msg);

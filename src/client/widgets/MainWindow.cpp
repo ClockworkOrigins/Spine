@@ -825,11 +825,14 @@ MainWindow::MainWindow(bool showChangelog, QMainWindow * par) : QMainWindow(par)
 
 		_updateCheckTimer = new QTimer(this);
 		connect(_updateCheckTimer, &QTimer::timeout, [this]() {
-			if (LauncherFactory::getInstance()->isRunning()) return;
+			if (LauncherFactory::getInstance()->isRunning())
+				return;
 
-			if (_modUpdateDialog->isVisible()) return;
+			if (_modUpdateDialog->isVisible())
+				return;
 
-			if (_autoUpdateDialog->isVisible()) return;
+			if (_autoUpdateDialog->isVisible())
+				return;
 
 			_autoUpdateDialog->checkForUpdate();
 		});

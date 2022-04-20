@@ -2338,4 +2338,9 @@
 		<Enhancement language="English">Added csv download for translations</Enhancement>
 		<Bug language="English">Fixed bug that caused mods still being displayed in the library even though the corresponding Gothic wasn't installed anymore</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="41" patchVersion="0">
+		<Bug language="Deutsch">Fehler behoben, wodurch Spine abstürzen konnte, wenn beim Upload ein neuer Dateien ein Disconnect passiert ist</Bug>
+
+		<Bug language="English">Fixed bug that caused Spine to crash when a disconnect happened during upload of new files</Bug>
+	</Version>
 </Versions>
