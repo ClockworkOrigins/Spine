@@ -2658,16 +2658,13 @@ std::string TranslatorServer::requestDeepL(const std::string & text, const std::
 	std::string result;
 	std::string escapedText = std::regex_replace(text, std::regex("´"), "'");
 	escapedText = std::regex_replace(escapedText, std::regex("`"), "'");
+	escapedText = std::regex_replace(escapedText, std::regex("%"), "%25");
 	escapedText = std::regex_replace(escapedText, std::regex(" "), "%20");
 	escapedText = std::regex_replace(escapedText, std::regex("!"), "%21");
 	escapedText = std::regex_replace(escapedText, std::regex("\""), "%22");
 	escapedText = std::regex_replace(escapedText, std::regex("#"), "%23");
-	escapedText = std::regex_replace(escapedText, std::regex("$"), "%24");
-	escapedText = std::regex_replace(escapedText, std::regex("%"), "%25");
 	escapedText = std::regex_replace(escapedText, std::regex("&"), "%26");
 	escapedText = std::regex_replace(escapedText, std::regex("'"), "%27");
-	escapedText = std::regex_replace(escapedText, std::regex("("), "%28");
-	escapedText = std::regex_replace(escapedText, std::regex(")"), "%29");
 
 	static std::map<std::string, std::string> languageMap = {
 		{ "Deutsch", "DE" },
@@ -2709,6 +2706,7 @@ std::string TranslatorServer::requestDeepL(const std::string & text, const std::
 		}
 	});
 	client->io_service->run();
+	delete client;
 
 	return result;
 }
