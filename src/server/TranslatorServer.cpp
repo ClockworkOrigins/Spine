@@ -36,7 +36,13 @@
 
 #include "clockUtils/sockets/TcpSocket.h"
 
+#ifdef WIN32
+#pragma warning(disable: 4996)
+#endif
 #include "simple-web-server/client_https.hpp"
+#ifdef WIN32
+#pragma warning(error: 4996)
+#endif
 
 using namespace spine::common;
 using namespace spine::server;
@@ -2697,7 +2703,7 @@ std::string TranslatorServer::requestDeepL(const std::string & text, const std::
 			if (pt.count("translations") == 0)
 				return;
 
-			for (const auto tChild : pt.get_child("translations")) {
+			for (const auto & tChild : pt.get_child("translations")) {
 				result = tChild.second.get<std::string>("text");
 				break;
 			}
