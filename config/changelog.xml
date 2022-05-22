@@ -2339,8 +2339,10 @@
 		<Bug language="English">Fixed bug that caused mods still being displayed in the library even though the corresponding Gothic wasn't installed anymore</Bug>
 	</Version>
 	<Version majorVersion="1" minorVersion="41" patchVersion="0">
+		<Enhancement language="Deutsch">DeepL für Übersetzer wieder eingebaut</Enhancement>
 		<Bug language="Deutsch">Fehler behoben, wodurch Spine abstürzen konnte, wenn beim Upload ein neuer Dateien ein Disconnect passiert ist</Bug>
 
+		<Enhancement language="English">Re-added DeepL support for translator</Enhancement>
 		<Bug language="English">Fixed bug that caused Spine to crash when a disconnect happened during upload of new files</Bug>
 	</Version>
 </Versions>
