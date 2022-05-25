@@ -32,3 +32,5 @@ const std::string SSLCHAINPATH = "@SSLCHAINPATH@";
 const std::string SSLPRIVKEYNPATH = "@SSLPRIVKEYNPATH@";
 
 const std::string DEEPLKEY = "@DEEPLKEY@";
+
+const std::string DISCORDWEBAPIURL = "@DISCORDWEBAPIURL@";

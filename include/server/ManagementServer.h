@@ -75,6 +75,8 @@ namespace server {
 		void uploadAchievementIcons(common::UploadAchievementIconsMessage * msg) const;
 
 		bool hasAdminAccessToMod(int userID, int modID) const;
+
+		static void pushToDiscord(const std::string & message);
 	};
 
 } /* namespace server */

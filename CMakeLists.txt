@@ -29,6 +29,7 @@ SET(SSLCHAINPATH "" CACHE STRING "path to the fullchain path of the SSL certific
 SET(SSLPRIVKEYNPATH "" CACHE STRING "path to the private key of the SSL certificate")
 SET(DISCORDKEY "12345" CACHE STRING "Discord API Key")
 SET(DEEPLKEY "12345" CACHE STRING "DeepL API Key")
+SET(DISCORDWEBAPIURL "12345" CACHE STRING "Discord Web API URL")
 
 project(Spine CXX)
 

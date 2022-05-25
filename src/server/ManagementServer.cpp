@@ -33,7 +33,16 @@
 #include "boost/filesystem/operations.hpp"
 #include "boost/property_tree/json_parser.hpp"
 
+#ifdef WIN32
+#pragma warning(disable: 4996)
+#endif
+#include "simple-web-server/client_https.hpp"
+#ifdef WIN32
+#pragma warning(error: 4996)
+#endif
+
 using namespace boost::property_tree;
+using HttpsClient = SimpleWeb::Client<SimpleWeb::HTTPS>;
 
 using namespace spine::common;
 using namespace spine::server;
@@ -889,6 +898,12 @@ void ManagementServer::updateGeneralConfiguration(std::shared_ptr<HttpsServer::R
 					code = SimpleWeb::StatusCode::client_error_failed_dependency;
 					break;
 				}
+
+				auto message = "[RELEASE] " + ServerCommon::getProjectName(modID, English);
+
+				std::thread([message] {
+					pushToDiscord(message);
+				}).detach();
 			}
 			
 			if (!database.query("EXECUTE updateStmt USING @paramGothicVersion, @paramModType, @paramReleaseDate, @paramModID;")) {
@@ -1317,7 +1332,8 @@ void ManagementServer::updateModVersion(std::shared_ptr<HttpsServer::Response> r
 			}
 			auto results = database.getResults<std::vector<std::string>>();
 
-			if (results.empty()) break;
+			if (results.empty())
+				break;
 			
 			if (!database.query("EXECUTE updateDateStmt USING @paramModID, @paramDate, @paramDate;")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
@@ -1372,6 +1388,12 @@ void ManagementServer::updateModVersion(std::shared_ptr<HttpsServer::Response> r
 					break;
 				}
 			}
+
+			auto message = "[UPDATE] " + ServerCommon::getProjectName(projectID, English) + " " + std::to_string(versionMajor) + "." + std::to_string(versionMinor) + "." + std::to_string(versionPatch) + "." + std::to_string(versionSpine);
+
+			std::thread([message] {
+				pushToDiscord(message);
+			}).detach();
 		} while (false);
 
 		response->write(code);
@@ -2947,4 +2969,37 @@ bool ManagementServer::hasAdminAccessToMod(int userID, int modID) const {
 		return !results.empty();
 	} while (false);
 	return false;
+}
+
+void ManagementServer::pushToDiscord(const std::string & message) {
+	try {
+		const static std::string url = "discordapp.com";
+		HttpsClient client(url, false);
+
+		ptree requestData;
+
+		std::string msg = message;
+		msg = std::regex_replace(msg, std::regex("&apos;"), "'");
+
+		requestData.put("content", msg);
+
+		std::stringstream responseStream;
+		write_json(responseStream, requestData);
+		const std::string content = responseStream.str();
+
+		SimpleWeb::CaseInsensitiveMultimap header;
+		header.emplace("Content-Type", "application/json");
+		header.emplace("Content-length", std::to_string(content.length()));
+		header.emplace("Charset", "UTF-8");
+
+		const auto response = client.request("POST", DISCORDWEBAPIURL, content, header);
+
+		if (response->status_code.size() >= 2 && response->status_code[0] == '2' && response->status_code[1] == '0') {
+			std::cout << "Successfully pushed to Discord" << std::endl;
+		} else {
+			std::cout << "Failed to push to Discord: " << response->status_code << " - " << response->content.string() << std::endl;
+		}
+	} catch (const boost::system::system_error & ex) {
+		std::cout << "Failed to push to Discord: " << ex.code() << " - " << ex.what() << std::endl;
+	}
 }
