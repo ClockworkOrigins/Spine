@@ -20,6 +20,7 @@
 
 #include "utils/Compression.h"
 #include "utils/Config.h"
+#include "utils/Conversion.h"
 #include "utils/FileDownloader.h"
 #include "utils/Hashing.h"
 #include "utils/LanguageConverter.h"
@@ -185,7 +186,7 @@ void AchievementWidget::nameLanguageChanged(QString language) {
 				if (_nameEdit->text().isEmpty()) {
 					_newAchievement.names.erase(it);
 				} else {
-					it->text = _nameEdit->text();
+					it->text = encodeString(_nameEdit->text());
 				}
 				found = true;
 				break;
@@ -194,7 +195,7 @@ void AchievementWidget::nameLanguageChanged(QString language) {
 		if (!found && !_nameEdit->text().isEmpty()) {
 			ManagementTranslation tt;
 			tt.language = "Deutsch";
-			tt.text = _nameEdit->text();
+			tt.text = encodeString(_nameEdit->text());
 			_newAchievement.names.push_back(tt);
 		}
 	} else if (_currentNameLanguage == QApplication::tr("English")) {
@@ -204,7 +205,7 @@ void AchievementWidget::nameLanguageChanged(QString language) {
 				if (_nameEdit->text().isEmpty()) {
 					_newAchievement.names.erase(it);
 				} else {
-					it->text = _nameEdit->text();
+					it->text = encodeString(_nameEdit->text());
 				}
 				found = true;
 				break;
@@ -213,7 +214,7 @@ void AchievementWidget::nameLanguageChanged(QString language) {
 		if (!found && !_nameEdit->text().isEmpty()) {
 			ManagementTranslation tt;
 			tt.language = "English";
-			tt.text = _nameEdit->text();
+			tt.text = encodeString(_nameEdit->text());
 			_newAchievement.names.push_back(tt);
 		}
 	} else if (_currentNameLanguage == QApplication::tr("Polish")) {
@@ -223,7 +224,7 @@ void AchievementWidget::nameLanguageChanged(QString language) {
 				if (_nameEdit->text().isEmpty()) {
 					_newAchievement.names.erase(it);
 				} else {
-					it->text = _nameEdit->text();
+					it->text = encodeString(_nameEdit->text());
 				}
 				found = true;
 				break;
@@ -232,7 +233,7 @@ void AchievementWidget::nameLanguageChanged(QString language) {
 		if (!found && !_nameEdit->text().isEmpty()) {
 			ManagementTranslation tt;
 			tt.language = "Polish";
-			tt.text = _nameEdit->text();
+			tt.text = encodeString(_nameEdit->text());
 			_newAchievement.names.push_back(tt);
 		}
 	} else if (_currentNameLanguage == QApplication::tr("Russian")) {
@@ -242,7 +243,7 @@ void AchievementWidget::nameLanguageChanged(QString language) {
 				if (_nameEdit->text().isEmpty()) {
 					_newAchievement.names.erase(it);
 				} else {
-					it->text = _nameEdit->text();
+					it->text = encodeString(_nameEdit->text());
 				}
 				found = true;
 				break;
@@ -251,26 +252,26 @@ void AchievementWidget::nameLanguageChanged(QString language) {
 		if (!found && !_nameEdit->text().isEmpty()) {
 			ManagementTranslation tt;
 			tt.language = "Russian";
-			tt.text = _nameEdit->text();
+			tt.text = encodeString(_nameEdit->text());
 			_newAchievement.names.push_back(tt);
 		}
 	}
 	bool found = false;
 	for (auto & name : _newAchievement.names) {
 		if (name.language == "Deutsch" && language == QApplication::tr("German")) {
-			_nameEdit->setText(name.text);
+			_nameEdit->setText(decodeString(name.text));
 			found = true;
 			break;
 		} else if (name.language == "English" && language == QApplication::tr("English")) {
-			_nameEdit->setText(name.text);
+			_nameEdit->setText(decodeString(name.text));
 			found = true;
 			break;
 		} else if (name.language == "Polish" && language == QApplication::tr("Polish")) {
-			_nameEdit->setText(name.text);
+			_nameEdit->setText(decodeString(name.text));
 			found = true;
 			break;
 		} else if (name.language == "Russian" && language == QApplication::tr("Russian")) {
-			_nameEdit->setText(name.text);
+			_nameEdit->setText(decodeString(name.text));
 			found = true;
 			break;
 		}
@@ -289,7 +290,7 @@ void AchievementWidget::descriptionLanguageChanged(QString language) {
 				if (_descriptionEdit->text().isEmpty()) {
 					_newAchievement.descriptions.erase(it);
 				} else {
-					it->text = _descriptionEdit->text();
+					it->text = encodeString(_descriptionEdit->text());
 				}
 				found = true;
 				break;
@@ -298,7 +299,7 @@ void AchievementWidget::descriptionLanguageChanged(QString language) {
 		if (!found && !_descriptionEdit->text().isEmpty()) {
 			ManagementTranslation tt;
 			tt.language = "Deutsch";
-			tt.text = _descriptionEdit->text();
+			tt.text = encodeString(_descriptionEdit->text());
 			_newAchievement.descriptions.push_back(tt);
 		}
 	} else if (_currentDescriptionLanguage == QApplication::tr("English")) {
@@ -308,7 +309,7 @@ void AchievementWidget::descriptionLanguageChanged(QString language) {
 				if (_descriptionEdit->text().isEmpty()) {
 					_newAchievement.descriptions.erase(it);
 				} else {
-					it->text = _descriptionEdit->text();
+					it->text = encodeString(_descriptionEdit->text());
 				}
 				found = true;
 				break;
@@ -317,7 +318,7 @@ void AchievementWidget::descriptionLanguageChanged(QString language) {
 		if (!found && !_descriptionEdit->text().isEmpty()) {
 			ManagementTranslation tt;
 			tt.language = "English";
-			tt.text = _descriptionEdit->text();
+			tt.text = encodeString(_descriptionEdit->text());
 			_newAchievement.descriptions.push_back(tt);
 		}
 	} else if (_currentDescriptionLanguage == QApplication::tr("Polish")) {
@@ -327,7 +328,7 @@ void AchievementWidget::descriptionLanguageChanged(QString language) {
 				if (_descriptionEdit->text().isEmpty()) {
 					_newAchievement.descriptions.erase(it);
 				} else {
-					it->text = _descriptionEdit->text();
+					it->text = encodeString(_descriptionEdit->text());
 				}
 				found = true;
 				break;
@@ -336,7 +337,7 @@ void AchievementWidget::descriptionLanguageChanged(QString language) {
 		if (!found && !_descriptionEdit->text().isEmpty()) {
 			ManagementTranslation tt;
 			tt.language = "Polish";
-			tt.text = _descriptionEdit->text();
+			tt.text = encodeString(_descriptionEdit->text());
 			_newAchievement.descriptions.push_back(tt);
 		}
 	} else if (_currentDescriptionLanguage == QApplication::tr("Russian")) {
@@ -346,7 +347,7 @@ void AchievementWidget::descriptionLanguageChanged(QString language) {
 				if (_descriptionEdit->text().isEmpty()) {
 					_newAchievement.descriptions.erase(it);
 				} else {
-					it->text = _descriptionEdit->text();
+					it->text = encodeString(_descriptionEdit->text());
 				}
 				found = true;
 				break;
@@ -355,26 +356,26 @@ void AchievementWidget::descriptionLanguageChanged(QString language) {
 		if (!found && !_descriptionEdit->text().isEmpty()) {
 			ManagementTranslation tt;
 			tt.language = "Russian";
-			tt.text = _descriptionEdit->text();
+			tt.text = encodeString(_descriptionEdit->text());
 			_newAchievement.descriptions.push_back(tt);
 		}
 	}
 	bool found = false;
 	for (const auto & description : _newAchievement.descriptions) {
 		if (description.language == "Deutsch" && language == QApplication::tr("German")) {
-			_descriptionEdit->setText(description.text);
+			_descriptionEdit->setText(decodeString(description.text));
 			found = true;
 			break;
 		} else if (description.language == "English" && language == QApplication::tr("English")) {
-			_descriptionEdit->setText(description.text);
+			_descriptionEdit->setText(decodeString(description.text));
 			found = true;
 			break;
 		} else if (description.language == "Polish" && language == QApplication::tr("Polish")) {
-			_descriptionEdit->setText(description.text);
+			_descriptionEdit->setText(decodeString(description.text));
 			found = true;
 			break;
 		} else if (description.language == "Russian" && language == QApplication::tr("Russian")) {
-			_descriptionEdit->setText(description.text);
+			_descriptionEdit->setText(decodeString(description.text));
 			found = true;
 			break;
 		}

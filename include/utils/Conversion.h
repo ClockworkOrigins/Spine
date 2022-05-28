@@ -28,8 +28,8 @@
 namespace spine {
 namespace utils {
 
-#define decodeString(str) str.replace("&apos;", "'")
-#define encodeString(str) str.replace("'", "&apos;").trimmed()
+#define decodeString(str) QString(str).replace("&apos;", "'")
+#define encodeString(str) QString(str).replace("'", "&apos;").trimmed()
 #define s2q(str) decodeString(QString::fromUtf8(std::string(str).c_str()))
 #define q2s(str) encodeString(QString(str)).toUtf8().toStdString()
 #define q2ws(str) encodeString(QString(str)).toStdWString()

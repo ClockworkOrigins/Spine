@@ -2345,4 +2345,9 @@
 		<Enhancement language="English">Re-added DeepL support for translator</Enhancement>
 		<Bug language="English">Fixed bug that caused Spine to crash when a disconnect happened during upload of new files</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="42" patchVersion="0">
+		<Bug language="Deutsch">Fehler behoben, wodurch Erfolge mit Apostroph in Name oder Beschreibung nicht funktioniert haben</Bug>
+
+		<Bug language="English">Fixed bug that caused achievements with apostrophe in name or description not to work</Bug>
+	</Version>
 </Versions>
