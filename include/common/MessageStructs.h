@@ -646,7 +646,7 @@ namespace common {
 	struct SendAchievementUnlockedMessage : public Message {
 		bool unlocked;
 
-		SendAchievementUnlockedMessage() : Message(), unlocked() {
+		SendAchievementUnlockedMessage() : Message(), unlocked(false) {
 			type = MessageType::SENDISACHIEVEMENTUNLOCKED;
 		}
 		template<class Archive>

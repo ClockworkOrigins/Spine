@@ -2347,7 +2347,9 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="42" patchVersion="0">
 		<Bug language="Deutsch">Fehler behoben, wodurch Erfolge mit Apostroph in Name oder Beschreibung nicht funktioniert haben</Bug>
+		<Bug language="Deutsch">Fehler behoben, wodurch das Abfragen von Erfolgen anderer Mods im Fehlerfall häufig zum Stocken führen konnte</Bug>
 
 		<Bug language="English">Fixed bug that caused achievements with apostrophe in name or description not to work</Bug>
+		<Bug language="English">Fixed bug that caused game hanging frequently when querying achievements of other mods and an error occurs</Bug>
 	</Version>
 </Versions>

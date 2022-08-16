@@ -455,15 +455,18 @@ namespace {
 				sock->writePacket(serialized);
 			}
 			if (sock->receivePacket(serialized) != clockUtils::ClockError::SUCCESS) {
+				otherModsAchievements.insert(std::make_pair(p, false));
 				return 0;
 			}
 			try {
 				common::Message * msg = common::Message::DeserializeBlank(serialized);
 				if (!msg) {
+					otherModsAchievements.insert(std::make_pair(p, false));
 					return 0;
 				}
 				auto * saum = dynamic_cast<common::SendAchievementUnlockedMessage *>(msg);
 				if (!saum) {
+					otherModsAchievements.insert(std::make_pair(p, false));
 					return 0;
 				}
 
@@ -471,11 +474,12 @@ namespace {
 
 				return saum->unlocked;
 			} catch (...) {
+				otherModsAchievements.insert(std::make_pair(p, false));
 				return 0;
 			}
-		} else {
-			return 0;
 		}
+
+		return 0;
 	}
 
 	void setOverallSaveValue(const char * key, const char * value) {
