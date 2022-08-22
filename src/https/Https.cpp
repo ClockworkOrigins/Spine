@@ -24,11 +24,11 @@
 #include "clockUtils/log/Log.h"
 
 #ifdef WIN32
-#pragma warning(disable : 4996)
+#pragma warning(disable: 4996 4457 4267 4456 4101)
 #endif
 #include "simple-web-server/client_https.hpp"
 #ifdef WIN32
-#pragma warning(error : 4996)
+#pragma warning(default: 4996 4457 4267 4456 4101)
 #endif
 
 #include <QJsonDocument>

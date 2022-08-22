@@ -20,7 +20,6 @@
 
 #include <mutex>
 #include <string>
-#include <vector>
 
 namespace spine {
 namespace server {
@@ -34,7 +33,7 @@ namespace server {
 			RaiseVersion
 		};
 
-		typedef struct {
+		typedef struct BaseJob {
 			int projectID = 0;
 			std::string path;
 			int majorVersion = 0;

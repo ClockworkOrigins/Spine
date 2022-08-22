@@ -147,15 +147,15 @@ void ExportDialog::exportMods() {
 		Database::execute(database, "END TRANSACTION;", err);
 		Database::close(database, err);
 
-		for (size_t i = 0; i < modfiles.size() && running; i++) {
+		for (int i = 0; i < modfiles.size() && running; i++) {
 			emit updateProgress(static_cast<int>(i));
 			emit updateFile(QString::fromStdString(modfiles[i][1]));
 			QString targetFolder = exportPath + "/" + QString::fromStdString(modfiles[i][0]) + "/";
 			if (!QDir(targetFolder + QFileInfo(QString::fromStdString(modfiles[i][1])).path()).exists()) {
-				bool b = QDir(targetFolder + QFileInfo(QString::fromStdString(modfiles[i][1])).path()).mkpath(targetFolder + QFileInfo(QString::fromStdString(modfiles[i][1])).path());
-				Q_UNUSED(b);
+				const bool b = QDir(targetFolder + QFileInfo(QString::fromStdString(modfiles[i][1])).path()).mkpath(targetFolder + QFileInfo(QString::fromStdString(modfiles[i][1])).path());
+				Q_UNUSED(b)
 			}
-			utils::Compression::compress(Config::DOWNLOADDIR + "/mods/" + s2q(modfiles[i][0]) + "/" + s2q(modfiles[i][1]), targetFolder + s2q(modfiles[i][1]), false);
+			Compression::compress(Config::DOWNLOADDIR + "/mods/" + s2q(modfiles[i][0]) + "/" + s2q(modfiles[i][1]), targetFolder + s2q(modfiles[i][1]), false);
 		}
 		emit updateProgress(static_cast<int>(modfiles.size()));
 	});

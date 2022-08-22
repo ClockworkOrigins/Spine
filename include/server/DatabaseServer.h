@@ -20,7 +20,13 @@
 
 #include "boost/property_tree/ptree_fwd.hpp"
 
+#ifdef WIN32
+#pragma warning(disable: 4457 4267 4456 4101)
+#endif
 #include "simple-web-server/server_https.hpp"
+#ifdef WIN32
+#pragma warning(default: 4457 4267 4456 4101)
+#endif
 
 using namespace boost::property_tree;
 using HttpsServer = SimpleWeb::Server<SimpleWeb::HTTPS>;

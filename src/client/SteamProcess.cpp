@@ -127,7 +127,7 @@ namespace {
 	
 	void findWindowFromProcessId(int procID, int & popupCount) {
 		popupCount = 0;
-		EnumData ed = { procID, &popupCount };
+		EnumData ed = { static_cast<DWORD>(procID), &popupCount };
 		EnumWindows(enumProcWindow, reinterpret_cast<LPARAM>(&ed));
 	}
 	
