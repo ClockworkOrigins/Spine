@@ -216,7 +216,8 @@ void ModFilesWidget::addFile() {
 		dlg.setTextValue(textCopy);
 	});
 
-	if (dlg.exec() == QDialog::Rejected) return;
+	if (dlg.exec() == QDialog::Rejected)
+		return;
 	
 	const QString mapping = dlg.textValue();
 	
@@ -232,16 +233,7 @@ void ModFilesWidget::addFile() {
 	QFutureWatcher<QString> watcher;
 
 	watcher.setFuture(QtConcurrent::run([this, path] {
-		if (_data.gameType == common::GameType::Gothic || _data.gameType == common::GameType::Gothic2) {
-			if (path.endsWith(".mod", Qt::CaseInsensitive) || path.endsWith(".vdf", Qt::CaseInsensitive)) {
-				GothicVdf::optimize(path, _data.gameType == common::GameType::Gothic ? ":/g1.txt" : ":/g2.txt");
-			}
-		}
-
-		QString hash;
-		const bool b = Hashing::hash(path, hash);
-
-		return b ? hash : QString();
+		return hashFile(path);
 	}));
 
 	_waitSpinner = new WaitSpinner(QApplication::tr("Updating"), this);
@@ -492,7 +484,8 @@ void ModFilesWidget::updateData(ManagementModFilesData content) {
 void ModFilesWidget::addFolder() {
 	const auto dir = QFileDialog::getExistingDirectory(this, QApplication::tr("AddFolder"), ".", QFileDialog::ShowDirsOnly);
 	
-	if (dir.isEmpty()) return;
+	if (dir.isEmpty())
+		return;
 
 	QStringList fileList;
 
@@ -525,16 +518,7 @@ void ModFilesWidget::addFolder() {
 		fta.file = fileName;
 		fta.path = path;
 		fta.hashFuture = QtConcurrent::run([this, fta] {
-			if (_data.gameType == common::GameType::Gothic || _data.gameType == common::GameType::Gothic2) {
-				if (fta.file.endsWith(".mod", Qt::CaseInsensitive) || fta.file.endsWith(".vdf", Qt::CaseInsensitive)) {
-					GothicVdf::optimize(fta.fullPath, _data.gameType == common::GameType::Gothic ? ":/g1.txt" : ":/g2.txt");
-				}
-			}
-
-			QString hash;
-			Hashing::hash(fta.fullPath, hash);
-
-			return hash;
+			return hashFile(fta);
 		});
 
 		filesToAdd << fta;
@@ -564,7 +548,8 @@ void ModFilesWidget::addFolder() {
 	for (const QString & file : fileList) {
 		const auto idxList = _fileList->match(_fileList->index(0, 0), PathRole, QVariant::fromValue(file), 2, Qt::MatchRecursive);
 
-		if (idxList.isEmpty()) continue;
+		if (idxList.isEmpty())
+			continue;
 		
 		deleteFile(idxList[0]);
 
@@ -602,7 +587,8 @@ void ModFilesWidget::changedLanguage(QStandardItem * itm) {
 }
 
 void ModFilesWidget::updateVersion() {
-	if (_modIndex == -1) return;
+	if (_modIndex == -1)
+		return;
 
 	const auto project = _mods[_modIndex];
 
@@ -675,7 +661,8 @@ void ModFilesWidget::finishUpload(bool success, int updatedCount) {
 }
 
 void ModFilesWidget::testUpdate() {
-	if (_modIndex == -1) return;
+	if (_modIndex == -1)
+		return;
 
 	emit checkForUpdate(_mods[_modIndex].id, false);
 }
@@ -690,7 +677,8 @@ void ModFilesWidget::addFile(QString fullPath, QString relativePath, QString fil
 	}
 
 	for (const auto & c : _filterString) {
-		if (!fullRelativePath.contains(c)) continue;
+		if (!fullRelativePath.contains(c))
+			continue;
 
 		// show error message
 		QMessageBox msg(QMessageBox::Icon::Critical, QApplication::tr("FileUnsupported"), QApplication::tr("FileUnsupportedDescription").arg(fullRelativePath).arg(c), QMessageBox::StandardButton::Ok);
@@ -779,7 +767,8 @@ void ModFilesWidget::addFile(QStandardItem * itm, QString file, QString language
 void ModFilesWidget::deleteFile(const QModelIndex & idx) {
 	const QVariant v = idx.data(PathRole);
 	
-	if (!v.isValid()) return;
+	if (!v.isValid())
+		return;
 	
 	const QString path = v.toString();
 	for (auto & file : _data.files) {
@@ -806,7 +795,8 @@ QString ModFilesWidget::getPathSuggestion(const QString & file) const {
 	const auto fileName = fi.fileName();
 	
 	for (const auto & f : _data.files) {
-		if (!f.filename.contains(fileName)) continue;
+		if (!f.filename.contains(fileName))
+			continue;
 
 		auto path = f.filename;
 		path = path.remove(fileName);
@@ -844,4 +834,21 @@ void ModFilesWidget::markAsChanged(const QString& relativePath) {
 
 	QSignalBlocker sb(_fileList);
 	itm->setText(text + " *");
+}
+
+QString ModFilesWidget::hashFile(const FileToAdd & fta) const {
+	return hashFile(fta.fullPath);
+}
+
+QString ModFilesWidget::hashFile(const QString & path) const {
+	if (_data.gameType == common::GameType::Gothic || _data.gameType == common::GameType::Gothic2) {
+		if (path.endsWith(".mod", Qt::CaseInsensitive) || path.endsWith(".vdf", Qt::CaseInsensitive)) {
+			GothicVdf::optimize(path, _data.gameType == common::GameType::Gothic ? ":/g1.txt" : ":/g2.txt");
+		}
+	}
+
+	QString hash;
+	const bool b = Hashing::hash(path, hash);
+
+	return b ? hash : QString();
 }

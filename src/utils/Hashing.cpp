@@ -24,16 +24,23 @@
 using namespace spine::utils;
 
 bool Hashing::hash(const QString & file, QString & hash) {
+	return Hashing::hash(file, 0, hash);
+}
+
+bool Hashing::hash(const QString & file, qint64 offset, QString & hash) {
 	QFile f(file);
-	
-	if (!f.open(QFile::ReadOnly)) return false;
-	
+
+	if (!f.open(QFile::ReadOnly))
+		return false;
+
+	f.seek(offset);
+
 	QCryptographicHash cryptoHash(QCryptographicHash::Sha512);
 	if (cryptoHash.addData(&f)) {
 		hash = QString::fromLatin1(cryptoHash.result().toHex());
 		return true;
 	}
-	
+
 	return false;
 }
 

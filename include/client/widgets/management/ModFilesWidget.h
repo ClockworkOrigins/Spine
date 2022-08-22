@@ -108,6 +108,9 @@ namespace widgets {
 
 		int64_t getSize(const QString & path) const;
 		void markAsChanged(const QString & relativePath);
+
+		QString hashFile(const FileToAdd & fta) const;
+		QString hashFile(const QString & path) const;
 	};
 
 } /* namespace widgets */

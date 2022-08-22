@@ -26,6 +26,7 @@ namespace utils {
 	class Hashing {
 	public:
 		static bool hash(const QString & file, QString & hash);
+		static bool hash(const QString & file, qint64 offset, QString & hash);
 		static bool hash(const QByteArray & bytes, QString & hash);
 		static bool checkHash(const QString & file, const QString & referenceHash);
 	};
