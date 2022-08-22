@@ -151,7 +151,8 @@ ModFilesWidget::ModFilesWidget(QWidget * par) : QWidget(par), _fileList(nullptr)
 	qRegisterMetaType<ManagementModFilesData>("ManagementModFilesData");
 
 	connect(this, &ModFilesWidget::removeSpinner, [this]() {
-		if (!_waitSpinner) return;
+		if (!_waitSpinner)
+			return;
 		
 		_waitSpinner->deleteLater();
 		_waitSpinner = nullptr;
@@ -163,7 +164,8 @@ ModFilesWidget::ModFilesWidget(QWidget * par) : QWidget(par), _fileList(nullptr)
 
 	QFile f(":/invalidFileChars.txt");
 	
-	if (!f.open(QIODevice::ReadOnly)) return;
+	if (!f.open(QIODevice::ReadOnly))
+		return;
 
 	QTextStream ts(&f);
 
@@ -309,53 +311,53 @@ void ModFilesWidget::uploadCurrentMod() {
 
 		QFutureSynchronizer<void> syncher;
 		for (const auto & mmf : _data.files) {
-			const auto f = QtConcurrent::run([this, mmf, &lock, &maxBytes, &uploadFiles, &umm]() {
+			const auto f = QtConcurrent::run([this, mmf, &lock, &maxBytes, &uploadFiles, &umm] {
 				common::ModFile mf;
 				mf.language = q2s(mmf.language);
 				mf.changed = mmf.changed;
 				mf.deleted = mmf.deleted;
 				mf.filename = q2s(mmf.filename);
 				mf.hash = q2s(mmf.hash);
-				mf.size = mmf.size;
 
-				if (mf.changed) {
-					QString currentFileName = mmf.filename;
-					while (currentFileName.startsWith("/")) {
-						currentFileName.remove(0, 1);
-					}
-					if (currentFileName.endsWith(".z")) {
-						currentFileName.chop(2);
-					}
-					const auto it = _fileMap.find(currentFileName);
-					if (it == _fileMap.end()) {
+				if (!mf.changed)
+					return;
+
+				QString currentFileName = mmf.filename;
+				while (currentFileName.startsWith("/")) {
+					currentFileName.remove(0, 1);
+				}
+				if (currentFileName.endsWith(".z")) {
+					currentFileName.chop(2);
+				}
+				const auto it = _fileMap.find(currentFileName);
+				if (it == _fileMap.end()) {
+					mf.size = 0;
+				} else {
+					// hash check
+					if (mmf.oldHash == mmf.hash) { // hash the same, so just update the language
 						mf.size = 0;
 					} else {
-						// hash check
-						if (mmf.oldHash == mmf.hash) { // hash the same, so just update the language
-							mf.size = 0;
-						} else {
-							mf.uncompressedSize = getSize(it.value());
+						mf.uncompressedSize = getSize(it.value());
 
-							Compression::compress(it.value(), false);
+						Compression::compress(it.value(), false);
 
-							mf.size = getSize(it.value() + ".z");
-						}
+						mf.size = getSize(it.value() + ".z");
 					}
-					if (!mmf.filename.endsWith(".z")) {
-						mf.filename += ".z";
-					}
-					while (mf.filename[0] == '/') {
-						mf.filename = mf.filename.substr(1);
-					}
-
-					QMutexLocker lg(&lock);
-					if (mf.size > 0) {
-						maxBytes += mf.size;
-						uploadFiles.push_back(it.value() + ".z");
-					}
-
-					umm.files.push_back(mf);
 				}
+				if (!mmf.filename.endsWith(".z")) {
+					mf.filename += ".z";
+				}
+				while (mf.filename[0] == '/') {
+					mf.filename = mf.filename.substr(1);
+				}
+
+				QMutexLocker lg(&lock);
+				if (mf.size > 0) {
+					maxBytes += mf.size;
+					uploadFiles.push_back(it.value() + ".z");
+				}
+
+				umm.files.push_back(mf);
 			});
 			syncher.addFuture(f);
 		}
@@ -582,7 +584,8 @@ void ModFilesWidget::showVersionUpdate(bool success) {
 void ModFilesWidget::changedLanguage(QStandardItem * itm) {
 	const QVariant v = itm->data(PathRole);
 
-	if (!v.isValid()) return;
+	if (!v.isValid())
+		return;
 
 	const QString path = v.toString();
 	for (auto & file : _data.files) {
@@ -829,13 +832,15 @@ int64_t ModFilesWidget::getSize(const QString& path) const
 void ModFilesWidget::markAsChanged(const QString& relativePath) {
 	const auto idxList = _fileList->match(_fileList->index(0, 0), PathRole, QVariant::fromValue(relativePath), 2, Qt::MatchRecursive);
 
-	if (idxList.isEmpty()) return;
+	if (idxList.isEmpty())
+		return;
 
 	auto * itm = _fileList->itemFromIndex(idxList[0]);
 
 	const auto text = itm->data(Qt::DisplayRole).toString();
 
-	if (text.endsWith(" *")) return;
+	if (text.endsWith(" *"))
+		return;
 
 	QSignalBlocker sb(_fileList);
 	itm->setText(text + " *");
