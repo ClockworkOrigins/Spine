@@ -48,7 +48,7 @@ QList<ManagementMod> ManagementMod::read(const QJsonObject & json) {
 	const auto packagesNode = json["Packages"];
 	auto arr = packagesNode.toArray();
 
-	for (auto & e : arr) {
+	for (const auto e : arr) {
 		const auto packageEntry = e.toObject();
 
 		ManagementMod m;

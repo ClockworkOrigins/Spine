@@ -27,7 +27,7 @@ namespace utils {
 
 	class GothicVdf {
 	public:
-		typedef struct {
+		typedef struct Result {
 			enum class Status {
 				Success,
 				Fail
