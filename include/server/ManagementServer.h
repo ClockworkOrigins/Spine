@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "boost/property_tree/ptree_fwd.hpp"
+
 #include "simple-web-server/server_https.hpp"
 
 using HttpsServer = SimpleWeb::Server<SimpleWeb::HTTPS>;
@@ -33,6 +35,8 @@ namespace common {
 	struct UploadAchievementIconsMessage;
 }
 namespace server {
+
+	class MariaDBWrapper;
 
 	class ManagementServer {
 		friend class Server;
@@ -77,6 +81,8 @@ namespace server {
 		bool hasAdminAccessToMod(int userID, int modID) const;
 
 		static void pushToDiscord(const std::string & message);
+
+		bool addAccessibleMod(int projectID, const std::string & language, MariaDBWrapper & database, boost::property_tree::ptree & modNode) const;
 	};
 
 } /* namespace server */

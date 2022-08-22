@@ -24,7 +24,8 @@ namespace spine {
 namespace common {
 
 	enum class ProjectPrivilege : int64_t {
-		EditInfoPage = 1 << 0
+		EditInfoPage = 1 << 0,
+        Manage = 1 << 1
 	};
 
 } /* namespace common */

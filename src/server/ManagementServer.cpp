@@ -18,6 +18,8 @@
 
 #include "ManagementServer.h"
 
+#include <set>
+
 #include "DownloadSizeChecker.h"
 #include "FileSynchronizer.h"
 #include "LanguageConverter.h"
@@ -27,6 +29,7 @@
 
 #include "common/MessageStructs.h"
 #include "common/NewsTickerTypes.h"
+#include "common/ProjectPrivileges.h"
 #include "common/ScoreOrder.h"
 
 #define BOOST_SPIRIT_THREADSAFE
@@ -105,8 +108,8 @@ void ManagementServer::getMods(std::shared_ptr<HttpsServer::Response> response, 
 		ptree pt;
 		read_json(ss, pt);
 	
-		const std::string username = pt.get<std::string>("Username");
-		const std::string password = pt.get<std::string>("Password");
+		const auto username = pt.get<std::string>("Username");
+		const auto password = pt.get<std::string>("Password");
 
 		const int userID = ServerCommon::getUserID(username, password);
 
@@ -115,7 +118,7 @@ void ManagementServer::getMods(std::shared_ptr<HttpsServer::Response> response, 
 			return;
 		}
 		
-		const std::string language = pt.get<std::string>("Language");
+		const auto language = pt.get<std::string>("Language");
 
 		SimpleWeb::StatusCode code = SimpleWeb::StatusCode::success_ok;
 
@@ -136,6 +139,11 @@ void ManagementServer::getMods(std::shared_ptr<HttpsServer::Response> response, 
 				break;
 			}
 			if (!database.query("PREPARE selectModStmt FROM \"SELECT ModID FROM mods WHERE TeamID = ?\";")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			if (!database.query("PREPARE selectAdminModsStmt FROM \"SELECT ProjectID FROM projectPrivileges WHERE UserID = ? AND Privileges & " + std::to_string(static_cast<int>(ProjectPrivilege::Manage)) + "\";")) {
 				std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
@@ -164,6 +172,8 @@ void ManagementServer::getMods(std::shared_ptr<HttpsServer::Response> response, 
 				}
 			}
 			auto lastResults = database.getResults<std::vector<std::string>>();
+
+			std::set<int> addedMods;
 			
 			ptree modNodes;
 			for (const auto & vec : lastResults) {
@@ -178,49 +188,39 @@ void ManagementServer::getMods(std::shared_ptr<HttpsServer::Response> response, 
 					break;
 				}
 				auto results = database.getResults<std::vector<std::string>>();
-				for (auto mod : results) {
-					const auto projectName = ServerCommon::getProjectName(std::stoi(mod[0]), LanguageConverter::convert(language));
+				for (const auto & mod : results) {
+					ptree modNode;
 
-					if (projectName.empty())
+					const auto projectID = std::stoi(mod[0]);
+
+					if (!addAccessibleMod(projectID, language, database, modNode))
 						continue;
 
-					ptree modNode;
-					modNode.put("Name", projectName);
-					modNode.put("ID", std::stoi(mod[0]));
-
-					if (!database.query("SET @paramModID=" + mod[0] + ";")) {
-						std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
-						code = SimpleWeb::StatusCode::client_error_failed_dependency;
-						break;
-					}
-					if (!database.query("EXECUTE selectPackagesStmt USING @paramModID;")) {
-						std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
-						code = SimpleWeb::StatusCode::client_error_failed_dependency;
-						break;
-					}
-
-					const auto packageResults = database.getResults<std::vector<std::string>>();
-
-					ptree packageNodes;
-
-					for (const auto & vec2 : packageResults) {
-						const auto packageName = ServerCommon::getPackageName(std::stoi(vec2[0]), LanguageConverter::convert(language));
-
-						if (packageName.empty())
-							continue;
-
-						ptree packageNode;
-						packageNode.put("Name", packageName);
-						packageNode.put("ID", std::stoi(vec2[0]));
-
-						packageNodes.push_back(std::make_pair("", packageNode));
-					}
-
-					if (!packageNodes.empty())
-						modNode.add_child("Packages", packageNodes);
+					addedMods.insert(projectID);
 
 					modNodes.push_back(std::make_pair("", modNode));
 				}
+			}
+
+			if (!database.query("EXECUTE selectAdminModsStmt USING @paramUserID;")) {
+				std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
+				code = SimpleWeb::StatusCode::client_error_failed_dependency;
+				break;
+			}
+			for (const auto & vec : lastResults) {
+				ptree modNode;
+
+				const auto projectID = std::stoi(vec[0]);
+
+				if (addedMods.count(projectID) > 0)
+					continue;
+
+				if (!addAccessibleMod(projectID, language, database, modNode))
+					continue;
+
+				addedMods.insert(projectID);
+
+				modNodes.push_back(std::make_pair("", modNode));
 			}
 			
 			responseTree.add_child("Mods", modNodes);
@@ -234,6 +234,47 @@ void ManagementServer::getMods(std::shared_ptr<HttpsServer::Response> response, 
 	}
 }
 
+bool ManagementServer::addAccessibleMod(int projectID, const std::string& language, MariaDBWrapper & database, ptree & modNode) const {
+	const auto projectName = ServerCommon::getProjectName(projectID, LanguageConverter::convert(language));
+
+	if (projectName.empty())
+		return false;
+
+	modNode.put("Name", projectName);
+	modNode.put("ID", projectID);
+
+	if (!database.query("SET @paramModID=" + std::to_string(projectID) + ";")) {
+		std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+		return false;
+	}
+	if (!database.query("EXECUTE selectPackagesStmt USING @paramModID;")) {
+		std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
+		return false;
+	}
+
+	const auto packageResults = database.getResults<std::vector<std::string>>();
+
+	ptree packageNodes;
+
+	for (const auto& vec2 : packageResults) {
+		const auto packageName = ServerCommon::getPackageName(std::stoi(vec2[0]), LanguageConverter::convert(language));
+
+		if (packageName.empty())
+			continue;
+
+		ptree packageNode;
+		packageNode.put("Name", packageName);
+		packageNode.put("ID", std::stoi(vec2[0]));
+
+		packageNodes.push_back(std::make_pair("", packageNode));
+	}
+
+	if (!packageNodes.empty())
+		modNode.add_child("Packages", packageNodes);
+
+	return true;
+}
+
 void ManagementServer::getAchievements(std::shared_ptr<HttpsServer::Response> response, std::shared_ptr<HttpsServer::Request> request) const {
 	try {
 		const std::string content = ServerCommon::convertString(request->content.string());
@@ -243,8 +284,8 @@ void ManagementServer::getAchievements(std::shared_ptr<HttpsServer::Response> re
 		ptree pt;
 		read_json(ss, pt);
 	
-		const std::string username = pt.get<std::string>("Username");
-		const std::string password = pt.get<std::string>("Password");
+		const auto username = pt.get<std::string>("Username");
+		const auto password = pt.get<std::string>("Password");
 
 		const int userID = ServerCommon::getUserID(username, password);
 
@@ -253,7 +294,7 @@ void ManagementServer::getAchievements(std::shared_ptr<HttpsServer::Response> re
 			return;
 		}
 
-		const int32_t modID = pt.get<int32_t>("ModID");
+		const auto modID = pt.get<int32_t>("ModID");
 
 		if (!hasAdminAccessToMod(userID, modID)) {
 			response->write(SimpleWeb::StatusCode::client_error_unauthorized);
