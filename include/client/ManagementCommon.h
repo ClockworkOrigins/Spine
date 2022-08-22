@@ -47,7 +47,7 @@ namespace client {
 		QList<ManagementMod> read(const QJsonObject & json);
 	} ManagementMod;
 
-	typedef struct {
+	typedef struct ManagementTranslation {
 		QString language;
 		QString text;
 
@@ -55,7 +55,7 @@ namespace client {
 		void write(QJsonObject & json) const;
 	} ManagementTranslation;
 
-	typedef struct {
+	typedef struct ManagementAchievement {
 		QList<ManagementTranslation> names;
 		QList<ManagementTranslation> descriptions;
 
@@ -76,7 +76,7 @@ namespace client {
 		bool isValid() const;
 	} ManagementAchievement;
 
-	typedef struct {
+	typedef struct ManagementGeneralData {
 		bool enabled = false;
 		common::GameType gothicVersion;
 		common::ModType modType;
@@ -90,14 +90,14 @@ namespace client {
 		void write(QJsonObject & json) const;
 	} ManagementGeneralData;
 
-	typedef struct {
+	typedef struct ManagementCustomStatistic {
 		QString name;
 		int32_t value = 0;
 
 		void read(const QJsonObject & json);
 	} ManagementCustomStatistic;
 
-	typedef struct {
+	typedef struct ManagementCustomStatistics {
 		QMap<QPair<int, int>, QList<ManagementCustomStatistic>> stats;
 
 		void read(const QJsonObject & json);
@@ -115,10 +115,10 @@ namespace client {
 
 		void read(const QJsonObject & json);
 
-		bool operator==(const ManagementModFile& other) const;
+		bool operator==(const ManagementModFile & other) const;
 	} ManagementModFile;
 
-	typedef struct {
+	typedef struct ManagementModFilesData {
 		int32_t versionMajor;
 		int32_t versionMinor;
 		int32_t versionPatch;
@@ -130,14 +130,14 @@ namespace client {
 		void read(const QJsonObject & json);
 	} ManagementModFilesData;
 
-	typedef struct {
+	typedef struct ManagementVersionDownload {
 		QString version;
 		int32_t downloads;
 
 		void read(const QJsonObject & json);
 	} ManagementVersionDownload;
 
-	typedef struct {
+	typedef struct ManagementStatistic {
 		int32_t maximum = 0;
 		int32_t average = 0;
 		int32_t median = 0;
@@ -145,14 +145,14 @@ namespace client {
 		void read(const QJsonObject & json);
 	} ManagementStatistic;
 
-	typedef struct {
+	typedef struct ManagementAchievementStatistic  {
 		QString name;
 		ManagementStatistic statistic;
 
 		void read(const QJsonObject & json);
 	} ManagementAchievementStatistic;
 
-	typedef struct {
+	typedef struct ManagementStatistics {
 		int32_t overallDownloads;
 		QList<ManagementVersionDownload> downloadsPerVersion;
 
@@ -168,7 +168,7 @@ namespace client {
 		void read(const QJsonObject & json);
 	} ManagementStatistics;
 
-	typedef struct {
+	typedef struct ManagementScore {
 		QList<ManagementTranslation> names;
 		common::ScoreOrder scoreOrder;
 
@@ -176,7 +176,7 @@ namespace client {
 		void write(QJsonObject & json) const;
 	} ManagementScore;
 
-	typedef struct {
+	typedef struct ManagementSurvey {
 		int32_t surveyID = 0;
 		QString language;
 		int32_t majorVersion = 0;
@@ -189,32 +189,32 @@ namespace client {
 		void read(const QJsonObject & json);
 	} ManagementSurvey;
 
-	typedef struct {
+	typedef struct ManagementSurveys  {
 		QList<ManagementSurvey> surveys;
 
 		void read(const QJsonObject & json);
 	} ManagementSurveys;
 
-	typedef struct {
+	typedef struct ManagementSurveyAnswer {
 		QString question;
 		QStringList answers;
 
 		void read(const QJsonObject & json);
 	} ManagementSurveyAnswer;
 
-	typedef struct {
+	typedef struct ManagementSurveyAnswers {
 		QList<ManagementSurveyAnswer> answers;
 
 		void read(const QJsonObject & json);
 	} ManagementSurveyAnswers;
 
-	typedef struct {
+	typedef struct ManagementSurveyQuestion {
 		QString question;
 
 		void read(const QJsonObject & json);
 	} ManagementSurveyQuestion;
 
-	typedef struct {
+	typedef struct ManagementSurveyQuestions {
 		QList<ManagementSurveyQuestion> questions;
 
 		void read(const QJsonObject & json);
