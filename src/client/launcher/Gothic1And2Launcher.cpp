@@ -185,6 +185,15 @@ void Gothic1And2Launcher::setDirectory(const QString & directory) {
 	if (QFileInfo::exists(outputPath.arg(_directory).arg("OU.LSC"))) {
 		QFile::rename(outputPath.arg(_directory).arg("OU.LSC"), outputPath.arg(_directory).arg("OU.CSL"));
 	}
+
+	auto b = QDir(directory).mkpath(QStringLiteral("%1/_work/Data/Anims/_compiled").arg(directory));
+	Q_UNUSED(b)
+
+	b = QDir(directory).mkpath(QStringLiteral("%1/_work/Data/Meshes/_compiled").arg(directory));
+	Q_UNUSED(b)
+
+	b = QDir(directory).mkpath(QStringLiteral("%1/_work/Data/Textures/_compiled").arg(directory));
+	Q_UNUSED(b)
 }
 
 void Gothic1And2Launcher::setHideIncompatible(bool enabled) {
@@ -380,7 +389,7 @@ void Gothic1And2Launcher::updateCompatibilityList(int modID, std::vector<int32_t
 	_checkboxPatchIDMapping.clear();
 
 	Database::DBError err;
-	const ModVersion modGv = Database::queryNth<ModVersion, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion, MajorVersion, MinorVersion, PatchVersion FROM mods WHERE ModID = " + std::to_string(_projectID) + " LIMIT 1;", err, 0);
+	const auto modGv = Database::queryNth<ModVersion, int, int, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion, MajorVersion, MinorVersion, PatchVersion FROM mods WHERE ModID = " + std::to_string(_projectID) + " LIMIT 1;", err, 0);
 
 	const auto contains = [](const std::vector<int32_t> & list, int32_t id) {
 		const auto it = std::find_if(list.begin(), list.end(), [id](const int32_t & a) {
@@ -516,11 +525,27 @@ void Gothic1And2Launcher::removeEmptyDirs() const {
 			it.next();
 			const QString path = it.filePath();
 			QDir dir(path);
-			if (dir.entryList(QDir::Filter::Dirs | QDir::Filter::NoDotAndDotDot).isEmpty() && !dir.absolutePath().contains("saves_", Qt::CaseInsensitive)) {
+			if (dir.entryList(QDir::Filter::Dirs | QDir::Filter::NoDotAndDotDot).isEmpty() && canRemoveDir(dir.absolutePath()) ) {
 				deleted |= dir.rmdir(path);
 			}
 		}
 	} while (deleted);
+}
+
+bool Gothic1And2Launcher::canRemoveDir(const QString & path) {
+	if (path.contains("saves_", Qt::CaseInsensitive))
+		return false;
+
+	if (path.contains("_work/data/meshes/_compiled", Qt::CaseInsensitive))
+		return false;
+
+	if (path.contains("_work/data/anims/_compiled", Qt::CaseInsensitive))
+		return false;
+
+	if (path.contains("_work/data/textures/_compiled", Qt::CaseInsensitive))
+		return false;
+
+	return true;
 }
 
 void Gothic1And2Launcher::restoreSettings() {
@@ -2242,7 +2267,8 @@ void Gothic1And2Launcher::parseIni(QString file) {
 	if (!Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + modIDString.toStdString() + " LIMIT 1;", err).empty()) {
 		mid = static_cast<common::GameType>(Database::queryNth<std::vector<int>, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT GothicVersion FROM mods WHERE ModID = " + modIDString.toStdString() + " LIMIT 1;", err, 0).front());
 
-		if (mid != getGothicVersion()) return;
+		if (mid != getGothicVersion())
+			return;
 		
 		found = true;
 	} else {

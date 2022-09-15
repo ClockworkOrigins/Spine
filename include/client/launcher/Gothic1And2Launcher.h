@@ -151,6 +151,7 @@ namespace launcher {
 		void saveSettings() override;
 
 		void removeEmptyDirs() const;
+		static bool canRemoveDir(const QString & path);
 
 		void updateModStats() override;
 		
