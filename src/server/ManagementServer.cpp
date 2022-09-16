@@ -2969,7 +2969,8 @@ void ManagementServer::uploadAchievementIcons(UploadAchievementIconsMessage * ms
 }
 
 bool ManagementServer::hasAdminAccessToMod(int userID, int modID) const {
-	if (userID == 3) return true;
+	if (userID == 3)
+		return true;
 	
 	do {
 		CONNECTTODATABASE(__LINE__)
@@ -2982,6 +2983,10 @@ bool ManagementServer::hasAdminAccessToMod(int userID, int modID) const {
 			std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 			break;
 		}
+		if (!database.query("PREPARE selectManagePrivilegeStmt FROM \"SELECT UserID FROM projectPrivileges WHERE ProjectID = ? AND UserID = ? AND Privileges & " + std::to_string(static_cast<int>(ProjectPrivilege::Manage)) + " LIMIT 1\";")) {
+			std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
+			break;
+		}
 		if (!database.query("SET @paramUserID=" + std::to_string(userID) + ";")) {
 			std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 			break;
@@ -2990,13 +2995,23 @@ bool ManagementServer::hasAdminAccessToMod(int userID, int modID) const {
 			std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
 			break;
 		}
-		if (!database.query("EXECUTE selectModStmt USING @paramModID;")) {
+		if (!database.query("EXECUTE selectManagePrivilegeStmt USING @paramModID, @paramUserID;")) {
 			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
 			break;
 		}
 		auto results = database.getResults<std::vector<std::string>>();
 
-		if (results.empty()) break;
+		if (!results.empty())
+			return true;
+
+		if (!database.query("EXECUTE selectModStmt USING @paramModID;")) {
+			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << " " << database.getLastError() << std::endl;
+			break;
+		}
+		results = database.getResults<std::vector<std::string>>();
+
+		if (results.empty())
+			break;
 		
 		if (!database.query("SET @paramTeamID=" + results[0][0] + ";")) {
 			std::cout << "Query couldn't be started: " << __FILE__ << ":" << __LINE__ << std::endl;
