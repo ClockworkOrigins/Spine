@@ -207,6 +207,8 @@ void ManagementServer::getMods(std::shared_ptr<HttpsServer::Response> response, 
 				code = SimpleWeb::StatusCode::client_error_failed_dependency;
 				break;
 			}
+			lastResults = database.getResults<std::vector<std::string>>();
+
 			for (const auto & vec : lastResults) {
 				ptree modNode;
 
@@ -234,7 +236,7 @@ void ManagementServer::getMods(std::shared_ptr<HttpsServer::Response> response, 
 	}
 }
 
-bool ManagementServer::addAccessibleMod(int projectID, const std::string& language, MariaDBWrapper & database, ptree & modNode) const {
+bool ManagementServer::addAccessibleMod(int projectID, const std::string & language, MariaDBWrapper & database, ptree & modNode) const {
 	const auto projectName = ServerCommon::getProjectName(projectID, LanguageConverter::convert(language));
 
 	if (projectName.empty())
