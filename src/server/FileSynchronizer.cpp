@@ -81,7 +81,8 @@ void FileSynchronizer::exec() {
 			const auto job = getFirstJobInQueue();
 			lock.unlock();
 
-			if (!job.valid) break;
+			if (!job.valid)
+				break;
 
 			executeJob(job);
 		}
@@ -210,7 +211,8 @@ void FileSynchronizer::addMissing() {
 				const auto & set = projectsOnServer[serverID];
 				const auto it2 = set.find(project.first);
 
-				if (it2 != set.end()) continue;
+				if (it2 != set.end())
+					continue;
 				
 				if (!database.query("SET @paramProjectID=" + std::to_string(project.first) + ";")) {
 					std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
@@ -294,22 +296,32 @@ void FileSynchronizer::executeJob(const ExecuteJob & job) {
 			std::cout << "Update result: " << result << std::endl;
 		}
 
-		if (result) return;
+		if (result)
+			return;
 			
 		break;
 	}
 	case Operation::Delete: {
-		const auto cmd = "curl -v -u " + job.username + ":" + job.password + " ftp://" + job.ftpHost + " -Q \'DELE " + job.rootFolder + std::to_string(job.projectID) + "/" + job.path + "\'";
+		static int retryCount = 0;
 
+		const auto cmd = "curl -v -u " + job.username + ":" + job.password + " ftp://" + job.ftpHost + " -Q \'DELE " + job.rootFolder + std::to_string(job.projectID) + "/" + job.path + "\'";
 			
 		const auto result = system(cmd.c_str());
 
 		if (result) {
 			std::cout << "Delete command: " << cmd << std::endl;
 			std::cout << "Delete result: " << result << std::endl;
+
+			retryCount++;
 		}
 
-		if (result) return;
+		if (result && retryCount < 10) {
+			// wait for a minute before re-trying instead of instant retry, maybe there is a connection issue
+			std::this_thread::sleep_for(std::chrono::minutes(1));
+			return;
+		}
+
+		retryCount = 0;
 			
 		break;
 	}
@@ -376,7 +388,8 @@ void FileSynchronizer::updateFileserver(const ExecuteJob & job) {
 
 		const auto results = database.getResults<std::vector<std::string>>();
 
-		if (!results.empty()) break;
+		if (!results.empty())
+			break;
 
 		if (!database.query("SET @paramMajorVersion=" + std::to_string(job.majorVersion) + ";")) {
 			std::cout << "Query couldn't be started: " << __FILE__ << ": " << __LINE__ << ": " << database.getLastError() << std::endl;
@@ -429,7 +442,8 @@ FileSynchronizer::ExecuteJob FileSynchronizer::getFirstJobInQueue() {
 
 		auto results = database.getResults<std::vector<std::string>>();
 
-		if (results.empty()) break;
+		if (results.empty())
+			break;
 
 		auto vec = results[0];
 
@@ -455,7 +469,8 @@ FileSynchronizer::ExecuteJob FileSynchronizer::getFirstJobInQueue() {
 
 		results = database.getResults<std::vector<std::string>>();
 
-		if (results.empty()) break;
+		if (results.empty())
+			break;
 
 		vec = results[0];
 
@@ -516,7 +531,8 @@ void FileSynchronizer::addJob(const AddForServerJob & job) {
 		auto jobID = -1;
 
 		for (const auto & vec : results) {
-			if (vec[1] != job.path) continue;
+			if (vec[1] != job.path)
+				continue;
 
 			jobID = std::stoi(vec[0]);
 
@@ -617,9 +633,10 @@ void FileSynchronizer::updateJob(const AddForServerJob & job, int jobID) {
 
 		const auto results = database.getResults<std::vector<std::string>>();
 
-		if (results.empty()) break; // can't happen, but defensive programming and so
+		if (results.empty())
+			break; // can't happen, but defensive programming and so
 
-		const auto vec = results[0];
+		const auto & vec = results[0];
 
 		const auto operation = static_cast<Operation>(std::stoi(vec[0]));
 
