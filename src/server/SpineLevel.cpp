@@ -93,7 +93,7 @@ void SpineLevel::init() {
 
 			for (const auto & vec : results) {
 				const int id = std::stoi(vec[0]);
-				const std::string username = vec[1];
+				const std::string username = ServerCommon::filterUsername(vec[1]);
 
 				RankingEntry re;
 				re.userID = id;
