@@ -2703,8 +2703,10 @@ std::string TranslatorServer::requestDeepL(const std::string & text, const std::
 			if (pt.count("translations") == 0)
 				return;
 
-			const auto& tChild = pt.get_child("translations");
-			result = tChild.get<std::string>("text");
+			for (const auto& tChild : pt.get_child("translations")) {
+				result = tChild.second.get<std::string>("text");
+				break;
+			}
 		} else {
 			result = "";
 		}
