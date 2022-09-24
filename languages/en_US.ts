@@ -3443,5 +3443,13 @@ You can revoke your permission at every point in time. All necessary information
         <source>DownloadCsv</source>
         <translation>Download csv</translation>
     </message>
+    <message>
+        <source>BetaMode</source>
+        <translation>Beta Mode</translation>
+    </message>
+    <message>
+        <source>BetaModeTooltip</source>
+        <translation>In beta mode you get access to new Spine features that aren't considered stable enough for all users yet. It's meant so you can provide feedback while new features are still in development.</translation>
+    </message>
 </context>
 </TS>

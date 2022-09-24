@@ -3436,5 +3436,13 @@ You can revoke your permission at every point in time. All necessary information
         <source>DownloadCsv</source>
         <translation>Скачать csv</translation>
     </message>
+    <message>
+        <source>BetaMode</source>
+        <translation>Бета-режим</translation>
+    </message>
+    <message>
+        <source>BetaModeTooltip</source>
+        <translation>В бета-режиме вы получаете доступ к новым функциям Spine, которые еще не считаются достаточно стабильными для всех пользователей. Он предназначен для того, чтобы вы могли оставлять отзывы, пока новые функции находятся в стадии разработки.</translation>
+    </message>
 </context>
 </TS>

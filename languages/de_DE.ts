@@ -3435,5 +3435,13 @@ Du kannst deine Zustimmung jederzeit wiederrufen. Alle dazu nötigen Information
         <source>DownloadCsv</source>
         <translation>csv herunterladen</translation>
     </message>
+    <message>
+        <source>BetaMode</source>
+        <translation>Beta-Modus</translation>
+    </message>
+    <message>
+        <source>BetaModeTooltip</source>
+        <translation>Im Beta-Modus hast du Zugriff auf neue Spine-Features, die noch nicht als stabil genug für alle Nutzer gelten. Er ist dafür gedacht, damit du Feedback für neue Features geben kannst, die sich aktuell noch in Entwicklung befinden.</translation>
+    </message>
 </context>
 </TS>

@@ -46,6 +46,7 @@ namespace utils {
 
 		static int downloadRate;
 		static bool extendedLogging;
+		static bool betaMode;
 
 		static const int ProjectID = 0;
 

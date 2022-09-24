@@ -3431,5 +3431,13 @@ Możesz wycofać swoją zgodę w każdej chwili. Wszystkie niezbędne informacje
         <source>DownloadCsv</source>
         <translation>Pobierz csv</translation>
     </message>
+    <message>
+        <source>BetaMode</source>
+        <translation>Tryb Beta</translation>
+    </message>
+    <message>
+        <source>BetaModeTooltip</source>
+        <translation>W trybie beta otrzymujesz dostęp do nowych funkcji Spine, które nie są jeszcze uważane za wystarczająco stabilne dla wszystkich użytkowników. Dzięki temu możesz przekazać swoje uwagi, gdy nowe funkcje są jeszcze w fazie rozwoju.</translation>
+    </message>
 </context>
 </TS>

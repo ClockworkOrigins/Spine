@@ -60,6 +60,7 @@ namespace widgets {
 		QSpinBox * _downloadRateSpinBox;
 		QCheckBox * _hideIncompatibleCheckBox;
 		QCheckBox * _extendedLoggingCheckBox;
+		QCheckBox * _betaModeCheckBox;
 		QCheckBox * _skipExitCheckBox;
 		QCheckBox * _developerModeCheckBox;
 

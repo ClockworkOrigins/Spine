@@ -171,6 +171,16 @@ GeneralSettingsWidget::GeneralSettingsWidget(QWidget * par) : QWidget(par), _lan
 		l->addWidget(_skipExitCheckBox);
 	}
 	{
+		Config::betaMode = Config::IniParser->value("MISC/betaMode", false).toBool();
+		_betaModeCheckBox = new QCheckBox(QApplication::tr("BetaMode"), this);
+		UPDATELANGUAGESETTEXT(_betaModeCheckBox, "BetaMode");
+		_betaModeCheckBox->setToolTip(QApplication::tr("BetaModeTooltip"));
+		UPDATELANGUAGESETTOOLTIP(_betaModeCheckBox, "BetaModeTooltip");
+		_betaModeCheckBox->setChecked(Config::betaMode);
+
+		l->addWidget(_betaModeCheckBox);
+	}
+	{
 		_devModeActive = Config::IniParser->value("DEVELOPER/Enabled", false).toBool();
 		_developerModeCheckBox = new QCheckBox(QApplication::tr("ActivateDeveloperMode"), this);
 		UPDATELANGUAGESETTEXT(_developerModeCheckBox, "ActivateDeveloperMode");
@@ -252,6 +262,8 @@ void GeneralSettingsWidget::saveSettings() {
 	}
 	Config::IniParser->setValue("extendedLogging", _extendedLoggingCheckBox->isChecked());
 	Config::extendedLogging = _extendedLoggingCheckBox->isChecked();
+
+	Config::IniParser->setValue("betaMode", _betaModeCheckBox->isChecked());
 
 	Config::IniParser->setValue("skipExitCheckbox", _skipExitCheckBox->isChecked());
 	skipExitCheckbox = _skipExitCheckBox->isChecked();

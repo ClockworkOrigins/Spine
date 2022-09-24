@@ -54,6 +54,7 @@ int Config::UserID = -1;
 
 int Config::downloadRate = 5120;
 bool Config::extendedLogging = false;
+bool Config::betaMode = false;
 
 int Config::Init() {
 	struct TamperCheckWrapper {
@@ -165,6 +166,8 @@ int Config::Init() {
 		}
 		IniParser->setValue("MISC/language", language);
 	}
+
+	betaMode = IniParser->value("MISC/betaMode", false).toBool();
 
 	QString style = IniParser->value("MISC/style", "Default").toString();
 	if (style != "Default" && style != "Dark Theme By Elgcahlxukuth" && style != "Dark Theme By Milky-Way") {
