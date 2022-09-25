@@ -12,7 +12,7 @@ echo "Compile Discord"
 
 echo "Extracting Discord"
 
-call build-common.bat downloadAndUnpack %ARCHIVE% %BUILD_DIR% https://dl-game-sdk.discordapp.net/latest/
+call build-common.bat downloadAndUnpack %ARCHIVE% %BUILD_DIR% https://dl-game-sdk.discordapp.net/3.2.1/
 
 echo "Configuring Discord"
 

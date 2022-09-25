@@ -36,7 +36,8 @@ DiscordManager * DiscordManager::instance() {
 }
 
 void DiscordManager::updatePresence(const QString & details, const QString & state) {
-	if (!_core) return;
+	if (!_core)
+		return;
 	
 	Activity activity {};
 	activity.SetDetails(details.toStdString().c_str());
@@ -67,9 +68,10 @@ DiscordManager::DiscordManager() : _currentUser(new User()), _running(true), _th
 
 		_core.reset(core);
 
-		if (!_core) return;
+		if (!_core)
+			return;
 
-		core->UserManager().OnCurrentUserUpdate.Connect([this]() {
+		core->UserManager().OnCurrentUserUpdate.Connect([this] {
 	        _core->UserManager().GetCurrentUser(_currentUser);
 
 			emit connected();
