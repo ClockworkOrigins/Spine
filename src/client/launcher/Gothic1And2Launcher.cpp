@@ -29,6 +29,8 @@
 #include "common/GameType.h"
 #include "common/MessageStructs.h"
 
+#include "gui/DontShowAgainDialog.h"
+
 #include "https/Https.h"
 
 #include "launcher/LauncherFactory.h"
@@ -40,7 +42,6 @@
 #include "utils/WindowsExtensions.h"
 
 #include "widgets/MainWindow.h"
-#include "widgets/NewCombinationDialog.h"
 #include "widgets/SubmitCompatibilityDialog.h"
 
 #include "clockUtils/sockets/TcpSocket.h"
@@ -70,6 +71,7 @@
 
 using namespace spine;
 using namespace spine::client;
+using namespace spine::gui;
 using namespace spine::https;
 using namespace spine::launcher;
 using namespace spine::utils;
@@ -1044,8 +1046,8 @@ void Gothic1And2Launcher::finishedMod(int, QProcess::ExitStatus status) {
 			for (const std::string & patchIDString : patches) {
 				const auto res = Database::queryAll<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + COMPATIBILITY_DATABASE, "SELECT Compatible FROM ownCompatibilityVotes WHERE ModID = " + std::to_string(_projectID) + " AND PatchID = " + patchIDString + " LIMIT 1;", err);
 				if (res.empty()) {
-					const std::string patchName = Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Name FROM patches WHERE ModID = " + patchIDString + " LIMIT 1;", err);
-					widgets::NewCombinationDialog dlg(QApplication::tr("NewCombinationDetected"), QApplication::tr("NewCombinationDetectedText").arg(_nameLabel->text()).arg(s2q(patchName)), _widget);
+					const auto patchName = Database::queryNth<std::string, std::string>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT Name FROM patches WHERE ModID = " + patchIDString + " LIMIT 1;", err);
+					DontShowAgainDialog dlg(QApplication::tr("NewCombinationDetected"), QApplication::tr("NewCombinationDetectedText").arg(_nameLabel->text()).arg(s2q(patchName)), "NEWCOMBINATIONDIALOG/DontShowAgain", _widget);
 					if (dlg.canShow()) {
 						if (dlg.exec() == QDialog::Accepted) {
 							widgets::SubmitCompatibilityDialog submitDlg(_projectID, std::stoi(patchIDString), getGothicVersion());

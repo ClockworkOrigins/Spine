@@ -23,6 +23,7 @@
 #include "SteamProcess.h"
 
 #include "gui/DownloadQueueWidget.h"
+#include "gui/DontShowAgainDialog.h"
 
 #include "utils/Config.h"
 #include "utils/Database.h"
@@ -74,11 +75,9 @@ void Gothic2Launcher::setDirectory(const QString & directory) {
 	programFilesx86 = programFilesx86.replace("\\", "/");
 	if (directory.contains(programFiles, Qt::CaseInsensitive) || directory.contains(programFilesx86, Qt::CaseInsensitive)) {
 		if (!IsRunAsAdmin()) {
-			QMessageBox resultMsg(QMessageBox::Icon::Warning, QApplication::tr("UpdateAdminInfo"), QApplication::tr("GeneralAdminNote").arg(QApplication::tr("Gothic2")), QMessageBox::StandardButton::Ok | QMessageBox::StandardButton::No);
-			resultMsg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
-			resultMsg.button(QMessageBox::StandardButton::No)->setText(QApplication::tr("No"));
-			resultMsg.setWindowFlags(resultMsg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-			if (resultMsg.exec() == QMessageBox::StandardButton::Ok) {
+			DontShowAgainDialog dlg(QApplication::tr("UpdateAdminInfo"), QApplication::tr("GeneralAdminNote").arg(QApplication::tr("Gothic2")), "GOTHICADMINNOTE/DontShowAgain", nullptr);
+			dlg.setWindowFlags(dlg.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+			if (dlg.canShow() && dlg.exec() == QMessageBox::StandardButton::Ok) {
 				emit restartAsAdmin();
 				return;
 			}

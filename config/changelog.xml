@@ -2355,8 +2355,10 @@
 		<Bug language="English">Fixed bug that caused game crashing due to deleted folders that are required for some errorneous build mods</Bug>
 	</Version>
 	<Version majorVersion="1" minorVersion="43" patchVersion="0">
+		<Enhancement language="Deutsch">Admin-Hinweis bei Spine-Start kann jetzt auch deaktiviert werden</Enhancement>
 		<Bug language="Deutsch">Fehler behoben, wodurch eine Admin-Warnung nicht angezeigt wurde</Bug>
 
+		<Enhancement language="English">Admin hint on Spine launch can now be disabled</Enhancement>
 		<Bug language="English">Fixed bug that caused an admin warning not being displayed</Bug>
 	</Version>
 </Versions>

@@ -14,7 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
-// Copyright 2018 Clockwork Origins
+// Copyright 2022 Clockwork Origins
 
 #pragma once
 
@@ -23,20 +23,21 @@
 class QCheckBox;
 
 namespace spine {
-namespace widgets {
+namespace gui {
 
-	class NewCombinationDialog : public QDialog {
+	class DontShowAgainDialog : public QDialog {
 		Q_OBJECT
 
 	public:
-		NewCombinationDialog(QString title, QString text, QWidget * par);
-		~NewCombinationDialog();
+		DontShowAgainDialog(QString title, QString text, const QString & settingsKey, QWidget * par);
+		~DontShowAgainDialog();
 
-		bool canShow() const;
+        bool canShow() const;
 
 	private:
+        QString _settingsKey;
 		QCheckBox * _dontShowAgainBox;
 	};
 
-} /* namespace widgets */
+} /* namespace gui */
 } /* namespace spine */

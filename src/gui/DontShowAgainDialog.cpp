@@ -14,9 +14,9 @@
     You should have received a copy of the GNU General Public License
     along with Spine.  If not, see <http://www.gnu.org/licenses/>.
  */
-// Copyright 2018 Clockwork Origins
+// Copyright 2022 Clockwork Origins
 
-#include "widgets/NewCombinationDialog.h"
+#include "DontShowAgainDialog.h"
 
 #include "utils/Config.h"
 #include "utils/Database.h"
@@ -29,22 +29,21 @@
 #include <QSettings>
 #include <QVBoxLayout>
 
-using namespace spine;
+using namespace spine::gui;
 using namespace spine::utils;
-using namespace spine::widgets;
 
-NewCombinationDialog::NewCombinationDialog(QString title, QString text, QWidget * par) : QDialog(par), _dontShowAgainBox(nullptr) {
-	QVBoxLayout * l = new QVBoxLayout();
+DontShowAgainDialog::DontShowAgainDialog(QString title, QString text, const QString & settingsKey, QWidget * par) : QDialog(par), _settingsKey(settingsKey), _dontShowAgainBox(nullptr) {
+	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
-	QLabel * infoLabel = new QLabel(text, this);
+	auto * infoLabel = new QLabel(text, this);
 	infoLabel->setWordWrap(true);
 	l->addWidget(infoLabel);
 
 	_dontShowAgainBox = new QCheckBox(QApplication::tr("DontShowAgain"), this);
 	l->addWidget(_dontShowAgainBox);
 
-	QDialogButtonBox * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Ok | QDialogButtonBox::StandardButton::Cancel, Qt::Orientation::Horizontal, this);
+	auto * dbb = new QDialogButtonBox(QDialogButtonBox::StandardButton::Ok | QDialogButtonBox::StandardButton::Cancel, Qt::Orientation::Horizontal, this);
 	l->addWidget(dbb);
 
 	setLayout(l);
@@ -52,28 +51,28 @@ NewCombinationDialog::NewCombinationDialog(QString title, QString text, QWidget 
 	QPushButton * btn = dbb->button(QDialogButtonBox::StandardButton::Ok);
 	btn->setText(QApplication::tr("Ok"));
 
-	connect(btn, &QPushButton::released, this, &NewCombinationDialog::accepted);
-	connect(btn, &QPushButton::released, this, &NewCombinationDialog::accept);
-	connect(btn, &QPushButton::released, this, &NewCombinationDialog::hide);
+	connect(btn, &QPushButton::released, this, &DontShowAgainDialog::accepted);
+	connect(btn, &QPushButton::released, this, &DontShowAgainDialog::accept);
+	connect(btn, &QPushButton::released, this, &DontShowAgainDialog::hide);
 
 	btn = dbb->button(QDialogButtonBox::StandardButton::Cancel);
 	btn->setText(QApplication::tr("Cancel"));
 
-	connect(btn, &QPushButton::released, this, &NewCombinationDialog::rejected);
-	connect(btn, &QPushButton::released, this, &NewCombinationDialog::reject);
-	connect(btn, &QPushButton::released, this, &NewCombinationDialog::hide);
+	connect(btn, &QPushButton::released, this, &DontShowAgainDialog::rejected);
+	connect(btn, &QPushButton::released, this, &DontShowAgainDialog::reject);
+	connect(btn, &QPushButton::released, this, &DontShowAgainDialog::hide);
 
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 	setWindowTitle(title);
 
-	const bool b = Config::IniParser->value("NEWCOMBINATIONDIALOG/DontShowAgain", false).toBool();
+	const bool b = Config::IniParser->value(_settingsKey, false).toBool();
 	_dontShowAgainBox->setChecked(b);
 }
 
-NewCombinationDialog::~NewCombinationDialog() {
-	Config::IniParser->setValue("NEWCOMBINATIONDIALOG/DontShowAgain", _dontShowAgainBox->isChecked());
+DontShowAgainDialog::~DontShowAgainDialog() {
+	Config::IniParser->setValue(_settingsKey, _dontShowAgainBox->isChecked());
 }
 
-bool NewCombinationDialog::canShow() const {
+bool DontShowAgainDialog::canShow() const {
 	return !_dontShowAgainBox->isChecked();
 }
