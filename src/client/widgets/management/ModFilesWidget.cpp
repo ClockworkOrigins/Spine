@@ -243,6 +243,7 @@ void ModFilesWidget::addFile() {
 	loop.exec();
 
 	delete _waitSpinner;
+	_waitSpinner = nullptr;
 
 	const auto hash = watcher.result();
 
@@ -557,6 +558,7 @@ void ModFilesWidget::addFolder() {
 	}
 
 	delete _waitSpinner;
+	_waitSpinner = nullptr;
 }
 
 void ModFilesWidget::showVersionUpdate(bool success) {
