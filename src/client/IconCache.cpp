@@ -41,17 +41,20 @@ bool IconCache::hasIcon(int32_t projectID) const {
 }
 
 void IconCache::cacheIcon(int32_t projectID, const QString & icon) {
-	if (icon.isEmpty()) return;
+	if (icon.isEmpty())
+		return;
 	
 	const QFileInfo fi(icon);
 
-	if (!fi.exists()) return;
+	if (!fi.exists())
+		return;
 
 	QString hash;
 	Hashing::hash(icon, hash);
 
 	if (hasIcon(projectID)) {
-		if (hash == _iconCache.value(projectID).hash) return;
+		if (hash == _iconCache.value(projectID).hash)
+			return;
 	}
 
 	QFile::copy(icon, QString("%1/icons/%2.%3").arg(Config::DOWNLOADDIR).arg(projectID).arg(fi.suffix()));
@@ -67,7 +70,8 @@ void IconCache::cacheIcon(int32_t projectID, const QString & icon) {
 }
 
 QIcon IconCache::getOrLoadIcon(const QString & path) {
-	if (_pathIconCache.contains(path)) return _pathIconCache[path];
+	if (_pathIconCache.contains(path))
+		return _pathIconCache[path];
 
 	QIcon icon(path);
 
