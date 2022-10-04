@@ -2354,4 +2354,9 @@
 		<Bug language="English">Fixed bug that caused game hanging frequently when querying achievements of other mods and an error occurs</Bug>
 		<Bug language="English">Fixed bug that caused game crashing due to deleted folders that are required for some errorneous build mods</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="43" patchVersion="0">
+		<Bug language="Deutsch">Fehler behoben, wodurch eine Admin-Warnung nicht angezeigt wurde</Bug>
+
+		<Bug language="English">Fixed bug that caused an admin warning not being displayed</Bug>
+	</Version>
 </Versions>

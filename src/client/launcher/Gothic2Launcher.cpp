@@ -72,7 +72,7 @@ void Gothic2Launcher::setDirectory(const QString & directory) {
 	programFiles = programFiles.replace("\\", "/");
 	QString programFilesx86 = QProcessEnvironment::systemEnvironment().value("ProgramFiles(x86)", "Foobar123");
 	programFilesx86 = programFilesx86.replace("\\", "/");
-	if (directory.contains(programFiles) || directory.contains(programFilesx86)) {
+	if (directory.contains(programFiles, Qt::CaseInsensitive) || directory.contains(programFilesx86, Qt::CaseInsensitive)) {
 		if (!IsRunAsAdmin()) {
 			QMessageBox resultMsg(QMessageBox::Icon::Warning, QApplication::tr("UpdateAdminInfo"), QApplication::tr("GeneralAdminNote").arg(QApplication::tr("Gothic2")), QMessageBox::StandardButton::Ok | QMessageBox::StandardButton::No);
 			resultMsg.button(QMessageBox::StandardButton::Ok)->setText(QApplication::tr("Ok"));
