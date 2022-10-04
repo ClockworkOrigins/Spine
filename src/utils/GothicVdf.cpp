@@ -482,7 +482,53 @@ QMap<QString, QString> GothicVdf::parseResource(const QString & file) {
 	return results;
 }
 
-quint32 GothicVdf::toInt(const QByteArray & bytes) const {
+bool GothicVdf::updateTimestamp(const QString & path, quint32 timestamp) {
+	QFile file(path);
+
+	const auto suffix = QFileInfo(path).suffix().toLower();
+
+	if (suffix != "vdf" && suffix != "mod")
+		return false;
+
+	if (!file.open(QIODevice::ReadWrite))
+		return false;
+
+	const auto commentData = file.read(256);
+
+	const auto signature = file.read(16);
+
+	if (signature != "PSVDSC_V2.00\n\r\n\r" && signature != "PSVDSC_V2.00\r\n\r\n")
+		return false;
+
+	const auto numEntries = file.read(4);
+
+	const auto numFiles = file.read(4);
+
+	const auto ts = file.read(4);
+
+	file.seek(256 + 16 + 4 + 4);
+
+	const auto b = file.write(fromInt(timestamp));
+	Q_UNUSED(b)
+
+	file.close();
+
+	return true;
+}
+
+void GothicVdf::fromMsDosTime(quint32 msDosTimestamp, quint32 & year, quint32 & month, quint32 & day, quint32 & hour, quint32 & minute, quint32 & second) {
+	hour = (msDosTimestamp & 63488) / 2 / 2 / 2 / 2 / 2 / 2 / 2 / 2 / 2 / 2 / 2;
+	minute = (msDosTimestamp & 2016) / 2 / 2 / 2 / 2 / 2;
+	second = (msDosTimestamp & 31) * 2;
+
+	msDosTimestamp = msDosTimestamp / 2 / 2 / 2 / 2 / 2 / 2 / 2 / 2 / 2 / 2 / 2 / 2 / 2 / 2 / 2 / 2;
+
+	year = ((msDosTimestamp & 65024) / 2 / 2 / 2 / 2 / 2 / 2 / 2 / 2 / 2) + 1980;
+	month = (msDosTimestamp & 480) / 2 / 2 / 2 / 2 / 2;
+	day = msDosTimestamp & 31;
+}
+
+quint32 GothicVdf::toInt(const QByteArray & bytes) {
 	if (bytes.count() != 4)
 		return 0;
 
@@ -500,7 +546,7 @@ quint32 GothicVdf::toInt(const QByteArray & bytes) const {
 	return result;
 }
 
-QByteArray GothicVdf::fromInt(quint32 v) const {
+QByteArray GothicVdf::fromInt(quint32 v) {
 	const auto v1 = v % 256;
 	v /= 256;
 	const auto v2 = v % 256;
@@ -667,4 +713,18 @@ void GothicVdf::writeEntries(QFile & f, const QList<EntryHeader> & entryHeaders)
 			f.write(_file.read(entry.size));
 		}
 	}
+}
+
+quint32 GothicVdf::toMsDosTime(quint32 year, quint32 month, quint32 day, quint32 hour, quint32 minute, quint32 second) {
+	const auto y = (year - 1980) * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2;
+	const auto mon = month * 2 * 2 * 2 * 2 * 2;
+	const auto d = day;
+	const auto date = (y + mon + d) * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2;
+
+	const auto h = hour * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2;
+	const auto min = minute * 2 * 2 * 2 * 2 * 2;
+	const auto sec = second / 2;
+	const auto time = h + min + sec;
+
+	return time + date;
 }

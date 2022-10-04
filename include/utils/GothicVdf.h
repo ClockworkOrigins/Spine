@@ -63,6 +63,11 @@ namespace utils {
 
 		static QMap<QString, QString> parseResource(const QString & file);
 
+		static bool updateTimestamp(const QString & path, quint32 timestamp);
+
+		static void fromMsDosTime(quint32 msDosTimestamp, quint32 & year, quint32 & month, quint32 & day, quint32 & hour, quint32 & minute, quint32 & second);
+		static quint32 toMsDosTime(quint32 year, quint32 month, quint32 day, quint32 hour, quint32 minute, quint32 second);
+
 	private:
 		typedef struct {
 			QString comment;
@@ -91,8 +96,8 @@ namespace utils {
 
 		QList<EntryHeader> _entries;
 
-		quint32 toInt(const QByteArray & bytes) const;
-		QByteArray fromInt(quint32 v) const;
+		static quint32 toInt(const QByteArray & bytes);
+		static QByteArray fromInt(quint32 v);
 
 		void createHeaders(const QString & path, const QMap<QString, QStringList> & fileTree, QList<EntryHeader> & headers, Header & header) const;
 		void adjustHeader(QList<EntryHeader> & headers, Header & header) const;
