@@ -111,6 +111,8 @@ namespace widgets {
 
 		QString hashFile(const FileToAdd & fta) const;
 		QString hashFile(const QString & path) const;
+
+		static void optimizeIni(const QString& path);
 	};
 
 } /* namespace widgets */

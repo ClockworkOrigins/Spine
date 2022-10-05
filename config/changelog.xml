@@ -2356,10 +2356,12 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="43" patchVersion="0">
 		<Enhancement language="Deutsch">Admin-Hinweis bei Spine-Start kann jetzt auch deaktiviert werden</Enhancement>
+		<Enhancement language="Deutsch">Ini-Optimierung bei Upload eingebaut, die -zRes Argument löscht, weil es Fehler produziert</Enhancement>
 		<Bug language="Deutsch">Fehler behoben, wodurch eine Admin-Warnung nicht angezeigt wurde</Bug>
 		<Bug language="Deutsch">Fehler behoben, wodurch Spine crashen konnte, wenn man nach Hinzufügen von Dateien im Management den Tab gewechselt hat</Bug>
 
 		<Enhancement language="English">Admin hint on Spine launch can now be disabled</Enhancement>
+		<Enhancement language="English">Added ini optimization for upload to strip -zRes argument as it causes issues</Enhancement>
 		<Bug language="English">Fixed bug that caused an admin warning not being displayed</Bug>
 		<Bug language="English">Fixed bug that caused a crash changing tabs after adding files in management</Bug>
 	</Version>

@@ -55,6 +55,7 @@
 #include <QSpinBox>
 #include <QStandardItemModel>
 #include <QtConcurrentRun>
+#include <QTextStream>
 #include <QTime>
 #include <QTreeView>
 #include <QVBoxLayout>
@@ -846,6 +847,8 @@ QString ModFilesWidget::hashFile(const QString & path) const {
 	if (_data.gameType == common::GameType::Gothic || _data.gameType == common::GameType::Gothic2) {
 		if (path.endsWith(".mod", Qt::CaseInsensitive) || path.endsWith(".vdf", Qt::CaseInsensitive)) {
 			GothicVdf::optimize(path, _data.gameType == common::GameType::Gothic ? ":/g1.txt" : ":/g2.txt");
+		} else if (path.endsWith(".ini", Qt::CaseInsensitive)) {
+			optimizeIni(path);
 		}
 	}
 
@@ -853,4 +856,25 @@ QString ModFilesWidget::hashFile(const QString & path) const {
 	const bool b = Hashing::hash(path, hash);
 
 	return b ? hash : QString();
+}
+
+void ModFilesWidget::optimizeIni(const QString & path) {
+	QFile f(path);
+
+	if (!f.open(QIODevice::ReadOnly))
+		return;
+
+	QTextStream ts(&f);
+	auto iniData = ts.readAll();
+	iniData.replace(QRegularExpression("-zRes:[^ ]+ "), "");
+
+	f.close();
+
+	if (!f.open(QIODevice::WriteOnly))
+		return;
+
+	QTextStream ts2(&f);
+	ts2 << iniData;
+
+	f.close();
 }
