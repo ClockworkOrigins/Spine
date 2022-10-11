@@ -19,6 +19,7 @@
 #include "widgets/management/ModFilesWidget.h"
 
 #include <fstream>
+#include <regex>
 
 #include "SpineConfig.h"
 
@@ -359,6 +360,7 @@ void ModFilesWidget::uploadCurrentMod() {
 
 		emit updateProgressMax(static_cast<int>(maxBytes / 1024));
 		std::string serialized = umm.SerializeBlank();
+		serialized = std::regex_replace(serialized, std::regex("serialization::archive 19"), "serialization::archive 14"); // hack to make archive of VS2019 compatible with current server as for some reason that number changed
 		clockUtils::sockets::TcpSocket sock;
 		const clockUtils::ClockError cErr = sock.connectToHostname("clockwork-origins.de", UPLOADSERVER_PORT, 10000);
 		if (clockUtils::ClockError::SUCCESS == cErr) {
