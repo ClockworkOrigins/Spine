@@ -44,7 +44,6 @@ namespace utils {
 		static QString Language;
 		static int UserID;
 
-		static int downloadRate;
 		static bool extendedLogging;
 		static bool betaMode;
 

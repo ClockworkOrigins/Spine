@@ -119,30 +119,6 @@ GeneralSettingsWidget::GeneralSettingsWidget(QWidget * par) : QWidget(par), _lan
 		l->addWidget(pb);
 	}
 	{
-		auto * hl = new QHBoxLayout();
-
-		Config::downloadRate = Config::IniParser->value("MISC/kbps", 5120).toInt();
-		if (Config::downloadRate > 5120) {
-			Config::downloadRate = 1024;
-		}
-		auto * kbpsLabel = new QLabel(QApplication::tr("DownloadRate"), this);
-		UPDATELANGUAGESETTEXT(kbpsLabel, "DownloadRate");
-		kbpsLabel->setToolTip(QApplication::tr("DownloadRateTooltip"));
-		UPDATELANGUAGESETTOOLTIP(kbpsLabel, "DownloadRateTooltip");
-		_downloadRateSpinBox = new QSpinBox(this);
-		_downloadRateSpinBox->setMaximum(5120);
-		_downloadRateSpinBox->setMinimum(1);
-		_downloadRateSpinBox->setValue(Config::downloadRate);
-		_downloadRateSpinBox->setToolTip(QApplication::tr("DownloadRateTooltip"));
-		UPDATELANGUAGESETTOOLTIP(_downloadRateSpinBox, "DownloadRateTooltip");
-		hl->addWidget(kbpsLabel);
-		hl->addWidget(_downloadRateSpinBox);
-
-		hl->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-
-		l->addLayout(hl);
-	}
-	{
 		const bool hideIncompatible = Config::IniParser->value("MISC/hideIncompatible", true).toBool();
 		_hideIncompatibleCheckBox = new QCheckBox(QApplication::tr("HideIncompatiblePatches"), this);
 		UPDATELANGUAGESETTEXT(_hideIncompatibleCheckBox, "HideIncompatiblePatches");
@@ -249,11 +225,6 @@ void GeneralSettingsWidget::saveSettings() {
 			}
 		}
 	}
-
-	{
-		Config::downloadRate = _downloadRateSpinBox->value();
-		Config::IniParser->setValue("kbps", Config::downloadRate);
-	}
 	
 	const bool hideIncompatible = Config::IniParser->value("hideIncompatible", true).toBool();
 	Config::IniParser->setValue("hideIncompatible", _hideIncompatibleCheckBox->isChecked());
@@ -280,14 +251,7 @@ void GeneralSettingsWidget::rejectSettings() {
 
 	const QString style = Config::IniParser->value("style", "Default").toString();
 	_styleComboBox->setCurrentText(style);
-
-	{
-		int kbps = Config::IniParser->value("kbps", 5120).toInt();
-		if (kbps > 5120) {
-			kbps = 5120;
-		}
-		Config::downloadRate = kbps;
-	}
+	
 	const bool hideIncompatible = Config::IniParser->value("hideIncompatible", true).toBool();
 	_hideIncompatibleCheckBox->setChecked(hideIncompatible);
 	Config::extendedLogging = Config::IniParser->value("extendedLogging", false).toBool();
