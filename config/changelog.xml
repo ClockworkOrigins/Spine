@@ -2365,4 +2365,9 @@
 		<Bug language="English">Fixed bug that caused an admin warning not being displayed</Bug>
 		<Bug language="English">Fixed bug that caused a crash changing tabs after adding files in management</Bug>
 	</Version>
+	<Version majorVersion="1" minorVersion="44" patchVersion="0">
+		<Bug language="Deutsch">Fehler behoben, wodurch der ModChecker Backup-Dateien nicht entfernt hat</Bug>
+
+		<Bug language="English">Fixed bug that caused ModChecker to not delete backup files</Bug>
+	</Version>
 </Versions>

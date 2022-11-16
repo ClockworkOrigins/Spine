@@ -189,7 +189,8 @@ bool GothicVdf::parse() {
 			while (!dirList.isEmpty() && dirList.back().isEmpty()) {
 				dirList.pop_back();
 
-				if (dirList.isEmpty()) break;
+				if (dirList.isEmpty())
+					break;
 
 				dirList.back().dequeue();
 			}
@@ -354,7 +355,7 @@ QStringList GothicVdf::getDeletableFiles(const QMap<QString, QString> & modkitFi
 	}
 
 	for (int i = 0; i < files.count(); i++) {
-		auto f = files[i];
+		const auto & f = files[i];
 
 		if (!f.startsWith("_WORK")) {
 			if (!f.startsWith("NINJA") && !f.startsWith("SYSTEM/AUTORUN") && !f.startsWith("/") && !f.contains("SPLASH.BMP", Qt::CaseInsensitive)) { // skip Ninja and Union folders
@@ -376,6 +377,8 @@ QStringList GothicVdf::getDeletableFiles(const QMap<QString, QString> & modkitFi
 					deletableFiles << f;
 				}
 			} else if (suffix == "src" || suffix == "d") {
+				deletableFiles << f;
+			} else if (suffix == "bak") {
 				deletableFiles << f;
 			} else if (suffix == "csl" && containsOuBin) {
 				deletableFiles << f;
@@ -577,9 +580,11 @@ void GothicVdf::createHeaders(const QString & path, const QMap<QString, QStringL
 
 	auto list = it.value();
 	std::sort(list.begin(), list.end(), [](const QString & a, const QString & b) {
-		if (a.contains(".") && !b.contains(".")) return false;
+		if (a.contains(".") && !b.contains("."))
+			return false;
 
-		if (!a.contains(".") && b.contains(".")) return true;
+		if (!a.contains(".") && b.contains("."))
+			return true;
 
 		return a < b;
 	});
