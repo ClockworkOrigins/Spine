@@ -15,7 +15,7 @@ IF(WIN32)
 	execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/bin/Release/plugins/iconengines")
 	execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/bin/Release/plugins/imageformats")
 	execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/bin/Release/plugins/platforms")
-	
+
 	file(GLOB_RECURSE files "${SPINE_DEP_DIR}/Discord/*.dll")
 	foreach(filename ${files})
 		get_filename_component(filenameShort ${filename} NAME)
@@ -23,20 +23,20 @@ IF(WIN32)
 		LINK_TO_FILE("${filename}" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/${filenameShort}")
 		LINK_TO_FILE("${filename}" "${CMAKE_BINARY_DIR}/bin/Release/${filenameShort}")
 	endforeach()
-	
+
 	file(GLOB_RECURSE files "${SPINE_DEP_DIR}/gmock/Debug/*.dll")
 	foreach(filename ${files})
 		get_filename_component(filenameShort ${filename} NAME)
 		LINK_TO_FILE("${filename}" "${CMAKE_BINARY_DIR}/bin/Debug/${filenameShort}")
 	endforeach()
-	
+
 	file(GLOB_RECURSE files "${SPINE_DEP_DIR}/gmock/Release/*.dll")
 	foreach(filename ${files})
 		get_filename_component(filenameShort ${filename} NAME)
 		LINK_TO_FILE("${filename}" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/${filenameShort}")
 		LINK_TO_FILE("${filename}" "${CMAKE_BINARY_DIR}/bin/Release/${filenameShort}")
 	endforeach()
-	
+
 	file(GLOB_RECURSE files "${SPINE_DEP_DIR}/mariadb/*.dll")
 	foreach(filename ${files})
 		get_filename_component(filenameShort ${filename} NAME)
@@ -44,7 +44,7 @@ IF(WIN32)
 		LINK_TO_FILE("${filename}" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/${filenameShort}")
 		LINK_TO_FILE("${filename}" "${CMAKE_BINARY_DIR}/bin/Release/${filenameShort}")
 	endforeach()
-	
+
 	file(GLOB_RECURSE files "${SPINE_DEP_DIR}/openSSL/*.dll")
 	foreach(filename ${files})
 		get_filename_component(filenameShort ${filename} NAME)
@@ -52,7 +52,7 @@ IF(WIN32)
 		LINK_TO_FILE("${filename}" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/${filenameShort}")
 		LINK_TO_FILE("${filename}" "${CMAKE_BINARY_DIR}/bin/Release/${filenameShort}")
 	endforeach()
-	
+
 	file(GLOB_RECURSE files "${SPINE_DEP_DIR}/sqlite/*.dll")
 	foreach(filename ${files})
 		get_filename_component(filenameShort ${filename} NAME)
@@ -60,39 +60,39 @@ IF(WIN32)
 		LINK_TO_FILE("${filename}" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/${filenameShort}")
 		LINK_TO_FILE("${filename}" "${CMAKE_BINARY_DIR}/bin/Release/${filenameShort}")
 	endforeach()
-	
+
 	file(GLOB_RECURSE files "${SPINE_DEP_DIR}/tinyxml2/Debug/*.dll")
 	foreach(filename ${files})
 		get_filename_component(filenameShort ${filename} NAME)
 		LINK_TO_FILE("${filename}" "${CMAKE_BINARY_DIR}/bin/Debug/${filenameShort}")
 	endforeach()
-	
+
 	file(GLOB_RECURSE files "${SPINE_DEP_DIR}/tinyxml2/Release/*.dll")
 	foreach(filename ${files})
 		get_filename_component(filenameShort ${filename} NAME)
 		LINK_TO_FILE("${filename}" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/${filenameShort}")
 		LINK_TO_FILE("${filename}" "${CMAKE_BINARY_DIR}/bin/Release/${filenameShort}")
 	endforeach()
-	
+
 	file(GLOB_RECURSE files "${SPINE_DEP_DIR}/translator/Debug/*.dll")
 	foreach(filename ${files})
 		get_filename_component(filenameShort ${filename} NAME)
 		LINK_TO_FILE("${filename}" "${CMAKE_BINARY_DIR}/bin/Debug/${filenameShort}")
 	endforeach()
-	
+
 	file(GLOB_RECURSE files "${SPINE_DEP_DIR}/translator/Release/*.dll")
 	foreach(filename ${files})
 		get_filename_component(filenameShort ${filename} NAME)
 		LINK_TO_FILE("${filename}" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/${filenameShort}")
 		LINK_TO_FILE("${filename}" "${CMAKE_BINARY_DIR}/bin/Release/${filenameShort}")
 	endforeach()
-	
+
 	file(GLOB_RECURSE files "${SPINE_DEP_DIR}/zlib/Debug/*.dll")
 	foreach(filename ${files})
 		get_filename_component(filenameShort ${filename} NAME)
 		LINK_TO_FILE("${filename}" "${CMAKE_BINARY_DIR}/bin/Debug/${filenameShort}")
 	endforeach()
-	
+
 	file(GLOB_RECURSE files "${SPINE_DEP_DIR}/zlib/Release/*.dll")
 	foreach(filename ${files})
 		get_filename_component(filenameShort ${filename} NAME)
@@ -128,11 +128,11 @@ IF(WIN32)
 		LINK_TO_FILE("${Qt5_DIR_Backup}/bin/libEGL.dll" "${CMAKE_BINARY_DIR}/bin/Debug/libEGL.dll")
 		LINK_TO_FILE("${Qt5_DIR_Backup}/bin/libEGL.dll" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/libEGL.dll")
 		LINK_TO_FILE("${Qt5_DIR_Backup}/bin/libEGL.dll" "${CMAKE_BINARY_DIR}/bin/Release/libEGL.dll")
-		
+
 		LINK_TO_FILE("${Qt5_DIR_Backup}/bin/libGLESv2.dll" "${CMAKE_BINARY_DIR}/bin/Debug/libGLESv2.dll")
 		LINK_TO_FILE("${Qt5_DIR_Backup}/bin/libGLESv2.dll" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/libGLESv2.dll")
 		LINK_TO_FILE("${Qt5_DIR_Backup}/bin/libGLESv2.dll" "${CMAKE_BINARY_DIR}/bin/Release/libGLESv2.dll")
-		
+
 		LINK_TO_FILE("${Qt5_DIR_Backup}/plugins/platforms/qwindowsd.dll" "${CMAKE_BINARY_DIR}/bin/Debug/plugins/platforms/qwindowsd.dll")
 		LINK_TO_FILE("${Qt5_DIR_Backup}/plugins/platforms/qwindows.dll" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/plugins/platforms/qwindows.dll")
 		LINK_TO_FILE("${Qt5_DIR_Backup}/plugins/platforms/qwindows.dll" "${CMAKE_BINARY_DIR}/bin/Release/plugins/platforms/qwindows.dll")
@@ -144,35 +144,35 @@ IF(WIN32)
 		LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Concurrentd.dll" "${CMAKE_BINARY_DIR}/bin/Debug/Qt5Concurrentd.dll")
 		LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Concurrent.dll" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/Qt5Concurrent.dll")
 		LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Concurrent.dll" "${CMAKE_BINARY_DIR}/bin/Release/Qt5Concurrent.dll")
-		
+
 		LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Cored.dll" "${CMAKE_BINARY_DIR}/bin/Debug/Qt5Cored.dll")
 		LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Core.dll" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/Qt5Core.dll")
 		LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Core.dll" "${CMAKE_BINARY_DIR}/bin/Release/Qt5Core.dll")
-		
+
 		LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Guid.dll" "${CMAKE_BINARY_DIR}/bin/Debug/Qt5Guid.dll")
 		LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Gui.dll" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/Qt5Gui.dll")
 		LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Gui.dll" "${CMAKE_BINARY_DIR}/bin/Release/Qt5Gui.dll")
-		
+
 		LINK_TO_FILE("${Qt5_DIR_Backup}/plugins/imageformats/qicod.dll" "${CMAKE_BINARY_DIR}/bin/Debug/plugins/imageformats/qicod.dll")
 		LINK_TO_FILE("${Qt5_DIR_Backup}/plugins/imageformats/qico.dll" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/plugins/imageformats/qico.dll")
 		LINK_TO_FILE("${Qt5_DIR_Backup}/plugins/imageformats/qico.dll" "${CMAKE_BINARY_DIR}/bin/Release/plugins/imageformats/qico.dll")
-		
+
 		LINK_TO_FILE("${Qt5_DIR_Backup}/plugins/imageformats/qjpegd.dll" "${CMAKE_BINARY_DIR}/bin/Debug/plugins/imageformats/qjpegd.dll")
 		LINK_TO_FILE("${Qt5_DIR_Backup}/plugins/imageformats/qjpeg.dll" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/plugins/imageformats/qjpeg.dll")
 		LINK_TO_FILE("${Qt5_DIR_Backup}/plugins/imageformats/qjpeg.dll" "${CMAKE_BINARY_DIR}/bin/Release/plugins/imageformats/qjpeg.dll")
-		
+
 		LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Networkd.dll" "${CMAKE_BINARY_DIR}/bin/Debug/Qt5Networkd.dll")
 		LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Network.dll" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/Qt5Network.dll")
 		LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Network.dll" "${CMAKE_BINARY_DIR}/bin/Release/Qt5Network.dll")
-		
+
 		LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Svgd.dll" "${CMAKE_BINARY_DIR}/bin/Debug/Qt5Svgd.dll")
 		LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Svg.dll" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/Qt5Svg.dll")
 		LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Svg.dll" "${CMAKE_BINARY_DIR}/bin/Release/Qt5Svg.dll")
-		
+
 		LINK_TO_FILE("${Qt5_DIR_Backup}/plugins/imageformats/qsvgd.dll" "${CMAKE_BINARY_DIR}/bin/Debug/plugins/imageformats/qsvgd.dll")
 		LINK_TO_FILE("${Qt5_DIR_Backup}/plugins/imageformats/qsvg.dll" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/plugins/imageformats/qsvg.dll")
 		LINK_TO_FILE("${Qt5_DIR_Backup}/plugins/imageformats/qsvg.dll" "${CMAKE_BINARY_DIR}/bin/Release/plugins/imageformats/qsvg.dll")
-		
+
 		LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Widgetsd.dll" "${CMAKE_BINARY_DIR}/bin/Debug/Qt5Widgetsd.dll")
 		LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Widgets.dll" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/Qt5Widgets.dll")
 		LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Widgets.dll" "${CMAKE_BINARY_DIR}/bin/Release/Qt5Widgets.dll")
@@ -181,6 +181,42 @@ IF(WIN32)
 			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5WinExtras.dll" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/Qt5WinExtras.dll")
 			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5WinExtras.dll" "${CMAKE_BINARY_DIR}/bin/Release/Qt5WinExtras.dll")
 		ENDIF(WIN32)
+		IF(SUPPORTSWEBENGINE)
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5WebEngined.dll" "${CMAKE_BINARY_DIR}/bin/Debug/Qt5WebEngined.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5WebEngine.dll" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/Qt5WebEngine.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5WebEngine.dll" "${CMAKE_BINARY_DIR}/bin/Release/Qt5WebEngine.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5WebEngineWidgetsd.dll" "${CMAKE_BINARY_DIR}/bin/Debug/Qt5WebEngineWidgetsd.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5WebEngineWidgets.dll" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/Qt5WebEngineWidgets.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5WebEngineWidgets.dll" "${CMAKE_BINARY_DIR}/bin/Release/Qt5WebEngineWidgets.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5WebEngineCored.dll" "${CMAKE_BINARY_DIR}/bin/Debug/Qt5WebEngineCored.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5WebEngineCore.dll" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/Qt5WebEngineCore.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5WebEngineCore.dll" "${CMAKE_BINARY_DIR}/bin/Release/Qt5WebEngineCore.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5PrintSupportd.dll" "${CMAKE_BINARY_DIR}/bin/Debug/Qt5PrintSupportd.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5PrintSupport.dll" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/Qt5PrintSupport.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5PrintSupport.dll" "${CMAKE_BINARY_DIR}/bin/Release/Qt5PrintSupport.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Quickd.dll" "${CMAKE_BINARY_DIR}/bin/Debug/Qt5Quickd.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Quick.dll" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/Qt5Quick.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Quick.dll" "${CMAKE_BINARY_DIR}/bin/Release/Qt5Quick.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5QuickWidgetsd.dll" "${CMAKE_BINARY_DIR}/bin/Debug/Qt5QuickWidgetsd.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5QuickWidgets.dll" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/Qt5QuickWidgets.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5QuickWidgets.dll" "${CMAKE_BINARY_DIR}/bin/Release/Qt5QuickWidgets.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5WebChanneld.dll" "${CMAKE_BINARY_DIR}/bin/Debug/Qt5WebChanneld.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5WebChannel.dll" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/Qt5WebChannel.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5WebChannel.dll" "${CMAKE_BINARY_DIR}/bin/Release/Qt5WebChannel.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Qmld.dll" "${CMAKE_BINARY_DIR}/bin/Debug/Qt5Qmld.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Qml.dll" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/Qt5Qml.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Qml.dll" "${CMAKE_BINARY_DIR}/bin/Release/Qt5Qml.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5QmlModelsd.dll" "${CMAKE_BINARY_DIR}/bin/Debug/Qt5QmlModelsd.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5QmlModels.dll" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/Qt5QmlModels.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5QmlModels.dll" "${CMAKE_BINARY_DIR}/bin/Release/Qt5QmlModels.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Positioningd.dll" "${CMAKE_BINARY_DIR}/bin/Debug/Qt5Positioningd.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Positioning.dll" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/Qt5Positioning.dll")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/Qt5Positioning.dll" "${CMAKE_BINARY_DIR}/bin/Release/Qt5Positioning.dll")
+
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/QtWebEngineProcessd.exe" "${CMAKE_BINARY_DIR}/bin/Debug/QtWebEngineProcessd.exe")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/QtWebEngineProcess.exe" "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/QtWebEngineProcess.exe")
+			LINK_TO_FILE("${Qt5_DIR_Backup}/bin/QtWebEngineProcess.exe" "${CMAKE_BINARY_DIR}/bin/Release/QtWebEngineProcess.exe")
+		ENDIF(SUPPORTSWEBENGINE)
 	ENDIF(WITH_CLIENT OR WITH_G2OCHECKER)
 ENDIF(WIN32)
 IF(UNIX)
