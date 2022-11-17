@@ -125,7 +125,8 @@ void ModInfoView::setGothic3Directory(QString directory) {
 }
 
 void ModInfoView::start() {
-	if (!_currentLauncher) return;
+	if (!_currentLauncher)
+		return;
 
 	_currentLauncher->start();
 }
@@ -193,11 +194,13 @@ void ModInfoView::showErrorMessage(QString msg, bool canFix, const std::function
 
 	const auto btn = msgBox.exec();
 
-	if (!canFix || btn != QMessageBox::Apply) return;
+	if (!canFix || btn != QMessageBox::Apply)
+		return;
 
 	Q_ASSERT(fixCallback);
 
-	if (!fixCallback) return;
+	if (!fixCallback)
+		return;
 
 	fixCallback();
 }

@@ -90,7 +90,8 @@ LocationSettingsWidget::LocationSettingsWidget(bool temporary, QWidget * par) : 
 		hl->addWidget(_gothicSteam, 0, 3);
 		connect(gothicPathPushButton, &QPushButton::released, this, &LocationSettingsWidget::openGothicFileDialog);
 
-		_gothicSteam->setChecked(Config::IniParser->value("PATH/GothicWithSteam", false).toBool());
+		_gothicSteam->setChecked(Config::IniParser->value("PATH/GothicWithSteam", false).toBool() && false);
+		_gothicSteam->setVisible(false);
 
 		hl->setAlignment(Qt::AlignLeft);
 
@@ -112,7 +113,8 @@ LocationSettingsWidget::LocationSettingsWidget(bool temporary, QWidget * par) : 
 		hl->addWidget(_gothic2Steam, 1, 3);
 		connect(gothicPathPushButton, &QPushButton::released, this, &LocationSettingsWidget::openGothic2FileDialog);
 
-		_gothic2Steam->setChecked(Config::IniParser->value("PATH/Gothic2WithSteam", false).toBool());
+		_gothic2Steam->setChecked(Config::IniParser->value("PATH/Gothic2WithSteam", false).toBool() && false);
+		_gothic2Steam->setVisible(false);
 
 		hl->setAlignment(Qt::AlignLeft);
 
@@ -346,14 +348,14 @@ void LocationSettingsWidget::rejectSettings() {
 		_gothicPathLineEdit->setText(path);
 	}
 	{
-		_gothicSteam->setChecked(Config::IniParser->value("PATH/GothicWithSteam", false).toBool());
+		_gothicSteam->setChecked(Config::IniParser->value("PATH/GothicWithSteam", false).toBool() && false);
 	}
 	{
 		const QString path = Config::IniParser->value("PATH/Gothic2", "").toString();
 		_gothic2PathLineEdit->setText(path);
 	}
 	{
-		_gothic2Steam->setChecked(Config::IniParser->value("PATH/Gothic2WithSteam", false).toBool());
+		_gothic2Steam->setChecked(Config::IniParser->value("PATH/Gothic2WithSteam", false).toBool() && false);
 	}
 	{
 		const QString path = Config::IniParser->value("PATH/Gothic3", "").toString();

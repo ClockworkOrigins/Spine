@@ -2367,7 +2367,9 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="44" patchVersion="0">
 		<Bug language="Deutsch">Fehler behoben, wodurch der ModChecker Backup-Dateien nicht entfernt hat</Bug>
+		<Bug language="Deutsch">Mit Steam starten Option entfernt, da THQ Nordic die Möglichkeit kaputtgepatcht hat</Bug>
 
 		<Bug language="English">Fixed bug that caused ModChecker to not delete backup files</Bug>
+		<Bug language="English">Removed start with Steam option as THQ Nordic made it impossible</Bug>
 	</Version>
 </Versions>
