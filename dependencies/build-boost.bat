@@ -9,8 +9,8 @@ echo "Extracting Boost"
 Set ARCHIVE=boost_1_78_0.tar.gz
 Set BUILD_DIR=%TMP_DIR%/boost_1_78_0
 
-Set ZLIBARCHIVE=zlib1211.zip
-Set ZLIBBUILD_DIR=%TMP_DIR%/zlib-1.2.11
+Set ZLIBARCHIVE=zlib1213.zip
+Set ZLIBBUILD_DIR=%TMP_DIR%/zlib-1.2.13
 
 echo "Extracting Boost"
 
@@ -47,7 +47,7 @@ pushd "%BUILD_DIR%"
 call bootstrap.bat > log.txt
 
 echo "Building Boost"
-b2 toolset=%BOOSTCOMPILER% address-model=%BOOSTARCH% --with-date_time --with-filesystem --with-iostreams -sNO_COMPRESSION=0 -sNO_ZLIB=0 -sZLIB_SOURCE=%BUILD_DIR%\..\zlib-1.2.11 --with-regex --with-serialization --with-system --with-thread link=static threading=multi --layout=system -j %NUMBER_OF_PROCESSORS% variant=%3 install --prefix=%PREFIX% stage > log2.txt
+b2 toolset=%BOOSTCOMPILER% address-model=%BOOSTARCH% --with-date_time --with-filesystem --with-iostreams -sNO_COMPRESSION=0 -sNO_ZLIB=0 -sZLIB_SOURCE=%BUILD_DIR%\..\zlib-1.2.13 --with-regex --with-serialization --with-system --with-thread link=static threading=multi --layout=system -j %NUMBER_OF_PROCESSORS% variant=%3 install --prefix=%PREFIX% stage > %DEP_DIR%\log2.txt
 
 echo "Installing Boost"
 

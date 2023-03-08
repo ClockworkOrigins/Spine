@@ -6,8 +6,8 @@ call build-common.bat %1 %2
 
 echo "Extracting zlib"
 
-Set ARCHIVE=zlib1211.zip
-Set BUILD_DIR=%TMP_DIR%/zlib-1.2.11
+Set ARCHIVE=zlib1213.zip
+Set BUILD_DIR=%TMP_DIR%/zlib-1.2.13
 
 call build-common.bat downloadAndUnpack %ARCHIVE% %BUILD_DIR% https://zlib.net/
 
