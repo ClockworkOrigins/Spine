@@ -18,6 +18,8 @@
 
 #include "widgets/ModInfoPage.h"
 
+#include "clockUtils/sockets/TcpSocket.h"
+
 #include "IconCache.h"
 #include "InstallMode.h"
 #include "SpineConfig.h"
@@ -47,8 +49,6 @@
 #include "widgets/RatingWidget.h"
 #include "widgets/ReviewWidget.h"
 #include "widgets/UpdateLanguage.h"
-
-#include "clockUtils/sockets/TcpSocket.h"
 
 #include <QApplication>
 #include <QCheckBox>

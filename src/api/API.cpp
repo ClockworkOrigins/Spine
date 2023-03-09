@@ -18,6 +18,8 @@
 
 #include "api/API.h"
 
+#include "clockUtils/sockets/TcpSocket.h"
+
 #include <fstream>
 #include <regex>
 #include <set>
@@ -35,8 +37,6 @@
 
 #include "boost/archive/binary_iarchive.hpp"
 #include "boost/archive/binary_oarchive.hpp"
-
-#include "clockUtils/sockets/TcpSocket.h"
 
 namespace spine {
 namespace api {

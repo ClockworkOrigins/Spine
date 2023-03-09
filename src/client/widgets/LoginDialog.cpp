@@ -18,6 +18,14 @@
 
 #include "widgets/LoginDialog.h"
 
+#ifdef WIN32
+#pragma warning(disable: 4996 4457 4267 4456 4101)
+#endif
+#include "simple-web-server/client_https.hpp"
+#ifdef WIN32
+#pragma warning(default: 4996 4457 4267 4456 4101)
+#endif
+
 #include <regex>
 #include <sstream>
 
@@ -53,14 +61,6 @@
 #include <QTabWidget>
 #include <QtConcurrentRun>
 #include <QVBoxLayout>
-
-#ifdef WIN32
-#pragma warning(disable: 4996 4457 4267 4456 4101)
-#endif
-#include "simple-web-server/client_https.hpp"
-#ifdef WIN32
-#pragma warning(default: 4996 4457 4267 4456 4101)
-#endif
 
 using HttpsClient = SimpleWeb::Client<SimpleWeb::HTTPS>;
 

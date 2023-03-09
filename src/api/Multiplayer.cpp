@@ -18,6 +18,8 @@
 
 #include "api/Multiplayer.h"
 
+#include "clockUtils/sockets/TcpSocket.h"
+
 #include <thread>
 
 #include "SpineConfig.h"
@@ -28,7 +30,6 @@
 #include "common/SpineModules.h"
 
 #include "clockUtils/container/LockFreeQueue.h"
-#include "clockUtils/sockets/TcpSocket.h"
 
 namespace spine {
 namespace api {

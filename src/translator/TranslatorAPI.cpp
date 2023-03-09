@@ -18,14 +18,14 @@
 
 #include "TranslatorAPI.h"
 
+#include "clockUtils/sockets/TcpSocket.h"
+
 #include "SpineServerConfig.h"
 
 #include "common/MessageStructs.h"
 #include "common/TranslationModel.h"
 
 #include "utils/Conversion.h"
-
-#include "clockUtils/sockets/TcpSocket.h"
 
 using namespace spine::common;
 using namespace spine::translation;

@@ -18,6 +18,8 @@
 
 #include "widgets/MainWindow.h"
 
+#include "clockUtils/sockets/TcpSocket.h"
+
 #include "InstallMode.h"
 #include "LibraryFilterModel.h"
 #include "MissingMetadataChecker.h"
@@ -81,8 +83,6 @@
 #include "widgets/StartPageWidget.h"
 #include "widgets/SubmitCompatibilityDialog.h"
 #include "widgets/UpdateLanguage.h"
-
-#include "clockUtils/sockets/TcpSocket.h"
 
 #include <QApplication>
 #include <QCheckBox>

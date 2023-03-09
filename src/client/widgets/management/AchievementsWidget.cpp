@@ -18,6 +18,8 @@
 
 #include "widgets/management/AchievementsWidget.h"
 
+#include "clockUtils/sockets/TcpSocket.h"
+
 #include "SpineConfig.h"
 
 #include "common/MessageStructs.h"
@@ -30,8 +32,6 @@
 #include "utils/Conversion.h"
 
 #include "widgets/management/AchievementWidget.h"
-
-#include "clockUtils/sockets/TcpSocket.h"
 
 #include <QApplication>
 #include <QDialogButtonBox>

@@ -18,10 +18,10 @@
 
 #include "api/Statistics.h"
 
+#include "clockUtils/sockets/TcpSocket.h"
+
 #include "common/MessageStructs.h"
 #include "common/SpineModules.h"
-
-#include "clockUtils/sockets/TcpSocket.h"
 
 namespace spine {
 namespace api {

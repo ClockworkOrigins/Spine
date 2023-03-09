@@ -18,12 +18,12 @@
 
 #include "api/Friends.h"
 
+#include "clockUtils/sockets/TcpSocket.h"
+
 #include "api/APIMessage.h"
 
 #include "common/MessageStructs.h"
 #include "common/SpineModules.h"
-
-#include "clockUtils/sockets/TcpSocket.h"
 
 namespace spine {
 namespace api {

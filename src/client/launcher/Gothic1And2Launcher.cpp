@@ -44,8 +44,6 @@
 #include "widgets/MainWindow.h"
 #include "widgets/SubmitCompatibilityDialog.h"
 
-#include "clockUtils/sockets/TcpSocket.h"
-
 #include <QApplication>
 #include <QCheckBox>
 #include <QDirIterator>

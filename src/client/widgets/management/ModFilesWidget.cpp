@@ -18,6 +18,8 @@
 
 #include "widgets/management/ModFilesWidget.h"
 
+#include "clockUtils/sockets/TcpSocket.h"
+
 #include <fstream>
 #include <regex>
 
@@ -38,8 +40,6 @@
 #include "utils/Hashing.h"
 
 #include "widgets/MainWindow.h"
-
-#include "clockUtils/sockets/TcpSocket.h"
 
 #include <QApplication>
 #include <QDirIterator>

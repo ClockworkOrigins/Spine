@@ -18,6 +18,8 @@
 
 #include "UploadServer.h"
 
+#include "clockUtils/sockets/TcpSocket.h"
+
 #if __cplusplus >= 201703L
 #include <filesystem>
 #endif
@@ -35,8 +37,6 @@
 #if __cplusplus < 201703L
 #include "boost/filesystem.hpp"
 #endif
-
-#include "clockUtils/sockets/TcpSocket.h"
 
 #ifdef TEST_CONFIG
 	const std::string PATH_PREFIX = "./downloads/mods/";

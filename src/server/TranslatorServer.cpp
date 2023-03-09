@@ -18,6 +18,8 @@
 
 #include "TranslatorServer.h"
 
+#include "clockUtils/sockets/TcpSocket.h"
+
 #include <iostream>
 #include <map>
 #include <regex>
@@ -33,8 +35,6 @@
 
 #include "common/MessageStructs.h"
 #include "common/TranslationModel.h"
-
-#include "clockUtils/sockets/TcpSocket.h"
 
 #ifdef WIN32
 #pragma warning(disable: 4996 4457 4267 4456 4101)

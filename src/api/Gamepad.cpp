@@ -18,6 +18,8 @@
 
 #include "api/Gamepad.h"
 
+#include "clockUtils/sockets/TcpSocket.h"
+
 #include <algorithm>
 #include <thread>
 
@@ -27,8 +29,6 @@
 
 #include "common/MessageStructs.h"
 #include "common/SpineModules.h"
-
-#include "clockUtils/sockets/TcpSocket.h"
 
 namespace spine {
 namespace api {

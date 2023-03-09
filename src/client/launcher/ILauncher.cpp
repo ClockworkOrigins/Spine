@@ -16,6 +16,8 @@
  */
 // Copyright 2019 Clockwork Origins
 
+#include "clockUtils/sockets/TcpSocket.h"
+
 #include "launcher/ILauncher.h"
 
 #include "ScreenshotManager.h"
@@ -39,8 +41,6 @@
 #include "utils/WindowsExtensions.h"
 
 #include "widgets/RatingWidget.h"
-
-#include "clockUtils/sockets/TcpSocket.h"
 
 #include <QApplication>
 #include <QDate>

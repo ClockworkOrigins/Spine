@@ -18,6 +18,8 @@
 
 #include "widgets/AutoUpdateDialog.h"
 
+#include "clockUtils/sockets/TcpSocket.h"
+
 #include "SpineConfig.h"
 
 #include "common/MessageStructs.h"
@@ -28,8 +30,6 @@
 
 #include "widgets/DownloadProgressDialog.h"
 #include "widgets/UpdateLanguage.h"
-
-#include "clockUtils/sockets/TcpSocket.h"
 
 #include <QAbstractButton>
 #include <QApplication>

@@ -18,14 +18,14 @@
 
 #include "GMPServer.h"
 
+#include "clockUtils/sockets/TcpSocket.h"
+
 #include <iostream>
 
 #include "MariaDBWrapper.h"
 #include "SpineServerConfig.h"
 
 #include "common/MessageStructs.h"
-
-#include "clockUtils/sockets/TcpSocket.h"
 
 using namespace spine::server;
 

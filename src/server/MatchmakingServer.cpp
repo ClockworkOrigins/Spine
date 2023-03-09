@@ -18,6 +18,8 @@
 
 #include "MatchmakingServer.h"
 
+#include "clockUtils/sockets/TcpSocket.h"
+
 #include <iostream>
 #include <thread>
 
@@ -25,8 +27,6 @@
 #include "SpineServerConfig.h"
 
 #include "common/MessageStructs.h"
-
-#include "clockUtils/sockets/TcpSocket.h"
 
 using namespace spine::common;
 using namespace spine::server;
