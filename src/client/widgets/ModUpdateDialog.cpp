@@ -133,6 +133,7 @@ void ModUpdateDialog::loginChanged() {
 		_lastTimeRejected = false;
 		return;
 	}
+
 	if (_running) {
 		QTimer::singleShot(1000, [this] { loginChanged(); });
 	} else {
@@ -155,9 +156,10 @@ void ModUpdateDialog::spineUpToDate() {
 }
 
 void ModUpdateDialog::updateModList(QList<ModUpdate> updates, bool forceAccept) {
+	_running = false;
+
 	if (updates.empty()) {
 		_infoLabel->setText(QApplication::tr("NoModUpdates"));
-		_running = false;
 	} else {
 		_infoLabel->setText(QApplication::tr("SelectModUpdates"));
 
@@ -169,7 +171,8 @@ void ModUpdateDialog::updateModList(QList<ModUpdate> updates, bool forceAccept) 
 			Database::execute(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "DELETE FROM updates WHERE ModID = " + std::to_string(u.modID) + " AND MajorVersion != " + std::to_string(static_cast<int>(u.majorVersion)) + " AND MinorVersion != " + std::to_string(static_cast<int>(u.minorVersion)) + " AND PatchVersion != " + std::to_string(static_cast<int>(u.patchVersion)) + " AND SpineVersion != " + std::to_string(static_cast<int>(u.spineVersion)) + " LIMIT 1;", err);
 			auto result = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + UPDATES_DATABASE, "SELECT ModID FROM updates WHERE ModID = " + std::to_string(u.modID) + " AND MajorVersion = " + std::to_string(static_cast<int>(u.majorVersion)) + " AND MinorVersion = " + std::to_string(static_cast<int>(u.minorVersion)) + " AND PatchVersion = " + std::to_string(static_cast<int>(u.patchVersion)) + " AND SpineVersion = " + std::to_string(static_cast<int>(u.spineVersion)) + " LIMIT 1;", err);
 
-			if (!result.empty()) continue;
+			if (!result.empty())
+				continue;
 
 			QString title = QString("%1 (%2 => %3.%4.%5, %6)").arg(u.name).arg(_oldVersions[u.modID]).arg(static_cast<int>(u.majorVersion)).arg(static_cast<int>(u.minorVersion)).arg(static_cast<int>(u.patchVersion)).arg(byteToString(u.size));
 
@@ -264,7 +267,6 @@ void ModUpdateDialog::reject() {
 	}
 	hideUpdates(list);
 	_lastTimeRejected = true;
-	_running = false;
 
 	clear();
 	
@@ -321,7 +323,8 @@ void ModUpdateDialog::checkForUpdate(int32_t modID, bool forceAccept) {
 }
 
 void ModUpdateDialog::hideUpdates(QList<ModUpdate> hides) const {
-	if (!_dontShowAgain->isChecked()) return;
+	if (!_dontShowAgain->isChecked())
+		return;
 
 	for (const ModUpdate & mu : hides) {
 		Database::DBError err;
@@ -824,13 +827,10 @@ void ModUpdateDialog::updateProject(ModUpdate mu) {
 		} else {
 			OverlayMessageHandler::getInstance()->showMessage(IconCache::getInstance()->getOrLoadIconAsImage(":/svg/download.svg"), QApplication::tr("UpdateUnsuccessful"));
 		}
-		_running = false;
 	});
 
 	connect(mfd, &MultiFileDownloader::downloadFailed, this, [this]() {
 		OverlayMessageHandler::getInstance()->showMessage(IconCache::getInstance()->getOrLoadIconAsImage(":/svg/download.svg"), QApplication::tr("UpdateUnsuccessful"));
-
-		_running = false;
 	});
 
 	DownloadQueueWidget::getInstance()->addDownload(QApplication::tr("PatchingProject").arg(mu.name), mfd);
