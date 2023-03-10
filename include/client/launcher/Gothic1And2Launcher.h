@@ -162,7 +162,7 @@ namespace launcher {
 
 		void checkToolCfg(QString path, QStringList * backgroundExecutables, bool * newGMP);
 		
-		void collectDependencies(int modID, QSet<QString> * dependencies, QSet<QString> * forbidden, QMap<QString, QStringList> * dependencyMap, QMap<QString, QStringList> * overrideFiles) const;
+		void collectDependencies(int modID, QSet<QString> * dependencies, QSet<QString> * forbidden, QMap<QString, QStringList> * dependencyMap, QSet<QString> * included, QMap<QString, QStringList> * overrideFiles) const;
 		void prepareForNinja();
 		void updatePlugins(int modID);
 		void sortPatches(const QMap<QString, QStringList> & dependencyMap, QList<std::string> & patches) const;

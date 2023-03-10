@@ -1228,9 +1228,10 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 	_gmpCounterBackup = -1;
 
 	QSet<QString> forbidden;
+	QSet<QString> included;
 	QMap<QString, QStringList> dependencyMap;
 	QMap<QString, QStringList> overrideFiles;
-	collectDependencies(_projectID, dependencies, &forbidden, &dependencyMap, &overrideFiles);
+	collectDependencies(_projectID, dependencies, &forbidden, &dependencyMap, &included, &overrideFiles);
 
 	LOGINFO("Starting Ini: " << _iniFile.toStdString())
 	emitSplashMessage(QApplication::tr("RemovingOldFiles"));
@@ -1257,8 +1258,9 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 
 	// check if all dependencies are enabled/can be enabled
 	for (auto it = dependencies->begin(); it != dependencies->end();) {
-		auto it2 = std::find(patches.begin(), patches.end(), it->toStdString());
-		if (it2 != patches.end()) {
+		const auto dependencyID = it->toStdString();
+		auto it2 = std::find(patches.begin(), patches.end(), dependencyID);
+		if (it2 != patches.end() || included.contains(s2q(dependencyID))) {
 			it = dependencies->erase(it);
 		} else {
 			auto results = Database::queryAll<int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID FROM mods WHERE ModID = " + it->toStdString() + " LIMIT 1;", err);
@@ -1272,7 +1274,8 @@ bool Gothic1And2Launcher::prepareModStart(QString * usedExecutable, QStringList 
 			}
 		}
 	}
-	if (!dependencies->isEmpty()) return false; // not all dependencies are met and can't automatically be enabled
+	if (!dependencies->isEmpty())
+		return false; // not all dependencies are met and can't automatically be enabled
 
 	sortPatches(dependencyMap, patches);
 
@@ -1922,7 +1925,7 @@ void Gothic1And2Launcher::checkToolCfg(QString path, QStringList * backgroundExe
 	}
 }
 
-void Gothic1And2Launcher::collectDependencies(int modID, QSet<QString> * dependencies, QSet<QString> * forbidden, QMap<QString, QStringList> * dependencyMap, QMap<QString, QStringList> * overrideFiles) const {
+void Gothic1And2Launcher::collectDependencies(int modID, QSet<QString> * dependencies, QSet<QString> * forbidden, QMap<QString, QStringList> * dependencyMap, QSet<QString> * included, QMap<QString, QStringList> * overrideFiles) const {
 	QQueue<QString> toCheck;
 	toCheck.enqueue(QString::number(modID));
 
@@ -1945,7 +1948,8 @@ void Gothic1And2Launcher::collectDependencies(int modID, QSet<QString> * depende
 			for (const auto & s : split) {
 				(*dependencyMap)[id].append(required);
 				
-				if (dependencies->contains(s)) continue;
+				if (dependencies->contains(s))
+					continue;
 				
 				dependencies->insert(s);
 				toCheck.append(s);
@@ -1956,6 +1960,13 @@ void Gothic1And2Launcher::collectDependencies(int modID, QSet<QString> * depende
 			split = blocked.split(',', Qt::SkipEmptyParts);
 			for (const auto & s : split) {
 				forbidden->insert(s);
+			}
+			
+			auto includedIDs = configParser.value("DEPENDENCIES/Included", "").toString();
+			
+			split = includedIDs.split(',', Qt::SkipEmptyParts);
+			for (const auto & s : split) {
+				included->insert(s);
 			}
 			
 			auto overrides = configParser.value("DEPENDENCIES/Overrides", "").toString();
@@ -2313,18 +2324,22 @@ void Gothic1And2Launcher::updateModel(QStandardItemModel * model) {
 }
 
 void Gothic1And2Launcher::finishedInstallation(int modID, int packageID, bool success) {
-	if (!success) return;
+	if (!success)
+		return;
 
-	if (packageID != -1) return;
+	if (packageID != -1)
+		return;
 	
-	if (_developerMode) return;
+	if (_developerMode)
+		return;
 	
 	parseMod(QString("%1/mods/%2").arg(Config::DOWNLOADDIR).arg(modID));
 	updateModStats();
 }
 
 void Gothic1And2Launcher::updatedProject(int projectID) {
-	if (_developerMode) return;
+	if (_developerMode)
+		return;
 	
 	Database::DBError err;
 	const auto mods = Database::queryAll<std::vector<int>, int, int>(Config::BASEDIR.toStdString() + "/" + INSTALLED_DATABASE, "SELECT ModID, GothicVersion FROM mods WHERE (GothicVersion = " + std::to_string(static_cast<int>(common::GameType::Gothic)) + " OR GothicVersion = " + std::to_string(static_cast<int>(common::GameType::Gothic2)) + " OR GothicVersion = " + std::to_string(static_cast<int>(common::GameType::Gothic1And2)) + " OR GothicVersion = " + std::to_string(static_cast<int>(common::GameType::GothicInGothic2)) + ") AND ModID = " + std::to_string(projectID) + ";", err);
@@ -2345,11 +2360,12 @@ void Gothic1And2Launcher::updatedProject(int projectID) {
 void Gothic1And2Launcher::updatePatchCheckboxes() {
 	QSet<QString> dependencies;
 	QSet<QString> forbidden;
+	QSet<QString> included;
 	QMap<QString, QStringList> dependencyMap;
 	QMap<QString, QStringList> overrideFiles;
-	collectDependencies(_projectID, &dependencies, &forbidden, &dependencyMap, &overrideFiles);
+	collectDependencies(_projectID, &dependencies, &forbidden, &dependencyMap, &included, &overrideFiles);
 
-	auto systempackUnionEnabled = false;
+	auto systempackUnionEnabled = included.contains("320") || included.contains("40") || included.contains("57") || included.contains("208");
 
 	for (auto it = _checkboxPatchIDMapping.begin(); it != _checkboxPatchIDMapping.end(); ++it) {
 		const auto idString = QString::number(it.value());
@@ -2359,7 +2375,8 @@ void Gothic1And2Launcher::updatePatchCheckboxes() {
 		auto sl = dependencyMap.value(idString);
 
 		for (const auto & id : sl) {
-			if (!forbidden.contains(id)) continue;
+			if (!forbidden.contains(id))
+				continue;
 
 			isForbidden = true;
 			
@@ -2381,7 +2398,8 @@ void Gothic1And2Launcher::updatePatchCheckboxes() {
 
 		const auto id = it.value();
 
-		if (!it.key()->isChecked()) continue;
+		if (!it.key()->isChecked())
+			continue;
 		
 		if (id == 320 || id == 40 || id == 57 || id == 208) {
 			systempackUnionEnabled = true;

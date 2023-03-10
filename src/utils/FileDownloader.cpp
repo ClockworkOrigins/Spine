@@ -272,7 +272,8 @@ void FileDownloader::writeToFile() {
 }
 
 void FileDownloader::networkError(QNetworkReply::NetworkError err) {
-	if (_blockErrors) return;
+	if (_blockErrors)
+		return;
 	
 	emit downloadFinished();
 	

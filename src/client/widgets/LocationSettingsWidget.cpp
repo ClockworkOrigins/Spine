@@ -544,8 +544,10 @@ void LocationSettingsWidget::searchGothic() {
 	_cancelSearch = false;
 	_futureCounter = 0;
 	QFutureWatcher<void> watcher;
-	const QFuture<void> future = QtConcurrent::run(this, &LocationSettingsWidget::searchGothicAsync, searchG1, searchG2, searchG3);
+	QFuture<void> future = QtConcurrent::run(this, &LocationSettingsWidget::searchGothicAsync, searchG1, searchG2, searchG3);
 	watcher.setFuture(future);
+	connect(&dlg, &QProgressDialog::rejected, [this] { _cancelSearch = true; });
+	connect(&dlg, &QProgressDialog::rejected, [&future] { future.cancel(); });
 	const int code = dlg.exec();
 	if (code == QDialog::Rejected) {
 		_cancelSearch = true;
