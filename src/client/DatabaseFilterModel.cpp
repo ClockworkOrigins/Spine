@@ -167,8 +167,7 @@ void DatabaseFilterModel::playedProjectsChanged(int state) {
 	invalidateFilter();
 }
 
-void DatabaseFilterModel::setFilter(QString filter)
-{
+void DatabaseFilterModel::setFilter(QString filter) {
 	_filter = filter;
 	invalidateFilter();
 }
