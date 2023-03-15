@@ -36,11 +36,11 @@ using namespace spine::gui;
 using namespace spine::utils;
 
 ReportContentDialog::ReportContentDialog(QString context, QWidget * par) : QDialog(par), _context(context) {
-	QVBoxLayout* vl = new QVBoxLayout();
+	auto * vl = new QVBoxLayout();
 
 	const QString description = QApplication::tr("ReportContentDescription");
 	
-	QLabel * descriptionLabel = new QLabel(description, this);
+	auto * descriptionLabel = new QLabel(description, this);
 	descriptionLabel->setWordWrap(true);
 	vl->addWidget(descriptionLabel);
 
@@ -49,7 +49,7 @@ ReportContentDialog::ReportContentDialog(QString context, QWidget * par) : QDial
 
 	vl->addStretch(1);
 
-	QDialogButtonBox* dbb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Orientation::Horizontal, this);
+	auto * dbb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Orientation::Horizontal, this);
 	vl->addWidget(dbb);
 
 	connect(dbb, &QDialogButtonBox::accepted, this, &ReportContentDialog::submit);
@@ -59,7 +59,7 @@ ReportContentDialog::ReportContentDialog(QString context, QWidget * par) : QDial
 	dbb->button(QDialogButtonBox::Cancel)->setText(QApplication::tr("Cancel"));
 
 	connect(_textEdit, &QTextEdit::textChanged, [this, dbb]() {
-		auto* btn = dbb->button(QDialogButtonBox::Ok);
+		auto * btn = dbb->button(QDialogButtonBox::Ok);
 		btn->setEnabled(!_textEdit->toPlainText().isEmpty());
 	});
 
@@ -77,6 +77,10 @@ void ReportContentDialog::submit() {
     errorMessage = errorMessage.replace("\n", "<br>");
     errorMessage = errorMessage.replace("\"", "&quot;");
     errorMessage = errorMessage.replace("\'", "&apos;");
+	errorMessage = errorMessage.trimmed();
+
+	if (errorMessage.isEmpty())
+		return;
 	
 	QJsonObject json;
 	json["project"] = Config::ProjectID;
