@@ -91,7 +91,8 @@ void FeedbackDialog::loginChanged() {
 void FeedbackDialog::accept() {
 	const auto text = _textEdit->toPlainText().trimmed().replace("'", "&apos;");
 	
-	if (text.isEmpty()) return;
+	if (text.isEmpty())
+		return;
 
 	QJsonObject json;
 	json["Username"] = Config::Username;
