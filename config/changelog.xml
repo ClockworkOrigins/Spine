@@ -2367,10 +2367,12 @@
 	</Version>
 	<Version majorVersion="1" minorVersion="44" patchVersion="0">
 		<Enhancement language="Deutsch">Unterstützung für Patches ergänzt die direkt mit einer Mod mitgeliefert werden</Enhancement>
+		<Enhancement language="Deutsch">Suchfeld im Management eingebaut, um Projekte zu filtern</Enhancement>
 		<Bug language="Deutsch">Fehler behoben, wodurch der ModChecker Backup-Dateien nicht entfernt hat</Bug>
 		<Bug language="Deutsch">Mit Steam starten Option entfernt, da THQ Nordic die Möglichkeit kaputtgepatcht hat</Bug>
 
 		<Enhancement language="English">Added support for patches directly delivered together with a mod</Enhancement>
+		<Enhancement language="English">Added search field to management to filter projects</Enhancement>
 		<Bug language="English">Fixed bug that caused ModChecker to not delete backup files</Bug>
 		<Bug language="English">Removed start with Steam option as THQ Nordic made it impossible</Bug>
 	</Version>
