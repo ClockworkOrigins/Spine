@@ -25,6 +25,7 @@
 #include <QDialog>
 #include <QFutureWatcher>
 
+class QSortFilterProxyModel;
 class QStandardItemModel;
 class QTabWidget;
 
@@ -59,7 +60,8 @@ namespace widgets {
 		void changedTab();
 
 	private:
-		QStandardItemModel * _modList;
+		QStandardItemModel * _sourceModel;
+		QSortFilterProxyModel * _sortModel;
 		QList<ManagementMod> _mods;
 		int _modIndex;
 		GeneralConfigurationWidget * _generalConfigurationWidget;

@@ -37,8 +37,10 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QLineEdit>
 #include <QListView>
 #include <QSettings>
+#include <QSortFilterProxyModel>
 #include <QStandardItemModel>
 #include <QVBoxLayout>
 
@@ -46,18 +48,32 @@ using namespace spine::client;
 using namespace spine::client::widgets;
 using namespace spine::utils;
 
-ManagementDialog::ManagementDialog(QWidget * par) : QDialog(par), _modList(nullptr), _modIndex(-1), _generalConfigurationWidget(nullptr), _modFilesWidget(nullptr), _userManagementWidget(nullptr), _statisticsWidget(nullptr), _surveyWidget(nullptr) {
+ManagementDialog::ManagementDialog(QWidget * par) : QDialog(par), _sourceModel(nullptr), _modIndex(-1), _generalConfigurationWidget(nullptr), _modFilesWidget(nullptr), _userManagementWidget(nullptr), _statisticsWidget(nullptr), _surveyWidget(nullptr) {
 	auto * l = new QVBoxLayout();
 	l->setAlignment(Qt::AlignTop);
 
 	{
 		auto * hl = new QHBoxLayout();
 
-		auto * modList = new QListView(this);
-		_modList = new QStandardItemModel(modList);
-		modList->setModel(_modList);
-		connect(modList, &QListView::clicked, this, &ManagementDialog::selectedMod);
-		hl->addWidget(modList);
+		{
+			auto * vl = new QVBoxLayout();
+
+			auto * modList = new QListView(this);
+			_sourceModel = new QStandardItemModel(modList);
+			_sortModel = new QSortFilterProxyModel(this);
+			_sortModel->setSourceModel(_sourceModel);
+			_sortModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+			modList->setModel(_sortModel);
+			connect(modList, &QListView::clicked, this, &ManagementDialog::selectedMod);
+			vl->addWidget(modList);
+
+			auto * inputField = new QLineEdit(this);
+			vl->addWidget(inputField);
+
+			hl->addLayout(vl);
+
+			connect(inputField, &QLineEdit::textChanged, _sortModel, &QSortFilterProxyModel::setFilterFixedString);
+		}
 
 		_tabWidget = new QTabWidget(this);
 		_generalConfigurationWidget = new GeneralConfigurationWidget(this);
@@ -116,7 +132,7 @@ void ManagementDialog::updateModList(QList<ManagementMod> modList) {
 	for (const auto & m : modList) {
 		auto * itm = new QStandardItem(m.name + QStringLiteral(" (ID: %1)").arg(m.id));
 		itm->setEditable(false);
-		_modList->appendRow(itm);
+		_sourceModel->appendRow(itm);
 	}
 	_generalConfigurationWidget->updateModList(modList);
 	_modFilesWidget->updateModList(modList);
@@ -131,7 +147,7 @@ void ManagementDialog::updateModList(QList<ManagementMod> modList) {
 }
 
 void ManagementDialog::selectedMod(const QModelIndex & index) {
-	_modIndex = index.row();
+	_modIndex = _sortModel->mapToSource(index).row();
 	_generalConfigurationWidget->selectedMod(_modIndex);
 	_modFilesWidget->selectedMod(_modIndex);
 	_userManagementWidget->selectedMod(_modIndex);
