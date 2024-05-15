@@ -1843,7 +1843,7 @@ void DatabaseServer::updateReview(std::shared_ptr<HttpsServer::Response> respons
 			const auto feedbackMail = lastResults[0][0];
 
 			const std::string body = "The review of " + username + " was added/changed for your project '" + ServerCommon::getProjectName(projectID, common::Language::English) + "'";
-			ServerCommon::sendMail("[SPINE] Review added or updated", body, "noreply@clockwork-origins.com", feedbackMail);
+			ServerCommon::sendMail("[SPINE] Review added or updated", body, "noreply@clockwork-origins.de", feedbackMail);
 		} while (false);
 
 		response->write(code);
